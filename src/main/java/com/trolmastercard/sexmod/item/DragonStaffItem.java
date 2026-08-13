@@ -53,13 +53,13 @@ public class DragonStaffItem extends Item implements IAnimatable {
    }
 
    @SubscribeEvent
-   public static void a(Register<Item> var0) {
+   public static void registerItems(Register<Item> var0) {
       var0.getRegistry().register(DRAGON_STAFF);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void a(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent var0) {
       ModelLoader.setCustomModelResourceLocation(DRAGON_STAFF, 0, new ModelResourceLocation("sexmod:dragon_staff"));
       DRAGON_STAFF.setTileEntityItemStackRenderer(new DragonStaffRenderer());
    }
@@ -75,7 +75,7 @@ public class DragonStaffItem extends Item implements IAnimatable {
 
    public static class a {
       @SubscribeEvent
-      public void a(RightClickItem var1) {
+      public void onRightClickItem(RightClickItem var1) {
          World var2 = var1.getWorld();
          if (var2.isRemote) {
             EntityPlayer var3 = var1.getEntityPlayer();
@@ -95,7 +95,7 @@ public class DragonStaffItem extends Item implements IAnimatable {
       }
 
       @SubscribeEvent
-      public void a(RightClickBlock var1) {
+      public void onRightClickBlock(RightClickBlock var1) {
          EntityPlayer var2 = var1.getEntityPlayer();
          if (var2.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.DRAGON_STAFF
             || var2.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.DRAGON_STAFF) {

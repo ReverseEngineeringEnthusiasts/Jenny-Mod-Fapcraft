@@ -317,7 +317,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public String[] c() {
+   public String[] HeadArmor() {
       return new String[]{"armorHelmet"};
    }
 

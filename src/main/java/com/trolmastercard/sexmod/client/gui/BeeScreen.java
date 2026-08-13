@@ -39,7 +39,7 @@ public class BeeScreen extends GuiScreen {
    }
 
    @SubscribeEvent
-   public void a(RenderGameOverlayEvent var1) {
+   public void onRenderGameOverlay(RenderGameOverlayEvent var1) {
       if (isVisible) {
          if (var1.getType() == ElementType.TEXT) {
             Minecraft var2 = Minecraft.getMinecraft();

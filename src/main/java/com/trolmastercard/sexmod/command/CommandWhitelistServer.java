@@ -32,7 +32,7 @@ public class CommandWhitelistServer extends CommandBase implements IClientComman
       String var4 = ServerWhitelistManager.getCustomModelsKey();
       if (var4 == null) {
          var2.sendMessage(new TextComponentString(TextFormatting.YELLOW + "This is a multiplayer feature only"));
-      } else if (ServerWhitelistManager.l(var4)) {
+      } else if (ServerWhitelistManager.isModelWhitelisted(var4)) {
          var2.sendMessage(new TextComponentString(TextFormatting.GREEN + "Server is already whitelisted :)"));
       } else {
          boolean var5 = var3.length > 0 && "confirm".equals(var3[0]);
@@ -46,7 +46,7 @@ public class CommandWhitelistServer extends CommandBase implements IClientComman
             var2.sendMessage(new TextComponentString(TextFormatting.YELLOW + "to confirm your decision type:"));
             var2.sendMessage(new TextComponentString(TextFormatting.GREEN + "/whitelistserver confirm"));
          } else {
-            ServerWhitelistManager.h(var4);
+            ServerWhitelistManager.initWhitelistFile(var4);
             var2.sendMessage(new TextComponentString(TextFormatting.GREEN + "confirmed :)"));
             ServerWhitelistManager.reloadCustomModels();
          }

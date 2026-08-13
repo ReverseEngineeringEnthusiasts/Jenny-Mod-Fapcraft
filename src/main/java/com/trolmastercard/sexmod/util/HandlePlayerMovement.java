@@ -20,7 +20,7 @@ public class HandlePlayerMovement {
    public static MovementInput input;
 
    @SubscribeEvent
-   public void a(InputUpdateEvent var1) {
+   public void onInputUpdate(InputUpdateEvent var1) {
       input = var1.getMovementInput();
       isJumping = input.sneak;
       isInAction = input.jump;
@@ -69,7 +69,7 @@ public class HandlePlayerMovement {
    }
 
    @SubscribeEvent
-   public void a(MouseEvent var1) {
+   public void onMouse(MouseEvent var1) {
       if (!isSneaking && var1.isButtonstate()) {
          var1.setCanceled(true);
       }

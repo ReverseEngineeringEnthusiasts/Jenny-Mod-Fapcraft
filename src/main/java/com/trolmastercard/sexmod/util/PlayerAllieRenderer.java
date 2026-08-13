@@ -150,7 +150,7 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
 
    public static class a {
       @SubscribeEvent
-      public void a(ClientTickEvent var1) {
+      public void onClientTick(ClientTickEvent var1) {
          for (PlayerAllieRenderer var3 : PlayerAllieRenderer.renderers) {
             var3.updateCameraRotations();
          }

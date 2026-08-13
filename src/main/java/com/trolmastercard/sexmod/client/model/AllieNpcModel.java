@@ -27,17 +27,17 @@ public class AllieNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public String[] c() {
+   public String[] HeadArmor() {
       return new String[]{"armorHelmet"};
    }
 
    @Override
-   public String[] f() {
+   public String[] TopArmor() {
       return new String[]{"armorShoulderR", "armorShoulderL", "armorChest", "armorBoobs"};
    }
 
    @Override
-   public String[] a() {
+   public String[] Top() {
       return new String[]{"boobsFlesh", "clothes", "clothesR", "clothesL"};
    }
 

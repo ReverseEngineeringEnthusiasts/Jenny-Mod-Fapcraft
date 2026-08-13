@@ -100,7 +100,7 @@ public class DragonEntity extends EntityLiving {
                this.world.createExplosion(this, this.posX, this.posY, this.posZ, 1.0F, true);
 
                for (GalathEntity var7 : (java.util.Collection<GalathEntity>) (var5) ) {
-                  var7.f(this.getPositionVector());
+                  var7.setFlightVelocity(this.getPositionVector());
                }
 
                this.world.removeEntity(this);

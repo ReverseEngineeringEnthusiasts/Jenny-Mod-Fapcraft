@@ -80,13 +80,13 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    @SubscribeEvent
-   public static void a(Register<Item> var0) {
+   public static void registerItems(Register<Item> var0) {
       var0.getRegistry().register(GALATH_COIN);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void a(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent var0) {
       ModelLoader.setCustomModelResourceLocation(GALATH_COIN, 0, new ModelResourceLocation("sexmod:galath_coin"));
       GALATH_COIN.setTileEntityItemStackRenderer(new GalathCoinRenderer());
    }
@@ -113,7 +113,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    @SubscribeEvent
-   public void a(EntityInteract var1) {
+   public void onEntityInteract(EntityInteract var1) {
       EntityPlayer var2 = var1.getEntityPlayer();
       ItemStack var3 = var2.getHeldItem(var1.getHand());
       if (GALATH_COIN.equals(var3.getItem())) {

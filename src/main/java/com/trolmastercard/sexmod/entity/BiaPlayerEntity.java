@@ -72,7 +72,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void b(String var1, UUID var2) {
+   public void handleOwnerCommand(String var1, UUID var2) {
       if ("action.names.headpat".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.HEAD_PAT);

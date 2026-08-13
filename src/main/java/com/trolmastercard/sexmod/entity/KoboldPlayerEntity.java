@@ -119,7 +119,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   protected String a(StringBuilder var1) {
+   protected String buildModelCodeDNA(StringBuilder var1) {
       AbstractNpcOnlyEntity.b(var1, 8);
       AbstractNpcOnlyEntity.b(var1, 3);
       AbstractNpcOnlyEntity.appendRandomGene(var1);
@@ -163,7 +163,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   public void b(String var1, UUID var2) {
+   public void handleOwnerCommand(String var1, UUID var2) {
       if ("anal".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.KOBOLD_ANAL_START);

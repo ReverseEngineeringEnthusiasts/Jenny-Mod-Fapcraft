@@ -24,7 +24,7 @@ public class SexFireBlock extends BlockFire {
    }
 
    @SubscribeEvent
-   public static void a(Register<Block> var0) {
+   public static void registerBlocks(Register<Block> var0) {
       var0.getRegistry().register(FIRE);
    }
 }

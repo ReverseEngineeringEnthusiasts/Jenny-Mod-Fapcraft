@@ -60,7 +60,7 @@ public class StartStandingSexAnimationPacket implements IMessage {
                      }
                   }
 
-                  var1x.b(var1.animation, var1.playerUUID);
+                  var1x.handleOwnerCommand(var1.animation, var1.playerUUID);
                }
             });
             return null;

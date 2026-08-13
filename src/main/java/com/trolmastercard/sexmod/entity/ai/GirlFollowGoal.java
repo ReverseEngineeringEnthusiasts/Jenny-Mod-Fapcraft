@@ -372,7 +372,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
 
    public static class a {
       @SubscribeEvent
-      public void a(LivingHurtEvent var1) {
+      public void onLivingHurt(LivingHurtEvent var1) {
          if (var1.getEntityLiving() instanceof AbstractGirlNpcEntity) {
             AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
             if (var2.downed) {
@@ -387,7 +387,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       }
 
       @SubscribeEvent
-      public void a(LivingHealEvent var1) {
+      public void onLivingHeal(LivingHealEvent var1) {
          if (var1.getEntityLiving() instanceof AbstractGirlNpcEntity) {
             AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
             if (var2.downed && var2.getHealth() + var1.getAmount() >= var2.getMaxHealth()) {
@@ -398,7 +398,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       }
 
       @SubscribeEvent
-      public void a(LivingDeathEvent var1) {
+      public void onLivingDeath(LivingDeathEvent var1) {
          if (var1.getEntityLiving() instanceof AbstractGirlNpcEntity) {
             AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
             if (var2.world.isRemote) {

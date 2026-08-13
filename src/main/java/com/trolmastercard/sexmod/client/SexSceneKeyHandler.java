@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class SexSceneKeyHandler {
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(KeyInputEvent var1) {
+   public void onKeyInput(KeyInputEvent var1) {
       if (ClientProxy.keyBindings[2].isPressed()) {
          Minecraft var2 = Minecraft.getMinecraft();
          if (var2.player == null) {

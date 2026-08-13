@@ -227,18 +227,18 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       this.entityDataManager.set(aE, var3);
    }
 
-   public static KoboldEntity a(World var0, UUID var1) {
+   public static KoboldEntity createKobold(World var0, UUID var1) {
       float var2 = getRandomThrowDelay();
-      return a(var0, var1, var2);
+      return createKoboldWithSpeed(var0, var1, var2);
    }
 
-   public static KoboldEntity a(World var0, UUID var1, float var2) {
+   public static KoboldEntity createKoboldWithSpeed(World var0, UUID var1, float var2) {
       af = 10.0 - var2 * 25.0;
       return new KoboldEntity(var0, var1, var2);
    }
 
    @Override
-   protected String a(StringBuilder var1) {
+   protected String buildModelCodeDNA(StringBuilder var1) {
       b(var1, 8);
       b(var1, 3);
       appendRandomGene(var1);
@@ -337,7 +337,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   public Point2D g(int var1) {
+   public Point2D getModelPartByIndex(int var1) {
       switch (var1) {
          case 0:
             return new Point2D(160, 0);
@@ -540,7 +540,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       super.resetCameraAndPhysics();
    }
 
-   protected void a(boolean var1, UUID var2) {
+   protected void triggerActionSync(boolean var1, UUID var2) {
       super.triggerActionSync(var1, true, var2);
       HandlePlayerMovement.setMovementLock(false);
    }
@@ -550,17 +550,17 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       this.az = true;
       if ("oral".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", Action.STARTBLOWJOB.toString());
-         this.a(true, var2);
+         this.triggerActionSync(true, var2);
       }
 
       if ("anal".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", Action.KOBOLD_ANAL_START.toString());
-         this.a(true, var2);
+         this.triggerActionSync(true, var2);
       }
 
       if ("mating".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", Action.MATING_PRESS_START.toString());
-         this.a(true, var2);
+         this.triggerActionSync(true, var2);
       }
    }
 
@@ -657,7 +657,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          KoboldManager.triggerFastSexAction((UUID)var1.get());
          EntityPlayer var2 = this.getMasterPlayer();
          if (var2 != null) {
-            KoboldManager.a((UUID)var1.get(), var2.getPersistentID());
+            KoboldManager.assignMaster((UUID)var1.get(), var2.getPersistentID());
          }
       }
 
@@ -702,7 +702,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                      }
 
                      for (EntityLivingBase var8 : (java.util.Collection<EntityLivingBase>) (var3) ) {
-                        KoboldManager.b((UUID)var1.get(), var8);
+                        KoboldManager.removeCombatant((UUID)var1.get(), var8);
                      }
                   }
 
@@ -978,11 +978,11 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             TribeState var2 = KoboldManager.getTribeState(var1);
             TribeState var3 = this.getTribeStateForTime();
             if (var2 != var3) {
-               KoboldManager.a(var1, var3);
+KoboldManager.setTribeState(var1, var3);
                switch (var3) {
                   case REST:
                      this.handleTaskAssign(var1);
-                     KoboldManager.b(var1, (BlockPos)null);
+                     KoboldManager.setTribeHome(var1, (BlockPos)null);
                      this.sendGirlChatMessage("okay resting time owo");
                      break;
                   case ACTIVE:
@@ -1091,7 +1091,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                      }
                   }
                } else {
-                  KoboldManager.a(this, var4);
+KoboldManager.assignBed(this, var4);
                   this.setCurrentAction(Action.SLEEP);
                }
             }
@@ -1119,14 +1119,14 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             this.aX = this.world.getBlockState(var3);
             this.world.setBlockState(var3.add(0, -1, 0), Blocks.NETHERRACK.getDefaultState());
             this.world.setBlockState(var3, SexFireBlock.FIRE.getDefaultState());
-            KoboldManager.b(var1, var3);
+            KoboldManager.setTribeHome(var1, var3);
          }
       }
    }
 
    void handleHomeRelease(UUID var1) {
       if (this.hasMaster()) {
-         KoboldManager.b(var1, (BlockPos)null);
+         KoboldManager.setTribeHome(var1, (BlockPos)null);
          this.handleTaskFollow(var1);
       } else {
          Collection var2 = KoboldManager.getTribeTasks(var1);
@@ -1178,7 +1178,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                this.c(var1, var2);
             }
 
-            KoboldManager.b(var1, (BlockPos)null);
+            KoboldManager.setTribeHome(var1, (BlockPos)null);
          }
       }
    }
@@ -1236,7 +1236,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          var5 = new BlockPos(var5.getX(), WorldUtils.a(this.world, var5.getX(), var5.getZ()), var5.getZ());
       } while ((var5.getY() <= 0 || !this.getNavigator().canEntityStandOnPos(var5)) && var3 < 100);
 
-      KoboldManager.b(var1, var5);
+      KoboldManager.setTribeHome(var1, var5);
    }
 
    void c(UUID var1, Collection<KoboldTask> var2) {
@@ -1318,7 +1318,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       for (EntityLivingBase var14 : (java.util.Collection<EntityLivingBase>) (var10) ) {
-         KoboldManager.b(var1, var14);
+         KoboldManager.removeCombatant(var1, var14);
       }
 
       if (var9 == null) {
@@ -1444,7 +1444,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                }
 
                if (var3.getTaskType() == KoboldTask.TaskType.MINE) {
-                  this.b(var1, var3);
+                  this.b(var1, var2);
                }
             }
          }
@@ -2046,7 +2046,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var7, false), (EntityPlayerMP)var6);
          }
 
-         KoboldManager.b(var1, this);
+         KoboldManager.setLeaderKobold(var1, this);
       } else {
          switch (this.ad.getMetadata()) {
             case 3:
@@ -2146,7 +2146,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var5, false), (EntityPlayerMP)var4);
          }
 
-         KoboldManager.b(var1, this);
+         KoboldManager.setLeaderKobold(var1, this);
       }
    }
 
@@ -2342,7 +2342,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       if (var3 == null) {
-         KoboldManager.b(var2, this);
+         KoboldManager.setLeaderKobold(var2, this);
          EntityPlayer var13 = this.getMasterPlayer();
          if (var13 != null) {
             var13.sendStatusMessage(new TextComponentString("Your kobolds cannot fall this tree because it starts underground"), true);
@@ -2410,7 +2410,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          Optional var2 = (Optional)this.entityDataManager.get(aL);
          if (var2.isPresent()) {
             UUID var3 = (UUID)var2.get();
-            KoboldManager.a(var3, this);
+KoboldManager.setTribeLeader(var3, this);
             if (this.hasMaster()) {
                EntityPlayer var4 = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.getDataManager().get(MASTER)));
                if (var4 != null) {
@@ -2493,12 +2493,12 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (var5 != null && !this.isDead) {
          this.entityDataManager.set(aL, Optional.of(var5));
          if (!KoboldManager.doesTribeExist(var5)) {
-            KoboldManager.a(var5, EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(CURRENT_ACTION)));
+            KoboldManager.setTribeColor(var5, EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(CURRENT_ACTION)));
          }
 
-         KoboldManager.c(var5, this);
+         KoboldManager.addTribeMember(var5, this);
          if (var1.getBoolean("isLeader")) {
-            KoboldManager.d(var5, this);
+            KoboldManager.removeTribeMember(var5, this);
          }
 
          this.entityDataManager.set(aU, var1.getString("tribeName"));
@@ -3056,7 +3056,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       int tickCounter = 0;
 
       @SubscribeEvent
-      public void a(LivingDeathEvent var1) {
+      public void onLivingDeath(LivingDeathEvent var1) {
          if (var1.getEntityLiving() instanceof KoboldEntity) {
             KoboldEntity var2 = (KoboldEntity)var1.getEntityLiving();
             if (var2.world.isRemote) {
@@ -3073,7 +3073,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       @SubscribeEvent
-      public void b(LivingHurtEvent var1) {
+      public void onLivingHurtPlayer(LivingHurtEvent var1) {
          Entity var2 = var1.getEntity();
          World var3 = var2.getEntityWorld();
          if (!var3.isRemote) {
@@ -3100,7 +3100,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                            var8.sendStatusMessage(new TextComponentString(TextFormatting.RED + "Your Tribe is under Attack!"), true);
                         }
 
-                        KoboldManager.a((UUID)var5.get(), (EntityLivingBase)var6);
+                        KoboldManager.addCombatant((UUID)var5.get(), (EntityLivingBase)var6);
                      }
                   }
                }
@@ -3109,7 +3109,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       @SubscribeEvent
-      public void a(Unload var1) {
+      public void onWorldUnload(Unload var1) {
          try {
             for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
                if (var3 instanceof KoboldEntity) {
@@ -3125,7 +3125,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       @SubscribeEvent
-      public void a(LivingHurtEvent var1) {
+      public void onLivingHurtCancel(LivingHurtEvent var1) {
          if (var1.getSource() == DamageSource.IN_WALL) {
             Entity var2 = var1.getEntity();
             if (var2 instanceof KoboldEntity) {
@@ -3137,7 +3137,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(ClientTickEvent var1) {
+      public void onClientTick(ClientTickEvent var1) {
          WorldClient var2 = Minecraft.getMinecraft().world;
          if (var2 != null) {
             if (++this.tickCounter % 20 == 0) {

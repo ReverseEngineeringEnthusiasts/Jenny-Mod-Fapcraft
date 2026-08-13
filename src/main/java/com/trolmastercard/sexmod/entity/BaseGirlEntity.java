@@ -1524,7 +1524,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return var2.size() - 1 < var1 ? false : (Integer)var2.get(var1) == 101;
    }
 
-   public Point2D g(int var1) {
+   public Point2D getModelPartByIndex(int var1) {
       return Point2D.ZERO;
    }
 

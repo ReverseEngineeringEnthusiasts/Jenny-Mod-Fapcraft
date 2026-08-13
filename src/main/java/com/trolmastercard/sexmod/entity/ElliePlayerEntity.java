@@ -61,7 +61,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void b(String var1, UUID var2) {
+   public void handleOwnerCommand(String var1, UUID var2) {
       if ("Face fuck".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.CARRY_INTRO);

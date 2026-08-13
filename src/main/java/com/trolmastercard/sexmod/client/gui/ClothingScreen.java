@@ -509,7 +509,7 @@ public class ClothingScreen extends GuiScreen {
    public static class b {
       @SubscribeEvent
       @SideOnly(Side.CLIENT)
-      public void a(KeyInputEvent var1) {
+      public void onKeyInput(KeyInputEvent var1) {
          if (ClientProxy.keyBindings[1].isPressed()) {
             if (ServerWhitelistManager.isGlobalRenderingDisabled) {
                ServerWhitelistManager.isGlobalRenderingDisabled = 0 != ServerWhitelistManager.getModelCount(true);
@@ -530,7 +530,7 @@ public class ClothingScreen extends GuiScreen {
 
       @SubscribeEvent
       @SideOnly(Side.CLIENT)
-      public void a(ClientTickEvent var1) {
+      public void onClientTick(ClientTickEvent var1) {
          ClothingScreen.targetScrollOffset = ClothingScreen.scrollOffset;
          ClothingScreen.scrollOffset = 0;
 

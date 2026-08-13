@@ -120,18 +120,18 @@ public class SendBlocksPacket implements IMessage {
 
                               if (var1.isBreaking) {
                                  if (var7.getBlock() instanceof BlockBed) {
-                                    KoboldManager.a(var3, var6);
-                                    KoboldManager.a(var3, var8);
+                                    KoboldManager.addTribeBed(var3, var6);
+                                    KoboldManager.addTribeBed(var3, var8);
                                  } else {
-                                    KoboldManager.f(var3, var6);
-                                    KoboldManager.f(var3, var8);
+                                    KoboldManager.addTribeChest(var3, var6);
+                                    KoboldManager.addTribeChest(var3, var8);
                                  }
                               } else if (var7.getBlock() instanceof BlockBed) {
-                                 KoboldManager.e(var3, var6);
-                                 KoboldManager.e(var3, var8);
+                                 KoboldManager.removeTribeChest(var3, var6);
+                                 KoboldManager.removeTribeChest(var3, var8);
                               } else {
-                                 KoboldManager.d(var3, var6);
-                                 KoboldManager.d(var3, var8);
+                                 KoboldManager.removeTribeBed(var3, var6);
+                                 KoboldManager.removeTribeBed(var3, var8);
                               }
 
                               HashSet var10 = new HashSet();

@@ -49,7 +49,7 @@ public class KoboldEggItem extends Item implements IAnimatable {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void a(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent var0) {
       ModelResourceLocation var1 = new ModelResourceLocation("sexmod:kobold_egg_item");
       ModelLoader.setCustomMeshDefinition(KOBOLD_EGG_ITEM, var1x -> var1);
       ModelBakery.registerItemVariants(KOBOLD_EGG_ITEM, new ResourceLocation[]{var1});
@@ -57,12 +57,12 @@ public class KoboldEggItem extends Item implements IAnimatable {
    }
 
    @SubscribeEvent
-   public static void a(Register<Item> var0) {
+   public static void registerItems(Register<Item> var0) {
       var0.getRegistry().register(KOBOLD_EGG_ITEM);
    }
 
    @SubscribeEvent
-   public static void a(RightClickBlock var0) {
+   public static void onRightClickBlock(RightClickBlock var0) {
       World var1 = var0.getWorld();
       ItemStack var2 = var0.getItemStack();
       Vec3d var3 = var0.getHitVec();

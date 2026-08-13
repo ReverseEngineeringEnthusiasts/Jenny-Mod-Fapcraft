@@ -63,14 +63,14 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    }
 
    public abstract ResourceLocation getTextureLocation(BaseGirlEntity var0);
-   public String[] c() { return new String[0]; }
-   public String[] g() { return new String[0]; }
-   public String[] f() { return new String[0]; }
-   public String[] a() { return new String[0]; }
-   public String[] h() { return new String[0]; }
-   public String[] e() { return new String[0]; }
-   public String[] b() { return new String[0]; }
-   public String[] d() { return new String[0]; }
+   public String[] HeadArmor() { return new String[0]; }
+   public String[] Attachments() { return new String[0]; }
+   public String[] TopArmor() { return new String[0]; }
+   public String[] Top() { return new String[0]; }
+   public String[] BottomArmor() { return new String[0]; }
+   public String[] Bottom() { return new String[0]; }
+   public String[] ShoesArmor() { return new String[0]; }
+   public String[] Shoes() { return new String[0]; }
 
    public ResourceLocation getTextureForGirl(BaseGirlEntity var1) {
       return this.getTextureLocation(var1);
@@ -180,23 +180,23 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    }
 
    void c(AnimationProcessor var1, boolean var2) {
-      this.a(this.c(), var2, var1);
-      this.a(this.g(), !var2, var1);
+      this.a(this.HeadArmor(), var2, var1);
+      this.a(this.Attachments(), !var2, var1);
    }
 
    void b(AnimationProcessor<T> var1, boolean var2) {
-      this.a(this.f(), var2, var1);
-      this.a(this.a(), !var2, var1);
+      this.a(this.TopArmor(), var2, var1);
+      this.a(this.Top(), !var2, var1);
    }
 
    void d(AnimationProcessor<T> var1, boolean var2) {
-      this.a(this.h(), var2, var1);
-      this.a(this.e(), !var2, var1);
+      this.a(this.BottomArmor(), var2, var1);
+      this.a(this.Bottom(), !var2, var1);
    }
 
    void a(AnimationProcessor<T> var1, boolean var2) {
-      this.a(this.b(), var2, var1);
-      this.a(this.d(), !var2, var1);
+      this.a(this.ShoesArmor(), var2, var1);
+      this.a(this.Shoes(), !var2, var1);
    }
 
    void a(String[] var1, boolean var2, AnimationProcessor<T> var3) {
@@ -283,14 +283,14 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    }
 
    public ItemStack getItemStackForBone(BaseGirlEntity var1, String var2) {
-      if (Arrays.asList(this.c()).contains(var2)) {
+      if (Arrays.asList(this.HeadArmor()).contains(var2)) {
          return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.HELMET_SLOT);
-      } else if (Arrays.asList(this.f()).contains(var2)) {
+      } else if (Arrays.asList(this.TopArmor()).contains(var2)) {
          return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.CHEST_SLOT);
-      } else if (Arrays.asList(this.h()).contains(var2)) {
+      } else if (Arrays.asList(this.BottomArmor()).contains(var2)) {
          return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.LEGS_SLOT);
       } else {
-         return Arrays.asList(this.b()).contains(var2) ? (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.BOOTS_SLOT) : ItemStack.EMPTY;
+         return Arrays.asList(this.ShoesArmor()).contains(var2) ? (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.BOOTS_SLOT) : ItemStack.EMPTY;
       }
    }
 

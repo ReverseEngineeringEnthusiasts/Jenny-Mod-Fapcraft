@@ -1,34 +1,34 @@
 package com.trolmastercard.sexmod.client.model.api;
 public interface IGirlModelInfo {
-   default String[] c() {
+   default String[] HeadArmor() {
       return new String[0];
    }
 
-   default String[] g() {
+   default String[] Attachments() {
       return new String[0];
    }
 
-   default String[] f() {
+   default String[] TopArmor() {
       return new String[0];
    }
 
-   default String[] a() {
+   default String[] Top() {
       return new String[0];
    }
 
-   default String[] h() {
+   default String[] BottomArmor() {
       return new String[0];
    }
 
-   default String[] e() {
+   default String[] Bottom() {
       return new String[0];
    }
 
-   default String[] b() {
+   default String[] ShoesArmor() {
       return new String[0];
    }
 
-   default String[] d() {
+   default String[] Shoes() {
       return new String[0];
    }
 }

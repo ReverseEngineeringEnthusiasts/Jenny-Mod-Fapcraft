@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class LivingDeathHandler {
    @SubscribeEvent(priority = EventPriority.LOW)
-   public void a(LivingDeathEvent var1) {
+   public void onLivingDeath(LivingDeathEvent var1) {
       if (var1.getEntity() instanceof BaseGirlEntity) {
          BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntity();
          BaseGirlEntity.getGirlEntityList().remove(var2);

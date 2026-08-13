@@ -124,7 +124,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return true;
    }
 
-   public Vec3d c(Vec3d var1, float var2) {
+   public Vec3d getOwnerLookVector(Vec3d var1, float var2) {
       return var1;
    }
 
@@ -171,7 +171,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public void handleInteraction() {
    }
 
-   public abstract void b(String var1, UUID var2);
+   public abstract void handleOwnerCommand(String var1, UUID var2);
 
    public abstract IVanillaModel getHandModel(int var1);
 
@@ -436,7 +436,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return this.isAnchored();
    }
 
-   public Vec3d b(Vec3d var1, float var2) {
+   public Vec3d getOwnerAimVector(Vec3d var1, float var2) {
       return var1;
    }
 

@@ -187,7 +187,7 @@ public class StructureMarkerRenderer {
    }
 
    @SubscribeEvent
-   public void a(RenderWorldLastEvent var1) {
+   public void onRenderWorldLast(RenderWorldLastEvent var1) {
       GlStateManager.enableColorMaterial();
       GL11.glDisable(2896);
       ItemStack var2 = mc.player.getHeldItem(EnumHand.MAIN_HAND);
@@ -207,7 +207,7 @@ public class StructureMarkerRenderer {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(ClientTickEvent var1) {
+   public void onClientTick(ClientTickEvent var1) {
       if (var1.phase != Phase.START) {
          EntityPlayerSP var2 = Minecraft.getMinecraft().player;
          if (var2 != null) {

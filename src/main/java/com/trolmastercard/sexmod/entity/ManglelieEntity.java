@@ -256,7 +256,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
-   public void a(long var1) {
+   public void setCorruptStartTime(long var1) {
       this.entityDataManager.set(al, Long.toString(var1));
       this.corrupting = false;
    }
@@ -341,7 +341,7 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    void setCorruptEntity(int var1) {
       this.entityDataManager.set(ab, var1);
-      this.a(var1 == -1 ? -1L : this.world.getTotalWorldTime());
+      this.setCorruptStartTime(var1 == -1 ? -1L : this.world.getTotalWorldTime());
    }
 
    void handleCorruptEntity() {
@@ -353,14 +353,14 @@ public class ManglelieEntity extends BaseGirlEntity {
          } else if (!this.isCorrupting()) {
             this.setCorruptEntity(-1);
          } else {
-            if (a(var1, var2)) {
+            if (isGalathBlocked(var1, var2)) {
                this.setCorruptEntity(-1);
             }
          }
       }
    }
 
-   public static boolean a(Entity var0, GalathEntity var1) {
+   public static boolean isGalathBlocked(Entity var0, GalathEntity var1) {
       if (var0.isDead) {
          return true;
       }
@@ -400,7 +400,7 @@ public class ManglelieEntity extends BaseGirlEntity {
 
                      for (EntityMob var6 : this.world
                         .getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB(var2.add(var3), var2.subtract(var3)))) {
-                        if (!a(var6, var1)) {
+                        if (!isGalathBlocked(var6, var1)) {
                            this.setCorruptEntity(var6.getEntityId());
                            return;
                         }
@@ -885,7 +885,7 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    public static class b {
       @SubscribeEvent
-      public void a(Arrow var1) {
+      public void handleArrowHit(Arrow var1) {
          RayTraceResult var2 = var1.getRayTraceResult();
          EntityArrow var3 = var1.getArrow();
          if (var3.shootingEntity instanceof ManglelieEntity) {

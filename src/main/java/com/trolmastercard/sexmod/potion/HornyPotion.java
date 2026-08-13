@@ -46,7 +46,7 @@ public class HornyPotion extends Potion {
    }
 
    @SubscribeEvent
-   public void a(PlayerTickEvent var1) {
+   public void onPlayerTick(PlayerTickEvent var1) {
       EntityPlayer var2 = var1.player;
       PotionEffect var3 = var2.getActivePotionEffect(HORNY_POTION);
       if (!var2.world.isRemote) {
@@ -60,7 +60,7 @@ public class HornyPotion extends Potion {
    }
 
    @SubscribeEvent
-   public void a(LivingUpdateEvent var1) {
+   public void onLivingUpdate(LivingUpdateEvent var1) {
       if (var1.getEntity() instanceof EntityVillager) {
          EntityVillager var2 = (EntityVillager)var1.getEntity();
          if (var2.isPotionActive(HORNY_POTION)) {

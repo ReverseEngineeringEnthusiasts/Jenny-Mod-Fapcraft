@@ -74,7 +74,7 @@ public class UnknownPacket implements IMessage {
                if (!ServerWhitelistManager.isModelDisabled(var6)) {
                   var3.add(var6);
                } else {
-                  float var7 = ServerWhitelistManager.i(var6);
+                  float var7 = ServerWhitelistManager.getModelZOffset(var6);
                   float var8 = (Float)var5.getValue();
                   if (var8 > var7) {
                      var3.add(var6);

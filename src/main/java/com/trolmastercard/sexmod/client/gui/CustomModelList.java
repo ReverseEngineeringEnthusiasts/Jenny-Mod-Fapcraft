@@ -382,7 +382,7 @@ public class CustomModelList extends GuiListExtended {
             CustomModelList.this.parentScreen.drawTexturedModalRect(5, var1, 0, 60, 119, 30);
             int var10 = 15;
             var1 += 5;
-            CustomModelList.this.parentScreen.a(var10, var1, CustomModelList.this.parentScreen.previewGirl.g(var4));
+            CustomModelList.this.parentScreen.a(var10, var1, CustomModelList.this.parentScreen.previewGirl.getModelPartByIndex(var4));
             var10 += 25;
             this.a(var10, var1, var2, var3, var4);
          } else {
@@ -390,7 +390,7 @@ public class CustomModelList extends GuiListExtended {
             CustomModelList.this.parentScreen.drawTexturedModalRect(5, var1, 0, 90, 95, 30);
             int var6 = 15;
             var1 += 5;
-            CustomModelList.this.parentScreen.a(var6, var1, CustomModelList.this.parentScreen.previewGirl.g(var4));
+            CustomModelList.this.parentScreen.a(var6, var1, CustomModelList.this.parentScreen.previewGirl.getModelPartByIndex(var4));
             var6 += 25;
             this.c(var6, var1, var2, var3);
          }

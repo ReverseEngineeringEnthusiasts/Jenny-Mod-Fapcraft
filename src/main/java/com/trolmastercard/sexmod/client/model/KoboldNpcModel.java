@@ -247,22 +247,22 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public String[] c() {
+   public String[] HeadArmor() {
       return new String[]{"armorHelmet"};
    }
 
    @Override
-   public String[] f() {
+   public String[] TopArmor() {
       return new String[]{"armorShoulderR", "armorShoulderL", "armorChest", "armorBoobs"};
    }
 
    @Override
-   public String[] a() {
+   public String[] Top() {
       return new String[]{"boobsFlesh", "upperBodyL", "upperBodyR"};
    }
 
    @Override
-   public String[] h() {
+   public String[] BottomArmor() {
       return new String[]{
          "armorBootyR",
          "armorBootyL",
@@ -278,17 +278,17 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public String[] e() {
+   public String[] Bottom() {
       return new String[]{"fleshL", "fleshR", "vagina", "fuckhole", "curvesL", "curvesR", "kneeL", "kneeR"};
    }
 
    @Override
-   public String[] b() {
+   public String[] ShoesArmor() {
       return new String[]{"armorShoesL", "armorShoesR"};
    }
 
    @Override
-   public String[] d() {
+   public String[] Shoes() {
       return new String[]{"toesR", "toesL"};
    }
 

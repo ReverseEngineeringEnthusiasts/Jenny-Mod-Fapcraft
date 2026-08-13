@@ -66,7 +66,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void b(String var1, UUID var2) {
+   public void handleOwnerCommand(String var1, UUID var2) {
       if ("action.names.deepthroat".equals(var1)) {
          this.setCurrentAction(Action.DEEPTHROAT_START);
          this.a(this.getOutfitIndex(), Action.DEEPTHROAT_START);

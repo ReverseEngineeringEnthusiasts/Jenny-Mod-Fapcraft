@@ -23,7 +23,7 @@ public class PositionData {
    Vec3d rotation = null;
 
    @SubscribeEvent
-   public void a(Pre var1) {
+   public void onPre(Pre var1) {
       try {
          for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
             if (!var3.isDead && var3.getInteractionPlayerUUID() != null && var3.getCurrentAction() != Action.NULL) {
@@ -39,7 +39,7 @@ public class PositionData {
    }
 
    @SubscribeEvent
-   public void a(RenderHandEvent var1) {
+   public void onRenderHand(RenderHandEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       EntityPlayerSP var3 = var2.player;
       AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.g(var3);
@@ -66,7 +66,7 @@ public class PositionData {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(RenderTickEvent var1) {
+   public void onRenderTick(RenderTickEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       if (var2.player != null) {
          if (var1.phase == Phase.END) {

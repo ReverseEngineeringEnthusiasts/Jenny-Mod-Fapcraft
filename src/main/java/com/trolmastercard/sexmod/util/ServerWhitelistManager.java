@@ -69,9 +69,9 @@ public class ServerWhitelistManager {
       return loadCustomModels(var0);
    }
 
-   static void b(Level var0, String var1) {
+   static void logError(Level var0, String var1) {
       if (null instanceof ClientProxy) {
-         a(var0, var1);
+         logInfo(var0, var1);
       } else {
          Main.LOGGER.log(var0, var1);
       }
@@ -92,10 +92,10 @@ public class ServerWhitelistManager {
    @SideOnly(Side.CLIENT)
    public static boolean isGlobalRenderingDisabled() {
       String var0 = getCustomModelsKey();
-      return var0 == null ? false : l(var0);
+      return var0 == null ? false : isModelWhitelisted(var0);
    }
 
-   public static void h(String var0) {
+   public static void initWhitelistFile(String var0) {
       File var1 = new File("sexmod/custom_models/whitelisted_servers.txt");
       var1.mkdirs();
       HashSet var2 = new HashSet();
@@ -153,7 +153,7 @@ public class ServerWhitelistManager {
       }
    }
 
-   public static boolean l(String var0) {
+   public static boolean isModelWhitelisted(String var0) {
       return loadWhitelistedServers().contains(var0);
    }
 
@@ -186,7 +186,7 @@ public class ServerWhitelistManager {
       }
    }
 
-   public static float i(String var0) {
+   public static float getModelZOffset(String var0) {
       ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       return var1 == null ? 0.0F : var1.getZOffset();
    }
@@ -210,7 +210,7 @@ public class ServerWhitelistManager {
    }
 
    @SideOnly(Side.CLIENT)
-   static void a(Level var0, String var1) {
+   static void logInfo(Level var0, String var1) {
       EntityPlayerSP var2 = Minecraft.getMinecraft().player;
       if (var2 == null) {
          Main.LOGGER.log(var0, var1);
@@ -257,13 +257,13 @@ public class ServerWhitelistManager {
    }
 
    public static int loadCustomModels(boolean var0) {
-      b(Level.INFO, "loading up custom models...");
+      logError(Level.INFO, "loading up custom models...");
       String var1 = getCurrentGroup();
       File var2 = new File(var1);
       var2.mkdirs();
       String[] var3 = var2.list((var0x, var1x) -> new File(var0x, var1x).isDirectory());
       if (var3 == null) {
-         b(
+         logError(
             Level.ERROR,
             String.format(
                "Something is wrong with the custom models folder at '%s'. Check if it exists, if not - make the directory yourself because Minecraft cannot do it itself for some reason",
@@ -273,26 +273,26 @@ public class ServerWhitelistManager {
          return -1;
       }
 
-      b(Level.INFO, String.format("found %s custom model(s)", var3.length));
+      logError(Level.INFO, String.format("found %s custom model(s)", var3.length));
       int var4 = 0;
 
       for (String var8 : var3) {
          String var9 = getPartName(var8, var1);
          if (!"".equals(var9)) {
-            b(Level.ERROR, var9);
+            logError(Level.ERROR, var9);
             return -1;
          }
 
          var9 = a(var8, var1, var0);
          if (!"".equals(var9)) {
-            b(Level.ERROR, var9);
+            logError(Level.ERROR, var9);
             return -1;
          }
 
          var4++;
       }
 
-      b(Level.DEBUG, String.format("successfully registered %s custom models", var4));
+      logError(Level.DEBUG, String.format("successfully registered %s custom models", var4));
       isLoaded = true;
       return 0;
    }
@@ -402,11 +402,11 @@ public class ServerWhitelistManager {
       }
 
       modelDataMap.put(var0, var6);
-      b(Level.DEBUG, String.format("successfully registered custom model '%s'", var0));
+      logError(Level.DEBUG, String.format("successfully registered custom model '%s'", var0));
       return "";
    }
 
-   public static ResourceLocation k(String var0) {
+   public static ResourceLocation getModelResource(String var0) {
       ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
@@ -432,8 +432,8 @@ public class ServerWhitelistManager {
       }
    }
 
-   public static GeoModel j(String var0) {
-      return GeckoLibCache.getInstance().getGeoModels().get(k(var0));
+   public static GeoModel getGeoModel(String var0) {
+      return GeckoLibCache.getInstance().getGeoModels().get(getModelResource(var0));
    }
 
    public static BoneType getBoneType(String var0) {
@@ -530,7 +530,7 @@ public class ServerWhitelistManager {
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(ClientChatEvent var1) {
+      public void onClientChat(ClientChatEvent var1) {
          String var2 = var1.getOriginalMessage();
          if ("id".equals(var2)) {
             EntityPlayerSP var3 = Minecraft.getMinecraft().player;
@@ -554,7 +554,7 @@ public class ServerWhitelistManager {
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(ClientConnectedToServerEvent var1) {
+      public void onServerConnect(ClientConnectedToServerEvent var1) {
          Minecraft var2 = Minecraft.getMinecraft();
          var2.addScheduledTask(() -> ServerWhitelistManager.loadCustomModels(true));
          this.hasSentId = false;
@@ -562,7 +562,7 @@ public class ServerWhitelistManager {
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(EntityJoinWorldEvent var1) {
+      public void onEntityJoinWorld(EntityJoinWorldEvent var1) {
          if (var1.getEntity().equals(Minecraft.getMinecraft().player)) {
             if (!this.hasSentId) {
                this.hasSentId = true;
@@ -575,7 +575,7 @@ public class ServerWhitelistManager {
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(ClientDisconnectionFromServerEvent var1) {
+      public void onServerDisconnect(ClientDisconnectionFromServerEvent var1) {
          Minecraft.getMinecraft().addScheduledTask(() -> ServerWhitelistManager.setGlobalRenderingDisabled(true));
          this.hasSentId = false;
       }
