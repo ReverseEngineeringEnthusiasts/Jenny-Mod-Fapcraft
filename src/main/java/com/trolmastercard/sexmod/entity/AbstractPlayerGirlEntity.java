@@ -601,7 +601,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       this.a(var1, 1.0F, 1.0F);
    }
 
-   public void a_clash588(SoundEvent[] var1) {
+   public void playRandomSound(SoundEvent[] var1) {
       this.a(var1[this.func_70681_au().nextInt(var1.length)], 1.0F, 1.0F);
    }
 

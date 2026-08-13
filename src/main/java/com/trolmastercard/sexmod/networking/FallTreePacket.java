@@ -55,7 +55,7 @@ public class FallTreePacket implements IMessage {
                .func_152344_a(
                   () -> {
                      EntityPlayerMP var3 = var2.getServerHandler().field_147369_b;
-                     UUID var4 = KoboldManager.a_clash88(var3.getPersistentID());
+                     UUID var4 = KoboldManager.getTribeUUID(var3.getPersistentID());
                      if (var4 == null) {
                         System.out.println("not tribe for player");
                      } else {

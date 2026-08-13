@@ -32,7 +32,7 @@ public class BeeScreen extends GuiScreen {
       return b;
    }
 
-   public static void b_clash732() {
+   public static void enableInteraction() {
       b = true;
    }
 

@@ -250,10 +250,10 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       b(var1, 3);
       b_clash224(var1);
       b_clash224(var1);
-      a_clash223(var1, 2);
-      a_clash223(var1, 2);
-      a_clash223(var1, 1);
-      a_clash223(var1, 1);
+      appendPaddedNumber(var1, 2);
+      appendPaddedNumber(var1, 2);
+      appendPaddedNumber(var1, 1);
+      appendPaddedNumber(var1, 1);
       return var1.toString();
    }
 
@@ -2771,7 +2771,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                break;
             case "blackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "paymentDone":

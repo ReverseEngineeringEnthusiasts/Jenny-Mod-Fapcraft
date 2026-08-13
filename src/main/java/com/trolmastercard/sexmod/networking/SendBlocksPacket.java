@@ -87,7 +87,7 @@ public class SendBlocksPacket implements IMessage {
                .func_152344_a(
                   () -> {
                      UUID var2x = var2.getServerHandler().field_147369_b.getPersistentID();
-                     UUID var3 = KoboldManager.a_clash88(var2x);
+                     UUID var3 = KoboldManager.getTribeUUID(var2x);
                      if (var3 != null) {
                         if (var1.c.size() == 1) {
                            World var4 = var2.getServerHandler().field_147369_b.field_70170_p;

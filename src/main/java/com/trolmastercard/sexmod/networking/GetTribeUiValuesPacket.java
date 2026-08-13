@@ -82,7 +82,7 @@ public class GetTribeUiValuesPacket implements IMessage {
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               UUID var1x = KoboldManager.a_clash88(var2.getServerHandler().field_147369_b.getPersistentID());
+               UUID var1x = KoboldManager.getTribeUUID(var2.getServerHandler().field_147369_b.getPersistentID());
                if (var1x == null) {
                   PacketHandler.b.sendTo(GetTribeUiValuesPacket.a_clash29(), var2.getServerHandler().field_147369_b);
                } else {

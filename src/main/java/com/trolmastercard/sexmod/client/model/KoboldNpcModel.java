@@ -57,7 +57,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
             var4.getBone("egg").setHidden(true);
          }
 
-         String[] var5 = AbstractNpcOnlyEntity.a_clash225(var1);
+         String[] var5 = AbstractNpcOnlyEntity.getModelCodeParts(var1);
          this.b(var4, var5[0]);
          this.e(var4, var5[1]);
          this.a(var4, var5[2], 0.75F, 1.35F, "boobL", "boobR", "armorBoobs");

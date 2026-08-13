@@ -883,7 +883,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                break;
             case "blackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
          }
       });

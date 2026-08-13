@@ -326,7 +326,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "bjcBlackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "bjcDone":

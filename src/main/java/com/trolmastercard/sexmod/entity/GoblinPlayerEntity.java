@@ -207,15 +207,15 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
    @Override
    protected String a(StringBuilder var1) {
-      AbstractNpcOnlyEntity.a_clash223(var1, 3);
-      AbstractNpcOnlyEntity.a_clash223(var1, 2);
-      AbstractNpcOnlyEntity.a_clash223(var1, 2);
-      AbstractNpcOnlyEntity.a_clash223(var1, 7);
-      AbstractNpcOnlyEntity.a_clash223(var1, 7);
-      AbstractNpcOnlyEntity.a_clash223(var1, 5);
-      AbstractNpcOnlyEntity.a_clash223(var1, g5.values().length - 1);
-      AbstractNpcOnlyEntity.a_clash223(var1, by.values().length - 1);
-      AbstractNpcOnlyEntity.a_clash223(var1, eh.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 3);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 2);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 2);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 7);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 7);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 5);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, g5.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, by.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, eh.values().length - 1);
       AbstractNpcOnlyEntity.c(var1, 0);
       return var1.toString();
    }
@@ -826,23 +826,23 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                break;
             case "catchEh":
                this.sendChatMessage("ehh..");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "catchAkward":
                this.sendChatMessage("awkward..");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "catchWell":
                this.sendChatMessage("well...");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "catchRather":
                this.sendChatMessage("would you rather have this stupid... thing?");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "catchMe":
                this.sendChatMessage("...or use me?~");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "catchDone":
                if ("bj".equals(this.m.func_187225_a(h))) {
@@ -858,15 +858,15 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                break;
             case "paizuriChoice":
                this.sendChatMessage("good choice!~");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "paizuriBoth":
                this.sendChatMessage("...for both of us!");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "paizruiUse":
                this.sendChatMessage("now use me like a fuck toy!~");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "paizuriSwitch":
                if (!this.func_70681_au().nextBoolean()) {
@@ -877,7 +877,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                this.a(SoundHandler.MISC_TOUCH, 3.0F);
                break;
             case "pound":
-               this.a_clash588(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04F);
                }
@@ -917,7 +917,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                break;
             case "blackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "cumSound":
@@ -942,15 +942,15 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
 
                this.sendChatMessage("hmm...");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "breedingFound":
                this.sendChatMessage("guess we found a worthy breeding partner!");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "breedingEnough":
                this.sendChatMessage("Eh.. go pin him down, before he runs off!");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "breedingCam2":
                if (this.isControlledByLocalPlayer()) {

@@ -422,7 +422,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
    @Override
    protected Vec3i getBoneColor(String var1) {
-      String[] var2 = AbstractNpcOnlyEntity.a_clash225(this.j);
+      String[] var2 = AbstractNpcOnlyEntity.getModelCodeParts(this.j);
       if (var2.length < 8) {
          return r;
       } else if (var1.contains("band")) {
@@ -455,7 +455,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    @Override
    protected void a(BufferBuilder var1, String var2, GeoBone var3) {
       if (!(this.j.field_70170_p instanceof SexWorldClient)) {
-         String[] var4 = AbstractNpcOnlyEntity.a_clash225(this.j);
+         String[] var4 = AbstractNpcOnlyEntity.getModelCodeParts(this.j);
          if (var4.length >= 8) {
             switch (var2) {
                case "earL":

@@ -327,7 +327,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       if (var2 == 0) {
          EntityPlayerSP var3 = Minecraft.func_71410_x().field_71439_g;
          if (var3.getPersistentID().equals(var1.getPersistentID())) {
-            BeeScreen.b_clash732();
+            BeeScreen.enableInteraction();
             var3.func_70016_h(0.0, 0.0, 0.0);
             d3.setMovementLock(false);
          }
@@ -1011,7 +1011,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "blackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "touch_boobs_cumDone":

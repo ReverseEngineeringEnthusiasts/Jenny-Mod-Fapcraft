@@ -211,7 +211,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "blackscreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "deepthroat_prepareDone":
@@ -260,13 +260,13 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.randomSound(SoundHandler.MISC_PLOB));
                break;
             case "giggle":
-               this.a_clash588(SoundHandler.GIRLS_ALLIE_GIGGLE);
+               this.playRandomSound(SoundHandler.GIRLS_ALLIE_GIGGLE);
                break;
             case "pounding":
-               this.a_clash588(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "moan":
-               this.a_clash588(SoundHandler.GIRLS_ALLIE_MOAN);
+               this.playRandomSound(SoundHandler.GIRLS_ALLIE_MOAN);
                break;
             case "mmm":
                this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_MMM));
@@ -327,7 +327,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.MISC_INSERTS, 6.0F);
                break;
             case "aftermoan":
-               this.a_clash588(SoundHandler.GIRLS_ALLIE_AFTERSESSIONMOAN);
+               this.playRandomSound(SoundHandler.GIRLS_ALLIE_AFTERSESSIONMOAN);
          }
       };
       this.C.registerSoundListener(var2);

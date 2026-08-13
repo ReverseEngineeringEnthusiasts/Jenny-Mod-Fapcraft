@@ -261,14 +261,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    public void c_clash239(UUID var1) {
       this.aY = 0;
-      BeeScreen.b_clash732();
+      BeeScreen.enableInteraction();
       d3.setMovementLock(false);
       this.setInteractionPlayerUUID(var1);
    }
 
    public void b_clash240(UUID var1) {
       this.az = 0;
-      BeeScreen.b_clash732();
+      BeeScreen.enableInteraction();
       d3.setMovementLock(false);
       this.setInteractionPlayerUUID(var1);
    }
@@ -323,30 +323,30 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    protected String b_clash242(StringBuilder var1) {
-      a_clash223(var1, 3);
-      a_clash223(var1, 2);
-      a_clash223(var1, 2);
+      appendPaddedNumber(var1, 3);
+      appendPaddedNumber(var1, 2);
+      appendPaddedNumber(var1, 2);
       c(var1, 7);
       c(var1, 7);
-      a_clash223(var1, 5);
-      a_clash223(var1, g5.values().length - 1);
-      a_clash223(var1, by.values().length - 1);
-      a_clash223(var1, eh.values().length - 1);
+      appendPaddedNumber(var1, 5);
+      appendPaddedNumber(var1, g5.values().length - 1);
+      appendPaddedNumber(var1, by.values().length - 1);
+      appendPaddedNumber(var1, eh.values().length - 1);
       c(var1, 1);
       return var1.toString();
    }
 
    @Override
    protected String a(StringBuilder var1) {
-      a_clash223(var1, 3);
-      a_clash223(var1, 2);
-      a_clash223(var1, 2);
-      a_clash223(var1, 8);
-      a_clash223(var1, 8);
-      a_clash223(var1, 5);
-      a_clash223(var1, g5.values().length - 1);
-      a_clash223(var1, by.values().length - 1);
-      a_clash223(var1, eh.values().length - 1);
+      appendPaddedNumber(var1, 3);
+      appendPaddedNumber(var1, 2);
+      appendPaddedNumber(var1, 2);
+      appendPaddedNumber(var1, 8);
+      appendPaddedNumber(var1, 8);
+      appendPaddedNumber(var1, 5);
+      appendPaddedNumber(var1, g5.values().length - 1);
+      appendPaddedNumber(var1, by.values().length - 1);
+      appendPaddedNumber(var1, eh.values().length - 1);
       c(var1, 0);
       return var1.toString();
    }
@@ -409,7 +409,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          c(var2, var4);
       }
 
-      c(var2, Integer.parseInt(a_clash225(this)[9]));
+      c(var2, Integer.parseInt(getModelCodeParts(this)[9]));
       this.m.func_187227_b(M, var2.toString());
       if (null instanceof ClientProxy) {
          GoblinRenderer.clearBoneColors();
@@ -425,22 +425,22 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             c(var1, var4);
          }
 
-         c(var1, Integer.parseInt(a_clash225(this)[9]));
+         c(var1, Integer.parseInt(getModelCodeParts(this)[9]));
          this.m.func_187227_b(M, var1.toString());
          GoblinRenderer.clearBoneColors();
       }
    }
 
    protected String a_clash247(StringBuilder var1, int var2) {
-      a_clash223(var1, 3);
-      a_clash223(var1, 2);
-      a_clash223(var1, 2);
-      a_clash223(var1, 7);
-      a_clash223(var1, 7);
-      a_clash223(var1, 5);
-      a_clash223(var1, g5.values().length - 1);
+      appendPaddedNumber(var1, 3);
+      appendPaddedNumber(var1, 2);
+      appendPaddedNumber(var1, 2);
+      appendPaddedNumber(var1, 7);
+      appendPaddedNumber(var1, 7);
+      appendPaddedNumber(var1, 5);
+      appendPaddedNumber(var1, g5.values().length - 1);
       c(var1, var2);
-      a_clash223(var1, eh.values().length - 1);
+      appendPaddedNumber(var1, eh.values().length - 1);
       c(var1, 0);
       return var1.toString();
    }
@@ -478,7 +478,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       this.aX = var1.func_74767_n("isQueen");
       this.m.func_187227_b(M, var1.func_74779_i("model"));
       this.m.func_187227_b(N, var1.func_74779_i("bodyColor"));
-      String[] var2 = a_clash225(this);
+      String[] var2 = getModelCodeParts(this);
       if (Integer.parseInt(var2[3]) > 7 || Integer.parseInt(var2[4]) > 7) {
          this.m.func_187227_b(M, this.a_clash247(new StringBuilder(), this.k_clash270()));
          Main.LOGGER.log(Level.INFO, "updated an old Goblin");
@@ -1131,7 +1131,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    int k_clash270() {
-      return Integer.parseInt(a_clash225(this)[7]);
+      return Integer.parseInt(getModelCodeParts(this)[7]);
    }
 
    @Nullable
@@ -1756,7 +1756,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                break;
             case "blackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "paizuriCumDone":

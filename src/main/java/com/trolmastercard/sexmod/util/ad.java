@@ -121,7 +121,7 @@ public class ad {
          EntityLivingBase var3 = var1.getEntityLiving();
          if (var3 instanceof KoboldEntity) {
             KoboldEntity var4 = (KoboldEntity)var3;
-            UUID var5 = KoboldManager.a_clash88(var2.getPersistentID());
+            UUID var5 = KoboldManager.getTribeUUID(var2.getPersistentID());
 
             for (KoboldTask var8 : KoboldManager.p_clash79(var5)) {
                this.a_clash65("task: " + var8.d_clash202().name());
@@ -176,7 +176,7 @@ public class ad {
          }
 
          if ("kobs".equals(var2)) {
-            UUID var11 = KoboldManager.a_clash88(var3.getPersistentID());
+            UUID var11 = KoboldManager.getTribeUUID(var3.getPersistentID());
             int var13 = KoboldManager.h_clash81(var11);
 
             for (KoboldEntity var8 : KoboldManager.n_clash82(var11)) {

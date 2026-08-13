@@ -44,7 +44,7 @@ public class de extends d9 {
    @Override
    protected Vector4f a(String var1, float var2, float var3, float var4) {
       if ("mouth".equals(var1)) {
-         String[] var5 = AbstractNpcOnlyEntity.a_clash225(this.j);
+         String[] var5 = AbstractNpcOnlyEntity.getModelCodeParts(this.j);
          int var6 = Integer.parseInt(var5[7]);
          if (var6 == 1) {
             return new Vector4f(var2, var3, var4, -0.078125F);

@@ -533,7 +533,7 @@ public class KoboldManager {
    }
 
    @Nullable
-   public static UUID a_clash88(UUID var0) {
+   public static UUID getTribeUUID(UUID var0) {
       if (var0 == null) {
          return null;
       }
