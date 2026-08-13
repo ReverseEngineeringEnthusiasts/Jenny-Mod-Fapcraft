@@ -95,6 +95,7 @@ public class ForgeEventHandler {
       MinecraftForge.EVENT_BUS.register(new bq());
       MinecraftForge.EVENT_BUS.register(new cn());
       MinecraftForge.EVENT_BUS.register(new GirlCameraHelper());
+      MinecraftForge.EVENT_BUS.register(new com.trolmastercard.sexmod.client.SexSceneKeyHandler());
       MinecraftForge.EVENT_BUS.register(new GenderSwapScreen());
       MinecraftForge.EVENT_BUS.register(new dv.a());
       MinecraftForge.EVENT_BUS.register(new gm());

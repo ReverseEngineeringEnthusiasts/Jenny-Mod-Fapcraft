@@ -48,9 +48,10 @@ public class ClientProxy extends CommonProxy {
 
    @Override
    public void initRegistries(FMLInitializationEvent var1) {
-      keyBindings = new KeyBinding[2];
+      keyBindings = new KeyBinding[3];
       keyBindings[0] = new KeyBinding("Interact with your goblin", 34, "Sex mod");
       keyBindings[1] = new KeyBinding("open character customisation menu", 76, "Sex mod");
+      keyBindings[2] = new KeyBinding("Leave sex scene", 54, "Sex mod");
 
       for (KeyBinding var5 : keyBindings) {
          ClientRegistry.registerKeyBinding(var5);
