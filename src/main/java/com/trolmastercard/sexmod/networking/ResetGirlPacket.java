@@ -130,7 +130,7 @@ public class ResetGirlPacket implements IMessage {
                         a(FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al().func_177451_a(var3.ae_clash498()));
                      }
 
-                     if (!var1.a) {
+                     if (var1.a) {
                         a_clash10(var3);
                      }
                   }
