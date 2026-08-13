@@ -6,13 +6,6 @@ import com.trolmastercard.sexmod.entity.NpcType;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.UploadModelStringPacket;
 import com.trolmastercard.sexmod.util.ThreadNames;
-
-
-
-
-
-
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.command.CommandBase;

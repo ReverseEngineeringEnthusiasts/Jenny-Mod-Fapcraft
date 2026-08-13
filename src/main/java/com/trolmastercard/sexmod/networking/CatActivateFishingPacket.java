@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.LunaEntity;
 import com.trolmastercard.sexmod.item.LunaRodItem;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.item.ItemStack;

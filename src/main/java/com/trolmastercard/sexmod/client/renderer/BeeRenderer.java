@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.client.renderer;
 
 import com.trolmastercard.sexmod.entity.BeeEntity;
-
-
-
-
-
-
-
 import net.minecraft.client.renderer.entity.RenderManager;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 

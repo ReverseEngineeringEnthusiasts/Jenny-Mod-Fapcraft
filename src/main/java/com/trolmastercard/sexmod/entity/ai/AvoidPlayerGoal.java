@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.entity.ai;
 
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import com.trolmastercard.sexmod.entity.ManglelieEntity;
-
-
-
-
-
-
-
 import net.minecraft.entity.ai.EntityAIAvoidEntity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;

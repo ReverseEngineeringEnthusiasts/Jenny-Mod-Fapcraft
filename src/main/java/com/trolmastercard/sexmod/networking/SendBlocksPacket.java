@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.util.KoboldManager;
 import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.StructureMarkerRenderer;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.HashSet;
 import java.util.UUID;
@@ -64,7 +57,6 @@ public class SendBlocksPacket implements IMessage {
          var1.writeInt(var3.getZ());
       }
    }
-
 
    public static class Handler implements IMessageHandler<SendBlocksPacket, IMessage> {
       public IMessage onMessage(SendBlocksPacket var1, MessageContext var2) {

@@ -8,13 +8,6 @@ import com.trolmastercard.sexmod.entity.NpcType;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.UnknownPacket;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
-
-
-
-
-
-
-
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -530,7 +523,6 @@ public class ServerWhitelistManager {
 
       return var0;
    }
-
 
    @SideOnly(Side.CLIENT)
    public static class a {

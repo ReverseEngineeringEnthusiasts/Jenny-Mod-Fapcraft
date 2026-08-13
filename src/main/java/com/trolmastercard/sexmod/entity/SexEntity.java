@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-
 import com.google.common.base.Optional;
 import java.util.List;
 import java.util.UUID;
@@ -506,7 +505,6 @@ public class SexEntity extends Entity {
    public NBTTagCompound writeToNBT(NBTTagCompound var1) {
       return null;
    }
-
 
    enum SexEntityState {
       FLYING,

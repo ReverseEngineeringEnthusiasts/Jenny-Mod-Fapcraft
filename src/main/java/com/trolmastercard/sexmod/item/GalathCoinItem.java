@@ -11,15 +11,7 @@ import com.trolmastercard.sexmod.util.GirlSavedData;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.VectorMath;
-
-
-
-
-
-
-
 import net.minecraft.util.ResourceLocation;
-
 import java.util.ConcurrentModificationException;
 import java.util.Random;
 import java.util.UUID;

@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.util;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.nbt.NBTTagCompound;

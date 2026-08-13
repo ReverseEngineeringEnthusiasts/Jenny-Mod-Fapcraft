@@ -19,13 +19,6 @@ import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.LootTableHandler;
 import com.trolmastercard.sexmod.util.IBeddableSexGirl;
-
-
-
-
-
-
-
 import java.util.UUID;
 import javax.vecmath.Vector4d;
 import net.minecraft.block.Block;

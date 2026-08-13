@@ -6,13 +6,6 @@ import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.TrigMath;
-
-
-
-
-
-
-
 import java.util.List;
 import java.util.Random;
 import net.minecraft.client.Minecraft;

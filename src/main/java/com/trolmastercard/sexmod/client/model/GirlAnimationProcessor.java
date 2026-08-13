@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.client.model;
 
-
 import java.util.HashMap;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.IAnimatableModel;

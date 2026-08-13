@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.client.gui.UnknownScreen;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;

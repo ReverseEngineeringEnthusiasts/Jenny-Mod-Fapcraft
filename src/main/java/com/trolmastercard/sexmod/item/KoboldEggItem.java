@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.item;
 import com.trolmastercard.sexmod.client.renderer.KoboldEggItemRenderer;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.entity.KoboldEggEntity;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;

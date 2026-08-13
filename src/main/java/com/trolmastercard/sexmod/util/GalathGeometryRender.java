@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.util;
 import com.trolmastercard.sexmod.client.gui.UnknownScreen;
 import com.trolmastercard.sexmod.client.renderer.GirlRenderer;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-
-
-
-
-
-
-
 import java.util.Arrays;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;

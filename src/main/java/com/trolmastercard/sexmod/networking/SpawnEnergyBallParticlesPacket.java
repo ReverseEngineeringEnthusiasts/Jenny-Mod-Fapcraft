@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import com.trolmastercard.sexmod.item.GalathCoinItem;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -52,7 +45,6 @@ public class SpawnEnergyBallParticlesPacket implements IMessage {
       ByteBufUtils.writeUTF8String(var1, this.girlUUID == null ? "trol was here" : this.girlUUID.toString());
       ByteBufUtils.writeUTF8String(var1, this.playerUUID == null ? "trol was here" : this.playerUUID.toString());
    }
-
 
    public static class Handler implements IMessageHandler<SpawnEnergyBallParticlesPacket, IMessage> {
       public IMessage onMessage(SpawnEnergyBallParticlesPacket var1, MessageContext var2) {

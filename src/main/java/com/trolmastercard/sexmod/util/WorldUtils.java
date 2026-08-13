@@ -1,12 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.client.SexWorldClient;
-
-
-
-
-
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;

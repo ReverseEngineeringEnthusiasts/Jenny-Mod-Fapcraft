@@ -24,13 +24,6 @@ import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.DynamicTrailRenderer;
 import com.trolmastercard.sexmod.util.TrigMath;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -889,7 +882,6 @@ public class ManglelieEntity extends BaseGirlEntity {
       });
       var1.addAnimationController(this.actionController);
    }
-
 
    public static class b {
       @SubscribeEvent

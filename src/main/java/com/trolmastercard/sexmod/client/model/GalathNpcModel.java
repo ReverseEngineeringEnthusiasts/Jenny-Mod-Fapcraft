@@ -15,13 +15,6 @@ import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
 import com.trolmastercard.sexmod.util.Vector4d;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
 import com.trolmastercard.sexmod.util.TrigMath;
-
-
-
-
-
-
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;

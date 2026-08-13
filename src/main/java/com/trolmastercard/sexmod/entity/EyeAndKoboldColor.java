@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextFormatting;
 

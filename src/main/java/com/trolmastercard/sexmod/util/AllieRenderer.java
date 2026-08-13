@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.client.renderer.GirlRenderer;
 import com.trolmastercard.sexmod.entity.AllieEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
-
-
-
-
-
-
-
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import software.bernie.geckolib3.geo.render.built.GeoModel;

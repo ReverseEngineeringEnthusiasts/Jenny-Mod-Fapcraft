@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod;
 
-
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

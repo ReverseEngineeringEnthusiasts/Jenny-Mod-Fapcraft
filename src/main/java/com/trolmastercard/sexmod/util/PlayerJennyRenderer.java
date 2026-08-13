@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.client.renderer.GirlPlayerRenderer;
-
-
-
-
-
-
-
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import software.bernie.geckolib3.model.AnimatedGeoModel;

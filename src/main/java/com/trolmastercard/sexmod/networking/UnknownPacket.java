@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.networking;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,7 +54,6 @@ public class UnknownPacket implements IMessage {
          }
       }
    }
-
 
    public static class Handler implements IMessageHandler<UnknownPacket, IMessage> {
       public IMessage onMessage(UnknownPacket var1, MessageContext var2) {

@@ -18,13 +18,6 @@ import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.RibbonRenderer;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
 import com.trolmastercard.sexmod.util.TrigMath;
-
-
-
-
-
-
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Objects;

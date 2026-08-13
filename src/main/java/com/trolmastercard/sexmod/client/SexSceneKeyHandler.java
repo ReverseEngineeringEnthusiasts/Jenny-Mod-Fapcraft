@@ -6,7 +6,6 @@ import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
-
 import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;

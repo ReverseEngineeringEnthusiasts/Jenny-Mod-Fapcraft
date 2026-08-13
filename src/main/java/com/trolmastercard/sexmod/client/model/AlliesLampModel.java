@@ -2,15 +2,7 @@ package com.trolmastercard.sexmod.client.model;
 
 import com.trolmastercard.sexmod.SkinFetcher;
 import com.trolmastercard.sexmod.item.AlliesLampItem;
-
-
-
-
-
-
-
 import software.bernie.geckolib3.model.AnimatedGeoModel;
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -26,8 +18,6 @@ public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
    public ResourceLocation getModelLocation(AlliesLampItem var1) {
       return new ResourceLocation("sexmod", "geo/allie/lamp.geo.json");
    }
-
-
 
    @Override
    public ResourceLocation getAnimationFileLocation(AlliesLampItem var1) {

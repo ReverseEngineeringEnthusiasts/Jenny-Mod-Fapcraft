@@ -6,13 +6,6 @@ import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.item.DragonStaffItem;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.VectorMath;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

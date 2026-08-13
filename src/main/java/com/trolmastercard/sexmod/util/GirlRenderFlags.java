@@ -1,6 +1,4 @@
 package com.trolmastercard.sexmod.util;
-
-
 public class GirlRenderFlags {
    public static GirlRenderFlags instance;
    public boolean flagC;

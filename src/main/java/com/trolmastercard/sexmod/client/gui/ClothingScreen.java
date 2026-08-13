@@ -11,15 +11,7 @@ import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import com.trolmastercard.sexmod.util.Point2D;
-
-
-
-
-
-
-
 import java.io.IOException;
-
 import java.awt.Desktop;
 import java.io.File;
 import java.lang.reflect.Constructor;

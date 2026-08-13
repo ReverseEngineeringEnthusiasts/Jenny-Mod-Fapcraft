@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.client.gui.UnknownScreen;
-
-
-
-
-
-
-
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 

@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.util;
 import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.api.ITargetProvider;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;

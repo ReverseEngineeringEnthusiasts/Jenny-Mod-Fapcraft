@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.client.gui;
 
 import com.trolmastercard.sexmod.networking.ClaimTribePacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
-
-
-
-
-
-
-
 import java.io.IOException;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;

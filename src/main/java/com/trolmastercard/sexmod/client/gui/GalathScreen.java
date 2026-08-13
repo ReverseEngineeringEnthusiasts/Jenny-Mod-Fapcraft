@@ -5,13 +5,6 @@ import com.trolmastercard.sexmod.entity.GoblinEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.ThreadNames;
-
-
-
-
-
-
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;

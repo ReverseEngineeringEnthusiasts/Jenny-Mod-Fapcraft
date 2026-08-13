@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.entity.AlliePlayerEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import net.minecraft.util.ResourceLocation;
 
 public class AllieNpcModel extends GirlModel<BaseGirlEntity> {

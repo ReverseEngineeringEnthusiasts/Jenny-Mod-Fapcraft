@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.util.Reference;
-
-
-
-
-
-
-
 import net.minecraft.entity.Entity;
 
 public enum NpcType {

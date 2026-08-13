@@ -11,13 +11,6 @@ import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.LootTableHandler;
-
-
-
-
-
-
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
@@ -588,7 +581,6 @@ public class SlimeEntity extends BaseGirlEntity {
       var1.addAnimationController(this.actionController);
       var1.addAnimationController(this.eyesController);
    }
-
 
    enum SlimeEntityState {
       IDLE("animation.slime.idle"),

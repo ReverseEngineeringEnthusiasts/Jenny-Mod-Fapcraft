@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.util;
 
-
 import java.util.Random;
 import net.minecraft.util.math.Vec3d;
 

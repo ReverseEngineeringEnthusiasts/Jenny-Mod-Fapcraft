@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.client.gui;
 
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.StartStandingSexAnimationPacket;
-
-
-
-
-
-
-
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
@@ -104,7 +97,6 @@ public class GenderSwapScreen {
    void a(String var1, UUID var2, UUID var3) {
       PacketHandler.networkWrapper.sendToServer(new StartStandingSexAnimationPacket(var2, var3, var1));
    }
-
 
    public static class a {
       public String label;

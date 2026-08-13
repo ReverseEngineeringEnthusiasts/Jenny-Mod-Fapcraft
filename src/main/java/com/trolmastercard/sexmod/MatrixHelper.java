@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod;
 
-
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import javax.vecmath.Matrix4f;

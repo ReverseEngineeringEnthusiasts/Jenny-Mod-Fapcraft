@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.client.renderer;
 import com.trolmastercard.sexmod.client.model.KoboldEggItemModel;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.item.KoboldEggItem;
-
-
-
-
-
-
-
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

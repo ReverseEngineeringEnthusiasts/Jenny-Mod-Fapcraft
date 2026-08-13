@@ -2,12 +2,6 @@ package com.trolmastercard.sexmod.entity.ai;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 
-
-
-
-
-
-
 public class GirlGotoGoal extends GirlFollowAiBase {
    int gotoTicks = 0;
    int retryTicks = 0;

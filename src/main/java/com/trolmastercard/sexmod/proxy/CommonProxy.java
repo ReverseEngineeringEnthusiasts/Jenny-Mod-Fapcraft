@@ -9,13 +9,6 @@ import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.ItemRegistrationHandler;
 import com.trolmastercard.sexmod.worldgen.ConfigWorldGenHandler;
-
-
-
-
-
-
-
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;

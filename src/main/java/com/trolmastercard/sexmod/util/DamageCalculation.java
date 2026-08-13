@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -113,7 +106,6 @@ public class DamageCalculation {
          }
       }
    }
-
 
    static class a {
       public static HashMap<String, Integer[]> a = new HashMap<>();

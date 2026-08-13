@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.util.Reference;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -326,7 +319,6 @@ public class WildSlimeEntity extends EntityLiving {
    protected boolean canDrop() {
       return false;
    }
-
 
    static class a extends EntityAIBase {
       private final WildSlimeEntity ownerSlime;

@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.entity.GoblinEntity;
 import com.trolmastercard.sexmod.util.KoboldManager;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.Point2D;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -321,7 +314,6 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
          }
       }
    }
-
 
    static class a {
       Point2D pos;

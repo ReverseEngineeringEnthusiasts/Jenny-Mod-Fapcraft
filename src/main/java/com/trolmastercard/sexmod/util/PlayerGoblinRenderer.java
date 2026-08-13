@@ -7,13 +7,6 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GoblinEntity;
 import com.trolmastercard.sexmod.entity.GoblinPlayerEntity;
 import com.trolmastercard.sexmod.entity.Action;
-
-
-
-
-
-
-
 import java.util.HashSet;
 import java.util.UUID;
 import javax.annotation.Nullable;

@@ -5,13 +5,6 @@ import com.trolmastercard.sexmod.entity.EllieEntity;
 import com.trolmastercard.sexmod.entity.JennyEntity;
 import com.trolmastercard.sexmod.entity.LunaEntity;
 import com.trolmastercard.sexmod.entity.api.IEllie;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.ConcurrentModificationException;
 import java.util.UUID;
@@ -56,7 +49,6 @@ public class KoboldStatePacket implements IMessage {
       var1.writeBoolean(this.followMode);
       ByteBufUtils.writeUTF8String(var1, this.girlId == null ? "null" : this.girlId.toString());
    }
-
 
    public static class Handler implements IMessageHandler<KoboldStatePacket, IMessage> {
       public static void a(UUID var0, UUID var1, boolean var2, boolean var3) {

@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.client.gui;
 import com.trolmastercard.sexmod.entity.LunaEntity;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.UploadInventoryToServerPacket;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;

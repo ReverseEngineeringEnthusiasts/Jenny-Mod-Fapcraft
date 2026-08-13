@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.client.renderer.GirlPlayerRenderer;
-
-
-
-
-
-
-
 import java.util.HashSet;
 import javax.vecmath.Vector3f;
 import net.minecraft.client.renderer.GlStateManager;

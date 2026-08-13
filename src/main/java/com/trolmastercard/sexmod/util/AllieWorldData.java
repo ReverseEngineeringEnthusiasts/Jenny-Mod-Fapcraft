@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.entity.NpcType;
-
-
-
-
-
-
-
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.Map.Entry;

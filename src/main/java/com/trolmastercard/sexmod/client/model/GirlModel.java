@@ -8,13 +8,6 @@ import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.TrigMath;
-
-
-
-
-
-
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -69,7 +62,6 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       return this.getSexWorldTexture(var0);
    }
 
-
    public abstract ResourceLocation getTextureLocation(BaseGirlEntity var0);
    public String[] c() { return new String[0]; }
    public String[] g() { return new String[0]; }
@@ -79,7 +71,6 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    public String[] e() { return new String[0]; }
    public String[] b() { return new String[0]; }
    public String[] d() { return new String[0]; }
-
 
    public ResourceLocation getTextureForGirl(BaseGirlEntity var1) {
       return this.getTextureLocation(var1);

@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.client.model;
 
-
 import java.lang.reflect.Field;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.core.IAnimatable;

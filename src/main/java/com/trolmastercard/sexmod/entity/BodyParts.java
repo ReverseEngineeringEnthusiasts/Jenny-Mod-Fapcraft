@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.client.renderer.api.IGirlRenderer;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.VectorMath;
-
-
-
-
-
-
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;

@@ -1,6 +1,4 @@
 package com.trolmastercard.sexmod.util;
-
-
 public class Vector2f {
    public static final Vector2f ZERO = new Vector2f(0.0F, 0.0F);
    public float x;

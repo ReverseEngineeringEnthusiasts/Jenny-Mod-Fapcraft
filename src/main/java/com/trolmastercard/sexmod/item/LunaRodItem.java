@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.item;
 
 import com.trolmastercard.sexmod.entity.LunaEntity;
 import com.trolmastercard.sexmod.entity.SexEntity;
-
-
-
-
-
-
-
 import javax.annotation.Nullable;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.enchantment.EnchantmentHelper;

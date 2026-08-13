@@ -6,13 +6,6 @@ import com.trolmastercard.sexmod.entity.GalathEntity;
 import com.trolmastercard.sexmod.entity.ManglelieEntity;
 import com.trolmastercard.sexmod.networking.InformOfOwnershipPacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

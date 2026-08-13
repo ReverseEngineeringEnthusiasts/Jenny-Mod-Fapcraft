@@ -10,13 +10,6 @@ import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;

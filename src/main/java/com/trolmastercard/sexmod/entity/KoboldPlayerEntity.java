@@ -16,13 +16,6 @@ import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.PlayerKoboldRenderer;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

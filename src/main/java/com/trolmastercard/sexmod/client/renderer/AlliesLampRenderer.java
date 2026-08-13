@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.client.renderer;
 
 import com.trolmastercard.sexmod.client.model.AlliesLampModel;
 import com.trolmastercard.sexmod.item.AlliesLampItem;
-
-
-
-
-
-
-
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

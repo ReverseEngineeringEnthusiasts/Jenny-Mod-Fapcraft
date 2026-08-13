@@ -5,13 +5,6 @@ import com.trolmastercard.sexmod.entity.BoneType;
 import com.trolmastercard.sexmod.entity.SexSceneEntity;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;

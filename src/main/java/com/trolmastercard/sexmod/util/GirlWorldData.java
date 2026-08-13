@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.util;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import com.trolmastercard.sexmod.entity.ManglelieEntity;
-
-
-
-
-
-
-
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.Map.Entry;

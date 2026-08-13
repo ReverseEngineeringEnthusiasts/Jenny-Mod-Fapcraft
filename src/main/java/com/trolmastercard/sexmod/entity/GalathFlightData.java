@@ -17,14 +17,6 @@ import com.trolmastercard.sexmod.util.IGalathExecute;
 import com.trolmastercard.sexmod.util.Vector2d;
 import com.trolmastercard.sexmod.util.TrigMath;
 import com.trolmastercard.sexmod.util.IGalathUpdate;
-
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;

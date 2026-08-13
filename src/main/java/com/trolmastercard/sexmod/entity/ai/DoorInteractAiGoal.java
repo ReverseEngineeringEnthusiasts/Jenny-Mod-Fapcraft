@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity.ai;
 
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.material.Material;

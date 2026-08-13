@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.client.model.SummonItemModel;
 import com.trolmastercard.sexmod.entity.BodyParts;
 import com.trolmastercard.sexmod.item.WinchesterItem;
 import com.trolmastercard.sexmod.util.DebugMode;
-
-
-
-
-
-
-
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 import net.minecraft.client.renderer.BufferBuilder;

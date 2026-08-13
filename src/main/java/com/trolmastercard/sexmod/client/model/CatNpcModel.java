@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.client.model;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-
-
-
-
-
-
-
 import net.minecraft.util.ResourceLocation;
 
 public class CatNpcModel extends GirlModel<BaseGirlEntity> {

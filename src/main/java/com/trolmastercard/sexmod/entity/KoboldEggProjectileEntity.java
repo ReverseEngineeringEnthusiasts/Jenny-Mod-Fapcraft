@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityEnderPearl;
@@ -103,7 +102,6 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
          }
       }
    }
-
 
    public static class a {
       @SubscribeEvent

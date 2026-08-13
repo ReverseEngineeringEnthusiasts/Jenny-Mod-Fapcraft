@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.util;
 
-
 import javax.vecmath.Vector3f;
 import net.minecraft.util.math.Vec3d;
 

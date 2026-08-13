@@ -5,13 +5,6 @@ import com.trolmastercard.sexmod.item.GalathCoinItem;
 import com.trolmastercard.sexmod.util.GirlSavedData;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
-
-
-
-
-
-
-
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 import net.minecraft.client.Minecraft;

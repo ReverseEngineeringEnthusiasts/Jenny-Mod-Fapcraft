@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.client.renderer;
 
 import com.trolmastercard.sexmod.client.model.GoblinModel;
 import com.trolmastercard.sexmod.entity.WildSlimeEntity;
-
-
-
-
-
-
-
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;

@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity.ai;
 
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.ai.EntityAIBase;

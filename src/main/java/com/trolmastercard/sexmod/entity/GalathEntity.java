@@ -59,13 +59,6 @@ import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
 import com.trolmastercard.sexmod.util.PathUtils;
 import com.trolmastercard.sexmod.util.ClientServerCheck;
 import com.trolmastercard.sexmod.util.TrigMath;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;

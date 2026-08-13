@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.networking.GalathBackOffRapePacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.EscapeDirectionKey;
-
-
-
-
-
-
-
 import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;

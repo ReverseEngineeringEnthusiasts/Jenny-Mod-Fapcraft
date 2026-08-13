@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.util;
 import com.trolmastercard.sexmod.client.renderer.GirlPlayerRenderer;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.LunaEntity;
-
-
-
-
-
-
-
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;

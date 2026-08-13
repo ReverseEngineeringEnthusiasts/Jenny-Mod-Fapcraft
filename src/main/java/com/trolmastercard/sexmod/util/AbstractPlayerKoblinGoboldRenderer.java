@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.client.renderer.GirlPlayerRenderer;
 import com.trolmastercard.sexmod.entity.BodyParts;
-
-
-
-
-
-
-
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;

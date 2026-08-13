@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.client.gui;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.ThreadNames;
 import com.trolmastercard.sexmod.util.Rectangle;
-
-
-
-
-
-
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;

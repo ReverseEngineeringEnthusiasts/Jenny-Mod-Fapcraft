@@ -5,15 +5,7 @@ import com.trolmastercard.sexmod.client.renderer.DragonStaffRenderer;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.networking.GetTribeUiValuesPacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
-
-
-
-
-
-
-
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockChest;

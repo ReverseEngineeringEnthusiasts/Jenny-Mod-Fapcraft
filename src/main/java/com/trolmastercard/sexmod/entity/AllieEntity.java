@@ -10,13 +10,6 @@ import com.trolmastercard.sexmod.networking.UploadInventoryToServerPacket2;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;

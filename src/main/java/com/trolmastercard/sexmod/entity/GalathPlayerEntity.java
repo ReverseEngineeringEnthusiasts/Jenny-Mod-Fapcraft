@@ -16,13 +16,6 @@ import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.DynamicTrailRenderer;
 import com.trolmastercard.sexmod.util.Vector4d;
-
-
-
-
-
-
-
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;

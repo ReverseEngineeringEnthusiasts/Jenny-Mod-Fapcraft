@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraftforge.fml.common.network.ByteBufUtils;

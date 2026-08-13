@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.DragonEntity;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;

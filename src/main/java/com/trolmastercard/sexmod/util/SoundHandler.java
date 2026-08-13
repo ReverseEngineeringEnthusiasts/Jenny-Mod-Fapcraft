@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.Main;
-
-
-
-
-
-
-
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import net.minecraft.util.ResourceLocation;

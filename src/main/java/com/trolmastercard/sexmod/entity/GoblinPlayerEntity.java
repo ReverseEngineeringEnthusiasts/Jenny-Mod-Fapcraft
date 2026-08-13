@@ -19,13 +19,6 @@ import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.PlayerGoblinRenderer;
 import com.trolmastercard.sexmod.util.EyeColor;
 import com.trolmastercard.sexmod.util.HairColor;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -1058,7 +1051,6 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       var1.addAnimationController(this.movementController);
       var1.addAnimationController(this.eyesController);
    }
-
 
    public static class a {
       HashSet<EntityPlayer> playersToRender = new HashSet<>();

@@ -6,13 +6,6 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.RemoveItemsPacket;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-
-
-
-
-
-
-
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;

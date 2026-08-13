@@ -1,6 +1,4 @@
 package com.trolmastercard.sexmod.util;
-
-
 public class Vector2d {
    public double y;
    public double x;

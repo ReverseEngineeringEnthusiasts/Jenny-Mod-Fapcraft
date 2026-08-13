@@ -7,13 +7,6 @@ import com.trolmastercard.sexmod.networking.ChangeDataParameterPacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
 import com.trolmastercard.sexmod.networking.SetNewHomePacket;
-
-
-
-
-
-
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;

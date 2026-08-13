@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.client.renderer.GoblinRenderer;
 import com.trolmastercard.sexmod.client.renderer.KoboldRenderer;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
-
-
-
-
-
-
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;

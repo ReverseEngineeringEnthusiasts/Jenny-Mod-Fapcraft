@@ -15,13 +15,6 @@ import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
 import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
 import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
-
-
-
-
-
-
-
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;

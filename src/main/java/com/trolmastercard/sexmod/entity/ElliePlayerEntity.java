@@ -15,13 +15,6 @@ import com.trolmastercard.sexmod.networking.TeleportPlayerPacket;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
-
-
-
-
-
-
-
 import com.google.common.base.Optional;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;

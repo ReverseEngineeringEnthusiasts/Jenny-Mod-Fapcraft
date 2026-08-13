@@ -9,13 +9,6 @@ import com.trolmastercard.sexmod.entity.ai.NearestAttackableGirlGoal;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendBlocksPacket;
-
-
-
-
-
-
-
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -630,7 +623,6 @@ public class KoboldManager {
          var3.a(var1, var2);
       }
    }
-
 
    public static class a {
       UUID tribeUUID;

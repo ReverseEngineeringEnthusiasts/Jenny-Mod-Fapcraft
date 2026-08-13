@@ -10,13 +10,6 @@ import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;

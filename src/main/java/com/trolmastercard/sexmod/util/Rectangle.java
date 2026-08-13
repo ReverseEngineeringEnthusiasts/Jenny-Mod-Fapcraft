@@ -1,6 +1,4 @@
 package com.trolmastercard.sexmod.util;
-
-
 public class Rectangle {
    public int x;
    public int y;

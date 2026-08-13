@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.potion;
 import com.trolmastercard.sexmod.entity.ai.GirlAiBase;
 import com.trolmastercard.sexmod.networking.GirlDataPacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
-
-
-
-
-
-
-
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;

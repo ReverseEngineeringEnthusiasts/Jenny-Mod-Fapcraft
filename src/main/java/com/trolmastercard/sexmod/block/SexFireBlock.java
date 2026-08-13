@@ -1,8 +1,6 @@
 package com.trolmastercard.sexmod.block;
 
-
 import net.minecraft.util.ResourceLocation;
-
 import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFire;

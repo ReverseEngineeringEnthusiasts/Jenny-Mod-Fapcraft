@@ -6,13 +6,6 @@ import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.util.KoboldManager;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +62,6 @@ public class GetTribeUiValuesPacket implements IMessage {
          var1.writeInt((int)var3.getW());
       }
    }
-
 
    public static class Handler implements IMessageHandler<GetTribeUiValuesPacket, IMessage> {
       public IMessage onMessage(GetTribeUiValuesPacket var1, MessageContext var2) {

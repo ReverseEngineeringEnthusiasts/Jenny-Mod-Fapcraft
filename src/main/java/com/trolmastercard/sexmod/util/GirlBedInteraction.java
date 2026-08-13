@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-
-
-
-
-
-
-
 import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;

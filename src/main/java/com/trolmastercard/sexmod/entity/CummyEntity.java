@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.entity;
 import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.api.ITargetProvider;
 import com.trolmastercard.sexmod.util.DynamicTrailRenderer;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
