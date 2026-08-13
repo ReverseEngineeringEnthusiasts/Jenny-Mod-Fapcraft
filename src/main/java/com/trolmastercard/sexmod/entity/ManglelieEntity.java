@@ -1,8 +1,8 @@
 package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.Main;
-import com.trolmastercard.sexmod.api.ao;
-import com.trolmastercard.sexmod.api.ar;
+import com.trolmastercard.sexmod.api.IGalathFinish;
+import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.ManglelieNpcModel;
@@ -14,16 +14,16 @@ import com.trolmastercard.sexmod.util.GirlWorldData;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.ad;
-import com.trolmastercard.sexmod.util.af;
-import com.trolmastercard.sexmod.util.ah;
-import com.trolmastercard.sexmod.util.ak;
-import com.trolmastercard.sexmod.util.am;
-import com.trolmastercard.sexmod.util.an;
-import com.trolmastercard.sexmod.util.cj;
-import com.trolmastercard.sexmod.util.ck;
-import com.trolmastercard.sexmod.util.ep;
-import com.trolmastercard.sexmod.util.gc;
+import com.trolmastercard.sexmod.util.DebugMode;
+import com.trolmastercard.sexmod.util.GalathGeometryRender;
+import com.trolmastercard.sexmod.util.GirlCombatProtection;
+import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
+import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
+import com.trolmastercard.sexmod.util.TrailSegment;
+import com.trolmastercard.sexmod.util.WorldUtils;
+import com.trolmastercard.sexmod.util.VectorMath;
+import com.trolmastercard.sexmod.util.DynamicTrailRenderer;
+import com.trolmastercard.sexmod.util.TrigMath;
 
 
 
@@ -169,7 +169,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Nullable
-   public GalathEntity a_clash413(boolean var1) {
+   public GalathEntity getGalathPartner(boolean var1) {
       UUID var2 = this.v_clash412();
       if (var2 == null) {
          return null;
@@ -179,7 +179,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       return !(var3 instanceof GalathEntity) ? null : (GalathEntity)var3;
    }
 
-   public void a_clash414(UUID var1) {
+   public void setGalathPartnerUUID(UUID var1) {
       if (var1 == null) {
          this.entityDataManager.set(ad, "");
       } else {
@@ -227,7 +227,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
 
       if (!this.aq) {
-         if (this.a_clash413(true) == null) {
+         if (this.getGalathPartner(true) == null) {
             System.out.println("removed non-wild mang for lack of mommy");
             this.world.removeEntity(this);
          }
@@ -235,7 +235,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    void a_clash418() {
-      GalathEntity var1 = this.a_clash413(true);
+      GalathEntity var1 = this.getGalathPartner(true);
       if (var1 != null) {
          if (var1.aF() != null) {
             if (!this.getGirlId().equals(var1.aF())) {
@@ -246,8 +246,8 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
-   public static GalathEntity a_clash419(BaseGirlEntity var0, boolean var1) {
-      return !(var0 instanceof ManglelieEntity) ? null : ((ManglelieEntity)var0).a_clash413(var1);
+   public static GalathEntity getGalathPartnerOf(BaseGirlEntity var0, boolean var1) {
+      return !(var0 instanceof ManglelieEntity) ? null : ((ManglelieEntity)var0).getGalathPartner(var1);
    }
 
    public long e_clash420() {
@@ -276,7 +276,7 @@ public class ManglelieEntity extends BaseGirlEntity {
             if (!this.U) {
                Entity var5 = this.b_clash424();
                if (var5 != null) {
-                  GalathEntity var6 = this.a_clash413(true);
+                  GalathEntity var6 = this.getGalathPartner(true);
                   if (var6 != null) {
                      EntityTippedArrow var7 = new EntityTippedArrow(this.world, this);
                      Vec3d var8 = var6.getPositionVector().add(0.0, 3.5, 0.0);
@@ -320,7 +320,7 @@ public class ManglelieEntity extends BaseGirlEntity {
          return super.renderCustomModelTransform(var1, var2, var3, var4);
       }
 
-      GalathEntity var5 = this.a_clash413(false);
+      GalathEntity var5 = this.getGalathPartner(false);
       if (var5 == null) {
          return super.renderCustomModelTransform(var1, var2, var3, var4);
       }
@@ -354,7 +354,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    void d_clash426() {
       Entity var1 = this.b_clash424();
       if (var1 != null) {
-         GalathEntity var2 = this.a_clash413(true);
+         GalathEntity var2 = this.getGalathPartner(true);
          if (var2 == null) {
             this.a_clash425(-1);
          } else if (!this.r_clash411()) {
@@ -389,19 +389,19 @@ public class ManglelieEntity extends BaseGirlEntity {
          return true;
       }
 
-      Float var3 = GalathEntity.a_clash692(var1, 0.0F);
+      Float var3 = GalathEntity.getAimYaw(var1, 0.0F);
       float var4 = var3 == null ? var1.rotationYawHead : var3;
-      Vec3d var5 = ck.rotateByYaw(var2, var4);
+      Vec3d var5 = VectorMath.rotateByYaw(var2, var4);
       return var5.z < 0.0;
    }
 
    void n_clash427() {
       if (this.b_clash424() == null) {
          if (this.r_clash411()) {
-            GalathEntity var1 = this.a_clash413(true);
+            GalathEntity var1 = this.getGalathPartner(true);
             if (var1 != null) {
                if (var1.getInteractionPlayerUUID() == null) {
-                  if (var1.getCurrentAction() != fp.MASTERBATE) {
+                  if (var1.getCurrentAction() != Action.MASTERBATE) {
                      BlockPos var2 = var1.getPosition();
                      BlockPos var3 = new BlockPos(15.0, 15.0, 15.0);
 
@@ -422,7 +422,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    void i_clash428() {
       Entity var1 = this.b_clash424();
       if (var1 != null) {
-         GalathEntity var2 = this.a_clash413(true);
+         GalathEntity var2 = this.getGalathPartner(true);
          if (var2 != null) {
             long var3 = this.e_clash420();
             if (var3 != -1L) {
@@ -442,23 +442,23 @@ public class ManglelieEntity extends BaseGirlEntity {
          BaseGirlEntity var1 = BaseGirlEntity.getServerGirlEntity(this.Q);
          if (var1 instanceof GalathEntity) {
             GalathEntity var2 = (GalathEntity)var1;
-            this.a_clash414(this.Q);
-            var2.a_clash640(this.getGirlId());
+            this.setGalathPartnerUUID(this.Q);
+            var2.setMangleliePartnerUUID(this.getGirlId());
             this.c_clash410(true);
-            this.setCurrentAction(fp.RIDE_MOMMY_HEAD);
+            this.setCurrentAction(Action.RIDE_MOMMY_HEAD);
             this.Q = null;
-            if (var2.getCurrentAction() == fp.HUG_MANG) {
+            if (var2.getCurrentAction() == Action.HUG_MANG) {
                var2.setAnchored(false);
-               var2.setCurrentAction((fp)null);
+               var2.setCurrentAction((Action)null);
             }
          }
       }
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      if (this.getCurrentAction() != fp.THREESOME_CUM || !fp.a(action, fp.THREESOME_FAST, fp.THREESOME_SLOW)) {
-         if (!this.world.isRemote && action == fp.THREESOME_CUM) {
+   public void setCurrentAction(Action action) {
+      if (this.getCurrentAction() != Action.THREESOME_CUM || !Action.a(action, Action.THREESOME_FAST, Action.THREESOME_SLOW)) {
+         if (!this.world.isRemote && action == Action.THREESOME_CUM) {
             GirlSavedData.a(this.getInteractionPlayerUUID(), this.world.getTotalWorldTime());
          }
 
@@ -467,8 +467,8 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    void w_clash430() {
-      if (this.r_clash411() && !fp.a(this, fp.THREESOME_SLOW, fp.THREESOME_CUM, fp.THREESOME_FAST)) {
-         GalathEntity var1 = this.a_clash413(true);
+      if (this.r_clash411() && !Action.a(this, Action.THREESOME_SLOW, Action.THREESOME_CUM, Action.THREESOME_FAST)) {
+         GalathEntity var1 = this.getGalathPartner(true);
          if (var1 != null) {
             if (!var1.isDead && this.getGirlId().equals(var1.aF())) {
                this.setYawRotation(0.0F);
@@ -497,7 +497,7 @@ public class ManglelieEntity extends BaseGirlEntity {
          return var1;
       }
 
-      GalathEntity var3 = this.a_clash413(false);
+      GalathEntity var3 = this.getGalathPartner(false);
       return var3 == null ? var1 : ManglelieRenderer.b(var3, var2);
    }
 
@@ -512,23 +512,23 @@ public class ManglelieEntity extends BaseGirlEntity {
             GalathEntity var6 = null;
 
             for (GalathEntity var8 : (java.util.Collection<GalathEntity>) (var5) ) {
-               if (!var8.isDead && var8.a_clash638(true) == null && var8.onGround) {
+               if (!var8.isDead && var8.getMangleliePartner(true) == null && var8.onGround) {
                   var6 = var8;
                   break;
                }
             }
 
             if (var6 == null) {
-               if (this.getCurrentAction() == fp.RUN) {
-                  this.setCurrentAction((fp)null);
+               if (this.getCurrentAction() == Action.RUN) {
+                  this.setCurrentAction((Action)null);
                   this.getNavigator().clearPath();
                }
-            } else if (this.getCurrentAction() != fp.RIDE_MOMMY_HEAD) {
-               this.setCurrentAction(fp.RUN);
+            } else if (this.getCurrentAction() != Action.RIDE_MOMMY_HEAD) {
+               this.setCurrentAction(Action.RUN);
                Vec3d var11 = this.getPositionVector();
                Vec3d var12 = var6.getPositionVector();
                Vec3d var9 = var12.subtract(var11);
-               float var10 = (float)gc.b(Math.atan2(var9.z, var9.x)) - 90.0F;
+               float var10 = (float)TrigMath.b(Math.atan2(var9.z, var9.x)) - 90.0F;
                this.setYawRotation(var10);
                this.pathNavigator = this.getNavigator();
                this.pathNavigator.clearPath();
@@ -538,28 +538,28 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
-   public boolean a_clash434(Entity var1, float var2) {
-      GalathEntity var3 = this.a_clash413(var2 == 1.0F);
+   public boolean isLookingAtGalathEntity(Entity var1, float var2) {
+      GalathEntity var3 = this.getGalathPartner(var2 == 1.0F);
       if (var3 == null) {
          return false;
       }
 
-      Vec3d var4 = com.trolmastercard.sexmod.util.ak.a_clash52(this, var2);
-      return this.a(com.trolmastercard.sexmod.util.ak.a_clash52(var1, var2).subtract(var4), var3, var2);
+      Vec3d var4 = com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(this, var2);
+      return this.a(com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(var1, var2).subtract(var4), var3, var2);
    }
 
-   public boolean a_clash435(Vec3d var1, float var2) {
-      GalathEntity var3 = this.a_clash413(var2 == 1.0F);
+   public boolean isLookingAtGalathPoint(Vec3d var1, float var2) {
+      GalathEntity var3 = this.getGalathPartner(var2 == 1.0F);
       if (var3 == null) {
          return false;
       }
 
-      Vec3d var4 = com.trolmastercard.sexmod.util.ak.a_clash52(this, var2);
+      Vec3d var4 = com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(this, var2);
       return this.a(var1.subtract(var4), var3, var2);
    }
 
    boolean a(Vec3d var1, GalathEntity var2, float var3) {
-      Vec3d var4 = ck.rotateByYaw(var1, RotationHelper.b(var2.prevRotationYawHead, var2.rotationYawHead, var3));
+      Vec3d var4 = VectorMath.rotateByYaw(var1, RotationHelper.b(var2.prevRotationYawHead, var2.rotationYawHead, var3));
       return var4.x > 0.35;
    }
 
@@ -575,7 +575,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    void m_clash436() {
       if (Minecraft.getMinecraft().player.ticksExisted % 7.0F == 0.0F) {
          if (ManglelieRenderer.b(this)) {
-            GalathEntity var1 = this.a_clash413(false);
+            GalathEntity var1 = this.getGalathPartner(false);
             if (var1 != null) {
                Entity var2 = this.o_clash437();
                if (var2 == null) {
@@ -585,14 +585,14 @@ public class ManglelieEntity extends BaseGirlEntity {
                   Vec3d var3 = var2.getPositionVector().add(0.0, var2.getEyeHeight(), 0.0);
                   Vec3d var4 = var1.getPositionVector().add(var1.getCachedBoneOffset("mangPos")).add(this.getCachedBoneOffset("head"));
                   Vec3d var5 = var4.subtract(var3);
-                  float var6 = (float)(gc.b(Math.atan2(var5.z, var5.x)) + 90.0);
-                  Float var7 = GalathEntity.a_clash692(var1, 0.0F);
+                  float var6 = (float)(TrigMath.b(Math.atan2(var5.z, var5.x)) + 90.0);
+                  Float var7 = GalathEntity.getAimYaw(var1, 0.0F);
                   var6 -= var1.rotationYawHead;
                   if (var7 != null) {
                      var6 -= var7;
                   }
 
-                  this.af = Math.abs(cj.a_clash300(0.0F, var6)) < 80.0F ? -gc.wrapDegrees(var6) : 0.0F;
+                  this.af = Math.abs(WorldUtils.a_clash300(0.0F, var6)) < 80.0F ? -TrigMath.wrapDegrees(var6) : 0.0F;
                   this.W = this.af == 0.0F ? 0.0F : (float)ThreadNames.b(-var5.y / 2.0, -0.75, 0.75);
                }
             }
@@ -605,7 +605,7 @@ public class ManglelieEntity extends BaseGirlEntity {
          return super.attackEntityFrom(var1, var2);
       }
 
-      GalathEntity var3 = this.a_clash413(true);
+      GalathEntity var3 = this.getGalathPartner(true);
       if (var3 == null) {
          return super.attackEntityFrom(var1, var2);
       }
@@ -676,13 +676,13 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    @Nullable
    @Override
-   protected fp getNextAction(fp var1) {
+   protected Action getNextAction(Action var1) {
       return null;
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (fp.a(var1, fp.THREESOME_FAST, fp.THREESOME_SLOW)) {
+   protected Action getCumAction(Action var1) {
+      if (Action.a(var1, Action.THREESOME_FAST, Action.THREESOME_SLOW)) {
          this.N = true;
       }
 
@@ -692,7 +692,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    @Override
    public void reinitTasks() {
       if (this.r_clash411()) {
-         this.setCurrentAction(fp.RIDE_MOMMY_HEAD);
+         this.setCurrentAction(Action.RIDE_MOMMY_HEAD);
          this.setYawRotation(0.0F);
          this.entityDataManager.setDirty(YAW_ROTATION);
       }
@@ -719,14 +719,14 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Override
-   protected boolean handleActionAnimationOverrides(fp var1, String var2, boolean var3, AnimationEvent var4) {
-      if (var1 == fp.THREESOME_CUM) {
+   protected boolean handleActionAnimationOverrides(Action var1, String var2, boolean var3, AnimationEvent var4) {
+      if (var1 == Action.THREESOME_CUM) {
          this.N = false;
          this.Y = false;
          this.M = false;
          this.an = 2;
          this.resetCameraAndPhysics();
-         GalathEntity var8 = this.a_clash413(false);
+         GalathEntity var8 = this.getGalathPartner(false);
          if (var8 != null) {
             var8.resetCameraAndPhysics();
             CummyEntity.a_clash747(var8);
@@ -734,20 +734,20 @@ public class ManglelieEntity extends BaseGirlEntity {
 
          CummyEntity.a_clash747(this);
          return true;
-      } else if (this.N && var1 == fp.THREESOME_FAST) {
-         this.setCurrentAction(fp.THREESOME_CUM);
+      } else if (this.N && var1 == Action.THREESOME_FAST) {
+         this.setCurrentAction(Action.THREESOME_CUM);
          this.createAnimation("animation.shared.double_holding_cum", true, var4, true);
-         GalathEntity var7 = this.a_clash413(false);
+         GalathEntity var7 = this.getGalathPartner(false);
          if (var7 != null) {
-            var7.setCurrentAction(fp.MASTERBATE_SITTING_CUM);
+            var7.setCurrentAction(Action.MASTERBATE_SITTING_CUM);
          }
 
          return true;
-      } else if ((this.N || var3) && var1 == fp.THREESOME_SLOW) {
+      } else if ((this.N || var3) && var1 == Action.THREESOME_SLOW) {
          this.Y = false;
-         this.setCurrentAction(fp.THREESOME_FAST);
+         this.setCurrentAction(Action.THREESOME_FAST);
          this.createAnimation("animation.shared.double_holding_soft", true, var4, true);
-         GalathEntity var6 = this.a_clash413(false);
+         GalathEntity var6 = this.getGalathPartner(false);
          if (var6 != null) {
             var6.ak();
          }
@@ -758,23 +758,23 @@ public class ManglelieEntity extends BaseGirlEntity {
             return false;
          }
 
-         if (var3 && !this.Y && var1 == fp.THREESOME_FAST) {
+         if (var3 && !this.Y && var1 == Action.THREESOME_FAST) {
             this.Y = true;
             this.createAnimation("animation.shared.double_holding_hard", true, var4, true);
             return true;
          }
 
-         if (!var3 && var1 == fp.THREESOME_FAST) {
+         if (!var3 && var1 == Action.THREESOME_FAST) {
             this.M = true;
-            this.setCurrentAction(fp.THREESOME_SLOW);
+            this.setCurrentAction(Action.THREESOME_SLOW);
             this.createAnimation("animation.shared.double_holding_back", true, var4, true);
-            GalathEntity var5 = this.a_clash413(false);
+            GalathEntity var5 = this.getGalathPartner(false);
             if (var5 != null) {
-               var5.a_clash695();
+               var5.startPussyLicking();
             }
 
             return true;
-         } else if (this.M && var1 == fp.THREESOME_SLOW) {
+         } else if (this.M && var1 == Action.THREESOME_SLOW) {
             this.M = false;
             this.createAnimation("animation.shared.double_holding_slow", true, var4, true);
             return true;
@@ -795,7 +795,7 @@ public class ManglelieEntity extends BaseGirlEntity {
          this.createAnimation("animation.manglelie.angry_face", true, var1);
          return PlayState.CONTINUE;
       } else if (this.movementController == var2) {
-         if (this.getCurrentAction() == fp.NULL && !this.r_clash411()) {
+         if (this.getCurrentAction() == Action.NULL && !this.r_clash411()) {
             if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
                if ((Boolean)this.entityDataManager.get(ar)) {
                   this.createAnimation("animation.manglelie.scared_run", true, var1);
@@ -875,7 +875,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                this.playRandomSoundAtVolume(SoundHandler.MISC_INSERTS, 6.0F);
                this.playRandomSound(SoundHandler.MISC_POUNDING);
             case "doubleSemen":
-               CummyEntity.a(new ep(10, var0 -> {
+               CummyEntity.a(new DynamicTrailRenderer(10, var0 -> {
                   Vec3d var1xx = var0.getBoneWorldPosition("semenEmitter");
                   Vec3d var2 = var0.getBoneWorldPosition("semenDir");
                   return var1xx.subtract(var2).normalize();

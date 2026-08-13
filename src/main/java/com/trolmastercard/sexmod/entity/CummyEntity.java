@@ -1,8 +1,8 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.ar;
-import com.trolmastercard.sexmod.api.b8;
-import com.trolmastercard.sexmod.util.ep;
+import com.trolmastercard.sexmod.api.IPositionProvider;
+import com.trolmastercard.sexmod.api.ITargetProvider;
+import com.trolmastercard.sexmod.util.DynamicTrailRenderer;
 
 
 
@@ -29,7 +29,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class CummyEntity {
    static final ResourceLocation b = new ResourceLocation("sexmod", "textures/cummy.png");
    static Minecraft c = Minecraft.getMinecraft();
-   static List<ep> a = new ArrayList<>();
+   static List<DynamicTrailRenderer> a = new ArrayList<>();
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
@@ -42,7 +42,7 @@ public class CummyEntity {
       GlStateManager.disableLighting();
       GlStateManager.enableAlpha();
       if (c.player != null) {
-         for (ep var6 : a) {
+         for (DynamicTrailRenderer var6 : a) {
             var6.a(c, var2, var3, var4);
          }
 
@@ -55,24 +55,24 @@ public class CummyEntity {
    @SubscribeEvent
    public void a(ClientTickEvent var1) {
       if (var1.phase != Phase.END) {
-         for (ep var3 : a) {
+         for (DynamicTrailRenderer var3 : a) {
             var3.a_clash449();
          }
       }
    }
 
-   public static void a(ep var0) {
+   public static void a(DynamicTrailRenderer var0) {
       a.add(var0);
    }
 
-   public static void a(int var0, ar var1, b8 var2, BaseGirlEntity var3, float var4, float var5) {
-      a.add(new ep(var0, var1, var2, var3, var4, var5));
+   public static void a(int var0, IPositionProvider var1, ITargetProvider var2, BaseGirlEntity var3, float var4, float var5) {
+      a.add(new DynamicTrailRenderer(var0, var1, var2, var3, var4, var5));
    }
 
    public static void a_clash747(@Nonnull BaseGirlEntity var0) {
       ArrayList var1 = new ArrayList();
 
-      for (ep var3 : a) {
+      for (DynamicTrailRenderer var3 : a) {
          if (var3.e.getGirlId().equals(var0.getGirlId())) {
             var1.add(var3);
          }

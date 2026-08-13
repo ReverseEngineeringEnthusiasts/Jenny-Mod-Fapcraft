@@ -10,5 +10,5 @@ import com.trolmastercard.sexmod.entity.GalathEntity;
 
 @FunctionalInterface
 public interface GalathActionListener {
-   void a_clash857(GalathEntity var1);
+   void stop(GalathEntity var1);
 }

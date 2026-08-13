@@ -54,7 +54,7 @@ public class SexEntity extends Entity {
    public SexEntity(World var1, LunaEntity var2, double var3) {
       super(var1);
       this.a(var2);
-      this.a_clash779(var3);
+      this.positionLunaAbove(var3);
    }
 
    public SexEntity(World var1) {
@@ -104,7 +104,7 @@ public class SexEntity extends Entity {
       this.o = var1;
    }
 
-   public void a_clash778(int var1) {
+   public void setPhase(int var1) {
       this.a = var1;
    }
 
@@ -117,7 +117,7 @@ public class SexEntity extends Entity {
       }
    }
 
-   public void a_clash779(double var1) {
+   public void positionLunaAbove(double var1) {
       LunaEntity var3 = this.b_clash775();
       if (var3 != null) {
          BlockPos var4 = var3.ai;
@@ -244,7 +244,7 @@ public class SexEntity extends Entity {
 
                this.motionY = this.motionY - var4 * this.rand.nextFloat() * 0.2;
                if (!this.world.isRemote && var1 > 0.0F) {
-                  this.a_clash784(var2);
+                  this.spawnLootBlocks(var2);
                }
             }
          }
@@ -307,7 +307,7 @@ public class SexEntity extends Entity {
       double var6 = 0.0;
 
       for (Entity var9 : (java.util.Collection<Entity>) (var5) ) {
-         if (this.a_clash785(var9) && (var9 != this.b_clash775() || this.h >= 5)) {
+         if (this.isCollidableEntity(var9) && (var9 != this.b_clash775() || this.h >= 5)) {
             AxisAlignedBB var10 = var9.getEntityBoundingBox().grow(0.3F);
             RayTraceResult var11 = var10.calculateIntercept(var1, var2);
             if (var11 != null) {
@@ -327,18 +327,18 @@ public class SexEntity extends Entity {
       if (var3 != null && var3.typeOfHit != Type.MISS) {
          if (var3.typeOfHit == Type.ENTITY) {
             this.i = var3.entityHit;
-            this.a_clash783();
+            this.bindTargetEntity();
          } else {
             this.k = true;
          }
       }
    }
 
-   private void a_clash783() {
+   private void bindTargetEntity() {
       this.getDataManager().set(g, this.i.getEntityId() + 1);
    }
 
-   private void a_clash784(BlockPos var1) {
+   private void spawnLootBlocks(BlockPos var1) {
       WorldServer var2 = (WorldServer)this.world;
       int var3 = 1;
       BlockPos var4 = var1.up();
@@ -442,7 +442,7 @@ public class SexEntity extends Entity {
       }
    }
 
-   protected boolean a_clash785(Entity var1) {
+   protected boolean isCollidableEntity(Entity var1) {
       return var1.canBeCollidedWith() || var1 instanceof EntityItem;
    }
 

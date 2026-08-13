@@ -2,7 +2,7 @@ package com.trolmastercard.sexmod.client.gui;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GoblinEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.ThreadNames;
 
@@ -67,7 +67,7 @@ public class GalathScreen extends GuiScreen {
 
    void c_clash396() {
       if (this.f.getInteractionPlayerUUID() == null) {
-         this.f.setCurrentAction(fp.START_THROWING);
+         this.f.setCurrentAction(Action.START_THROWING);
       }
    }
 

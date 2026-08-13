@@ -1,9 +1,9 @@
 package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.Main;
-import com.trolmastercard.sexmod.api.ao;
-import com.trolmastercard.sexmod.api.ar;
-import com.trolmastercard.sexmod.api.by;
+import com.trolmastercard.sexmod.api.IGalathFinish;
+import com.trolmastercard.sexmod.api.IPositionProvider;
+import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.GalathScreen;
@@ -17,17 +17,17 @@ import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.ad;
-import com.trolmastercard.sexmod.util.af;
-import com.trolmastercard.sexmod.util.ah;
-import com.trolmastercard.sexmod.util.ak;
-import com.trolmastercard.sexmod.util.am;
-import com.trolmastercard.sexmod.util.an;
-import com.trolmastercard.sexmod.util.cj;
-import com.trolmastercard.sexmod.util.d3;
-import com.trolmastercard.sexmod.util.e1;
-import com.trolmastercard.sexmod.util.eh;
-import com.trolmastercard.sexmod.util.g5;
+import com.trolmastercard.sexmod.util.DebugMode;
+import com.trolmastercard.sexmod.util.GalathGeometryRender;
+import com.trolmastercard.sexmod.util.GirlCombatProtection;
+import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
+import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
+import com.trolmastercard.sexmod.util.TrailSegment;
+import com.trolmastercard.sexmod.util.WorldUtils;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
+import com.trolmastercard.sexmod.util.Point2D;
+import com.trolmastercard.sexmod.util.EyeColor;
+import com.trolmastercard.sexmod.util.HairColor;
 
 
 
@@ -90,7 +90,7 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
 public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
-   public static final by ax = by.DARK_GREEN;
+   public static final SkinColor ax = SkinColor.DARK_GREEN;
    public static final Vec3i ah = new Vec3i(11, 6, 11);
    public static final Vec3d aB = new Vec3d(5.0, 1.0, 9.0);
    public static final Vec3d af = new Vec3d(3.0, -1.0, 6.0);
@@ -175,7 +175,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    List<GoblinEntity> ab = new ArrayList<>();
    int aY = -1;
    int az = -1;
-   fp aN = null;
+   Action aN = null;
    public float ar = 1.0F;
    int Z = -1;
    boolean aD = true;
@@ -192,7 +192,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    public GoblinEntity(World var1, @Nonnull String var2, int var3) {
       this(var1);
       this.entityDataManager.set(aK, var2);
-      this.entityDataManager.set(M, this.a_clash247(new StringBuilder(), var3));
+      this.entityDataManager.set(M, this.buildModelCodeDNA(new StringBuilder(), var3));
    }
 
    public GoblinEntity(World var1, boolean var2, float var3, Vec3d var4) {
@@ -204,7 +204,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          this.aX = true;
          this.setTargetPosition(var4);
          this.setYawRotation(var3);
-         this.setCurrentAction(fp.SIT);
+         this.setCurrentAction(Action.SIT);
          this.setAnchored(true);
          this.setPosition(var4.x, var4.y, var4.z);
       }
@@ -221,8 +221,8 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    @Override
    protected void entityInit() {
       super.entityInit();
-      eh var1 = eh.values()[this.getRNG().nextInt(eh.values().length)];
-      this.entityDataManager.register(K, new BlockPos(var1.a_clash565()));
+      EyeColor var1 = EyeColor.values()[this.getRNG().nextInt(EyeColor.values().length)];
+      this.entityDataManager.register(K, new BlockPos(var1.getColor()));
       this.entityDataManager.register(N, ax.name());
       this.entityDataManager.register(Q, "");
       this.entityDataManager.register(aK, "");
@@ -232,7 +232,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   protected void a_clash222() {
+   protected void clearBoneColors() {
       GoblinRenderer.clearBoneColors();
    }
 
@@ -251,7 +251,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    @Override
    public void doAction(String var1, UUID var2) {
       if ("take ur stuff back".equals(var1)) {
-         this.setCurrentAction(fp.START_THROWING);
+         this.setCurrentAction(Action.START_THROWING);
       }
 
       if ("use her".equals(var1)) {
@@ -262,14 +262,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    public void c_clash239(UUID var1) {
       this.aY = 0;
       BeeScreen.enableInteraction();
-      d3.setMovementLock(false);
+      HandlePlayerMovement.setMovementLock(false);
       this.setInteractionPlayerUUID(var1);
    }
 
    public void b_clash240(UUID var1) {
       this.az = 0;
       BeeScreen.enableInteraction();
-      d3.setMovementLock(false);
+      HandlePlayerMovement.setMovementLock(false);
       this.setInteractionPlayerUUID(var1);
    }
 
@@ -313,12 +313,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   public int c_clash56() {
+   public int getHeldPlayerDistance() {
       return this.aQ;
    }
 
    @Override
-   public void b_clash63(int var1) {
+   public void setHeldPlayerDistance(int var1) {
       this.aQ = var1;
    }
 
@@ -329,9 +329,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       c(var1, 7);
       c(var1, 7);
       appendPaddedNumber(var1, 5);
-      appendPaddedNumber(var1, g5.values().length - 1);
-      appendPaddedNumber(var1, by.values().length - 1);
-      appendPaddedNumber(var1, eh.values().length - 1);
+      appendPaddedNumber(var1, HairColor.values().length - 1);
+      appendPaddedNumber(var1, SkinColor.values().length - 1);
+      appendPaddedNumber(var1, EyeColor.values().length - 1);
       c(var1, 1);
       return var1.toString();
    }
@@ -344,9 +344,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       appendPaddedNumber(var1, 8);
       appendPaddedNumber(var1, 8);
       appendPaddedNumber(var1, 5);
-      appendPaddedNumber(var1, g5.values().length - 1);
-      appendPaddedNumber(var1, by.values().length - 1);
-      appendPaddedNumber(var1, eh.values().length - 1);
+      appendPaddedNumber(var1, HairColor.values().length - 1);
+      appendPaddedNumber(var1, SkinColor.values().length - 1);
+      appendPaddedNumber(var1, EyeColor.values().length - 1);
       c(var1, 0);
       return var1.toString();
    }
@@ -361,9 +361,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             this.add(16);
             this.add(16);
             this.add(6);
-            this.add(g5.values().length);
-            this.add(by.values().length);
-            this.add(eh.values().length);
+            this.add(HairColor.values().length);
+            this.add(SkinColor.values().length);
+            this.add(EyeColor.values().length);
          }
       };
    }
@@ -374,30 +374,30 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   public e1 g(int var1) {
+   public Point2D g(int var1) {
       switch (var1) {
          case 0:
-            return new e1(40, 130);
+            return new Point2D(40, 130);
          case 1:
-            return new e1(60, 130);
+            return new Point2D(60, 130);
          case 2:
-            return new e1(80, 130);
+            return new Point2D(80, 130);
          case 3:
-            return new e1(100, 130);
+            return new Point2D(100, 130);
          case 4:
-            return new e1(120, 130);
+            return new Point2D(120, 130);
          case 5:
-            return new e1(140, 130);
+            return new Point2D(140, 130);
          case 6:
-            return new e1(160, 130);
+            return new Point2D(160, 130);
          case 7:
-            return new e1(180, 130);
+            return new Point2D(180, 130);
          case 8:
-            return new e1(200, 0);
+            return new Point2D(200, 0);
          case 9:
-            return new e1(200, 130);
+            return new Point2D(200, 130);
          default:
-            return e1.a;
+            return Point2D.a;
       }
    }
 
@@ -431,16 +431,16 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   protected String a_clash247(StringBuilder var1, int var2) {
+   protected String buildModelCodeDNA(StringBuilder var1, int var2) {
       appendPaddedNumber(var1, 3);
       appendPaddedNumber(var1, 2);
       appendPaddedNumber(var1, 2);
       appendPaddedNumber(var1, 7);
       appendPaddedNumber(var1, 7);
       appendPaddedNumber(var1, 5);
-      appendPaddedNumber(var1, g5.values().length - 1);
+      appendPaddedNumber(var1, HairColor.values().length - 1);
       c(var1, var2);
-      appendPaddedNumber(var1, eh.values().length - 1);
+      appendPaddedNumber(var1, EyeColor.values().length - 1);
       c(var1, 0);
       return var1.toString();
    }
@@ -480,7 +480,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       this.entityDataManager.set(N, var1.getString("bodyColor"));
       String[] var2 = getModelCodeParts(this);
       if (Integer.parseInt(var2[3]) > 7 || Integer.parseInt(var2[4]) > 7) {
-         this.entityDataManager.set(M, this.a_clash247(new StringBuilder(), this.k_clash270()));
+         this.entityDataManager.set(M, this.buildModelCodeDNA(new StringBuilder(), this.k_clash270()));
          Main.LOGGER.log(Level.INFO, "updated an old Goblin");
       }
 
@@ -511,13 +511,13 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          return true;
       }
 
-      if (this.getCurrentAction() == fp.RUN) {
+      if (this.getCurrentAction() == Action.RUN) {
          if (this.getDistance(var1) > 3.5) {
             var1.sendStatusMessage(new TextComponentString("get a bit closer..."), true);
          } else {
             this.setTargetPosition(var1.getPositionVector());
             this.setYawRotation(var1.rotationYaw);
-            this.setCurrentAction(fp.CATCH);
+            this.setCurrentAction(Action.CATCH);
             this.entityDataManager.set(GIRL_HAND_STATES, "bj");
             this.setOwnerUUID(var1.getPersistentID());
             this.setInteractionPlayerUUID(var1.getPersistentID());
@@ -533,7 +533,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             var1.sendStatusMessage(new TextComponentString("you are already carrying a Goblin"), true);
          } else {
             this.setOwnerUUID(var1.getPersistentID());
-            this.setCurrentAction(fp.PICK_UP);
+            this.setCurrentAction(Action.PICK_UP);
             this.aQ = 45;
             this.setAnchored(false);
             this.entityDataManager.set(aC, true);
@@ -576,7 +576,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    public void updateAITasks() {
       super.updateAITasks();
       this.f_clash262();
-      a_clash282(this);
+      handlePickUpState(this);
       this.m_clash272();
       this.B_clash269();
       this.J_clash267();
@@ -592,17 +592,17 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    public boolean canBeCollidedWith() {
-      fp var1 = this.getCurrentAction();
-      if (var1 == fp.THROWN) {
+      Action var1 = this.getCurrentAction();
+      if (var1 == Action.THROWN) {
          return false;
-      } else if (var1 == fp.RUN) {
+      } else if (var1 == Action.RUN) {
          return super.canBeCollidedWith();
-      } else if (var1 == fp.AWAIT_PICK_UP) {
+      } else if (var1 == Action.AWAIT_PICK_UP) {
          return super.canBeCollidedWith();
       } else if (this.getOwnerUUID() != null) {
          return false;
       } else {
-         return var1 != fp.NULL ? false : super.canBeCollidedWith();
+         return var1 != Action.NULL ? false : super.canBeCollidedWith();
       }
    }
 
@@ -618,7 +618,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    void n_clash250() {
       if ((Boolean)this.entityDataManager.get(aC)) {
          if (this.getInteractionPlayerUUID() == null) {
-            if (this.getCurrentAction() == fp.NULL) {
+            if (this.getCurrentAction() == Action.NULL) {
                EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 15.0);
                if (var1 != null && var1.getDistance(this) < 2.0F) {
                   this.b_clash249(var1);
@@ -629,7 +629,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      || this.Y > 100) {
                      int var2 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
                      int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
-                     int var4 = cj.a(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
+                     int var4 = WorldUtils.a(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
                      this.R = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
                      this.Y = 0;
                   }
@@ -651,32 +651,32 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    void u_clash252() {
-      if (this.getCurrentAction() == fp.STAND_UP) {
+      if (this.getCurrentAction() == Action.STAND_UP) {
          if (++this.aa >= 37) {
             this.aa = 0;
-            this.setCurrentAction(fp.NULL);
+            this.setCurrentAction(Action.NULL);
          }
       }
    }
 
    @Override
-   public void a_clash59(int var1) {
+   public void setThrowTickCount(int var1) {
       this.aJ = var1;
    }
 
    @Override
-   public int d_clash60() {
+   public int getThrowTickCount() {
       return this.aJ;
    }
 
    void o_clash253() {
-      if (this.getCurrentAction() == fp.THROWN) {
+      if (this.getCurrentAction() == Action.THROWN) {
          if (this.onGround) {
-            int var1 = this.d_clash60() + 1;
-            this.a_clash59(var1);
+            int var1 = this.getThrowTickCount() + 1;
+            this.setThrowTickCount(var1);
             if (var1 >= 30) {
-               this.a_clash59(0);
-               this.setCurrentAction(fp.STAND_UP);
+               this.setThrowTickCount(0);
+               this.setCurrentAction(Action.STAND_UP);
             }
          }
       }
@@ -708,7 +708,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
                for (GoblinEntity var5 : this.ab) {
                   if (!(Boolean)var5.getDataManager().get(aC)) {
-                     var5.setCurrentAction(fp.VANISH);
+                     var5.setCurrentAction(Action.VANISH);
                   }
                }
 
@@ -751,8 +751,8 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      var9.setYawRotation(0.0F);
                      var8.setAnchored(true);
                      var9.setAnchored(true);
-                     var8.setCurrentAction(fp.AWAIT_PICK_UP);
-                     var9.setCurrentAction(fp.AWAIT_PICK_UP);
+                     var8.setCurrentAction(Action.AWAIT_PICK_UP);
+                     var9.setCurrentAction(Action.AWAIT_PICK_UP);
                      var8.setNoGravity(false);
                      var9.setNoGravity(false);
                      var2.setNoGravity(false);
@@ -811,7 +811,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    void t_clash258() {
       if (this.aX) {
-         if (this.getCurrentAction() == fp.JUMP_0) {
+         if (this.getCurrentAction() == Action.JUMP_0) {
             if (++this.am >= 26) {
                this.am = 0;
                Vec3d var1;
@@ -835,7 +835,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                   if (var3 != null) {
                      this.setTargetPosition(var1);
                      this.setYawRotation(this.ac);
-                     this.setCurrentAction(fp.BREEDING_INTRO_0);
+                     this.setCurrentAction(Action.BREEDING_INTRO_0);
                      this.noClip = true;
                      this.setNoGravity(true);
                      Vec3d var4 = b(new Vec3d(0.0, 0.44375 - var3.eyeHeight, -0.7875), this.ac - 180.0F);
@@ -849,7 +849,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                         GoblinEntity var6 = (GoblinEntity)var5.get(0);
                         var6.setTargetPosition(var1);
                         var6.setYawRotation(this.ac);
-                        var6.setCurrentAction(fp.BREEDING_INTRO_1);
+                        var6.setCurrentAction(Action.BREEDING_INTRO_1);
                         var6.noClip = true;
                         var6.setNoGravity(true);
                      }
@@ -858,7 +858,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                         GoblinEntity var7 = (GoblinEntity)var5.get(1);
                         var7.setTargetPosition(var1);
                         var7.setYawRotation(this.ac);
-                        var7.setCurrentAction(fp.BREEDING_INTRO_2);
+                        var7.setCurrentAction(Action.BREEDING_INTRO_2);
                         var7.noClip = true;
                         var7.setNoGravity(true);
                      }
@@ -871,7 +871,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   AxisAlignedBB a_clash259(Vec3d var1, Vec3d var2) {
+   AxisAlignedBB createThrowHitbox(Vec3d var1, Vec3d var2) {
       return new AxisAlignedBB(var1.x, var1.y, var1.z, var2.x, var2.y, var2.z);
    }
 
@@ -895,7 +895,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
             if (var1 != null) {
                Vec3d var2 = this.al.subtract(0.5, 0.0, 0.5).subtract(var1);
-               AxisAlignedBB var3 = this.a_clash259(var2, var2.add(ah.getX(), ah.getY(), ah.getZ()));
+               AxisAlignedBB var3 = this.createThrowHitbox(var2, var2.add(ah.getX(), ah.getY(), ah.getZ()));
                List var4 = this.world.getEntitiesWithinAABB(EntityPlayer.class, var3);
                if (!var4.isEmpty()) {
                   EntityPlayer var5 = (EntityPlayer)var4.get(0);
@@ -911,7 +911,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                         float var8 = var5.rotationYaw + 180.0F;
                         PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var5);
                         this.setInteractionPlayerUUID(var6);
-                        this.setCurrentAction(fp.JUMP_0);
+                        this.setCurrentAction(Action.JUMP_0);
                         this.setTargetPosition(var7);
                         this.setYawRotation(var8);
                         this.setAnchored(true);
@@ -919,14 +919,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                         if (var9.size() > 0) {
                            GoblinEntity var10 = (GoblinEntity)var9.get(0);
                            var10.setInteractionPlayerUUID(var6);
-                           var10.setCurrentAction(fp.JUMP_1);
+                           var10.setCurrentAction(Action.JUMP_1);
                            var10.setTargetPosition(var7);
                            var10.setYawRotation(var8);
                            var10.setAnchored(true);
                            if (var9.size() > 1) {
                               GoblinEntity var11 = (GoblinEntity)var9.get(1);
                               var11.setInteractionPlayerUUID(var6);
-                              var11.setCurrentAction(fp.JUMP_2);
+                              var11.setCurrentAction(Action.JUMP_2);
                               var11.setTargetPosition(var7);
                               var11.setYawRotation(var8);
                               var11.setAnchored(true);
@@ -965,7 +965,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (!this.aZ) {
          this.noClip = false;
          this.setNoGravity(false);
-         if (!this.aX && !(Boolean)this.entityDataManager.get(aC) && !((String)this.entityDataManager.get(aK)).equals("") && this.getCurrentAction() == fp.NULL) {
+         if (!this.aX && !(Boolean)this.entityDataManager.get(aC) && !((String)this.entityDataManager.get(aK)).equals("") && this.getCurrentAction() == Action.NULL) {
             this.world.removeEntity(this);
          }
 
@@ -975,9 +975,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    void e_clash263() {
       GoblinEntity var1 = this;
-      int var2 = var1.a_clash58();
+      int var2 = var1.getThrowProgress();
       if (var2 != -1) {
-         var1.c_clash57(++var2);
+         var1.setThrowProgress(++var2);
          if (var2 == 15) {
             Vec3d var3 = b_clash264(this);
             float var4 = d_clash266(this);
@@ -995,8 +995,8 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          this.noClip = false;
          this.setNoGravity(false);
          if (var2 == 39) {
-            this.c_clash57(-1);
-            this.setCurrentAction(fp.THROWN);
+            this.setThrowProgress(-1);
+            this.setCurrentAction(Action.THROWN);
             this.setInteractionPlayerUUID(null);
             this.setOwnerUUID(null);
          }
@@ -1040,7 +1040,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    void J_clash267() {
       if (this.onGround) {
-         if (this.getCurrentAction() == fp.RUN) {
+         if (this.getCurrentAction() == Action.RUN) {
             EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 100.0);
             if (var1 != null) {
                double var2 = 20.0;
@@ -1066,7 +1066,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    protected void jump() {
-      if (this.getCurrentAction() != fp.RUN || this.j_clash268()) {
+      if (this.getCurrentAction() != Action.RUN || this.j_clash268()) {
          super.jump();
       }
    }
@@ -1093,7 +1093,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (this.aX) {
          if (!(Boolean)this.entityDataManager.get(aC)) {
             if (!(Boolean)this.entityDataManager.get(aV)) {
-               if (this.getCurrentAction() == fp.SIT) {
+               if (this.getCurrentAction() == Action.SIT) {
                   if (++this.aO >= 32000) {
                      EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 3000.0);
                      if (var1 != null) {
@@ -1110,7 +1110,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                                     GoblinEntity var9 = new GoblinEntity(this.world, this.getGirlId().toString(), this.k_clash270());
                                     Vec3d var10 = b(new Vec3d(0.0, 0.0, -0.2F), var1.rotationYawHead);
                                     var9.setPosition(var1.posX + var10.x, var1.posY, var1.posZ + var10.z);
-                                    var9.setCurrentAction(fp.RUN);
+                                    var9.setCurrentAction(Action.RUN);
                                     this.world.spawnEntity(var9);
                                     var9.entityDataManager.set(a0, var8);
                                     var1.sendMessage(
@@ -1156,7 +1156,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             this.setYawRotation(this.ac);
             this.setAnchored(true);
             this.setNoGravity(true);
-            this.setCurrentAction(fp.SIT);
+            this.setCurrentAction(Action.SIT);
          }
       }
    }
@@ -1184,33 +1184,33 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   public fp b_clash62() {
+   public Action getPreviousAction() {
       return this.aN;
    }
 
    @Override
-   public void a_clash61(fp var1) {
+   public void setPreviousAction(Action var1) {
       this.aN = var1;
    }
 
    @Override
-   public void c_clash57(int var1) {
+   public void setThrowProgress(int var1) {
       this.aR = var1;
    }
 
    @Override
-   public int a_clash58() {
+   public int getThrowProgress() {
       return this.aR;
    }
 
    public static void e_clash273(BaseGirlEntity var0) {
-      fp var1 = var0.getCurrentAction();
+      Action var1 = var0.getCurrentAction();
       IGoblin var2 = (IGoblin)var0;
-      if (var2.b_clash62() != fp.START_THROWING && var1 == fp.START_THROWING) {
-         var2.c_clash57(0);
+      if (var2.getPreviousAction() != Action.START_THROWING && var1 == Action.START_THROWING) {
+         var2.setThrowProgress(0);
       }
 
-      var2.a_clash61(var1);
+      var2.setPreviousAction(var1);
    }
 
    public void setFire(int var1) {
@@ -1220,7 +1220,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    void F_clash274() {
-      if (this.getCurrentAction() == fp.VANISH) {
+      if (this.getCurrentAction() == Action.VANISH) {
          this.ar -= 0.05F;
          if (!(this.ar > 0.0F)) {
             this.world.removeEntity(this);
@@ -1230,12 +1230,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    void H_clash275() {
       if (!(Boolean)this.entityDataManager.get(aC)) {
-         if (this.getCurrentAction() == fp.THROWN) {
+         if (this.getCurrentAction() == Action.THROWN) {
             if (this.onGround || this.isInWater()) {
                this.ar = (float)(this.ar - 0.05);
                if (!(this.ar > 0.0F)) {
                   if (!this.world.isRemote) {
-                     this.setCurrentAction(fp.NULL);
+                     this.setCurrentAction(Action.NULL);
                      this.setInteractionPlayerUUID(null);
                      this.setOwnerUUID(null);
                      this.world.removeEntity(this);
@@ -1251,7 +1251,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (this.aY != -1) {
          if (++this.aY == 15) {
             this.aY = -1;
-            this.setCurrentAction(fp.PAIZURI_START);
+            this.setCurrentAction(Action.PAIZURI_START);
             Minecraft.getMinecraft().player.closeScreen();
          }
       }
@@ -1262,7 +1262,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (this.az != -1) {
          if (++this.az == 15) {
             this.az = -1;
-            this.setCurrentAction(fp.NELSON_INTRO);
+            this.setCurrentAction(Action.NELSON_INTRO);
             Minecraft var1 = Minecraft.getMinecraft();
             var1.player.closeScreen();
             var1.gameSettings.thirdPersonView = 2;
@@ -1271,43 +1271,43 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      fp var2 = this.getCurrentAction();
-      if (var2 != fp.PAIZURI_CUM || action != fp.PAIZURI_SLOW && action != fp.PAIZURI_FAST) {
-         if (var2 != fp.NELSON_CUM || action != fp.NELSON_SLOW && action != fp.NELSON_FAST) {
-            if (var2 != fp.BREEDING_CUM_0 || action != fp.BREEDING_SLOW_0 && action != fp.BREEDING_FAST_0) {
-               if (action == fp.START_THROWING && !this.world.isRemote) {
+   public void setCurrentAction(Action action) {
+      Action var2 = this.getCurrentAction();
+      if (var2 != Action.PAIZURI_CUM || action != Action.PAIZURI_SLOW && action != Action.PAIZURI_FAST) {
+         if (var2 != Action.NELSON_CUM || action != Action.NELSON_SLOW && action != Action.NELSON_FAST) {
+            if (var2 != Action.BREEDING_CUM_0 || action != Action.BREEDING_SLOW_0 && action != Action.BREEDING_FAST_0) {
+               if (action == Action.START_THROWING && !this.world.isRemote) {
                   this.setInteractionPlayerUUID(this.getOwnerUUID());
                   this.L_clash281();
                }
 
-               if (action == fp.PAIZURI_START && !this.world.isRemote) {
+               if (action == Action.PAIZURI_START && !this.world.isRemote) {
                   this.z_clash280();
                }
 
-               if (action == fp.NELSON_INTRO && !this.world.isRemote) {
+               if (action == Action.NELSON_INTRO && !this.world.isRemote) {
                   this.q_clash279();
                }
 
-               if (this.getCurrentAction() == fp.PAIZURI_CUM && action == fp.NULL && !this.world.isRemote) {
+               if (this.getCurrentAction() == Action.PAIZURI_CUM && action == Action.NULL && !this.world.isRemote) {
                   this.D_clash278();
                }
 
-               if (action == fp.BREEDING_CUM_0) {
+               if (action == Action.BREEDING_CUM_0) {
                   this.entityDataManager.set(aV, true);
                   this.av = this.world.getTotalWorldTime();
                   this.ai = this.world.getTotalWorldTime();
                }
 
-               if (action == fp.BREEDING_CUM_0) {
+               if (action == Action.BREEDING_CUM_0) {
                   this.Z = 0;
                }
 
-               if (action == fp.NELSON_CUM) {
+               if (action == Action.NELSON_CUM) {
                   this.entityDataManager.set(aV, true);
                }
 
-               if (var2 == fp.NELSON_CUM && action != fp.NELSON_CUM) {
+               if (var2 == Action.NELSON_CUM && action != Action.NELSON_CUM) {
                   this.entityDataManager.set(aV, false);
                }
 
@@ -1378,31 +1378,31 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   public static void a_clash282(BaseGirlEntity var0) {
-      if (var0.getCurrentAction() == fp.PICK_UP) {
+   public static void handlePickUpState(BaseGirlEntity var0) {
+      if (var0.getCurrentAction() == Action.PICK_UP) {
          IGoblin var1 = (IGoblin)var0;
          UUID var2 = var1.getOwnerUUID();
          if (var2 == null) {
-            var1.b_clash63(-1);
-            var0.setCurrentAction(fp.NULL);
+            var1.setHeldPlayerDistance(-1);
+            var0.setCurrentAction(Action.NULL);
             var1.setOwnerUUID(null);
          } else {
             EntityPlayer var3 = var0.world.getPlayerEntityByUUID(var2);
             if (var3 == null) {
-               var1.b_clash63(-1);
-               var0.setCurrentAction(fp.NULL);
+               var1.setHeldPlayerDistance(-1);
+               var0.setCurrentAction(Action.NULL);
                var1.setOwnerUUID(null);
             } else {
                var0.setPosition(var3.posX, var3.posY, var3.posZ);
                if (var0.getPositionVector().distanceTo(var3.getPositionVector()) > 10.0) {
-                  var1.b_clash63(-1);
-                  var0.setCurrentAction(fp.NULL);
+                  var1.setHeldPlayerDistance(-1);
+                  var0.setCurrentAction(Action.NULL);
                   var1.setOwnerUUID(null);
                } else {
-                  int var4 = var1.c_clash56() - 1;
-                  var1.b_clash63(var4);
+                  int var4 = var1.getHeldPlayerDistance() - 1;
+                  var1.setHeldPlayerDistance(var4);
                   if (var4 == 0) {
-                     var0.setCurrentAction(fp.SHOULDER_IDLE);
+                     var0.setCurrentAction(Action.SHOULDER_IDLE);
                      var0.noClip = true;
                   }
                }
@@ -1414,7 +1414,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    @SideOnly(Side.CLIENT)
    @Override
    public boolean shouldRenderNameTag() {
-      if (this.getCurrentAction() != fp.NULL) {
+      if (this.getCurrentAction() != Action.NULL) {
          return false;
       } else if (this.getOwnerUUID() != null) {
          return false;
@@ -1424,7 +1424,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    void y_clash284() {
-      if (this.getCurrentAction() == fp.SHOULDER_IDLE) {
+      if (this.getCurrentAction() == Action.SHOULDER_IDLE) {
          UUID var1 = this.getOwnerUUID();
          if (var1 != null) {
             EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
@@ -1438,44 +1438,44 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
+   protected Action getNextAction(Action var1) {
       switch (var1) {
          case PAIZURI_IDLE:
          case PAIZURI_SLOW:
-            return fp.PAIZURI_FAST;
+            return Action.PAIZURI_FAST;
          case BREEDING_SLOW_0:
-            return fp.BREEDING_FAST_0;
+            return Action.BREEDING_FAST_0;
          case BREEDING_SLOW_2:
-            return fp.BREEDING_FAST_2;
+            return Action.BREEDING_FAST_2;
          case NELSON_SLOW:
-            return fp.NELSON_FAST;
+            return Action.NELSON_FAST;
          default:
             return null;
       }
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
+   protected Action getCumAction(Action var1) {
       switch (var1) {
          case PAIZURI_SLOW:
          case PAIZURI_FAST:
          case PAIZURI_FAST_CONTINUES:
-            return fp.PAIZURI_CUM;
+            return Action.PAIZURI_CUM;
          case BREEDING_SLOW_0:
          case BREEDING_FAST_0:
             for (GoblinEntity var3 : this.ab) {
                var3.getCumAction(var1);
             }
 
-            return fp.BREEDING_CUM_0;
+            return Action.BREEDING_CUM_0;
          case BREEDING_SLOW_2:
          case BREEDING_FAST_2:
-            return fp.BREEDING_CUM_2;
+            return Action.BREEDING_CUM_2;
          case NELSON_SLOW:
          case NELSON_FAST:
-            return fp.NELSON_CUM;
+            return Action.NELSON_CUM;
          case BREEDING_1:
-            return fp.BREEDING_CUM_1;
+            return Action.BREEDING_CUM_1;
          default:
             return null;
       }
@@ -1487,8 +1487,8 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    public void fall(float var1, float var2) {
-      fp var3 = this.getCurrentAction();
-      if (var3 != fp.THROWN && var3 != fp.START_THROWING) {
+      Action var3 = this.getCurrentAction();
+      if (var3 != Action.THROWN && var3 != Action.START_THROWING) {
          super.fall(var1, var2);
       }
    }
@@ -1505,14 +1505,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.goblin.null", true, var1);
             } else {
                this.createAnimation("animation.goblin.blink", true, var1);
             }
             break;
          case "movement":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.goblin.null", true, var1);
             } else {
                double var4 = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
@@ -1686,11 +1686,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                break;
             case "catchDone":
                if ("bj".equals(this.entityDataManager.get(GIRL_HAND_STATES))) {
-                  this.setCurrentAction(fp.CATCH_BJ);
+                  this.setCurrentAction(Action.CATCH_BJ);
                }
                break;
             case "catchBjDone":
-               this.setCurrentAction(fp.CATCH_BJ_IDLE);
+               this.setCurrentAction(Action.CATCH_BJ_IDLE);
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var6 = Minecraft.getMinecraft().player;
                   openInventoryGui(var6, this, new String[]{"use her", "take ur stuff back"}, null, false);
@@ -1723,21 +1723,21 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
                break;
             case "paizuri_startDone":
-               this.setCurrentAction(fp.PAIZURI_IDLE);
+               this.setCurrentAction(Action.PAIZURI_IDLE);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "paizuriFastDone":
-               this.setCurrentAction(fp.PAIZURI_SLOW);
+               this.setCurrentAction(Action.PAIZURI_SLOW);
                break;
             case "paizuriFastReady":
-               if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.setCurrentAction(fp.PAIZURI_FAST_CONTINUES);
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.PAIZURI_FAST_CONTINUES);
                }
                break;
             case "paizuriFastContinuesReady":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -1760,7 +1760,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
                break;
             case "paizuriCumDone":
-               this.setCurrentAction(fp.NULL);
+               this.setCurrentAction(Action.NULL);
                break;
             case "cumSound":
                this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
@@ -1802,7 +1802,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                   var7.player.rotationPitch = -30.0F;
                }
             case "breedingIntroDone":
-               this.setCurrentAction(fp.BREEDING_SLOW_0);
+               this.setCurrentAction(Action.BREEDING_SLOW_0);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -1812,19 +1812,19 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                   this.aD = !this.aD;
                }
 
-               if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.setCurrentAction(fp.BREEDING_FAST_0);
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.BREEDING_FAST_0);
                   this.ay = false;
                }
                break;
             case "breeding_fast1Done":
-               this.setCurrentAction(fp.BREEDING_SLOW_0);
+               this.setCurrentAction(Action.BREEDING_SLOW_0);
                if (this.isControlledByLocalPlayer()) {
                   this.ay = false;
                }
                break;
             case "breeding_fast1Ready":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.ay = true;
                   this.resetAnimationControllerOffset();
                   this.actionController.tickOffset = 0.0;
@@ -1834,7 +1834,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "breeding_intro_3Done":
-               this.setCurrentAction(fp.BREEDING_SLOW_2);
+               this.setCurrentAction(Action.BREEDING_SLOW_2);
                break;
             case "breeding_3_wiggle":
                if (this.getRNG().nextBoolean()) {
@@ -1842,12 +1842,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
                break;
             case "breeding_fast_3Done":
-               if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.setCurrentAction(fp.BREEDING_SLOW_2);
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.BREEDING_SLOW_2);
                }
                break;
             case "breeding_intro_2Done":
-               this.setCurrentAction(fp.BREEDING_1);
+               this.setCurrentAction(Action.BREEDING_1);
                break;
             case "breeding_cumCam":
                if (this.isControlledByLocalPlayer()) {
@@ -1860,7 +1860,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
                break;
             case "neslon_introDone":
-               this.setCurrentAction(fp.NELSON_SLOW);
+               this.setCurrentAction(Action.NELSON_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -1876,27 +1876,27 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                   return;
                }
 
-               if (d3.d) {
+               if (HandlePlayerMovement.d) {
                   this.X = true;
                }
                break;
             case "neslon_fastBackSwitch":
                if (!this.isControlledByLocalPlayer()) {
                   this.actionController.tickOffset = 0.0;
-               } else if (d3.d) {
+               } else if (HandlePlayerMovement.d) {
                   this.actionController.tickOffset = 0.0;
                }
                break;
             case "nelsonFastDone":
                this.X = false;
                if (this.isControlledByLocalPlayer()) {
-                  this.setCurrentAction(fp.NELSON_SLOW);
+                  this.setCurrentAction(Action.NELSON_SLOW);
                }
                break;
             case "nelson_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   this.resetCameraAndPhysics();
-                  this.setCurrentAction(fp.NULL);
+                  this.setCurrentAction(Action.NULL);
                }
          }
       };
@@ -1958,7 +1958,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      var6 = var9;
                      var6.setOwnerUUID(null);
                      var6.setInteractionPlayerUUID(null);
-                     var6.setCurrentAction(fp.NULL);
+                     var6.setCurrentAction(Action.NULL);
                      GoblinEntity var12 = new GoblinEntity(var5);
                      var12.dimension = var4;
                      var12.forceSpawn = true;
@@ -1968,7 +1968,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      var5.spawnEntity(var12);
                      var12.setPositionAndUpdate(var2.posX, var2.posY, var2.posZ);
                      var12.setOwnerUUID(var3);
-                     var12.setCurrentAction(fp.SHOULDER_IDLE);
+                     var12.setCurrentAction(Action.SHOULDER_IDLE);
                      break;
                   }
                }
@@ -2021,7 +2021,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
 
                if (var2 != null) {
-                  if (var2.getCurrentAction() == fp.SHOULDER_IDLE) {
+                  if (var2.getCurrentAction() == Action.SHOULDER_IDLE) {
                      Minecraft.getMinecraft().displayGuiScreen(new GalathScreen(var2));
                   }
                }

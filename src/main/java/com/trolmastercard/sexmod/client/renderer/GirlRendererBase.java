@@ -3,7 +3,7 @@ package com.trolmastercard.sexmod.client.renderer;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.entity.AbstractNpcOnlyEntity;
 import com.trolmastercard.sexmod.entity.BodyParts;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 
 
 
@@ -76,8 +76,8 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
    }
 
    @Override
-   protected void a(BufferBuilder var1, GeoBone var2) {
-      ItemStack var3 = this.a_clash341(null);
+   protected void renderHeldItem(BufferBuilder var1, GeoBone var2) {
+      ItemStack var3 = this.resolveHeldItemStack(null);
       float var4 = this.a_clash217();
       Vec3d var5 = this.a_clash218(var3);
       if (var3 != null) {
@@ -123,23 +123,23 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       return var3;
    }
 
-   protected Vec3i a_clash219(Vec3i var1) {
+   protected Vec3i tintBoneColor(Vec3i var1) {
       return var1;
    }
 
    @Override
-   public void a(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
+   public void renderCustomBones(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
       if (!(this.j.world instanceof SexWorldClient)) {
          String var9 = var2.getName();
          if (var9.equals("weapon")) {
-            this.a(var1, var2);
+            this.renderHeldItem(var1, var2);
          }
 
-         if (var9.equals("itemRenderer") && this.j.getCurrentAction() == fp.PAYMENT) {
-            this.b(var1, var2);
+         if (var9.equals("itemRenderer") && this.j.getCurrentAction() == Action.PAYMENT) {
+            this.renderTradeOverlay(var1, var2);
          }
 
-         this.a(var1, var2.getName(), var2);
+         this.onBoneProcessing(var1, var2.getName(), var2);
          MATRIX_STACK.push();
          MATRIX_STACK.translate(var2);
          MATRIX_STACK.moveToPivot(var2);
@@ -151,13 +151,13 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
                MATRIX_STACK.push();
                GlStateManager.pushMatrix();
                this.q = var2;
-               this.a(var1, var11, var2, var3, var4, var5, var6, var7);
+               this.renderCubeGeometry(var1, var11, var2, var3, var4, var5, var6, var7);
                GlStateManager.popMatrix();
                MATRIX_STACK.pop();
             }
 
             for (GeoBone var13 : var2.childBones) {
-               this.a(var1, var13, var3, var4, var5, var6, var7);
+               this.renderCustomBones(var1, var13, var3, var4, var5, var6, var7);
             }
          }
 
@@ -167,10 +167,10 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
 
    @Override
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
-      this.a(var1, var2, var3, var4, var5, var6, 0.0);
+      this.renderCustomBones(var1, var2, var3, var4, var5, var6, 0.0);
    }
 
-   public void a(BufferBuilder var1, GeoCube var2, GeoBone var3, float var4, float var5, float var6, float var7, double var8) {
+   public void renderCubeGeometry(BufferBuilder var1, GeoCube var2, GeoBone var3, float var4, float var5, float var6, float var7, double var8) {
       MATRIX_STACK.moveToPivot(var2);
       MATRIX_STACK.rotate(var2);
       MATRIX_STACK.moveBackFromPivot(var2);
@@ -192,7 +192,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
             }
 
             Vec3i var15 = this.getCachedBoneColor(var3);
-            var15 = this.a_clash219(var15);
+            var15 = this.tintBoneColor(var15);
             Vec3d var16 = BodyParts.a(
                this, var3, new Vec3d(var15.getX() / 255.0F, var15.getY() / 255.0F, var15.getZ() / 255.0F), var14
             );

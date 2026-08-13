@@ -4,10 +4,10 @@ import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.model.api.IGirlModelInfo;
 import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.RotationHelper;
-import com.trolmastercard.sexmod.util.an;
-import com.trolmastercard.sexmod.util.gc;
+import com.trolmastercard.sexmod.util.TrailSegment;
+import com.trolmastercard.sexmod.util.TrigMath;
 
 
 
@@ -171,7 +171,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
          var15 = 8.0F;
       }
 
-      return new Vec3d(gc.wrapDegrees(var13), var14, var15);
+      return new Vec3d(TrigMath.wrapDegrees(var13), var14, var15);
    }
 
    void a(AnimationProcessor<T> var1, ItemStack var2, ItemStack var3, ItemStack var4, ItemStack var5) {
@@ -277,7 +277,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    protected void a(T var1, AnimationProcessor<T> var2, AnimationEvent var3) {
       if (!(var1.world instanceof SexWorldClient)) {
          if (this.e_clash170(var1)) {
-            if (var1.getCurrentAction() == fp.NULL || var1.getCurrentAction() == fp.ATTACK || var1.getCurrentAction() == fp.BOW) {
+            if (var1.getCurrentAction() == Action.NULL || var1.getCurrentAction() == Action.ATTACK || var1.getCurrentAction() == Action.BOW) {
                EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
                IBone var5 = var2.getBone("neck");
                var5.setRotationY(var4.netHeadYaw * 0.5F * (float) (Math.PI / 180.0));

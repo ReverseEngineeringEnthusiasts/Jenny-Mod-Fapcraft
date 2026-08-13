@@ -12,10 +12,10 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.TeleportPlayerPacket;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.am;
-import com.trolmastercard.sexmod.util.ck;
-import com.trolmastercard.sexmod.util.d3;
-import com.trolmastercard.sexmod.util.de;
+import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
+import com.trolmastercard.sexmod.util.VectorMath;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
+import com.trolmastercard.sexmod.util.PlayerKoboldRenderer;
 
 
 
@@ -78,7 +78,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   public AxisAlignedBB a_clash352(EntityPlayer var1) {
+   public AxisAlignedBB getPlayerCollisionBox(EntityPlayer var1) {
       return new AxisAlignedBB(
          var1.posX - 0.3F,
          var1.posY,
@@ -112,7 +112,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
       this.entityDataManager.set(at, var2.toString());
       if (this.world.isRemote) {
-         de.e_clash190();
+         PlayerKoboldRenderer.e_clash190();
       }
    }
 
@@ -158,8 +158,8 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   protected void a_clash354() {
-      de.e_clash190();
+   protected void clearBoneColors() {
+      PlayerKoboldRenderer.e_clash190();
       KoboldRenderer.clearBoneColors();
    }
 
@@ -173,22 +173,22 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    public void b(String var1, UUID var2) {
       if ("anal".equals(var1)) {
          this.b_clash577(var2);
-         this.setCurrentAction(fp.KOBOLD_ANAL_START);
-         this.a(this.getOutfitIndex(), fp.KOBOLD_ANAL_START);
+         this.setCurrentAction(Action.KOBOLD_ANAL_START);
+         this.a(this.getOutfitIndex(), Action.KOBOLD_ANAL_START);
          this.setOutfitIndex(0);
       }
 
       if ("oral".equals(var1)) {
          this.b_clash577(var2);
-         this.setCurrentAction(fp.STARTBLOWJOB);
-         this.a(this.getOutfitIndex(), fp.STARTBLOWJOB);
+         this.setCurrentAction(Action.STARTBLOWJOB);
+         this.a(this.getOutfitIndex(), Action.STARTBLOWJOB);
          this.setOutfitIndex(0);
       }
 
       if ("mating".equals(var1)) {
          this.b_clash577(var2);
-         this.setCurrentAction(fp.MATING_PRESS_START);
-         this.a(this.getOutfitIndex(), fp.MATING_PRESS_START);
+         this.setCurrentAction(Action.MATING_PRESS_START);
+         this.a(this.getOutfitIndex(), Action.MATING_PRESS_START);
          this.setOutfitIndex(0);
       }
    }
@@ -201,7 +201,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   public boolean a_clash355() {
+   public boolean isBlockedByCeiling() {
       Block var1 = this.world.getBlockState(this.getPosition().add(0, 1, 0)).getBlock();
       return !var1.isPassable(this.world, this.getPosition().add(0, 1, 0));
    }
@@ -241,31 +241,31 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    @Nullable
    @Override
-   protected fp getNextAction(fp var1) {
-      if (var1 == fp.SUCKBLOWJOB_BLINK) {
-         return fp.THRUSTBLOWJOB;
+   protected Action getNextAction(Action var1) {
+      if (var1 == Action.SUCKBLOWJOB_BLINK) {
+         return Action.THRUSTBLOWJOB;
       } else {
-         return var1 == fp.KOBOLD_ANAL_SLOW ? fp.KOBOLD_ANAL_FAST : null;
+         return var1 == Action.KOBOLD_ANAL_SLOW ? Action.KOBOLD_ANAL_FAST : null;
       }
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (var1 == fp.THRUSTBLOWJOB || var1 == fp.SUCKBLOWJOB_BLINK) {
-         return fp.CUMBLOWJOB;
-      } else if (var1 == fp.KOBOLD_ANAL_SLOW || var1 == fp.KOBOLD_ANAL_FAST) {
-         return fp.KOBOLD_ANAL_CUM;
+   protected Action getCumAction(Action var1) {
+      if (var1 == Action.THRUSTBLOWJOB || var1 == Action.SUCKBLOWJOB_BLINK) {
+         return Action.CUMBLOWJOB;
+      } else if (var1 == Action.KOBOLD_ANAL_SLOW || var1 == Action.KOBOLD_ANAL_FAST) {
+         return Action.KOBOLD_ANAL_CUM;
       } else {
-         return var1 != fp.MATING_PRESS_HARD && var1 != fp.MATING_PRESS_SOFT ? null : fp.MATING_PRESS_CUM;
+         return var1 != Action.MATING_PRESS_HARD && var1 != Action.MATING_PRESS_SOFT ? null : Action.MATING_PRESS_CUM;
       }
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      fp var2 = this.getCurrentAction();
-      if (var2 != fp.MATING_PRESS_CUM || action != fp.MATING_PRESS_SOFT && action != fp.MATING_PRESS_HARD) {
-         if (var2 != fp.KOBOLD_ANAL_CUM || action != fp.KOBOLD_ANAL_SLOW && action != fp.KOBOLD_ANAL_FAST) {
-            if (var2 != fp.CUMBLOWJOB || action != fp.SUCKBLOWJOB && action != fp.THRUSTBLOWJOB) {
+   public void setCurrentAction(Action action) {
+      Action var2 = this.getCurrentAction();
+      if (var2 != Action.MATING_PRESS_CUM || action != Action.MATING_PRESS_SOFT && action != Action.MATING_PRESS_HARD) {
+         if (var2 != Action.KOBOLD_ANAL_CUM || action != Action.KOBOLD_ANAL_SLOW && action != Action.KOBOLD_ANAL_FAST) {
+            if (var2 != Action.CUMBLOWJOB || action != Action.SUCKBLOWJOB && action != Action.THRUSTBLOWJOB) {
                super.setCurrentAction(action);
             }
          }
@@ -282,14 +282,14 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       GeckoLibCache.getInstance().parser.setValue("size", var2);
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
+            if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
                this.createAnimation("animation.kobold.blink", true, var1);
             } else {
                this.createAnimation("animation.kobold.null", true, var1);
             }
             break;
          case "movement":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.kobold.null", true, var1);
             } else if (this.ak) {
                this.createAnimation("animation.kobold.sit", true, var1);
@@ -438,7 +438,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
             case "blowjobStartMSG1":
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var11 = Minecraft.getMinecraft().player;
-                  Vec3d var13 = ck.rotateByYaw(new Vec3d(0.0, 0.625 - var11.getEyeHeight(), -1.0), this.getYawRotation() + 180.0F);
+                  Vec3d var13 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.625 - var11.getEyeHeight(), -1.0), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(
                         new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var13), this.getYawRotation() + 180.0F, 0.0F)
@@ -448,7 +448,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
             case "blowjobStartMSG2":
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var10 = Minecraft.getMinecraft().player;
-                  Vec3d var12 = ck.rotateByYaw(new Vec3d(0.5, 0.5 - var10.getEyeHeight(), -0.6875), this.getYawRotation() + 180.0F);
+                  Vec3d var12 = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5 - var10.getEyeHeight(), -0.6875), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(
                         new TeleportPlayerPacket(
@@ -470,7 +470,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.playRandomSound(SoundHandler.MISC_TOUCH);
                break;
             case "blowjobStartDone":
-               this.setCurrentAction(fp.SUCKBLOWJOB_BLINK);
+               this.setCurrentAction(Action.SUCKBLOWJOB_BLINK);
                this.ay = false;
                this.az = true;
                if (this.isControlledByLocalPlayer()) {
@@ -487,8 +487,8 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.actionController.clearAnimationCache();
                break;
             case "blowjobFastDone":
-               if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.setCurrentAction(fp.SUCKBLOWJOB_BLINK);
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.SUCKBLOWJOB_BLINK);
                }
                break;
             case "cumLoud":
@@ -505,7 +505,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
                break;
             case "analStartDone":
-               this.setCurrentAction(fp.KOBOLD_ANAL_SLOW);
+               this.setCurrentAction(Action.KOBOLD_ANAL_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -513,7 +513,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
             case "analStartCam":
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var9 = Minecraft.getMinecraft().player;
-                  Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.5625 - var9.getEyeHeight(), 0.5625), this.getYawRotation() + 180.0F);
+                  Vec3d var5 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.5625 - var9.getEyeHeight(), 0.5625), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var5), this.getYawRotation(), 0.0F));
                }
@@ -522,17 +522,17 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "analFastRapid":
-               if (this.isControlledByLocalPlayer() && d3.d) {
-                  if (this.getCurrentAction() == fp.KOBOLD_ANAL_FAST) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                  if (this.getCurrentAction() == Action.KOBOLD_ANAL_FAST) {
                      this.resetAnimationControllerOffset();
                   } else {
-                     this.setCurrentAction(fp.KOBOLD_ANAL_FAST);
+                     this.setCurrentAction(Action.KOBOLD_ANAL_FAST);
                   }
                }
                break;
             case "analDone":
-               if (this.getCurrentAction() == fp.KOBOLD_ANAL_FAST) {
-                  this.setCurrentAction(fp.KOBOLD_ANAL_SLOW);
+               if (this.getCurrentAction() == Action.KOBOLD_ANAL_FAST) {
+                  this.setCurrentAction(Action.KOBOLD_ANAL_SLOW);
                }
                break;
             case "analHard":
@@ -594,7 +594,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var8 = Minecraft.getMinecraft().player;
                   Vec3d var16 = new Vec3d(0.0, 0.4375 - var8.eyeHeight, -0.6875);
-                  var16 = ck.rotateByYaw(var16, this.getYawRotation() + 180.0F);
+                  var16 = VectorMath.rotateByYaw(var16, this.getYawRotation() + 180.0F);
                   var16 = var16.add(this.getTargetPosition());
                   PacketHandler.b.sendToServer(new TeleportPlayerPacket(var8.getPersistentID().toString(), var16, this.getYawRotation() + 180.0F, 10.0F));
                }
@@ -605,7 +605,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
             case "mating_press_hardDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.setCurrentAction(fp.MATING_PRESS_SOFT);
+                  this.setCurrentAction(Action.MATING_PRESS_SOFT);
                }
                break;
             case "mating_press_softReady":
@@ -613,8 +613,8 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                   HornyMeterHud.addToHornyMeter(0.04F);
                }
 
-               if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.setCurrentAction(fp.MATING_PRESS_HARD);
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.MATING_PRESS_HARD);
                }
                break;
             case "mating_press_hardReady":
@@ -622,7 +622,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                   HornyMeterHud.addToHornyMeter(0.04F);
                }
 
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -630,7 +630,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var4 = Minecraft.getMinecraft().player;
                   Vec3d var7 = new Vec3d(0.0, 1.1875 - var4.eyeHeight, 0.125);
-                  var7 = ck.rotateByYaw(var7, this.getYawRotation() + 180.0F);
+                  var7 = VectorMath.rotateByYaw(var7, this.getYawRotation() + 180.0F);
                   var7 = var7.add(this.getTargetPosition());
                   PacketHandler.b.sendToServer(new TeleportPlayerPacket(var4.getPersistentID().toString(), var7, this.getYawRotation() + 180.0F, 70.0F));
                }

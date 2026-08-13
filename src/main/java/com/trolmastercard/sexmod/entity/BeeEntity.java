@@ -11,7 +11,7 @@ import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.potion.HornyPotion;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -124,17 +124,17 @@ public class BeeEntity extends BeeEntityBase {
       }
 
       this.c_clash752();
-      if (this.getCurrentAction().equals(fp.CITIZEN_CUM)) {
+      if (this.getCurrentAction().equals(Action.CITIZEN_CUM)) {
          this.P = Math.max(1, this.P);
       }
 
-      this.a_clash754();
+      this.doParticleStuff();
       this.b_clash753();
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      if (this.getCurrentAction() != fp.CITIZEN_CUM || action != fp.CITIZEN_FAST && action != fp.COWGIRLSLOW) {
+   public void setCurrentAction(Action action) {
+      if (this.getCurrentAction() != Action.CITIZEN_CUM || action != Action.CITIZEN_FAST && action != Action.COWGIRLSLOW) {
          super.setCurrentAction(action);
       }
    }
@@ -156,7 +156,7 @@ public class BeeEntity extends BeeEntityBase {
                            this.setYawRotation(var1.rotationYaw - 180.0F);
                            this.pathNavigator.clearPath();
                            PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
-                           this.setCurrentAction(fp.CITIZEN_START);
+                           this.setCurrentAction(Action.CITIZEN_START);
                            Vec3d var2 = this.getVectorTowardPlayer(0.2);
                            var1.setPositionAndUpdate(var2.x, var2.y, var2.z);
                         } else {
@@ -182,7 +182,7 @@ public class BeeEntity extends BeeEntityBase {
       }
    }
 
-   void a_clash754() {
+   void doParticleStuff() {
       if (this.P != 0) {
          this.P++;
          if ((Boolean)this.entityDataManager.get(M)) {
@@ -327,13 +327,13 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
-      return var1 == fp.CITIZEN_SLOW ? fp.CITIZEN_FAST : null;
+   protected Action getNextAction(Action var1) {
+      return var1 == Action.CITIZEN_SLOW ? Action.CITIZEN_FAST : null;
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      return var1 != fp.CITIZEN_FAST && var1 != fp.CITIZEN_SLOW ? null : fp.CITIZEN_CUM;
+   protected Action getCumAction(Action var1) {
+      return var1 != Action.CITIZEN_FAST && var1 != Action.CITIZEN_SLOW ? null : Action.CITIZEN_CUM;
    }
 
    @Override
@@ -367,7 +367,7 @@ public class BeeEntity extends BeeEntityBase {
 
       switch (var1.getController().getName()) {
          case "movement":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.bee.null", true, var1);
             } else {
                this.createAnimation("animation.bee." + (this.entityDataManager.get(K) ? "idle_has_chest" : "idle"), true, var1);
@@ -404,7 +404,7 @@ public class BeeEntity extends BeeEntityBase {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "pearl":
-               if (this.isLocalPlayerNearby() && this.getCurrentAction() == fp.THROW_PEARL) {
+               if (this.isLocalPlayerNearby() && this.getCurrentAction() == Action.THROW_PEARL) {
                   PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                }
                break;
@@ -426,11 +426,11 @@ public class BeeEntity extends BeeEntityBase {
                }
                break;
             case "sex_fastDone":
-               if (!this.isControlledByLocalPlayer() || d3.d) {
+               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.d) {
                   return;
                }
             case "sex_startDone":
-               this.setCurrentAction(fp.CITIZEN_SLOW);
+               this.setCurrentAction(Action.CITIZEN_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -451,7 +451,7 @@ public class BeeEntity extends BeeEntityBase {
                }
                break;
             case "sex_fastReady":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                }
          }

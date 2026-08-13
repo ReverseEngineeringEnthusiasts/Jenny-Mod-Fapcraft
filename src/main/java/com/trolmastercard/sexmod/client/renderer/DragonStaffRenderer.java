@@ -5,7 +5,7 @@ import com.trolmastercard.sexmod.client.model.GalathModel;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.item.DragonStaffItem;
 import com.trolmastercard.sexmod.util.RotationHelper;
-import com.trolmastercard.sexmod.util.ck;
+import com.trolmastercard.sexmod.util.VectorMath;
 
 
 
@@ -175,7 +175,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
             this.e.getRenderPartialTicks()
          );
          Vec3d var7 = var6.subtract((Vec3d)var2.get(var3));
-         var7 = ck.a(var7, -var5, var4);
+         var7 = VectorMath.a(var7, -var5, var4);
          double var8 = Math.abs(var7.x) + Math.abs(var7.z) + Math.abs(var7.y);
          double var10 = -var7.x / var8;
          double var12 = -var7.y / var8;

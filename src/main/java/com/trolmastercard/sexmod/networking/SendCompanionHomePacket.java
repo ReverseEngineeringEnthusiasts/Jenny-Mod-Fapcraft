@@ -2,9 +2,9 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.KoboldEggProjectileEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.Reference;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 
@@ -52,8 +52,8 @@ public class SendCompanionHomePacket implements IMessage {
                   () -> {
                      for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.a)) {
                         if (!var3.world.isRemote) {
-                           if (var3.getCurrentAction() != fp.THROW_PEARL) {
-                              var3.setCurrentAction(fp.THROW_PEARL);
+                           if (var3.getCurrentAction() != Action.THROW_PEARL) {
+                              var3.setCurrentAction(Action.THROW_PEARL);
                               var3.setYawRotation(
                                  (float)Math.atan2(var3.posZ - var3.homePos.z, var3.posX - var3.homePos.x)
                                        * (float) (180.0 / Math.PI)
@@ -95,7 +95,7 @@ public class SendCompanionHomePacket implements IMessage {
 
                               var3.setPosition(var3.homePos.x, var3.homePos.y, var3.homePos.z);
                               var3.activeEnderPearl = null;
-                              var3.setCurrentAction(fp.NULL);
+                              var3.setCurrentAction(Action.NULL);
                               var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
                               var3.goHome();
                            }

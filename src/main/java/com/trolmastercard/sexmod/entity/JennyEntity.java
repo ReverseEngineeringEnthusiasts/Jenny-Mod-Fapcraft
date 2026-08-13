@@ -14,11 +14,11 @@ import com.trolmastercard.sexmod.potion.HornyPotion;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.ad;
-import com.trolmastercard.sexmod.util.af;
-import com.trolmastercard.sexmod.util.ck;
-import com.trolmastercard.sexmod.util.d3;
-import com.trolmastercard.sexmod.util.fg;
+import com.trolmastercard.sexmod.util.DebugMode;
+import com.trolmastercard.sexmod.util.GalathGeometryRender;
+import com.trolmastercard.sexmod.util.VectorMath;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
+import com.trolmastercard.sexmod.util.IBeddableSexGirl;
 
 
 
@@ -55,7 +55,7 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
-public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
+public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBeddableSexGirl {
    public boolean Z = false;
    public boolean ab = false;
    public boolean af = false;
@@ -131,7 +131,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          var2.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
          this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
          this.cameraOriginPos = null;
-         this.setCurrentAction(fp.DOGGYSTART);
+         this.setCurrentAction(Action.DOGGYSTART);
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var2);
       }
 
@@ -151,7 +151,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             this.motionX = 0.0;
             this.motionY = 0.0;
             this.motionZ = 0.0;
-            this.setCurrentAction(fp.STARTDOGGY);
+            this.setCurrentAction(Action.STARTDOGGY);
          }
       }
 
@@ -174,7 +174,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                return;
             }
 
-            this.setCurrentAction(fp.PAYMENT);
+            this.setCurrentAction(Action.PAYMENT);
          }
       }
    }
@@ -250,17 +250,17 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          this.changeDataParameterFromClient("animationFollowUp", "strip");
          this.a(true, var2);
       } else if ("action.names.dressup".equals(var1)) {
-         this.setCurrentAction(fp.STRIP);
+         this.setCurrentAction(Action.STRIP);
       }
    }
 
    protected void a(boolean var1, UUID var2) {
       super.triggerActionSync(var1, true, var2);
-      d3.setMovementLock(false);
+      HandlePlayerMovement.setMovementLock(false);
    }
 
    @Override
-   public void a_clash292() {
+   public void goToSexBed() {
       BlockPos var1 = this.getNearestBed(this.getPosition());
       if (var1 == null) {
          this.playSound(SoundHandler.GIRLS_JENNY_HMPH[2]);
@@ -323,18 +323,18 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      fp var2 = this.getCurrentAction();
-      if (var2 != fp.DOGGYCUM || action != fp.DOGGYSLOW && action != fp.DOGGYFAST) {
-         if (var2 != fp.CUMBLOWJOB || action != fp.THRUSTBLOWJOB && action != fp.SUCKBLOWJOB) {
-            if (var2 != fp.PAIZURI_CUM || action != fp.PAIZURI_SLOW && action != fp.PAIZURI_FAST) {
+   public void setCurrentAction(Action action) {
+      Action var2 = this.getCurrentAction();
+      if (var2 != Action.DOGGYCUM || action != Action.DOGGYSLOW && action != Action.DOGGYFAST) {
+         if (var2 != Action.CUMBLOWJOB || action != Action.THRUSTBLOWJOB && action != Action.SUCKBLOWJOB) {
+            if (var2 != Action.PAIZURI_CUM || action != Action.PAIZURI_SLOW && action != Action.PAIZURI_FAST) {
                super.setCurrentAction(action);
-               if (var2 == fp.STARTBLOWJOB || var2 == fp.PAIZURI_START) {
+               if (var2 == Action.STARTBLOWJOB || var2 == Action.PAIZURI_START) {
                   UUID var3 = this.getInteractionPlayerUUID();
                   if (var3 != null) {
                      EntityPlayer var4 = this.world.getPlayerEntityByUUID(var3);
                      if (var4 != null) {
-                        Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 0.2), this.getYawRotation() + 180.0F);
+                        Vec3d var5 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.2), this.getYawRotation() + 180.0F);
                         var4.setPositionAndUpdate(var4.posX + var5.x, var4.posY, var4.posZ + var5.z);
                      }
                   }
@@ -345,31 +345,31 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (var1 == fp.SUCKBLOWJOB || var1 == fp.THRUSTBLOWJOB) {
+   protected Action getCumAction(Action var1) {
+      if (var1 == Action.SUCKBLOWJOB || var1 == Action.THRUSTBLOWJOB) {
          this.positionPlayerRelative(0.0, 0.0, 0.0, 0.0F, 70.0F);
-         return fp.CUMBLOWJOB;
-      } else if (var1 == fp.DOGGYSLOW || var1 == fp.DOGGYFAST) {
-         return fp.DOGGYCUM;
+         return Action.CUMBLOWJOB;
+      } else if (var1 == Action.DOGGYSLOW || var1 == Action.DOGGYFAST) {
+         return Action.DOGGYCUM;
       } else {
-         return var1 != fp.PAIZURI_FAST && var1 != fp.PAIZURI_SLOW ? null : fp.PAIZURI_CUM;
+         return var1 != Action.PAIZURI_FAST && var1 != Action.PAIZURI_SLOW ? null : Action.PAIZURI_CUM;
       }
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
+   protected Action getNextAction(Action var1) {
       switch (var1) {
          case SUCKBLOWJOB:
-            return fp.THRUSTBLOWJOB;
+            return Action.THRUSTBLOWJOB;
          case DOGGYSLOW:
-            return fp.DOGGYFAST;
+            return Action.DOGGYFAST;
          case PAIZURI_SLOW:
             if (this.ae) {
                this.ae = false;
                this.positionPlayerRelative(0.0, 0.0, 0.2F, 0.0F, 70.0F);
             }
 
-            return fp.PAIZURI_FAST;
+            return Action.PAIZURI_FAST;
          default:
             return null;
       }
@@ -393,22 +393,22 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       switch ((String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES)) {
          case "strip":
             this.resetGirlState();
-            this.setCurrentAction(fp.STRIP);
+            this.setCurrentAction(Action.STRIP);
             break;
          case "blowjob":
-            this.setCurrentAction(fp.STARTBLOWJOB);
+            this.setCurrentAction(Action.STARTBLOWJOB);
             break;
          case "boobjob":
             if ((Integer)this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) != 0) {
-               this.setCurrentAction(fp.STRIP);
+               this.setCurrentAction(Action.STRIP);
                return;
             }
 
-            this.setCurrentAction(fp.PAIZURI_START);
+            this.setCurrentAction(Action.PAIZURI_START);
             break;
          case "doggy":
             if ((Integer)this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) != 0) {
-               this.setCurrentAction(fp.STRIP);
+               this.setCurrentAction(Action.STRIP);
                this.resetGirlState();
                return;
             }
@@ -418,7 +418,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
             } else {
                this.resetGirlState();
-               this.a_clash292();
+               this.goToSexBed();
             }
       }
 
@@ -437,14 +437,14 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
+            if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
                this.createAnimation("animation.jenny.fhappy", true, var1);
             } else {
                this.createAnimation("animation.jenny.null", true, var1);
             }
             break;
          case "movement":
-            if (this.getCurrentAction() != fp.NULL && this.getCurrentAction() != null) {
+            if (this.getCurrentAction() != Action.NULL && this.getCurrentAction() != null) {
                this.createAnimation("animation.jenny.null", true, var1);
             } else if (this.isRiding()) {
                this.createAnimation("animation.jenny.sit", true, var1);
@@ -560,7 +560,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
                break;
             case "attackDone":
-               this.setCurrentAction(fp.NULL);
+               this.setCurrentAction(Action.NULL);
                if (++this.S == 3) {
                   this.S = 0;
                }
@@ -670,7 +670,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "bjiMSG11":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                }
 
@@ -697,23 +697,23 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "bjiDone":
-               this.setCurrentAction(fp.SUCKBLOWJOB);
+               this.setCurrentAction(Action.SUCKBLOWJOB);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "bjtDone":
-               this.setCurrentAction(fp.SUCKBLOWJOB);
+               this.setCurrentAction(Action.SUCKBLOWJOB);
                break;
             case "doggyfastReady":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                   this.aa = true;
                }
                break;
             case "bjtReady":
             case "paizuriReady":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -771,7 +771,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "doggyGoOnBedDone":
                PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
-               this.setCurrentAction(fp.WAITDOGGY);
+               this.setCurrentAction(Action.WAITDOGGY);
                break;
             case "doggystartMSG1":
                this.playSound(SoundHandler.MISC_TOUCH[0]);
@@ -794,7 +794,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                break;
             case "doggystartDone":
-               this.setCurrentAction(fp.DOGGYSLOW);
+               this.setCurrentAction(Action.DOGGYSLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -841,7 +841,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "doggyfastDone":
                this.aa = false;
-               this.setCurrentAction(fp.DOGGYSLOW);
+               this.setCurrentAction(Action.DOGGYSLOW);
                break;
             case "doggycumMSG1":
                this.playSoundAtVolume(SoundHandler.MISC_CUMINFLATION[0], 2.0F);
@@ -876,7 +876,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "paizuri_startDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.setCurrentAction(fp.PAIZURI_SLOW);
+                  this.setCurrentAction(Action.PAIZURI_SLOW);
                   HornyMeterHud.resetHornyMeter();
                   HornyMeterHud.showHornyMeter();
                }
@@ -901,7 +901,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "paizuri_fastDone":
-               this.setCurrentAction(fp.PAIZURI_SLOW);
+               this.setCurrentAction(Action.PAIZURI_SLOW);
                if (this.isControlledByLocalPlayer() && !this.ae) {
                   this.ae = true;
                   this.positionPlayerRelative(-0.7, -0.6, 0.2, 60.0F, -3.0F);

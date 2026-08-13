@@ -12,8 +12,8 @@ import com.trolmastercard.sexmod.util.GirlSavedData;
 import com.trolmastercard.sexmod.util.GirlWorldData;
 import com.trolmastercard.sexmod.util.KoboldManager;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-import com.trolmastercard.sexmod.util.fs;
-import com.trolmastercard.sexmod.util.gm;
+import com.trolmastercard.sexmod.util.GirlRegistry;
+import com.trolmastercard.sexmod.util.StructureMarkerRenderer;
 import com.trolmastercard.sexmod.worldgen.ConfigWorldGenHandler;
 
 
@@ -72,13 +72,13 @@ public class Main {
    @EventHandler
    public static void onWorldClosed(FMLServerStoppedEvent var0) {
       BaseGirlEntity.getGirlEntityList().clear();
-      KoboldManager.a_clash69();
+      KoboldManager.clearAll();
       KoboldEntity.aY.clear();
-      GirlSavedData.a_clash844();
-      ConfigWorldGenHandler.b_clash469().a_clash470();
-      fs.a_clash712();
+      GirlSavedData.clearAll();
+      ConfigWorldGenHandler.getInstance().clear();
+      GirlRegistry.clearAll();
       ServerWhitelistManager.e = false;
-      GirlWorldData.a_clash155();
+      GirlWorldData.clearAll();
       if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
          clientReset();
       }
@@ -92,7 +92,7 @@ public class Main {
 
    @SideOnly(Side.CLIENT)
    static void clientReset() {
-      gm.a_clash770();
+      StructureMarkerRenderer.clearMarkers();
       GirlRendererBase.clearBoneColors();
    }
 

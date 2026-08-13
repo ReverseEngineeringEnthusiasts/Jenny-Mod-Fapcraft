@@ -4,13 +4,13 @@ import com.trolmastercard.sexmod.client.particle.DragonBreathParticle;
 import com.trolmastercard.sexmod.client.renderer.GalathCoinRenderer;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GalathEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.networking.InformOfOwnershipPacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.util.GirlSavedData;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.ck;
+import com.trolmastercard.sexmod.util.VectorMath;
 
 
 
@@ -182,7 +182,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
                Vec3d var13 = var6.getTargetPosition().add(0.0, 1.5, 0.0);
                Vec3d var14 = var1.getPositionVector().add(0.0, var1.getEyeHeight(), 0.0);
                Vec3d var9 = var14.add(
-                  ck.a((var1.getHeldItemMainhand().getItem().equals(r) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
+                  VectorMath.a((var1.getHeldItemMainhand().getItem().equals(r) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
                );
                float var10 = (float)(var2 - var4 - 1000L) / 2000.0F;
                Vec3d var11 = RotationHelper.a(var13, var9, var10);
@@ -205,7 +205,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
       if (var2 > var4 + 1000L && var2 < var4 + 3000L) {
          Vec3d var6 = var1.getPositionVector().add(0.0, var1.getEyeHeight(), 0.0);
          Vec3d var7 = var6.add(
-            ck.a((var1.getHeldItemMainhand().getItem().equals(r) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
+            VectorMath.a((var1.getHeldItemMainhand().getItem().equals(r) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
          );
          Vec3d var8 = var6.add(var1.getLookVec().normalize().scale(2.0));
          float var9 = (float)(var2 - var4 - 1000L) / 2000.0F;
@@ -283,7 +283,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    public static void a_clash185(GalathEntity var0) {
-      var0.setCurrentAction(fp.GALATH_DE_SUMMON);
+      var0.setCurrentAction(Action.GALATH_DE_SUMMON);
       var0.aC();
       var0.setAnchored(true);
       var0.setTargetPosition(var0.getPositionVector());

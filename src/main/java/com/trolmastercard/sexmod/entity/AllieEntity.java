@@ -8,8 +8,8 @@ import com.trolmastercard.sexmod.networking.MakeRichWishPacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.UploadInventoryToServerPacket2;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.cj;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.WorldUtils;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -86,7 +86,7 @@ public class AllieEntity extends BaseGirlEntity {
    @Override
    public void updateAITasks() {
       super.updateAITasks();
-      if (this.getCurrentAction() == fp.NULL) {
+      if (this.getCurrentAction() == Action.NULL) {
          this.world.removeEntity(this);
       }
 
@@ -113,7 +113,7 @@ public class AllieEntity extends BaseGirlEntity {
       if (this.U != 1.0F && this.U != -69.0F && this.U <= 0.0F) {
          if (this.isControlledByLocalPlayer()) {
             PacketHandler.b.sendToServer(new UploadInventoryToServerPacket2(this.getGirlId()));
-            d3.setMovementLock(true);
+            HandlePlayerMovement.setMovementLock(true);
          }
 
          this.U = -69.0F;
@@ -153,7 +153,7 @@ public class AllieEntity extends BaseGirlEntity {
    @SideOnly(Side.CLIENT)
    void d_clash699() {
       this.S = false;
-      cj.a(this.world, EnumParticleTypes.PORTAL, this.getPositionVector(), 300, 0.75, 1.5);
+      WorldUtils.a(this.world, EnumParticleTypes.PORTAL, this.getPositionVector(), 300, 0.75, 1.5);
    }
 
    @SideOnly(Side.CLIENT)
@@ -171,31 +171,31 @@ public class AllieEntity extends BaseGirlEntity {
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
-      if (var1 == fp.DEEPTHROAT_SLOW) {
-         return fp.DEEPTHROAT_FAST;
+   protected Action getNextAction(Action var1) {
+      if (var1 == Action.DEEPTHROAT_SLOW) {
+         return Action.DEEPTHROAT_FAST;
       } else {
-         return var1 == fp.REVERSE_COWGIRL_SLOW ? fp.REVERSE_COWGIRL_FAST_START : null;
+         return var1 == Action.REVERSE_COWGIRL_SLOW ? Action.REVERSE_COWGIRL_FAST_START : null;
       }
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (var1 == fp.DEEPTHROAT_FAST || var1 == fp.DEEPTHROAT_SLOW) {
-         return fp.DEEPTHROAT_CUM;
+   protected Action getCumAction(Action var1) {
+      if (var1 == Action.DEEPTHROAT_FAST || var1 == Action.DEEPTHROAT_SLOW) {
+         return Action.DEEPTHROAT_CUM;
       } else {
-         return var1 != fp.REVERSE_COWGIRL_SLOW && var1 != fp.REVERSE_COWGIRL_FAST_START && var1 != fp.REVERSE_COWGIRL_FAST_CONTINUES
+         return var1 != Action.REVERSE_COWGIRL_SLOW && var1 != Action.REVERSE_COWGIRL_FAST_START && var1 != Action.REVERSE_COWGIRL_FAST_CONTINUES
             ? null
-            : fp.REVERSE_COWGIRL_CUM;
+            : Action.REVERSE_COWGIRL_CUM;
       }
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      if (this.getCurrentAction() != fp.DEEPTHROAT_CUM || action != fp.DEEPTHROAT_FAST && action != fp.DEEPTHROAT_SLOW) {
-         if (this.getCurrentAction() != fp.REVERSE_COWGIRL_CUM
-            || action != fp.REVERSE_COWGIRL_SLOW && action != fp.REVERSE_COWGIRL_FAST_START && action != fp.REVERSE_COWGIRL_FAST_CONTINUES) {
-            if (!this.world.isRemote && action == fp.REVERSE_COWGIRL_START) {
+   public void setCurrentAction(Action action) {
+      if (this.getCurrentAction() != Action.DEEPTHROAT_CUM || action != Action.DEEPTHROAT_FAST && action != Action.DEEPTHROAT_SLOW) {
+         if (this.getCurrentAction() != Action.REVERSE_COWGIRL_CUM
+            || action != Action.REVERSE_COWGIRL_SLOW && action != Action.REVERSE_COWGIRL_FAST_START && action != Action.REVERSE_COWGIRL_FAST_CONTINUES) {
+            if (!this.world.isRemote && action == Action.REVERSE_COWGIRL_START) {
                this.a_clash701();
             }
 
@@ -220,7 +220,7 @@ public class AllieEntity extends BaseGirlEntity {
 
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() != fp.NULL || !this.getCurrentAction().autoBlink) {
+            if (this.getCurrentAction() != Action.NULL || !this.getCurrentAction().autoBlink) {
                this.createAnimation("animation.allie.null", true, var1);
             }
             break;
@@ -331,7 +331,7 @@ public class AllieEntity extends BaseGirlEntity {
                }
                break;
             case "summonDone":
-               this.setCurrentAction(fp.SUMMON_WAIT);
+               this.setCurrentAction(Action.SUMMON_WAIT);
                break;
             case "deepthroat_prepareMSG1":
                this.sendChatMessage(I18n.format("allie.dialogue.hihi", new Object[0]));
@@ -353,9 +353,9 @@ public class AllieEntity extends BaseGirlEntity {
                if (this.isControlledByLocalPlayer()) {
                   if ("reverse_cowgirl".equals(this.entityDataManager.get(GIRL_HAND_STATES))) {
                      this.rotationPitch = 30.0F;
-                     this.setCurrentAction(fp.REVERSE_COWGIRL_START);
+                     this.setCurrentAction(Action.REVERSE_COWGIRL_START);
                   } else {
-                     this.setCurrentAction(fp.DEEPTHROAT_START);
+                     this.setCurrentAction(Action.DEEPTHROAT_START);
                      PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
                      this.cameraYaw = this.rotationYaw + 180.0F;
                      this.positionPlayerRelative(0.0, 0.0, 1.35F, 0.0F, 30.0F);
@@ -364,12 +364,12 @@ public class AllieEntity extends BaseGirlEntity {
                }
                break;
             case "deepthroat_fastDone":
-               if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.setCurrentAction(fp.DEEPTHROAT_SLOW);
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.DEEPTHROAT_SLOW);
                }
                break;
             case "deepthroat_startDone":
-               this.setCurrentAction(fp.DEEPTHROAT_SLOW);
+               this.setCurrentAction(Action.DEEPTHROAT_SLOW);
                break;
             case "deepthroat_fastMSG1":
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_BJMOAN));
@@ -426,7 +426,7 @@ public class AllieEntity extends BaseGirlEntity {
                this.playRandomSound(SoundHandler.GIRLS_ALLIE_HUH);
                break;
             case "summon_normalDone":
-               this.setCurrentAction(fp.SUMMON_NORMAL_WAIT);
+               this.setCurrentAction(Action.SUMMON_NORMAL_WAIT);
                if (this.isControlledByLocalPlayer()) {
                   this.openInteractionMenu(Minecraft.getMinecraft().player);
                }
@@ -499,10 +499,10 @@ public class AllieEntity extends BaseGirlEntity {
                }
                break;
             case "fastSwitch":
-               if (this.isControlledByLocalPlayer() && d3.d) {
-                  fp var5 = this.getCurrentAction();
-                  if (var5 == fp.REVERSE_COWGIRL_FAST_START) {
-                     this.setCurrentAction(fp.REVERSE_COWGIRL_FAST_CONTINUES);
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                  Action var5 = this.getCurrentAction();
+                  if (var5 == Action.REVERSE_COWGIRL_FAST_START) {
+                     this.setCurrentAction(Action.REVERSE_COWGIRL_FAST_CONTINUES);
                   } else {
                      this.resetAnimationControllerOffset();
                      int var4 = this.L;
@@ -535,10 +535,10 @@ public class AllieEntity extends BaseGirlEntity {
    public void doAction(String var1, UUID var2) {
       this.R = true;
       if ("action.names.makemerichallie".equals(var1)) {
-         this.setCurrentAction(this.f_clash697() ? fp.RICH_FIRST_TIME : fp.RICH_NORMAL);
+         this.setCurrentAction(this.f_clash697() ? Action.RICH_FIRST_TIME : Action.RICH_NORMAL);
       } else {
          this.changeDataParameterFromClient("animationFollowUp", "action.names.deepthroat".equals(var1) ? "deepthroat" : "reverse_cowgirl");
-         this.setCurrentAction(this.f_clash697() ? fp.ALLIE_PREPARE_FIRST_TIME : fp.ALLIE_PREPARE_NORMAL);
+         this.setCurrentAction(this.f_clash697() ? Action.ALLIE_PREPARE_FIRST_TIME : Action.ALLIE_PREPARE_NORMAL);
       }
    }
 

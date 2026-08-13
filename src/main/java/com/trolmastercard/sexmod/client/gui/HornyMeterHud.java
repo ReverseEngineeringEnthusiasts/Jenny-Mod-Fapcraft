@@ -1,7 +1,7 @@
 package com.trolmastercard.sexmod.client.gui;
 
 import com.trolmastercard.sexmod.util.RotationHelper;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -71,7 +71,7 @@ public class HornyMeterHud extends Gui {
          var2.renderEngine.bindTexture(e);
          GL11.glScalef(0.35F, 0.35F, 0.35F);
          if (c >= 1.0) {
-            if (d3.a) {
+            if (HandlePlayerMovement.a) {
                i = true;
             }
 
@@ -80,7 +80,7 @@ public class HornyMeterHud extends Gui {
          }
 
          if (h && !i) {
-            int var7 = d3.d ? 54 : 0;
+            int var7 = HandlePlayerMovement.d ? 54 : 0;
             this.drawTexturedModalRect((int)RotationHelper.lerp(-200.0F, 98.0F, f), 405, 0, var7, 158, 54);
          }
 

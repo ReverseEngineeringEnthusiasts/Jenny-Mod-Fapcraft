@@ -5,14 +5,14 @@ import com.trolmastercard.sexmod.client.renderer.ManglelieRenderer;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import com.trolmastercard.sexmod.entity.ManglelieEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.ak;
-import com.trolmastercard.sexmod.util.bm;
-import com.trolmastercard.sexmod.util.f7;
-import com.trolmastercard.sexmod.util.gc;
+import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
+import com.trolmastercard.sexmod.util.Vector2f;
+import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
+import com.trolmastercard.sexmod.util.TrigMath;
 
 
 
@@ -32,11 +32,11 @@ import software.bernie.geckolib3.core.processor.IBone;
 public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
    public static final float h = 7.0F;
    public static final float k = 0.75F;
-   static final float l = gc.wrapDegrees(140.0F);
-   static final float m = gc.wrapDegrees(35.0F);
+   static final float l = TrigMath.wrapDegrees(140.0F);
+   static final float m = TrigMath.wrapDegrees(35.0F);
    static final float i = 90.0F;
-   static final float g = gc.wrapDegrees(45.0F);
-   static final float f = gc.wrapDegrees(-45.0F);
+   static final float g = TrigMath.wrapDegrees(45.0F);
+   static final float f = TrigMath.wrapDegrees(-45.0F);
    public static final ResourceLocation j = new ResourceLocation("sexmod", "textures/entity/manglelie/manglelie.png");
 
    @Override
@@ -54,7 +54,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    public static boolean c_clash313(BaseGirlEntity var0) {
-      return fp.a(var0, fp.THREESOME_SLOW, fp.THREESOME_FAST, fp.THREESOME_CUM);
+      return Action.a(var0, Action.THREESOME_SLOW, Action.THREESOME_FAST, Action.THREESOME_CUM);
    }
 
    @Override
@@ -75,9 +75,9 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
    void e_clash314(BaseGirlEntity var1) {
       if (!this.a.isGamePaused()) {
          if (!c_clash313(var1)) {
-            GalathEntity var2 = ManglelieEntity.a_clash419(var1, false);
+            GalathEntity var2 = ManglelieEntity.getGalathPartnerOf(var1, false);
             if (var2 != null) {
-               if (fp.a(var2.getCurrentAction(), fp.CORRUPT_CUM, fp.CARRY_FAST, fp.CORRUPT_INTRO, fp.CORRUPT_SLOW)) {
+               if (Action.a(var2.getCurrentAction(), Action.CORRUPT_CUM, Action.CARRY_FAST, Action.CORRUPT_INTRO, Action.CORRUPT_SLOW)) {
                   AnimationProcessor var3 = this.getAnimationProcessor();
                   IBone var4 = var3.getBone("legR");
                   var4.setRotationY(var4.getRotationY() + f);
@@ -95,7 +95,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       if (var1 instanceof ManglelieEntity) {
          if (!c_clash313(var1)) {
             ManglelieEntity var2 = (ManglelieEntity)var1;
-            GalathEntity var3 = var2.a_clash413(false);
+            GalathEntity var3 = var2.getGalathPartner(false);
             if (var3 != null) {
                IBone var4 = this.getAnimationProcessor().getBone("body");
                var4.setRotationY(var3.bw + (this.a.isGamePaused() ? 0.0F : var4.getRotationY()));
@@ -108,7 +108,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    Vec3d a_clash316(@Nonnull Entity var1) {
-      return ak.a_clash52(var1, this.a.getRenderPartialTicks()).add(0.0, var1.getEyeHeight(), 0.0);
+      return EntityLookVectorHelper.getEntityLookVector(var1, this.a.getRenderPartialTicks()).add(0.0, var1.getEyeHeight(), 0.0);
    }
 
    void d_clash317(BaseGirlEntity var1) {
@@ -117,7 +117,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
             if (!this.a.isGamePaused()) {
                ManglelieEntity var2 = (ManglelieEntity)var1;
                if (var2.r_clash411()) {
-                  GalathEntity var3 = var2.a_clash413(false);
+                  GalathEntity var3 = var2.getGalathPartner(false);
                   if (var3 != null) {
                      AnimationProcessor var4 = this.getAnimationProcessor();
                      IBone var5 = var4.getBone("armL");
@@ -227,18 +227,18 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
 
    ManglelieNpcModel.RotationData a(@Nonnull ManglelieEntity var1, @Nonnull GalathEntity var2, IBone var3, IBone var4, AnimationProcessor var5) {
       ManglelieNpcModel.RotationData var6 = new ManglelieNpcModel.RotationData();
-      var6.b = new f7(m, 0.0F, var3.getRotationZ());
-      var6.h = new f7(l, 0.0F, var4.getRotationZ());
+      var6.b = new Vector3fSexmodSpecial(m, 0.0F, var3.getRotationZ());
+      var6.h = new Vector3fSexmodSpecial(l, 0.0F, var4.getRotationZ());
       float var7 = var2.aE + var5.getBone("upperBody").getRotationX();
       float var8 = this.a.getRenderPartialTicks();
       Vec3d var9 = ManglelieRenderer.a_clash376(var2, var8);
       Vec3d var10 = var1.getCachedBoneOffset("armR").add(var9);
       Vec3d var11 = var1.getCachedBoneOffset("armL").add(var9);
-      bm var12 = ThreadNames.a_clash161(var10, var1.R);
-      bm var13 = ThreadNames.a_clash161(var11, var1.R);
-      Float var14 = GalathEntity.a_clash692(var2, var8);
+      Vector2f var12 = ThreadNames.getLookAngles(var10, var1.R);
+      Vector2f var13 = ThreadNames.getLookAngles(var11, var1.R);
+      Float var14 = GalathEntity.getAimYaw(var2, var8);
       float var15 = var14 == null ? RotationHelper.b(var2.prevRotationYawHead, var2.rotationYawHead, var8) : var14;
-      float var16 = gc.wrapDegrees(var15);
+      float var16 = TrigMath.wrapDegrees(var15);
       float var17 = var1.b_clash423(var8);
       float var18 = (float)RotationHelper.e(Math.min(1.0F, var17));
       float var19;
@@ -250,17 +250,17 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
 
       float var20 = (float)RotationHelper.h(var19);
-      float var21 = gc.wrapDegrees(RotationHelper.lerp(0.0F, 90.0F, var18));
-      boolean var22 = var1.a_clash435(var1.R, var8);
+      float var21 = TrigMath.wrapDegrees(RotationHelper.lerp(0.0F, 90.0F, var18));
+      boolean var22 = var1.isLookingAtGalathPoint(var1.R, var8);
       if (var22) {
-         var6.c = new f7(-var7 + var12.a + gc.wrapDegrees(90.0F), var12.c, 0.0F);
-         var6.g = new f7(
-            -var7 + var13.a + gc.wrapDegrees(90.0F),
-            (float)(var13.c + gc.wrapDegrees(-20.0F) * Math.cos(var12.c + var16 * 1.0F) + RotationHelper.lerp(var21 / 2.0F, 0.0F, var20)),
+         var6.c = new Vector3fSexmodSpecial(-var7 + var12.a + TrigMath.wrapDegrees(90.0F), var12.c, 0.0F);
+         var6.g = new Vector3fSexmodSpecial(
+            -var7 + var13.a + TrigMath.wrapDegrees(90.0F),
+            (float)(var13.c + TrigMath.wrapDegrees(-20.0F) * Math.cos(var12.c + var16 * 1.0F) + RotationHelper.lerp(var21 / 2.0F, 0.0F, var20)),
             0.0F
          );
          var6.a = 1.0F + Math.abs(Math.abs(var12.c) - Math.abs(var16)) * 0.1909F;
-         var6.e = gc.wrapDegrees(90.0F);
+         var6.e = TrigMath.wrapDegrees(90.0F);
          var6.b.b = RotationHelper.lerp(var21, 0.0F, var20);
          if (var19 > 0.5) {
             var6.b.a = m + (float)RotationHelper.b(g, 0.0, RotationHelper.h((var19 - 0.5F) * 2.0F));
@@ -268,14 +268,14 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
             var6.b.a = m + (float)RotationHelper.b(0.0, g, RotationHelper.h(var19 * 2.0F));
          }
       } else {
-         var6.g = new f7(-var7 + var13.a + gc.wrapDegrees(90.0F), var13.c, 0.0F);
-         var6.c = new f7(
-            -var7 + var12.a + gc.wrapDegrees(90.0F),
-            (float)(var12.c + gc.wrapDegrees(20.0F) * Math.cos(var13.c + var16 * 1.0F)) - RotationHelper.lerp(var21 / 2.0F, 0.0F, var20),
+         var6.g = new Vector3fSexmodSpecial(-var7 + var13.a + TrigMath.wrapDegrees(90.0F), var13.c, 0.0F);
+         var6.c = new Vector3fSexmodSpecial(
+            -var7 + var12.a + TrigMath.wrapDegrees(90.0F),
+            (float)(var12.c + TrigMath.wrapDegrees(20.0F) * Math.cos(var13.c + var16 * 1.0F)) - RotationHelper.lerp(var21 / 2.0F, 0.0F, var20),
             0.0F
          );
          var6.f = 1.0F + Math.abs(Math.abs(var13.c) - Math.abs(var16)) * 0.1909F;
-         var6.d = gc.wrapDegrees(90.0F);
+         var6.d = TrigMath.wrapDegrees(90.0F);
          var6.h.b = -RotationHelper.lerp(var21, 0.0F, var20);
          if (var19 > 0.5) {
             var6.h.a = l + (float)RotationHelper.b(g, 0.0, RotationHelper.h((var19 - 0.5F) * 2.0F));
@@ -293,16 +293,16 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       float var6 = var1.aE;
       ManglelieNpcModel.RotationData var7 = new ManglelieNpcModel.RotationData();
       if (var6 > 0.0F) {
-         var7.c = new f7(var2.getRotationX() - var6, var2.getRotationY() - var6 * -25.0F / 45.0F, var2.getRotationZ() + var6 * 12.5F / 45.0F);
-         var7.g = new f7(var3.getRotationX() - var6, var3.getRotationY() + var6 * 15.0F / 45.0F, var3.getRotationZ());
-         var7.b = new f7(var4.getRotationX(), var4.getRotationY(), var4.getRotationZ());
-         var7.h = new f7(var5.getRotationX(), var5.getRotationY(), var5.getRotationZ());
+         var7.c = new Vector3fSexmodSpecial(var2.getRotationX() - var6, var2.getRotationY() - var6 * -25.0F / 45.0F, var2.getRotationZ() + var6 * 12.5F / 45.0F);
+         var7.g = new Vector3fSexmodSpecial(var3.getRotationX() - var6, var3.getRotationY() + var6 * 15.0F / 45.0F, var3.getRotationZ());
+         var7.b = new Vector3fSexmodSpecial(var4.getRotationX(), var4.getRotationY(), var4.getRotationZ());
+         var7.h = new Vector3fSexmodSpecial(var5.getRotationX(), var5.getRotationY(), var5.getRotationZ());
          return var7;
       } else {
-         var7.h = new f7(var5.getRotationX() + 2.0F * var6, var5.getRotationY(), var5.getRotationZ());
-         var7.b = new f7(var4.getRotationX() + 2.2222223F * var6, var4.getRotationY(), var4.getRotationZ());
-         var7.c = new f7(var2.getRotationX() - var6, var2.getRotationY(), var2.getRotationZ() + var6 * 5.0F / 45.0F);
-         var7.g = new f7(var3.getRotationX() - var6, var3.getRotationY(), var3.getRotationZ() - var6 * 5.0F / 45.0F);
+         var7.h = new Vector3fSexmodSpecial(var5.getRotationX() + 2.0F * var6, var5.getRotationY(), var5.getRotationZ());
+         var7.b = new Vector3fSexmodSpecial(var4.getRotationX() + 2.2222223F * var6, var4.getRotationY(), var4.getRotationZ());
+         var7.c = new Vector3fSexmodSpecial(var2.getRotationX() - var6, var2.getRotationY(), var2.getRotationZ() + var6 * 5.0F / 45.0F);
+         var7.g = new Vector3fSexmodSpecial(var3.getRotationX() - var6, var3.getRotationY(), var3.getRotationZ() - var6 * 5.0F / 45.0F);
          return var7;
       }
    }
@@ -312,7 +312,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
          if (!this.a.isGamePaused()) {
             ManglelieEntity var2 = (ManglelieEntity)var1;
             if (ManglelieRenderer.b(var2)) {
-               GalathEntity var3 = var2.a_clash413(false);
+               GalathEntity var3 = var2.getGalathPartner(false);
                if (var3 != null) {
                   AnimationProcessor var4 = this.getAnimationProcessor();
                   float var5 = var3.aE;
@@ -405,10 +405,10 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
 
 
    private static class RotationData {
-      private f7 c;
-      private f7 g;
-      private f7 h;
-      private f7 b;
+      private Vector3fSexmodSpecial c;
+      private Vector3fSexmodSpecial g;
+      private Vector3fSexmodSpecial h;
+      private Vector3fSexmodSpecial b;
       private float f = 1.0F;
       private float a = 1.0F;
       private float e = 0.0F;

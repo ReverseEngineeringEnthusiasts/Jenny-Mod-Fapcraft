@@ -2,7 +2,7 @@ package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 
 
 
@@ -63,11 +63,11 @@ public class KoboldTask {
       this.b.add(var1);
    }
 
-   public void a_clash205(HashSet<BlockPos> var1) {
+   public void addMiningTargets(HashSet<BlockPos> var1) {
       this.b.addAll(var1);
    }
 
-   public void a_clash206(BlockPos var1) {
+   public void removeMiningTarget(BlockPos var1) {
       this.b.remove(var1);
    }
 
@@ -81,7 +81,7 @@ public class KoboldTask {
       return this.b.contains(var1);
    }
 
-   public boolean a_clash208(KoboldEntity var1) {
+   public boolean addWorker(KoboldEntity var1) {
       if (this.c.a <= this.f.size()) {
          return false;
       }
@@ -94,12 +94,12 @@ public class KoboldTask {
       return this.f;
    }
 
-   public void a_clash210() {
+   public void releaseWorkers() {
       for (KoboldEntity var2 : this.f) {
          if (var2.getInteractionPlayerUUID() == null) {
             var2.setNoGravity(false);
             var2.noClip = false;
-            var2.setCurrentAction(fp.NULL);
+            var2.setCurrentAction(Action.NULL);
             var2.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
          }
       }
@@ -139,7 +139,7 @@ public class KoboldTask {
          var5.add(var3.add(0, var7, 0));
       }
 
-      HashSet var15 = a_clash213(var0, var3);
+      HashSet var15 = findConnectedLogs(var0, var3);
       HashSet var8 = new HashSet();
 
       for (BlockPos var10 : (java.util.Collection<BlockPos>) (var15) ) {
@@ -181,7 +181,7 @@ public class KoboldTask {
       return !(var2 instanceof BlockLog) && var2.getMaterial() != Material.AIR;
    }
 
-   static HashSet<BlockPos> a_clash213(World var0, BlockPos var1) {
+   static HashSet<BlockPos> findConnectedLogs(World var0, BlockPos var1) {
       return a(var0, var1, new HashSet<>());
    }
 

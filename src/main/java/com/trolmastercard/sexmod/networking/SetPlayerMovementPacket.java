@@ -1,8 +1,8 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
-import com.trolmastercard.sexmod.util.an;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.TrailSegment;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -43,7 +43,7 @@ public class SetPlayerMovementPacket implements IMessage {
    public static class Handler implements IMessageHandler<SetPlayerMovementPacket, IMessage> {
       public IMessage onMessage(SetPlayerMovementPacket var1, MessageContext var2) {
          if (var1.a && var2.side == Side.CLIENT) {
-            d3.setMovementLock(var1.b);
+            HandlePlayerMovement.setMovementLock(var1.b);
 
             try {
                Minecraft.getMinecraft().player.setVelocity(0.0, 0.0, 0.0);

@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.ar;
+import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.JennyModel;
@@ -8,9 +8,9 @@ import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.am;
-import com.trolmastercard.sexmod.util.ck;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
+import com.trolmastercard.sexmod.util.VectorMath;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -58,13 +58,13 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean a_clash571(String var1) {
+   public boolean handleActionRequest(String var1) {
       if ("anal".equals(var1)) {
-         this.setCurrentAction(fp.ANAL_PREPARE);
+         this.setCurrentAction(Action.ANAL_PREPARE);
          this.setOutfitIndex(0);
          return true;
       } else if ("doggy".equals(var1)) {
-         this.setCurrentAction(fp.SITDOWN);
+         this.setCurrentAction(Action.SITDOWN);
          this.setOutfitIndex(0);
          return true;
       } else {
@@ -82,8 +82,8 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    public void b(String var1, UUID var2) {
       if ("action.names.headpat".equals(var1)) {
          this.b_clash577(var2);
-         this.setCurrentAction(fp.HEAD_PAT);
-         this.a(this.getOutfitIndex(), fp.HEAD_PAT);
+         this.setCurrentAction(Action.HEAD_PAT);
+         this.a(this.getOutfitIndex(), Action.HEAD_PAT);
       }
    }
 
@@ -119,29 +119,29 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      if (this.getCurrentAction() != fp.ANAL_CUM || action != fp.ANAL_FAST && action != fp.ANAL_SLOW) {
-         if (this.getCurrentAction() != fp.PRONE_DOGGY_CUM || action != fp.PRONE_DOGGY_HARD && action != fp.PRONE_DOGGY_SOFT) {
+   public void setCurrentAction(Action action) {
+      if (this.getCurrentAction() != Action.ANAL_CUM || action != Action.ANAL_FAST && action != Action.ANAL_SLOW) {
+         if (this.getCurrentAction() != Action.PRONE_DOGGY_CUM || action != Action.PRONE_DOGGY_HARD && action != Action.PRONE_DOGGY_SOFT) {
             super.setCurrentAction(action);
          }
       }
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
-      if (var1 == fp.ANAL_SLOW) {
-         return fp.ANAL_FAST;
+   protected Action getNextAction(Action var1) {
+      if (var1 == Action.ANAL_SLOW) {
+         return Action.ANAL_FAST;
       } else {
-         return var1 == fp.PRONE_DOGGY_INTRO ? fp.PRONE_DOGGY_INSERT : null;
+         return var1 == Action.PRONE_DOGGY_INTRO ? Action.PRONE_DOGGY_INSERT : null;
       }
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (var1 == fp.ANAL_SLOW || var1 == fp.ANAL_FAST) {
-         return fp.ANAL_CUM;
+   protected Action getCumAction(Action var1) {
+      if (var1 == Action.ANAL_SLOW || var1 == Action.ANAL_FAST) {
+         return Action.ANAL_CUM;
       } else {
-         return var1 != fp.PRONE_DOGGY_SOFT && var1 != fp.PRONE_DOGGY_HARD ? null : fp.PRONE_DOGGY_CUM;
+         return var1 != Action.PRONE_DOGGY_SOFT && var1 != Action.PRONE_DOGGY_HARD ? null : Action.PRONE_DOGGY_CUM;
       }
    }
 
@@ -163,8 +163,8 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    void a_clash590() {
-      fp var1 = this.getCurrentAction();
-      if (var1 == fp.ANAL_WAIT || var1 == fp.SITDOWNIDLE) {
+      Action var1 = this.getCurrentAction();
+      if (var1 == Action.ANAL_WAIT || var1 == Action.SITDOWNIDLE) {
          EntityPlayer var2 = this.j_clash575();
          if (var2 != null) {
             if (!(var2.getDistance(this) > 1.0F)) {
@@ -172,7 +172,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                   if (this.ar == -1) {
                      if (this.world.isRemote) {
                         BeeScreen.enableInteraction();
-                        d3.setMovementLock(false);
+                        HandlePlayerMovement.setMovementLock(false);
                      } else {
                         this.setInteractionPlayerUUID(var2.getPersistentID());
                      }
@@ -182,10 +182,10 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                      this.ar = -1;
                      var2.noClip = true;
                      var2.setNoGravity(true);
-                     if (var1 == fp.ANAL_WAIT) {
+                     if (var1 == Action.ANAL_WAIT) {
                         if (!this.world.isRemote) {
-                           this.setCurrentAction(fp.ANAL_START);
-                           Vec3d var8 = this.getTargetPosition().add(ck.a(-0.3, -1.0, -0.5, this.getYawRotation()));
+                           this.setCurrentAction(Action.ANAL_START);
+                           Vec3d var8 = this.getTargetPosition().add(VectorMath.a(-0.3, -1.0, -0.5, this.getYawRotation()));
                            var2.setPositionAndUpdate(var8.x, var8.y, var8.z);
                         } else if (this.isControlledByLocalPlayer()) {
                            HornyMeterHud.showHornyMeter();
@@ -196,16 +196,16 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                         var2.rotationPitch = 60.0F;
                         if (!this.world.isRemote) {
                            this.setOutfitIndex(0);
-                           this.setCurrentAction(fp.PRONE_DOGGY_INTRO);
+                           this.setCurrentAction(Action.PRONE_DOGGY_INTRO);
                            Vec3d var4 = this.getTargetPosition();
-                           Vec3d var5 = var4.add(ck.a(0.0, 0.0, 1.0, var3));
+                           Vec3d var5 = var4.add(VectorMath.a(0.0, 0.0, 1.0, var3));
                            this.setTargetPosition(var5);
                            EntityPlayer var6 = this.k_clash584();
                            if (var6 != null) {
                               var6.setPositionAndUpdate(var5.x, var5.y, var5.z);
                            }
 
-                           Vec3d var7 = var4.add(ck.a(0.0, 1.1875 - var2.getEyeHeight(), 0.5, var3));
+                           Vec3d var7 = var4.add(VectorMath.a(0.0, 1.1875 - var2.getEyeHeight(), 0.5, var3));
                            var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
                            this.setAnchored(true);
                         }
@@ -221,7 +221,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void resetAnimationControllerTicks() {
       super.resetAnimationControllerTicks();
-      if (this.getCurrentAction() == fp.PRONE_DOGGY_HARD) {
+      if (this.getCurrentAction() == Action.PRONE_DOGGY_HARD) {
          int var1 = this.aq;
 
          do {
@@ -234,14 +234,14 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
+            if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
                this.createAnimation("animation.bia.fhappy", true, var1);
             } else {
                this.createAnimation("animation.bia.null", true, var1);
             }
             break;
          case "movement":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.bia.null", true, var1);
             } else if (this.ak) {
                this.createAnimation("animation.bia.sit", true, var1);
@@ -407,7 +407,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
             case "talk_responseDone":
                this.resetGirlState();
                if ((Integer)this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) != 0) {
-                  this.setCurrentAction(fp.STRIP);
+                  this.setCurrentAction(Action.STRIP);
                } else {
                   this.U();
                }
@@ -419,7 +419,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                this.playSound(SoundHandler.MISC_BEDRUSTLE[0]);
                break;
             case "anal_prepareDone":
-               this.setCurrentAction(fp.ANAL_WAIT);
+               this.setCurrentAction(Action.ANAL_WAIT);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                }
@@ -450,11 +450,11 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
                break;
             case "anal_fastDone":
-               if (!this.isControlledByLocalPlayer() || d3.d) {
+               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.d) {
                   return;
                }
             case "anal_startDone":
-               this.setCurrentAction(fp.ANAL_SLOW);
+               this.setCurrentAction(Action.ANAL_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -501,7 +501,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                this.playRandomSound(SoundHandler.GIRLS_BIA_BREATH);
                break;
             case "sitdownDone":
-               this.setCurrentAction(fp.SITDOWNIDLE);
+               this.setCurrentAction(Action.SITDOWNIDLE);
                break;
             case "slide":
                this.playSound(SoundHandler.randomSound(SoundHandler.MISC_SLIDE));
@@ -519,12 +519,12 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "doggySwitch":
-               if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.setCurrentAction(fp.PRONE_DOGGY_HARD);
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.PRONE_DOGGY_HARD);
                }
                break;
             case "doggyReset":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                }
                break;

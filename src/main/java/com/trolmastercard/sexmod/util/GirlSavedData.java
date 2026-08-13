@@ -38,7 +38,7 @@ public class GirlSavedData extends WorldSavedData {
    public static final String d = "sexmod:ownershipdata";
    public static final String g = "sexmod:mangownershipdata";
    static final long a = 0L;
-   static gl<UUID, UUID> h = new gl<>();
+   static BiDirectionalMap<UUID, UUID> h = new BiDirectionalMap<>();
    static HashMap<UUID, Long> b = new HashMap<>();
    static HashSet<UUID> i = new HashSet<>();
 
@@ -50,7 +50,7 @@ public class GirlSavedData extends WorldSavedData {
       super("sexmod:galath_owner_ship");
    }
 
-   public static void a_clash844() {
+   public static void clearAll() {
       i.clear();
       h.b_clash769();
    }
@@ -86,7 +86,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static void a_clash848(GalathEntity var0) {
-      ManglelieEntity var1 = var0.a_clash638(true);
+      ManglelieEntity var1 = var0.getMangleliePartner(true);
       if (var1 != null) {
          var0.world.removeEntity(var1);
       }

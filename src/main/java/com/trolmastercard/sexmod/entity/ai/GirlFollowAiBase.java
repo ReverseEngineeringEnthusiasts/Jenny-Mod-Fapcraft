@@ -1,7 +1,7 @@
 package com.trolmastercard.sexmod.entity.ai;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.Reference;
 
 
@@ -79,7 +79,7 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
    public void resetTask() {
       this.c.clearPath();
       this.f = GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
-      this.d.setCurrentAction(fp.NULL);
+      this.d.setCurrentAction(Action.NULL);
       this.e.set(BaseGirlEntity.MASTER, "");
       this.c = null;
       this.e = null;

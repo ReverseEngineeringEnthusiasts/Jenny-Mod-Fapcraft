@@ -2,8 +2,8 @@ package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.client.renderer.api.IGirlRenderer;
 import com.trolmastercard.sexmod.util.RotationHelper;
-import com.trolmastercard.sexmod.util.cj;
-import com.trolmastercard.sexmod.util.ck;
+import com.trolmastercard.sexmod.util.WorldUtils;
+import com.trolmastercard.sexmod.util.VectorMath;
 
 
 
@@ -61,14 +61,14 @@ public class BodyParts {
    }
 
    public static Vec3d a(Vec3d var0, Vector3f var1, Vec3d var2) {
-      double var3 = ck.a(var1, var2);
+      double var3 = VectorMath.a(var1, var2);
       double var5 = RotationHelper.e(Math.abs(var3));
       var5 *= 0.1F;
       return RotationHelper.a(var0, var3 > 0.0 ? c : e, var5);
    }
 
    public static void a_clash795(EntityLivingBase var0, float var1) {
-      b = cj.a_clash301(var0, var1);
+      b = WorldUtils.a_clash301(var0, var1);
    }
 
    public static void a(List<IBone> var0, HashSet<String> var1, IGirlRenderer var2) {

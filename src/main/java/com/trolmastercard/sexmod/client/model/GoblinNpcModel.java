@@ -5,10 +5,10 @@ import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GoblinEntity;
 import com.trolmastercard.sexmod.entity.api.IGoblin;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.gc;
+import com.trolmastercard.sexmod.util.TrigMath;
 
 
 
@@ -79,21 +79,21 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             var12.setHidden(!(Boolean)var1.getDataManager().get(GoblinEntity.aV));
             IBone var13 = var4.getBone("body");
             IBone var14 = var4.getBone("head");
-            fp var15 = var1.getCurrentAction();
-            if ((var15 == fp.BREEDING_SLOW_2 || var15 == fp.BREEDING_FAST_2 || var15 == fp.BREEDING_CUM_2) && this.f.gameSettings.thirdPersonView == 0) {
+            Action var15 = var1.getCurrentAction();
+            if ((var15 == Action.BREEDING_SLOW_2 || var15 == Action.BREEDING_FAST_2 || var15 == Action.BREEDING_CUM_2) && this.f.gameSettings.thirdPersonView == 0) {
                var13.setPositionY(var13.getPositionY() + 1.5F);
             }
 
             IGoblin var16 = (IGoblin)var1;
-            if (var15 == fp.AWAIT_PICK_UP || var15 == fp.VANISH) {
+            if (var15 == Action.AWAIT_PICK_UP || var15 == Action.VANISH) {
                this.a(var1, var13, var14);
             }
 
-            if (var15 == fp.SIT) {
+            if (var15 == Action.SIT) {
                this.a(var1, var14);
             }
 
-            if (var15 == fp.START_THROWING) {
+            if (var15 == Action.START_THROWING) {
                if (this.f.player.getPersistentID().equals(var16.getOwnerUUID())) {
                   this.a(var13, var4, var1, var16);
                } else {
@@ -103,14 +103,14 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
                var13.setHidden(false);
             }
 
-            if (!var13.isHidden() && var15 == fp.START_THROWING || var15 == fp.THROWN) {
+            if (!var13.isHidden() && var15 == Action.START_THROWING || var15 == Action.THROWN) {
                Vec3d var17 = d_clash346(var1);
                var13.setRotationX((float)var17.x);
                var13.setPositionY((float)var17.y);
                var13.setPositionZ((float)var17.z);
             }
 
-            if (var15 == fp.START_THROWING || var15 == fp.PICK_UP) {
+            if (var15 == Action.START_THROWING || var15 == Action.PICK_UP) {
                this.a(var4, var16, var1);
             }
          } else {
@@ -118,17 +118,17 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             var6.setHidden(!(Boolean)var1.getDataManager().get(GoblinEntity.aV));
             IBone var7 = var4.getBone("body");
             IBone var8 = var4.getBone("head");
-            fp var9 = var1.getCurrentAction();
-            if ((var9 == fp.BREEDING_SLOW_2 || var9 == fp.BREEDING_FAST_2 || var9 == fp.BREEDING_CUM_2) && this.f.gameSettings.thirdPersonView == 0) {
+            Action var9 = var1.getCurrentAction();
+            if ((var9 == Action.BREEDING_SLOW_2 || var9 == Action.BREEDING_FAST_2 || var9 == Action.BREEDING_CUM_2) && this.f.gameSettings.thirdPersonView == 0) {
                var7.setPositionY(var7.getPositionY() + 1.5F);
             }
 
             IGoblin var10 = (IGoblin)var1;
-            if (var9 == fp.VANISH) {
+            if (var9 == Action.VANISH) {
                this.a(var1, var7, var8);
             }
 
-            if (var9 == fp.START_THROWING) {
+            if (var9 == Action.START_THROWING) {
                if (this.f.player.getPersistentID().equals(var10.getOwnerUUID())) {
                   this.a(var7, var4, var1, var10);
                } else {
@@ -138,14 +138,14 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
                var7.setHidden(false);
             }
 
-            if (!var7.isHidden() && var9 == fp.START_THROWING || var9 == fp.THROWN) {
+            if (!var7.isHidden() && var9 == Action.START_THROWING || var9 == Action.THROWN) {
                Vec3d var11 = d_clash346(var1);
                var7.setRotationX((float)var11.x);
                var7.setPositionY((float)var11.y);
                var7.setPositionZ((float)var11.z);
             }
 
-            if (var9 == fp.START_THROWING || var9 == fp.PICK_UP) {
+            if (var9 == Action.START_THROWING || var9 == Action.PICK_UP) {
                this.a(var4, var10, var1);
             }
 
@@ -156,7 +156,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    void a(AnimationProcessor var1, BaseGirlEntity var2) {
-      if (var2.getCurrentAction() == fp.START_THROWING) {
+      if (var2.getCurrentAction() == Action.START_THROWING) {
          if (this.f.gameSettings.thirdPersonView == 0 && this.f.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var2).getOwnerUserUUID())) {
             IBone var3 = var1.getBone("body");
             if (var3 != null) {
@@ -167,7 +167,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    void b(AnimationProcessor var1, BaseGirlEntity var2) {
-      if (var2.getCurrentAction() == fp.PICK_UP) {
+      if (var2.getCurrentAction() == Action.PICK_UP) {
          if (this.f.gameSettings.thirdPersonView != 0 || !this.f.player.getPersistentID().equals(((IGoblin)var2).getOwnerUUID())) {
             IBone var3 = var1.getBone("body");
             if (var3 != null) {
@@ -191,7 +191,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             float var8 = (float)Math.sin(var7);
             IBone var9 = var1.getBone("LeftLeg");
             IBone var10 = var1.getBone("RightLeg");
-            float var11 = gc.wrapDegrees(60.0F * var8 * var6);
+            float var11 = TrigMath.wrapDegrees(60.0F * var8 * var6);
             var9.setRotationX(var11);
             var10.setRotationX(-var11);
          }
@@ -239,7 +239,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
 
             float var10 = (float)(-(MathHelper.atan2(var6.z, var6.x) * (180.0 / Math.PI) + var9));
             float var11 = ThreadNames.b((float)(var3.getEyeHeight() + var4.y - (var1.getEyeHeight() + var5.y)), -0.75F, 0.75F);
-            var2.setRotationY(gc.wrapDegrees(var10));
+            var2.setRotationY(TrigMath.wrapDegrees(var10));
             var2.setRotationX(var11);
          }
       }
@@ -253,7 +253,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
          Vec3d var7 = var5.subtract(var6);
          float var8 = (float)(-(Math.atan2(var7.z, var7.x) * (180.0 / Math.PI))) + 90.0F;
          float var9 = ThreadNames.b((float)(var4.getEyeHeight() + var5.y - (var1.getEyeHeight() + var6.y)), -0.75F, 0.75F);
-         var2.setRotationY(gc.wrapDegrees(var8));
+         var2.setRotationY(TrigMath.wrapDegrees(var8));
          var3.setRotationX(var9);
       }
    }
@@ -271,7 +271,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       if (var3.isLocallyRegistered()) {
          var1.setHidden(true);
       } else {
-         var1.setHidden(var4.a_clash58() < 15);
+         var1.setHidden(var4.getThrowProgress() < 15);
       }
 
       if (!var3.isLocallyRegistered()) {

@@ -119,7 +119,7 @@ public class NpcEditorWandItem extends Item {
                         new TextComponentString(String.format("%s's model-code: %s%s$%s", var5.getDisplayNameText(), TextFormatting.YELLOW, var6, var7))
                      );
                      var3.sendMessage(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
-                     ThreadNames.a_clash162(String.format("%s$%s", var6, var7));
+                     ThreadNames.copyToClipboard(String.format("%s$%s", var6, var7));
                   }
                }
             }
@@ -163,11 +163,11 @@ public class NpcEditorWandItem extends Item {
             String var6 = BaseGirlEntity.encodePartIdList(BaseGirlEntity.getAllPartIdsForGirl(var4.getGirlId()));
             var1.sendMessage(
                new TextComponentString(
-                  String.format("%s's model-code: %s%s$%s", ThreadNames.b_clash163(NpcType.getNpcType(var4).toString()), TextFormatting.YELLOW, var5, var6)
+                  String.format("%s's model-code: %s%s$%s", ThreadNames.capitalizeFirst(NpcType.getNpcType(var4).toString()), TextFormatting.YELLOW, var5, var6)
                )
             );
             var1.sendMessage(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
-            ThreadNames.a_clash162(String.format("%s$%s", var5, var6));
+            ThreadNames.copyToClipboard(String.format("%s$%s", var5, var6));
             return true;
          }
       }

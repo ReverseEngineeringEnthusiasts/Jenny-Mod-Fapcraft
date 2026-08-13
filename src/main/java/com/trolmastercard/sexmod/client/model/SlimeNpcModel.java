@@ -4,8 +4,8 @@ import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.SlimePlayerEntity;
-import com.trolmastercard.sexmod.entity.fp;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.entity.Action;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 
@@ -21,7 +21,7 @@ import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
 
 public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
-   fp[] f = new fp[]{fp.STARTDOGGY, fp.DOGGYCUM, fp.DOGGYSLOW, fp.DOGGYFAST, fp.DOGGYCUM, fp.DOGGYSTART, fp.WAITDOGGY};
+   Action[] f = new Action[]{Action.STARTDOGGY, Action.DOGGYCUM, Action.DOGGYSLOW, Action.DOGGYFAST, Action.DOGGYCUM, Action.DOGGYSTART, Action.WAITDOGGY};
 
    @Override
    protected ResourceLocation[] getModelLocations() {

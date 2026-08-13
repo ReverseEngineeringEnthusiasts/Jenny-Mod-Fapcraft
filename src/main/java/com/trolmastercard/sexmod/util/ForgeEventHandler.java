@@ -41,30 +41,30 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ForgeEventHandler {
    public static void registerB(boolean var0) {
-      MinecraftForge.EVENT_BUS.register(new ah());
-      MinecraftForge.EVENT_BUS.register(new eo());
+      MinecraftForge.EVENT_BUS.register(new GirlCombatProtection());
+      MinecraftForge.EVENT_BUS.register(new LivingDeathHandler());
       MinecraftForge.EVENT_BUS.register(new PlayerIds());
       MinecraftForge.EVENT_BUS.register(new HornyPotion());
-      MinecraftForge.EVENT_BUS.register(new gu());
+      MinecraftForge.EVENT_BUS.register(new DamageCalculation());
       MinecraftForge.EVENT_BUS.register(new KoboldEggProjectileEntity.a());
       MinecraftForge.EVENT_BUS.register(new GirlFollowGoal.a());
       MinecraftForge.EVENT_BUS.register(AlliesLampItem.b);
       MinecraftForge.EVENT_BUS.register(DragonStaffItem.b);
       MinecraftForge.EVENT_BUS.register(NpcEditorWandItem.a);
       MinecraftForge.EVENT_BUS.register(new LunaRodItem());
-      MinecraftForge.EVENT_BUS.register(new fu());
+      MinecraftForge.EVENT_BUS.register(new PlayerGirlEvents());
       MinecraftForge.EVENT_BUS.register(new LunaEntity.a());
-      MinecraftForge.EVENT_BUS.register(new ey());
+      MinecraftForge.EVENT_BUS.register(new GirlBedInteraction());
       MinecraftForge.EVENT_BUS.register(SexFireBlock.a);
       MinecraftForge.EVENT_BUS.register(new KoboldEntity.c());
       MinecraftForge.EVENT_BUS.register(new DragonStaffItem.a());
       MinecraftForge.EVENT_BUS.register(new KoboldManager.b("tribes"));
       MinecraftForge.EVENT_BUS.register(new KoboldEggItem());
-      MinecraftForge.EVENT_BUS.register(new am());
+      MinecraftForge.EVENT_BUS.register(new GoblinFirstPersonRenderer());
       MinecraftForge.EVENT_BUS.register(new GoblinEntity.c());
       MinecraftForge.EVENT_BUS.register(new GoblinPlayerEntity.a());
       MinecraftForge.EVENT_BUS.register(new AlliesLampItem.a());
-      MinecraftForge.EVENT_BUS.register(new ad());
+      MinecraftForge.EVENT_BUS.register(new DebugMode());
       MinecraftForge.EVENT_BUS.register(new GalathEntity.a());
       MinecraftForge.EVENT_BUS.register(new GirlSavedData());
       MinecraftForge.EVENT_BUS.register(GalathCoinItem.r);
@@ -72,9 +72,9 @@ public class ForgeEventHandler {
       MinecraftForge.EVENT_BUS.register(new BeeWorldData());
       MinecraftForge.EVENT_BUS.register(new AllieWorldData());
       MinecraftForge.EVENT_BUS.register(new GirlWorldData());
-      MinecraftForge.EVENT_BUS.register(ConfigWorldGenHandler.b_clash469());
+      MinecraftForge.EVENT_BUS.register(ConfigWorldGenHandler.getInstance());
       MinecraftForge.EVENT_BUS.register(new ManglelieEntity.b());
-      MinecraftForge.EVENT_BUS.register(new f4());
+      MinecraftForge.EVENT_BUS.register(new NameTagInteractHandler());
       if (var0) {
          b_clash148();
       }
@@ -90,16 +90,16 @@ public class ForgeEventHandler {
 
       MinecraftForge.EVENT_BUS.register(new HornyMeterHud());
       MinecraftForge.EVENT_BUS.register(new BeeScreen());
-      MinecraftForge.EVENT_BUS.register(new d3());
+      MinecraftForge.EVENT_BUS.register(new HandlePlayerMovement());
       MinecraftForge.EVENT_BUS.register(new PositionData());
-      MinecraftForge.EVENT_BUS.register(new bq());
-      MinecraftForge.EVENT_BUS.register(new cn());
+      MinecraftForge.EVENT_BUS.register(new GuiOpenHandler());
+      MinecraftForge.EVENT_BUS.register(new InHandMapRenderer());
       MinecraftForge.EVENT_BUS.register(new GirlCameraHelper());
       MinecraftForge.EVENT_BUS.register(new com.trolmastercard.sexmod.client.SexSceneKeyHandler());
       MinecraftForge.EVENT_BUS.register(new GenderSwapScreen());
-      MinecraftForge.EVENT_BUS.register(new dv.a());
-      MinecraftForge.EVENT_BUS.register(new gm());
-      MinecraftForge.EVENT_BUS.register(new c6());
+      MinecraftForge.EVENT_BUS.register(new PlayerAllieRenderer.a());
+      MinecraftForge.EVENT_BUS.register(new StructureMarkerRenderer());
+      MinecraftForge.EVENT_BUS.register(new DeprecatedCheckForUpdates());
       MinecraftForge.EVENT_BUS.register(new ClothingScreen.b());
       MinecraftForge.EVENT_BUS.register(new ServerWhitelistManager.a());
       MinecraftForge.EVENT_BUS.register(new EscapeMinigameHud());

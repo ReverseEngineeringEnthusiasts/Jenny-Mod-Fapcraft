@@ -121,16 +121,16 @@ public class WildSlimeEntity extends EntityLiving {
       return EnumParticleTypes.SLIME;
    }
 
-   public static ArrayList<WildSlimeEntity> a_clash95(Vec3d var0) {
-      ArrayList var1 = a_clash96(var0, 0.1);
+   public static ArrayList<WildSlimeEntity> findSlimesNear(Vec3d var0) {
+      ArrayList var1 = findSlimesNearRadius(var0, 0.1);
       if (var1.isEmpty()) {
-         var1 = a_clash96(var0, 0.5);
+         var1 = findSlimesNearRadius(var0, 0.5);
       }
 
       return var1;
    }
 
-   private static ArrayList<WildSlimeEntity> a_clash96(Vec3d var0, double var1) {
+   private static ArrayList<WildSlimeEntity> findSlimesNearRadius(Vec3d var0, double var1) {
       ArrayList var3 = new ArrayList();
 
       try {
@@ -223,7 +223,7 @@ public class WildSlimeEntity extends EntityLiving {
       this.a *= 0.6F;
    }
 
-   protected int a_clash99() {
+   protected int getRandomDespawnDelay() {
       return this.rand.nextInt(100) + 50;
    }
 
@@ -388,7 +388,7 @@ public class WildSlimeEntity extends EntityLiving {
                this.entity
                   .setAIMoveSpeed((float)(this.speed * this.entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue()));
                if (this.c-- <= 0) {
-                  this.c = this.d.a_clash99();
+                  this.c = this.d.getRandomDespawnDelay();
                   if (this.a) {
                      this.c /= 3;
                   }

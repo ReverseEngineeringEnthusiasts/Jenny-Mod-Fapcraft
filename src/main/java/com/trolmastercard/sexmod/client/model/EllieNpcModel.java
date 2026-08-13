@@ -3,7 +3,7 @@ package com.trolmastercard.sexmod.client.model;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.ThreadNames;
 
 
@@ -52,7 +52,7 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
       super.setLivingAnimations(var1, var2, var3);
       if (!(var1.world instanceof SexWorldClient)) {
          if (!(var1 instanceof AbstractPlayerGirlEntity)) {
-            if (var1.getCurrentAction() == fp.SITDOWNIDLE) {
+            if (var1.getCurrentAction() == Action.SITDOWNIDLE) {
                EntityPlayer var4 = var1.world.getClosestPlayerToEntity(var1, 15.0);
                if (var4 != null) {
                   IBone var5 = this.getAnimationProcessor().getBone("head");

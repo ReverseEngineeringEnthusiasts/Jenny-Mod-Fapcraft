@@ -4,7 +4,7 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.util.KoboldManager;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 
@@ -86,7 +86,7 @@ public class ClaimTribePacket implements IMessage {
                            );
                         }
 
-                        KoboldManager.a_clash87(var1.d, true);
+                        KoboldManager.setTribeFollowMode(var1.d, true);
                         KoboldManager.a(var1.d, var2.getServerHandler().player.getPersistentID());
                      }
                   }

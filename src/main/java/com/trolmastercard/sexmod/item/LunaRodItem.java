@@ -109,7 +109,7 @@ public class LunaRodItem extends ItemFishingRod {
 
             int var9 = EnchantmentHelper.getFishingLuckBonus(var4);
             if (var9 > 0) {
-               var7.a_clash778(var9);
+               var7.setPhase(var9);
             }
 
             var1.spawnEntity(var7);

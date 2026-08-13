@@ -2,9 +2,9 @@ package com.trolmastercard.sexmod.entity.ai;
 
 import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.Reference;
-import com.trolmastercard.sexmod.util.ck;
+import com.trolmastercard.sexmod.util.VectorMath;
 
 
 
@@ -62,8 +62,8 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       super.updateTask();
       this.l = this.q.getDistance(this.a);
       this.i = this.a.getPositionVector();
-      if (this.q.getCurrentAction() == fp.BOW) {
-         this.q.setCurrentAction(fp.NULL);
+      if (this.q.getCurrentAction() == Action.BOW) {
+         this.q.setCurrentAction(Action.NULL);
       }
    }
 
@@ -92,11 +92,11 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             } else {
                if (this.q.Q.getStackInSlot(1).getItem() instanceof ItemBow && this.q.getEntitySenses().canSee(this.r) && ++this.p > 0 && var6 > 6.0) {
                   this.e.set(AbstractGirlNpcEntity.M, 2);
-                  this.q.setCurrentAction(fp.BOW);
+                  this.q.setCurrentAction(Action.BOW);
                   if (++this.p >= 32) {
                      this.p = -20;
                      this.e_clash828();
-                     this.q.setCurrentAction(fp.NULL);
+                     this.q.setCurrentAction(Action.NULL);
                   }
 
                   this.l = this.q.getDistance(this.a);
@@ -151,7 +151,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             break;
          case RIDE:
             if (this.q.isRiding()) {
-               this.q.setCurrentAction(fp.SIT);
+               this.q.setCurrentAction(Action.SIT);
             } else {
                this.q.setNoGravity(true);
                this.q.noClip = true;
@@ -160,7 +160,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                this.q.motionX = 0.0;
                this.q.motionY = 0.0;
                this.q.motionZ = 0.0;
-               this.q.setCurrentAction(fp.RIDE);
+               this.q.setCurrentAction(Action.RIDE);
             }
             break;
          case DOWNED:
@@ -179,7 +179,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                return GirlFollowAiBase.GirlFollowAiBaseState.RIDE;
             }
          } else if (!this.a.isRiding() && this.q.isRiding() || this.f == GirlFollowAiBase.GirlFollowAiBaseState.RIDE && !this.a.isRiding()) {
-            this.q.setCurrentAction(fp.NULL);
+            this.q.setCurrentAction(Action.NULL);
             this.q.dismountRidingEntity();
             this.q.noClip = false;
             this.q.setNoGravity(false);
@@ -297,7 +297,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    }
 
    void d_clash830() {
-      this.q.setCurrentAction(fp.ATTACK);
+      this.q.setCurrentAction(Action.ATTACK);
       this.e.set(AbstractGirlNpcEntity.M, 1);
       ItemStack var1 = this.q.Q.getStackInSlot(0);
       Multimap var2 = var1.getAttributeModifiers(EntityEquipmentSlot.MAINHAND);
@@ -371,7 +371,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    void a_clash831() {
       if (!this.q.onGround && !this.q.isInWater() && this.q.motionX + this.q.motionZ == 0.0 && !(this.q.motionY <= 0.0)) {
          Vec3d var1 = new Vec3d(0.0, 0.0, 0.1F);
-         var1 = ck.rotateByYaw(var1, this.q.rotationYaw);
+         var1 = VectorMath.rotateByYaw(var1, this.q.rotationYaw);
          this.q.motionX = var1.x;
          this.q.motionZ = var1.z;
       }
@@ -387,7 +387,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                var1.setCanceled(true);
             } else if (var2.getHealth() - var1.getAmount() < 0.0F && !((String)var2.getDataManager().get(AbstractGirlNpcEntity.MASTER)).equals("")) {
                var2.N = true;
-               var2.setCurrentAction(fp.DOWNED);
+               var2.setCurrentAction(Action.DOWNED);
                var1.setAmount(var2.getHealth() - 1.0F);
                var2.getNavigator().clearPath();
             }
@@ -400,7 +400,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
             if (var2.N && var2.getHealth() + var1.getAmount() >= var2.getMaxHealth()) {
                var2.N = false;
-               var2.setCurrentAction(fp.NULL);
+               var2.setCurrentAction(Action.NULL);
             }
          }
       }

@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.entity.api;
 
-import com.trolmastercard.sexmod.util.f2;
+import com.trolmastercard.sexmod.util.Vector4d;
 
 
 
@@ -9,11 +9,11 @@ import com.trolmastercard.sexmod.util.f2;
 
 
 public interface IGalath {
-   f2 d_clash20();
+   Vector4d d_clash20();
 
    boolean c_clash21();
 
-   boolean a_clash22();
+   boolean areWingsAnimated();
 
    boolean b_clash23();
 }

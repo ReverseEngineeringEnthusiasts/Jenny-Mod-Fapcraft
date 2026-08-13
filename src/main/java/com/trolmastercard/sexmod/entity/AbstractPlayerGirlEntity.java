@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.ao;
+import com.trolmastercard.sexmod.api.IGalathFinish;
 import com.trolmastercard.sexmod.client.gui.GenderSwapScreen;
 import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.networking.ForcePlayerGirlUpdatePacket;
@@ -8,13 +8,13 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.networking.SexPromptPacket;
-import com.trolmastercard.sexmod.util.ad;
-import com.trolmastercard.sexmod.util.af;
-import com.trolmastercard.sexmod.util.ah;
-import com.trolmastercard.sexmod.util.ak;
-import com.trolmastercard.sexmod.util.am;
-import com.trolmastercard.sexmod.util.an;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.DebugMode;
+import com.trolmastercard.sexmod.util.GalathGeometryRender;
+import com.trolmastercard.sexmod.util.GirlCombatProtection;
+import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
+import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
+import com.trolmastercard.sexmod.util.TrailSegment;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -98,7 +98,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Nullable
-   public static AbstractPlayerGirlEntity a_clash568(UUID var0) {
+   public static AbstractPlayerGirlEntity getPlayerGirlByOwner(UUID var0) {
       try {
          for (BaseGirlEntity var2 : getGirlEntityList()) {
             if (!var2.world.isRemote && var2 instanceof AbstractPlayerGirlEntity) {
@@ -119,7 +119,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return new TargetPoint(this.dimension, this.posX, this.posY - 0.0, this.posZ, 50.0);
    }
 
-   public void a(int var1, fp var2) {
+   public void a(int var1, Action var2) {
       PacketHandler.b.sendToAllTracking(new ForcePlayerGirlUpdatePacket(this.getOwnerUserUUID(), var1, var2), this.getTargetNetworkPoint());
    }
 
@@ -155,7 +155,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return true;
    }
 
-   public boolean a_clash571(String var1) {
+   public boolean handleActionRequest(String var1) {
       return false;
    }
 
@@ -228,7 +228,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    protected void resetLocalPlayerClientState() {
       if (this.isControlledByLocalPlayer() || this.f_clash579()) {
-         d3.setMovementLock(true);
+         HandlePlayerMovement.setMovementLock(true);
          EntityPlayerSP var1 = Minecraft.getMinecraft().player;
          var1.setInvisible(false);
          var1.setNoGravity(false);
@@ -340,7 +340,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       super.playStepSound(var1, var2);
    }
 
-   public AxisAlignedBB a_clash352(EntityPlayer var1) {
+   public AxisAlignedBB getPlayerCollisionBox(EntityPlayer var1) {
       return var1.getEntityBoundingBox();
    }
 
@@ -352,7 +352,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       this.D_clash581();
       if (this.world.isRemote) {
          if (this.f_clash579()) {
-            GenderSwapScreen.a.a_clash861();
+            GenderSwapScreen.a.tick();
          }
       }
    }
@@ -398,13 +398,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
                this.setPositionAndUpdate(var2.posX, var2.posY + 0.0, var2.posZ);
             }
 
-            fp var4 = this.getCurrentAction();
-            if (var4 == fp.NULL && var2.isSwingInProgress) {
-               this.setCurrentAction(fp.ATTACK);
+            Action var4 = this.getCurrentAction();
+            if (var4 == Action.NULL && var2.isSwingInProgress) {
+               this.setCurrentAction(Action.ATTACK);
             }
 
-            if (var4 == fp.ATTACK && !var2.isSwingInProgress) {
-               this.setCurrentAction(fp.NULL);
+            if (var4 == Action.ATTACK && !var2.isSwingInProgress) {
+               this.setCurrentAction(Action.NULL);
             }
          }
       }
@@ -418,11 +418,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          }
 
          if (this.an >= 100) {
-            if (this.getCurrentAction() == fp.STRIP) {
+            if (this.getCurrentAction() == Action.STRIP) {
                if (this.world.isRemote) {
                   this.n_clash582();
                } else {
-                  this.setCurrentAction(fp.NULL);
+                  this.setCurrentAction(Action.NULL);
                }
             }
          }
@@ -435,7 +435,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          Minecraft var1 = Minecraft.getMinecraft();
          var1.gameSettings.thirdPersonView = 0;
          var1.entityRenderer.loadEntityShader(var1.getRenderViewEntity());
-         d3.setMovementLock(true);
+         HandlePlayerMovement.setMovementLock(true);
       }
    }
 
@@ -447,7 +447,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return var1;
    }
 
-   public boolean a(fp var1, EntityPlayer var2) {
+   public boolean a(Action var1, EntityPlayer var2) {
       return false;
    }
 
@@ -459,11 +459,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      if (!this.world.isRemote && action == fp.NULL && this.isAnchored()) {
+   public void setCurrentAction(Action action) {
+      if (!this.world.isRemote && action == Action.NULL && this.isAnchored()) {
          System.out.println("prevented a potential animation break");
       } else {
-         if (action == fp.STRIP) {
+         if (action == Action.STRIP) {
             this.an = this.world.isRemote ? 5 : 0;
          }
 
@@ -564,7 +564,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @Override
    public void doAction(String var1, UUID var2) {
-      if (!this.a_clash571(var1)) {
+      if (!this.handleActionRequest(var1)) {
          if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
             PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
             this.ab = true;

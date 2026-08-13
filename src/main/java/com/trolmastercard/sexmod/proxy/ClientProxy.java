@@ -12,7 +12,7 @@ import com.trolmastercard.sexmod.entity.NpcType;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.util.ForgeEventHandler;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.fk;
+import com.trolmastercard.sexmod.util.RenderHandler;
 
 
 
@@ -43,7 +43,7 @@ public class ClientProxy extends CommonProxy {
    @Override
    public void preInitRegistries(FMLPreInitializationEvent var1) {
       super.preInitRegistries(var1);
-      fk.register();
+      RenderHandler.register();
    }
 
    @Override
@@ -58,7 +58,7 @@ public class ClientProxy extends CommonProxy {
       }
 
       try { Main.setConfigs(); } catch (java.io.IOException var6) { Main.LOGGER.error(var6); }
-      SoundHandler.a_clash802();
+      SoundHandler.registerSounds();
       NetworkRegistry.INSTANCE.registerGuiHandler(Main.instance, new GuiHandler(true));
       ForgeEventHandler.registerB(true);
       PacketHandler.register();

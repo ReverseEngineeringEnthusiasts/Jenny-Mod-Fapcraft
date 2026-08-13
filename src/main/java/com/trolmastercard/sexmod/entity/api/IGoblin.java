@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.entity.api;
 
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 
 
 
@@ -17,19 +17,19 @@ public interface IGoblin {
 
    void setOwnerUUID(UUID var1);
 
-   int c_clash56();
+   int getHeldPlayerDistance();
 
-   void c_clash57(int var1);
+   void setThrowProgress(int var1);
 
-   int a_clash58();
+   int getThrowProgress();
 
-   void a_clash59(int var1);
+   void setThrowTickCount(int var1);
 
-   int d_clash60();
+   int getThrowTickCount();
 
-   void a_clash61(fp var1);
+   void setPreviousAction(Action var1);
 
-   fp b_clash62();
+   Action getPreviousAction();
 
-   void b_clash63(int var1);
+   void setHeldPlayerDistance(int var1);
 }

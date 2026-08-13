@@ -54,8 +54,8 @@ public class RotationHelper {
       return var0.add(new Vec3d(var4.x * var2, var4.y * var2, var4.z * var2));
    }
 
-   public static f7 a(f7 var0, f7 var1, double var2) {
-      f7 var4 = var1.b(var0);
+   public static Vector3fSexmodSpecial a(Vector3fSexmodSpecial var0, Vector3fSexmodSpecial var1, double var2) {
+      Vector3fSexmodSpecial var4 = var1.b(var0);
       return var0.a(var4.a_clash407((float)var2));
    }
 

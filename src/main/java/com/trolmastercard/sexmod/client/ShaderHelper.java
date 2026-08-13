@@ -24,7 +24,7 @@ public class ShaderHelper {
    static final ResourceLocation a = new ResourceLocation("sexmod", "shaders/post/outline.json");
    static Framebuffer c;
 
-   public static void a_clash66() {
+   public static void initOutlineShader() {
       Minecraft var0 = Minecraft.getMinecraft();
       if (!OpenGlHelper.shadersSupported) {
          Main.LOGGER.warn("Shaders not supported");

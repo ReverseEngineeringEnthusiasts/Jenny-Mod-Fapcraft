@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
-import com.trolmastercard.sexmod.api.by;
+import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 
 

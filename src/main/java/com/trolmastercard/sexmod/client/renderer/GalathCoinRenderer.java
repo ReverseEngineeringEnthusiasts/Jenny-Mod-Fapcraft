@@ -4,7 +4,7 @@ import com.trolmastercard.sexmod.client.model.GalathCoinModel;
 import com.trolmastercard.sexmod.item.GalathCoinItem;
 import com.trolmastercard.sexmod.util.GirlSavedData;
 import com.trolmastercard.sexmod.util.RotationHelper;
-import com.trolmastercard.sexmod.util.f7;
+import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
 
 
 
@@ -30,14 +30,14 @@ import software.bernie.geckolib3.geo.render.built.GeoVertex;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
 public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
-   public static final f7 e = new f7(0.84705883F, 0.11764706F, 0.35686275F);
-   public static final f7 f = new f7(0.44705883F, 0.44705883F, 0.44705883F);
+   public static final Vector3fSexmodSpecial e = new Vector3fSexmodSpecial(0.84705883F, 0.11764706F, 0.35686275F);
+   public static final Vector3fSexmodSpecial f = new Vector3fSexmodSpecial(0.44705883F, 0.44705883F, 0.44705883F);
    public static final float b = 240.0F;
    public static final float g = 120.0F;
    static final float h = 0.05F;
    static final Minecraft a = Minecraft.getMinecraft();
    boolean c = false;
-   f7 d;
+   Vector3fSexmodSpecial d;
 
    public GalathCoinRenderer() {
       super(new GalathCoinModel());
@@ -122,7 +122,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       }
    }
 
-   f7 a_clash108() {
+   Vector3fSexmodSpecial a_clash108() {
       if (a.player.getHeldItemMainhand() != this.currentItemStack && a.player.getHeldItemOffhand() != this.currentItemStack) {
          return e;
       } else {
@@ -140,7 +140,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       }
    }
 
-   f7 a(long var1, long var3) {
+   Vector3fSexmodSpecial a(long var1, long var3) {
       float var5 = (float)(var3 - var1);
       if (var5 < 1000.0F) {
          return f;
@@ -149,7 +149,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       }
    }
 
-   f7 b(long var1, long var3) {
+   Vector3fSexmodSpecial b(long var1, long var3) {
       float var5 = (float)(var3 - var1);
       if (var5 < 1000.0F) {
          return e;

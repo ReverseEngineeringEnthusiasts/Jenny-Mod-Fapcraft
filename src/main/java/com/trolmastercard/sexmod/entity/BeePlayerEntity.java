@@ -7,7 +7,7 @@ import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -65,9 +65,9 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void b(String var1, UUID var2) {
-      this.a(0, fp.CITIZEN_START);
+      this.a(0, Action.CITIZEN_START);
       this.setOutfitIndex(0);
-      this.setCurrentAction(fp.CITIZEN_START);
+      this.setCurrentAction(Action.CITIZEN_START);
       this.b_clash577(var2);
       EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
       if (var3 != null) {
@@ -83,8 +83,8 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      if (this.getCurrentAction() != fp.CITIZEN_CUM || action != fp.CITIZEN_FAST && action != fp.COWGIRLSLOW) {
+   public void setCurrentAction(Action action) {
+      if (this.getCurrentAction() != Action.CITIZEN_CUM || action != Action.CITIZEN_FAST && action != Action.COWGIRLSLOW) {
          super.setCurrentAction(action);
       }
    }
@@ -100,13 +100,13 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
-      return var1 == fp.CITIZEN_SLOW ? fp.CITIZEN_FAST : null;
+   protected Action getNextAction(Action var1) {
+      return var1 == Action.CITIZEN_SLOW ? Action.CITIZEN_FAST : null;
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      return var1 != fp.CITIZEN_FAST && var1 != fp.CITIZEN_SLOW ? null : fp.CITIZEN_CUM;
+   protected Action getCumAction(Action var1) {
+      return var1 != Action.CITIZEN_FAST && var1 != Action.CITIZEN_SLOW ? null : Action.CITIZEN_CUM;
    }
 
    @Override
@@ -119,7 +119,7 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "movement":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.bee.null", true, var1);
             } else {
                this.createAnimation("animation.bee.idle", true, var1);
@@ -173,7 +173,7 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "pearl":
-               if (this.isLocalPlayerNearby() && this.getCurrentAction() == fp.THROW_PEARL) {
+               if (this.isLocalPlayerNearby() && this.getCurrentAction() == Action.THROW_PEARL) {
                   PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                }
                break;
@@ -195,16 +195,16 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "sex_fastReady":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                }
                break;
             case "sex_fastDone":
-               if (!this.isControlledByLocalPlayer() || d3.d) {
+               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.d) {
                   return;
                }
             case "sex_startDone":
-               this.setCurrentAction(fp.CITIZEN_SLOW);
+               this.setCurrentAction(Action.CITIZEN_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }

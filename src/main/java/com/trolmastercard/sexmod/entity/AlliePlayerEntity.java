@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.ar;
+import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
@@ -9,7 +9,7 @@ import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.networking.KoboldStatePacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -75,14 +75,14 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void b(String var1, UUID var2) {
       if ("action.names.deepthroat".equals(var1)) {
-         this.setCurrentAction(fp.DEEPTHROAT_START);
-         this.a(this.getOutfitIndex(), fp.DEEPTHROAT_START);
+         this.setCurrentAction(Action.DEEPTHROAT_START);
+         this.a(this.getOutfitIndex(), Action.DEEPTHROAT_START);
          this.b_clash577(var2);
       }
 
       if ("Reverse cowgirl".equals(var1)) {
-         this.setCurrentAction(fp.REVERSE_COWGIRL_START);
-         this.a(0, fp.REVERSE_COWGIRL_START);
+         this.setCurrentAction(Action.REVERSE_COWGIRL_START);
+         this.a(0, Action.REVERSE_COWGIRL_START);
          this.b_clash577(var2);
       }
    }
@@ -94,10 +94,10 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      if (this.getCurrentAction() != fp.DEEPTHROAT_CUM || action != fp.DEEPTHROAT_FAST && action != fp.DEEPTHROAT_SLOW) {
-         if (this.getCurrentAction() != fp.REVERSE_COWGIRL_CUM
-            || action != fp.REVERSE_COWGIRL_SLOW && action != fp.REVERSE_COWGIRL_FAST_START && action != fp.REVERSE_COWGIRL_FAST_CONTINUES) {
+   public void setCurrentAction(Action action) {
+      if (this.getCurrentAction() != Action.DEEPTHROAT_CUM || action != Action.DEEPTHROAT_FAST && action != Action.DEEPTHROAT_SLOW) {
+         if (this.getCurrentAction() != Action.REVERSE_COWGIRL_CUM
+            || action != Action.REVERSE_COWGIRL_SLOW && action != Action.REVERSE_COWGIRL_FAST_START && action != Action.REVERSE_COWGIRL_FAST_CONTINUES) {
             super.setCurrentAction(action);
          }
       }
@@ -169,22 +169,22 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
-      if (var1 == fp.DEEPTHROAT_SLOW) {
-         return fp.DEEPTHROAT_FAST;
+   protected Action getNextAction(Action var1) {
+      if (var1 == Action.DEEPTHROAT_SLOW) {
+         return Action.DEEPTHROAT_FAST;
       } else {
-         return var1 == fp.REVERSE_COWGIRL_SLOW ? fp.REVERSE_COWGIRL_FAST_START : null;
+         return var1 == Action.REVERSE_COWGIRL_SLOW ? Action.REVERSE_COWGIRL_FAST_START : null;
       }
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (var1 == fp.DEEPTHROAT_FAST || var1 == fp.DEEPTHROAT_SLOW) {
-         return fp.DEEPTHROAT_CUM;
+   protected Action getCumAction(Action var1) {
+      if (var1 == Action.DEEPTHROAT_FAST || var1 == Action.DEEPTHROAT_SLOW) {
+         return Action.DEEPTHROAT_CUM;
       } else {
-         return var1 != fp.REVERSE_COWGIRL_SLOW && var1 != fp.REVERSE_COWGIRL_FAST_START && var1 != fp.REVERSE_COWGIRL_FAST_CONTINUES
+         return var1 != Action.REVERSE_COWGIRL_SLOW && var1 != Action.REVERSE_COWGIRL_FAST_START && var1 != Action.REVERSE_COWGIRL_FAST_CONTINUES
             ? null
-            : fp.REVERSE_COWGIRL_CUM;
+            : Action.REVERSE_COWGIRL_CUM;
       }
    }
 
@@ -215,7 +215,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "deepthroat_prepareDone":
-               this.setCurrentAction(fp.DEEPTHROAT_START);
+               this.setCurrentAction(Action.DEEPTHROAT_START);
                if (this.isControlledByLocalPlayer()) {
                   PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
                   this.cameraYaw = this.rotationYaw + 180.0F;
@@ -231,12 +231,12 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "deepthroat_fastDone":
-               if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.setCurrentAction(fp.DEEPTHROAT_SLOW);
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.DEEPTHROAT_SLOW);
                }
                break;
             case "deepthroat_startDone":
-               this.setCurrentAction(fp.DEEPTHROAT_SLOW);
+               this.setCurrentAction(Action.DEEPTHROAT_SLOW);
                break;
             case "deepthroat_slowMSG1":
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
@@ -304,10 +304,10 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "fastSwitch":
-               if (this.isControlledByLocalPlayer() && d3.d) {
-                  fp var5 = this.getCurrentAction();
-                  if (var5 == fp.REVERSE_COWGIRL_FAST_START) {
-                     this.setCurrentAction(fp.REVERSE_COWGIRL_FAST_CONTINUES);
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                  Action var5 = this.getCurrentAction();
+                  if (var5 == Action.REVERSE_COWGIRL_FAST_START) {
+                     this.setCurrentAction(Action.REVERSE_COWGIRL_FAST_CONTINUES);
                   } else {
                      this.resetAnimationControllerOffset();
                      int var4 = this.av;
@@ -343,7 +343,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
 
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
+            if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
                this.createAnimation("animation.bia.blink", true, var1);
             } else {
                this.createAnimation("animation.allie.null", true, var1);

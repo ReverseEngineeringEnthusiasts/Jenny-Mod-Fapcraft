@@ -8,7 +8,7 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendBlocksPacket;
 import com.trolmastercard.sexmod.networking.SetTribeFollowModePacket;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.gm;
+import com.trolmastercard.sexmod.util.StructureMarkerRenderer;
 
 
 
@@ -98,7 +98,7 @@ public class StructureCommandScreen extends GuiScreen {
    void b_clash832() {
       IBlockState var1 = this.mc.world.getBlockState(this.c);
       if (var1.getBlock() instanceof BlockBed || var1.getBlock() instanceof BlockChest) {
-         PacketHandler.b.sendToServer(new SendBlocksPacket(this.c, !gm.a_clash771(this.c)));
+         PacketHandler.b.sendToServer(new SendBlocksPacket(this.c, !StructureMarkerRenderer.isMarked(this.c)));
       }
    }
 
@@ -113,7 +113,7 @@ public class StructureCommandScreen extends GuiScreen {
    void a_clash835() {
       Block var1 = this.e.getBlock();
       if (var1 instanceof BlockLog) {
-         if (gm.a_clash771(this.c)) {
+         if (StructureMarkerRenderer.isMarked(this.c)) {
             PacketHandler.b.sendToServer(new CancelTaskPacket(this.c));
             return;
          }
@@ -123,7 +123,7 @@ public class StructureCommandScreen extends GuiScreen {
 
       Object[] var2 = this.e_clash836();
       if (var2 != null) {
-         if (gm.a_clash771(this.c)) {
+         if (StructureMarkerRenderer.isMarked(this.c)) {
             PacketHandler.b.sendToServer(new CancelTaskPacket(this.c));
             return;
          }
@@ -214,7 +214,7 @@ public class StructureCommandScreen extends GuiScreen {
             this.f(var5);
          }
 
-         if (gm.a_clash771(this.c)) {
+         if (StructureMarkerRenderer.isMarked(this.c)) {
             this.drawTexturedModalRect(-62.0F + var5 - this.a * 15.0F, -2.0F - var5 + this.a * 15.0F, 128, 64, 64, 64);
          }
 
@@ -235,7 +235,7 @@ public class StructureCommandScreen extends GuiScreen {
             this.b_clash839(var5);
          }
 
-         if (gm.a_clash771(this.c)) {
+         if (StructureMarkerRenderer.isMarked(this.c)) {
             this.drawTexturedModalRect(-2.0F - var5 + this.i * 15.0F, -62.0F + var5 - this.i * 15.0F, 128, 64, 64, 64);
          }
 
