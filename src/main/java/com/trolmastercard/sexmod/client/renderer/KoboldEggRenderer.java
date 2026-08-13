@@ -34,7 +34,8 @@ public class KoboldEggRenderer extends GeoEntityRenderer<KoboldEggEntity> {
       super(var1, (AnimatedGeoModel<KoboldEggEntity>) (AnimatedGeoModel) var2);
    }
 
-   public void a(GeoModel var1, KoboldEggEntity var2, float var3, float var4, float var5, float var6, float var7) {
+   @Override
+   public void render(GeoModel var1, KoboldEggEntity var2, float var3, float var4, float var5, float var6, float var7) {
       this.a = var2;
       super.render(var1, var2, var3, var4, var5, var6, var7);
    }
