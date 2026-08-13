@@ -184,7 +184,7 @@ public class WildSlimeEntity extends EntityLiving {
          SlimeEntity var1 = new SlimeEntity(this.world);
          var1.setPositionAndRotation(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
          this.world.spawnEntity(var1);
-         var1.a(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP);
+         var1.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP);
          this.world.removeEntity(this);
       }
 

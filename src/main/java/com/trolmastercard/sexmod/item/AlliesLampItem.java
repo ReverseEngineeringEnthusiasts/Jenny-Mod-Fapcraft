@@ -128,7 +128,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      this.g = new AnimationController<>(this, "controller", 2.0F, this::a);
+      this.g = new AnimationController<>(this, "controller", 2.0F, this::animationPredicate);
       var1.addAnimationController(this.g);
    }
 
@@ -151,7 +151,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
    }
 
    @SideOnly(Side.CLIENT)
-   protected <segs extends IAnimatable> PlayState a(AnimationEvent<segs> var1) {
+   protected <segs extends IAnimatable> PlayState animationPredicate(AnimationEvent<segs> var1) {
       EntityPlayerSP var2 = Minecraft.getMinecraft().player;
       NBTTagCompound var3 = var2.getEntityData();
       boolean var4 = var3.getBoolean("sexmodAllieInUse");
@@ -205,9 +205,9 @@ public class AlliesLampItem extends Item implements IAnimatable {
                      var6.world.spawnEntity(var11);
                      BlockPos var13 = var11.getPosition().add(0, -1, 0);
                      if (var11.world.getBlockState(var13).getBlock().equals(Blocks.SAND)) {
-                        var11.b(fp.SUMMON_SAND);
+                        var11.setCurrentAction(fp.SUMMON_SAND);
                      } else {
-                        var11.b(var11.f_clash697() ? fp.SUMMON : fp.SUMMON_NORMAL);
+                        var11.setCurrentAction(var11.f_clash697() ? fp.SUMMON : fp.SUMMON_NORMAL);
                      }
 
                      var1.setTagCompound(var15);

@@ -167,7 +167,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      a = new AnimationController<>(this, "controller", 5.0F, this::a);
+      a = new AnimationController<>(this, "controller", 5.0F, this::animationPredicate);
       var1.addAnimationController(a);
    }
 
@@ -197,7 +197,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
       this.dataManager.set(c, var1.getInteger("eggAge"));
    }
 
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       int var2 = (Integer)this.dataManager.get(c);
       if (12000 - var2 < 20) {
          var1.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.hatch", true));

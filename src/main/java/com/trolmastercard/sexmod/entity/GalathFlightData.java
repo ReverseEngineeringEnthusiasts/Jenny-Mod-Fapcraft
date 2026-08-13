@@ -125,7 +125,7 @@ public enum GalathFlightData {
 
          var0.bL = null;
          var0.b_clash690(0);
-         var0.b(fp.FLY);
+         var0.setCurrentAction(fp.FLY);
          PacketHandler.b.sendToAllTracking(new ResetControllerPacket(var0.getGirlId()), var0);
       },
       var0 -> {
@@ -156,13 +156,13 @@ public enum GalathFlightData {
    ),
    SUMMON_SKELETON(
       var0 -> {
-         var0.b(fp.SUMMON_SKELETON);
+         var0.setCurrentAction(fp.SUMMON_SKELETON);
          var0.ad = 0;
          EntityDataManager var1 = var0.getDataManager();
          var1.set(GalathEntity.bN, true);
          var1.set(GalathEntity.b7, true);
          var1.set(GalathEntity.ay, var0.getRNG().nextBoolean());
-         BaseGirlEntity.a(var0, SoundHandler.GIRLS_GALATH_STRONGCHARGE, true);
+         BaseGirlEntity.playRandomSound(var0, SoundHandler.GIRLS_GALATH_STRONGCHARGE, true);
       },
       var0 -> {
          var0.setVelocity(Vec3d.ZERO);
@@ -246,7 +246,7 @@ public enum GalathFlightData {
    ),
    ATTACK_SWORD(var0 -> {
       var0.a_clash643(0);
-      var0.b(fp.ATTACK_SWORD);
+      var0.setCurrentAction(fp.ATTACK_SWORD);
       var0.setVelocity(Vec3d.ZERO);
       Vec3d var1 = var0.getPositionVector();
       var0.e(var1);
@@ -256,7 +256,7 @@ public enum GalathFlightData {
       var0.setAnchored(true);
       var0.setTargetPosition(var1);
       var0.setYawRotation((float)var4);
-      BaseGirlEntity.a(var0, SoundHandler.GIRLS_GALATH_STRONGCHARGE, true);
+      BaseGirlEntity.playRandomSound(var0, SoundHandler.GIRLS_GALATH_STRONGCHARGE, true);
    }, var0 -> {
       EntityLivingBase var1 = var0.M_clash691();
       int var2 = var0.az() + 1;
@@ -288,7 +288,7 @@ public enum GalathFlightData {
          }
       } else if (var2 == 54) {
          var0.setAnchored(false);
-         var0.b(fp.FLY);
+         var0.setCurrentAction(fp.FLY);
          Vec3d var13 = var0.B_clash642().subtract(var0.getPositionVector()).normalize();
          var0.motionX = var13.x * 0.6F;
          var0.motionY = var13.y * 0.6F;
@@ -305,7 +305,7 @@ public enum GalathFlightData {
    }, true, var0 -> true, false),
    RAPE(
       var0 -> {
-         var0.b(fp.RAPE_PREPARE);
+         var0.setCurrentAction(fp.RAPE_PREPARE);
          var0.aF = 0;
          var0.bd = null;
          var0.O = null;
@@ -313,7 +313,7 @@ public enum GalathFlightData {
       },
       var0 -> {
          if (++var0.aF >= 48) {
-            var0.b(fp.RAPE_CHARGE);
+            var0.setCurrentAction(fp.RAPE_CHARGE);
             EntityLivingBase var1 = var0.M_clash691();
             if (var0.bd == null) {
                var0.O = var1.getPositionVector().add(0.0, var1.getEyeHeight() / 2.0F, 0.0);
@@ -330,7 +330,7 @@ public enum GalathFlightData {
             );
 
             for (EntityPlayer var8 : var0.world.getEntitiesWithinAABB(EntityPlayer.class, var5)) {
-               if (!var8.isDead && var8.onGround && BaseGirlEntity.a(var8.getPersistentID(), Boolean.valueOf(true)) == null) {
+               if (!var8.isDead && var8.onGround && BaseGirlEntity.getGirlByUUID(var8.getPersistentID(), Boolean.valueOf(true)) == null) {
                   Vec3d var9 = var8.getPositionVector();
                   Vec3d var10 = var20.subtract(var9);
                   Vec3d var11 = ck.rotateByYaw(var10, var0.getYawRotation());
@@ -351,7 +351,7 @@ public enum GalathFlightData {
                      var0.setTargetPosition(var8.getPositionVector());
                      var0.setInteractionPlayerUUID(var8.getPersistentID());
                      var0.setAnchored(true);
-                     var0.b(fp.RAPE_INTRO);
+                     var0.setCurrentAction(fp.RAPE_INTRO);
                      byte var32 = (byte)MathHelper.floor((var0.getYawRotation() + 180.0F) * 256.0F / 360.0F);
                      PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var30);
                      var30.connection.sendPacket(new SPacketEntityVelocity(var30.getEntityId(), 0.0, 0.0, 0.0));

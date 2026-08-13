@@ -68,7 +68,7 @@ public class ResetControllerPacket implements IMessage {
          } else {
             BaseGirlEntity var3 = BaseGirlEntity.getClientGirlEntity(var1.a);
             if (var3 != null) {
-               var3.ag();
+               var3.resetAnimationControllerTicks();
             }
 
             return null;

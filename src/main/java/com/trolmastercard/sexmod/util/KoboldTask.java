@@ -99,7 +99,7 @@ public class KoboldTask {
          if (var2.getInteractionPlayerUUID() == null) {
             var2.setNoGravity(false);
             var2.noClip = false;
-            var2.b(fp.NULL);
+            var2.setCurrentAction(fp.NULL);
             var2.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
          }
       }

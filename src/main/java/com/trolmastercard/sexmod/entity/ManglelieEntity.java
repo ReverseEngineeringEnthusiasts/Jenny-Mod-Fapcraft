@@ -286,7 +286,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                      var7.motionX = var10.x * 4.0;
                      var7.motionY = var10.y * 4.0;
                      var7.motionZ = var10.z * 4.0;
-                     BaseGirlEntity.a(var6, SoundEvents.ENTITY_ARROW_SHOOT, true);
+                     BaseGirlEntity.girlPlaySound(var6, SoundEvents.ENTITY_ARROW_SHOOT, true);
                      this.world.spawnEntity(var7);
                      this.U = true;
                   }
@@ -311,18 +311,18 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    @SideOnly(Side.CLIENT)
    @Override
-   public Vec3d a(Minecraft var1, SexSceneEntity var2, EntityLivingBase var3, float var4) {
+   public Vec3d renderCustomModelTransform(Minecraft var1, SexSceneEntity var2, EntityLivingBase var3, float var4) {
       if (this.isLocallyRegistered()) {
-         return super.a(var1, var2, var3, var4);
+         return super.renderCustomModelTransform(var1, var2, var3, var4);
       }
 
       if (!this.r_clash411()) {
-         return super.a(var1, var2, var3, var4);
+         return super.renderCustomModelTransform(var1, var2, var3, var4);
       }
 
       GalathEntity var5 = this.a_clash413(false);
       if (var5 == null) {
-         return super.a(var1, var2, var3, var4);
+         return super.renderCustomModelTransform(var1, var2, var3, var4);
       }
 
       ManglelieRenderer.a(var5, var4, var2);
@@ -445,24 +445,24 @@ public class ManglelieEntity extends BaseGirlEntity {
             this.a_clash414(this.Q);
             var2.a_clash640(this.getGirlId());
             this.c_clash410(true);
-            this.b(fp.RIDE_MOMMY_HEAD);
+            this.setCurrentAction(fp.RIDE_MOMMY_HEAD);
             this.Q = null;
             if (var2.getCurrentAction() == fp.HUG_MANG) {
                var2.setAnchored(false);
-               var2.b((fp)null);
+               var2.setCurrentAction((fp)null);
             }
          }
       }
    }
 
    @Override
-   public void b(fp var1) {
-      if (this.getCurrentAction() != fp.THREESOME_CUM || !fp.a(var1, fp.THREESOME_FAST, fp.THREESOME_SLOW)) {
-         if (!this.world.isRemote && var1 == fp.THREESOME_CUM) {
+   public void setCurrentAction(fp action) {
+      if (this.getCurrentAction() != fp.THREESOME_CUM || !fp.a(action, fp.THREESOME_FAST, fp.THREESOME_SLOW)) {
+         if (!this.world.isRemote && action == fp.THREESOME_CUM) {
             GirlSavedData.a(this.getInteractionPlayerUUID(), this.world.getTotalWorldTime());
          }
 
-         super.b(var1);
+         super.setCurrentAction(action);
       }
    }
 
@@ -520,11 +520,11 @@ public class ManglelieEntity extends BaseGirlEntity {
 
             if (var6 == null) {
                if (this.getCurrentAction() == fp.RUN) {
-                  this.b((fp) null);
+                  this.setCurrentAction((fp)null);
                   this.getNavigator().clearPath();
                }
             } else if (this.getCurrentAction() != fp.RIDE_MOMMY_HEAD) {
-               this.b(fp.RUN);
+               this.setCurrentAction(fp.RUN);
                Vec3d var11 = this.getPositionVector();
                Vec3d var12 = var6.getPositionVector();
                Vec3d var9 = var12.subtract(var11);
@@ -692,7 +692,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    @Override
    public void reinitTasks() {
       if (this.r_clash411()) {
-         this.b(fp.RIDE_MOMMY_HEAD);
+         this.setCurrentAction(fp.RIDE_MOMMY_HEAD);
          this.setYawRotation(0.0F);
          this.entityDataManager.setDirty(YAW_ROTATION);
       }
@@ -719,7 +719,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Override
-   protected boolean a(fp var1, String var2, boolean var3, AnimationEvent var4) {
+   protected boolean handleActionAnimationOverrides(fp var1, String var2, boolean var3, AnimationEvent var4) {
       if (var1 == fp.THREESOME_CUM) {
          this.N = false;
          this.Y = false;
@@ -735,18 +735,18 @@ public class ManglelieEntity extends BaseGirlEntity {
          CummyEntity.a_clash747(this);
          return true;
       } else if (this.N && var1 == fp.THREESOME_FAST) {
-         this.b(fp.THREESOME_CUM);
-         this.a("animation.shared.double_holding_cum", true, var4, true);
+         this.setCurrentAction(fp.THREESOME_CUM);
+         this.createAnimation("animation.shared.double_holding_cum", true, var4, true);
          GalathEntity var7 = this.a_clash413(false);
          if (var7 != null) {
-            var7.b(fp.MASTERBATE_SITTING_CUM);
+            var7.setCurrentAction(fp.MASTERBATE_SITTING_CUM);
          }
 
          return true;
       } else if ((this.N || var3) && var1 == fp.THREESOME_SLOW) {
          this.Y = false;
-         this.b(fp.THREESOME_FAST);
-         this.a("animation.shared.double_holding_soft", true, var4, true);
+         this.setCurrentAction(fp.THREESOME_FAST);
+         this.createAnimation("animation.shared.double_holding_soft", true, var4, true);
          GalathEntity var6 = this.a_clash413(false);
          if (var6 != null) {
             var6.ak();
@@ -760,14 +760,14 @@ public class ManglelieEntity extends BaseGirlEntity {
 
          if (var3 && !this.Y && var1 == fp.THREESOME_FAST) {
             this.Y = true;
-            this.a("animation.shared.double_holding_hard", true, var4, true);
+            this.createAnimation("animation.shared.double_holding_hard", true, var4, true);
             return true;
          }
 
          if (!var3 && var1 == fp.THREESOME_FAST) {
             this.M = true;
-            this.b(fp.THREESOME_SLOW);
-            this.a("animation.shared.double_holding_back", true, var4, true);
+            this.setCurrentAction(fp.THREESOME_SLOW);
+            this.createAnimation("animation.shared.double_holding_back", true, var4, true);
             GalathEntity var5 = this.a_clash413(false);
             if (var5 != null) {
                var5.a_clash695();
@@ -776,7 +776,7 @@ public class ManglelieEntity extends BaseGirlEntity {
             return true;
          } else if (this.M && var1 == fp.THREESOME_SLOW) {
             this.M = false;
-            this.a("animation.shared.double_holding_slow", true, var4, true);
+            this.createAnimation("animation.shared.double_holding_slow", true, var4, true);
             return true;
          } else {
             return false;
@@ -785,28 +785,28 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       AnimationController var2 = var1.getController();
       if (this.eyesController == var2) {
          if (this.b_clash424() == null) {
             return PlayState.STOP;
          }
 
-         this.a("animation.manglelie.angry_face", true, var1);
+         this.createAnimation("animation.manglelie.angry_face", true, var1);
          return PlayState.CONTINUE;
       } else if (this.movementController == var2) {
          if (this.getCurrentAction() == fp.NULL && !this.r_clash411()) {
             if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
                if ((Boolean)this.entityDataManager.get(ar)) {
-                  this.a("animation.manglelie.scared_run", true, var1);
+                  this.createAnimation("animation.manglelie.scared_run", true, var1);
                } else {
-                  this.a("animation.manglelie.walk", true, var1);
+                  this.createAnimation("animation.manglelie.walk", true, var1);
                }
 
                this.rotationYaw = this.rotationYawHead;
                return PlayState.CONTINUE;
             } else {
-               this.a("animation.manglelie.idle", true, var1);
+               this.createAnimation("animation.manglelie.idle", true, var1);
                return PlayState.CONTINUE;
             }
          } else {
@@ -815,27 +815,27 @@ public class ManglelieEntity extends BaseGirlEntity {
       } else {
          switch (this.getCurrentAction()) {
             case RUN:
-               this.a("animation.manglelie.running", true, var1);
+               this.createAnimation("animation.manglelie.running", true, var1);
                break;
             case RIDE_MOMMY_HEAD:
-               this.a("animation.manglelie.sit_on_galath", true, var1);
+               this.createAnimation("animation.manglelie.sit_on_galath", true, var1);
                break;
             case THREESOME_SLOW:
                if (this.M) {
-                  this.a("animation.shared.double_holding_back", true, var1);
+                  this.createAnimation("animation.shared.double_holding_back", true, var1);
                } else {
-                  this.a("animation.shared.double_holding_slow", 4, 0.33F, var1);
+                  this.playRandomizedAnimation("animation.shared.double_holding_slow", 4, 0.33F, var1);
                }
                break;
             case THREESOME_FAST:
                if (this.Y) {
-                  this.a("animation.shared.double_holding_hard", 3, 0.33F, var1);
+                  this.playRandomizedAnimation("animation.shared.double_holding_hard", 3, 0.33F, var1);
                } else {
-                  this.a("animation.shared.double_holding_soft", true, var1);
+                  this.createAnimation("animation.shared.double_holding_soft", true, var1);
                }
                break;
             case THREESOME_CUM:
-               this.a("animation.shared.double_holding_cum", true, var1);
+               this.createAnimation("animation.shared.double_holding_cum", true, var1);
                break;
             default:
                return PlayState.STOP;
@@ -852,7 +852,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       this.actionController.registerSoundListener(var1x -> {
          switch (var1x.sound) {
             case "pound":
-               this.a(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
@@ -872,12 +872,12 @@ public class ManglelieEntity extends BaseGirlEntity {
                }
                break;
             case "doubleSemen0":
-               this.a(SoundHandler.MISC_INSERTS, 6.0F);
-               this.a(SoundHandler.MISC_POUNDING);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_INSERTS, 6.0F);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
             case "doubleSemen":
                CummyEntity.a(new ep(10, var0 -> {
-                  Vec3d var1xx = var0.d_clash548("semenEmitter");
-                  Vec3d var2 = var0.d_clash548("semenDir");
+                  Vec3d var1xx = var0.getBoneWorldPosition("semenEmitter");
+                  Vec3d var2 = var0.getBoneWorldPosition("semenDir");
                   return var1xx.subtract(var2).normalize();
                }, var0 -> var0.getCachedBoneOffset("semenEmitter").add(var0.getTargetPosition()), this, 0.3F, 0.3F));
                break;

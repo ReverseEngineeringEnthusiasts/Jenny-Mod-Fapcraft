@@ -197,7 +197,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                               var12 = var15 == null ? var13 : var15;
                            }
 
-                           Vec3d var19 = var13.a(this.a, var1, (EntityLivingBase)var12, var9);
+                           Vec3d var19 = var13.renderCustomModelTransform(this.a, var1, (EntityLivingBase)var12, var9);
                            BlockPos var20 = new BlockPos(
                               Math.floor(((EntityLivingBase)var12).posX),
                               Math.floor(((EntityLivingBase)var12).posY),
@@ -332,7 +332,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    void a(SexSceneEntity var1, GeoBone var2, float var3, String var4) {
       BaseGirlEntity var5 = this.b_clash813(var1);
       this.c_clash812(var1);
-      var1.c = var5.a(var4, false);
+      var1.c = var5.getBoneMatrixStack(var4, false);
       if (var1.f && var3 == 2.876945F) {
          var1.c.scale(0.5F, 0.5F, 0.5F);
          var1.c.rotateY((float)Math.toRadians(-ClothingScreen.b));

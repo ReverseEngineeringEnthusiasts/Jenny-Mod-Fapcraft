@@ -148,7 +148,7 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
 
    @SideOnly(Side.CLIENT)
    @Override
-   public void a(String var1, UUID var2) {
+   public void doAction(String var1, UUID var2) {
       if ("action.names.followme".equals(var1)) {
          this.changeDataParameterFromClient("master", var2.toString());
       } else if ("action.names.stopfollowme".equals(var1)) {

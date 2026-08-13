@@ -86,7 +86,7 @@ public class PositionData {
                this.a = null;
             }
          } else if (var2.gameSettings.thirdPersonView == 0) {
-            BaseGirlEntity var3 = BaseGirlEntity.a(var2.player.getPersistentID(), Boolean.valueOf(false));
+            BaseGirlEntity var3 = BaseGirlEntity.getGirlByUUID(var2.player.getPersistentID(), Boolean.valueOf(false));
             if (var3 != null) {
                if (var3.getCurrentAction().useBoyCam) {
                   if (!var3.isCustomType()) {

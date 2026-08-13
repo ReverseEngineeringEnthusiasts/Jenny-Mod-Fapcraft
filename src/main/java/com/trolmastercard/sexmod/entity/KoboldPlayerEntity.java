@@ -173,23 +173,23 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    public void b(String var1, UUID var2) {
       if ("anal".equals(var1)) {
          this.b_clash577(var2);
-         this.b(fp.KOBOLD_ANAL_START);
+         this.setCurrentAction(fp.KOBOLD_ANAL_START);
          this.a(this.getOutfitIndex(), fp.KOBOLD_ANAL_START);
-         this.f(0);
+         this.setOutfitIndex(0);
       }
 
       if ("oral".equals(var1)) {
          this.b_clash577(var2);
-         this.b(fp.STARTBLOWJOB);
+         this.setCurrentAction(fp.STARTBLOWJOB);
          this.a(this.getOutfitIndex(), fp.STARTBLOWJOB);
-         this.f(0);
+         this.setOutfitIndex(0);
       }
 
       if ("mating".equals(var1)) {
          this.b_clash577(var2);
-         this.b(fp.MATING_PRESS_START);
+         this.setCurrentAction(fp.MATING_PRESS_START);
          this.a(this.getOutfitIndex(), fp.MATING_PRESS_START);
-         this.f(0);
+         this.setOutfitIndex(0);
       }
    }
 
@@ -207,7 +207,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   protected MatrixStack a(MatrixStack var1) {
+   protected MatrixStack applyAdditionalMatrixTransformations(MatrixStack var1) {
       float var2 = 0.25F - (Float)this.entityDataManager.get(aA);
       var1.scale(1.0F - var2, 1.0F - var2, 1.0F - var2);
       return var1;
@@ -261,19 +261,19 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   public void b(fp var1) {
+   public void setCurrentAction(fp action) {
       fp var2 = this.getCurrentAction();
-      if (var2 != fp.MATING_PRESS_CUM || var1 != fp.MATING_PRESS_SOFT && var1 != fp.MATING_PRESS_HARD) {
-         if (var2 != fp.KOBOLD_ANAL_CUM || var1 != fp.KOBOLD_ANAL_SLOW && var1 != fp.KOBOLD_ANAL_FAST) {
-            if (var2 != fp.CUMBLOWJOB || var1 != fp.SUCKBLOWJOB && var1 != fp.THRUSTBLOWJOB) {
-               super.b(var1);
+      if (var2 != fp.MATING_PRESS_CUM || action != fp.MATING_PRESS_SOFT && action != fp.MATING_PRESS_HARD) {
+         if (var2 != fp.KOBOLD_ANAL_CUM || action != fp.KOBOLD_ANAL_SLOW && action != fp.KOBOLD_ANAL_FAST) {
+            if (var2 != fp.CUMBLOWJOB || action != fp.SUCKBLOWJOB && action != fp.THRUSTBLOWJOB) {
+               super.setCurrentAction(action);
             }
          }
       }
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
@@ -283,102 +283,102 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       switch (var1.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
-               this.a("animation.kobold.blink", true, var1);
+               this.createAnimation("animation.kobold.blink", true, var1);
             } else {
-               this.a("animation.kobold.null", true, var1);
+               this.createAnimation("animation.kobold.null", true, var1);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.kobold.null", true, var1);
+               this.createAnimation("animation.kobold.null", true, var1);
             } else if (this.ak) {
-               this.a("animation.kobold.sit", true, var1);
+               this.createAnimation("animation.kobold.sit", true, var1);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.aB = !this.aB;
                }
 
                if (!this.af) {
-                  this.a("animation.kobold.fly" + (this.aB ? "2" : ""), true, var1);
+                  this.createAnimation("animation.kobold.fly" + (this.aB ? "2" : ""), true, var1);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
                      this.movementController.setAnimationSpeed(1.2F);
-                     this.a("animation.kobold.run", true, var1);
+                     this.createAnimation("animation.kobold.run", true, var1);
                   } else if (this.ao.y >= -0.1F) {
                      this.movementController.setAnimationSpeed(2.0);
-                     this.a("animation.kobold.walk", true, var1);
+                     this.createAnimation("animation.kobold.walk", true, var1);
                   } else {
                      this.movementController.setAnimationSpeed(1.75);
-                     this.a("animation.kobold.backwards_walk", true, var1);
+                     this.createAnimation("animation.kobold.backwards_walk", true, var1);
                   }
                } else {
-                  this.a("animation.kobold.idle", true, var1);
+                  this.createAnimation("animation.kobold.idle", true, var1);
                }
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.a("animation.kobold.null", true, var1);
+                  this.createAnimation("animation.kobold.null", true, var1);
                   break;
                case STRIP:
-                  this.a("animation.kobold.strip", false, var1);
+                  this.createAnimation("animation.kobold.strip", false, var1);
                   break;
                case ATTACK:
-                  this.a("animation.kobold.attack" + this.S, false, var1);
+                  this.createAnimation("animation.kobold.attack" + this.S, false, var1);
                   break;
                case BOW:
-                  this.a("animation.kobold.bowcharge", false, var1);
+                  this.createAnimation("animation.kobold.bowcharge", false, var1);
                   break;
                case SIT:
-                  this.a("animation.kobold.sit", true, var1);
+                  this.createAnimation("animation.kobold.sit", true, var1);
                   break;
                case MINE:
-                  this.a("animation.kobold.fall_tree", true, var1);
+                  this.createAnimation("animation.kobold.fall_tree", true, var1);
                   break;
                case PAYMENT:
-                  this.a("animation.kobold.paymentBackpack", true, var1);
+                  this.createAnimation("animation.kobold.paymentBackpack", true, var1);
                   break;
                case STARTBLOWJOB:
-                  this.a("animation.kobold.blowjobStart", false, var1);
+                  this.createAnimation("animation.kobold.blowjobStart", false, var1);
                   break;
                case SUCKBLOWJOB_BLINK:
                   String var5 = this.az ? "R" : "L";
                   String var6 = this.ay ? "Switch" : "";
-                  this.a("animation.kobold.blowjobSlow" + var5 + var6, true, var1);
+                  this.createAnimation("animation.kobold.blowjobSlow" + var5 + var6, true, var1);
                   break;
                case THRUSTBLOWJOB:
-                  this.a("animation.kobold.blowjobFast", true, var1);
+                  this.createAnimation("animation.kobold.blowjobFast", true, var1);
                   break;
                case CUMBLOWJOB:
-                  this.a("animation.kobold.blowjobCum", false, var1);
+                  this.createAnimation("animation.kobold.blowjobCum", false, var1);
                   break;
                case KOBOLD_ANAL_START:
-                  this.a("animation.kobold.analStart", false, var1);
+                  this.createAnimation("animation.kobold.analStart", false, var1);
                   break;
                case KOBOLD_ANAL_SLOW:
-                  this.a("animation.kobold.analSoft", true, var1);
+                  this.createAnimation("animation.kobold.analSoft", true, var1);
                   break;
                case KOBOLD_ANAL_FAST:
-                  this.a("animation.kobold.analHard", true, var1);
+                  this.createAnimation("animation.kobold.analHard", true, var1);
                   break;
                case KOBOLD_ANAL_CUM:
-                  this.a("animation.kobold.analCum", true, var1);
+                  this.createAnimation("animation.kobold.analCum", true, var1);
                   break;
                case SLEEP:
-                  this.a("animation.kobold.sleep", true, var1);
+                  this.createAnimation("animation.kobold.sleep", true, var1);
                   break;
                case MATING_PRESS_START:
-                  this.a("animation.kobold.mating_press_start", false, var1);
+                  this.createAnimation("animation.kobold.mating_press_start", false, var1);
                   break;
                case MATING_PRESS_SOFT:
-                  this.a("animation.kobold.mating_press_soft", true, var1);
+                  this.createAnimation("animation.kobold.mating_press_soft", true, var1);
                   break;
                case MATING_PRESS_HARD:
-                  this.a("animation.kobold.mating_press_hard", true, var1);
+                  this.createAnimation("animation.kobold.mating_press_hard", true, var1);
                   break;
                case MATING_PRESS_CUM:
-                  this.a("animation.kobold.mating_press_cum", true, var1);
+                  this.createAnimation("animation.kobold.mating_press_cum", true, var1);
             }
       }
 
@@ -401,7 +401,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       float var3 = 0.25F - (Float)this.entityDataManager.get(aA);
       double var4 = var3 / 0.25F;
       float var6 = (float)RotationHelper.b(0.9F, 1.1F, var4);
-      this.a(var1, var2, var6);
+      this.playSoundAtPosition(var1, var2, var6);
    }
 
    @SideOnly(Side.CLIENT)
@@ -419,7 +419,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
                break;
             case "paymentMSG1":
-               this.a(this.getInteractionPlayerUUID(), "I'd like to use ur services owo");
+               this.sendChatMessageToPlayer(this.getInteractionPlayerUUID(), "I'd like to use ur services owo");
                this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "plob":
@@ -459,9 +459,9 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                break;
             case "lipsound":
                if (this.getRNG().nextBoolean()) {
-                  this.a(SoundHandler.GIRLS_ALLIE_LIPSOUND, 1.5F);
+                  this.playRandomSoundAtVolume(SoundHandler.GIRLS_ALLIE_LIPSOUND, 1.5F);
                } else {
-                  this.a(SoundHandler.GIRLS_JENNY_LIPSOUND, 1.5F);
+                  this.playRandomSoundAtVolume(SoundHandler.GIRLS_JENNY_LIPSOUND, 1.5F);
                }
 
                HornyMeterHud.addToHornyMeter(0.02F);
@@ -470,7 +470,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.playRandomSound(SoundHandler.MISC_TOUCH);
                break;
             case "blowjobStartDone":
-               this.b(fp.SUCKBLOWJOB_BLINK);
+               this.setCurrentAction(fp.SUCKBLOWJOB_BLINK);
                this.ay = false;
                this.az = true;
                if (this.isControlledByLocalPlayer()) {
@@ -488,14 +488,14 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                break;
             case "blowjobFastDone":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.SUCKBLOWJOB_BLINK);
+                  this.setCurrentAction(fp.SUCKBLOWJOB_BLINK);
                }
                break;
             case "cumLoud":
-               this.a(SoundHandler.MISC_SMALLINSERTS, 3.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "cumQuiet":
-               this.a(SoundHandler.MISC_SMALLINSERTS, 1.5F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "analCumDone":
             case "blowjobCumDone":
@@ -505,7 +505,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
                break;
             case "analStartDone":
-               this.b(fp.KOBOLD_ANAL_SLOW);
+               this.setCurrentAction(fp.KOBOLD_ANAL_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -524,15 +524,15 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
             case "analFastRapid":
                if (this.isControlledByLocalPlayer() && d3.d) {
                   if (this.getCurrentAction() == fp.KOBOLD_ANAL_FAST) {
-                     this.N();
+                     this.resetAnimationControllerOffset();
                   } else {
-                     this.b(fp.KOBOLD_ANAL_FAST);
+                     this.setCurrentAction(fp.KOBOLD_ANAL_FAST);
                   }
                }
                break;
             case "analDone":
                if (this.getCurrentAction() == fp.KOBOLD_ANAL_FAST) {
-                  this.b(fp.KOBOLD_ANAL_SLOW);
+                  this.setCurrentAction(fp.KOBOLD_ANAL_SLOW);
                }
                break;
             case "analHard":
@@ -546,7 +546,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
                break;
             case "cum":
-               this.a(SoundHandler.MISC_SMALLINSERTS, 2.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "giggle":
                this.b(SoundHandler.GIRLS_KOBOLD_GIGGLE);
@@ -605,7 +605,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
             case "mating_press_hardDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.b(fp.MATING_PRESS_SOFT);
+                  this.setCurrentAction(fp.MATING_PRESS_SOFT);
                }
                break;
             case "mating_press_softReady":
@@ -614,7 +614,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
 
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.b(fp.MATING_PRESS_HARD);
+                  this.setCurrentAction(fp.MATING_PRESS_HARD);
                }
                break;
             case "mating_press_hardReady":
@@ -623,7 +623,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
 
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.N();
+                  this.resetAnimationControllerOffset();
                }
                break;
             case "mating_cum_cam":

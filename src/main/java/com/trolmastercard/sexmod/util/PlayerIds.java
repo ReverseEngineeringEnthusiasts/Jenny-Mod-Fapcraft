@@ -67,7 +67,7 @@ public class PlayerIds {
       this.a(var5, var2, var9);
       if (var9 != null) {
          var9.setAnchored(false);
-         var9.b(fp.NULL);
+         var9.setCurrentAction(fp.NULL);
          ResetGirlPacket.Handler.a_clash10(var9);
       }
 
@@ -131,7 +131,7 @@ public class PlayerIds {
                if (var4.getInteractionPlayerUUID().equals(var2.getPersistentID()) || var4.getInteractionPlayerUUID().equals(var2.getUniqueID())) {
                   ResetGirlPacket.Handler.a_clash10(var4);
                   var4.setAnchored(false);
-                  var4.b(fp.NULL);
+                  var4.setCurrentAction(fp.NULL);
                }
 
                if (var4 instanceof AbstractPlayerGirlEntity

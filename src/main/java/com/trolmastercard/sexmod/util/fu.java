@@ -236,7 +236,7 @@ public class fu {
                               var3.setYawRotation(var2.rotationYaw);
                               var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
                               var3.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, 0);
-                              var3.b(fp.STARTDOGGY);
+                              var3.setCurrentAction(fp.STARTDOGGY);
                               if (var1.getWorld().isRemote && Minecraft.getMinecraft().player.getPersistentID().equals(var2.getPersistentID())) {
                                  d3.setMovementLock(false);
                               }
@@ -299,7 +299,7 @@ public class fu {
                      if (var4.getCurrentAction() == fp.NULL) {
                         var3.gameSettings.thirdPersonView = 2;
                         var3.entityRenderer.loadEntityShader(null);
-                        var4.b(fp.STRIP);
+                        var4.setCurrentAction(fp.STRIP);
                         d3.setMovementLock(false);
                         var3.player.closeScreen();
                      }

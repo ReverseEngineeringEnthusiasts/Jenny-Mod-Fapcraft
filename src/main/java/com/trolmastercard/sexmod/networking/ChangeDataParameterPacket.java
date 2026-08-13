@@ -69,7 +69,7 @@ public class ChangeDataParameterPacket implements IMessage {
                         break;
                      case "currentAction":
                         if (fp.valueOf(var1.c) != fp.ATTACK || var1x.getCurrentAction() == fp.NULL) {
-                           var1x.b(fp.valueOf(var1.c));
+                           var1x.setCurrentAction(fp.valueOf(var1.c));
                         }
                         break;
                      case "animationFollowUp":

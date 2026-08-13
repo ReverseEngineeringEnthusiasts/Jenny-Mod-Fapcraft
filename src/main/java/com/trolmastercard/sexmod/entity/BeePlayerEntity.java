@@ -66,8 +66,8 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void b(String var1, UUID var2) {
       this.a(0, fp.CITIZEN_START);
-      this.f(0);
-      this.b(fp.CITIZEN_START);
+      this.setOutfitIndex(0);
+      this.setCurrentAction(fp.CITIZEN_START);
       this.b_clash577(var2);
       EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
       if (var3 != null) {
@@ -78,14 +78,14 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
-      a(var1, this, new String[]{"action.names.sex"}, false);
+      openInventoryGui(var1, this, new String[]{"action.names.sex"}, false);
       return true;
    }
 
    @Override
-   public void b(fp var1) {
-      if (this.getCurrentAction() != fp.CITIZEN_CUM || var1 != fp.CITIZEN_FAST && var1 != fp.COWGIRLSLOW) {
-         super.b(var1);
+   public void setCurrentAction(fp action) {
+      if (this.getCurrentAction() != fp.CITIZEN_CUM || action != fp.CITIZEN_FAST && action != fp.COWGIRLSLOW) {
+         super.setCurrentAction(action);
       }
    }
 
@@ -112,47 +112,47 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void reinitTasks() {
       super.reinitTasks();
-      this.f(1);
+      this.setOutfitIndex(1);
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.bee.null", true, var1);
+               this.createAnimation("animation.bee.null", true, var1);
             } else {
-               this.a("animation.bee.idle", true, var1);
+               this.createAnimation("animation.bee.idle", true, var1);
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.a("animation.bee.null", false, var1);
+                  this.createAnimation("animation.bee.null", false, var1);
                   break;
                case CITIZEN_START:
-                  this.a("animation.bee.sex_start", false, var1);
+                  this.createAnimation("animation.bee.sex_start", false, var1);
                   break;
                case CITIZEN_SLOW:
-                  this.a("animation.bee.sex_slow", true, var1);
+                  this.createAnimation("animation.bee.sex_slow", true, var1);
                   break;
                case CITIZEN_FAST:
-                  this.a("animation.bee.sex_fast", true, var1);
+                  this.createAnimation("animation.bee.sex_fast", true, var1);
                   break;
                case CITIZEN_CUM:
-                  this.a("animation.bee.sex_cum", false, var1);
+                  this.createAnimation("animation.bee.sex_cum", false, var1);
                   break;
                case THROW_PEARL:
-                  this.a("animation.bee.throw_pearl", true, var1);
+                  this.createAnimation("animation.bee.throw_pearl", true, var1);
                   break;
                case ATTACK:
-                  this.a("animation.bee.attack" + this.S, false, var1);
+                  this.createAnimation("animation.bee.attack" + this.S, false, var1);
                   break;
                case BOW:
-                  this.a("animation.bee.bowcharge", false, var1);
+                  this.createAnimation("animation.bee.bowcharge", false, var1);
                   break;
                case RIDE:
-                  this.a("animation.bee.ride", true, var1);
+                  this.createAnimation("animation.bee.ride", true, var1);
             }
       }
 
@@ -183,20 +183,20 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "sex_fastMSG1":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04F);
                }
                break;
             case "sex_startMSG1":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02F);
                }
                break;
             case "sex_fastReady":
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.N();
+                  this.resetAnimationControllerOffset();
                }
                break;
             case "sex_fastDone":
@@ -204,14 +204,14 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
                   return;
                }
             case "sex_startDone":
-               this.b(fp.CITIZEN_SLOW);
+               this.setCurrentAction(fp.CITIZEN_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "sex_cumMSG1":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_CUMINFLATION), 2.0F);
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_CUMINFLATION), 2.0F);
+               this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                break;
             case "blackscreen":
                if (this.isControlledByLocalPlayer()) {

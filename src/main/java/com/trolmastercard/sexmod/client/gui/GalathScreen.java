@@ -67,7 +67,7 @@ public class GalathScreen extends GuiScreen {
 
    void c_clash396() {
       if (this.f.getInteractionPlayerUUID() == null) {
-         this.f.b(fp.START_THROWING);
+         this.f.setCurrentAction(fp.START_THROWING);
       }
    }
 

@@ -91,7 +91,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @Override
    public void c_clash237() {
       this.sendChatMessage("I am living here now nya~");
-      this.a(SoundHandler.GIRLS_BIA_BREATH);
+      this.playRandomSound(SoundHandler.GIRLS_BIA_BREATH);
    }
 
    @Override
@@ -100,15 +100,15 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public void b(fp var1) {
+   public void setCurrentAction(fp action) {
       fp var2 = this.getCurrentAction();
       if (var2 == fp.ANAL_CUM || var2 == fp.PRONE_DOGGY_CUM) {
          this.entityDataManager.set(GIRL_HAND_STATES, "");
       }
 
-      if (var2 != fp.ANAL_CUM || var1 != fp.ANAL_FAST && var1 != fp.ANAL_SLOW) {
-         if (var2 != fp.PRONE_DOGGY_CUM || var1 != fp.PRONE_DOGGY_HARD && var1 != fp.PRONE_DOGGY_SOFT) {
-            super.b(var1);
+      if (var2 != fp.ANAL_CUM || action != fp.ANAL_FAST && action != fp.ANAL_SLOW) {
+         if (var2 != fp.PRONE_DOGGY_CUM || action != fp.PRONE_DOGGY_HARD && action != fp.PRONE_DOGGY_SOFT) {
+            super.setCurrentAction(action);
          }
       }
    }
@@ -168,10 +168,10 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             this.motionY = 0.0;
             this.motionZ = 0.0;
             if ("anal".equals(this.entityDataManager.get(GIRL_HAND_STATES))) {
-               this.b(fp.ANAL_PREPARE);
-               this.f(0);
+               this.setCurrentAction(fp.ANAL_PREPARE);
+               this.setOutfitIndex(0);
             } else {
-               this.b(fp.SITDOWN);
+               this.setCurrentAction(fp.SITDOWN);
             }
          }
       }
@@ -207,7 +207,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          String[] var2 = new String[]{
             this.entityDataManager.get(OUTFIT_INDEX) == 1 ? "action.names.strip" : "action.names.dressup", "action.names.talk", "action.names.headpat"
          };
-         a(var1, this, var2, true);
+         openInventoryGui(var1, this, var2, true);
          return true;
       } else {
          return false;
@@ -215,7 +215,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    void b_clash286(EntityPlayer var1) {
-      a(var1, this, new String[]{"action.names.anal", "doggy"}, false);
+      openInventoryGui(var1, this, new String[]{"action.names.anal", "doggy"}, false);
    }
 
    @Override
@@ -238,8 +238,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   protected void V() {
-      super.V();
+   protected void resetLocalPlayerClientState() {
+      super.resetLocalPlayerClientState();
       this.ac = -1;
    }
 
@@ -264,7 +264,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                   var2.setNoGravity(true);
                   if (var1 == fp.ANAL_WAIT) {
                      if (!this.world.isRemote) {
-                        this.b(fp.ANAL_START);
+                        this.setCurrentAction(fp.ANAL_START);
                         Vec3d var7 = this.getTargetPosition().add(ck.a(-0.3, -1.0, -0.5, this.getYawRotation()));
                         var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
                      } else if (this.isControlledByLocalPlayer()) {
@@ -275,8 +275,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                      var2.rotationYaw = var3;
                      var2.rotationPitch = 60.0F;
                      if (!this.world.isRemote) {
-                        this.f(0);
-                        this.b(fp.PRONE_DOGGY_INTRO);
+                        this.setOutfitIndex(0);
+                        this.setCurrentAction(fp.PRONE_DOGGY_INTRO);
                         Vec3d var4 = this.getTargetPosition();
                         Vec3d var5 = var4.add(ck.a(0.0, 0.0, 1.0, var3));
                         this.setTargetPosition(var5);
@@ -293,8 +293,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @SideOnly(Side.CLIENT)
    @Override
-   public void ag() {
-      super.ag();
+   public void resetAnimationControllerTicks() {
+      super.resetAnimationControllerTicks();
       if (this.getCurrentAction() == fp.PRONE_DOGGY_HARD) {
          int var1 = this.ah;
 
@@ -313,8 +313,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public void a(String var1, UUID var2) {
-      super.a(var1, var2);
+   public void doAction(String var1, UUID var2) {
+      super.doAction(var1, var2);
       switch (var1) {
          case "action.names.talk":
             this.setInteractionPlayerUUID(Minecraft.getMinecraft().player.getPersistentID());
@@ -330,17 +330,17 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             break;
          case "action.names.anal":
             this.changeDataParameterFromClient("animationFollowUp", "anal");
-            this.b(fp.TALK_RESPONSE);
+            this.setCurrentAction(fp.TALK_RESPONSE);
             this.aa = true;
             break;
          case "doggy":
             this.changeDataParameterFromClient("animationFollowUp", "doggy");
-            this.b(fp.TALK_RESPONSE);
+            this.setCurrentAction(fp.TALK_RESPONSE);
             this.aa = true;
             break;
          case "action.names.dressup":
          case "action.names.strip":
-            this.b(fp.STRIP);
+            this.setCurrentAction(fp.STRIP);
       }
    }
 
@@ -359,7 +359,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    void a_clash288(UUID var1) {
-      this.a(true, true, var1);
+      this.triggerActionSync(true, true, var1);
       d3.setMovementLock(false);
    }
 
@@ -368,7 +368,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       int var2 = 0;
 
       while (!this.a_clash290(var1)) {
-         var1 = this.a(this.getPosition(), var2);
+         var1 = this.findNearestBed(this.getPosition(), var2);
          if (++var2 == 50) {
             break;
          }
@@ -408,7 +408,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          }
 
          if (var4 == -1) {
-            this.a(SoundHandler.GIRLS_BIA_BREATH[2]);
+            this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
             this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
             return null;
          } else {
@@ -416,7 +416,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             return new Vector4d(var13.x, var13.y, var13.z, this.ai[var4]);
          }
       } else {
-         this.a(SoundHandler.GIRLS_BIA_BREATH[2]);
+         this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
          this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
          return null;
       }
@@ -439,7 +439,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    Vector4d b_clash291() {
       BlockPos var1 = this.getNearestBed(this.getPosition());
       if (var1 == null) {
-         this.a(SoundHandler.GIRLS_BIA_BREATH[2]);
+         this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
          this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
          return null;
       }
@@ -476,7 +476,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       }
 
       if (var3 == -1) {
-         this.a(SoundHandler.GIRLS_BIA_BREATH[2]);
+         this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
          this.sendChatMessage(I18n.format("jenny.dialogue.bedobscured", new Object[0]));
          return null;
       } else {
@@ -523,10 +523,10 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    protected void U() {
       switch ((String)this.entityDataManager.get(GIRL_HAND_STATES)) {
          case "talkHorny":
-            this.b(fp.TALK_HORNY);
+            this.setCurrentAction(fp.TALK_HORNY);
             break;
          case "Headpat":
-            this.b(fp.HEAD_PAT);
+            this.setCurrentAction(fp.HEAD_PAT);
             break;
          case "doggy":
          case "anal":
@@ -553,7 +553,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       if (this.world instanceof SexWorldClient) {
          return null;
       }
@@ -561,115 +561,115 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       switch (var1.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
-               this.a("animation.bia.fhappy", true, var1);
+               this.createAnimation("animation.bia.fhappy", true, var1);
             } else {
-               this.a("animation.bia.null", true, var1);
+               this.createAnimation("animation.bia.null", true, var1);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.bia.null", true, var1);
+               this.createAnimation("animation.bia.null", true, var1);
             } else if (this.isRiding()) {
-               this.a("animation.bia.sit", true, var1);
+               this.createAnimation("animation.bia.sit", true, var1);
             } else if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
                switch (this.getWalkType()) {
                   case RUN:
-                     this.a("animation.bia.run", true, var1);
+                     this.createAnimation("animation.bia.run", true, var1);
                      break;
                   case FAST_WALK:
-                     this.a("animation.bia.fastwalk", true, var1);
+                     this.createAnimation("animation.bia.fastwalk", true, var1);
                      break;
                   case WALK:
-                     this.a("animation.bia.walk", true, var1);
+                     this.createAnimation("animation.bia.walk", true, var1);
                }
 
                this.rotationYaw = this.rotationYawHead;
             } else {
-               this.a("animation.bia.idle", true, var1);
+               this.createAnimation("animation.bia.idle", true, var1);
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.a("animation.bia.null", true, var1);
+                  this.createAnimation("animation.bia.null", true, var1);
                   break;
                case STRIP:
-                  this.a("animation.bia.strip", false, var1);
+                  this.createAnimation("animation.bia.strip", false, var1);
                   break;
                case ATTACK:
-                  this.a("animation.bia.attack" + this.S, false, var1);
+                  this.createAnimation("animation.bia.attack" + this.S, false, var1);
                   break;
                case BOW:
-                  this.a("animation.bia.bowcharge", false, var1);
+                  this.createAnimation("animation.bia.bowcharge", false, var1);
                   break;
                case RIDE:
-                  this.a("animation.bia.ride", true, var1);
+                  this.createAnimation("animation.bia.ride", true, var1);
                   break;
                case SIT:
-                  this.a("animation.bia.sit", true, var1);
+                  this.createAnimation("animation.bia.sit", true, var1);
                   break;
                case THROW_PEARL:
-                  this.a("animation.bia.throwpearl", false, var1);
+                  this.createAnimation("animation.bia.throwpearl", false, var1);
                   break;
                case DOWNED:
-                  this.a("animation.bia.downed", true, var1);
+                  this.createAnimation("animation.bia.downed", true, var1);
                   break;
                case TALK_HORNY:
-                  this.a("animation.bia.talk_horny2", true, var1);
+                  this.createAnimation("animation.bia.talk_horny2", true, var1);
                   break;
                case TALK_IDLE:
-                  this.a("animation.bia.talk_idle2", true, var1);
+                  this.createAnimation("animation.bia.talk_idle2", true, var1);
                   break;
                case TALK_RESPONSE:
-                  this.a("animation.bia.talk_response", true, var1);
+                  this.createAnimation("animation.bia.talk_response", true, var1);
                   break;
                case ANAL_PREPARE:
-                  this.a("animation.bia.anal_prepare", false, var1);
+                  this.createAnimation("animation.bia.anal_prepare", false, var1);
                   break;
                case ANAL_WAIT:
-                  this.a("animation.bia.anal_wait", false, var1);
+                  this.createAnimation("animation.bia.anal_wait", false, var1);
                   break;
                case ANAL_START:
-                  this.a("animation.bia.anal_start", true, var1);
+                  this.createAnimation("animation.bia.anal_start", true, var1);
                   break;
                case ANAL_SLOW:
-                  this.a("animation.bia.anal_slow", true, var1);
+                  this.createAnimation("animation.bia.anal_slow", true, var1);
                   break;
                case ANAL_FAST:
-                  this.a("animation.bia.anal_fast", true, var1);
+                  this.createAnimation("animation.bia.anal_fast", true, var1);
                   break;
                case ANAL_CUM:
-                  this.a("animation.bia.anal_cum", false, var1);
+                  this.createAnimation("animation.bia.anal_cum", false, var1);
                   break;
                case HEAD_PAT:
-                  this.a("animation.bia.headpat", false, var1);
+                  this.createAnimation("animation.bia.headpat", false, var1);
                   break;
                case SITDOWN:
-                  this.a("animation.bia.sitdown", false, var1);
+                  this.createAnimation("animation.bia.sitdown", false, var1);
                   break;
                case SITDOWNIDLE:
-                  this.a("animation.bia.sitdownidle", true, var1);
+                  this.createAnimation("animation.bia.sitdownidle", true, var1);
                   break;
                case PRONE_DOGGY_INTRO:
-                  this.a("animation.bia.prone_doggy_intro", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_intro", true, var1);
                   break;
                case PRONE_DOGGY_INSERT:
-                  this.a("animation.bia.prone_doggy_insert", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_insert", true, var1);
                   break;
                case PRONE_DOGGY_SOFT:
-                  this.a("animation.bia.prone_doggy_soft", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_soft", true, var1);
                   break;
                case PRONE_DOGGY_HARD:
-                  this.a("animation.bia.prone_doggy_hard" + this.ah, true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_hard" + this.ah, true, var1);
                   break;
                case PRONE_DOGGY_CUM:
-                  this.a("animation.bia.prone_doggy_cum", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_cum", true, var1);
                   break;
                case WAVE_IDLE:
-                  this.a("animation.bia.wave_idle", true, var1);
+                  this.createAnimation("animation.bia.wave_idle", true, var1);
                   break;
                case WAVE:
-                  this.a("animation.bia.wave", true, var1);
+                  this.createAnimation("animation.bia.wave", true, var1);
             }
       }
 
@@ -686,7 +686,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackDone":
-               this.b(fp.NULL);
+               this.setCurrentAction(fp.NULL);
                if (++this.S == 3) {
                   this.S = 0;
                }
@@ -702,7 +702,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "stripMSG1":
                this.sendChatMessage(I18n.format("bia.dialogue.hihi", new Object[0]));
-               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_GIGGLE));
+               this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_GIGGLE));
                break;
             case "sexUiOn":
                if (this.isControlledByLocalPlayer()) {
@@ -714,60 +714,60 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "talk_hornyMSG1":
                this.sendChatMessage(I18n.format("bia.dialogue.heya", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_HEY);
+               this.playRandomSound(SoundHandler.GIRLS_BIA_HEY);
                break;
             case "talk_hornyMSG2":
                this.sendChatMessage(I18n.format("bia.dialogue.horny", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_GIGGLE[2]);
+               this.playSound(SoundHandler.GIRLS_BIA_GIGGLE[2]);
                break;
             case "talk_hornyMSG3":
                this.sendChatMessage(I18n.format("bia.dialogue.so", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_BREATH[0]);
+               this.playSound(SoundHandler.GIRLS_BIA_BREATH[0]);
                break;
             case "talk_hornyMSG4":
                this.sendChatMessage(I18n.format("bia.dialogue.fun", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_HUH[0]);
+               this.playSound(SoundHandler.GIRLS_BIA_HUH[0]);
                break;
             case "talk_hornyDone":
-               this.b(fp.TALK_IDLE);
+               this.setCurrentAction(fp.TALK_IDLE);
                if (this.isControlledByLocalPlayer()) {
                   this.b_clash286(Minecraft.getMinecraft().player);
                }
                break;
             case "talk_responseMSG1":
                this.sendChatMessage(I18n.format("bia.dialogue.huh", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_HUH[2]);
+               this.playSound(SoundHandler.GIRLS_BIA_HUH[2]);
                break;
             case "talk_responseMSG2":
                this.sendChatMessage(I18n.format("bia.dialogue.iuhm", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_BREATH[1]);
+               this.playSound(SoundHandler.GIRLS_BIA_BREATH[1]);
                break;
             case "talk_responseMSG3":
                this.sendChatMessage(I18n.format("bia.dialogue.yes", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_GIGGLE[0]);
+               this.playSound(SoundHandler.GIRLS_BIA_GIGGLE[0]);
                break;
             case "talk_responseDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.s();
+                  this.resetGirlState();
                }
 
                this.U();
                break;
             case "anal_prepareMSG1":
-               this.a(SoundHandler.MISC_PLOB[0]);
+               this.playSound(SoundHandler.MISC_PLOB[0]);
                break;
             case "anal_prepareMSG2":
-               this.a(SoundHandler.MISC_BEDRUSTLE[0]);
+               this.playSound(SoundHandler.MISC_BEDRUSTLE[0]);
                break;
             case "anal_prepareDone":
-               this.b(fp.ANAL_WAIT);
+               this.setCurrentAction(fp.ANAL_WAIT);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                }
                break;
             case "anal_startMSG1":
-               this.a(SoundHandler.GIRLS_BIA_MMM[3]);
-               this.a(SoundHandler.MISC_POUNDING[34]);
+               this.playSound(SoundHandler.GIRLS_BIA_MMM[3]);
+               this.playSound(SoundHandler.MISC_POUNDING[34]);
                break;
             case "anal_fastMSG1":
                if (this.isControlledByLocalPlayer()) {
@@ -779,21 +779,21 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
 
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.5F);
-               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.5F);
+               this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
                break;
             case "anal_fastDone":
                if (!this.isControlledByLocalPlayer() || d3.d) {
                   return;
                }
             case "anal_startDone":
-               this.b(fp.ANAL_SLOW);
+               this.setCurrentAction(fp.ANAL_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "anal_cumMSG2":
-               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
+               this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
                break;
             case "blackScreen":
             case "anal_cumBlackScreen":
@@ -810,63 +810,63 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "headpatMSG1":
                this.sendChatMessage(I18n.format("bia.dialogue.headpats", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_BREATH[0]);
+               this.playSound(SoundHandler.GIRLS_BIA_BREATH[0]);
                break;
             case "headpatMSG2":
                this.sendChatMessage(I18n.format("bia.dialogue.hmm", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_MMM[0]);
+               this.playSound(SoundHandler.GIRLS_BIA_MMM[0]);
                break;
             case "headpatMSG3":
                this.sendChatMessage(I18n.format("bia.dialogue.huh2", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_HUH[0]);
+               this.playSound(SoundHandler.GIRLS_BIA_HUH[0]);
                break;
             case "headpatMSG4":
                this.sendChatMessage(I18n.format("bia.dialogue.thankyou", new Object[0]));
-               this.a(SoundHandler.GIRLS_BIA_GIGGLE[1]);
+               this.playSound(SoundHandler.GIRLS_BIA_GIGGLE[1]);
                break;
             case "headpatDone":
                this.resetCameraAndPhysics();
                break;
             case "sitdownMSG1":
                this.sendChatMessage("come here big boy~");
-               this.a(SoundHandler.GIRLS_BIA_BREATH);
+               this.playRandomSound(SoundHandler.GIRLS_BIA_BREATH);
                break;
             case "sitdownDone":
-               this.b(fp.SITDOWNIDLE);
+               this.setCurrentAction(fp.SITDOWNIDLE);
                break;
             case "slide":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_SLIDE));
+               this.playSound(SoundHandler.randomSound(SoundHandler.MISC_SLIDE));
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.005);
                }
                break;
             case "pound":
-               this.a(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "doggyMoan":
-               this.a(this.getRNG().nextBoolean() ? SoundHandler.GIRLS_BIA_AHH : SoundHandler.GIRLS_BIA_MMM);
+               this.playRandomSound(this.getRNG().nextBoolean() ? SoundHandler.GIRLS_BIA_AHH : SoundHandler.GIRLS_BIA_MMM);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "doggySwitch":
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.b(fp.PRONE_DOGGY_HARD);
+                  this.setCurrentAction(fp.PRONE_DOGGY_HARD);
                }
                break;
             case "doggyReset":
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.N();
+                  this.resetAnimationControllerOffset();
                }
                break;
             case "cum":
-               this.a(SoundHandler.MISC_INSERTS, 6.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_INSERTS, 6.0F);
                break;
             case "orgasm1":
-               this.a(SoundHandler.GIRLS_BIA_MMM[6]);
+               this.playSound(SoundHandler.GIRLS_BIA_MMM[6]);
                break;
             case "orgasm2":
-               this.a(SoundHandler.GIRLS_BIA_MMM[7]);
+               this.playSound(SoundHandler.GIRLS_BIA_MMM[7]);
          }
       };
       this.actionController.registerSoundListener(var2);

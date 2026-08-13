@@ -77,7 +77,7 @@ public class ResetGirlPacket implements IMessage {
             var1.setNoGravity(false);
             var1.noClip = false;
             var0.setAnchored(false);
-            var0.b(fp.NULL);
+            var0.setCurrentAction(fp.NULL);
             if (var0.getInteractionPlayerUUID() != null) {
                EntityPlayer var2 = var0.world.getPlayerEntityByUUID(var0.getInteractionPlayerUUID());
                if (var2 != null) {
