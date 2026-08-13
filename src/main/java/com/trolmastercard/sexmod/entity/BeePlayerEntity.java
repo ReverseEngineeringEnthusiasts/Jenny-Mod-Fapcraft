@@ -215,7 +215,7 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "blackscreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "sex_cumDone":

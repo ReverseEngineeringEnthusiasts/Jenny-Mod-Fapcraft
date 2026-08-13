@@ -346,7 +346,7 @@ public class AllieEntity extends BaseGirlEntity {
                break;
             case "blackscreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "deepthroat_prepareDone":

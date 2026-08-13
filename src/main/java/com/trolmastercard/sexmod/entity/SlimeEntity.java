@@ -487,7 +487,7 @@ public class SlimeEntity extends BaseGirlEntity {
                break;
             case "bjcBlackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "bjcDone":

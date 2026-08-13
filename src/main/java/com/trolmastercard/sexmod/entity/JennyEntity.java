@@ -743,7 +743,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "bjcBlackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "bjcDone":

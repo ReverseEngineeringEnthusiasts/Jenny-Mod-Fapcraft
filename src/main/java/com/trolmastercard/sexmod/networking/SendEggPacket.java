@@ -37,7 +37,7 @@ public class SendEggPacket implements IMessage {
          if (var1.a && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
                EntityPlayerMP var1x = var2.getServerHandler().field_147369_b;
-               UUID var2x = KoboldManager.a_clash88(var1x.getPersistentID());
+               UUID var2x = KoboldManager.getTribeUUID(var1x.getPersistentID());
                if (var2x != null) {
                   EyeAndKoboldColor var3 = KoboldManager.l_clash75(var2x);
                   ItemStack var4 = new ItemStack(KoboldEggItem.a, 1, var3.getWoolMeta());

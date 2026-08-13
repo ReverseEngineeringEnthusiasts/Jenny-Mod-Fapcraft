@@ -512,7 +512,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "cowgirlcumMSG6":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "missionary_cumDone":
@@ -588,17 +588,17 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.GIRLS_ELLIE_GIGGLE[3], 6.0F);
                break;
             case "lipsound":
-               this.a_clash588(SoundHandler.GIRLS_ALLIE_LIPSOUND);
+               this.playRandomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "cum":
                this.a(SoundHandler.MISC_INSERTS, 6.0F);
-               this.a_clash588(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "pound":
-               this.a_clash588(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04);
                }

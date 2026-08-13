@@ -171,7 +171,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                if (!this.field_70170_p.field_72995_K || this.a_clash589(var2)) {
                   if (this.ar == -1) {
                      if (this.field_70170_p.field_72995_K) {
-                        BeeScreen.b_clash732();
+                        BeeScreen.enableInteraction();
                         d3.setMovementLock(false);
                      } else {
                         this.setInteractionPlayerUUID(var2.getPersistentID());
@@ -464,7 +464,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "anal_cumBlackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "doggy_cumDone":
@@ -498,7 +498,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "sitdownMSG1":
                this.sendChatMessage("come here big boy~");
-               this.a_clash588(SoundHandler.GIRLS_BIA_BREATH);
+               this.playRandomSound(SoundHandler.GIRLS_BIA_BREATH);
                break;
             case "sitdownDone":
                this.b(fp.SITDOWNIDLE);
@@ -510,10 +510,10 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "pound":
-               this.a_clash588(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "doggyMoan":
-               this.a_clash588(this.func_70681_au().nextBoolean() ? SoundHandler.GIRLS_BIA_AHH : SoundHandler.GIRLS_BIA_MMM);
+               this.playRandomSound(this.func_70681_au().nextBoolean() ? SoundHandler.GIRLS_BIA_AHH : SoundHandler.GIRLS_BIA_MMM);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04);
                }

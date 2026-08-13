@@ -1932,7 +1932,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          GalathFlightHud.f_clash791();
          PacketHandler.b.sendToServer(new RequestRidingPacket());
       } else if ("anal".equals(var1)) {
-         BeeScreen.b_clash732();
+         BeeScreen.enableInteraction();
          d3.setMovementLock(false);
          ThreadNames.a(1200, () -> {
             EntityPlayerSP var1x = Minecraft.func_71410_x().field_71439_g;
@@ -1943,7 +1943,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             this.b(fp.CORRUPT_SLOW);
          });
       } else if ("cowgirl".equals(var1)) {
-         BeeScreen.b_clash732();
+         BeeScreen.enableInteraction();
          d3.setMovementLock(false);
          ThreadNames.a(1200, () -> {
             EntityPlayerSP var1x = Minecraft.func_71410_x().field_71439_g;
@@ -1960,7 +1960,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                return;
             }
 
-            BeeScreen.b_clash732();
+            BeeScreen.enableInteraction();
             d3.setMovementLock(false);
             ThreadNames.a(1200, () -> {
                Minecraft var2x = Minecraft.func_71410_x();
@@ -2687,12 +2687,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      }
                   case "blackScreen":
                      if (this.isControlledByLocalPlayer()) {
-                        BeeScreen.b_clash732();
+                        BeeScreen.enableInteraction();
                      }
                      break;
                   case "blackScreenMaster":
                      if (Minecraft.func_71410_x().field_71439_g.getPersistentID().equals(this.O_clash527())) {
-                        BeeScreen.b_clash732();
+                        BeeScreen.enableInteraction();
                         d3.setMovementLock(false);
                      }
                      break;

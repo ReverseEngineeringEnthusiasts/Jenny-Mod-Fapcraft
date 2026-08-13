@@ -246,7 +246,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          if (var1 != null) {
             if (!(this.func_70032_d(var1) > 1.5F)) {
                if (var1.getPersistentID().equals(Minecraft.func_71410_x().field_71439_g.getPersistentID())) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
             }
          }
@@ -803,7 +803,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             case "cowgirlcumMSG6":
             case "blackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "missionary_cumDone":

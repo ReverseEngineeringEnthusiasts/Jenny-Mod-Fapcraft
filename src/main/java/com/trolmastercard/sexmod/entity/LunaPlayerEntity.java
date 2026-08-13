@@ -143,7 +143,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       if (var2 == 0) {
          EntityPlayerSP var3 = Minecraft.func_71410_x().field_71439_g;
          if (var3.getPersistentID().equals(var1.getPersistentID())) {
-            BeeScreen.b_clash732();
+            BeeScreen.enableInteraction();
             var3.func_70016_h(0.0, 0.0, 0.0);
             d3.setMovementLock(false);
          }
@@ -312,7 +312,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "paymentMSG2":
                this.sendChatMessage("huh~?");
-               this.a_clash588(SoundHandler.GIRLS_LUNA_HUH);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HUH);
                break;
             case "paymentMSG3":
                this.sendChatMessage("nyyyaaaa~ :D");
@@ -322,7 +322,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "paymentMSG4":
                this.sendChatMessage("tankuuuu owowowo");
-               this.a_clash588(SoundHandler.GIRLS_LUNA_OWO);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_OWO);
                break;
             case "paymentDone":
                if (this.isLocalPlayerNearby()) {
@@ -333,10 +333,10 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "breath":
             case "rod_breath":
-               this.a_clash588(SoundHandler.GIRLS_LUNA_LIGHTBREATHING);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_LIGHTBREATHING);
                break;
             case "happyOh":
-               this.a_clash588(SoundHandler.GIRLS_LUNA_HAPPYOH);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HAPPYOH);
                break;
             case "cutenya3":
                this.a(SoundHandler.GIRLS_LUNA_CUTENYA[3]);
@@ -345,30 +345,30 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.GIRLS_LUNA_CUTENYA[2]);
                break;
             case "huh":
-               this.a_clash588(SoundHandler.GIRLS_LUNA_HUH);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HUH);
                break;
             case "hmph":
-               this.a_clash588(SoundHandler.GIRLS_LUNA_HMPH);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HMPH);
                break;
             case "hehe":
             case "giggle":
-               this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
                break;
             case "singing":
-               this.a_clash588(SoundHandler.GIRLS_LUNA_SINGING);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_SINGING);
                break;
             case "touch_boobsMSG1":
                this.sendChatMessage("comon~ touch me hihi~");
-               this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
                break;
             case "touch":
-               this.a_clash588(SoundHandler.MISC_TOUCH);
+               this.playRandomSound(SoundHandler.MISC_TOUCH);
                break;
             case "jump":
                this.a(SoundHandler.MISC_JUMP[0], 0.2F);
                break;
             case "horninya":
-               this.a_clash588(SoundHandler.GIRLS_LUNA_HORNINYA);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HORNINYA);
                break;
             case "horninya2":
             case "touch_boobs_cumMSG3":
@@ -418,7 +418,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "blackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "touch_boobs_cumDone":
@@ -439,14 +439,14 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.GIRLS_LUNA_HORNINYA[9]);
                break;
             case "call_playerMSG1":
-               this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
                this.sendChatMessage("come here - big guy hehe~");
                break;
             case "pounding":
                this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                break;
             case "sitting_introMSG1":
-               this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
                this.sendChatMessage("hehe~");
                break;
             case "sitting_introDone":
@@ -512,10 +512,10 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "headpatMSG1":
                this.sendChatMessage("huh?~");
-               this.a_clash588(SoundHandler.GIRLS_LUNA_HUH);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HUH);
                break;
             case "headpatMSG2":
-               this.a_clash588(SoundHandler.GIRLS_LUNA_MMM);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_MMM);
                break;
             case "headpatMSG3":
                this.sendChatMessage("nya~");

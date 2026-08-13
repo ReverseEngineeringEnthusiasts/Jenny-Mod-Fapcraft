@@ -45,7 +45,7 @@ public class CancelTaskPacket implements IMessage {
       public IMessage onMessage(CancelTaskPacket var1, MessageContext var2) {
          if (var1.a && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               UUID var2x = KoboldManager.a_clash88(var2.getServerHandler().field_147369_b.getPersistentID());
+               UUID var2x = KoboldManager.getTribeUUID(var2.getServerHandler().field_147369_b.getPersistentID());
                if (var2x != null) {
                   HashSet var3 = KoboldManager.c(var2x, var1.b);
                   if (!var3.isEmpty()) {

@@ -81,7 +81,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
       var0.append("-");
    }
 
-   public static void a_clash223(StringBuilder var0, int var1) {
+   public static void appendPaddedNumber(StringBuilder var0, int var1) {
       int var2 = Reference.f.nextInt(var1 + 1);
       if (var2 < 10) {
          var0.append(0);
@@ -114,7 +114,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
       var0.append("-");
    }
 
-   public static String[] a_clash225(BaseGirlEntity var0) {
+   public static String[] getModelCodeParts(BaseGirlEntity var0) {
       return ((String)var0.func_184212_Q().func_187225_a(M)).split("-");
    }
 

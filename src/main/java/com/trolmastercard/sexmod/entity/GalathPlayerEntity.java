@@ -316,10 +316,10 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      this.a(SoundHandler.MISC_SMALLINSERTS, 2.0F);
                      break;
                   case "pound":
-                     this.a_clash588(SoundHandler.MISC_POUNDING);
+                     this.playRandomSound(SoundHandler.MISC_POUNDING);
                      break;
                   case "flap":
-                     this.a_clash588(SoundHandler.MISC_FLAP);
+                     this.playRandomSound(SoundHandler.MISC_FLAP);
                      break;
                   case "setNude":
                      this.ap = true;
@@ -349,7 +349,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
 
                      return;
                   case "poundRape":
-                     this.a_clash588(SoundHandler.MISC_POUNDING);
+                     this.playRandomSound(SoundHandler.MISC_POUNDING);
                      if (this.isControlledByLocalPlayer()) {
                         HornyMeterHud.addToHornyMeter(0.03F);
                      }
@@ -432,13 +432,13 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                   case "blackScreenTamed":
                   case "blackScreen":
                      if (this.isControlledByLocalPlayer()) {
-                        BeeScreen.b_clash732();
+                        BeeScreen.enableInteraction();
                      }
                      break;
                   case "flapControlled":
                      if (this.isControlledByLocalPlayer()) {
                         GalathFlightHud.f_clash791();
-                        this.a_clash588(SoundHandler.MISC_FLAP);
+                        this.playRandomSound(SoundHandler.MISC_FLAP);
                         Minecraft var10 = Minecraft.func_71410_x();
                         EntityPlayerSP var14 = var10.field_71439_g;
                         MovementInput var15 = var14.field_71158_b;
@@ -454,7 +454,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      }
                      break;
                   case "clap":
-                     this.a_clash588(SoundHandler.MISC_CLAP);
+                     this.playRandomSound(SoundHandler.MISC_CLAP);
                      break;
                   case "energysound":
                      this.a(SoundHandler.MISC_BEEW[1]);

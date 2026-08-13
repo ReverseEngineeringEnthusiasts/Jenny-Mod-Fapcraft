@@ -45,7 +45,7 @@ public class dg extends d9 {
 
    @Override
    protected Vec3i a_clash192(String var1) {
-      String[] var2 = AbstractNpcOnlyEntity.a_clash225(this.j);
+      String[] var2 = AbstractNpcOnlyEntity.getModelCodeParts(this.j);
       if (var2.length < 8) {
          return z;
       } else if (var1.contains("band")) {
@@ -123,7 +123,7 @@ public class dg extends d9 {
 
    @Override
    protected void a(String var1, GeoBone var2) {
-      String[] var3 = AbstractNpcOnlyEntity.a_clash225(this.j);
+      String[] var3 = AbstractNpcOnlyEntity.getModelCodeParts(this.j);
       if (var3.length >= 8) {
          switch (var1) {
             case "earL":

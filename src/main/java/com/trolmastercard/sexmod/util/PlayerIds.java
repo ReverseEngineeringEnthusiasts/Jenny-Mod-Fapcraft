@@ -55,7 +55,7 @@ public class PlayerIds {
          }
       }
 
-      UUID var7 = KoboldManager.a_clash88(var2.getPersistentID());
+      UUID var7 = KoboldManager.getTribeUUID(var2.getPersistentID());
       if (var7 != null) {
          HashSet var8 = KoboldManager.d_clash90(var7);
          PacketHandler.b.sendTo(new SendBlocksPacket(var8, true), var2);

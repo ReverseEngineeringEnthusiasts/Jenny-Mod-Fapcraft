@@ -131,10 +131,10 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       AbstractNpcOnlyEntity.b(var1, 3);
       AbstractNpcOnlyEntity.b_clash224(var1);
       AbstractNpcOnlyEntity.b_clash224(var1);
-      AbstractNpcOnlyEntity.a_clash223(var1, 2);
-      AbstractNpcOnlyEntity.a_clash223(var1, 2);
-      AbstractNpcOnlyEntity.a_clash223(var1, 1);
-      AbstractNpcOnlyEntity.a_clash223(var1, 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 2);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 2);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 1);
       return var1.toString();
    }
 
@@ -420,14 +420,14 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                break;
             case "paymentMSG1":
                this.a(this.getInteractionPlayerUUID(), "I'd like to use ur services owo");
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "plob":
-               this.a_clash588(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "blackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "paymentDone":
@@ -467,7 +467,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                HornyMeterHud.addToHornyMeter(0.02F);
                break;
             case "touch":
-               this.a_clash588(SoundHandler.MISC_TOUCH);
+               this.playRandomSound(SoundHandler.MISC_TOUCH);
                break;
             case "blowjobStartDone":
                this.b(fp.SUCKBLOWJOB_BLINK);
@@ -519,7 +519,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
                break;
             case "pounding":
-               this.a_clash588(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "analFastRapid":
                if (this.isControlledByLocalPlayer() && d3.d) {

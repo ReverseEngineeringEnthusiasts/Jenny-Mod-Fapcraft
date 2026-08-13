@@ -251,7 +251,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             if (!(var2.func_70032_d(this) > 1.0F)) {
                if (this.ac == -1) {
                   if (this.field_70170_p.field_72995_K) {
-                     BeeScreen.b_clash732();
+                     BeeScreen.enableInteraction();
                      d3.setMovementLock(false);
                   } else {
                      this.setInteractionPlayerUUID(var2.getPersistentID());
@@ -798,7 +798,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "blackScreen":
             case "anal_cumBlackScreen":
                if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.b_clash732();
+                  BeeScreen.enableInteraction();
                }
                break;
             case "doggy_cumDone":

@@ -158,7 +158,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
          }
 
          if ("mouth".equals(var9)) {
-            String[] var10 = AbstractNpcOnlyEntity.a_clash225(this.j);
+            String[] var10 = AbstractNpcOnlyEntity.getModelCodeParts(this.j);
             int var11 = Integer.parseInt(var10[7]);
             if (var11 == 1) {
                var7 = -0.078125;
