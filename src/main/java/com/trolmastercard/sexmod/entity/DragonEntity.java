@@ -5,7 +5,7 @@ import com.trolmastercard.sexmod.networking.SpawnEnergyBallParticlesPacket2;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.gc;
+import com.trolmastercard.sexmod.util.TrigMath;
 
 
 
@@ -166,14 +166,14 @@ public class DragonEntity extends EntityLiving {
          return true;
       }
 
-      EntityLivingBase var2 = this.f.M_clash691();
+      EntityLivingBase var2 = this.f.getTargetEntity();
       return var2 == null ? true : var2.getDistance(var1.x, var1.y, var1.z) < 15.0;
    }
 
    @SideOnly(Side.CLIENT)
    public static void a_clash118(Vec3d var0) {
       WorldClient var1 = Minecraft.getMinecraft().world;
-      float var2 = gc.wrapDegrees(1.8F);
+      float var2 = TrigMath.wrapDegrees(1.8F);
       Random var3 = Reference.f;
 
       for (float var4 = 0.0F; var4 < Math.PI * 2; var4 += var2) {

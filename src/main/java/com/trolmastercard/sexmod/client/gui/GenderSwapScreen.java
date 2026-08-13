@@ -24,7 +24,7 @@ public class GenderSwapScreen {
    public static GenderSwapScreen a;
    private GenderSwapScreen.a b;
 
-   public void a_clash861() {
+   public void tick() {
       if (a.b != null) {
          if (--a.b.e <= 0.0F) {
             Minecraft.getMinecraft()

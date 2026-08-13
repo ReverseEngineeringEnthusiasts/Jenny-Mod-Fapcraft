@@ -4,11 +4,11 @@ import com.trolmastercard.sexmod.client.renderer.AlliesLampRenderer;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.AllieEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.RotationHelper;
-import com.trolmastercard.sexmod.util.cj;
-import com.trolmastercard.sexmod.util.ck;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.WorldUtils;
+import com.trolmastercard.sexmod.util.VectorMath;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -177,15 +177,15 @@ public class AlliesLampItem extends Item implements IAnimatable {
                   double var10 = (float)(var9 - k) / (c - k);
                   var10 = RotationHelper.h(var10);
                   Vec3d var12 = new Vec3d(0.0, var6.eyeHeight * (1.0 - var10), 0.0);
-                  cj.a(var2, EnumParticleTypes.CRIT_MAGIC, this.a_clash32(var6).add(var12), (int)(var10 * 150.0), var10 * 0.75, var10);
+                  WorldUtils.a(var2, EnumParticleTypes.CRIT_MAGIC, this.a_clash32(var6).add(var12), (int)(var10 * 150.0), var10 * 0.75, var10);
                }
 
                if (var9 >= c) {
-                  cj.a(var2, EnumParticleTypes.CRIT_MAGIC, this.a_clash32(var6), 150, 0.75, 2.0);
+                  WorldUtils.a(var2, EnumParticleTypes.CRIT_MAGIC, this.a_clash32(var6), 150, 0.75, 2.0);
                   var7.setBoolean("sexmodAllieInUse", false);
                   var7.setInteger("sexmodAllieInUseTicks", 0);
                   if (var2.isRemote) {
-                     d3.setMovementLock(false);
+                     HandlePlayerMovement.setMovementLock(false);
                   } else {
                      NBTTagCompound var15 = var1.getTagCompound();
                      if (var15 == null) {
@@ -205,9 +205,9 @@ public class AlliesLampItem extends Item implements IAnimatable {
                      var6.world.spawnEntity(var11);
                      BlockPos var13 = var11.getPosition().add(0, -1, 0);
                      if (var11.world.getBlockState(var13).getBlock().equals(Blocks.SAND)) {
-                        var11.setCurrentAction(fp.SUMMON_SAND);
+                        var11.setCurrentAction(Action.SUMMON_SAND);
                      } else {
-                        var11.setCurrentAction(var11.f_clash697() ? fp.SUMMON : fp.SUMMON_NORMAL);
+                        var11.setCurrentAction(var11.f_clash697() ? Action.SUMMON : Action.SUMMON_NORMAL);
                      }
 
                      var1.setTagCompound(var15);
@@ -219,7 +219,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
    }
 
    Vec3d a_clash32(EntityPlayer var1) {
-      return var1.getPositionVector().add(ck.rotateByYaw(new Vec3d(0.0, 0.0, 2.0), var1.rotationYawHead));
+      return var1.getPositionVector().add(VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 2.0), var1.rotationYawHead));
    }
 
    @Override
@@ -240,7 +240,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
          EnumHand var3 = var1.getHand();
          ItemStack var4 = var2.getHeldItem(var3);
          if (!AbstractPlayerGirlEntity.e(var2)) {
-            if (!var2.world.isRemote || d3.b_clash121()) {
+            if (!var2.world.isRemote || HandlePlayerMovement.b_clash121()) {
                if (!var2.world.isRemote) {
                   try {
                      for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {

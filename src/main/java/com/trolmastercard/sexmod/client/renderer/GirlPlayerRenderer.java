@@ -2,7 +2,7 @@ package com.trolmastercard.sexmod.client.renderer;
 
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 
 
 
@@ -104,14 +104,14 @@ public class GirlPlayerRenderer extends GirlRenderer {
          return false;
       }
 
-      fp var3 = var2.getCurrentAction();
+      Action var3 = var2.getCurrentAction();
       return var3 == null ? true : !var3.hideNameTag;
    }
 
-   protected void a(String var1, GeoBone var2) {
+   protected void onBoneRenderStart(String var1, GeoBone var2) {
    }
 
-   protected void a(String var1, GeoBone var2, AbstractPlayerGirlEntity var3, BufferBuilder var4) {
+   protected void onBoneRenderingLayer(String var1, GeoBone var2, AbstractPlayerGirlEntity var3, BufferBuilder var4) {
    }
 
    @Override
@@ -128,11 +128,11 @@ public class GirlPlayerRenderer extends GirlRenderer {
       }
 
       if (var7.equals("head")) {
-         this.a(var1, var2, Color.ofRGB(var3, var4, var5));
+         this.renderOverlay(var1, var2, Color.ofRGB(var3, var4, var5));
       }
 
-      this.a(var7, var2);
-      this.a(var7, var2, this.w, var1);
+      this.onBoneRenderStart(var7, var2);
+      this.onBoneRenderingLayer(var7, var2, this.w, var1);
       if (this.u && (this.s.getItem() instanceof ItemBow || this.x.getItem() instanceof ItemBow)) {
          if (var7.equals("armR")) {
             var2.setRotationX(var2.getRotationX() - this.j.rotationPitch / 50.0F);
@@ -160,11 +160,11 @@ public class GirlPlayerRenderer extends GirlRenderer {
       }
 
       if (var7.equals("weapon") && !this.s.isEmpty()) {
-         this.a(var1, var2, false);
+         this.renderEquippedItem(var1, var2, false);
       }
 
       if (var7.equals("offhand") && !this.x.isEmpty()) {
-         this.a(var1, var2, true);
+         this.renderEquippedItem(var1, var2, true);
       }
 
       MATRIX_STACK.push();
@@ -179,7 +179,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
          MATRIX_STACK.pop();
       } else {
          if (!var2.isHidden) {
-            Vector4f var17 = this.a(var7, var3, var4, var5);
+            Vector4f var17 = this.calculateBoneArmorColor(var7, var3, var4, var5);
             var3 = var17.x;
             var4 = var17.y;
             var5 = var17.z;
@@ -189,7 +189,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
                   MATRIX_STACK.push();
                   GlStateManager.pushMatrix();
                   this.q = var2;
-                  this.a(var1, var12, var3, var4, var5, var6, (double)var9);
+                  this.renderCubeGeometry(var1, var12, var3, var4, var5, var6, (double)var9);
                   GlStateManager.popMatrix();
                   MATRIX_STACK.pop();
                }
@@ -199,7 +199,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
                if (var9 == 0.0) {
                   this.renderRecursively(var1, var19, var3, var4, var5, var6);
                } else {
-                  this.a(var1, var19, var3, var4, var5, var6, (double)var9);
+                  this.renderCustomBones(var1, var19, var3, var4, var5, var6, (double)var9);
                }
             }
          }
@@ -219,12 +219,12 @@ public class GirlPlayerRenderer extends GirlRenderer {
       }
    }
 
-   public void a(BufferBuilder var1, GeoBone var2, Color var3) {
+   public void renderOverlay(BufferBuilder var1, GeoBone var2, Color var3) {
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
       com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
       GL11.glEnable(2896);
-      this.c_clash145();
+      this.preRenderCallback();
       new GirlLayerRenderer(this).render(this.j, this.j.limbSwing, this.j.limbSwingAmount, this.y, 0.0F, 0.0F, 0.0F, var3);
       this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
       var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
@@ -234,10 +234,10 @@ public class GirlPlayerRenderer extends GirlRenderer {
       GlStateManager.popMatrix();
    }
 
-   protected void c_clash145() {
+   protected void preRenderCallback() {
    }
 
-   public void a(BufferBuilder var1, GeoBone var2, boolean var3) {
+   public void renderEquippedItem(BufferBuilder var1, GeoBone var2, boolean var3) {
       ItemRenderer var4 = Minecraft.getMinecraft().getItemRenderer();
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
@@ -248,10 +248,10 @@ public class GirlPlayerRenderer extends GirlRenderer {
       ItemStack var5 = var3 ? this.x : this.s;
       switch (var5.getItem().getItemUseAction(var5)) {
          case BOW:
-            this.a_clash146(var3);
+            this.applyBowRotation(var3);
             break;
          case BLOCK:
-            this.a(var3, this.u);
+            this.applyShieldBlockingTransform(var3, this.u);
       }
 
       if (this.u && !var3 && var5.getItem() instanceof ItemBow) {
@@ -267,7 +267,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
          this.j.setHandActiveState();
       }
 
-      this.a(var3, var5);
+      this.applyItemPostRotation(var3, var5);
       GlStateManager.scale(0.75F, 0.75F, 0.75F);
       var4.renderItem(this.j, var5, TransformType.THIRD_PERSON_RIGHT_HAND);
       var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
@@ -278,15 +278,15 @@ public class GirlPlayerRenderer extends GirlRenderer {
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
    }
 
-   protected void a(boolean var1, ItemStack var2) {
+   protected void applyItemPostRotation(boolean var1, ItemStack var2) {
       GlStateManager.rotate(var1 ? 200.0F : 90.0F, 1.0F, 0.0F, 0.0F);
    }
 
-   protected void a_clash146(boolean var1) {
+   protected void applyBowRotation(boolean var1) {
       GlStateManager.rotate(20.0F, 1.0F, 0.0F, 0.0F);
    }
 
-   protected void a(boolean var1, boolean var2) {
+   protected void applyShieldBlockingTransform(boolean var1, boolean var2) {
       if (var1) {
          GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
          GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);

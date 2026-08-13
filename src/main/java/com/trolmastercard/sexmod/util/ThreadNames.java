@@ -25,29 +25,29 @@ public class ThreadNames {
       return (float)var4;
    }
 
-   public static bm a_clash161(Vec3d var0, Vec3d var1) {
+   public static Vector2f getLookAngles(Vec3d var0, Vec3d var1) {
       Vec3d var2 = var1.subtract(var0).normalize();
-      return new bm(
+      return new Vector2f(
          (float)Math.atan2(var2.x, var2.z),
          (float)Math.atan2(var2.y, Math.sqrt(var2.x * var2.x + var2.z * var2.z))
       );
    }
 
-   public static void a_clash162(String var0) {
+   public static void copyToClipboard(String var0) {
       Clipboard var1 = Toolkit.getDefaultToolkit().getSystemClipboard();
       StringSelection var2 = new StringSelection(var0);
       var1.setContents(var2, null);
    }
 
-   public static String b_clash163(String var0) {
+   public static String capitalizeFirst(String var0) {
       return var0 != null && !var0.isEmpty() ? Character.toUpperCase(var0.charAt(0)) + var0.substring(1).toLowerCase() : var0;
    }
 
-   public static boolean a_clash164(double var0, double var2, double var4) {
+   public static boolean isBetween(double var0, double var2, double var4) {
       return var0 < var2 ? false : !(var0 >= var4);
    }
 
-   public static int a_clash165(int var0) {
+   public static int weightedRandomIndex(int var0) {
       if (var0 <= 0) {
          return var0;
       }
@@ -72,7 +72,7 @@ public class ThreadNames {
       return var0;
    }
 
-   public static int a_clash166() {
+   public static int randomSign() {
       return Reference.f.nextBoolean() ? 1 : -1;
    }
 
@@ -84,12 +84,12 @@ public class ThreadNames {
       return Math.max(var2, Math.min(var4, var0));
    }
 
-   public static float a_clash167(float var0, boolean var1) {
+   public static float randomSignedFloat(float var0, boolean var1) {
       Random var2 = new Random();
       return var2.nextFloat() * var0 * (var1 && var2.nextBoolean() ? -1 : 1);
    }
 
-   public static float a_clash168(float var0, float var1, float var2) {
+   public static float moveToward(float var0, float var1, float var2) {
       if (Math.abs(var0 - var1) <= var2) {
          return var0;
       } else if (Math.abs(var0) < Math.abs(var1)) {
@@ -99,7 +99,7 @@ public class ThreadNames {
       }
    }
 
-   public static int a_clash169(double var0) {
+   public static int roundToInt(double var0) {
       return Math.round((float)var0);
    }
 
@@ -113,7 +113,7 @@ public class ThreadNames {
          }
 
          var1.run();
-      }, (g0.a_clash472() ? "server sexmod thread " : "client sexmod thread ") + var2).start();
+      }, (ClientServerCheck.getInstance() ? "server sexmod thread " : "client sexmod thread ") + var2).start();
    }
 
 }

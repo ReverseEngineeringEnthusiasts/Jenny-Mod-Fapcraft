@@ -1,8 +1,8 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.AllieEntity;
-import com.trolmastercard.sexmod.entity.fp;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.entity.Action;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 
@@ -51,9 +51,9 @@ public class SummonAlliePacket implements IMessage {
                      var1x.world.spawnEntity(var3);
                      BlockPos var4 = var3.getPosition().add(0, -1, 0);
                      if (var3.world.getBlockState(var4).getBlock().equals(Blocks.SAND)) {
-                        var3.setCurrentAction(fp.SUMMON_SAND);
+                        var3.setCurrentAction(Action.SUMMON_SAND);
                      } else {
-                        var3.setCurrentAction(var3.f_clash697() ? fp.SUMMON : fp.SUMMON_NORMAL);
+                        var3.setCurrentAction(var3.f_clash697() ? Action.SUMMON : Action.SUMMON_NORMAL);
                      }
                   }
                );

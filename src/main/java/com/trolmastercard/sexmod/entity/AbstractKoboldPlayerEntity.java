@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.ar;
+import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 
 
@@ -50,7 +50,7 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
 
    protected abstract String a(StringBuilder var1);
 
-   public static String[] a_clash702(BaseGirlEntity var0) {
+   public static String[] getModelCodeParts(BaseGirlEntity var0) {
       return ((String)var0.getDataManager().get(at)).split("-");
    }
 
@@ -60,7 +60,7 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
       this.b_clash703();
       if (this.ar) {
          if (this.world.isRemote) {
-            this.a_clash354();
+            this.clearBoneColors();
             this.ar = true;
          } else {
             EntityPlayer var1 = this.k_clash584();
@@ -86,7 +86,7 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
             this.aq = var3;
          } else {
             if (!this.av.equals(var2) || !this.ap.equals(var1) || !this.aq.equals(var3)) {
-               this.a_clash354();
+               this.clearBoneColors();
             }
 
             this.ap = var1;
@@ -96,6 +96,6 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
       }
    }
 
-   protected abstract void a_clash354();
+   protected abstract void clearBoneColors();
 
 }

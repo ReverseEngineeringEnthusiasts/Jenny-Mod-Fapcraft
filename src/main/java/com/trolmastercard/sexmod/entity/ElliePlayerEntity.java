@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.ar;
+import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.EllieModel;
@@ -14,7 +14,7 @@ import com.trolmastercard.sexmod.networking.SexPromptPacket;
 import com.trolmastercard.sexmod.networking.TeleportPlayerPacket;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -64,15 +64,15 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void u_clash377() {
-      this.setCurrentAction(fp.SITDOWN);
+      this.setCurrentAction(Action.SITDOWN);
    }
 
    @Override
    public void b(String var1, UUID var2) {
       if ("Face fuck".equals(var1)) {
          this.b_clash577(var2);
-         this.setCurrentAction(fp.CARRY_INTRO);
-         this.a(this.getOutfitIndex(), fp.CARRY_INTRO);
+         this.setCurrentAction(Action.CARRY_INTRO);
+         this.a(this.getOutfitIndex(), Action.CARRY_INTRO);
       }
    }
 
@@ -119,41 +119,41 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      fp var2 = this.getCurrentAction();
-      if (var2 != fp.MISSIONARY_CUM || action != fp.MISSIONARY_FAST && action != fp.MISSIONARY_SLOW) {
-         if (var2 != fp.COWGIRLCUM || action != fp.COWGIRLSLOW && action != fp.COWGIRLFAST) {
+   public void setCurrentAction(Action action) {
+      Action var2 = this.getCurrentAction();
+      if (var2 != Action.MISSIONARY_CUM || action != Action.MISSIONARY_FAST && action != Action.MISSIONARY_SLOW) {
+         if (var2 != Action.COWGIRLCUM || action != Action.COWGIRLSLOW && action != Action.COWGIRLFAST) {
             super.setCurrentAction(action);
          }
       }
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
-      if (var1 == fp.COWGIRLSLOW) {
-         return fp.COWGIRLFAST;
-      } else if (var1 == fp.MISSIONARY_SLOW) {
-         return fp.MISSIONARY_FAST;
+   protected Action getNextAction(Action var1) {
+      if (var1 == Action.COWGIRLSLOW) {
+         return Action.COWGIRLFAST;
+      } else if (var1 == Action.MISSIONARY_SLOW) {
+         return Action.MISSIONARY_FAST;
       } else {
-         return var1 == fp.CARRY_SLOW ? fp.CARRY_FAST : null;
+         return var1 == Action.CARRY_SLOW ? Action.CARRY_FAST : null;
       }
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (var1 == fp.COWGIRLFAST || var1 == fp.COWGIRLSLOW) {
-         return fp.COWGIRLCUM;
-      } else if (var1 == fp.MISSIONARY_FAST || var1 == fp.MISSIONARY_SLOW) {
-         return fp.MISSIONARY_CUM;
+   protected Action getCumAction(Action var1) {
+      if (var1 == Action.COWGIRLFAST || var1 == Action.COWGIRLSLOW) {
+         return Action.COWGIRLCUM;
+      } else if (var1 == Action.MISSIONARY_FAST || var1 == Action.MISSIONARY_SLOW) {
+         return Action.MISSIONARY_CUM;
       } else {
-         return var1 != fp.CARRY_SLOW && var1 != fp.CARRY_FAST ? null : fp.CARRY_CUM;
+         return var1 != Action.CARRY_SLOW && var1 != Action.CARRY_FAST ? null : Action.CARRY_CUM;
       }
    }
 
    @Override
    public void updateAITasks() {
       super.updateAITasks();
-      if (this.getCurrentAction() == fp.SITDOWNIDLE) {
+      if (this.getCurrentAction() == Action.SITDOWNIDLE) {
          String var1 = (String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES);
          if (!"Missionary".equals(var1) && !"Cowgirl".equals(var1)) {
             return;
@@ -178,12 +178,12 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
          var3.setNoGravity(true);
          var2.setNoGravity(true);
          if ("Missionary".equals(var1)) {
-            this.setCurrentAction(fp.MISSIONARY_START);
+            this.setCurrentAction(Action.MISSIONARY_START);
             Vec3d var4 = this.w_clash576().subtract(0.0, 0.1, 0.0);
             var2.setPositionAndRotation(var4.x, var4.y, var4.z, this.getYawRotation(), 60.0F);
             var2.setPositionAndUpdate(var4.x, var4.y, var4.z);
          } else {
-            this.setCurrentAction(fp.COWGIRLSTART);
+            this.setCurrentAction(Action.COWGIRLSTART);
             Vec3d var5 = this.w_clash576()
                .add(
                   new Vec3d(
@@ -209,14 +209,14 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
    protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
+            if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
                this.createAnimation("animation.ellie.eyes", true, var1);
             } else {
                this.createAnimation("animation.ellie.null", true, var1);
             }
             break;
          case "movement":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.ellie.null", true, var1);
             } else if (this.ak) {
                this.createAnimation("animation.ellie.ride", true, var1);
@@ -353,7 +353,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "dashDone":
-               this.setCurrentAction(fp.HUG);
+               this.setCurrentAction(Action.HUG);
                EntityPlayer var8 = this.world.getClosestPlayerToEntity(this, 15.0);
                if (var8 != null) {
                   float var13 = var8.rotationYaw;
@@ -390,7 +390,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
             case "hugDone":
                EntityPlayerSP var4 = Minecraft.getMinecraft().player;
                if (var4.getPersistentID().equals(this.getInteractionPlayerUUID())) {
-                  this.setCurrentAction(fp.HUGIDLE);
+                  this.setCurrentAction(Action.HUGIDLE);
                   this.c_clash380(var4);
                }
                break;
@@ -417,7 +417,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                   PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.getGirlId(), "targetPos", var6));
                   this.resetCameraAndPhysics();
                   PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
-                  this.setCurrentAction(fp.NULL);
+                  this.setCurrentAction(Action.NULL);
                }
                break;
             case "sitdownMSG1":
@@ -428,13 +428,13 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "sitdownDone":
                if (this.f_clash579()) {
-                  this.setCurrentAction(fp.SITDOWNIDLE);
+                  this.setCurrentAction(Action.SITDOWNIDLE);
                   this.c_clash380(this.world.getPlayerEntityByUUID(this.getOwnerUserUUID()));
                }
                break;
             case "missionary_startDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.setCurrentAction(fp.MISSIONARY_SLOW);
+                  this.setCurrentAction(Action.MISSIONARY_SLOW);
                   HornyMeterHud.showHornyMeter();
                }
                break;
@@ -456,7 +456,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "cowgirlStartDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.setCurrentAction(fp.COWGIRLSLOW);
+                  this.setCurrentAction(Action.COWGIRLSLOW);
                   HornyMeterHud.showHornyMeter();
                }
                break;
@@ -474,8 +474,8 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "cowgirlfastReady":
                if (this.isControlledByLocalPlayer()) {
-                  if (!d3.d) {
-                     this.setCurrentAction(fp.COWGIRLSLOW);
+                  if (!HandlePlayerMovement.d) {
+                     this.setCurrentAction(Action.COWGIRLSLOW);
                   } else if (Reference.f.nextInt(4) != 1) {
                      this.actionController.clearAnimationCache();
                   }
@@ -562,10 +562,10 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "missionary_fastDone":
                if (this.isControlledByLocalPlayer()) {
-                  if (d3.d) {
-                     this.setCurrentAction(fp.MISSIONARY_FAST);
+                  if (HandlePlayerMovement.d) {
+                     this.setCurrentAction(Action.MISSIONARY_FAST);
                   } else {
-                     this.setCurrentAction(fp.MISSIONARY_SLOW);
+                     this.setCurrentAction(Action.MISSIONARY_SLOW);
                   }
                }
                break;
@@ -612,8 +612,8 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
 
                return;
             case "carry_fastDone":
-               if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.setCurrentAction(fp.CARRY_SLOW);
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.CARRY_SLOW);
                }
                break;
             case "sexUI":

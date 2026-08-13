@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.ar;
+import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.LunaModel;
@@ -8,8 +8,8 @@ import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.ck;
-import com.trolmastercard.sexmod.util.d3;
+import com.trolmastercard.sexmod.util.VectorMath;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 
 
 
@@ -67,21 +67,21 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void b(String var1, UUID var2) {
       if ("action.names.touchboobs".equals(var1)) {
-         this.a(0, fp.TOUCH_BOOBS_INTRO);
-         this.setCurrentAction(fp.TOUCH_BOOBS_INTRO);
+         this.a(0, Action.TOUCH_BOOBS_INTRO);
+         this.setCurrentAction(Action.TOUCH_BOOBS_INTRO);
          this.entityDataManager.set(OUTFIT_INDEX, 0);
          this.b_clash577(var2);
       }
 
       if ("action.names.headpat".equals(var1)) {
-         this.setCurrentAction(fp.HEAD_PAT);
+         this.setCurrentAction(Action.HEAD_PAT);
          this.b_clash577(var2);
       }
    }
 
    @Override
    public void u_clash377() {
-      this.setCurrentAction(fp.WAIT_CAT);
+      this.setCurrentAction(Action.WAIT_CAT);
    }
 
    @Override
@@ -96,9 +96,9 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      if (this.getCurrentAction() != fp.COWGIRL_SITTING_CUM || action != fp.COWGIRL_SITTING_SLOW && action != fp.COWGIRL_SITTING_FAST) {
-         if (this.getCurrentAction() != fp.TOUCH_BOOBS_CUM || action != fp.TOUCH_BOOBS_FAST && action != fp.TOUCH_BOOBS_SLOW) {
+   public void setCurrentAction(Action action) {
+      if (this.getCurrentAction() != Action.COWGIRL_SITTING_CUM || action != Action.COWGIRL_SITTING_SLOW && action != Action.COWGIRL_SITTING_FAST) {
+         if (this.getCurrentAction() != Action.TOUCH_BOOBS_CUM || action != Action.TOUCH_BOOBS_FAST && action != Action.TOUCH_BOOBS_SLOW) {
             super.setCurrentAction(action);
          }
       }
@@ -107,7 +107,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void onUpdate() {
       super.onUpdate();
-      if (fp.WAIT_CAT.equals(this.getCurrentAction())) {
+      if (Action.WAIT_CAT.equals(this.getCurrentAction())) {
          this.a_clash378();
       } else {
          this.ar = 0;
@@ -124,7 +124,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
                var1.setPositionAndUpdate(this.getPositionVector().x, this.w_clash576().y, this.getPositionVector().z);
-               this.setCurrentAction(fp.COWGIRL_SITTING_INTRO);
+               this.setCurrentAction(Action.COWGIRL_SITTING_INTRO);
                var1.setRotationYawHead(this.getYawRotation() + 180.0F);
                var1.rotationYaw = this.getYawRotation() + 180.0F;
                var1.prevRotationYaw = this.getYawRotation() + 180.0F;
@@ -145,7 +145,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
          if (var3.getPersistentID().equals(var1.getPersistentID())) {
             BeeScreen.enableInteraction();
             var3.setVelocity(0.0, 0.0, 0.0);
-            d3.setMovementLock(false);
+            HandlePlayerMovement.setMovementLock(false);
          }
       }
 
@@ -158,20 +158,20 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
-      if (var1 == fp.TOUCH_BOOBS_SLOW) {
-         return fp.TOUCH_BOOBS_FAST;
+   protected Action getNextAction(Action var1) {
+      if (var1 == Action.TOUCH_BOOBS_SLOW) {
+         return Action.TOUCH_BOOBS_FAST;
       } else {
-         return var1 == fp.COWGIRL_SITTING_SLOW ? fp.COWGIRL_SITTING_FAST : null;
+         return var1 == Action.COWGIRL_SITTING_SLOW ? Action.COWGIRL_SITTING_FAST : null;
       }
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (var1 == fp.TOUCH_BOOBS_SLOW || var1 == fp.TOUCH_BOOBS_FAST) {
-         return fp.TOUCH_BOOBS_CUM;
+   protected Action getCumAction(Action var1) {
+      if (var1 == Action.TOUCH_BOOBS_SLOW || var1 == Action.TOUCH_BOOBS_FAST) {
+         return Action.TOUCH_BOOBS_CUM;
       } else {
-         return var1 != fp.COWGIRL_SITTING_FAST && var1 != fp.COWGIRL_SITTING_SLOW ? null : fp.COWGIRL_SITTING_CUM;
+         return var1 != Action.COWGIRL_SITTING_FAST && var1 != Action.COWGIRL_SITTING_SLOW ? null : Action.COWGIRL_SITTING_CUM;
       }
    }
 
@@ -179,14 +179,14 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
+            if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
                this.createAnimation("animation.cat.blink", true, var1);
             } else {
                this.createAnimation("animation.cat.null", true, var1);
             }
             break;
          case "movement":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.cat.null", true, var1);
             } else if (this.ak) {
                this.createAnimation("animation.cat.sit", true, var1);
@@ -380,11 +380,11 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                break;
             case "touch_boobs_introDone":
-               this.setCurrentAction(fp.TOUCH_BOOBS_SLOW);
+               this.setCurrentAction(Action.TOUCH_BOOBS_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                   HornyMeterHud.showHornyMeter();
-                  d3.setMovementLock(false);
+                  HandlePlayerMovement.setMovementLock(false);
                }
                break;
             case "touch_boobs_slowDone":
@@ -405,8 +405,8 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "fastDone":
-               if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.setCurrentAction(fp.TOUCH_BOOBS_SLOW);
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.TOUCH_BOOBS_SLOW);
                }
                break;
             case "moanOrNya":
@@ -451,7 +451,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "sitting_introDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.setCurrentAction(fp.COWGIRL_SITTING_SLOW);
+                  this.setCurrentAction(Action.COWGIRL_SITTING_SLOW);
                   HornyMeterHud.resetHornyMeter();
                   HornyMeterHud.showHornyMeter();
                }
@@ -484,10 +484,10 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "sitting_fastDone":
-               if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.setCurrentAction(fp.COWGIRL_SITTING_SLOW);
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.COWGIRL_SITTING_SLOW);
                   Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
-                  Vec3d var9 = ck.rotateByYaw(var8, this.getYawRotation() + 180.0F);
+                  Vec3d var9 = VectorMath.rotateByYaw(var8, this.getYawRotation() + 180.0F);
                   Minecraft.getMinecraft()
                      .player
                      .setPosition(
@@ -500,7 +500,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
             case "sitting_fastTp":
                if (this.isControlledByLocalPlayer()) {
                   Vec3d var6 = new Vec3d(0.0, -0.160625, -0.9925);
-                  Vec3d var7 = ck.rotateByYaw(var6, this.getYawRotation() + 180.0F);
+                  Vec3d var7 = VectorMath.rotateByYaw(var6, this.getYawRotation() + 180.0F);
                   Minecraft.getMinecraft()
                      .player
                      .setPosition(

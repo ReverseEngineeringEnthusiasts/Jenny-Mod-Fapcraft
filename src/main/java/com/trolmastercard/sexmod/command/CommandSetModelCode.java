@@ -72,7 +72,7 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
 
    String a_clash756(BaseGirlEntity var1) {
       return var1 instanceof AbstractPlayerGirlEntity
-         ? TextFormatting.YELLOW + "applied model code to your player-" + ThreadNames.b_clash163(NpcType.getNpcType(var1).toString())
+         ? TextFormatting.YELLOW + "applied model code to your player-" + ThreadNames.capitalizeFirst(NpcType.getNpcType(var1).toString())
          : TextFormatting.YELLOW + "applied model code to this " + var1.getDisplayNameText();
    }
 

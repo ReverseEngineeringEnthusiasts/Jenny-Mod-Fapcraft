@@ -3,7 +3,7 @@ package com.trolmastercard.sexmod.client.renderer;
 import com.trolmastercard.sexmod.client.model.SummonItemModel;
 import com.trolmastercard.sexmod.entity.BodyParts;
 import com.trolmastercard.sexmod.item.WinchesterItem;
-import com.trolmastercard.sexmod.util.ad;
+import com.trolmastercard.sexmod.util.DebugMode;
 
 
 
@@ -36,7 +36,7 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
    }
 
    public void a(WinchesterItem var1, ItemStack var2) {
-      if (ad.b[0] == 0.0F) {
+      if (DebugMode.b[0] == 0.0F) {
          GL11.glDisable(2896);
       }
 
@@ -66,7 +66,7 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
                var11.z *= -1.0F;
             }
 
-            Vec3d var12 = ad.b[0] == 0.0F ? BodyParts.a(new Vec3d(var3, var4, var5), var11, a) : new Vec3d(var3, var4, var5);
+            Vec3d var12 = DebugMode.b[0] == 0.0F ? BodyParts.a(new Vec3d(var3, var4, var5), var11, a) : new Vec3d(var3, var4, var5);
 
             for (GeoVertex var16 : var10.vertices) {
                Vector4f var17 = new Vector4f(var16.position.getX(), var16.position.getY(), var16.position.getZ(), 1.0F);

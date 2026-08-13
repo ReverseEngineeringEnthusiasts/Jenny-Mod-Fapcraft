@@ -1,9 +1,9 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.util.KoboldManager;
-import com.trolmastercard.sexmod.util.an;
-import com.trolmastercard.sexmod.util.cj;
-import com.trolmastercard.sexmod.util.gm;
+import com.trolmastercard.sexmod.util.TrailSegment;
+import com.trolmastercard.sexmod.util.WorldUtils;
+import com.trolmastercard.sexmod.util.StructureMarkerRenderer;
 
 
 
@@ -75,9 +75,9 @@ public class SendBlocksPacket implements IMessage {
 
          if (var2.side.isClient()) {
             if (var1.a) {
-               gm.a_clash774(var1.c);
+               StructureMarkerRenderer.a_clash774(var1.c);
             } else {
-               gm.b(var1.c);
+               StructureMarkerRenderer.b(var1.c);
             }
 
             return null;
@@ -96,7 +96,7 @@ public class SendBlocksPacket implements IMessage {
                               IBlockState var7 = var4.getBlockState(var6);
                               BlockPos var8 = null;
                               if (var7.getBlock() instanceof BlockBed) {
-                                 var8 = cj.a(var6, var7);
+                                 var8 = WorldUtils.a(var6, var7);
                               }
 
                               if (var7.getBlock() instanceof BlockChest) {

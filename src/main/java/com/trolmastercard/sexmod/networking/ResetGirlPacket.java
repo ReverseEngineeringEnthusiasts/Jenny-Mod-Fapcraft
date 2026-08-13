@@ -2,8 +2,8 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.entity.Action;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 
@@ -77,7 +77,7 @@ public class ResetGirlPacket implements IMessage {
             var1.setNoGravity(false);
             var1.noClip = false;
             var0.setAnchored(false);
-            var0.setCurrentAction(fp.NULL);
+            var0.setCurrentAction(Action.NULL);
             if (var0.getInteractionPlayerUUID() != null) {
                EntityPlayer var2 = var0.world.getPlayerEntityByUUID(var0.getInteractionPlayerUUID());
                if (var2 != null) {

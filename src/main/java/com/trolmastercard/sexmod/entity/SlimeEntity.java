@@ -8,9 +8,9 @@ import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.potion.HornyPotion;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.ck;
-import com.trolmastercard.sexmod.util.d3;
-import com.trolmastercard.sexmod.util.dz;
+import com.trolmastercard.sexmod.util.VectorMath;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
+import com.trolmastercard.sexmod.util.LootTableHandler;
 
 
 
@@ -73,9 +73,9 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      if (this.getCurrentAction() != fp.CUMBLOWJOB || action != fp.THRUSTBLOWJOB && action != fp.SUCKBLOWJOB) {
-         if (this.getCurrentAction() != fp.DOGGYCUM || action != fp.DOGGYFAST && action != fp.DOGGYSLOW) {
+   public void setCurrentAction(Action action) {
+      if (this.getCurrentAction() != Action.CUMBLOWJOB || action != Action.THRUSTBLOWJOB && action != Action.SUCKBLOWJOB) {
+         if (this.getCurrentAction() != Action.DOGGYCUM || action != Action.DOGGYFAST && action != Action.DOGGYSLOW) {
             super.setCurrentAction(action);
          }
       }
@@ -100,20 +100,20 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (var1 == fp.SUCKBLOWJOB || var1 == fp.THRUSTBLOWJOB) {
-         return fp.CUMBLOWJOB;
+   protected Action getCumAction(Action var1) {
+      if (var1 == Action.SUCKBLOWJOB || var1 == Action.THRUSTBLOWJOB) {
+         return Action.CUMBLOWJOB;
       } else {
-         return var1 != fp.DOGGYSLOW && var1 != fp.DOGGYFAST ? null : fp.DOGGYCUM;
+         return var1 != Action.DOGGYSLOW && var1 != Action.DOGGYFAST ? null : Action.DOGGYCUM;
       }
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
-      if (var1 == fp.SUCKBLOWJOB) {
-         return fp.THRUSTBLOWJOB;
+   protected Action getNextAction(Action var1) {
+      if (var1 == Action.SUCKBLOWJOB) {
+         return Action.THRUSTBLOWJOB;
       } else {
-         return var1 == fp.DOGGYSLOW ? fp.DOGGYFAST : null;
+         return var1 == Action.DOGGYSLOW ? Action.DOGGYFAST : null;
       }
    }
 
@@ -143,7 +143,7 @@ public class SlimeEntity extends BaseGirlEntity {
 
    @Override
    protected ResourceLocation getLootTable() {
-      return dz.b;
+      return LootTableHandler.b;
    }
 
    @Override
@@ -155,12 +155,12 @@ public class SlimeEntity extends BaseGirlEntity {
    @Override
    public void updateAITasks() {
       super.updateAITasks();
-      this.a_clash725();
+      this.checkInteractionTrigger();
       this.c_clash724();
       if (this.isPotionActive(HornyPotion.b) && this.S == SlimeEntity.SlimeEntityState.IDLE && (Integer)this.entityDataManager.get(U) == -1) {
          this.entityDataManager.set(T, 2);
          if ((Integer)this.entityDataManager.get(OUTFIT_INDEX) == 1) {
-            this.setCurrentAction(fp.UNDRESS);
+            this.setCurrentAction(Action.UNDRESS);
          }
 
          this.removePotionEffect(HornyPotion.b);
@@ -170,7 +170,7 @@ public class SlimeEntity extends BaseGirlEntity {
    @Override
    public void onUpdate() {
       super.onUpdate();
-      if (this.getCurrentAction() == fp.NULL) {
+      if (this.getCurrentAction() == Action.NULL) {
          this.b_clash726();
       }
 
@@ -190,7 +190,7 @@ public class SlimeEntity extends BaseGirlEntity {
          EntityPlayerSP var1 = Minecraft.getMinecraft().player;
          if (this.getInteractionPlayerUUID().equals(var1.getPersistentID())) {
             Vec3d var2 = this.getPositionVector();
-            Vec3d var3 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 0.65F), this.getYawRotation());
+            Vec3d var3 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.65F), this.getYawRotation());
             var2 = var2.add(var3);
             var1.setPosition(var2.x, var2.y, var2.z);
             var1.setVelocity(0.0, 0.0, 0.0);
@@ -221,16 +221,16 @@ public class SlimeEntity extends BaseGirlEntity {
       }
    }
 
-   void a_clash725() {
+   void checkInteractionTrigger() {
       int var1 = (Integer)this.entityDataManager.get(T);
       if (var1 >= 2) {
-         if (var1 >= 4 && this.onGround && this.getCurrentAction() == fp.NULL) {
+         if (var1 >= 4 && this.onGround && this.getCurrentAction() == Action.NULL) {
             this.setTargetPosition(this.getPositionVector());
             this.setYawRotation(this.rotationYaw);
             this.entityDataManager.set(IS_ANCHORED, true);
             this.setNoGravity(true);
             this.noClip = true;
-            this.setCurrentAction(fp.STARTDOGGY);
+            this.setCurrentAction(Action.STARTDOGGY);
          } else {
             EntityPlayer var2 = this.world.getClosestPlayerToEntity(this, 1.0);
             if (var2 != null && var2.onGround && getActiveSceneInfo(var2) == null) {
@@ -244,12 +244,12 @@ public class SlimeEntity extends BaseGirlEntity {
                PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
                this.setInteractionPlayerUUID(var2.getPersistentID());
                var2.rotationYaw = this.getYawRotation();
-               Vec3d var3 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 0.65F), this.getYawRotation());
+               Vec3d var3 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.65F), this.getYawRotation());
                var2.setPosition(this.posX + var3.x, this.posY, this.posZ + var3.z);
-               if (this.getCurrentAction() == fp.WAITDOGGY) {
-                  this.setCurrentAction(fp.DOGGYSTART);
+               if (this.getCurrentAction() == Action.WAITDOGGY) {
+                  this.setCurrentAction(Action.DOGGYSTART);
                } else {
-                  this.setCurrentAction(fp.SUCKBLOWJOB);
+                  this.setCurrentAction(Action.SUCKBLOWJOB);
                }
             }
          }
@@ -289,7 +289,7 @@ public class SlimeEntity extends BaseGirlEntity {
             int var2 = var3 + 1;
             this.entityDataManager.set(T, var2);
             if (var2 == 1) {
-               this.setCurrentAction(fp.UNDRESS);
+               this.setCurrentAction(Action.UNDRESS);
             }
          }
       }
@@ -310,7 +310,7 @@ public class SlimeEntity extends BaseGirlEntity {
       this.rotationYaw = var1;
       this.prevRotationYaw = var1;
       Vec3d var2 = new Vec3d(0.0, 0.0, 0.7F);
-      var2 = ck.rotateByYaw(var2, var1);
+      var2 = VectorMath.rotateByYaw(var2, var1);
       this.motionX = var2.x;
       this.motionZ = var2.z;
       this.N = 0;
@@ -349,14 +349,14 @@ public class SlimeEntity extends BaseGirlEntity {
 
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() != fp.NULL && this.getCurrentAction().autoBlink) {
+            if (this.getCurrentAction() != Action.NULL && this.getCurrentAction().autoBlink) {
                this.createAnimation("animation.slime.fhappy", true, var1);
             } else {
                this.createAnimation("animation.slime.null", true, var1);
             }
             break;
          case "action":
-            if (this.getCurrentAction() == fp.NULL) {
+            if (this.getCurrentAction() == Action.NULL) {
                this.createAnimation(this.S.animationId, true, var1);
             } else {
                switch (this.getCurrentAction()) {
@@ -412,13 +412,13 @@ public class SlimeEntity extends BaseGirlEntity {
             case "undress":
                if (this.isLocalPlayerNearby()) {
                   this.changeDataParameterFromClient("currentModel", "0");
-                  this.setCurrentAction(fp.NULL);
+                  this.setCurrentAction(Action.NULL);
                }
                break;
             case "dress":
                if (this.isLocalPlayerNearby()) {
                   this.entityDataManager.set(OUTFIT_INDEX, 1);
-                  this.setCurrentAction((fp)null);
+                  this.setCurrentAction((Action)null);
                   this.resetCameraAndPhysics();
                }
                break;
@@ -459,17 +459,17 @@ public class SlimeEntity extends BaseGirlEntity {
                }
                break;
             case "bjiDone":
-               this.setCurrentAction(fp.SUCKBLOWJOB);
+               this.setCurrentAction(Action.SUCKBLOWJOB);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "bjtDone":
-               this.setCurrentAction(fp.SUCKBLOWJOB);
+               this.setCurrentAction(Action.SUCKBLOWJOB);
                break;
             case "bjtReady":
             case "doggyfastReady":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -503,7 +503,7 @@ public class SlimeEntity extends BaseGirlEntity {
                this.cameraYaw = this.rotationYaw;
                break;
             case "doggyGoOnBedDone":
-               this.setCurrentAction(fp.WAITDOGGY);
+               this.setCurrentAction(Action.WAITDOGGY);
                break;
             case "doggystartMSG1":
                this.playSound(SoundHandler.MISC_TOUCH[0]);
@@ -522,7 +522,7 @@ public class SlimeEntity extends BaseGirlEntity {
                this.playSound(SoundEvents.BLOCK_SLIME_HIT);
                break;
             case "doggystartDone":
-               this.setCurrentAction(fp.DOGGYSLOW);
+               this.setCurrentAction(Action.DOGGYSLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -564,7 +564,7 @@ public class SlimeEntity extends BaseGirlEntity {
                }
                break;
             case "doggyfastDone":
-               this.setCurrentAction(fp.DOGGYSLOW);
+               this.setCurrentAction(Action.DOGGYSLOW);
                break;
             case "doggycumMSG1":
                this.playSoundAtVolume(SoundHandler.MISC_CUMINFLATION[0], 4.0F);

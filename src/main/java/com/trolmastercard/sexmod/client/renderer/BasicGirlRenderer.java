@@ -66,13 +66,13 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       Vec3d var11 = RotationHelper.a(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var9);
       Vec3d var12 = RotationHelper.a(new Vec3d(var10.lastTickPosX, var10.lastTickPosY, var10.lastTickPosZ), var10.getPositionVector(), var9);
       Vec3d var13 = var11.subtract(var12);
-      ResourceLocation var14 = this.a(var1, Math.abs(var13.x) + Math.abs(var13.y) + Math.abs(var13.z));
+      ResourceLocation var14 = this.getFatTexture(var1, Math.abs(var13.x) + Math.abs(var13.y) + Math.abs(var13.z));
       this.d.renderEngine.bindTexture(var14);
       GlStateManager.pushMatrix();
-      GlStateManager.color(1.0F, 1.0F, 1.0F, this.b(var1, var9));
-      GlStateManager.translate(var13.x, var13.y + this.a_clash808(var14), var13.z);
+      GlStateManager.color(1.0F, 1.0F, 1.0F, this.getFatShrink(var1, var9));
+      GlStateManager.translate(var13.x, var13.y + this.getFatBobOffset(var14), var13.z);
       GlStateManager.rotate(180.0F - this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
-      float var15 = 1.4F + this.a(var1, var9);
+      float var15 = 1.4F + this.getFatProgress(var1, var9);
       GlStateManager.scale(var15, var15, var15);
       Tessellator var16 = Tessellator.getInstance();
       BufferBuilder var17 = var16.getBuffer();
@@ -95,9 +95,9 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       this.k = var14;
    }
 
-   ResourceLocation a(BasicGirlEntity var1, double var2) {
+   ResourceLocation getFatTexture(BasicGirlEntity var1, double var2) {
       if (var1.a != -1) {
-         return new ResourceLocation("sexmod", String.format("%s%s.png", "textures/entity/pyrocinical/fat/", this.b(var1)));
+         return new ResourceLocation("sexmod", String.format("%s%s.png", "textures/entity/pyrocinical/fat/", this.getFatIndex(var1)));
       } else if (var2 < 3.0) {
          return f;
       } else {
@@ -110,24 +110,24 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       }
    }
 
-   double a_clash808(ResourceLocation var1) {
+   double getFatBobOffset(ResourceLocation var1) {
       return !a.equals(var1) && !b.equals(var1) ? 0.0 : Math.sin(this.d.player.ticksExisted * 0.75F) * 0.1F;
    }
 
-   int b(BasicGirlEntity var1) {
+   int getFatIndex(BasicGirlEntity var1) {
       return var1.a == -1 ? 0 : (int)ThreadNames.b(this.d.player.ticksExisted - var1.a, 1.0F, 30.0F);
    }
 
-   float a(BasicGirlEntity var1, float var2) {
+   float getFatProgress(BasicGirlEntity var1, float var2) {
       if (var1.a == -1) {
          return 0.0F;
       }
 
-      int var3 = this.b(var1);
+      int var3 = this.getFatIndex(var1);
       return var3 == 30 ? 1.0F : (var3 + var2) / 30.0F;
    }
 
-   float b(BasicGirlEntity var1, float var2) {
+   float getFatShrink(BasicGirlEntity var1, float var2) {
       if (var1.a == -1) {
          return 1.0F;
       }

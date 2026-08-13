@@ -3,7 +3,7 @@ package com.trolmastercard.sexmod.client.gui;
 import com.trolmastercard.sexmod.networking.GalathBackOffRapePacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.util.RotationHelper;
-import com.trolmastercard.sexmod.util.gr;
+import com.trolmastercard.sexmod.util.EscapeDirectionKey;
 
 
 
@@ -37,7 +37,7 @@ public class EscapeMinigameHud extends Gui {
    static final int m = 2;
    static final float i = 0.33F;
    static boolean g = false;
-   static gr q = null;
+   static EscapeDirectionKey q = null;
    static float k = 0.0F;
    static float j = 0.0F;
    static boolean b = true;
@@ -80,11 +80,11 @@ public class EscapeMinigameHud extends Gui {
    }
 
    static void b_clash736() {
-      gr var0 = q;
+      EscapeDirectionKey var0 = q;
       Random var1 = new Random();
 
       do {
-         q = gr.values()[var1.nextInt(gr.values().length)];
+         q = EscapeDirectionKey.values()[var1.nextInt(EscapeDirectionKey.values().length)];
       } while (var0 == q);
    }
 
@@ -133,10 +133,10 @@ public class EscapeMinigameHud extends Gui {
             GlStateManager.translate(485.0F, 0.0F, 0.0F);
             int var8 = 4 * var3;
             this.drawTexturedModalRect(var2 / 2 - 87, (int)RotationHelper.b(var8, var7, var5), 0, 104, 174, 48);
-            this.drawTexturedModalRect((int)(var2 / 2.0F - 78.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 52, b && q == gr.A ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 104, b && q == gr.S ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect((int)(var2 / 2.0F + 26.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 156, b && q == gr.D ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.b(var8, var7 - 104, var5), 0, b && q == gr.W ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(var2 / 2.0F - 78.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 52, b && q == EscapeDirectionKey.A ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 104, b && q == EscapeDirectionKey.S ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(var2 / 2.0F + 26.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 156, b && q == EscapeDirectionKey.D ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.b(var8, var7 - 104, var5), 0, b && q == EscapeDirectionKey.W ? 52 : 0, 52, 52);
             this.drawTexturedModalRect(var2 / 2 - 87 + 8, (int)RotationHelper.b(var8 - 8, var7 + 8, var5), 8, 152, (int)(158.0F * k), 32);
             GlStateManager.popMatrix();
          }
@@ -154,25 +154,25 @@ public class EscapeMinigameHud extends Gui {
    public void a(KeyInputEvent var1) {
       GameSettings var2 = Minecraft.getMinecraft().gameSettings;
       if (GameSettings.isKeyDown(var2.keyBindLeft)) {
-         if (q == gr.A) {
+         if (q == EscapeDirectionKey.A) {
             k += 0.08F;
          } else {
             k -= 0.04F;
          }
       } else if (GameSettings.isKeyDown(var2.keyBindRight)) {
-         if (q == gr.D) {
+         if (q == EscapeDirectionKey.D) {
             k += 0.08F;
          } else {
             k -= 0.04F;
          }
       } else if (GameSettings.isKeyDown(var2.keyBindForward)) {
-         if (q == gr.W) {
+         if (q == EscapeDirectionKey.W) {
             k += 0.08F;
          } else {
             k -= 0.04F;
          }
       } else if (GameSettings.isKeyDown(var2.keyBindBack)) {
-         if (q == gr.S) {
+         if (q == EscapeDirectionKey.S) {
             k += 0.08F;
          } else {
             k -= 0.04F;

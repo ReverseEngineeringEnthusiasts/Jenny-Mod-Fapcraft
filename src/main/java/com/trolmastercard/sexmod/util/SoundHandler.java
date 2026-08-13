@@ -128,7 +128,7 @@ public class SoundHandler {
    public static final SoundEvent[] MISC_PYRO = new SoundEvent[1];
    static HashMap<SoundEvent, Integer> lastRandomSound = new HashMap<>();
 
-   public static void a_clash802() {
+   public static void registerSounds() {
       for (Field var3 : SoundHandler.class.getDeclaredFields()) {
          Class var4 = var3.getType();
          if (var4.isArray() && var4.getComponentType() == SoundEvent.class) {

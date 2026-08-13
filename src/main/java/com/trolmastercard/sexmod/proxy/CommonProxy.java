@@ -7,7 +7,7 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.util.ForgeEventHandler;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.f9;
+import com.trolmastercard.sexmod.util.ItemRegistrationHandler;
 import com.trolmastercard.sexmod.worldgen.ConfigWorldGenHandler;
 
 
@@ -27,14 +27,14 @@ public class CommonProxy {
    public static final CommonProxy PROXY = new CommonProxy();
 
    public void preInitRegistries(FMLPreInitializationEvent var1) {
-      GameRegistry.registerWorldGenerator(ConfigWorldGenHandler.b_clash469(), 0);
-      SexModEntities.a_clash150();
-      f9.a_clash406();
+      GameRegistry.registerWorldGenerator(ConfigWorldGenHandler.getInstance(), 0);
+      SexModEntities.registerEntities();
+      ItemRegistrationHandler.registerAll();
    }
 
    public void initRegistries(FMLInitializationEvent var1) {
       try { Main.setConfigs(); } catch (java.io.IOException var2) { Main.LOGGER.error(var2); }
-      SoundHandler.a_clash802();
+      SoundHandler.registerSounds();
       NetworkRegistry.INSTANCE.registerGuiHandler(Main.instance, new GuiHandler());
       ForgeEventHandler.registerB(false);
       PacketHandler.register();

@@ -1,7 +1,7 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.util.KoboldManager;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 
@@ -42,7 +42,7 @@ public class SetTribeFollowModePacket implements IMessage {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                UUID var2x = KoboldManager.getTribeUUID(var2.getServerHandler().player.getPersistentID());
                if (var2x != null) {
-                  KoboldManager.a_clash87(var2x, var1.b);
+                  KoboldManager.setTribeFollowMode(var2x, var1.b);
                }
             });
             return null;

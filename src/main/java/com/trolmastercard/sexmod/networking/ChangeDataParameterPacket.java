@@ -2,8 +2,8 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.SlimeEntity;
-import com.trolmastercard.sexmod.entity.fp;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.entity.Action;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 
@@ -68,8 +68,8 @@ public class ChangeDataParameterPacket implements IMessage {
                         var1x.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, Integer.valueOf(var1.c));
                         break;
                      case "currentAction":
-                        if (fp.valueOf(var1.c) != fp.ATTACK || var1x.getCurrentAction() == fp.NULL) {
-                           var1x.setCurrentAction(fp.valueOf(var1.c));
+                        if (Action.valueOf(var1.c) != Action.ATTACK || var1x.getCurrentAction() == Action.NULL) {
+                           var1x.setCurrentAction(Action.valueOf(var1.c));
                         }
                         break;
                      case "animationFollowUp":

@@ -5,7 +5,7 @@ import com.trolmastercard.sexmod.entity.AbstractNpcOnlyEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.entity.api.IKobold;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 
 
 
@@ -136,7 +136,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
             var6.setHidden(true);
       }
 
-      if (var1.getCurrentAction() == fp.PAYMENT) {
+      if (var1.getCurrentAction() == Action.PAYMENT) {
          var5.setHidden(false);
       }
    }
@@ -240,7 +240,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
             case NULL:
                if (Math.abs(var1.prevPosX - var1.posX) + Math.abs(var1.prevPosZ - var1.posZ) < 0.0
                   || var1.onGround && Math.abs(Math.abs(var1.prevPosY) - Math.abs(var1.posY)) > 0.1F
-                  || !((IKobold)var1).a_clash355()) {
+                  || !((IKobold)var1).isBlockedByCeiling()) {
                   EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
                   IBone var5 = var2.getBone("head");
                   var5.setRotationY(var4.netHeadYaw * (float) (Math.PI / 180.0));

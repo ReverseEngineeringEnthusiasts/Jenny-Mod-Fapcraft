@@ -1,18 +1,18 @@
 package com.trolmastercard.sexmod.client.renderer;
 
-import com.trolmastercard.sexmod.api.by;
+import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
 import com.trolmastercard.sexmod.entity.AbstractNpcOnlyEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GoblinEntity;
 import com.trolmastercard.sexmod.entity.GoblinPlayerEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.eh;
-import com.trolmastercard.sexmod.util.g5;
-import com.trolmastercard.sexmod.util.gc;
+import com.trolmastercard.sexmod.util.EyeColor;
+import com.trolmastercard.sexmod.util.HairColor;
+import com.trolmastercard.sexmod.util.TrigMath;
 
 
 
@@ -120,12 +120,12 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       if (!(var1.world instanceof SexWorldClient) && var3 != null) {
          var2 = l.get(var3);
          if (var2 == null) {
-            return this.a_clash329(var3, var1.world);
+            return this.getTintedSkinTexture(var3, var1.world);
          }
       } else {
          var2 = l.get(y.getSession().getProfile().getId());
          if (var2 == null) {
-            return this.a_clash329(y.getSession().getProfile().getId(), var1.world);
+            return this.getTintedSkinTexture(y.getSession().getProfile().getId(), var1.world);
          }
       }
 
@@ -160,7 +160,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
          super.doRenderShadowAndFire(var1, var2, var4, var6, var8, var9);
       } else {
          GoblinEntity var10 = (GoblinEntity)var1;
-         if (var10.getCurrentAction() != fp.PICK_UP && var10.getCurrentAction() != fp.SHOULDER_IDLE) {
+         if (var10.getCurrentAction() != Action.PICK_UP && var10.getCurrentAction() != Action.SHOULDER_IDLE) {
             super.doRenderShadowAndFire(var1, var2, var4, var6, var8, var9);
          }
       }
@@ -188,18 +188,18 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       Vec3d var11 = y.player.getPositionVector();
       var1.prevRenderYawOffset = var9.prevRotationYawHead;
       var1.renderYawOffset = var9.rotationYawHead;
-      var1.setCurrentAction(fp.START_THROWING);
+      var1.setCurrentAction(Action.START_THROWING);
       return var10.subtract(var11);
    }
 
    public void a(GoblinEntity var1, double var2, double var4, double var6, float var8, float var9) {
       this.j = var1;
-      this.u = -420.69F == var8 && var1.getCurrentAction() == fp.SHOULDER_IDLE;
-      this.F = -420.69F == var8 && var1.getCurrentAction() == fp.PICK_UP;
+      this.u = -420.69F == var8 && var1.getCurrentAction() == Action.SHOULDER_IDLE;
+      this.F = -420.69F == var8 && var1.getCurrentAction() == Action.PICK_UP;
       this.z = var1.world.getLight(var1.getPosition(), true);
       this.v = var9;
       B = var8;
-      fp var10 = var1.getCurrentAction();
+      Action var10 = var1.getCurrentAction();
       UUID var11 = var1.getOwnerUUID();
       if (var11 != null) {
          if (var1.isLocallyRegistered()) {
@@ -209,7 +209,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
             var6 = var19.z;
          }
 
-         if (var10 == fp.THROWN || var10 == fp.START_THROWING) {
+         if (var10 == Action.THROWN || var10 == Action.START_THROWING) {
             if (y.gameSettings.thirdPersonView == 0 && var8 == -420.69F && !var1.isLocallyRegistered()) {
                return;
             }
@@ -268,7 +268,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
             if (y.player.isSneaking()) {
                var4 -= 0.075;
             }
-         } else if (var10 == fp.SHOULDER_IDLE) {
+         } else if (var10 == Action.SHOULDER_IDLE) {
             if (y.player.getPersistentID().equals(var11) && y.gameSettings.thirdPersonView == 0) {
                return;
             }
@@ -286,7 +286,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
             if (var26.isSneaking()) {
                var4 -= 0.32;
             }
-         } else if (var10 == fp.PICK_UP) {
+         } else if (var10 == Action.PICK_UP) {
             EntityPlayer var27 = var1.world.getPlayerEntityByUUID(var11);
             if (var27 != null) {
                var1.prevRenderYawOffset = var27.prevRotationYawHead;
@@ -306,7 +306,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
             var6 = var12.z;
          }
 
-         if (var10 == fp.THROWN || var10 == fp.START_THROWING) {
+         if (var10 == Action.THROWN || var10 == Action.START_THROWING) {
             if (y.gameSettings.thirdPersonView == 0 && var8 == -420.69F && !var1.isLocallyRegistered()) {
                return;
             }
@@ -358,11 +358,11 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
                var4 -= 0.075;
             }
          } else {
-            if (var10 == fp.SHOULDER_IDLE) {
+            if (var10 == Action.SHOULDER_IDLE) {
                return;
             }
 
-            if (var10 == fp.PICK_UP) {
+            if (var10 == Action.PICK_UP) {
             }
          }
 
@@ -373,12 +373,12 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
-   public static boolean a(BaseGirlEntity var0, fp var1) {
-      if (var1 == fp.START_THROWING && !var0.isLocallyRegistered()) {
+   public static boolean a(BaseGirlEntity var0, Action var1) {
+      if (var1 == Action.START_THROWING && !var0.isLocallyRegistered()) {
          return false;
       }
 
-      if (y.gameSettings.thirdPersonView == 0 || var1 != fp.START_THROWING && var1 != fp.PICK_UP) {
+      if (y.gameSettings.thirdPersonView == 0 || var1 != Action.START_THROWING && var1 != Action.PICK_UP) {
          switch (var1) {
             case PICK_UP:
             case CATCH:
@@ -441,19 +441,19 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    public static Vec3i b_clash401(String var0) {
-      return eh.values()[Integer.parseInt(var0)].a_clash565();
+      return EyeColor.values()[Integer.parseInt(var0)].getColor();
    }
 
    public static Vec3i c_clash402(String var0) {
-      return by.values()[Integer.parseInt(var0)].a_clash189();
+      return SkinColor.values()[Integer.parseInt(var0)].getColor();
    }
 
    public static Vec3i d_clash403(String var0) {
-      return g5.values()[Integer.parseInt(var0)].a_clash448();
+      return HairColor.values()[Integer.parseInt(var0)].getColor();
    }
 
    @Override
-   protected void a(BufferBuilder var1, String var2, GeoBone var3) {
+   protected void onBoneProcessing(BufferBuilder var1, String var2, GeoBone var3) {
       if (!(this.j.world instanceof SexWorldClient)) {
          String[] var4 = AbstractNpcOnlyEntity.getModelCodeParts(this.j);
          if (var4.length >= 8) {
@@ -505,18 +505,18 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    public static void a(boolean var0, GeoBone var1, float var2, float var3) {
       if (!y.isGamePaused()) {
          if (var0) {
-            var1.setRotationX(var1.getRotationX() + gc.wrapDegrees(ThreadNames.b(x, -var2, var2)));
-            var1.setRotationZ(var1.getRotationZ() + gc.wrapDegrees(ThreadNames.b(N, -var3, var3)));
+            var1.setRotationX(var1.getRotationX() + TrigMath.wrapDegrees(ThreadNames.b(x, -var2, var2)));
+            var1.setRotationZ(var1.getRotationZ() + TrigMath.wrapDegrees(ThreadNames.b(N, -var3, var3)));
          }
       }
    }
 
    public static void a(BaseGirlEntity var0, GeoBone var1) {
-      if (B == -420.69F && var0.getCurrentAction() == fp.SHOULDER_IDLE) {
+      if (B == -420.69F && var0.getCurrentAction() == Action.SHOULDER_IDLE) {
          float var2 = -y.getRenderManager().playerViewX;
          var1.setPivotY(8.0F);
          if (!y.isGamePaused()) {
-            var1.setRotationX(var1.getRotationX() + gc.wrapDegrees(var2));
+            var1.setRotationX(var1.getRotationX() + TrigMath.wrapDegrees(var2));
          }
       }
    }
@@ -585,7 +585,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    @Override
-   protected Vec3i a_clash219(Vec3i var1) {
+   protected Vec3i tintBoneColor(Vec3i var1) {
       if (!this.u && !this.F) {
          return var1;
       }
@@ -595,9 +595,9 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    @Override
-   protected ItemStack a_clash341(@Nullable ItemStack var1) {
-      fp var2 = this.j.getCurrentAction();
-      return var2 != fp.RUN && var2 != fp.CATCH ? var1 : (ItemStack)this.j.getDataManager().get(GoblinEntity.a0);
+   protected ItemStack resolveHeldItemStack(@Nullable ItemStack var1) {
+      Action var2 = this.j.getCurrentAction();
+      return var2 != Action.RUN && var2 != Action.CATCH ? var1 : (ItemStack)this.j.getDataManager().get(GoblinEntity.a0);
    }
 
    @Override
@@ -619,7 +619,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
    @Override
    protected float a_clash217() {
-      return this.j.getCurrentAction() == fp.CATCH ? 0.5F : 1.0F;
+      return this.j.getCurrentAction() == Action.CATCH ? 0.5F : 1.0F;
    }
 
    @Override
@@ -632,11 +632,11 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    @Override
-   public void a(BufferBuilder var1, GeoCube var2, GeoBone var3, float var4, float var5, float var6, float var7, double var8) {
+   public void renderCubeGeometry(BufferBuilder var1, GeoCube var2, GeoBone var3, float var4, float var5, float var6, float var7, double var8) {
       if (!this.u || C.contains(var3.getName())) {
          if (!this.p.contains(var3.getName())) {
             this.q = var3;
-            super.a(var1, var2, var3, var4, var5, var6, var7, var8);
+            super.renderCubeGeometry(var1, var2, var3, var4, var5, var6, var7, var8);
          }
       }
    }

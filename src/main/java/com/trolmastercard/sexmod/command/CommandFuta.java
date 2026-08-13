@@ -96,9 +96,9 @@ public class CommandFuta extends CommandBase implements IClientCommand {
                            var7.x,
                            var7.y,
                            var7.z,
-                           var8.nextFloat() * 0.025F * ThreadNames.a_clash166(),
-                           var8.nextFloat() * 0.025F * ThreadNames.a_clash166(),
-                           var8.nextFloat() * 0.025F * ThreadNames.a_clash166(),
+                           var8.nextFloat() * 0.025F * ThreadNames.randomSign(),
+                           var8.nextFloat() * 0.025F * ThreadNames.randomSign(),
+                           var8.nextFloat() * 0.025F * ThreadNames.randomSign(),
                            new int[0]
                         );
                   }

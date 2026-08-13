@@ -128,7 +128,7 @@ public class GirlWorldData extends WorldSavedData {
       }
    }
 
-   public static void a_clash155() {
+   public static void clearAll() {
       c.clear();
       b.clear();
    }

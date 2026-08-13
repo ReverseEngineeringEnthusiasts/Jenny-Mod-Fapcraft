@@ -36,7 +36,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
       super(new AlliesLampModel());
    }
 
-   ResourceLocation a_clash368() {
+   ResourceLocation getSkin() {
       if (b == null) {
          try {
             URL var1 = new URL(
@@ -110,7 +110,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
       MATRIX_STACK.rotate(var3);
       MATRIX_STACK.scale(var3);
       MATRIX_STACK.moveBackFromPivot(var3);
-      this.a.renderEngine.bindTexture(this.a_clash368());
+      this.a.renderEngine.bindTexture(this.getSkin());
       if (this.a_clash369(var3.getName())) {
          this.b(var1, var2, var3, var4, var5, var6, var7);
       }

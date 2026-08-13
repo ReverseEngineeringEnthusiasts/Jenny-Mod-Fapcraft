@@ -2,8 +2,8 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.entity.Action;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 
@@ -23,12 +23,12 @@ public class ForcePlayerGirlUpdatePacket implements IMessage {
    boolean d = false;
    UUID c;
    int b;
-   fp a;
+   Action a;
 
    public ForcePlayerGirlUpdatePacket() {
    }
 
-   public ForcePlayerGirlUpdatePacket(UUID var1, int var2, fp var3) {
+   public ForcePlayerGirlUpdatePacket(UUID var1, int var2, Action var3) {
       this.c = var1;
       this.b = var2;
       this.a = var3;
@@ -37,7 +37,7 @@ public class ForcePlayerGirlUpdatePacket implements IMessage {
    public void fromBytes(ByteBuf var1) {
       this.c = UUID.fromString(ByteBufUtils.readUTF8String(var1));
       this.b = var1.readInt();
-      this.a = fp.valueOf(ByteBufUtils.readUTF8String(var1));
+      this.a = Action.valueOf(ByteBufUtils.readUTF8String(var1));
       this.d = true;
    }
 

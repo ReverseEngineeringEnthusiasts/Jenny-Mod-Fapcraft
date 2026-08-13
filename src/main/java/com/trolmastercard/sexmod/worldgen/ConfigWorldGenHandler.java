@@ -2,8 +2,8 @@ package com.trolmastercard.sexmod.worldgen;
 
 import com.trolmastercard.sexmod.entity.GoblinEntity;
 import com.trolmastercard.sexmod.util.KoboldManager;
-import com.trolmastercard.sexmod.util.cj;
-import com.trolmastercard.sexmod.util.e1;
+import com.trolmastercard.sexmod.util.WorldUtils;
+import com.trolmastercard.sexmod.util.Point2D;
 
 
 
@@ -48,7 +48,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
    private static ConfigWorldGenHandler g = null;
    static boolean c = true;
 
-   public static ConfigWorldGenHandler b_clash469() {
+   public static ConfigWorldGenHandler getInstance() {
       if (g == null) {
          g = new ConfigWorldGenHandler();
       }
@@ -88,7 +88,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       this.e.add(new ConfigWorldGenHandler.b("luna", new HashSet<>(Arrays.asList(Biomes.OCEAN, Biomes.DEEP_OCEAN)), new Vec3i(3, 7, 10), 0, false));
    }
 
-   public void a_clash470() {
+   public void clear() {
       this.d.clear();
    }
 
@@ -106,7 +106,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
    }
 
    public void readFromNBT(NBTTagCompound var1) {
-      this.a_clash470();
+      this.clear();
       NBTTagCompound var2 = var1.getCompoundTag("sexmod:generation");
       int var3 = 0;
 
@@ -136,13 +136,13 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       return var1;
    }
 
-   static String a(e1 var0) {
+   static String a(Point2D var0) {
       return var0.c + "|" + var0.b;
    }
 
-   static e1 a_clash471(String var0) {
+   static Point2D a_clash471(String var0) {
       String[] var1 = var0.split("\\|");
-      return new e1(Integer.parseInt(var1[0]), Integer.parseInt(var1[1]));
+      return new Point2D(Integer.parseInt(var1[0]), Integer.parseInt(var1[1]));
    }
 
    public void generate(Random var1, int var2, int var3, World var4, IChunkGenerator var5, IChunkProvider var6) {
@@ -186,7 +186,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
 
          for (int var13 = var23; var13 < var23 + var21; var13++) {
             for (int var14 = var9; var14 < var9 + var22; var14++) {
-               int var15 = cj.a(var5, var13, var14);
+               int var15 = WorldUtils.a(var5, var13, var14);
                if (var1.d && var5.getBlockState(new BlockPos(var13, var15, var14)).getBlock() == Blocks.WATER) {
                   return;
                }
@@ -203,7 +203,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
 
          if (var11 - var12 <= var1.a) {
             int var24 = var11;
-            this.d.add(new ConfigWorldGenHandler.a(new e1(var3, var4), var1.f));
+            this.d.add(new ConfigWorldGenHandler.a(new Point2D(var3, var4), var1.f));
             var1.b.generate(var5, var2, new BlockPos(var23, var24, var9));
             if (var1.d) {
                boolean var25 = true;
@@ -235,7 +235,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       if (!(var2.nextDouble() > 0.004F)) {
          int var5 = var3 * 16 + 8;
          int var6 = var4 * 16 + 8;
-         int var7 = cj.a(var1, var5, var6);
+         int var7 = WorldUtils.a(var1, var5, var6);
          if (!var1.getBlockState(new BlockPos(var5, var7, var6)).getMaterial().isLiquid()) {
             KoboldManager.a(var1, new Vec3d(var5, var7, var6));
          }
@@ -324,10 +324,10 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
 
 
    static class a {
-      e1 b;
+      Point2D b;
       String a;
 
-      public a(e1 var1, String var2) {
+      public a(Point2D var1, String var2) {
          this.b = var1;
          this.a = var2;
       }

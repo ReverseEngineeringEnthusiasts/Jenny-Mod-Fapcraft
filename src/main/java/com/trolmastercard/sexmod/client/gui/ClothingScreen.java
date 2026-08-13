@@ -10,7 +10,7 @@ import com.trolmastercard.sexmod.networking.UploadModelStringPacket;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-import com.trolmastercard.sexmod.util.e1;
+import com.trolmastercard.sexmod.util.Point2D;
 
 
 
@@ -428,7 +428,7 @@ public class ClothingScreen extends GuiScreen {
       this.a(var1, var2, var3, 0);
    }
 
-   public void a(int var1, int var2, e1 var3) {
+   public void a(int var1, int var2, Point2D var3) {
       this.a(var1, var2, var3.c, var3.b);
    }
 

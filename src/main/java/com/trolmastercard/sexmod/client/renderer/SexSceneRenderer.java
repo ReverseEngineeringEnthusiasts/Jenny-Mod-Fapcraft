@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.client.renderer;
 
-import com.trolmastercard.sexmod.api.c8;
+import com.trolmastercard.sexmod.api.LightingType;
 import com.trolmastercard.sexmod.client.gui.ClothingScreen;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
@@ -12,10 +12,10 @@ import com.trolmastercard.sexmod.networking.UploadModelStringPacket;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.cj;
-import com.trolmastercard.sexmod.util.fs;
-import com.trolmastercard.sexmod.util.gc;
-import com.trolmastercard.sexmod.util.gt;
+import com.trolmastercard.sexmod.util.WorldUtils;
+import com.trolmastercard.sexmod.util.GirlRegistry;
+import com.trolmastercard.sexmod.util.TrigMath;
+import com.trolmastercard.sexmod.util.IBoneRotationSupplier;
 
 
 
@@ -63,7 +63,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    ServerWhitelistManager.b b = null;
    HashMap<String, String> h = new HashMap<>();
    HashMap<String, String> f = new HashMap<>();
-   HashMap<String, gt> g = new HashMap<>();
+   HashMap<String, IBoneRotationSupplier> g = new HashMap<>();
    public static boolean k = false;
    Vec3d d = new Vec3d(1.0, 1.0, 1.0);
    Vec3d j;
@@ -90,8 +90,8 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       this.f.put("customLowerArmL", "lowerArmL");
       this.f.put("customArmR", "armR");
       this.f.put("customLowerArmR", "lowerArmR");
-      this.g.put("lowerArmR", var0 -> gc.wrapDegrees(var0.getRightArmAngle()));
-      this.g.put("lowerArmL", var0 -> gc.wrapDegrees(var0.getLeftArmAngle()));
+      this.g.put("lowerArmR", var0 -> TrigMath.wrapDegrees(var0.getRightArmAngle()));
+      this.g.put("lowerArmL", var0 -> TrigMath.wrapDegrees(var0.getLeftArmAngle()));
    }
 
    boolean d(SexSceneEntity var1) {
@@ -156,9 +156,9 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    }
 
    void a(ServerWhitelistManager.b var1, SexSceneEntity var2, float var3) {
-      if (var1 != null && var1.i_clash894() != c8.DEFAULT) {
+      if (var1 != null && var1.i_clash894() != LightingType.DEFAULT) {
          GL11.glDisable(2896);
-         this.j = var1.i_clash894() == c8.SEXMOD ? cj.a_clash301(var2, var3) : null;
+         this.j = var1.i_clash894() == LightingType.SEXMOD ? WorldUtils.a_clash301(var2, var3) : null;
       } else {
          this.j = null;
       }
@@ -318,7 +318,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
    BaseGirlEntity b_clash813(SexSceneEntity var1) {
       UUID var2 = var1.b_clash342();
-      BaseGirlEntity var3 = fs.a_clash713(var2);
+      BaseGirlEntity var3 = GirlRegistry.getGirl(var2);
       return var3 != null ? var3 : BaseGirlEntity.getClientGirlEntity(var2);
    }
 

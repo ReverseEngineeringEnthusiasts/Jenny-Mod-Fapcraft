@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.by;
+import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.GirlInventoryScreen;
@@ -14,11 +14,11 @@ import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.ck;
-import com.trolmastercard.sexmod.util.d3;
-import com.trolmastercard.sexmod.util.dg;
-import com.trolmastercard.sexmod.util.eh;
-import com.trolmastercard.sexmod.util.g5;
+import com.trolmastercard.sexmod.util.VectorMath;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
+import com.trolmastercard.sexmod.util.PlayerGoblinRenderer;
+import com.trolmastercard.sexmod.util.EyeColor;
+import com.trolmastercard.sexmod.util.HairColor;
 
 
 
@@ -72,7 +72,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    int aJ = 0;
    int az = -1;
    int aG = 0;
-   fp aw = fp.NULL;
+   Action aw = Action.NULL;
    int aE = -1;
    boolean aC = false;
    boolean aB = true;
@@ -106,15 +106,15 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
    @Override
    public Vec3i getHandColor(int var1) {
-      String[] var2 = a_clash702(this);
-      return var2.length < 8 ? super.getHandColor(var1) : by.values()[Integer.parseInt(var2[7])].a_clash189();
+      String[] var2 = getModelCodeParts(this);
+      return var2.length < 8 ? super.getHandColor(var1) : SkinColor.values()[Integer.parseInt(var2[7])].getColor();
    }
 
    @Override
    protected void entityInit() {
       super.entityInit();
-      eh var1 = eh.values()[this.getRNG().nextInt(eh.values().length)];
-      this.entityDataManager.register(au, new BlockPos(var1.a_clash565()));
+      EyeColor var1 = EyeColor.values()[this.getRNG().nextInt(EyeColor.values().length)];
+      this.entityDataManager.register(au, new BlockPos(var1.getColor()));
       this.entityDataManager.register(as, GoblinEntity.ax.name());
       this.entityDataManager.register(aA, false);
       this.entityDataManager.register(ax, "");
@@ -124,15 +124,15 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    public void b(String var1, UUID var2) {
       if ("anal".equals(var1)) {
          this.b_clash577(var2);
-         this.setCurrentAction(fp.NELSON_INTRO);
-         this.a(this.getOutfitIndex(), fp.NELSON_INTRO);
+         this.setCurrentAction(Action.NELSON_INTRO);
+         this.a(this.getOutfitIndex(), Action.NELSON_INTRO);
          this.setOutfitIndex(0);
       }
 
       if ("paizuri".equals(var1)) {
          this.b_clash577(var2);
-         this.setCurrentAction(fp.PAIZURI_START);
-         this.a(this.getOutfitIndex(), fp.PAIZURI_START);
+         this.setCurrentAction(Action.PAIZURI_START);
+         this.a(this.getOutfitIndex(), Action.PAIZURI_START);
          this.setOutfitIndex(0);
       }
    }
@@ -184,14 +184,14 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    void c_clash455(EntityPlayer var1) {
-      if (this.getCurrentAction() == fp.NULL) {
+      if (this.getCurrentAction() == Action.NULL) {
          if (this.getOwnerUUID() == null) {
             if (GoblinEntity.d_clash248(var1.getPersistentID())) {
                var1.sendStatusMessage(new TextComponentString("you are already carrying a Goblin"), true);
             } else {
                this.setOwnerUUID(var1.getPersistentID());
-               this.setCurrentAction(fp.PICK_UP);
-               this.b_clash63(45);
+               this.setCurrentAction(Action.PICK_UP);
+               this.setHeldPlayerDistance(45);
                EntityPlayer var2 = this.k_clash584();
                if (var2 != null) {
                   var2.setNoGravity(true);
@@ -213,9 +213,9 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, 7);
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, 7);
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, 5);
-      AbstractNpcOnlyEntity.appendPaddedNumber(var1, g5.values().length - 1);
-      AbstractNpcOnlyEntity.appendPaddedNumber(var1, by.values().length - 1);
-      AbstractNpcOnlyEntity.appendPaddedNumber(var1, eh.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, HairColor.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, SkinColor.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, EyeColor.values().length - 1);
       AbstractNpcOnlyEntity.c(var1, 0);
       return var1.toString();
    }
@@ -230,9 +230,9 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
             this.add(16);
             this.add(16);
             this.add(6);
-            this.add(g5.values().length);
-            this.add(by.values().length);
-            this.add(eh.values().length);
+            this.add(HairColor.values().length);
+            this.add(SkinColor.values().length);
+            this.add(EyeColor.values().length);
          }
       };
    }
@@ -243,8 +243,8 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @Override
-   protected void a_clash354() {
-      dg.e_clash190();
+   protected void clearBoneColors() {
+      PlayerGoblinRenderer.e_clash190();
       GoblinRenderer.clearBoneColors();
    }
 
@@ -258,7 +258,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @Override
-   public boolean a(fp var1, EntityPlayer var2) {
+   public boolean a(Action var1, EntityPlayer var2) {
       UUID var3 = this.getOwnerUUID();
       if (var3 == null) {
          return false;
@@ -270,7 +270,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       }
 
       float var5 = var2.rotationYaw;
-      float var6 = var1 == fp.PICK_UP ? 180.0F : 0.0F;
+      float var6 = var1 == Action.PICK_UP ? 180.0F : 0.0F;
       float var7 = var4.rotationYaw - 90.0F + var6;
       float var8 = var4.rotationYaw + 90.0F + var6;
       if (var5 < var7) {
@@ -282,7 +282,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       }
 
       float var9 = var2.rotationPitch;
-      float var10 = var1 == fp.PICK_UP ? 0.0F : 37.5F;
+      float var10 = var1 == Action.PICK_UP ? 0.0F : 37.5F;
       if (var9 > var10) {
          var2.rotationPitch = var10;
       }
@@ -305,22 +305,22 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       float var5 = RotationHelper.lerp(var4.prevRenderYawOffset, var4.renderYawOffset, var2);
       Vec3d var6 = var1;
       float var7 = 135.0F;
-      fp var8 = this.getCurrentAction();
-      if (var8 == fp.PICK_UP) {
+      Action var8 = this.getCurrentAction();
+      if (var8 == Action.PICK_UP) {
          var6 = new Vec3d(var1.x, var1.y, -var1.z);
          var7 = 175.0F;
-      } else if (var8 != fp.START_THROWING) {
+      } else if (var8 != Action.START_THROWING) {
          var6 = var6.subtract(0.0, 2.0, 0.0);
       }
 
-      return ck.rotateByYaw(var6, var5 + var7);
+      return VectorMath.rotateByYaw(var6, var5 + var7);
    }
 
    @SideOnly(Side.CLIENT)
    void f_clash457() {
       EntityPlayer var1 = this.k_clash584();
       if (var1 != null) {
-         if (this.getCurrentAction() == fp.START_THROWING) {
+         if (this.getCurrentAction() == Action.START_THROWING) {
             var1.isDead = false;
             if (!this.world.loadedEntityList.contains(var1)) {
                this.world.spawnEntity(var1);
@@ -337,7 +337,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       super.onUpdate();
       if (this.world.isRemote) {
          this.f_clash457();
-         fp var1 = this.getCurrentAction();
+         Action var1 = this.getCurrentAction();
          this.d(var1);
          this.c_clash464(var1);
          this.aw = var1;
@@ -350,9 +350,9 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    void j_clash459() {
-      fp var1 = this.getCurrentAction();
-      if (var1 != fp.THROWN) {
-         if (var1 != fp.START_THROWING || this.a_clash58() <= 15) {
+      Action var1 = this.getCurrentAction();
+      if (var1 != Action.THROWN) {
+         if (var1 != Action.START_THROWING || this.getThrowProgress() <= 15) {
             UUID var2 = this.getOwnerUUID();
             if (var2 != null) {
                EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
@@ -371,9 +371,9 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
    void d_clash460() {
       GoblinPlayerEntity var1 = this;
-      int var2 = var1.a_clash58();
+      int var2 = var1.getThrowProgress();
       if (var2 != -1) {
-         var1.c_clash57(++var2);
+         var1.setThrowProgress(++var2);
          EntityPlayer var3 = this.k_clash584();
          if (var3 != null) {
             if (var2 == 15) {
@@ -381,7 +381,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                float var5 = GoblinEntity.d_clash266(this);
                float var6 = GoblinEntity.c_clash265(this);
                if (this.world.isRemote && this.f_clash579()) {
-                  d3.setMovementLock(true);
+                  HandlePlayerMovement.setMovementLock(true);
                }
 
                Vec3d var7 = GoblinEntity.a(new Vec3d(0.0, 0.0, 1.5), var5, var6);
@@ -396,8 +396,8 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
             var3.noClip = false;
             var3.setNoGravity(false);
             if (var2 == 39) {
-               this.c_clash57(-1);
-               this.setCurrentAction(fp.THROWN);
+               this.setThrowProgress(-1);
+               this.setCurrentAction(Action.THROWN);
                this.setInteractionPlayerUUID(null);
                this.setOwnerUUID(null);
             }
@@ -408,30 +408,30 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    @Override
    public void updateAITasks() {
       super.updateAITasks();
-      GoblinEntity.a_clash282(this);
+      GoblinEntity.handlePickUpState(this);
       this.o_clash462();
       this.e_clash461();
    }
 
    void e_clash461() {
-      if (this.getCurrentAction() == fp.STAND_UP) {
+      if (this.getCurrentAction() == Action.STAND_UP) {
          if (++this.aJ >= 37) {
             this.aJ = 0;
-            this.setCurrentAction(fp.NULL);
+            this.setCurrentAction(Action.NULL);
          }
       }
    }
 
    void o_clash462() {
-      if (this.getCurrentAction() == fp.THROWN) {
+      if (this.getCurrentAction() == Action.THROWN) {
          EntityPlayer var1 = this.k_clash584();
          if (var1 != null) {
             if (var1.onGround) {
-               int var2 = this.d_clash60() + 1;
-               this.a_clash59(var2);
+               int var2 = this.getThrowTickCount() + 1;
+               this.setThrowTickCount(var2);
                if (var2 >= 30) {
-                  this.a_clash59(0);
-                  this.setCurrentAction(fp.STAND_UP);
+                  this.setThrowTickCount(0);
+                  this.setCurrentAction(Action.STAND_UP);
                }
             }
          }
@@ -469,42 +469,42 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @Override
-   public void c_clash57(int var1) {
+   public void setThrowProgress(int var1) {
       this.az = var1;
    }
 
    @Override
-   public int a_clash58() {
+   public int getThrowProgress() {
       return this.az;
    }
 
    @Override
-   public void a_clash59(int var1) {
+   public void setThrowTickCount(int var1) {
       this.aG = var1;
    }
 
    @Override
-   public int d_clash60() {
+   public int getThrowTickCount() {
       return this.aG;
    }
 
    @Override
-   public void a_clash61(fp var1) {
+   public void setPreviousAction(Action var1) {
       this.aw = var1;
    }
 
    @Override
-   public fp b_clash62() {
+   public Action getPreviousAction() {
       return this.aw;
    }
 
    @Override
-   public void b_clash63(int var1) {
+   public void setHeldPlayerDistance(int var1) {
       this.aE = var1;
    }
 
    @Override
-   public int c_clash56() {
+   public int getHeldPlayerDistance() {
       return this.aE;
    }
 
@@ -522,14 +522,14 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @SideOnly(Side.CLIENT)
-   void c_clash464(fp var1) {
-      if (var1 == fp.NELSON_FAST && this.aw != fp.NELSON_FAST) {
+   void c_clash464(Action var1) {
+      if (var1 == Action.NELSON_FAST && this.aw != Action.NELSON_FAST) {
          this.aF = false;
       }
    }
 
    @SideOnly(Side.CLIENT)
-   void d(fp var1) {
+   void d(Action var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       if (var2.player.getPersistentID().equals(this.getInteractionPlayerUUID())) {
          if (var2.gameSettings.thirdPersonView == 0) {
@@ -558,41 +558,41 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
    @Nullable
    @Override
-   protected fp getNextAction(fp var1) {
+   protected Action getNextAction(Action var1) {
       switch (var1) {
          case NELSON_SLOW:
-            return fp.NELSON_FAST;
+            return Action.NELSON_FAST;
          case PAIZURI_IDLE:
          case PAIZURI_SLOW:
-            return fp.PAIZURI_FAST;
+            return Action.PAIZURI_FAST;
          case BREEDING_SLOW_0:
-            return fp.BREEDING_FAST_0;
+            return Action.BREEDING_FAST_0;
          case BREEDING_SLOW_2:
-            return fp.BREEDING_FAST_2;
+            return Action.BREEDING_FAST_2;
          default:
             return null;
       }
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      fp var2 = this.getCurrentAction();
-      if (var2 != fp.PAIZURI_CUM || action != fp.PAIZURI_SLOW && action != fp.PAIZURI_FAST) {
-         if (var2 != fp.NELSON_CUM || action != fp.NELSON_SLOW && action != fp.NELSON_FAST) {
-            if (var2 != fp.BREEDING_CUM_0 || action != fp.BREEDING_SLOW_0 && action != fp.BREEDING_FAST_0) {
-               if (action == fp.PAIZURI_START && !this.world.isRemote) {
+   public void setCurrentAction(Action action) {
+      Action var2 = this.getCurrentAction();
+      if (var2 != Action.PAIZURI_CUM || action != Action.PAIZURI_SLOW && action != Action.PAIZURI_FAST) {
+         if (var2 != Action.NELSON_CUM || action != Action.NELSON_SLOW && action != Action.NELSON_FAST) {
+            if (var2 != Action.BREEDING_CUM_0 || action != Action.BREEDING_SLOW_0 && action != Action.BREEDING_FAST_0) {
+               if (action == Action.PAIZURI_START && !this.world.isRemote) {
                   this.m_clash466();
                }
 
-               if (action == fp.NELSON_INTRO && !this.world.isRemote) {
+               if (action == Action.NELSON_INTRO && !this.world.isRemote) {
                   this.q_clash465();
                }
 
-               if (action == fp.NELSON_CUM) {
+               if (action == Action.NELSON_CUM) {
                   this.entityDataManager.set(aA, true);
                }
 
-               if (var2 == fp.NELSON_CUM && action != fp.NELSON_CUM) {
+               if (var2 == Action.NELSON_CUM && action != Action.NELSON_CUM) {
                   this.entityDataManager.set(aA, false);
                }
 
@@ -638,17 +638,17 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       if (var1.getPersistentID().equals(this.getOwnerUUID())) {
          ResetGirlPacket.Handler.a_clash10(this);
          this.setAnchored(false);
-         this.setCurrentAction(fp.NULL);
+         this.setCurrentAction(Action.NULL);
          this.setOwnerUUID(null);
       }
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
+   protected Action getCumAction(Action var1) {
       switch (var1) {
          case NELSON_FAST:
          case NELSON_SLOW:
-            return fp.NELSON_CUM;
+            return Action.NELSON_CUM;
          case NELSON_INTRO:
          case PAIZURI_IDLE:
          case BREEDING_SLOW_0:
@@ -657,12 +657,12 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
          case PAIZURI_SLOW:
          case PAIZURI_FAST:
          case PAIZURI_FAST_CONTINUES:
-            return fp.PAIZURI_CUM;
+            return Action.PAIZURI_CUM;
          case BREEDING_SLOW_2:
          case BREEDING_FAST_2:
-            return fp.BREEDING_CUM_2;
+            return Action.BREEDING_CUM_2;
          case BREEDING_1:
-            return fp.BREEDING_CUM_1;
+            return Action.BREEDING_CUM_1;
       }
    }
 
@@ -674,14 +674,14 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
+            if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
                this.createAnimation("animation.goblin.blink", true, var1);
             } else {
                this.createAnimation("animation.goblin.null", true, var1);
             }
             break;
          case "movement":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.goblin.null", true, var1);
             } else if (this.ak) {
                this.createAnimation("animation.goblin.sit", true, var1);
@@ -846,11 +846,11 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                break;
             case "catchDone":
                if ("bj".equals(this.entityDataManager.get(GIRL_HAND_STATES))) {
-                  this.setCurrentAction(fp.CATCH_BJ);
+                  this.setCurrentAction(Action.CATCH_BJ);
                }
                break;
             case "catchBjDone":
-               this.setCurrentAction(fp.CATCH_BJ_IDLE);
+               this.setCurrentAction(Action.CATCH_BJ_IDLE);
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var6 = Minecraft.getMinecraft().player;
                   openInventoryGui(var6, this, new String[]{"use her", "take ur stuff back"}, null, false);
@@ -883,22 +883,22 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
                break;
             case "paizuri_startDone":
-               this.setCurrentAction(fp.PAIZURI_IDLE);
+               this.setCurrentAction(Action.PAIZURI_IDLE);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "paizuriFastDone":
-               this.setCurrentAction(fp.PAIZURI_SLOW);
+               this.setCurrentAction(Action.PAIZURI_SLOW);
                break;
             case "paizuriFastReady":
-               if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.setCurrentAction(fp.PAIZURI_FAST_CONTINUES);
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.PAIZURI_FAST_CONTINUES);
                }
                break;
             case "paizuriFastContinuesReady":
             case "neslon_fastBackSwitch":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -960,7 +960,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                   var7.player.rotationPitch = -30.0F;
                }
             case "breedingIntroDone":
-               this.setCurrentAction(fp.BREEDING_SLOW_0);
+               this.setCurrentAction(Action.BREEDING_SLOW_0);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -970,19 +970,19 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                   this.aB = !this.aB;
                }
 
-               if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.setCurrentAction(fp.BREEDING_FAST_0);
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.BREEDING_FAST_0);
                   this.aH = false;
                }
                break;
             case "breeding_fast1Done":
-               this.setCurrentAction(fp.BREEDING_SLOW_0);
+               this.setCurrentAction(Action.BREEDING_SLOW_0);
                if (this.isControlledByLocalPlayer()) {
                   this.aH = false;
                }
                break;
             case "breeding_fast1Ready":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.aH = true;
                   this.resetAnimationControllerOffset();
                   this.actionController.tickOffset = 0.0;
@@ -992,7 +992,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "breeding_intro_3Done":
-               this.setCurrentAction(fp.BREEDING_SLOW_2);
+               this.setCurrentAction(Action.BREEDING_SLOW_2);
                break;
             case "breeding_3_wiggle":
                if (this.getRNG().nextBoolean()) {
@@ -1000,12 +1000,12 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
                break;
             case "breeding_fast_3Done":
-               if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.setCurrentAction(fp.BREEDING_SLOW_2);
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.BREEDING_SLOW_2);
                }
                break;
             case "breeding_intro_2Done":
-               this.setCurrentAction(fp.BREEDING_1);
+               this.setCurrentAction(Action.BREEDING_1);
                break;
             case "breeding_cumCam":
                if (this.isControlledByLocalPlayer()) {
@@ -1018,7 +1018,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
                break;
             case "neslon_introDone":
-               this.setCurrentAction(fp.NELSON_SLOW);
+               this.setCurrentAction(Action.NELSON_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -1034,21 +1034,21 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                   return;
                }
 
-               if (d3.d) {
+               if (HandlePlayerMovement.d) {
                   this.aF = true;
                }
                break;
             case "nelsonFastDone":
                this.aF = false;
                if (this.isControlledByLocalPlayer()) {
-                  this.setCurrentAction(fp.NELSON_SLOW);
+                  this.setCurrentAction(Action.NELSON_SLOW);
                }
                break;
             case "paizuriCumDone":
             case "nelson_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   this.resetCameraAndPhysics();
-                  this.setCurrentAction(fp.NULL);
+                  this.setCurrentAction(Action.NULL);
                }
          }
       };
@@ -1098,9 +1098,9 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       void a_clash13(EntityPlayer var1) {
          AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.g(var1);
          if (var2 instanceof GoblinPlayerEntity) {
-            fp var3 = var2.getCurrentAction();
-            if (var3 != fp.THROWN) {
-               if (var3 != fp.START_THROWING || ((IGoblin)var2).a_clash58() <= 15) {
+            Action var3 = var2.getCurrentAction();
+            if (var3 != Action.THROWN) {
+               if (var3 != Action.START_THROWING || ((IGoblin)var2).getThrowProgress() <= 15) {
                   UUID var4 = ((GoblinPlayerEntity)var2).getOwnerUUID();
                   if (var4 != null) {
                      EntityPlayer var5 = var1.world.getPlayerEntityByUUID(var4);
@@ -1170,8 +1170,8 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                   if (var5 instanceof GoblinPlayerEntity) {
                      GoblinPlayerEntity var6 = (GoblinPlayerEntity)var5;
                      if (var6.getOwnerUUID() != null) {
-                        fp var7 = var6.getCurrentAction();
-                        if (var7 == fp.THROWN || var7 == fp.START_THROWING) {
+                        Action var7 = var6.getCurrentAction();
+                        if (var7 == Action.THROWN || var7 == Action.START_THROWING) {
                            return;
                         }
 

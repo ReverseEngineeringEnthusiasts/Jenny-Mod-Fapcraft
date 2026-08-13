@@ -2,7 +2,7 @@ package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.cj;
+import com.trolmastercard.sexmod.util.WorldUtils;
 
 
 
@@ -41,10 +41,10 @@ public class BasicGirlEntity extends EntityLiving {
 
    protected void updateAITasks() {
       super.updateAITasks();
-      this.a_clash47();
+      this.updateWanderAndFollowAI();
    }
 
-   void a_clash47() {
+   void updateWanderAndFollowAI() {
       if (this.e) {
          this.getNavigator().clearPath();
       } else {
@@ -57,7 +57,7 @@ public class BasicGirlEntity extends EntityLiving {
                int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
                int var4 = this.world.provider.getDimensionType() == DimensionType.NETHER
                   ? (int)Math.ceil(this.posY)
-                  : cj.a(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
+                  : WorldUtils.a(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
                this.f = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
                this.d = 0;
             }

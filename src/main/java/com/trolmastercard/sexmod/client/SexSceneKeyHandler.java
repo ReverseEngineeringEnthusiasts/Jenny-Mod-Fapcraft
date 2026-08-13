@@ -2,7 +2,7 @@ package com.trolmastercard.sexmod.client;
 
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
@@ -40,7 +40,7 @@ public class SexSceneKeyHandler {
          }
 
          AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3);
-         if (var8 != null && var8.getCurrentAction() != fp.NULL) {
+         if (var8 != null && var8.getCurrentAction() != Action.NULL) {
             PacketHandler.b.sendToServer(new ResetGirlPacket(var8.getGirlId(), true));
          }
       }

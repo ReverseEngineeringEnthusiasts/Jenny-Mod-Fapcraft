@@ -1,8 +1,8 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.util.an;
-import com.trolmastercard.sexmod.util.fg;
+import com.trolmastercard.sexmod.util.TrailSegment;
+import com.trolmastercard.sexmod.util.IBeddableSexGirl;
 
 
 
@@ -47,8 +47,8 @@ public class SendGirlToSexPacket implements IMessage {
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.b)) {
-                  if (!var3.world.isRemote && var3 instanceof fg) {
-                     ((fg)var3).a_clash292();
+                  if (!var3.world.isRemote && var3 instanceof IBeddableSexGirl) {
+                     ((IBeddableSexGirl)var3).goToSexBed();
                   }
                }
             });

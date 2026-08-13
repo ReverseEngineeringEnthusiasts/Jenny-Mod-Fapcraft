@@ -5,7 +5,7 @@ import com.trolmastercard.sexmod.entity.AbstractNpcOnlyEntity;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.util.KoboldManager;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 
@@ -88,7 +88,7 @@ public class GetTribeUiValuesPacket implements IMessage {
                } else {
                   boolean var2x = KoboldManager.c_clash86(var1x);
                   EntityPlayerMP var3 = var2.getServerHandler().player;
-                  HashMap var4 = KoboldManager.a_clash91(var1x, var3.world);
+                  HashMap var4 = KoboldManager.getTribeSavedPositions(var1x, var3.world);
                   List var5 = KoboldManager.n_clash82(var1x);
                   ArrayList var6 = new ArrayList();
                   int var7 = KoboldManager.l_clash75(var1x).getWoolMeta();

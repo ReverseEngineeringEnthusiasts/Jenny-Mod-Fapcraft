@@ -1,7 +1,7 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.Main;
-import com.trolmastercard.sexmod.api.c8;
+import com.trolmastercard.sexmod.api.LightingType;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.BoneType;
 import com.trolmastercard.sexmod.entity.NpcType;
@@ -597,7 +597,7 @@ public class ServerWhitelistManager {
       String k;
       String j;
       boolean c;
-      c8 e;
+      LightingType e;
       float m = 1.0F;
       float a = 0.0F;
       ResourceLocation i;
@@ -694,7 +694,7 @@ public class ServerWhitelistManager {
                   var24 = var24.replace(" ", "");
 
                   try {
-                     this.e = c8.valueOf(var24);
+                     this.e = LightingType.valueOf(var24);
                   } catch (IllegalArgumentException var18) {
                      this.h = String.format(
                         "you entered '%s' into the 'which_lighting' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'which_lighting'.",
@@ -783,7 +783,7 @@ public class ServerWhitelistManager {
          return this.j;
       }
 
-      public c8 i_clash894() {
+      public LightingType i_clash894() {
          return this.e;
       }
 

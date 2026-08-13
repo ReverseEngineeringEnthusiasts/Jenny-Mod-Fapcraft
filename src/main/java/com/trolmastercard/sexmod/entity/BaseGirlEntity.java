@@ -20,12 +20,12 @@ import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.cj;
-import com.trolmastercard.sexmod.util.d3;
-import com.trolmastercard.sexmod.util.dz;
-import com.trolmastercard.sexmod.util.e1;
-import com.trolmastercard.sexmod.util.fs;
-import com.trolmastercard.sexmod.util.g0;
+import com.trolmastercard.sexmod.util.WorldUtils;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
+import com.trolmastercard.sexmod.util.LootTableHandler;
+import com.trolmastercard.sexmod.util.Point2D;
+import com.trolmastercard.sexmod.util.GirlRegistry;
+import com.trolmastercard.sexmod.util.ClientServerCheck;
 
 
 
@@ -211,8 +211,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    /** @return the current scene action ({@link fp} state stored in the data manager) */
-   public fp getCurrentAction() {
-      return fp.valueOf((String)this.entityDataManager.get(CUR_ACTION));
+   public Action getCurrentAction() {
+      return Action.valueOf((String)this.entityDataManager.get(CUR_ACTION));
    }
 
    /**
@@ -221,11 +221,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
     * action's tick counter). ATTACK is only allowed from {@link fp#NULL}.
     * @param action the target state; null is treated as {@link fp#NULL}
     */
-   public void setCurrentAction(fp action) {
-      fp previousAction = this.getCurrentAction();
+   public void setCurrentAction(Action action) {
+      Action previousAction = this.getCurrentAction();
       if (previousAction != action) {
-         if (action != fp.ATTACK || previousAction == fp.NULL) {
-            action = action == null ? fp.NULL : action;
+         if (action != Action.ATTACK || previousAction == Action.NULL) {
+            action = action == null ? Action.NULL : action;
             if (this.world.isRemote) {
                this.changeDataParameterFromClient("currentAction", action.toString());
             } else {
@@ -262,7 +262,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    public static void sendMessageToTrackingPlayers(BaseGirlEntity var0, String var1) {
-      for (EntityPlayer var3 : cj.a_clash303(var0)) {
+      for (EntityPlayer var3 : WorldUtils.a_clash303(var0)) {
          var3.sendMessage(new TextComponentString(var1));
       }
    }
@@ -270,7 +270,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    public static void girlPlaySound(BaseGirlEntity var0, SoundEvent var1, boolean var2) {
       Vec3d var3 = var0.getPositionVector();
 
-      for (EntityPlayer var5 : cj.a_clash303(var0)) {
+      for (EntityPlayer var5 : WorldUtils.a_clash303(var0)) {
          Vec3d var6;
          if (!var2) {
             var6 = var3;
@@ -407,7 +407,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       this.entityDataManager = this.getDataManager();
       this.entityDataManager.register(GIRL_ID, UUID.randomUUID().toString());
       this.entityDataManager.register(OUTFIT_INDEX, 1);
-      this.entityDataManager.register(CUR_ACTION, fp.NULL.toString());
+      this.entityDataManager.register(CUR_ACTION, Action.NULL.toString());
       this.entityDataManager.register(GIRL_HAND_STATES, "");
       this.entityDataManager.register(INTERACTION_PARTNER_UUID, "null");
       this.entityDataManager.register(IS_ANCHORED, false);
@@ -422,9 +422,9 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    public void setLocallyRegistered(boolean var1) {
       this.isLocallyRegistered = var1;
       if (var1) {
-         fs.b_clash710(this);
+         GirlRegistry.b_clash710(this);
       } else {
-         fs.a_clash711(this);
+         GirlRegistry.a_clash711(this);
       }
    }
 
@@ -433,7 +433,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    public static List<BaseGirlEntity> getGirlEntityList() {
-      if (!g0.a_clash472()) {
+      if (!ClientServerCheck.getInstance()) {
          return getClientGirls();
       }
 
@@ -611,7 +611,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
     * Jar-faithful: has NO hasPlayer reset branch (see DOCUMENTATION 2p).
     */
    protected void tickFollowUpTransitions() {
-      fp action = this.getCurrentAction();
+      Action action = this.getCurrentAction();
       if (++action.ticksPlaying[this.world.isRemote ? 1 : 0] >= action.length) {
          if (action.followUp != null && !this.world.isRemote) {
             this.setCurrentAction(action.followUp);
@@ -889,7 +889,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    protected ResourceLocation getLootTable() {
-      return dz.d;
+      return LootTableHandler.d;
    }
 
    @SideOnly(Side.CLIENT)
@@ -900,13 +900,13 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    protected abstract <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1);
 
    @SideOnly(Side.CLIENT)
-   protected boolean handleActionAnimationOverrides(fp var1, String var2, boolean var3, AnimationEvent var4) {
+   protected boolean handleActionAnimationOverrides(Action var1, String var2, boolean var3, AnimationEvent var4) {
       return false;
    }
 
    @SideOnly(Side.CLIENT)
    protected void createAnimation(String var1, boolean var2, AnimationEvent var3, boolean var4) {
-      if (var4 || !fp.b_clash719(this, var3.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, d3.d, var3)) {
+      if (var4 || !Action.b_clash719(this, var3.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.d, var3)) {
          ILoopType.EDefaultLoopTypes var5 = var2 ? ILoopType.EDefaultLoopTypes.LOOP : ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME;
          var3.getController().setAnimation(new AnimationBuilder().addAnimation(var1, var5));
          var3.getController().transitionLengthTicks = 0.0;
@@ -920,7 +920,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    protected void playRandomizedAnimation(String var1, int var2, float var3, AnimationEvent var4, boolean var5) {
-      if (var5 || !fp.b_clash719(this, var4.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, d3.d, var4)) {
+      if (var5 || !Action.b_clash719(this, var4.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.d, var4)) {
          AnimationController var6 = var4.getController();
          Pair var7 = this.animationVariantMap.get(var1);
          if (var7 == null) {
@@ -929,7 +929,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
          int var8 = (Integer)var7.first();
          int var9 = (Integer)var7.second();
-         if (!fp.b_clash719(this, var4.getPartialTick())) {
+         if (!Action.b_clash719(this, var4.getPartialTick())) {
             var4.getController().setAnimation(new AnimationBuilder().addAnimation(var8 == 0 ? var1 : var1 + var8, ILoopType.EDefaultLoopTypes.LOOP));
             var4.getController().transitionLengthTicks = 0.0;
          } else {
@@ -1083,7 +1083,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    public void resetCameraAndPhysics() {
       this.cameraOriginPos = null;
       this.setNoGravity(false);
-      this.setCurrentAction((fp)null);
+      this.setCurrentAction((Action)null);
       if (this.world.isRemote) {
          this.resetLocalPlayerClientState();
       }
@@ -1093,7 +1093,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    /** CLIENT: unlocks player movement, un-hides the player and tells the server to reset the girl. */
    protected void resetLocalPlayerClientState() {
       if (this.isControlledByLocalPlayer()) {
-         d3.setMovementLock(true);
+         HandlePlayerMovement.setMovementLock(true);
          Minecraft.getMinecraft().player.setInvisible(false);
          PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
       }
@@ -1105,7 +1105,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
          for (BaseGirlEntity var2 : getGirlEntityList()) {
             UUID var3 = var2.getInteractionPlayerUUID();
             if (var3 != null && var3.equals(var0)) {
-               fp var4 = var2.getNextAction(var2.getCurrentAction());
+               Action var4 = var2.getNextAction(var2.getCurrentAction());
                if (var4 == null) {
                   return;
                }
@@ -1125,7 +1125,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
             if (!var2.isDead && var2.world.isRemote) {
                UUID var3 = var2.getInteractionPlayerUUID();
                if (var3 != null && var3.equals(var0)) {
-                  fp var4 = var2.getCumAction(var2.getCurrentAction());
+                  Action var4 = var2.getCumAction(var2.getCurrentAction());
                   if (var4 != null) {
                      var2.setCurrentAction(var4);
                   }
@@ -1150,10 +1150,10 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    @Nullable
-   protected abstract fp getNextAction(fp var1);
+   protected abstract Action getNextAction(Action var1);
 
    @SideOnly(Side.CLIENT)
-   protected abstract fp getCumAction(fp var1);
+   protected abstract Action getCumAction(Action var1);
 
    public TargetPoint getTargetNetworkPoint() {
       return new TargetPoint(this.dimension, this.posX, this.posY, this.posZ, 50.0);
@@ -1531,8 +1531,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return var2.size() - 1 < var1 ? false : (Integer)var2.get(var1) == 101;
    }
 
-   public e1 g(int var1) {
-      return e1.a;
+   public Point2D g(int var1) {
+      return Point2D.a;
    }
 
    public void setCustomPartList(List<Integer> var1) {

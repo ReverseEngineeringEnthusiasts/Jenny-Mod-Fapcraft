@@ -2,7 +2,7 @@ package com.trolmastercard.sexmod;
 
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.RotationHelper;
 
 
@@ -33,7 +33,7 @@ public class PositionData {
    public void a(Pre var1) {
       try {
          for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
-            if (!var3.isDead && var3.getInteractionPlayerUUID() != null && var3.getCurrentAction() != fp.NULL) {
+            if (!var3.isDead && var3.getInteractionPlayerUUID() != null && var3.getCurrentAction() != Action.NULL) {
                EntityPlayer var4 = var1.getEntityPlayer();
                if (var3.getCurrentAction().hasPlayer && (var3.getInteractionPlayerUUID().equals(var4.getPersistentID()) || var3.getInteractionPlayerUUID().equals(var4.getUniqueID()))) {
                   var1.setCanceled(true);
@@ -56,7 +56,7 @@ public class PositionData {
          try {
             for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
                UUID var7 = var6.getInteractionPlayerUUID();
-               fp var8 = var6.getCurrentAction();
+               Action var8 = var6.getCurrentAction();
                if (!var6.isDead
                   && var7 != null
                   && var8 != null

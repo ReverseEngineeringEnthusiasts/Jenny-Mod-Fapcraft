@@ -2,7 +2,7 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 

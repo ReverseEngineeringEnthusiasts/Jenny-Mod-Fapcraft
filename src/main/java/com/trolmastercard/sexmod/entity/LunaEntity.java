@@ -1,7 +1,7 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.ao;
-import com.trolmastercard.sexmod.api.ar;
+import com.trolmastercard.sexmod.api.IGalathFinish;
+import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.GirlInventoryScreen;
@@ -20,15 +20,15 @@ import com.trolmastercard.sexmod.networking.SendGirlToSexPacket;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.ad;
-import com.trolmastercard.sexmod.util.af;
-import com.trolmastercard.sexmod.util.ah;
-import com.trolmastercard.sexmod.util.ak;
-import com.trolmastercard.sexmod.util.am;
-import com.trolmastercard.sexmod.util.an;
-import com.trolmastercard.sexmod.util.ck;
-import com.trolmastercard.sexmod.util.d3;
-import com.trolmastercard.sexmod.util.fg;
+import com.trolmastercard.sexmod.util.DebugMode;
+import com.trolmastercard.sexmod.util.GalathGeometryRender;
+import com.trolmastercard.sexmod.util.GirlCombatProtection;
+import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
+import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
+import com.trolmastercard.sexmod.util.TrailSegment;
+import com.trolmastercard.sexmod.util.VectorMath;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
+import com.trolmastercard.sexmod.util.IBeddableSexGirl;
 
 
 
@@ -81,7 +81,7 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
-public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
+public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddableSexGirl {
    public ItemStack ao = new ItemStack(LunaRodItem.a);
    public static final DataParameter<Float> Y = EntityDataManager.createKey(LunaEntity.class, DataSerializers.FLOAT)
       .getSerializer()
@@ -160,9 +160,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      if (this.getCurrentAction() != fp.COWGIRL_SITTING_CUM || action != fp.COWGIRL_SITTING_SLOW && action != fp.COWGIRL_SITTING_FAST) {
-         if (this.getCurrentAction() != fp.TOUCH_BOOBS_CUM || action != fp.TOUCH_BOOBS_FAST && action != fp.TOUCH_BOOBS_SLOW) {
+   public void setCurrentAction(Action action) {
+      if (this.getCurrentAction() != Action.COWGIRL_SITTING_CUM || action != Action.COWGIRL_SITTING_SLOW && action != Action.COWGIRL_SITTING_FAST) {
+         if (this.getCurrentAction() != Action.TOUCH_BOOBS_CUM || action != Action.TOUCH_BOOBS_FAST && action != Action.TOUCH_BOOBS_SLOW) {
             super.setCurrentAction(action);
          }
       }
@@ -254,7 +254,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             this.motionX = 0.0;
             this.motionY = 0.0;
             this.motionZ = 0.0;
-            this.setCurrentAction(fp.WAIT_CAT);
+            this.setCurrentAction(Action.WAIT_CAT);
          }
       }
 
@@ -291,7 +291,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @Override
    public void onUpdate() {
       super.onUpdate();
-      if (fp.WAIT_CAT.equals(this.getCurrentAction())) {
+      if (Action.WAIT_CAT.equals(this.getCurrentAction())) {
          this.f_clash385();
       } else {
          this.ab = 0;
@@ -308,7 +308,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
                var1.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVector().y, this.getPositionVector().z);
-               this.setCurrentAction(fp.COWGIRL_SITTING_INTRO);
+               this.setCurrentAction(Action.COWGIRL_SITTING_INTRO);
                var1.setRotationYawHead(this.getYawRotation() + 180.0F);
                var1.rotationYaw = this.getYawRotation() + 180.0F;
                var1.prevRotationYaw = this.getYawRotation() + 180.0F;
@@ -329,7 +329,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          if (var3.getPersistentID().equals(var1.getPersistentID())) {
             BeeScreen.enableInteraction();
             var3.setVelocity(0.0, 0.0, 0.0);
-            d3.setMovementLock(false);
+            HandlePlayerMovement.setMovementLock(false);
          }
       }
 
@@ -342,9 +342,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public void a_clash292() {
+   public void goToSexBed() {
       this.entityDataManager.set(IS_ANCHORED, false);
-      this.setCurrentAction(fp.NULL);
+      this.setCurrentAction(Action.NULL);
       this.ar = true;
       BlockPos var1 = this.getNearestBed(this.getPosition());
       if (var1 == null) {
@@ -412,7 +412,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    public void j_clash386() {
       EntityItem var1 = new EntityItem(this.world, this.posX, this.posY, this.posZ, (ItemStack)this.entityDataManager.get(ag));
-      Vec3d var2 = ck.rotateByYaw(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.rotationYaw);
+      Vec3d var2 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.rotationYaw);
       var1.motionX = var2.x;
       var1.motionY = var2.y;
       var1.motionZ = var2.z;
@@ -428,7 +428,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       this.entityDataManager.set(IS_ANCHORED, false);
       this.entityDataManager.set(ag, ItemStack.EMPTY);
       this.setSilent(false);
-      this.setCurrentAction(fp.NULL);
+      this.setCurrentAction(Action.NULL);
       if (this.av != null) {
          this.world.removeEntity(this.av);
          this.av = null;
@@ -461,9 +461,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                ItemStack var1 = (ItemStack)this.entityDataManager.get(ag);
                if (var1 != ItemStack.EMPTY) {
                   if (var1.getItem() instanceof ItemFood) {
-                     this.setCurrentAction(fp.FISHING_EAT);
+                     this.setCurrentAction(Action.FISHING_EAT);
                   } else {
-                     this.setCurrentAction(fp.FISHING_THROW_AWAY);
+                     this.setCurrentAction(Action.FISHING_THROW_AWAY);
                   }
                }
             }
@@ -491,8 +491,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                   this.watchClosestGirlGoal = null;
                }
 
-               if (this.getCurrentAction() == fp.NULL) {
-                  this.setCurrentAction(fp.FISHING_START);
+               if (this.getCurrentAction() == Action.NULL) {
+                  this.setCurrentAction(Action.FISHING_START);
                   this.setTargetPosition(this.getPositionVector());
                   this.entityDataManager.set(IS_ANCHORED, true);
                   this.setYawRotation(
@@ -620,7 +620,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       if (var1 != null) {
          PathPoint var2 = var1.getFinalPathPoint();
          PathPoint var3 = new PathPoint(
-            ThreadNames.a_clash169(this.posX), ThreadNames.a_clash169(this.posY), ThreadNames.a_clash169(this.posZ)
+            ThreadNames.roundToInt(this.posX), ThreadNames.roundToInt(this.posY), ThreadNames.roundToInt(this.posZ)
          );
          if (var2 != null) {
             this.entityDataManager.set(Y, var2.distanceTo(var3));
@@ -636,39 +636,39 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          this.triggerActionSync(true, true, var2);
          this.changeDataParameterFromClient("animationFollowUp", "touch_boobs");
          this.changeDataParameterFromClient("currentModel", "0");
-         d3.setMovementLock(false);
+         HandlePlayerMovement.setMovementLock(false);
       }
 
       if ("action.names.sex".equals(var1)) {
          this.setInteractionPlayerUUID(var2);
          this.triggerActionSync(true, true, var2);
          this.changeDataParameterFromClient("animationFollowUp", "sex");
-         d3.setMovementLock(false);
+         HandlePlayerMovement.setMovementLock(false);
       }
 
       if ("action.names.headpat".equals(var1)) {
          this.setInteractionPlayerUUID(var2);
          this.triggerActionSync(true, true, var2);
-         d3.setMovementLock(false);
+         HandlePlayerMovement.setMovementLock(false);
          this.changeDataParameterFromClient("animationFollowUp", "headpat");
       }
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
-      if (var1 == fp.TOUCH_BOOBS_SLOW) {
-         return fp.TOUCH_BOOBS_FAST;
+   protected Action getNextAction(Action var1) {
+      if (var1 == Action.TOUCH_BOOBS_SLOW) {
+         return Action.TOUCH_BOOBS_FAST;
       } else {
-         return var1 == fp.COWGIRL_SITTING_SLOW ? fp.COWGIRL_SITTING_FAST : null;
+         return var1 == Action.COWGIRL_SITTING_SLOW ? Action.COWGIRL_SITTING_FAST : null;
       }
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (var1 == fp.TOUCH_BOOBS_SLOW || var1 == fp.TOUCH_BOOBS_FAST) {
-         return fp.TOUCH_BOOBS_CUM;
+   protected Action getCumAction(Action var1) {
+      if (var1 == Action.TOUCH_BOOBS_SLOW || var1 == Action.TOUCH_BOOBS_FAST) {
+         return Action.TOUCH_BOOBS_CUM;
       } else {
-         return var1 != fp.COWGIRL_SITTING_FAST && var1 != fp.COWGIRL_SITTING_SLOW ? null : fp.COWGIRL_SITTING_CUM;
+         return var1 != Action.COWGIRL_SITTING_FAST && var1 != Action.COWGIRL_SITTING_SLOW ? null : Action.COWGIRL_SITTING_CUM;
       }
    }
 
@@ -676,16 +676,16 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    protected void U() {
       switch ((String)this.entityDataManager.get(GIRL_HAND_STATES)) {
          case "touch_boobs":
-            if (this.getCurrentAction() != fp.PAYMENT) {
-               this.setCurrentAction(fp.PAYMENT);
+            if (this.getCurrentAction() != Action.PAYMENT) {
+               this.setCurrentAction(Action.PAYMENT);
                return;
             }
 
-            this.setCurrentAction(fp.TOUCH_BOOBS_INTRO);
+            this.setCurrentAction(Action.TOUCH_BOOBS_INTRO);
             break;
          case "sex":
-            if (this.getCurrentAction() != fp.PAYMENT) {
-               this.setCurrentAction(fp.PAYMENT);
+            if (this.getCurrentAction() != Action.PAYMENT) {
+               this.setCurrentAction(Action.PAYMENT);
             } else {
                PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
                PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
@@ -693,7 +693,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
             return;
          case "headpat":
-            this.setCurrentAction(fp.HEAD_PAT);
+            this.setCurrentAction(Action.HEAD_PAT);
       }
 
       if (this.world.isRemote) {
@@ -730,14 +730,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.cat.null", true, var1);
             } else {
                this.createAnimation("animation.cat.blink", true, var1);
             }
             break;
          case "movement":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.cat.null", true, var1);
             } else if (this.isRiding()) {
                this.createAnimation("animation.cat.sit", true, var1);
@@ -836,7 +836,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
                break;
             case "attackDone":
-               this.setCurrentAction(fp.NULL);
+               this.setCurrentAction(Action.NULL);
                if (++this.S == 3) {
                   this.S = 0;
                }
@@ -852,7 +852,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "start_fishingDone":
                if (this.isLocalPlayerNearby()) {
-                  this.setCurrentAction(fp.FISHING_IDLE);
+                  this.setCurrentAction(Action.FISHING_IDLE);
                }
                break;
             case "rod_shoot":
@@ -882,7 +882,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "eatingDone":
                if (this.isLocalPlayerNearby()) {
                   PacketHandler.b.sendToServer(new CatEatingDonePacket(this.getGirlId()));
-                  this.setCurrentAction(fp.NULL);
+                  this.setCurrentAction(Action.NULL);
                }
 
                this.aa = 1.0F;
@@ -973,11 +973,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                break;
             case "touch_boobs_introDone":
-               this.setCurrentAction(fp.TOUCH_BOOBS_SLOW);
+               this.setCurrentAction(Action.TOUCH_BOOBS_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                   HornyMeterHud.showHornyMeter();
-                  d3.setMovementLock(false);
+                  HandlePlayerMovement.setMovementLock(false);
                }
                break;
             case "touch_boobs_slowDone":
@@ -998,8 +998,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "fastDone":
-               if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.setCurrentAction(fp.TOUCH_BOOBS_SLOW);
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.TOUCH_BOOBS_SLOW);
                }
                break;
             case "moanOrNya":
@@ -1044,7 +1044,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "sitting_introDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.setCurrentAction(fp.COWGIRL_SITTING_SLOW);
+                  this.setCurrentAction(Action.COWGIRL_SITTING_SLOW);
                   HornyMeterHud.resetHornyMeter();
                   HornyMeterHud.showHornyMeter();
                }
@@ -1077,10 +1077,10 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "sitting_fastDone":
-               if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.setCurrentAction(fp.COWGIRL_SITTING_SLOW);
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+                  this.setCurrentAction(Action.COWGIRL_SITTING_SLOW);
                   Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
-                  Vec3d var9 = ck.rotateByYaw(var8, this.getYawRotation() + 180.0F);
+                  Vec3d var9 = VectorMath.rotateByYaw(var8, this.getYawRotation() + 180.0F);
                   Minecraft.getMinecraft()
                      .player
                      .setPosition(
@@ -1093,7 +1093,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "sitting_fastTp":
                if (this.isControlledByLocalPlayer()) {
                   Vec3d var6 = new Vec3d(0.0, -0.160625, -0.9925);
-                  Vec3d var7 = ck.rotateByYaw(var6, this.getYawRotation() + 180.0F);
+                  Vec3d var7 = VectorMath.rotateByYaw(var6, this.getYawRotation() + 180.0F);
                   Minecraft.getMinecraft()
                      .player
                      .setPosition(

@@ -58,7 +58,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
             this.L = var3;
          } else {
             if (!this.O.equals(var2) || !this.P.equals(var1) || !this.L.equals(var3)) {
-               this.a_clash222();
+               this.clearBoneColors();
             }
 
             this.P = var1;
@@ -68,7 +68,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
       }
    }
 
-   protected abstract void a_clash222();
+   protected abstract void clearBoneColors();
 
    protected abstract String a(StringBuilder var1);
 

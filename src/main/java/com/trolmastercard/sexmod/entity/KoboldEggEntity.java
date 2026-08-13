@@ -67,7 +67,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
       super.onUpdate();
       int var1 = (Integer)this.dataManager.get(c);
       if (var1 >= 12000) {
-         this.a_clash842();
+         this.spawnHatchExplosion();
       }
 
       if (!this.world.isRemote) {
@@ -89,7 +89,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
       return true;
    }
 
-   void a_clash842() {
+   void spawnHatchExplosion() {
       for (int var1 = 0; var1 < 30; var1++) {
          float var2 = (Reference.f.nextBoolean() ? 1 : -1) * Reference.f.nextFloat();
          float var3 = (Reference.f.nextBoolean() ? 1 : -1) * Reference.f.nextFloat();

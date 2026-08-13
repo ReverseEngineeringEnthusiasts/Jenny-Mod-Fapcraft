@@ -2,7 +2,7 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.util.KoboldManager;
 import com.trolmastercard.sexmod.util.KoboldTask;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 

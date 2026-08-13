@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.ar;
+import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.SlimeModel;
@@ -11,8 +11,8 @@ import com.trolmastercard.sexmod.networking.SetPlayerForGirlPacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.d3;
-import com.trolmastercard.sexmod.util.eh;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
+import com.trolmastercard.sexmod.util.EyeColor;
 
 
 
@@ -70,7 +70,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void u_clash377() {
-      this.setCurrentAction(fp.STARTDOGGY);
+      this.setCurrentAction(Action.STARTDOGGY);
       this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
       this.cameraYaw = (Float)this.entityDataManager.get(BaseGirlEntity.YAW_ROTATION);
    }
@@ -94,14 +94,14 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    public void b(String var1, UUID var2) {
       if ("action.names.boobjob".equals(var1)) {
          this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
-         this.setCurrentAction(fp.PAIZURI_START);
-         this.a(0, fp.PAIZURI_START);
+         this.setCurrentAction(Action.PAIZURI_START);
+         this.a(0, Action.PAIZURI_START);
          this.b_clash577(var2);
       }
 
       if ("action.names.blowjob".equals(var1)) {
-         this.setCurrentAction(fp.STARTBLOWJOB);
-         this.a(this.getOutfitIndex(), fp.PAIZURI_START);
+         this.setCurrentAction(Action.STARTBLOWJOB);
+         this.a(this.getOutfitIndex(), Action.PAIZURI_START);
          this.b_clash577(var2);
       }
    }
@@ -109,7 +109,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void updateAITasks() {
       super.updateAITasks();
-      if (this.getCurrentAction() == fp.WAITDOGGY) {
+      if (this.getCurrentAction() == Action.WAITDOGGY) {
          EntityPlayer var1 = this.j_clash575();
          if (var1 != null && var1.getDistance(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z) < 1.0) {
             if (this.c_clash587(var1.getPersistentID())) {
@@ -125,7 +125,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             this.world.getPlayerEntityByUUID(this.getOwnerUserUUID()).capabilities.isFlying = true;
             this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
             this.cameraOriginPos = null;
-            this.setCurrentAction(fp.DOGGYSTART);
+            this.setCurrentAction(Action.DOGGYSTART);
             PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
          }
       }
@@ -138,42 +138,42 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp getNextAction(fp var1) {
+   protected Action getNextAction(Action var1) {
       switch (var1) {
          case SUCKBLOWJOB:
-            return fp.THRUSTBLOWJOB;
+            return Action.THRUSTBLOWJOB;
          case DOGGYSLOW:
-            return fp.DOGGYFAST;
+            return Action.DOGGYFAST;
          case PAIZURI_SLOW:
             if (this.as) {
                this.as = false;
                this.positionPlayerRelative(0.0, 0.0, 0.0, 0.0F, 70.0F);
             }
 
-            return fp.PAIZURI_FAST;
+            return Action.PAIZURI_FAST;
          default:
             return null;
       }
    }
 
    @Override
-   protected fp getCumAction(fp var1) {
-      if (var1 == fp.SUCKBLOWJOB || var1 == fp.THRUSTBLOWJOB) {
+   protected Action getCumAction(Action var1) {
+      if (var1 == Action.SUCKBLOWJOB || var1 == Action.THRUSTBLOWJOB) {
          this.positionPlayerRelative(0.0, 0.0, 0.0, 0.0F, 70.0F);
-         return fp.CUMBLOWJOB;
-      } else if (var1 == fp.DOGGYSLOW || var1 == fp.DOGGYFAST) {
-         return fp.DOGGYCUM;
+         return Action.CUMBLOWJOB;
+      } else if (var1 == Action.DOGGYSLOW || var1 == Action.DOGGYFAST) {
+         return Action.DOGGYCUM;
       } else {
-         return var1 != fp.PAIZURI_FAST && var1 != fp.PAIZURI_SLOW ? null : fp.PAIZURI_CUM;
+         return var1 != Action.PAIZURI_FAST && var1 != Action.PAIZURI_SLOW ? null : Action.PAIZURI_CUM;
       }
    }
 
    @Override
-   public void setCurrentAction(fp action) {
-      fp var2 = this.getCurrentAction();
-      if (var2 != fp.DOGGYCUM || action != fp.DOGGYSLOW && action != fp.DOGGYFAST) {
-         if (var2 != fp.CUMBLOWJOB || action != fp.THRUSTBLOWJOB && action != fp.SUCKBLOWJOB) {
-            if (var2 != fp.PAIZURI_CUM || action != fp.PAIZURI_SLOW && action != fp.PAIZURI_FAST) {
+   public void setCurrentAction(Action action) {
+      Action var2 = this.getCurrentAction();
+      if (var2 != Action.DOGGYCUM || action != Action.DOGGYSLOW && action != Action.DOGGYFAST) {
+         if (var2 != Action.CUMBLOWJOB || action != Action.THRUSTBLOWJOB && action != Action.SUCKBLOWJOB) {
+            if (var2 != Action.PAIZURI_CUM || action != Action.PAIZURI_SLOW && action != Action.PAIZURI_FAST) {
                super.setCurrentAction(action);
             }
          }
@@ -184,14 +184,14 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
+            if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
                this.createAnimation("animation.jenny.fhappy", true, var1);
             } else {
                this.createAnimation("animation.jenny.null", true, var1);
             }
             break;
          case "movement":
-            if (this.getCurrentAction() != fp.NULL) {
+            if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.jenny.null", true, var1);
             } else if (this.ak) {
                this.createAnimation("animation.jenny.sit", true, var1);
@@ -421,23 +421,23 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "bjiDone":
-               this.setCurrentAction(fp.SUCKBLOWJOB);
+               this.setCurrentAction(Action.SUCKBLOWJOB);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "bjtDone":
-               this.setCurrentAction(fp.SUCKBLOWJOB);
+               this.setCurrentAction(Action.SUCKBLOWJOB);
                break;
             case "doggyfastReady":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                   this.ar = true;
                }
                break;
             case "bjtReady":
             case "paizuriReady":
-               if (this.isControlledByLocalPlayer() && d3.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -495,7 +495,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "doggyGoOnBedDone":
                PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
-               this.setCurrentAction(fp.WAITDOGGY);
+               this.setCurrentAction(Action.WAITDOGGY);
                break;
             case "doggystartMSG1":
                this.playSound(SoundHandler.MISC_TOUCH[0]);
@@ -518,7 +518,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                break;
             case "doggystartDone":
-               this.setCurrentAction(fp.DOGGYSLOW);
+               this.setCurrentAction(Action.DOGGYSLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -565,7 +565,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "doggyfastDone":
                this.ar = false;
-               this.setCurrentAction(fp.DOGGYSLOW);
+               this.setCurrentAction(Action.DOGGYSLOW);
                break;
             case "doggycumMSG1":
                this.playSoundAtVolume(SoundHandler.MISC_CUMINFLATION[0], 2.0F);
@@ -596,7 +596,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "paizuri_startDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.setCurrentAction(fp.PAIZURI_SLOW);
+                  this.setCurrentAction(Action.PAIZURI_SLOW);
                   HornyMeterHud.resetHornyMeter();
                   HornyMeterHud.showHornyMeter();
                }
@@ -621,7 +621,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "paizuri_fastDone":
-               this.setCurrentAction(fp.PAIZURI_SLOW);
+               this.setCurrentAction(Action.PAIZURI_SLOW);
                if (this.isControlledByLocalPlayer() && !this.as) {
                   this.as = true;
                   this.positionPlayerRelative(-0.7, -0.6, -0.2, 60.0F, -3.0F);

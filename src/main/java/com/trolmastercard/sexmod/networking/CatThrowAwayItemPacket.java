@@ -2,7 +2,7 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.LunaEntity;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 

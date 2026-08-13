@@ -1,12 +1,12 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.Main;
-import com.trolmastercard.sexmod.api.by;
+import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.entity.ai.NearestAttackableGirlGoal;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendBlocksPacket;
 
@@ -65,7 +65,7 @@ public class KoboldManager {
    };
    static HashMap<KoboldEntity, BlockPos[]> a = new HashMap<>();
 
-   public static void a_clash69() {
+   public static void clearAll() {
       c.clear();
       a.clear();
    }
@@ -105,7 +105,7 @@ public class KoboldManager {
    public static void a(UUID var0, UUID var1) {
       KoboldManager.a var2 = c.get(var0);
       if (var2 != null) {
-         var2.a_clash871(var1);
+         var2.setMasterPlayerUUID(var1);
       }
    }
 
@@ -118,7 +118,7 @@ public class KoboldManager {
       }
    }
 
-   public static boolean a_clash71(BlockPos var0) {
+   public static boolean isBedAssigned(BlockPos var0) {
       for (Entry var2 : a.entrySet()) {
          BlockPos[] var3 = (BlockPos[])var2.getValue();
          if (var3[0].equals(var0)) {
@@ -133,7 +133,7 @@ public class KoboldManager {
       return false;
    }
 
-   public static BlockPos[] a_clash72(KoboldEntity var0) {
+   public static BlockPos[] getBedForKobold(KoboldEntity var0) {
       return a.get(var0);
    }
 
@@ -181,7 +181,7 @@ public class KoboldManager {
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
-         var2.a_clash882(var1);
+         var2.addMember(var1);
          c.replace(var0, var2);
          var1.getDataManager().set(KoboldEntity.aL, Optional.of(var0));
          if (!var1.aA) {
@@ -337,7 +337,7 @@ public class KoboldManager {
       }
    }
 
-   public static HashSet<BlockPos> a_clash78(UUID var0, KoboldTask var1) {
+   public static HashSet<BlockPos> removeTaskAndGetBlocks(UUID var0, KoboldTask var1) {
       KoboldManager.a var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -366,7 +366,7 @@ public class KoboldManager {
          }
       }
 
-      return a_clash78(var0, var3);
+      return removeTaskAndGetBlocks(var0, var3);
    }
 
    public static void b(UUID var0, KoboldTask var1) {
@@ -374,7 +374,7 @@ public class KoboldManager {
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
-         var2.a_clash880(var1);
+         var2.addTask(var1);
       }
    }
 
@@ -410,17 +410,17 @@ public class KoboldManager {
       }
    }
 
-   public static fm i_clash80(UUID var0) {
+   public static TribeState i_clash80(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
-         return fm.REST;
+         return TribeState.REST;
       } else {
          return var1.e_clash881();
       }
    }
 
-   public static void a(UUID var0, fm var1) {
+   public static void a(UUID var0, TribeState var1) {
       KoboldManager.a var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -454,7 +454,7 @@ public class KoboldManager {
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
-         var2.a_clash879(var1);
+         var2.setTribeHome(var1);
       }
    }
 
@@ -465,7 +465,7 @@ public class KoboldManager {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return null;
       } else {
-         return var1.g_clash878();
+         return var1.getTribeHome();
       }
    }
 
@@ -475,7 +475,7 @@ public class KoboldManager {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return new HashSet<>();
       } else {
-         return var1.c_clash876();
+         return var1.getCombatants();
       }
    }
 
@@ -484,7 +484,7 @@ public class KoboldManager {
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
-         var2.a_clash875(var1);
+         var2.addCombatant(var1);
       }
    }
 
@@ -523,7 +523,7 @@ public class KoboldManager {
       }
    }
 
-   public static void a_clash87(UUID var0, boolean var1) {
+   public static void setTribeFollowMode(UUID var0, boolean var1) {
       KoboldManager.a var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -540,7 +540,7 @@ public class KoboldManager {
 
       for (Entry var2 : c.entrySet()) {
          KoboldManager.a var3 = (KoboldManager.a)var2.getValue();
-         if ((var3.d_clash873().size() != 0 || var3.f_clash877() != 0) && var0.equals(((KoboldManager.a)var2.getValue()).a_clash872())) {
+         if ((var3.d_clash873().size() != 0 || var3.f_clash877() != 0) && var0.equals(((KoboldManager.a)var2.getValue()).getMasterPlayerUUID())) {
             return (UUID)var2.getKey();
          }
       }
@@ -587,7 +587,7 @@ public class KoboldManager {
       return var2;
    }
 
-   public static HashMap<UUID, BlockPos> a_clash91(UUID var0, World var1) {
+   public static HashMap<UUID, BlockPos> getTribeSavedPositions(UUID var0, World var1) {
       KoboldManager.a var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -638,7 +638,7 @@ public class KoboldManager {
       KoboldEntity g;
       List<KoboldEntity> a;
       EyeAndKoboldColor h;
-      fm d = fm.REST;
+      TribeState d = TribeState.REST;
       BlockPos l = null;
       Collection<KoboldTask> f = new ArrayList<>();
       HashSet<EntityLivingBase> j = new HashSet<>();
@@ -660,18 +660,18 @@ public class KoboldManager {
          this.a = new ArrayList<>();
       }
 
-      public void a_clash871(UUID var1) {
+      public void setMasterPlayerUUID(UUID var1) {
          this.e = var1;
       }
 
-      public UUID a_clash872() {
+      public UUID getMasterPlayerUUID() {
          return this.e;
       }
 
       public void b(KoboldTask var1) {
          if (this.f.contains(var1)) {
             for (KoboldEntity var3 : var1.f) {
-               var3.setCurrentAction(fp.NULL);
+               var3.setCurrentAction(Action.NULL);
                var3.setNoGravity(false);
                var3.noClip = false;
                var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
@@ -703,11 +703,11 @@ public class KoboldManager {
          this.j.remove(var1);
       }
 
-      public void a_clash875(EntityLivingBase var1) {
+      public void addCombatant(EntityLivingBase var1) {
          this.j.add(var1);
       }
 
-      public HashSet<EntityLivingBase> c_clash876() {
+      public HashSet<EntityLivingBase> getCombatants() {
          return this.j;
       }
 
@@ -725,27 +725,27 @@ public class KoboldManager {
          return var1.size();
       }
 
-      public BlockPos g_clash878() {
+      public BlockPos getTribeHome() {
          return this.l;
       }
 
-      public void a_clash879(BlockPos var1) {
+      public void setTribeHome(BlockPos var1) {
          this.l = var1;
       }
 
-      public void a_clash880(KoboldTask var1) {
+      public void addTask(KoboldTask var1) {
          this.f.add(var1);
       }
 
-      public fm e_clash881() {
+      public TribeState e_clash881() {
          return this.d;
       }
 
-      public void a(fm var1) {
+      public void a(TribeState var1) {
          this.d = var1;
       }
 
-      public void a_clash882(KoboldEntity var1) {
+      public void addMember(KoboldEntity var1) {
          if (!this.a.contains(var1)) {
             UUID var2 = var1.getGirlId();
             ArrayList var3 = new ArrayList();
@@ -811,7 +811,7 @@ public class KoboldManager {
 
       @SubscribeEvent
       public void a(PlayerSleepInBedEvent var1) {
-         if (KoboldManager.a_clash71(var1.getPos())) {
+         if (KoboldManager.isBedAssigned(var1.getPos())) {
             var1.setResult(SleepResult.OTHER_PROBLEM);
          }
       }
@@ -910,7 +910,7 @@ public class KoboldManager {
                for (Entry var14 : KoboldManager.c.entrySet()) {
                   KoboldManager.a var15 = (KoboldManager.a)var14.getValue();
                   if (var15.b.contains(var2)) {
-                     BlockPos var16 = cj.a(var2, var4);
+                     BlockPos var16 = WorldUtils.a(var2, var4);
                      var15.b.remove(var2);
                      var15.b.remove(var16);
                      UUID var17 = KoboldManager.b_clash89((UUID)var14.getKey());
@@ -1041,7 +1041,7 @@ public class KoboldManager {
          for (Entry var4 : KoboldManager.c.entrySet()) {
             KoboldManager.a var5 = (KoboldManager.a)var4.getValue();
             UUID var6 = (UUID)var4.getKey();
-            UUID var7 = var5.a_clash872();
+            UUID var7 = var5.getMasterPlayerUUID();
             var1.setString("tribeId" + var2, var6.toString());
             var1.setString("tribeColor" + var2, var5.h.toString());
             if (var7 != null) {

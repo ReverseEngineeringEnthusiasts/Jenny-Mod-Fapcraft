@@ -2,7 +2,7 @@ package com.trolmastercard.sexmod.client.gui;
 
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.bl;
+import com.trolmastercard.sexmod.util.Rectangle;
 
 
 
@@ -25,10 +25,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GalathFlightHud extends Gui {
    static final ResourceLocation j = new ResourceLocation("sexmod", "textures/gui/galath_flight_ui.png");
-   static final bl i = new bl(0, 77, 128, 41);
-   static final bl w = new bl(0, 0, 23, 36);
-   static final bl k = new bl(0, 36, 23, 36);
-   static final bl p = new bl(23, 2, 20, 31);
+   static final Rectangle i = new Rectangle(0, 77, 128, 41);
+   static final Rectangle w = new Rectangle(0, 0, 23, 36);
+   static final Rectangle k = new Rectangle(0, 36, 23, 36);
+   static final Rectangle p = new Rectangle(23, 2, 20, 31);
    static final long l = 500L;
    static final float d = 150.0F;
    static final float m = 0.075F;
@@ -155,7 +155,7 @@ public class GalathFlightHud extends Gui {
       u = 0L;
    }
 
-   void a(bl var1, int var2, int var3) {
+   void a(Rectangle var1, int var2, int var3) {
       this.drawTexturedModalRect(var2, var3, var1.a, var1.d, var1.c, var1.b);
    }
 

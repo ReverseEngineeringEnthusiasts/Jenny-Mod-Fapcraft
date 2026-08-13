@@ -3,7 +3,7 @@ package com.trolmastercard.sexmod.client;
 import com.trolmastercard.sexmod.client.renderer.GirlPlayerRenderer;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.RotationHelper;
 
 
@@ -90,14 +90,14 @@ public class GirlCameraHelper {
       }
 
       if ((var1.getHeldItemMainhand().getItem() instanceof ItemBow || var1.getHeldItemOffhand().getItem() instanceof ItemBow) && var0.ah) {
-         var0.setCurrentAction(fp.BOW);
+         var0.setCurrentAction(Action.BOW);
       }
 
-      if (var0.getCurrentAction() == fp.BOW && !var0.ah) {
-         var0.setCurrentAction(fp.NULL);
+      if (var0.getCurrentAction() == Action.BOW && !var0.ah) {
+         var0.setCurrentAction(Action.NULL);
       }
 
-      if (var0.getCurrentAction() == fp.BOW) {
+      if (var0.getCurrentAction() == Action.BOW) {
          var0.rotationYaw = var0.rotationYawHead;
          var0.renderYawOffset = var0.rotationYawHead;
          var0.prevRenderYawOffset = var0.prevRotationYawHead;
@@ -139,7 +139,7 @@ public class GirlCameraHelper {
                   var2.player.lastTickPosX = var4.x;
                   var2.player.lastTickPosY = var4.y - var2.player.getEyeHeight();
                   var2.player.lastTickPosZ = var4.z;
-                  fp var5 = var3.getCurrentAction();
+                  Action var5 = var3.getCurrentAction();
                   float var6 = var3.getYawRotation();
                   if (!var3.a(var5, var2.player)) {
                      if (var5.flipGirlYaw) {

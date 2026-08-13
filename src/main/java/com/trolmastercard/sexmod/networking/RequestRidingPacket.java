@@ -1,9 +1,9 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.fp;
+import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.GirlSavedData;
-import com.trolmastercard.sexmod.util.an;
+import com.trolmastercard.sexmod.util.TrailSegment;
 
 
 
@@ -40,7 +40,7 @@ public class RequestRidingPacket implements IMessage {
             }
 
             var3.startRiding(var5, true);
-            var5.setCurrentAction(fp.CONTROLLED_FLIGHT);
+            var5.setCurrentAction(Action.CONTROLLED_FLIGHT);
             var5.setInteractionPlayer(var3);
             var5.motionY = 0.25;
             var3.world.getChunk(var5.getPosition()).removeEntity(var5);

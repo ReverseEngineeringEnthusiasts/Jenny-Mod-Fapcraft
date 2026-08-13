@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import com.trolmastercard.sexmod.Main;
 
 public class SexModEntities {
-   public static void a_clash150() {
+   public static void registerEntities() {
       a("jenny", JennyEntity.class, NpcType.JENNY.npcID, 3286592, 12655237);
       a("ellie", EllieEntity.class, NpcType.ELLIE.npcID, 1447446, 9961472);
       a("slime", SlimeEntity.class, NpcType.SLIME.npcID, 13167780, 8244330);

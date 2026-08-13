@@ -130,7 +130,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    }
 
    @Override
-   protected ItemStack a_clash341(@Nullable ItemStack var1) {
+   protected ItemStack resolveHeldItemStack(@Nullable ItemStack var1) {
       switch (this.j.getCurrentAction()) {
          case MINE:
             if ((Boolean)this.j.getDataManager().get(KoboldEntity.at)) {
@@ -150,7 +150,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    }
 
    @Override
-   public void a(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
+   public void renderCustomBones(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
       if (!(this.j.world instanceof SexWorldClient)) {
          String var9 = var2.getName();
          if ("blowOpening".equals(var9)) {
@@ -165,7 +165,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
             }
          }
 
-         super.a(var1, var2, var3, var4, var5, var6, var7);
+         super.renderCustomBones(var1, var2, var3, var4, var5, var6, var7);
       }
    }
 
@@ -183,7 +183,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    }
 
    @Override
-   protected ItemStack a_clash340() {
+   protected ItemStack getPaymentItemStack() {
       String var1 = (String)this.j.getDataManager().get(BaseGirlEntity.GIRL_HAND_STATES);
       if ("STARTBLOWJOB".equals(var1)) {
          return new ItemStack(Items.IRON_PICKAXE);
@@ -208,11 +208,11 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    }
 
    @Override
-   protected void a_clash199(double var1, double var3, double var5) {
+   protected void renderNameTag(double var1, double var3, double var5) {
       EntityDataManager var7 = this.j.getDataManager();
       String var8 = (String)var7.get(KoboldEntity.aU);
       if ("null".equals(var8)) {
-         super.a_clash199(var1, var3, var5);
+         super.renderNameTag(var1, var3, var5);
       } else {
          EyeAndKoboldColor var9 = EyeAndKoboldColor.valueOf((String)var7.get(KoboldEntity.N));
          var8 = var9.getTextColor() + " -" + var8 + "-";
