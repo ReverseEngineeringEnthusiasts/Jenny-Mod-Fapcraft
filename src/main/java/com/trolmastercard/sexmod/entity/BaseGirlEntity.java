@@ -564,14 +564,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    protected void l_clash514() {
       fp var1 = this.y_clash492();
       if (++var1.ticksPlaying[this.field_70170_p.field_72995_K ? 1 : 0] >= var1.length) {
-         if (var1.followUp != null) {
-            if (!this.field_70170_p.field_72995_K) {
-               this.b(var1.followUp);
-            }
-         } else if (var1.hasPlayer && !this.field_70170_p.field_72995_K) {
-            if (var1.length <= 0 || this.ae_clash498() == null || this.field_70170_p.func_152378_a(this.ae_clash498()) == null) {
-               this.b(fp.NULL);
-            }
+         if (var1.followUp != null && !this.field_70170_p.field_72995_K) {
+            this.b(var1.followUp);
          }
       }
    }
