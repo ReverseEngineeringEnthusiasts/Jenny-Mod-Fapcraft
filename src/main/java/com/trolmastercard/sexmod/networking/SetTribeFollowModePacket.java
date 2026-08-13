@@ -1,0 +1,59 @@
+package com.trolmastercard.sexmod.networking;
+
+import com.trolmastercard.sexmod.util.KoboldManager;
+import com.trolmastercard.sexmod.util.an;
+
+
+
+
+
+
+
+import io.netty.buffer.ByteBuf;
+import java.util.UUID;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+public class SetTribeFollowModePacket implements IMessage {
+   boolean a = false;
+   boolean b;
+
+   public SetTribeFollowModePacket() {
+   }
+
+   public SetTribeFollowModePacket(boolean var1) {
+      this.b = var1;
+   }
+
+   public void fromBytes(ByteBuf var1) {
+      this.b = var1.readBoolean();
+      this.a = true;
+   }
+
+   public void toBytes(ByteBuf var1) {
+      var1.writeBoolean(this.b);
+   }
+
+   public static class Handler implements IMessageHandler<SetTribeFollowModePacket, IMessage> {
+      public IMessage onMessage(SetTribeFollowModePacket var1, MessageContext var2) {
+         if (var1.a && !var2.side.isClient()) {
+            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+               UUID var2x = KoboldManager.a_clash88(var2.getServerHandler().field_147369_b.getPersistentID());
+               if (var2x != null) {
+                  KoboldManager.a_clash87(var2x, var1.b);
+               }
+            });
+            return null;
+         } else {
+            System.out.println("received an invalid message @SetTribeFollowMode :(");
+            return null;
+         }
+      }
+
+      private static RuntimeException a(RuntimeException var0) {
+         return var0;
+      }
+   }
+}

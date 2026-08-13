@@ -1,0 +1,20 @@
+[
+  {
+    "modid": "sexmod",
+    "name": "Fapcraft",
+    "description": "you... probably already know what this mod does",
+    "version": "1.1.0",
+    "mcversion": "${mcversion}",
+    "url": "https://twitter.com/trolmastercard",
+    "updateUrl": "",
+    "authorList": [
+      "Trolmastercard",
+      "Anonymous dev team"
+    ],
+    "credits": "\n\n @Lizzywaffler for being Jennys Voice Actress \n\n @EndymionVA for being Ellie's voice actress \n\n @MissMoonified for being Bias voice actress \n\n @MacStarVA for being Lunas voice actress and being super cute and awesome :)) \n\n @FlirtyFawn696 for being the kobolds voice actress \n\n @OdysseyEllie for building the characters' homes \n\n KellyLoveyness from DarkPleasures for fixing lag \n\n u/Shurifera for those pixel art characters \n\n @MoriRoseMC for teaching me a thing or two in animation :) \n\n @Wiktor82178716 for the Polish translation \n\n @MasterAdam1234 for the Turkish translation \n\n @yimamiantang for the Chinese translation \n\n @PeiMochy for the Russian translation \n\n @eddyslejandro for the Spanish translation \n\n Lobasz for the Hungarian translation \n\n @AsiangalM for the Indonesian translation \n\n @fursainty for the Bulgarian translation \n\n @Bongos25270749 for the Dutch translation \n\n @ImLegitment for the Finnish translation \n\n @Atlantic281 for the Hebrew translation \n\n @RkTzXq1 for the Italian translation \n\n @MarcLewisNSFW for the French translation \n\n JalynCatbtg on Freesound.org for 'Magical Whoosh.m4a'\nhttps://freesound.org/people/JalynCatbtg/sounds/632200/\nAttribution 4.0 International (CC BY 4.0)\nhttps://creativecommons.org/licenses/by/4.0/\nThe sound is edited for use in the mod\n\n Anime Blush PNG from pngall.com\nhttps://www.pngall.com/anime-blush-png/download/122474\nCreative Commons 4.0 BY-NC\nhttps://creativecommons.org/licenses/by-nc/4.0/\nChanges were made on the image to properly make it usable in the mod\n\n\n\n\n",
+
+    "logoFile": "logo.png",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

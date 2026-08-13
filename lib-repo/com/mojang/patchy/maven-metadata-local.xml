@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.mojang</groupId>
+  <artifactId>patchy</artifactId>
+  <versioning>
+    <release>1.3.9</release>
+    <versions>
+      <version>1.3.9</version>
+    </versions>
+    <lastUpdated>20260812185805</lastUpdated>
+  </versioning>
+</metadata>

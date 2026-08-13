@@ -1,0 +1,535 @@
+package com.trolmastercard.sexmod.entity;
+
+import com.trolmastercard.sexmod.api.ar;
+import com.trolmastercard.sexmod.client.gui.BeeScreen;
+import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
+import com.trolmastercard.sexmod.client.model.LunaModel;
+import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
+import com.trolmastercard.sexmod.networking.PacketHandler;
+import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
+import com.trolmastercard.sexmod.util.SoundHandler;
+import com.trolmastercard.sexmod.util.ck;
+import com.trolmastercard.sexmod.util.d3;
+
+
+
+
+
+
+
+import java.util.UUID;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.manager.AnimationData;
+
+public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
+   int ar = 0;
+   boolean aq = false;
+   boolean ap = false;
+   boolean as = false;
+
+   protected LunaPlayerEntity(World var1) {
+      super(var1);
+   }
+
+   public LunaPlayerEntity(World var1, UUID var2) {
+      super(var1, var2);
+   }
+
+   @Override
+   public float i_clash226() {
+      return 1.6F;
+   }
+
+   public float func_70047_e() {
+      return 1.34F;
+   }
+
+   @Override
+   public IVanillaModel a_clash228(int var1) {
+      return new LunaModel();
+   }
+
+   @Override
+   public String c_clash229(int var1) {
+      return "textures/entity/cat/hand.png";
+   }
+
+   @Override
+   public void b(String var1, UUID var2) {
+      if ("action.names.touchboobs".equals(var1)) {
+         this.a(0, fp.TOUCH_BOOBS_INTRO);
+         this.b(fp.TOUCH_BOOBS_INTRO);
+         this.m.func_187227_b(D, 0);
+         this.b_clash577(var2);
+      }
+
+      if ("action.names.headpat".equals(var1)) {
+         this.b(fp.HEAD_PAT);
+         this.b_clash577(var2);
+      }
+   }
+
+   @Override
+   public void u_clash377() {
+      this.b(fp.WAIT_CAT);
+   }
+
+   @Override
+   public boolean v_clash227() {
+      return true;
+   }
+
+   @Override
+   public boolean b_clash230(EntityPlayer var1) {
+      a(var1, this, new String[]{"action.names.touchboobs", "action.names.headpat"}, false);
+      return true;
+   }
+
+   @Override
+   public void b(fp var1) {
+      if (this.y_clash492() != fp.COWGIRL_SITTING_CUM || var1 != fp.COWGIRL_SITTING_SLOW && var1 != fp.COWGIRL_SITTING_FAST) {
+         if (this.y_clash492() != fp.TOUCH_BOOBS_CUM || var1 != fp.TOUCH_BOOBS_FAST && var1 != fp.TOUCH_BOOBS_SLOW) {
+            super.b(var1);
+         }
+      }
+   }
+
+   @Override
+   public void func_70071_h_() {
+      super.func_70071_h_();
+      if (fp.WAIT_CAT.equals(this.y_clash492())) {
+         this.a_clash378();
+      } else {
+         this.ar = 0;
+      }
+   }
+
+   void a_clash378() {
+      EntityPlayer var1 = this.j_clash575();
+      if (var1 != null) {
+         if (!(var1.func_70011_f(this.field_70165_t, this.w_clash576().field_72448_b, this.field_70161_v) > 1.25)) {
+            if (this.field_70170_p.field_72995_K) {
+               this.a(var1, this.ar);
+            } else if (this.ar == 25) {
+               this.e_clash499(var1.getPersistentID());
+               var1.func_191958_b(0.0F, 0.0F, 0.0F, 0.0F);
+               var1.func_70634_a(this.func_174791_d().field_72450_a, this.w_clash576().field_72448_b, this.func_174791_d().field_72449_c);
+               this.b(fp.COWGIRL_SITTING_INTRO);
+               var1.func_70034_d(this.I_clash415() + 180.0F);
+               var1.field_70177_z = this.I_clash415() + 180.0F;
+               var1.field_70126_B = this.I_clash415() + 180.0F;
+               this.r = this.I_clash415() + 180.0F;
+               this.a_clash536(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
+               this.m.func_187227_b(D, 0);
+            }
+
+            this.ar++;
+         }
+      }
+   }
+
+   @SideOnly(Side.CLIENT)
+   void a(EntityPlayer var1, int var2) {
+      if (var2 == 0) {
+         EntityPlayerSP var3 = Minecraft.func_71410_x().field_71439_g;
+         if (var3.getPersistentID().equals(var1.getPersistentID())) {
+            BeeScreen.b_clash732();
+            var3.func_70016_h(0.0, 0.0, 0.0);
+            d3.a_clash122(false);
+         }
+      }
+
+      if (var2 == 25) {
+         EntityPlayerSP var4 = Minecraft.func_71410_x().field_71439_g;
+         if (var4.getPersistentID().equals(var1.getPersistentID())) {
+            Minecraft.func_71410_x().field_71474_y.field_74320_O = 2;
+         }
+      }
+   }
+
+   @Override
+   protected fp c_clash235(fp var1) {
+      if (var1 == fp.TOUCH_BOOBS_SLOW) {
+         return fp.TOUCH_BOOBS_FAST;
+      } else {
+         return var1 == fp.COWGIRL_SITTING_SLOW ? fp.COWGIRL_SITTING_FAST : null;
+      }
+   }
+
+   @Override
+   protected fp a_clash236(fp var1) {
+      if (var1 == fp.TOUCH_BOOBS_SLOW || var1 == fp.TOUCH_BOOBS_FAST) {
+         return fp.TOUCH_BOOBS_CUM;
+      } else {
+         return var1 != fp.COWGIRL_SITTING_FAST && var1 != fp.COWGIRL_SITTING_SLOW ? null : fp.COWGIRL_SITTING_CUM;
+      }
+   }
+
+   @Override
+   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+      switch (var1.getController().getName()) {
+         case "eyes":
+            if (this.y_clash492() == fp.NULL && this.y_clash492().autoBlink) {
+               this.a("animation.cat.blink", true, var1);
+            } else {
+               this.a("animation.cat.null", true, var1);
+            }
+            break;
+         case "movement":
+            if (this.y_clash492() != fp.NULL) {
+               this.a("animation.cat.null", true, var1);
+            } else if (this.ak) {
+               this.a("animation.cat.sit", true, var1);
+            } else {
+               if (this.E.getCurrentAnimation() != null && this.E.getCurrentAnimation().animationName.contains("fly") && this.af) {
+                  this.aq = !this.aq;
+               }
+
+               if (!this.af) {
+                  this.a("animation.cat.fly" + (this.aq ? "2" : ""), true, var1);
+               } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
+                  if (this.aj) {
+                     this.E.setAnimationSpeed(1.5);
+                     this.a("animation.cat.run", true, var1);
+                  } else if (this.ao.y >= -0.1F) {
+                     this.E.setAnimationSpeed(2.0);
+                     this.a("animation.cat.fastwalk", true, var1);
+                  } else {
+                     this.E.setAnimationSpeed(2.0);
+                     this.a("animation.cat.backwards_walk", true, var1);
+                  }
+               } else {
+                  this.a("animation.cat.idle", true, var1);
+               }
+            }
+            break;
+         case "action":
+            switch (this.y_clash492()) {
+               case NULL:
+                  this.a("animation.cat.null", true, var1);
+                  break;
+               case ATTACK:
+                  this.a("animation.cat.attack" + this.S, false, var1);
+                  break;
+               case RIDE:
+               case SIT:
+                  this.a("animation.cat.sit", true, var1);
+                  break;
+               case BOW:
+                  this.a("animation.cat.bowcharge", false, var1);
+                  break;
+               case THROW_PEARL:
+                  this.a("animation.cat.throwpearl", true, var1);
+                  break;
+               case DOWNED:
+                  this.a("animation.cat.downed", true, var1);
+                  break;
+               case FISHING_START:
+                  this.a("animation.cat.start_fishing", false, var1);
+                  break;
+               case FISHING_IDLE:
+                  this.a("animation.cat.idle_fishing", true, var1);
+                  break;
+               case FISHING_EAT:
+                  this.a("animation.cat.eat_fishing", false, var1);
+                  break;
+               case FISHING_THROW_AWAY:
+                  this.a("animation.cat.throw_away", false, var1);
+                  break;
+               case PAYMENT:
+                  this.a("animation.cat.payment", false, var1);
+                  break;
+               case TOUCH_BOOBS_INTRO:
+                  this.a("animation.cat.touch_boobs_intro", false, var1);
+                  break;
+               case TOUCH_BOOBS_SLOW:
+                  this.a("animation.cat.touch_boobs_slow" + (this.ap ? "1" : ""), true, var1);
+                  break;
+               case TOUCH_BOOBS_FAST:
+                  this.a("animation.cat.touch_boobs_fast", true, var1);
+                  break;
+               case TOUCH_BOOBS_CUM:
+                  this.a("animation.cat.touch_boobs_cum", false, var1);
+                  break;
+               case WAIT_CAT:
+                  this.a("animation.cat.wait", false, var1);
+                  break;
+               case COWGIRL_SITTING_INTRO:
+                  this.a("animation.cat.sitting_intro", false, var1);
+                  break;
+               case COWGIRL_SITTING_SLOW:
+                  this.a("animation.cat.sitting_slow", true, var1);
+                  break;
+               case COWGIRL_SITTING_FAST:
+                  this.a("animation.cat.sitting_fast", true, var1);
+                  break;
+               case COWGIRL_SITTING_CUM:
+                  this.a("animation.cat.sitting_cum", true, var1);
+                  break;
+               case HEAD_PAT:
+                  this.a("animation.cat.head_pat", true, var1);
+            }
+      }
+
+      return PlayState.CONTINUE;
+   }
+
+   @Override
+   public void registerControllers(AnimationData var1) {
+      if (this.C == null) {
+         this.p_clash506();
+      }
+
+      AnimationController.ISoundListener var2 = var1x -> {
+         switch (var1x.sound) {
+            case "attackDone":
+               if (++this.S == 3) {
+                  this.S = 0;
+               }
+               break;
+            case "idleDone":
+               this.as = this.func_70681_au().nextInt(10) == 0;
+               break;
+            case "idle2Done":
+               this.as = false;
+               break;
+            case "pearl":
+               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.f_clash491()));
+               break;
+            case "paymentMSG1":
+               this.a(this.ae_clash498(), "Here, I know u like fish and yea.. these are for you");
+               this.a(SoundHandler.MISC_PLOB[0]);
+               break;
+            case "paymentMSG2":
+               this.a_clash541("huh~?");
+               this.a_clash588(SoundHandler.GIRLS_LUNA_HUH);
+               break;
+            case "paymentMSG3":
+               this.a_clash541("nyyyaaaa~ :D");
+               int[] var4 = new int[]{1, 7, 10, 11};
+               int var5 = var4[this.func_70681_au().nextInt(var4.length)];
+               this.a(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
+               break;
+            case "paymentMSG4":
+               this.a_clash541("tankuuuu owowowo");
+               this.a_clash588(SoundHandler.GIRLS_LUNA_OWO);
+               break;
+            case "paymentDone":
+               if (this.e_clash544()) {
+                  this.U();
+               }
+
+               this.n = 1.0F;
+               break;
+            case "breath":
+            case "rod_breath":
+               this.a_clash588(SoundHandler.GIRLS_LUNA_LIGHTBREATHING);
+               break;
+            case "happyOh":
+               this.a_clash588(SoundHandler.GIRLS_LUNA_HAPPYOH);
+               break;
+            case "cutenya3":
+               this.a(SoundHandler.GIRLS_LUNA_CUTENYA[3]);
+               break;
+            case "cutenya2":
+               this.a(SoundHandler.GIRLS_LUNA_CUTENYA[2]);
+               break;
+            case "huh":
+               this.a_clash588(SoundHandler.GIRLS_LUNA_HUH);
+               break;
+            case "hmph":
+               this.a_clash588(SoundHandler.GIRLS_LUNA_HMPH);
+               break;
+            case "hehe":
+            case "giggle":
+               this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
+               break;
+            case "singing":
+               this.a_clash588(SoundHandler.GIRLS_LUNA_SINGING);
+               break;
+            case "touch_boobsMSG1":
+               this.a_clash541("comon~ touch me hihi~");
+               this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
+               break;
+            case "touch":
+               this.a_clash588(SoundHandler.MISC_TOUCH);
+               break;
+            case "jump":
+               this.a(SoundHandler.MISC_JUMP[0], 0.2F);
+               break;
+            case "horninya":
+               this.a_clash588(SoundHandler.GIRLS_LUNA_HORNINYA);
+               break;
+            case "horninya2":
+            case "touch_boobs_cumMSG3":
+            case "sitting_cumMSG1":
+               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[1]);
+               this.a(SoundHandler.MISC_CUMINFLATION[0], 5.0F);
+               break;
+            case "moan":
+               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+               break;
+            case "touch_boobs_introDone":
+               this.b(fp.TOUCH_BOOBS_SLOW);
+               if (this.n_clash537()) {
+                  HornyMeterHud.b_clash363();
+                  HornyMeterHud.d_clash358();
+                  d3.a_clash122(false);
+               }
+               break;
+            case "touch_boobs_slowDone":
+               if (this.ap) {
+                  this.ap = false;
+               } else {
+                  this.ap = Math.random() < 0.5;
+               }
+               break;
+            case "addCumSlow":
+               if (this.n_clash537()) {
+                  HornyMeterHud.a_clash362(0.02F);
+               }
+               break;
+            case "addCumFast":
+               if (this.n_clash537()) {
+                  HornyMeterHud.a_clash362(0.04F);
+               }
+               break;
+            case "fastDone":
+               if (this.n_clash537() && !d3.d) {
+                  this.b(fp.TOUCH_BOOBS_SLOW);
+               }
+               break;
+            case "moanOrNya":
+               if (Math.random() > 0.5) {
+                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+               } else {
+                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_HORNINYA));
+               }
+               break;
+            case "blackScreen":
+               if (this.n_clash537()) {
+                  BeeScreen.b_clash732();
+               }
+               break;
+            case "touch_boobs_cumDone":
+               if (this.n_clash537()) {
+                  HornyMeterHud.b_clash363();
+                  this.r_clash533();
+               }
+               break;
+            case "resetGirl":
+               if (this.n_clash537()) {
+                  this.r_clash533();
+               }
+               break;
+            case "touch_boobs_cumMSG1":
+               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[3]);
+               break;
+            case "touch_boobs_cumMSG2":
+               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[9]);
+               break;
+            case "call_playerMSG1":
+               this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
+               this.a_clash541("come here - big guy hehe~");
+               break;
+            case "pounding":
+               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
+               break;
+            case "sitting_introMSG1":
+               this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
+               this.a_clash541("hehe~");
+               break;
+            case "sitting_introDone":
+               if (this.n_clash537()) {
+                  this.b(fp.COWGIRL_SITTING_SLOW);
+                  HornyMeterHud.b_clash363();
+                  HornyMeterHud.d_clash358();
+               }
+               break;
+            case "sitting_slowMSG1":
+               if (this.func_70681_au().nextBoolean()) {
+                  if (this.func_70681_au().nextBoolean()) {
+                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_HORNINYA));
+                     break;
+                  }
+
+                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+               } else {
+                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_LIGHTBREATHING));
+               }
+
+               if (this.n_clash537()) {
+                  HornyMeterHud.a_clash362(0.02);
+               }
+               break;
+            case "sitting_fastMSG1":
+               if (this.func_70681_au().nextBoolean()) {
+                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_HORNINYA));
+               } else {
+                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+               }
+
+               if (this.n_clash537()) {
+                  HornyMeterHud.a_clash362(0.04);
+               }
+               break;
+            case "sitting_fastDone":
+               if (this.n_clash537() && !d3.d) {
+                  this.b(fp.COWGIRL_SITTING_SLOW);
+                  Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
+                  Vec3d var9 = ck.a_clash306(var8, this.I_clash415() + 180.0F);
+                  Minecraft.func_71410_x()
+                     .field_71439_g
+                     .func_70107_b(
+                        this.o_clash501().field_72450_a + var9.field_72450_a,
+                        this.o_clash501().field_72448_b - 0.0 + var9.field_72448_b,
+                        this.o_clash501().field_72449_c + var9.field_72449_c
+                     );
+               }
+               break;
+            case "sitting_fastTp":
+               if (this.n_clash537()) {
+                  Vec3d var6 = new Vec3d(0.0, -0.160625, -0.9925);
+                  Vec3d var7 = ck.a_clash306(var6, this.I_clash415() + 180.0F);
+                  Minecraft.func_71410_x()
+                     .field_71439_g
+                     .func_70107_b(
+                        this.o_clash501().field_72450_a + var7.field_72450_a,
+                        this.o_clash501().field_72448_b - 0.0 + var7.field_72448_b,
+                        this.o_clash501().field_72449_c + var7.field_72449_c
+                     );
+               }
+               break;
+            case "headpatMSG1":
+               this.a_clash541("huh?~");
+               this.a_clash588(SoundHandler.GIRLS_LUNA_HUH);
+               break;
+            case "headpatMSG2":
+               this.a_clash588(SoundHandler.GIRLS_LUNA_MMM);
+               break;
+            case "headpatMSG3":
+               this.a_clash541("nya~");
+               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[0]);
+         }
+      };
+      this.E.transitionLengthTicks = 10.0;
+      this.C.registerSoundListener(var2);
+      var1.addAnimationController(this.C);
+      var1.addAnimationController(this.E);
+      var1.addAnimationController(this.s);
+   }
+
+   private static RuntimeException a(RuntimeException var0) {
+      return var0;
+   }
+}
