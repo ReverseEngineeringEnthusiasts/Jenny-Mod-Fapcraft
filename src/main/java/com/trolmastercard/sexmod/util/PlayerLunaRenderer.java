@@ -45,7 +45,7 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
       }
    }
 
-   boolean b_clash370() {
+   boolean isLunaAnchored() {
       return (Boolean)this.renderEntity.getDataManager().get(BaseGirlEntity.IS_ANCHORED);
    }
 
@@ -57,7 +57,7 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
                this.rotationZ = var2.getRotationX();
                break;
             case "backHair":
-               if (!this.b_clash370() && this.rotationZ > 0.0F) {
+               if (!this.isLunaAnchored() && this.rotationZ > 0.0F) {
                   double var5 = this.rotationZ / TrigMath.wrapDegrees(45.0F);
                   float var7 = (float)RotationHelper.b(0.0, 0.75, var5);
                   var2.setPositionZ(var7);
@@ -67,7 +67,7 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
                break;
             case "frontHairL":
             case "frontHairR":
-               if (!this.b_clash370()) {
+               if (!this.isLunaAnchored()) {
                   var2.setRotationX(-this.rotationZ);
                }
          }

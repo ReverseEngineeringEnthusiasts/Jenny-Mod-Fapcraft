@@ -54,23 +54,23 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 2.05F;
    }
 
    public float getEyeHeight() {
-      return this.a_clash382() ? 1.53F : 1.9F;
+      return this.hasNoOwner() ? 1.53F : 1.9F;
    }
 
    @Override
-   public void u_clash377() {
+   public void handleInteraction() {
       this.setCurrentAction(Action.SITDOWN);
    }
 
    @Override
    public void b(String var1, UUID var2) {
       if ("Face fuck".equals(var1)) {
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.CARRY_INTRO);
          this.a(this.getOutfitIndex(), Action.CARRY_INTRO);
       }
@@ -87,7 +87,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean p_clash379() {
+   public boolean canOpenInteractionMenu() {
       return true;
    }
 
@@ -109,7 +109,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       return true;
    }
 
-   void c_clash380(EntityPlayer var1) {
+   void openEllieInventory(EntityPlayer var1) {
       openInventoryGui(var1, this, new String[]{"action.names.cowgirl", "action.names.missionary"}, false);
    }
 
@@ -159,8 +159,8 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
             return;
          }
 
-         EntityPlayer var2 = this.j_clash575();
-         if (var2 == null || var2.getDistance(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z) > 1.0) {
+         EntityPlayer var2 = this.getNearestPlayer();
+         if (var2 == null || var2.getDistance(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z) > 1.0) {
             return;
          }
 
@@ -179,12 +179,12 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
          var2.setNoGravity(true);
          if ("Missionary".equals(var1)) {
             this.setCurrentAction(Action.MISSIONARY_START);
-            Vec3d var4 = this.w_clash576().subtract(0.0, 0.1, 0.0);
+            Vec3d var4 = this.getPositionVec3d().subtract(0.0, 0.1, 0.0);
             var2.setPositionAndRotation(var4.x, var4.y, var4.z, this.getYawRotation(), 60.0F);
             var2.setPositionAndUpdate(var4.x, var4.y, var4.z);
          } else {
             this.setCurrentAction(Action.COWGIRLSTART);
-            Vec3d var5 = this.w_clash576()
+            Vec3d var5 = this.getPositionVec3d()
                .add(
                   new Vec3d(
                      -Math.sin(this.getYawRotation().floatValue() * (Math.PI / 180.0)) * 1.8,
@@ -198,8 +198,8 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
-   boolean a_clash382() {
-      EntityPlayer var1 = this.k_clash584();
+   boolean hasNoOwner() {
+      EntityPlayer var1 = this.getOwnerPlayer();
       return var1 == null
          ? false
          : this.world.getBlockState(var1.getPosition().up().up()).getBlock() != Blocks.AIR;
@@ -230,16 +230,16 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
                      this.movementController.setAnimationSpeed(1.5);
-                     this.createAnimation(this.a_clash382() ? "animation.ellie.crouchwalk" : "animation.ellie.run", true, var1);
+                     this.createAnimation(this.hasNoOwner() ? "animation.ellie.crouchwalk" : "animation.ellie.run", true, var1);
                   } else if (this.ao.y >= -0.1F) {
                      this.movementController.setAnimationSpeed(2.0);
-                     this.createAnimation(this.a_clash382() ? "animation.ellie.crouchwalk" : "animation.ellie.fastwalk", true, var1);
+                     this.createAnimation(this.hasNoOwner() ? "animation.ellie.crouchwalk" : "animation.ellie.fastwalk", true, var1);
                   } else {
                      this.movementController.setAnimationSpeed(1.5);
-                     this.createAnimation(this.a_clash382() ? "animation.ellie.crouchwalk" : "animation.ellie.backwards_walk", true, var1);
+                     this.createAnimation(this.hasNoOwner() ? "animation.ellie.crouchwalk" : "animation.ellie.backwards_walk", true, var1);
                   }
                } else {
-                  this.createAnimation(this.a_clash382() ? "animation.ellie.crouchidle" : "animation.ellie.idle", true, var1);
+                  this.createAnimation(this.hasNoOwner() ? "animation.ellie.crouchidle" : "animation.ellie.idle", true, var1);
                }
             }
             break;
@@ -391,7 +391,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                EntityPlayerSP var4 = Minecraft.getMinecraft().player;
                if (var4.getPersistentID().equals(this.getInteractionPlayerUUID())) {
                   this.setCurrentAction(Action.HUGIDLE);
-                  this.c_clash380(var4);
+                  this.openEllieInventory(var4);
                }
                break;
             case "hugselectedMSG1":
@@ -427,9 +427,9 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "sitdownDone":
-               if (this.f_clash579()) {
+               if (this.hasOwnerUUID()) {
                   this.setCurrentAction(Action.SITDOWNIDLE);
-                  this.c_clash380(this.world.getPlayerEntityByUUID(this.getOwnerUserUUID()));
+                  this.openEllieInventory(this.world.getPlayerEntityByUUID(this.getOwnerUserUUID()));
                }
                break;
             case "missionary_startDone":

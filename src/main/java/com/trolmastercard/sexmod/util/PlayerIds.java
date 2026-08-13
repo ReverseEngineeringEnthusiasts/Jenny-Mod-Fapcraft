@@ -47,7 +47,7 @@ public class PlayerIds {
       }
 
       PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), var2);
-      PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(GirlSavedData.c_clash849(var2.getPersistentID())), var2);
+      PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(GirlSavedData.hasOwner(var2.getPersistentID())), var2);
 
       for (ItemStack var4 : var2.inventory.mainInventory) {
          if (var4.getItem() == AlliesLampItem.ALLIES_LAMP && var4.hasTagCompound()) {
@@ -57,7 +57,7 @@ public class PlayerIds {
 
       UUID var7 = KoboldManager.getTribeUUID(var2.getPersistentID());
       if (var7 != null) {
-         HashSet var8 = KoboldManager.d_clash90(var7);
+         HashSet var8 = KoboldManager.getAllTribeBlocks(var7);
          PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var8, true), var2);
       }
 
@@ -68,7 +68,7 @@ public class PlayerIds {
       if (var9 != null) {
          var9.setAnchored(false);
          var9.setCurrentAction(Action.NULL);
-         ResetGirlPacket.Handler.a_clash10(var9);
+         ResetGirlPacket.Handler.resetGirl(var9);
       }
 
       UUID var6 = var1.player.getPersistentID();
@@ -80,7 +80,7 @@ public class PlayerIds {
          this.b(var5, var2, var6);
       }
 
-      GalathEntity.c_clash678(var2);
+      GalathEntity.handlePlayerJoin(var2);
    }
 
    void a(World var1, EntityPlayer var2, UUID var3) {
@@ -124,12 +124,12 @@ public class PlayerIds {
       try {
          for (BaseGirlEntity var4 : BaseGirlEntity.getGirlEntityList()) {
             if (var4 instanceof AbstractPlayerGirlEntity) {
-               ((AbstractPlayerGirlEntity)var4).b_clash468(var2);
+               ((AbstractPlayerGirlEntity)var4).onOwnerInteract(var2);
             }
 
             if (var4.getInteractionPlayerUUID() != null) {
                if (var4.getInteractionPlayerUUID().equals(var2.getPersistentID()) || var4.getInteractionPlayerUUID().equals(var2.getUniqueID())) {
-                  ResetGirlPacket.Handler.a_clash10(var4);
+                  ResetGirlPacket.Handler.resetGirl(var4);
                   var4.setAnchored(false);
                   var4.setCurrentAction(Action.NULL);
                }

@@ -21,7 +21,7 @@ public class GirlInventorySlot extends SlotItemHandler {
    }
 
    public static boolean a(ItemStack var0, int var1) {
-      return a(var0, GirlInventorySlot.b.a_clash890(var1));
+      return a(var0, GirlInventorySlot.b.getSlotType(var1));
    }
 
    public boolean isItemValid(ItemStack var1) {
@@ -62,7 +62,7 @@ public class GirlInventorySlot extends SlotItemHandler {
 
       public int id;
 
-      public static GirlInventorySlot.b a_clash890(int var0) {
+      public static GirlInventorySlot.b getSlotType(int var0) {
          switch (var0) {
             case 0:
                return WEAPON;

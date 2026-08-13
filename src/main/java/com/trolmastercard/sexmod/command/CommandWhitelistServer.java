@@ -36,7 +36,7 @@ public class CommandWhitelistServer extends CommandBase implements IClientComman
    }
 
    public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
-      String var4 = ServerWhitelistManager.g_clash134();
+      String var4 = ServerWhitelistManager.getCustomModelsKey();
       if (var4 == null) {
          var2.sendMessage(new TextComponentString(TextFormatting.YELLOW + "This is a multiplayer feature only"));
       } else if (ServerWhitelistManager.l(var4)) {
@@ -55,7 +55,7 @@ public class CommandWhitelistServer extends CommandBase implements IClientComman
          } else {
             ServerWhitelistManager.h(var4);
             var2.sendMessage(new TextComponentString(TextFormatting.GREEN + "confirmed :)"));
-            ServerWhitelistManager.a_clash128();
+            ServerWhitelistManager.reloadCustomModels();
          }
       }
    }

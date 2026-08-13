@@ -46,7 +46,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 1.6F;
    }
 
@@ -70,22 +70,22 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
          this.a(0, Action.TOUCH_BOOBS_INTRO);
          this.setCurrentAction(Action.TOUCH_BOOBS_INTRO);
          this.entityDataManager.set(OUTFIT_INDEX, 0);
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
       }
 
       if ("action.names.headpat".equals(var1)) {
          this.setCurrentAction(Action.HEAD_PAT);
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
       }
    }
 
    @Override
-   public void u_clash377() {
+   public void handleInteraction() {
       this.setCurrentAction(Action.WAIT_CAT);
    }
 
    @Override
-   public boolean v_clash227() {
+   public boolean canBeInteracted() {
       return true;
    }
 
@@ -108,22 +108,22 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    public void onUpdate() {
       super.onUpdate();
       if (Action.WAIT_CAT.equals(this.getCurrentAction())) {
-         this.a_clash378();
+         this.handleLunaOwner();
       } else {
          this.ar = 0;
       }
    }
 
-   void a_clash378() {
-      EntityPlayer var1 = this.j_clash575();
+   void handleLunaOwner() {
+      EntityPlayer var1 = this.getNearestPlayer();
       if (var1 != null) {
-         if (!(var1.getDistance(this.posX, this.w_clash576().y, this.posZ) > 1.25)) {
+         if (!(var1.getDistance(this.posX, this.getPositionVec3d().y, this.posZ) > 1.25)) {
             if (this.world.isRemote) {
                this.a(var1, this.ar);
             } else if (this.ar == 25) {
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
-               var1.setPositionAndUpdate(this.getPositionVector().x, this.w_clash576().y, this.getPositionVector().z);
+               var1.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVec3d().y, this.getPositionVector().z);
                this.setCurrentAction(Action.COWGIRL_SITTING_INTRO);
                var1.setRotationYawHead(this.getYawRotation() + 180.0F);
                var1.rotationYaw = this.getYawRotation() + 180.0F;

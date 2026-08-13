@@ -108,8 +108,8 @@ public class GalathGeometryRender {
          return var18;
       }
 
-      float var11 = TrigMath.d_clash746(var10.getRotationY());
-      float var12 = TrigMath.d_clash746(var10.getRotationZ());
+      float var11 = TrigMath.toDegrees(var10.getRotationY());
+      float var12 = TrigMath.toDegrees(var10.getRotationZ());
       Vec3d var13 = var0.getCachedBoneOffset(var2);
       Vec3d var14 = var0.getCachedBoneOffset(var3);
       Vec3d var15 = var0.getCachedBoneOffset(var4);
@@ -211,7 +211,7 @@ public class GalathGeometryRender {
       EntityPlayerSP var3 = var0.player;
       if (var3 != null) {
          GlStateManager.translate(0.0, 0.01, 0.0);
-         Entity var4 = ((GirlRenderer)var0.getRenderManager().getEntityRenderObject(var1)).c_clash336(var1);
+         Entity var4 = ((GirlRenderer)var0.getRenderManager().getEntityRenderObject(var1)).getRenderEntity(var1);
          Vec3d var5 = var1.isAnchored()
             ? var1.getTargetPosition()
             : RotationHelper.a(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);

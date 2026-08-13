@@ -147,7 +147,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected ResourceLocation getTintedSkinTexture(UUID var1, World var2) {
       BufferedImage var3;
       try {
-         var3 = SkinFetcher.a_clash864(var1);
+         var3 = SkinFetcher.fetchSkin(var1);
          Graphics var4 = var3.getGraphics();
          var4.setColor(this.BASE_SKIN_COLOR);
          var4.fillRect(0, 0, 4, 3);
@@ -173,10 +173,10 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var0.isAnchored() ? var0.getYawRotation() : RotationHelper.lerp(var0.prevRenderYawOffset, var0.renderYawOffset, var1);
    }
 
-   protected void d_clash331() {
+   protected void renderLeftEye() {
    }
 
-   protected void b_clash332() {
+   protected void renderRightEye() {
    }
 
    float a(World var1, Vec3d var2, float var3, float var4) {
@@ -263,7 +263,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
       HashSet var3;
       if (var1) {
-         var3 = ClothingScreen.b_clash815();
+         var3 = ClothingScreen.getCustomBoneNames();
       } else {
          var3 = this.renderEntity.getCustomPartsSet();
       }
@@ -271,9 +271,9 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       HashSet var4 = new HashSet();
 
       for (String var6 : (java.util.Collection<String>) (var3) ) {
-         ServerWhitelistManager.b var7 = ServerWhitelistManager.b_clash142(var6);
-         if (var7 != null && (var7.a_clash900() || !var2)) {
-            var4.addAll(var7.h_clash901());
+         ServerWhitelistManager.b var7 = ServerWhitelistManager.getModelDataForGirl(var6);
+         if (var7 != null && (var7.isDisabled() || !var2)) {
+            var4.addAll(var7.getCustomPartBones());
          }
       }
 
@@ -292,7 +292,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          this.activeCustomPartBones = this.a(var2.isLocallyRegistered(), var2.getOutfitIndex() == 0);
          this.getSkinTexture((T) this.renderEntity);
          BodyParts.a(var2.getAnimationProcessor().getModelRendererList(), this.a(), this);
-         BodyParts.a_clash795(var2, var3);
+         BodyParts.updateBoneOffset(var2, var3);
          this.a(var1, var8, (T)var2, var4, var5, var6, var7, var3);
          this.renderAfter((T)var2, var3, var4, var5, var6, var7);
          GlStateManager.disableRescaleNormal();
@@ -313,7 +313,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
 
       Tessellator.getInstance().draw();
-      this.b_clash332();
+      this.renderRightEye();
       if (var9 != null) {
          var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
@@ -324,7 +324,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
-   String a_clash333(String var1) {
+   String buildModelCode(String var1) {
       StringBuilder var2 = new StringBuilder();
 
       try {
@@ -347,13 +347,13 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       if (!this.renderEntity.isLocallyRegistered()) {
          if (!this.renderEntity.getCurrentAction().hideNameTag) {
             if (mc.getRenderManager().renderViewEntity != null) {
-               this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName(), var1, var3 + this.renderEntity.i_clash226(), var5, 300);
+               this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName(), var1, var3 + this.renderEntity.getScaleFactor(), var5, 300);
             }
          }
       }
    }
 
-   Vec3d a_clash334(EntityPlayer var1, float var2) {
+   Vec3d getRidingOffset(EntityPlayer var1, float var2) {
       EntityLiving var3 = (EntityLiving)var1.getRidingEntity();
       EntityPlayerSP var4 = mc.player;
       Vec3d var5 = var3.getLookVec();
@@ -380,14 +380,14 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
       EntityPlayer var10 = var1.getMasterPlayer();
       if (var10 != null && var10.isRiding() && var10.getRidingEntity() instanceof EntityHorse && ((EntityHorse)var10.getRidingEntity()).isHorseSaddled()) {
-         return this.a_clash334(var10, var2);
+         return this.getRidingOffset(var10, var2);
       }
 
       if (!var1.isAnchored()) {
          return var9;
       }
 
-      if (!(var1 instanceof AbstractPlayerGirlEntity) || !((AbstractPlayerGirlEntity)var1).f_clash579() || mc.gameSettings.thirdPersonView == 0) {
+      if (!(var1 instanceof AbstractPlayerGirlEntity) || !((AbstractPlayerGirlEntity)var1).hasOwnerUUID() || mc.gameSettings.thirdPersonView == 0) {
          Vec3d var11 = RotationHelper.a(
             new Vec3d(mc.player.lastTickPosX, mc.player.lastTickPosY, mc.player.lastTickPosZ), mc.player.getPositionVector(), var2
          );
@@ -403,7 +403,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var9;
    }
 
-   protected void b_clash327(T var1) {
+   protected void onBoneRenderStart(T var1) {
    }
 
    @Override
@@ -418,7 +418,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       var2 = var10.x;
       var4 = var10.y;
       var6 = var10.z;
-      this.b_clash327((T)var1);
+      this.onBoneRenderStart((T)var1);
       if (var1.getLeashed()) {
          this.a(var1, var2, var4 + this.CACHE_C, var6, var9);
       }
@@ -493,8 +493,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          GlStateManager.disableNormalize();
          GlStateManager.popMatrix();
          GlStateManager.popMatrix();
-         this.a_clash335((T)var1);
-         SexSceneRenderer.a_clash810(var1, var9);
+         this.applyCameraBone((T)var1);
+         SexSceneRenderer.renderSexSceneEffects(var1, var9);
          Vector3fSexmodSpecial var52 = this.getAdditionalOverlayColor((T)var1);
          if (var52 != null) {
             this.a(var1, var9, var52);
@@ -552,8 +552,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          GlStateManager.disableNormalize();
          GlStateManager.popMatrix();
          GlStateManager.popMatrix();
-         this.a_clash335((T)var1);
-         SexSceneRenderer.a_clash810(var1, var9);
+         this.applyCameraBone((T)var1);
+         SexSceneRenderer.renderSexSceneEffects(var1, var9);
          Vector3fSexmodSpecial var50 = this.getAdditionalOverlayColor((T)var1);
          if (var50 != null) {
             this.a(var1, var9, var50);
@@ -561,7 +561,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
-   void a_clash335(T var1) {
+   void applyCameraBone(T var1) {
       ArrayList var2 = new ArrayList<>(GirlModel.CAMERA_PLACEMENTS);
       var2.addAll(var1.boneTrackingList);
 
@@ -578,7 +578,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return null;
    }
 
-   public Entity c_clash336(BaseGirlEntity var1) {
+   public Entity getRenderEntity(BaseGirlEntity var1) {
       return var1;
    }
 
@@ -589,7 +589,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       BufferBuilder var6 = var5.getBuffer();
       GlStateManager.pushMatrix();
       GlStateManager.translate(0.0, 0.01, 0.0);
-      Entity var7 = this.c_clash336(var1);
+      Entity var7 = this.getRenderEntity(var1);
       Vec3d var8 = var1.isAnchored()
          ? var1.getTargetPosition()
          : RotationHelper.a(new Vec3d(var7.lastTickPosX, var7.lastTickPosY, var7.lastTickPosZ), var7.getPositionVector(), var2);
@@ -604,7 +604,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
    protected static float a(BaseGirlEntity var0, float var1, float var2, float var3) {
       EntityPlayerSP var4 = mc.player;
-      Entity var5 = ((GirlRenderer)mc.getRenderManager().getEntityRenderObject(var0)).c_clash336(var0);
+      Entity var5 = ((GirlRenderer)mc.getRenderManager().getEntityRenderObject(var0)).getRenderEntity(var0);
       Vec3d var6 = var0.isAnchored()
          ? var0.getTargetPosition()
          : RotationHelper.a(new Vec3d(var5.lastTickPosX, var5.lastTickPosY, var5.lastTickPosZ), var5.getPositionVector(), var1);
@@ -861,7 +861,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
 
       GirlModel var6 = (GirlModel)var5;
-      ItemStack var7 = var6.a_clash348(this.renderEntity, var1);
+      ItemStack var7 = var6.getItemStackForBone(this.renderEntity, var1);
       if (!(var7.getItem() instanceof ItemArmor)) {
          return this.createOverlayColor(var2, var3, var4);
       }

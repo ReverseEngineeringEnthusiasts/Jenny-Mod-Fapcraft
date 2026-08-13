@@ -177,11 +177,11 @@ public class AlliesLampItem extends Item implements IAnimatable {
                   double var10 = (float)(var9 - PARTICLE_START_TICK) / (SUMMON_TICK - PARTICLE_START_TICK);
                   var10 = RotationHelper.h(var10);
                   Vec3d var12 = new Vec3d(0.0, var6.eyeHeight * (1.0 - var10), 0.0);
-                  WorldUtils.a(var2, EnumParticleTypes.CRIT_MAGIC, this.a_clash32(var6).add(var12), (int)(var10 * 150.0), var10 * 0.75, var10);
+                  WorldUtils.a(var2, EnumParticleTypes.CRIT_MAGIC, this.getLampOffset(var6).add(var12), (int)(var10 * 150.0), var10 * 0.75, var10);
                }
 
                if (var9 >= SUMMON_TICK) {
-                  WorldUtils.a(var2, EnumParticleTypes.CRIT_MAGIC, this.a_clash32(var6), 150, 0.75, 2.0);
+                  WorldUtils.a(var2, EnumParticleTypes.CRIT_MAGIC, this.getLampOffset(var6), 150, 0.75, 2.0);
                   var7.setBoolean("sexmodAllieInUse", false);
                   var7.setInteger("sexmodAllieInUseTicks", 0);
                   if (var2.isRemote) {
@@ -195,7 +195,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
                      var15.setInteger("sexmodUses", var15.getInteger("sexmodUses") + 1);
                      AllieEntity var11 = new AllieEntity(var6.world, var6.getHeldItemMainhand());
                      var11.setInteractionPlayerUUID(var6.getPersistentID());
-                     Vec3d var16 = this.a_clash32(var6);
+                     Vec3d var16 = this.getLampOffset(var6);
                      var11.setPositionAndRotation(var16.x, var16.y, var16.z, var6.rotationYaw + 180.0F, var6.rotationPitch);
                      var11.setTargetPosition(var11.getPositionVector());
                      var11.setYawRotation(var6.rotationYaw + 180.0F);
@@ -207,7 +207,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
                      if (var11.world.getBlockState(var13).getBlock().equals(Blocks.SAND)) {
                         var11.setCurrentAction(Action.SUMMON_SAND);
                      } else {
-                        var11.setCurrentAction(var11.f_clash697() ? Action.SUMMON : Action.SUMMON_NORMAL);
+                        var11.setCurrentAction(var11.hasLampItem() ? Action.SUMMON : Action.SUMMON_NORMAL);
                      }
 
                      var1.setTagCompound(var15);
@@ -218,7 +218,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
       }
    }
 
-   Vec3d a_clash32(EntityPlayer var1) {
+   Vec3d getLampOffset(EntityPlayer var1) {
       return var1.getPositionVector().add(VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 2.0), var1.rotationYawHead));
    }
 
@@ -240,7 +240,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
          EnumHand var3 = var1.getHand();
          ItemStack var4 = var2.getHeldItem(var3);
          if (!AbstractPlayerGirlEntity.e(var2)) {
-            if (!var2.world.isRemote || HandlePlayerMovement.b_clash121()) {
+            if (!var2.world.isRemote || HandlePlayerMovement.isSneakingState()) {
                if (!var2.world.isRemote) {
                   try {
                      for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {

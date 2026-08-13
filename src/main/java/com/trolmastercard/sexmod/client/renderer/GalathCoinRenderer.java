@@ -68,8 +68,8 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       }
 
       Tessellator.getInstance().draw();
-      float var13 = this.a_clash107(var3);
-      this.currentTint = this.a_clash108();
+      float var13 = this.getCoinScale(var3);
+      this.currentTint = this.getCoinColor();
       if (!GirlSavedData.debugEnabled) {
          OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, var13, var13);
          GL11.glDisable(2896);
@@ -86,9 +86,9 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       GlStateManager.resetColor();
    }
 
-   float a_clash107(float var1) {
+   float getCoinScale(float var1) {
       if (mc.player.getHeldItemMainhand() != this.currentItemStack && mc.player.getHeldItemOffhand() != this.currentItemStack) {
-         return this.b_clash109(var1);
+         return this.getCoinBob(var1);
       } else {
          long var2 = System.currentTimeMillis();
          NBTTagCompound var4 = mc.player.getEntityData();
@@ -99,7 +99,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
          } else if (var7 != 0L) {
             return this.b(var2, var7, var1);
          } else {
-            return GirlSavedData.debugEnabled ? 120.0F : this.b_clash109(var1);
+            return GirlSavedData.debugEnabled ? 120.0F : this.getCoinBob(var1);
          }
       }
    }
@@ -122,7 +122,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       }
    }
 
-   Vector3fSexmodSpecial a_clash108() {
+   Vector3fSexmodSpecial getCoinColor() {
       if (mc.player.getHeldItemMainhand() != this.currentItemStack && mc.player.getHeldItemOffhand() != this.currentItemStack) {
          return COIN_COLOR;
       } else {
@@ -158,7 +158,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       }
    }
 
-   float b_clash109(float var1) {
+   float getCoinBob(float var1) {
       return (float)(60.0 * Math.sin((mc.player.ticksExisted + var1) * 0.05F) + 180.0);
    }
 

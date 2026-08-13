@@ -33,7 +33,7 @@ public class HandlePlayerMovement {
       isInAction = input.jump;
       if (!isSneaking) {
          if (input.jump) {
-            AbstractPlayerGirlEntity.i_clash572();
+            AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
          }
 
          if (input.sneak) {
@@ -56,19 +56,19 @@ public class HandlePlayerMovement {
       }
    }
 
-   public static boolean b_clash121() {
+   public static boolean isSneakingState() {
       return isSneaking;
    }
 
    public static void setMovementLock(boolean var0) {
       isSneaking = var0;
       if (!var0) {
-         a_clash123();
+         handlePlayerMovementTick();
       }
    }
 
    @SideOnly(Side.CLIENT)
-   static void a_clash123() {
+   static void handlePlayerMovementTick() {
       EntityPlayerSP var0 = Minecraft.getMinecraft().player;
       if (AbstractPlayerGirlEntity.e(var0)) {
          var0.sendStatusMessage(new TextComponentString("Jump to get out of the animation"), true);

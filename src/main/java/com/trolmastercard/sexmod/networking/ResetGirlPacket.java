@@ -60,7 +60,7 @@ public class ResetGirlPacket implements IMessage {
    }
 
    public static class Handler implements IMessageHandler<ResetGirlPacket, IMessage> {
-      public static void a_clash10(BaseGirlEntity var0) {
+      public static void resetGirl(BaseGirlEntity var0) {
          var0.reinitTasks();
          if (var0 instanceof AbstractPlayerGirlEntity && var0.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID()) != null) {
             PacketHandler.networkWrapper
@@ -131,7 +131,7 @@ public class ResetGirlPacket implements IMessage {
                      }
 
                      if (var1.resetPose) {
-                        a_clash10(var3);
+                        resetGirl(var3);
                      }
                   }
                }

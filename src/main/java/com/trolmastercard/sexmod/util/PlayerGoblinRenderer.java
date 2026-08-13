@@ -51,15 +51,15 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
       } else if (var1.contains("band")) {
          return GoblinRenderer.DEFAULT_BONE_COLOR;
       } else if (var1.contains("eyeColor") || var1.contains("eyeColor2")) {
-         return GoblinRenderer.b_clash401(var2[8]);
+         return GoblinRenderer.getEyeColor(var2[8]);
       } else if (var1.contains("variant") || var1.contains("boob")) {
-         return GoblinRenderer.c_clash402(var2[7]);
+         return GoblinRenderer.getSkinColor(var2[7]);
       } else if (var1.contains("hair")) {
-         return GoblinRenderer.d_clash403(var2[6]);
+         return GoblinRenderer.getHairColor(var2[6]);
       } else if (GoblinRenderer.NUDE_BONE_NAMES.contains(var1)) {
-         return GoblinRenderer.c_clash402(var2[7]);
+         return GoblinRenderer.getSkinColor(var2[7]);
       } else {
-         return GoblinRenderer.LASH_BONE_NAMES.contains(var1) ? GoblinRenderer.d_clash403(var2[6]) : tintColor;
+         return GoblinRenderer.LASH_BONE_NAMES.contains(var1) ? GoblinRenderer.getHairColor(var2[6]) : tintColor;
       }
    }
 
@@ -224,7 +224,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
                var6 = var23.z;
             }
          } else if (this.isShoulderIdle) {
-            GoblinRenderer.a_clash399(var9);
+            GoblinRenderer.setFirstPersonCamera(var9);
             Vec3d var24 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, mc.gameSettings.fovSetting / 110.0F), 0.0, 0.0);
             var24 = GoblinEntity.b(var24, mc.player.rotationYaw);
             var2 = var24.x;
@@ -245,7 +245,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
                return;
             }
 
-            Vector4f var29 = GoblinRenderer.a_clash400(var26, var9);
+            Vector4f var29 = GoblinRenderer.getFirstPersonView(var26, var9);
             var2 = var29.x;
             var4 = var29.y;
             var6 = var29.z;
@@ -313,7 +313,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
                var6 = var16.z;
             }
          } else if (this.isShoulderIdle) {
-            GoblinRenderer.a_clash399(var9);
+            GoblinRenderer.setFirstPersonCamera(var9);
             Vec3d var17 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, mc.gameSettings.fovSetting / 110.0F), 0.0, 0.0);
             var17 = GoblinEntity.b(var17, mc.player.rotationYaw);
             var2 = var17.x;
@@ -360,7 +360,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
       UUID var3 = var2.getOwnerUserUUID();
       EntityPlayerSP var4 = mc.player;
       if (var3 != null && (mc.gameSettings.thirdPersonView != 0 || !var4.getPersistentID().equals(var3))) {
-         EntityPlayer var5 = var2.k_clash584();
+         EntityPlayer var5 = var2.getOwnerPlayer();
          if (var5 == null) {
             return null;
          }

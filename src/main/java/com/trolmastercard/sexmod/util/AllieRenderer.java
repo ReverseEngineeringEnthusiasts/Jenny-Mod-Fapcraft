@@ -39,7 +39,7 @@ public class AllieRenderer extends GirlRenderer {
          if (!this.renderEntity.isLocallyRegistered()) {
             if (!this.renderEntity.getCurrentAction().hideNameTag) {
                if (mc.getRenderManager().renderViewEntity != null) {
-                  this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName(), var1, var3 + this.renderEntity.i_clash226(), var5, 300);
+                  this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName(), var1, var3 + this.renderEntity.getScaleFactor(), var5, 300);
                }
             }
          }

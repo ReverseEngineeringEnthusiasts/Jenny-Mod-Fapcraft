@@ -57,13 +57,13 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
    @Override
    public void onUpdate() {
       super.onUpdate();
-      this.b_clash703();
+      this.syncModelCodeClient();
       if (this.ar) {
          if (this.world.isRemote) {
             this.clearBoneColors();
             this.ar = true;
          } else {
-            EntityPlayer var1 = this.k_clash584();
+            EntityPlayer var1 = this.getOwnerPlayer();
             if (var1 != null) {
                String var2 = var1.getEntityData().getString("sexmod:GirlSpecific" + NpcType.getNpcType(this));
                this.ar = false;
@@ -75,7 +75,7 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
       }
    }
 
-   void b_clash703() {
+   void syncModelCodeClient() {
       if (this.world.isRemote) {
          String var1 = (String)this.entityDataManager.get(as);
          String var2 = (String)this.entityDataManager.get(at);

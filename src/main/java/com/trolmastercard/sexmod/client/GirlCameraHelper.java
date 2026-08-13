@@ -78,7 +78,7 @@ public class GirlCameraHelper {
          double var13 = var1.posZ - var1.lastTickPosZ;
          double var15 = (Math.PI / 180.0) * var1.rotationYaw;
          var0.ao = new Vector2f((float)(var11 * Math.cos(var15) + var13 * Math.sin(var15)), (float)(var11 * Math.sin(var15) + var13 * Math.cos(var15)));
-         float var17 = var0.z_clash454() ? a(var0, var1) : 0.0F;
+         float var17 = var0.isRidingSomething() ? a(var0, var1) : 0.0F;
          GirlPlayerRenderer.isFirstPerson = true;
          var10.renderEntity(var0, var2, var4 + var17, var6, 90.0F, var8, false);
       }
@@ -127,7 +127,7 @@ public class GirlCameraHelper {
          } else if (var2.gameSettings.thirdPersonView == 0) {
             AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
             if (var3 != null) {
-               if (var3.o_clash456()) {
+               if (var3.isAnchored()) {
                   this.playerPos = var2.player.getPositionVector();
                   this.playerLastPos = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
                   Vec3d var4 = var3.getCachedBoneOffset("girlCam");

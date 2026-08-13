@@ -71,7 +71,7 @@ public class PlayerGirlEvents {
       World var4 = var1.getEntityPlayer().world;
       EntityPlayer var5 = var1.getEntityPlayer();
       if (var2 != null) {
-         if (var2.v_clash227()) {
+         if (var2.canBeInteracted()) {
             if (WorldUtils.a(var4, var3, var1.getHitVec(), var1.getFace(), var5)) {
                if ((Boolean)var2.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
                   var1.setCanceled(true);
@@ -139,7 +139,7 @@ public class PlayerGirlEvents {
                         var2.setTargetPosition(new Vec3d(var7.getX() + 0.5, var7.getY() + 0.0F, var7.getZ() + 0.5));
                         var2.setYawRotation(var5.rotationYaw);
                         var2.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
-                        var2.u_clash377();
+                        var2.handleInteraction();
                      }
                   }
                }
@@ -183,8 +183,8 @@ public class PlayerGirlEvents {
                if (var5 != null) {
                   if (var3 != null) {
                      var2.sendStatusMessage(new TextComponentString("no lesbo yet owo"), true);
-                  } else if (var5.l_clash467()) {
-                     if (var5.p_clash379()) {
+                  } else if (var5.isPlayerGirl()) {
+                     if (var5.canOpenInteractionMenu()) {
                         var5.openInteractionMenu(Minecraft.getMinecraft().player);
                      }
                   }
@@ -207,7 +207,7 @@ public class PlayerGirlEvents {
                if (var5 != null) {
                   var4.sendStatusMessage(new TextComponentString("no lesbo yet owo"), true);
                } else {
-                  if (var3.p_clash379()) {
+                  if (var3.canOpenInteractionMenu()) {
                      var3.ab = false;
                      var3.openInteractionMenu(var4);
                   }

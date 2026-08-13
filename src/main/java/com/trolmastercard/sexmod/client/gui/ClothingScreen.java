@@ -90,20 +90,20 @@ public class ClothingScreen extends GuiScreen {
          var11.printStackTrace();
       }
 
-      this.e_clash817();
+      this.refreshCustomParts();
       String var12 = var1.getCustomModelCode();
       this.previewGirl.getDataManager().set(BaseGirlEntity.CUSTOM_MODEL_KEY, var12);
       int var4 = 0;
 
       for (String var6 : this.previewGirl.getCustomPartsSet()) {
-         BoneType var7 = ServerWhitelistManager.e_clash138(var6);
+         BoneType var7 = ServerWhitelistManager.getBoneType(var6);
          if (BoneType.CUSTOM_BONE.equals(var7)) {
             var4++;
          }
 
          Entry var8 = null;
          if (BoneType.CUSTOM_BONE.equals(var7) && var4 > 1) {
-            var8 = b_clash816(this.previewGirl);
+            var8 = getCustomPartData(this.previewGirl);
          } else {
             for (Entry var10 : m) {
                if (((BoneType)var10.getKey()).equals(var7)) {
@@ -130,7 +130,7 @@ public class ClothingScreen extends GuiScreen {
       this.modelList.handleMouseInput();
    }
 
-   public static HashSet<String> b_clash815() {
+   public static HashSet<String> getCustomBoneNames() {
       HashSet var0 = new HashSet();
 
       for (Entry var2 : m) {
@@ -145,14 +145,14 @@ public class ClothingScreen extends GuiScreen {
       return var0;
    }
 
-   public static Entry<BoneType, Entry<List<String>, Integer>> b_clash816(BaseGirlEntity var0) {
+   public static Entry<BoneType, Entry<List<String>, Integer>> getCustomPartData(BaseGirlEntity var0) {
       ArrayList var1 = new ArrayList();
       var1.add("cross");
-      var1.addAll(ServerWhitelistManager.a_clash143(var0).get(BoneType.CUSTOM_BONE));
+      var1.addAll(ServerWhitelistManager.getModelParts(var0).get(BoneType.CUSTOM_BONE));
       return new SimpleEntry<>(BoneType.CUSTOM_BONE, new SimpleEntry<>(var1, 0));
    }
 
-   void e_clash817() {
+   void refreshCustomParts() {
       m.clear();
       List var1 = this.previewGirl.buildCustomPartsData(this.girlId);
       this.partsCount = var1.size();
@@ -166,7 +166,7 @@ public class ClothingScreen extends GuiScreen {
          }
       }
 
-      for (Entry var8 : ServerWhitelistManager.a_clash143(this.previewGirl).entrySet()) {
+      for (Entry var8 : ServerWhitelistManager.getModelParts(this.previewGirl).entrySet()) {
          Entry var9 = null;
 
          for (Entry var12 : m) {
@@ -190,12 +190,12 @@ public class ClothingScreen extends GuiScreen {
 
    public void setWorldAndResolution(Minecraft var1, int var2, int var3) {
       super.setWorldAndResolution(var1, var2, var3);
-      this.guiX = this.a_clash821(76.0F);
-      this.guiY = this.b_clash822(89.0F);
+      this.guiX = this.screenX(76.0F);
+      this.guiY = this.screenY(89.0F);
       this.modelRotation = 90.0F;
    }
 
-   boolean a_clash818(int var1, int var2, int var3, int var4, int var5, int var6) {
+   boolean isMouseOverPart(int var1, int var2, int var3, int var4, int var5, int var6) {
       if (var1 < var3) {
          return false;
       } else if (var1 > var5) {
@@ -211,12 +211,12 @@ public class ClothingScreen extends GuiScreen {
          currentModelYaw = currentModelYaw + RotationHelper.lerp(targetScrollOffset, scrollOffset, var3);
       }
 
-      this.a_clash824();
+      this.startRendering();
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-      int var4 = this.guiX - this.a_clash821(15.0F);
+      int var4 = this.guiX - this.screenX(15.0F);
       int var5 = this.guiY - 20;
-      this.drawTexturedModalRect(var4, var5, 100, this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20) ? 40 : 20, 20, 20);
-      if (ServerWhitelistManager.g_clash134() == null) {
+      this.drawTexturedModalRect(var4, var5, 100, this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20) ? 40 : 20, 20, 20);
+      if (ServerWhitelistManager.getCustomModelsKey() == null) {
          this.b(var4, var1, var2);
       }
 
@@ -227,18 +227,18 @@ public class ClothingScreen extends GuiScreen {
 
    void b(int var1, int var2, int var3) {
       int var4 = this.guiY - 40;
-      this.drawTexturedModalRect(var1, var4, 120, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 40 : 20, 20, 20);
+      this.drawTexturedModalRect(var1, var4, 120, this.isMouseOverPart(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 40 : 20, 20, 20);
       var4 -= 20;
-      this.drawTexturedModalRect(var1, var4, 20, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
+      this.drawTexturedModalRect(var1, var4, 20, this.isMouseOverPart(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
       var4 -= 20;
-      this.drawTexturedModalRect(var1, var4, 0, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
+      this.drawTexturedModalRect(var1, var4, 0, this.isMouseOverPart(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
    }
 
    public boolean doesGuiPauseGame() {
       return false;
    }
 
-   void c_clash819() {
+   void playClickSound() {
       this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
       HashSet var1 = new HashSet();
       ArrayList var2 = new ArrayList();
@@ -283,10 +283,10 @@ public class ClothingScreen extends GuiScreen {
             var16 = (Integer)var5.get(0);
          } else {
             int var9;
-            if (this.partsCount != 0 && var3 <= this.partsCount - 1 + BoneType.a_clash759()) {
+            if (this.partsCount != 0 && var3 <= this.partsCount - 1 + BoneType.getCustomBoneCount()) {
                var9 = var3;
             } else {
-               var9 = var3 - (this.partsCount + BoneType.a_clash759());
+               var9 = var3 - (this.partsCount + BoneType.getCustomBoneCount());
             }
 
             var15 = (Entry)var4.get(var9);
@@ -323,7 +323,7 @@ public class ClothingScreen extends GuiScreen {
       this.a(var1, var2, var3, var4, 1.876945F);
    }
 
-   public void a_clash820(SexSceneEntity var1) {
+   public void drawPreviewModel(SexSceneEntity var1) {
       this.a(this.guiX, this.guiY, this.modelRotation, var1, 2.876945F, var1.isItemModel ? 1 : 0);
    }
 
@@ -349,33 +349,33 @@ public class ClothingScreen extends GuiScreen {
          this.isEditing = true;
          this.isRendering = true;
          this.lastMouseX = var1;
-         int var4 = this.guiX - this.a_clash821(15.0F);
+         int var4 = this.guiX - this.screenX(15.0F);
          int var5 = this.guiY - 20;
-         if (this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
-            this.c_clash819();
+         if (this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
+            this.playClickSound();
          }
 
-         if (ServerWhitelistManager.g_clash134() == null) {
+         if (ServerWhitelistManager.getCustomModelsKey() == null) {
             var5 = this.guiY - 40;
-            if (this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
+            if (this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
                this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                this.mc.player.closeScreen();
-               int var6 = ServerWhitelistManager.b_clash126(true);
+               int var6 = ServerWhitelistManager.getModelCount(true);
                if (var6 != 0) {
                   ServerWhitelistManager.isGlobalRenderingDisabled = true;
                } else {
                   BaseGirlEntity var7 = BaseGirlEntity.getClientGirlEntity(this.girlId);
                   if (var7 != null) {
-                     a_clash825(var7);
+                     openClothingScreen(var7);
                   }
                }
             } else {
                var5 -= 20;
-               if (this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
-                  try { Desktop.getDesktop().open(new File(ServerWhitelistManager.d_clash133())); } catch (IOException var9) { }
+               if (this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
+                  try { Desktop.getDesktop().open(new File(ServerWhitelistManager.getGlobalModelOverride())); } catch (IOException var9) { }
                } else {
                   var5 -= 20;
-                  if (this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
+                  if (this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
                      try {
                         Desktop.getDesktop().browse(new URI("http://fapcraft.org/assets/video/tutorial/girl_wand.mp4"));
                      } catch (URISyntaxException var8) {
@@ -400,11 +400,11 @@ public class ClothingScreen extends GuiScreen {
       this.scrollVelocity = targetScrollOffset;
    }
 
-   int a_clash821(float var1) {
+   int screenX(float var1) {
       return Math.round(this.width * (var1 / 100.0F));
    }
 
-   int b_clash822(float var1) {
+   int screenY(float var1) {
       return Math.round(this.height * (var1 / 100.0F));
    }
 
@@ -415,7 +415,7 @@ public class ClothingScreen extends GuiScreen {
       m.clear();
    }
 
-   public BaseGirlEntity d_clash823() {
+   public BaseGirlEntity getPreviewGirl() {
       return this.previewGirl;
    }
 
@@ -477,7 +477,7 @@ public class ClothingScreen extends GuiScreen {
       var4.rotationYawHead = var11;
    }
 
-   void a_clash824() {
+   void startRendering() {
       if (!this.isRendering) {
          float var1 = Minecraft.getDebugFPS();
          if (var1 == 0.0F) {
@@ -498,10 +498,10 @@ public class ClothingScreen extends GuiScreen {
    }
 
    @SideOnly(Side.CLIENT)
-   public static void a_clash825(@Nonnull BaseGirlEntity var0) {
+   public static void openClothingScreen(@Nonnull BaseGirlEntity var0) {
       Minecraft var1 = Minecraft.getMinecraft();
       if (!(var1.currentScreen instanceof ClothingScreen)) {
-         boolean var2 = ServerWhitelistManager.g_clash134() == null || ServerWhitelistManager.b_clash129();
+         boolean var2 = ServerWhitelistManager.getCustomModelsKey() == null || ServerWhitelistManager.isGlobalRenderingDisabled();
          if (!var2) {
             var1.player
                .sendStatusMessage(
@@ -520,7 +520,7 @@ public class ClothingScreen extends GuiScreen {
       public void a(KeyInputEvent var1) {
          if (ClientProxy.keyBindings[1].isPressed()) {
             if (ServerWhitelistManager.isGlobalRenderingDisabled) {
-               ServerWhitelistManager.isGlobalRenderingDisabled = 0 != ServerWhitelistManager.b_clash126(true);
+               ServerWhitelistManager.isGlobalRenderingDisabled = 0 != ServerWhitelistManager.getModelCount(true);
                if (ServerWhitelistManager.isGlobalRenderingDisabled) {
                   return;
                }
@@ -531,7 +531,7 @@ public class ClothingScreen extends GuiScreen {
             if (var3 == null) {
                var2.player.sendStatusMessage(new TextComponentString("You have to turn into the girl you want to customize"), true);
             } else {
-               ClothingScreen.a_clash825(var3);
+               ClothingScreen.openClothingScreen(var3);
             }
          }
       }

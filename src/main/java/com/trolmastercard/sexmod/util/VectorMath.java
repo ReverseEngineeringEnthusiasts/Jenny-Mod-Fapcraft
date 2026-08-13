@@ -5,7 +5,7 @@ import javax.vecmath.Vector3f;
 import net.minecraft.util.math.Vec3d;
 
 public class VectorMath {
-   public static Vec3d a_clash304(Vec3d var0, double var1) {
+   public static Vec3d scale(Vec3d var0, double var1) {
       return new Vec3d(var0.x * var1, var0.y * var1, var0.z * var1);
    }
 
@@ -13,7 +13,7 @@ public class VectorMath {
       return var0.x * var1.x + var0.y * var1.y + var0.z * var1.z;
    }
 
-   public static double a_clash305(Vec3d var0, Vec3d var1) {
+   public static double dotProduct(Vec3d var0, Vec3d var1) {
       return var0.x * var1.x + var0.y * var1.y + var0.z * var1.z;
    }
 
@@ -46,7 +46,7 @@ public class VectorMath {
       );
    }
 
-   public static Vec3d a_clash307(double var0, double var2, double var4, float var6, float var7) {
+   public static Vec3d rotate(double var0, double var2, double var4, float var6, float var7) {
       return a(new Vec3d(var0, var2, var4), var6, var7);
    }
 
@@ -71,23 +71,23 @@ public class VectorMath {
       return new Vec3d(var20, var16, var0.z);
    }
 
-   public static Vec3d c_clash308(Vec3d var0) {
+   public static Vec3d MirrorXZ(Vec3d var0) {
       return new Vec3d(-var0.x, var0.y, -var0.z);
    }
 
-   public static Vec3d a_clash309(Vec3d var0) {
+   public static Vec3d MirrorXY(Vec3d var0) {
       return new Vec3d(-var0.x, -var0.y, var0.z);
    }
 
-   public static Vec3d b_clash310(Vec3d var0) {
+   public static Vec3d MirrorYZ(Vec3d var0) {
       return new Vec3d(var0.x, -var0.y, -var0.z);
    }
 
-   static double a_clash311(double var0, double var2, double var4) {
+   static double getLinearFactor(double var0, double var2, double var4) {
       return (var4 - var0) / (var2 - var0);
    }
 
    public static double a(Vec3d var0, Vec3d var1, Vec3d var2) {
-      return a_clash311(var0.x, var1.x, var2.x);
+      return getLinearFactor(var0.x, var1.x, var2.x);
    }
 }

@@ -111,14 +111,14 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
       MATRIX_STACK.scale(var3);
       MATRIX_STACK.moveBackFromPivot(var3);
       this.mc.renderEngine.bindTexture(this.getSkin());
-      if (this.a_clash369(var3.getName())) {
+      if (this.isNotArmBone(var3.getName())) {
          this.b(var1, var2, var3, var4, var5, var6, var7);
       }
 
       MATRIX_STACK.pop();
    }
 
-   boolean a_clash369(String var1) {
+   boolean isNotArmBone(String var1) {
       return !var1.equals("leftArm") && !var1.equals("rightArm")
          ? true
          : this.mc.player.getEntityData().getBoolean("sexmodAllieInUse") && this.mc.gameSettings.thirdPersonView == 0;

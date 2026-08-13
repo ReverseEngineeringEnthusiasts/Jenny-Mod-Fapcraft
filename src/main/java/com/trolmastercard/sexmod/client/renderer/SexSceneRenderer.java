@@ -77,10 +77,10 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    public SexSceneRenderer(RenderManager var1, AnimatedGeoModel<?> var2) {
       super(var1, (AnimatedGeoModel<SexSceneEntity>) (AnimatedGeoModel) var2);
       this.mc = Minecraft.getMinecraft();
-      this.a_clash809();
+      this.initBoneMaps();
    }
 
-   void a_clash809() {
+   void initBoneMaps() {
       this.legBoneMap.put("customLegL", "legL");
       this.legBoneMap.put("customShinL", "shinL");
       this.legBoneMap.put("customLegR", "legR");
@@ -95,20 +95,20 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    }
 
    boolean d(SexSceneEntity var1) {
-      String var2 = var1.a_clash343();
+      String var2 = var1.getModelCode();
       if (var1.isItemModel) {
          return false;
       }
 
-      if (ServerWhitelistManager.f_clash125(var2)) {
+      if (ServerWhitelistManager.isModelDisabled(var2)) {
          return false;
       }
 
-      if (ServerWhitelistManager.g_clash134() != null) {
+      if (ServerWhitelistManager.getCustomModelsKey() != null) {
          return true;
       }
 
-      UUID var3 = var1.b_clash342();
+      UUID var3 = var1.getGirlIdFromCode();
       BaseGirlEntity var4 = BaseGirlEntity.getClientGirlEntity(var3);
       if (var4 == null) {
          return true;
@@ -117,12 +117,12 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       HashSet var5 = var4.getCustomPartsSet();
       var5.remove(var2);
       String var6 = BaseGirlEntity.encodeCustomParts(var5);
-      PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(var6, var1.b_clash342()));
+      PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(var6, var1.getGirlIdFromCode()));
       return true;
    }
 
    @SideOnly(Side.CLIENT)
-   public static void a_clash810(BaseGirlEntity var0, float var1) {
+   public static void renderSexSceneEffects(BaseGirlEntity var0, float var1) {
       if (!var0.isDead) {
          if (var0.world.isRemote) {
             if (var0.hasCustomParts()) {
@@ -142,7 +142,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       return super.shouldRender(var1, var2, var3, var5, var7);
    }
 
-   boolean a_clash811(float var1) {
+   boolean isRenderAngle(float var1) {
       if (var1 == 2.876945F) {
          return true;
       } else if (var1 == 1.876945F) {
@@ -156,9 +156,9 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    }
 
    void a(ServerWhitelistManager.b var1, SexSceneEntity var2, float var3) {
-      if (var1 != null && var1.i_clash894() != LightingType.DEFAULT) {
+      if (var1 != null && var1.getLightingType() != LightingType.DEFAULT) {
          GL11.glDisable(2896);
-         this.lightingPos = var1.i_clash894() == LightingType.SEXMOD ? WorldUtils.a_clash301(var2, var3) : null;
+         this.lightingPos = var1.getLightingType() == LightingType.SEXMOD ? WorldUtils.getEntityLookVector(var2, var3) : null;
       } else {
          this.lightingPos = null;
       }
@@ -170,20 +170,20 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    }
 
    public void a(SexSceneEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      if (this.a_clash811(var9)) {
+      if (this.isRenderAngle(var9)) {
          if (!ServerWhitelistManager.isGlobalRenderingDisabled) {
             if (!this.d(var1)) {
                var1.matrixStack = new MatrixStack();
-               ServerWhitelistManager.b var10 = ServerWhitelistManager.b_clash142(var1.a_clash343());
+               ServerWhitelistManager.b var10 = ServerWhitelistManager.getModelDataForGirl(var1.getModelCode());
                this.sceneEntity = var1;
                this.modelData = var10;
                this.a(var10, var1, var9);
                if (var9 != 1.876945F && var9 != 2.876945F) {
-                  UUID var11 = var1.b_clash342();
+                  UUID var11 = var1.getGirlIdFromCode();
                   if (var11 != null) {
                      BaseGirlEntity var13 = BaseGirlEntity.getClientGirlEntity(var11);
                      if (var13 != null) {
-                        if (var10 == null || var10.a_clash900() || var13.getOutfitIndex() != 0) {
+                        if (var10 == null || var10.isDisabled() || var13.getOutfitIndex() != 0) {
                            Object var12;
                            if (!(var13 instanceof AbstractPlayerGirlEntity)) {
                               var12 = var13;
@@ -299,8 +299,8 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       GlStateManager.enableCull();
    }
 
-   EntityLivingBase c_clash812(SexSceneEntity var1) {
-      BaseGirlEntity var3 = this.b_clash813(var1);
+   EntityLivingBase getRenderEntityLiving(SexSceneEntity var1) {
+      BaseGirlEntity var3 = this.getRenderGirl(var1);
       if (var3 == null) {
          return null;
       }
@@ -316,22 +316,22 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       return (EntityLivingBase)var2;
    }
 
-   BaseGirlEntity b_clash813(SexSceneEntity var1) {
-      UUID var2 = var1.b_clash342();
+   BaseGirlEntity getRenderGirl(SexSceneEntity var1) {
+      UUID var2 = var1.getGirlIdFromCode();
       BaseGirlEntity var3 = GirlRegistry.getGirl(var2);
       return var3 != null ? var3 : BaseGirlEntity.getClientGirlEntity(var2);
    }
 
    void a(SexSceneEntity var1, GeoBone var2, float var3) {
-      String var4 = this.a_clash814(var1);
+      String var4 = this.getBoneName(var1);
       if (var4 != null) {
          this.a(var1, var2, var3, var4);
       }
    }
 
    void a(SexSceneEntity var1, GeoBone var2, float var3, String var4) {
-      BaseGirlEntity var5 = this.b_clash813(var1);
-      this.c_clash812(var1);
+      BaseGirlEntity var5 = this.getRenderGirl(var1);
+      this.getRenderEntityLiving(var1);
       var1.matrixStack = var5.getBoneMatrixStack(var4, false);
       if (var1.isItemModel && var3 == 2.876945F) {
          var1.matrixStack.scale(0.5F, 0.5F, 0.5F);
@@ -339,15 +339,15 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
-   String a_clash814(SexSceneEntity var1) {
+   String getBoneName(SexSceneEntity var1) {
       if (var1.isItemModel) {
          return var1.boneType.boneName;
       } else {
-         ServerWhitelistManager.b var2 = ServerWhitelistManager.b_clash142(var1.a_clash343());
+         ServerWhitelistManager.b var2 = ServerWhitelistManager.getModelDataForGirl(var1.getModelCode());
          if (var2 == null) {
             return null;
          } else {
-            return BoneType.CUSTOM_BONE.equals(var2.j_clash897()) ? var2.b_clash893() : var2.j_clash897().boneName;
+            return BoneType.CUSTOM_BONE.equals(var2.getBoneType()) ? var2.getModelName() : var2.getBoneType().boneName;
          }
       }
    }

@@ -78,8 +78,8 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
    @Override
    protected void renderHeldItem(BufferBuilder var1, GeoBone var2) {
       ItemStack var3 = this.resolveHeldItemStack(null);
-      float var4 = this.a_clash217();
-      Vec3d var5 = this.a_clash218(var3);
+      float var4 = this.getDefaultScale();
+      Vec3d var5 = this.getItemRenderOffset(var3);
       if (var3 != null) {
          GlStateManager.pushMatrix();
          Tessellator.getInstance().draw();
@@ -97,11 +97,11 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       }
    }
 
-   protected float a_clash217() {
+   protected float getDefaultScale() {
       return 1.0F;
    }
 
-   protected Vec3d a_clash218(ItemStack var1) {
+   protected Vec3d getItemRenderOffset(ItemStack var1) {
       return new Vec3d(-90.0, 0.0, 0.0);
    }
 

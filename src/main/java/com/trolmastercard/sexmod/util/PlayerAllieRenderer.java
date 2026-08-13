@@ -95,7 +95,7 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
          }
 
          if ("body".equals(var1)) {
-            this.a_clash408(var2);
+            this.updateBoneBob(var2);
          }
 
          if (this.playerGirl.getCurrentAction() != Action.BOW) {
@@ -127,18 +127,18 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
       var1.setRotationZ(var3 + this.rotI * var4);
    }
 
-   void a_clash408(GeoBone var1) {
+   void updateBoneBob(GeoBone var1) {
       double var2 = this.currentPosX - this.prevPosX;
       double var4 = this.currentPosZ - this.prevPosZ;
       this.moveMagnitude = (Math.abs(var2) + Math.abs(var4)) * 5.0;
       this.moveMagnitude = ThreadNames.b((float)this.moveMagnitude, 0.0F, 1.0F);
-      var1.setPositionY((float)RotationHelper.a_clash28(5.0, 0.0, RotationHelper.b(this.smoothedBob, this.moveMagnitude, this.partialTicks)));
+      var1.setPositionY((float)RotationHelper.lerpAngle(5.0, 0.0, RotationHelper.b(this.smoothedBob, this.moveMagnitude, this.partialTicks)));
       if (this.playerGirl instanceof AlliePlayerEntity) {
-         ((AlliePlayerEntity)this.playerGirl).aq = (float)RotationHelper.a_clash28(0.3F, 0.0, RotationHelper.b(this.smoothedBob, this.moveMagnitude, this.partialTicks));
+         ((AlliePlayerEntity)this.playerGirl).aq = (float)RotationHelper.lerpAngle(0.3F, 0.0, RotationHelper.b(this.smoothedBob, this.moveMagnitude, this.partialTicks));
       }
    }
 
-   void a_clash409() {
+   void updateCameraRotations() {
       if (this.playerGirl != null) {
          this.prevRotX = this.rotG;
          this.prevRotZ = this.rotI;
@@ -160,7 +160,7 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
       @SubscribeEvent
       public void a(ClientTickEvent var1) {
          for (PlayerAllieRenderer var3 : PlayerAllieRenderer.renderers) {
-            var3.a_clash409();
+            var3.updateCameraRotations();
          }
       }
    }

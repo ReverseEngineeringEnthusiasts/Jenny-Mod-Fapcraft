@@ -59,7 +59,7 @@ public class InHandMapRenderer {
 
             try {
                ItemRenderer var6 = this.mc.getItemRenderer();
-               if (DebugMode.a_clash64()) {
+               if (DebugMode.isDeobfuscated()) {
                   var4 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "prevEquippedProgressMainHand");
                   var5 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "equippedProgressMainHand");
                } else {
@@ -110,7 +110,7 @@ public class InHandMapRenderer {
             this.a(EnumHandSide.RIGHT, var4 - 1.0F, var5, var1);
          }
       } else {
-         this.a_clash297(var5, var2);
+         this.renderMapView(var5, var2);
       }
    }
 
@@ -143,7 +143,7 @@ public class InHandMapRenderer {
       GlStateManager.translate(var5 * var8, var9 - 0.3F * var7, var10);
       GlStateManager.rotate(var7 * -45.0F, 1.0F, 0.0F, 0.0F);
       GlStateManager.rotate(var5 * var7 * -30.0F, 0.0F, 1.0F, 0.0F);
-      this.a_clash295(var4);
+      this.renderMapItem(var4);
       GlStateManager.popMatrix();
    }
 
@@ -153,7 +153,7 @@ public class InHandMapRenderer {
       float var7 = -0.2F * MathHelper.sin(var3 * (float) Math.PI);
       float var8 = -0.4F * MathHelper.sin(var6 * (float) Math.PI);
       GlStateManager.translate(0.0F, -var7 / 2.0F, var8);
-      float var9 = this.a_clash296(var5);
+      float var9 = this.calculateMapScale(var5);
       GlStateManager.translate(0.0F, 0.04F + (this.PROGRESS_SCALE - 1.0F) * -1.2F + var9 * -0.5F, -0.72F);
       GlStateManager.rotate(var9 * -85.0F, 1.0F, 0.0F, 0.0F);
       GlStateManager.disableCull();
@@ -166,11 +166,11 @@ public class InHandMapRenderer {
       float var10 = MathHelper.sin(var6 * (float) Math.PI);
       GlStateManager.rotate(var10 * 20.0F, 1.0F, 0.0F, 0.0F);
       GlStateManager.scale(2.0F, 2.0F, 2.0F);
-      this.a_clash295(var1);
+      this.renderMapItem(var1);
       GlStateManager.enableLighting();
    }
 
-   void a_clash295(ItemStack var1) {
+   void renderMapItem(ItemStack var1) {
       GlStateManager.resetColor();
       GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
       GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
@@ -213,13 +213,13 @@ public class InHandMapRenderer {
       GlStateManager.popMatrix();
    }
 
-   private float a_clash296(float var1) {
+   private float calculateMapScale(float var1) {
       float var2 = 1.0F - var1 / 45.0F + 0.1F;
       var2 = MathHelper.clamp(var2, 0.0F, 1.0F);
       return -MathHelper.cos(var2 * (float) Math.PI) * 0.5F + 0.5F;
    }
 
-   void a_clash297(float var1, float var2) {
+   void renderMapView(float var1, float var2) {
       GlStateManager.disableCull();
       GlStateManager.pushMatrix();
       this.a(this.PROGRESS_SCALE, var1, EnumHandSide.RIGHT);

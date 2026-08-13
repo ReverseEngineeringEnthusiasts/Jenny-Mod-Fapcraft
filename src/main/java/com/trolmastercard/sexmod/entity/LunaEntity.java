@@ -140,7 +140,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return -0.2F;
    }
 
@@ -154,7 +154,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    @Override
-   public void c_clash237() {
+   public void onArriveHome() {
       this.sendChatMessage("Love it here owo");
       this.playRandomSound(SoundHandler.GIRLS_LUNA_OWO);
    }
@@ -169,7 +169,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    @Override
-   public void b_clash158() {
+   public void setDismounted() {
       this.ac = true;
    }
 
@@ -209,7 +209,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(var1, var0, var2, var3, true));
    }
 
-   public void b_clash383(ItemStack var1) {
+   public void setHeldItemStack(ItemStack var1) {
       this.entityDataManager.set(ag, var1);
    }
 
@@ -230,8 +230,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
       }
 
-      this.m_clash393();
-      this.i_clash389();
+      this.handleFishingPath();
+      this.handleFishingIdle();
       this.entityDataManager.set(af, this.av != null && this.entityDataManager.get(ag) == ItemStack.EMPTY);
       if (this.al == this.world.getTotalWorldTime() && this.av != null) {
          this.world.removeEntity(this.av);
@@ -275,11 +275,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          }
       }
 
-      this.d_clash384();
+      this.syncHeldItem();
       this.entityDataManager.set(az, this.inventory.getStackInSlot(6));
    }
 
-   void d_clash384() {
+   void syncHeldItem() {
       ItemStack var1 = this.ao;
       ItemStack var2 = (ItemStack)this.entityDataManager.get(az);
       if (!var2.equals(ItemStack.EMPTY)) {
@@ -292,13 +292,13 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    public void onUpdate() {
       super.onUpdate();
       if (Action.WAIT_CAT.equals(this.getCurrentAction())) {
-         this.f_clash385();
+         this.handleNearbyPlayer();
       } else {
          this.ab = 0;
       }
    }
 
-   void f_clash385() {
+   void handleNearbyPlayer() {
       EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
       if (var1 != null) {
          if (!(var1.getDistance(this) > 1.25F)) {
@@ -410,7 +410,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       }
    }
 
-   public void j_clash386() {
+   public void dropHeldItem() {
       EntityItem var1 = new EntityItem(this.world, this.posX, this.posY, this.posZ, (ItemStack)this.entityDataManager.get(ag));
       Vec3d var2 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.rotationYaw);
       var1.motionX = var2.x;
@@ -420,7 +420,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       this.entityDataManager.set(ag, ItemStack.EMPTY);
    }
 
-   public void q_clash387() {
+   public void clearFishingState() {
       this.ai = null;
       this.at = 0;
       this.as = 0;
@@ -444,15 +444,15 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       }
    }
 
-   public void h_clash388() {
-      this.q_clash387();
+   public void onFishingTick() {
+      this.clearFishingState();
       if (++this.aq >= 3) {
          this.aq = 0;
          this.aj = 0;
       }
    }
 
-   void i_clash389() {
+   void handleFishingIdle() {
       if (!this.hasMaster() && this.getInteractionPlayerUUID() == null && !this.ar) {
          if (!(++this.aj < 1200.0F)) {
             if (this.av != null && this.av.lureTimer == 15) {
@@ -469,8 +469,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
             }
 
             if (!this.getCurrentAction().toString().toLowerCase().contains("fishing")) {
-               this.n_clash392();
-               this.e_clash391();
+               this.findFishingSpot();
+               this.handleFishingMove();
             }
 
             if (this.ai != null && this.au == null && this.getNavigator().getPath() == null && !this.inWater && this.onGround) {
@@ -506,17 +506,17 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          }
       } else {
          if ((Boolean)this.entityDataManager.get(af)) {
-            this.q_clash387();
+            this.clearFishingState();
          }
       }
    }
 
-   public void o_clash390() {
+   public void addCaughtItem() {
       this.an.add(this.ai);
-      this.q_clash387();
+      this.clearFishingState();
    }
 
-   void e_clash391() {
+   void handleFishingMove() {
       if (this.ai != null) {
          PathNavigate var1 = this.getNavigator();
          var1.tryMoveToXYZ(this.ai.getX(), this.ai.getY(), this.ai.getZ(), 0.35F);
@@ -548,7 +548,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       }
    }
 
-   void n_clash392() {
+   void findFishingSpot() {
       int var1 = 0;
       BlockPos var2 = null;
       int var3 = 0;
@@ -615,7 +615,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       }
    }
 
-   void m_clash393() {
+   void handleFishingPath() {
       Path var1 = this.getNavigator().getPath();
       if (var1 != null) {
          PathPoint var2 = var1.getFinalPathPoint();

@@ -52,7 +52,7 @@ public class BasicGirlEntity extends EntityLiving {
          if (var1 != null && var1.getDistance(this) < 3.0F) {
             this.getNavigator().clearPath();
          } else {
-            if (this.wanderTarget == null || this.getDistance(this.wanderTarget.getX(), this.wanderTarget.getY(), this.wanderTarget.getZ()) > this.c_clash50() || this.wanderTicks > 175) {
+            if (this.wanderTarget == null || this.getDistance(this.wanderTarget.getX(), this.wanderTarget.getY(), this.wanderTarget.getZ()) > this.getDespawnDistance() || this.wanderTicks > 175) {
                int var2 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
                int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
                int var4 = this.world.provider.getDimensionType() == DimensionType.NETHER
@@ -64,7 +64,7 @@ public class BasicGirlEntity extends EntityLiving {
 
             if (Math.sqrt(this.wanderTarget.distanceSq(this.getPosition())) > 2.0) {
                this.getNavigator().tryMoveToXYZ(this.wanderTarget.getX(), this.wanderTarget.getY(), this.wanderTarget.getZ(), 0.35F);
-               this.d_clash48();
+               this.updateWanderAI();
             } else {
                this.wanderTicks++;
             }
@@ -72,7 +72,7 @@ public class BasicGirlEntity extends EntityLiving {
       }
    }
 
-   protected void d_clash48() {
+   protected void updateWanderAI() {
       Path var1 = this.getNavigator().getPath();
       if (var1 != null) {
          if (!this.onGround && !this.isInWater()) {
@@ -100,7 +100,7 @@ public class BasicGirlEntity extends EntityLiving {
       }
 
       if (this.world.isRemote) {
-         this.b_clash49();
+         this.playSpawnSound();
       }
 
       this.shouldStopMoving = true;
@@ -109,13 +109,13 @@ public class BasicGirlEntity extends EntityLiving {
    }
 
    @SideOnly(Side.CLIENT)
-   void b_clash49() {
+   void playSpawnSound() {
       EntityPlayerSP var1 = Minecraft.getMinecraft().player;
       this.lastSoundTick = var1.ticksExisted;
       var1.playSound(SoundHandler.MISC_WEOWEO[3], 1.0F, 1.0F);
    }
 
-   double c_clash50() {
+   double getDespawnDistance() {
       return Math.sqrt(1800.0);
    }
 

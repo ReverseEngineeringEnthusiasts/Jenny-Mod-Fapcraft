@@ -54,7 +54,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
    public void doRenderShadowAndFire(Entity var1, double var2, double var4, double var6, float var8, float var9) {
    }
 
-   boolean a_clash365(BaseGirlEntity var1) {
+   boolean isGirlVisible(BaseGirlEntity var1) {
       if (var1.isLocallyRegistered()) {
          return true;
       }
@@ -66,7 +66,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
 
    @Override
    public void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      if (this.a_clash365(var1)) {
+      if (this.isGirlVisible(var1)) {
          AbstractPlayerGirlEntity var10 = (AbstractPlayerGirlEntity)var1;
          if (var10.getOwnerUserUUID() != null) {
             EntityPlayer var11 = Minecraft.getMinecraft().player.world.getPlayerEntityByUUID(var10.getOwnerUserUUID());
@@ -78,8 +78,8 @@ public class GirlPlayerRenderer extends GirlRenderer {
                this.playerGirl = (AbstractPlayerGirlEntity)var1;
                this.partialTicks = var9;
                var10.f(var11);
-               if (this.a_clash366(var11, var1)) {
-                  this.renderLivingLabel(var1, var11.getName(), var2, var4 + var10.i_clash226(), var6, 300);
+               if (this.isOwnPlayer(var11, var1)) {
+                  this.renderLivingLabel(var1, var11.getName(), var2, var4 + var10.getScaleFactor(), var6, 300);
                }
 
                super.a(var1, var2, var4, var6, var8, var9);
@@ -89,17 +89,17 @@ public class GirlPlayerRenderer extends GirlRenderer {
    }
 
    @Override
-   public Entity c_clash336(BaseGirlEntity var1) {
+   public Entity getRenderEntity(BaseGirlEntity var1) {
       if (!(var1 instanceof AbstractPlayerGirlEntity)) {
          return var1;
       }
 
       AbstractPlayerGirlEntity var2 = (AbstractPlayerGirlEntity)var1;
-      EntityPlayer var3 = var2.k_clash584();
+      EntityPlayer var3 = var2.getOwnerPlayer();
       return (Entity)(var3 == null ? var1 : var3);
    }
 
-   boolean a_clash366(EntityPlayer var1, BaseGirlEntity var2) {
+   boolean isOwnPlayer(EntityPlayer var1, BaseGirlEntity var2) {
       if (var1.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
          return false;
       }
@@ -212,7 +212,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
    }
 
    public boolean shouldRenderFirstPersonHead() {
-      if (!((AbstractPlayerGirlEntity)this.playerGirl).f_clash579()) {
+      if (!((AbstractPlayerGirlEntity)this.playerGirl).hasOwnerUUID()) {
          return true;
       } else {
          return mc.gameSettings.thirdPersonView != 0 ? true : mc.currentScreen instanceof GuiInventory || mc.currentScreen instanceof GuiContainerCreative;

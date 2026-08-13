@@ -113,11 +113,11 @@ public class WildSlimeEntity extends EntityLiving {
       this.dataManager.set(AGE_IN_TICKS, var1.getInteger("ageInTicks"));
    }
 
-   public boolean j_clash93() {
+   public boolean isSmallSlime() {
       return this.getSquishFactor() <= 1;
    }
 
-   protected EnumParticleTypes g_clash94() {
+   protected EnumParticleTypes getParticleType() {
       return EnumParticleTypes.SLIME;
    }
 
@@ -151,7 +151,7 @@ public class WildSlimeEntity extends EntityLiving {
       return var3;
    }
 
-   public Vec3d e_clash97() {
+   public Vec3d getPrevPosition() {
       return new Vec3d(this.prevPosX, this.prevPosY, this.prevPosZ);
    }
 
@@ -193,7 +193,7 @@ public class WildSlimeEntity extends EntityLiving {
       super.onUpdate();
       if (this.onGround && !this.wasOnGround) {
          int var13 = this.getSquishFactor();
-         if (this.k_clash104()) {
+         if (this.canDrop()) {
             var13 = 0;
          }
 
@@ -203,23 +203,23 @@ public class WildSlimeEntity extends EntityLiving {
             float var5 = MathHelper.sin(var3) * var13 * 0.5F * var4;
             float var6 = MathHelper.cos(var3) * var13 * 0.5F * var4;
             World var7 = this.world;
-            EnumParticleTypes var8 = this.g_clash94();
+            EnumParticleTypes var8 = this.getParticleType();
             double var9 = this.posX + var5;
             double var11 = this.posZ + var6;
             var7.spawnParticle(var8, var9, this.getEntityBoundingBox().minY, var11, 0.0, 0.0, 0.0, new int[0]);
          }
 
-         this.playSound(this.f_clash101(), this.getSoundVolume(), ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F) / 0.8F);
+         this.playSound(this.getSquishSound(), this.getSoundVolume(), ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F) / 0.8F);
          this.squishAmount = -0.5F;
       } else if (!this.onGround && this.wasOnGround) {
          this.squishAmount = 1.0F;
       }
 
       this.wasOnGround = this.onGround;
-      this.b_clash98();
+      this.decaySquish();
    }
 
-   protected void b_clash98() {
+   protected void decaySquish() {
       this.squishAmount *= 0.6F;
    }
 
@@ -227,7 +227,7 @@ public class WildSlimeEntity extends EntityLiving {
       return this.rand.nextInt(100) + 50;
    }
 
-   protected WildSlimeEntity d_clash100() {
+   protected WildSlimeEntity createChild() {
       return new WildSlimeEntity(this.world);
    }
 
@@ -253,7 +253,7 @@ public class WildSlimeEntity extends EntityLiving {
          for (int var3 = 0; var3 < var2; var3++) {
             float var4 = (var3 % 2 - 0.5F) * var1 / 4.0F;
             float var5 = (var3 / 2 - 0.5F) * var1 / 4.0F;
-            WildSlimeEntity var6 = this.d_clash100();
+            WildSlimeEntity var6 = this.createChild();
             if (this.hasCustomName()) {
                var6.setCustomNameTag(this.getCustomNameTag());
             }
@@ -276,15 +276,15 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    protected SoundEvent getHurtSound(DamageSource var1) {
-      return this.j_clash93() ? SoundEvents.ENTITY_SMALL_SLIME_HURT : SoundEvents.ENTITY_SLIME_HURT;
+      return this.isSmallSlime() ? SoundEvents.ENTITY_SMALL_SLIME_HURT : SoundEvents.ENTITY_SLIME_HURT;
    }
 
    protected SoundEvent getDeathSound() {
-      return this.j_clash93() ? SoundEvents.ENTITY_SMALL_SLIME_DEATH : SoundEvents.ENTITY_SLIME_DEATH;
+      return this.isSmallSlime() ? SoundEvents.ENTITY_SMALL_SLIME_DEATH : SoundEvents.ENTITY_SLIME_DEATH;
    }
 
-   protected SoundEvent f_clash101() {
-      return this.j_clash93() ? SoundEvents.ENTITY_SMALL_SLIME_SQUISH : SoundEvents.ENTITY_SLIME_SQUISH;
+   protected SoundEvent getSquishSound() {
+      return this.isSmallSlime() ? SoundEvents.ENTITY_SMALL_SLIME_SQUISH : SoundEvents.ENTITY_SLIME_SQUISH;
    }
 
    protected Item getDropItem() {
@@ -304,7 +304,7 @@ public class WildSlimeEntity extends EntityLiving {
       return 0;
    }
 
-   protected boolean i_clash102() {
+   protected boolean canSquish() {
       return this.getSquishFactor() > 0;
    }
 
@@ -319,11 +319,11 @@ public class WildSlimeEntity extends EntityLiving {
       return super.onInitialSpawn(var1, var2);
    }
 
-   protected SoundEvent c_clash103() {
-      return this.j_clash93() ? SoundEvents.ENTITY_SMALL_SLIME_JUMP : SoundEvents.ENTITY_SLIME_JUMP;
+   protected SoundEvent getJumpSound() {
+      return this.isSmallSlime() ? SoundEvents.ENTITY_SMALL_SLIME_JUMP : SoundEvents.ENTITY_SLIME_JUMP;
    }
 
-   protected boolean k_clash104() {
+   protected boolean canDrop() {
       return false;
    }
 
@@ -349,7 +349,7 @@ public class WildSlimeEntity extends EntityLiving {
             this.squishAngle = this.ownerSlime.getRNG().nextInt(360);
          }
 
-         ((WildSlimeEntity.b)this.ownerSlime.getMoveHelper()).a_clash0(this.squishAngle, false);
+         ((WildSlimeEntity.b)this.ownerSlime.getMoveHelper()).setMoveHelperTarget(this.squishAngle, false);
       }
 
    }
@@ -366,12 +366,12 @@ public class WildSlimeEntity extends EntityLiving {
          this.rotationYaw = 180.0F * var1.rotationYaw / (float) Math.PI;
       }
 
-      public void a_clash0(float var1, boolean var2) {
+      public void setMoveHelperTarget(float var1, boolean var2) {
          this.rotationYaw = var1;
          this.wasOnGround = var2;
       }
 
-      public void a_clash1(double var1) {
+      public void setMoveHelperSpeed(double var1) {
          this.speed = var1;
          this.action = Action.MOVE_TO;
       }
@@ -394,12 +394,12 @@ public class WildSlimeEntity extends EntityLiving {
                   }
 
                   float var1 = Reference.RANDOM.nextInt(360);
-                  ((WildSlimeEntity.b)this.slime.getMoveHelper()).a_clash0(var1, false);
+                  ((WildSlimeEntity.b)this.slime.getMoveHelper()).setMoveHelperTarget(var1, false);
                   this.slime.getJumpHelper().setJumping();
-                  if (this.slime.i_clash102()) {
+                  if (this.slime.canSquish()) {
                      this.slime
                         .playSound(
-                           this.slime.c_clash103(),
+                           this.slime.getJumpSound(),
                            this.slime.getSoundVolume(),
                            ((this.slime.getRNG().nextFloat() - this.slime.getRNG().nextFloat()) * 0.2F + 1.0F) * 0.8F
                         );
@@ -431,7 +431,7 @@ public class WildSlimeEntity extends EntityLiving {
       }
 
       public void updateTask() {
-         ((WildSlimeEntity.b)this.squishAmount.getMoveHelper()).a_clash1(1.0);
+         ((WildSlimeEntity.b)this.squishAmount.getMoveHelper()).setMoveHelperSpeed(1.0);
       }
    }
 
@@ -453,7 +453,7 @@ public class WildSlimeEntity extends EntityLiving {
             this.squishAmount.getJumpHelper().setJumping();
          }
 
-         ((WildSlimeEntity.b)this.squishAmount.getMoveHelper()).a_clash1(1.2);
+         ((WildSlimeEntity.b)this.squishAmount.getMoveHelper()).setMoveHelperSpeed(1.2);
       }
 
    }

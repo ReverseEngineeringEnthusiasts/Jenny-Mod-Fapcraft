@@ -62,7 +62,7 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
       if (var1.world instanceof SexWorldClient) {
          return null;
       } else {
-         return ((IGalath)var1).c_clash21() ? null : GalathRenderer.ZERO_OFFSET;
+         return ((IGalath)var1).isWingsAnimated() ? null : GalathRenderer.ZERO_OFFSET;
       }
    }
 
@@ -81,7 +81,7 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
    public void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       super.a(var1, var2, var4, var6, var8, var9);
       if (mc.gameSettings.thirdPersonView != 0 || !mc.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var1).getOwnerUserUUID()) || var1.isAnchored()) {
-         GalathRenderer.a_clash324(var1, var9);
+         GalathRenderer.renderDashPov(var1, var9);
       }
    }
 

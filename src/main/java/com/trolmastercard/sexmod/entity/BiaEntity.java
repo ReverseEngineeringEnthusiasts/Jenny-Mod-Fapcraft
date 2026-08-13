@@ -84,18 +84,18 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return -0.2F;
    }
 
    @Override
-   public void c_clash237() {
+   public void onArriveHome() {
       this.sendChatMessage("I am living here now nya~");
       this.playRandomSound(SoundHandler.GIRLS_BIA_BREATH);
    }
 
    @Override
-   public void b_clash158() {
+   public void setDismounted() {
       this.yFlag = true;
    }
 
@@ -214,7 +214,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       }
    }
 
-   void b_clash286(EntityPlayer var1) {
+   void openBiaInventory(EntityPlayer var1) {
       openInventoryGui(var1, this, new String[]{"action.names.anal", "doggy"}, false);
    }
 
@@ -230,11 +230,11 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    @Override
    public void onUpdate() {
       super.onUpdate();
-      if (this.world.isRemote && this.isControlledByLocalPlayer() && this.getCurrentAction() == Action.PRONE_DOGGY_INTRO && !BeeScreen.a_clash731()) {
+      if (this.world.isRemote && this.isControlledByLocalPlayer() && this.getCurrentAction() == Action.PRONE_DOGGY_INTRO && !BeeScreen.isBeeScreenVisible()) {
          HornyMeterHud.showHornyMeter();
       }
 
-      this.d_clash287();
+      this.handleAnalState();
    }
 
    @Override
@@ -243,7 +243,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       this.ac = -1;
    }
 
-   void d_clash287() {
+   void handleAnalState() {
       Action var1 = this.getCurrentAction();
       if (var1 == Action.ANAL_WAIT || var1 == Action.SITDOWNIDLE) {
          EntityPlayer var2 = this.world.getClosestPlayerToEntity(this, 10.0);
@@ -320,13 +320,13 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
             this.setInteractionPlayerUUID(Minecraft.getMinecraft().player.getPersistentID());
             this.changeDataParameterFromClient("playerSheHasSexWith", Minecraft.getMinecraft().player.getPersistentID().toString());
             this.changeDataParameterFromClient("animationFollowUp", "talkHorny");
-            this.a_clash288(var2);
+            this.triggerAnalAction(var2);
             break;
          case "action.names.headpat":
             this.setInteractionPlayerUUID(Minecraft.getMinecraft().player.getPersistentID());
             this.changeDataParameterFromClient("playerSheHasSexWith", Minecraft.getMinecraft().player.getPersistentID().toString());
             this.changeDataParameterFromClient("animationFollowUp", "Headpat");
-            this.a_clash288(var2);
+            this.triggerAnalAction(var2);
             break;
          case "action.names.anal":
             this.changeDataParameterFromClient("animationFollowUp", "anal");
@@ -358,16 +358,16 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       }
    }
 
-   void a_clash288(UUID var1) {
+   void triggerAnalAction(UUID var1) {
       this.triggerActionSync(true, true, var1);
       HandlePlayerMovement.setMovementLock(false);
    }
 
-   Vector4d a_clash289() {
+   Vector4d getBedVector() {
       BlockPos var1 = null;
       int var2 = 0;
 
-      while (!this.a_clash290(var1)) {
+      while (!this.isValidBed(var1)) {
          var1 = this.findNearestBed(this.getPosition(), var2);
          if (++var2 == 50) {
             break;
@@ -422,7 +422,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       }
    }
 
-   boolean a_clash290(BlockPos var1) {
+   boolean isValidBed(BlockPos var1) {
       if (var1 == null) {
          return false;
       } else if (WorldUtils.b(this.world, var1.north()) && this.world.isAirBlock(var1.south())) {
@@ -436,7 +436,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       }
    }
 
-   Vector4d b_clash291() {
+   Vector4d findNearestBedVector() {
       BlockPos var1 = this.getNearestBed(this.getPosition());
       if (var1 == null) {
          this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
@@ -488,7 +488,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    @Override
    public void goToSexBed() {
       String var1 = (String)this.entityDataManager.get(GIRL_HAND_STATES);
-      Vector4d var2 = var1.equals("anal") ? this.b_clash291() : this.a_clash289();
+      Vector4d var2 = var1.equals("anal") ? this.findNearestBedVector() : this.getBedVector();
       if (var2 != null) {
          Vec3d var3 = new Vec3d(var2.getX(), var2.getY(), var2.getZ());
          this.setYawRotation((float)var2.getW());
@@ -731,7 +731,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
             case "talk_hornyDone":
                this.setCurrentAction(Action.TALK_IDLE);
                if (this.isControlledByLocalPlayer()) {
-                  this.b_clash286(Minecraft.getMinecraft().player);
+                  this.openBiaInventory(Minecraft.getMinecraft().player);
                }
                break;
             case "talk_responseMSG1":

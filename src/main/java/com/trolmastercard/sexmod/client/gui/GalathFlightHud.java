@@ -48,16 +48,16 @@ public class GalathFlightHud extends Gui {
    static long uiFadeInStartTime = 0L;
    static long uiFadeOutStartTime = 9223372036854775307L;
 
-   public static boolean d_clash788() {
+   public static boolean canUseCharge() {
       return availableCharges <= 0 ? false : System.currentTimeMillis() - lastChargeUsedTime > 3000L;
    }
 
-   public static void a_clash789() {
+   public static void useCharge() {
       availableCharges--;
       lastChargeUsedTime = System.currentTimeMillis();
    }
 
-   void b_clash790() {
+   void updateChargeRegen() {
       if (availableCharges != 3) {
          long var1 = System.currentTimeMillis();
          if (var1 - Math.max(lastChargeUsedTime, lastRegenTime) >= 5000L) {
@@ -69,7 +69,7 @@ public class GalathFlightHud extends Gui {
 
    @SubscribeEvent
    public void a(RenderGameOverlayEvent var1) {
-      this.b_clash790();
+      this.updateChargeRegen();
       if (isUIVisible) {
          ScaledResolution var2 = var1.getResolution();
          int var3 = var2.getScaledWidth();
@@ -77,7 +77,7 @@ public class GalathFlightHud extends Gui {
          int var5 = var3 / 2;
          long var6 = System.currentTimeMillis();
          if (var6 - uiFadeOutStartTime > 500L) {
-            e_clash793();
+            hideHud();
          } else {
             mc.getTextureManager().bindTexture(UI_TEXTURE);
             GlStateManager.enableBlend();
@@ -137,7 +137,7 @@ public class GalathFlightHud extends Gui {
       GlStateManager.resetColor();
    }
 
-   public static void f_clash791() {
+   public static void showHud() {
       if (!isUIVisible) {
          isUIVisible = true;
          uiFadeInStartTime = System.currentTimeMillis();
@@ -145,11 +145,11 @@ public class GalathFlightHud extends Gui {
       }
    }
 
-   public static void c_clash792() {
+   public static void startFadeOut() {
       uiFadeOutStartTime = System.currentTimeMillis();
    }
 
-   public static void e_clash793() {
+   public static void hideHud() {
       isUIVisible = false;
       uiFadeOutStartTime = 9223372036854775307L;
       uiFadeInStartTime = 0L;

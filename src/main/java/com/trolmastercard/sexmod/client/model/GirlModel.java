@@ -66,7 +66,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
 
    @Override
    public ResourceLocation getModelLocation(BaseGirlEntity var0) {
-      return this.a_clash34(var0);
+      return this.getSexWorldTexture(var0);
    }
 
 
@@ -81,11 +81,11 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    public String[] d() { return new String[0]; }
 
 
-   public ResourceLocation c_clash344(BaseGirlEntity var1) {
+   public ResourceLocation getTextureForGirl(BaseGirlEntity var1) {
       return this.getTextureLocation(var1);
    }
 
-   public ResourceLocation a_clash34(BaseGirlEntity var1) {
+   public ResourceLocation getSexWorldTexture(BaseGirlEntity var1) {
       if (var1.world instanceof SexWorldClient) {
          return this.modelLocations[0];
       } else if ((Integer)var1.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) > this.modelLocations.length) {
@@ -96,7 +96,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       }
    }
 
-   public ResourceLocation g_clash345(BaseGirlEntity var1) {
+   public ResourceLocation getDefaultTexture(BaseGirlEntity var1) {
       return this.getTextureLocation();
    }
 
@@ -138,15 +138,15 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       }
    }
 
-   public static Vec3d d_clash346(BaseGirlEntity var0) {
-      return a_clash347(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector());
+   public static Vec3d getInterpolatedPosition(BaseGirlEntity var0) {
+      return lerpPositions(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector());
    }
 
    public static Vec3d a(BaseGirlEntity var0, Vec3d var1) {
-      return a_clash347(var1, var0.getPositionVector());
+      return lerpPositions(var1, var0.getPositionVector());
    }
 
-   public static Vec3d a_clash347(Vec3d var0, Vec3d var1) {
+   public static Vec3d lerpPositions(Vec3d var0, Vec3d var1) {
       Vec3d var2 = var1.subtract(var0);
       Vec3d var3 = new Vec3d(Math.abs(var2.x), Math.abs(var2.y), Math.abs(var2.z));
       double var4 = var3.x / (var3.x + var3.y + var3.z);
@@ -220,7 +220,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       }
    }
 
-   protected boolean f_clash312(T var1) {
+   protected boolean canRender(T var1) {
       UUID var2 = var1.getInteractionPlayerUUID();
       if (var2 == null) {
          return true;
@@ -232,7 +232,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    }
 
    void a(T var1, AnimationProcessor<T> var2) {
-      boolean var3 = this.f_clash312((T)var1);
+      boolean var3 = this.canRender((T)var1);
       if (var3) {
          var2.getBone("rightArmAlex").setHidden(var3);
          var2.getBone("rightLowerArmAlex").setHidden(var3);
@@ -270,13 +270,13 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       }
    }
 
-   protected boolean e_clash170(T var1) {
+   protected boolean shouldRender(T var1) {
       return true;
    }
 
    protected void a(T var1, AnimationProcessor<T> var2, AnimationEvent var3) {
       if (!(var1.world instanceof SexWorldClient)) {
-         if (this.e_clash170(var1)) {
+         if (this.shouldRender(var1)) {
             if (var1.getCurrentAction() == Action.NULL || var1.getCurrentAction() == Action.ATTACK || var1.getCurrentAction() == Action.BOW) {
                EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
                IBone var5 = var2.getBone("neck");
@@ -291,7 +291,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       }
    }
 
-   public ItemStack a_clash348(BaseGirlEntity var1, String var2) {
+   public ItemStack getItemStackForBone(BaseGirlEntity var1, String var2) {
       if (Arrays.asList(this.c()).contains(var2)) {
          return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.HELMET_SLOT);
       } else if (Arrays.asList(this.f()).contains(var2)) {

@@ -63,34 +63,34 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   protected boolean e_clash170(BaseGirlEntity var1) {
+   protected boolean shouldRender(BaseGirlEntity var1) {
       if (!(var1 instanceof GalathEntity)) {
          return true;
       }
 
       GalathEntity var2 = (GalathEntity)var1;
-      return var2.k_clash637() ? true : var2.getTargetEntity() == null;
+      return var2.hasMaster() ? true : var2.getTargetEntity() == null;
    }
 
    @Override
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       this.k(var1);
       super.setLivingAnimations(var1, var2, var3);
-      this.a_clash180(var1);
+      this.handleActionPose(var1);
       this.h(var1);
-      this.f_clash179(var1);
-      this.b_clash178(var1);
-      this.e_clash177(var1);
-      this.g_clash176(var1);
+      this.handleFlightPose(var1);
+      this.handleWingState(var1);
+      this.updateSwordBones(var1);
+      this.hideWings(var1);
       this.j(var1);
-      this.a_clash175();
-      this.c_clash173(var1);
+      this.hideFutaBone();
+      this.updateModelState(var1);
       this.i(var1);
-      this.d_clash174(var1);
+      this.handleDashAnimation(var1);
       if (var1 instanceof GalathEntity) {
          GalathEntity var4 = (GalathEntity)var1;
          var4.aE = this.getAnimationProcessor().getBone("head").getRotationX();
-         if (var4.b_clash23()) {
+         if (var4.isHuggingManglelie()) {
             ManglelieNpcModel.a(var4, this.getAnimationProcessor(), var3.getPartialTick());
          }
       }
@@ -103,7 +103,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
                AnimationProcessor var2 = this.getAnimationProcessor();
                IBone var3 = var2.getBone("head");
                float var4 = this.mc.getRenderPartialTicks() + this.mc.player.ticksExisted;
-               Vector3fSexmodSpecial var5 = this.a_clash171((GalathEntity)var1, var4);
+               Vector3fSexmodSpecial var5 = this.getSwordPos((GalathEntity)var1, var4);
                var3.setRotationX(var3.getRotationX() + var5.x);
                var3.setRotationY(var3.getRotationY() + var5.y);
                var3.setRotationZ(var3.getRotationZ() + var5.z);
@@ -120,11 +120,11 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   Vector3fSexmodSpecial a_clash171(GalathEntity var1, float var2) {
-      return RotationHelper.a(this.a_clash172(var2), Vector3fSexmodSpecial.ZERO, var1.b_clash696(this.mc.getRenderPartialTicks()));
+   Vector3fSexmodSpecial getSwordPos(GalathEntity var1, float var2) {
+      return RotationHelper.a(this.getSwordSwingOffset(var2), Vector3fSexmodSpecial.ZERO, var1.getSwordAttackProgress(this.mc.getRenderPartialTicks()));
    }
 
-   Vector3fSexmodSpecial a_clash172(float var1) {
+   Vector3fSexmodSpecial getSwordSwingOffset(float var1) {
       return new Vector3fSexmodSpecial(
          (float)Math.sin(var1 * 0.3F) * TrigMath.wrapDegrees(10.0F),
          (float)Math.sin(var1 * 0.15F) * TrigMath.wrapDegrees(7.0F),
@@ -132,7 +132,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       );
    }
 
-   void c_clash173(BaseGirlEntity var1) {
+   void updateModelState(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
          GalathEntity var2 = (GalathEntity)var1;
          AnimationProcessor var3 = this.getAnimationProcessor();
@@ -142,7 +142,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void d_clash174(BaseGirlEntity var1) {
+   void handleDashAnimation(BaseGirlEntity var1) {
       if (var1.actionController.getAnimationState() == AnimationState.Transitioning) {
          AnimationProcessor var2 = this.getAnimationProcessor();
          Action var3 = var1.getCurrentAction();
@@ -184,7 +184,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void a_clash175() {
+   void hideFutaBone() {
       if (!ClientProxy.IS_PRELOADING) {
          this.getAnimationProcessor().getBone("futaCock").setHidden(!CommandFuta.ENABLED);
          this.getAnimationProcessor().getBone("futaBallLL").setHidden(!CommandFuta.ENABLED);
@@ -198,18 +198,18 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void g_clash176(BaseGirlEntity var1) {
+   void hideWings(BaseGirlEntity var1) {
       this.getAnimationProcessor().getBone("wings").setHidden(!((IGalath)var1).areWingsAnimated());
    }
 
-   void e_clash177(BaseGirlEntity var1) {
+   void updateSwordBones(BaseGirlEntity var1) {
       AnimationProcessor var2 = this.getAnimationProcessor();
       IBone var3 = var2.getBone("nippleR");
       IBone var4 = var2.getBone("nippleL");
       IBone var5 = var2.getBone("braBoobL");
       IBone var6 = var2.getBone("braBoobR");
       IBone var7 = var2.getBone("slip");
-      boolean var8 = ((IGalath)var1).c_clash21();
+      boolean var8 = ((IGalath)var1).isWingsAnimated();
       if (var8) {
          Action.a(var1, Action.PUSSY_LICKING, Action.MASTERBATE_SITTING, Action.MASTERBATE_SITTING_CUM);
          if (var3 != null) {
@@ -241,7 +241,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void b_clash178(BaseGirlEntity var1) {
+   void handleWingState(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
          if ((Boolean)var1.getDataManager().get(GalathEntity.bP)) {
             if (var1.getCurrentAction() == Action.KNOCK_OUT_FLY) {
@@ -254,7 +254,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
                   var2.setPositionY(0.0F);
                   var2.setPositionZ(0.0F);
                } else {
-                  Vec3d var6 = d_clash346(var1);
+                  Vec3d var6 = getInterpolatedPosition(var1);
                   var2.setRotationX(-((float)var6.x));
                   var2.setPositionY((float)var6.y);
                   var2.setPositionZ((float)var6.z);
@@ -267,7 +267,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    void h(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
          if (var1.getCurrentAction() == Action.RAPE_CHARGE) {
-            Vec3d var2 = d_clash346(var1);
+            Vec3d var2 = getInterpolatedPosition(var1);
             IBone var3 = this.getAnimationProcessor().getBone("body");
             IBone var4 = this.getAnimationProcessor().getBone("rotationTool");
             var4.setRotationX((float)var2.x);
@@ -279,7 +279,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void f_clash179(BaseGirlEntity var1) {
+   void handleFlightPose(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
          GalathEntity var2 = (GalathEntity)var1;
          if (var2.getCurrentAction() != Action.ATTACK_SWORD) {
@@ -305,7 +305,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void a_clash180(BaseGirlEntity var1) {
+   void handleActionPose(BaseGirlEntity var1) {
       float var2 = 0.0F;
       switch (var1.getCurrentAction()) {
          case BOOST:
@@ -316,7 +316,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
          case CONTROLLED_FLIGHT:
             float var3 = Minecraft.getMinecraft().getRenderPartialTicks();
             IBone var4 = this.getAnimationProcessor().getBone("rotationTool");
-            Vector4d var5 = ((IGalath)var1).d_clash20();
+            Vector4d var5 = ((IGalath)var1).getFlightData();
             var4.setRotationX((float)RotationHelper.b(var5.z + var2, var5.x + var2, var3));
             var4.setRotationZ((float)RotationHelper.b(var5.w, var5.y, var3));
             return;

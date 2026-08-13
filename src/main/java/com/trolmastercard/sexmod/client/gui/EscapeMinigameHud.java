@@ -46,7 +46,7 @@ public class EscapeMinigameHud extends Gui {
    static Minecraft mc = Minecraft.getMinecraft();
    static boolean hasStarted = false;
 
-   public static void e_clash735() {
+   public static void tickHud() {
       if (showHud) {
          if (mc.world == null) {
             showHud = false;
@@ -72,14 +72,14 @@ public class EscapeMinigameHud extends Gui {
             progress = Math.max(0.0F, progress - 0.006F);
             if (!(timer < 20.0F)) {
                if (timer % 35.0F == 0.0F || currentKey == null) {
-                  b_clash736();
+                  pickNextKey();
                }
             }
          }
       }
    }
 
-   static void b_clash736() {
+   static void pickNextKey() {
       EscapeDirectionKey var0 = currentKey;
       Random var1 = new Random();
 
@@ -88,17 +88,17 @@ public class EscapeMinigameHud extends Gui {
       } while (var0 == currentKey);
    }
 
-   static void c_clash737() {
+   static void startMinigame() {
       if (showHud) {
          if (!hasStarted) {
             hasStarted = true;
             PacketHandler.networkWrapper.sendToServer(new GalathBackOffRapePacket());
-            d_clash739();
+            failMinigame();
          }
       }
    }
 
-   public static void a_clash738() {
+   public static void showMinigame() {
       showHud = true;
       hasStarted = false;
       timer = 0.0F;
@@ -107,7 +107,7 @@ public class EscapeMinigameHud extends Gui {
       failed = false;
    }
 
-   public static void d_clash739() {
+   public static void failMinigame() {
       failed = true;
       failTimer = 0.0F;
    }
@@ -124,7 +124,7 @@ public class EscapeMinigameHud extends Gui {
             if (failed) {
                var5 = 1.0 - RotationHelper.d((failTimer + var4) / 20.0F);
             } else {
-               var5 = Math.min(1.0, RotationHelper.c_clash26((timer + var4) / 20.0F));
+               var5 = Math.min(1.0, RotationHelper.smoothStep((timer + var4) / 20.0F));
             }
 
             int var7 = var3 + 385;
@@ -146,7 +146,7 @@ public class EscapeMinigameHud extends Gui {
    @SubscribeEvent
    public void a(ClientTickEvent var1) {
       if (var1.phase != Phase.END) {
-         e_clash735();
+         tickHud();
       }
    }
 
@@ -179,7 +179,7 @@ public class EscapeMinigameHud extends Gui {
          }
       } else {
          if (progress >= 1.0F) {
-            c_clash737();
+            startMinigame();
          }
       }
    }

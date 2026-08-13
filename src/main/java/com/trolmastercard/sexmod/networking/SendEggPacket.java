@@ -39,7 +39,7 @@ public class SendEggPacket implements IMessage {
                EntityPlayerMP var1x = var2.getServerHandler().player;
                UUID var2x = KoboldManager.getTribeUUID(var1x.getPersistentID());
                if (var2x != null) {
-                  EyeAndKoboldColor var3 = KoboldManager.l_clash75(var2x);
+                  EyeAndKoboldColor var3 = KoboldManager.getTribeColor(var2x);
                   ItemStack var4 = new ItemStack(KoboldEggItem.KOBOLD_EGG_ITEM, 1, var3.getWoolMeta());
                   NBTTagCompound var5 = var4.getTagCompound();
                   if (var5 == null) {

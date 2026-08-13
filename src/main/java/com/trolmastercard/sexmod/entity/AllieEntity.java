@@ -68,7 +68,7 @@ public class AllieEntity extends BaseGirlEntity {
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 1.0F;
    }
 
@@ -78,7 +78,7 @@ public class AllieEntity extends BaseGirlEntity {
       this.entityDataManager.register(LAMP_ITEM, ItemStack.EMPTY);
    }
 
-   public boolean f_clash697() {
+   public boolean hasLampItem() {
       NBTTagCompound var1 = ((ItemStack)this.entityDataManager.get(LAMP_ITEM)).getTagCompound();
       return var1 == null ? true : var1.getInteger("sexmodUses") == 1;
    }
@@ -121,18 +121,18 @@ public class AllieEntity extends BaseGirlEntity {
 
       if (this.world.isRemote) {
          if (this.isLampActive) {
-            this.c_clash700();
+            this.openInteraction();
          }
 
          if (this.isDefaultState) {
-            this.d_clash699();
+            this.resetToDefaultState();
          }
 
-         this.b_clash698();
+         this.spawnRandomParticles();
       }
    }
 
-   void b_clash698() {
+   void spawnRandomParticles() {
       if (this.ticksExisted % 10 == 0) {
          int var1 = this.getRNG().nextInt(8);
          Vec3d var2 = this.getCachedBoneOffset("tail" + var1).add(this.getPositionVector());
@@ -151,13 +151,13 @@ public class AllieEntity extends BaseGirlEntity {
    }
 
    @SideOnly(Side.CLIENT)
-   void d_clash699() {
+   void resetToDefaultState() {
       this.isDefaultState = false;
       WorldUtils.a(this.world, EnumParticleTypes.PORTAL, this.getPositionVector(), 300, 0.75, 1.5);
    }
 
    @SideOnly(Side.CLIENT)
-   void c_clash700() {
+   void openInteraction() {
       this.openInteractionMenu(Minecraft.getMinecraft().player);
       this.isLampActive = false;
    }
@@ -196,7 +196,7 @@ public class AllieEntity extends BaseGirlEntity {
          if (this.getCurrentAction() != Action.REVERSE_COWGIRL_CUM
             || action != Action.REVERSE_COWGIRL_SLOW && action != Action.REVERSE_COWGIRL_FAST_START && action != Action.REVERSE_COWGIRL_FAST_CONTINUES) {
             if (!this.world.isRemote && action == Action.REVERSE_COWGIRL_START) {
-               this.a_clash701();
+               this.handleAllieOwner();
             }
 
             super.setCurrentAction(action);
@@ -204,7 +204,7 @@ public class AllieEntity extends BaseGirlEntity {
       }
    }
 
-   void a_clash701() {
+   void handleAllieOwner() {
       EntityPlayer var1 = this.getPlayerEntity();
       if (var1 != null) {
          Vec3d var2 = this.getTargetPosition();
@@ -535,10 +535,10 @@ public class AllieEntity extends BaseGirlEntity {
    public void doAction(String var1, UUID var2) {
       this.stateFlag2 = true;
       if ("action.names.makemerichallie".equals(var1)) {
-         this.setCurrentAction(this.f_clash697() ? Action.RICH_FIRST_TIME : Action.RICH_NORMAL);
+         this.setCurrentAction(this.hasLampItem() ? Action.RICH_FIRST_TIME : Action.RICH_NORMAL);
       } else {
          this.changeDataParameterFromClient("animationFollowUp", "action.names.deepthroat".equals(var1) ? "deepthroat" : "reverse_cowgirl");
-         this.setCurrentAction(this.f_clash697() ? Action.ALLIE_PREPARE_FIRST_TIME : Action.ALLIE_PREPARE_NORMAL);
+         this.setCurrentAction(this.hasLampItem() ? Action.ALLIE_PREPARE_FIRST_TIME : Action.ALLIE_PREPARE_NORMAL);
       }
    }
 

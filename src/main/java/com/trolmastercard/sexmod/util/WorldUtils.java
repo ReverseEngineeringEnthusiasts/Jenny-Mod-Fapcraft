@@ -35,16 +35,16 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class WorldUtils {
-   public static float a_clash300(float var0, float var1) {
-      var0 = TrigMath.b_clash741(var0);
-      var1 = TrigMath.b_clash741(var1);
+   public static float normalizeAngleDiff(float var0, float var1) {
+      var0 = TrigMath.NormalizeAngle(var0);
+      var1 = TrigMath.NormalizeAngle(var1);
       float var2 = Math.abs(var0 - var1);
       float var3 = 360.0F - var2;
       float var4 = Math.min(var2, var3);
       return var0 > var1 ? -var4 : var4;
    }
 
-   public static Vec3d a_clash301(EntityLivingBase var0, float var1) {
+   public static Vec3d getEntityLookVector(EntityLivingBase var0, float var1) {
       World var2 = var0.world;
       if (var2 instanceof SexWorldClient) {
          return new Vec3d(0.0, 1.0, 0.0);
@@ -105,7 +105,7 @@ public class WorldUtils {
       return var4;
    }
 
-   public static BlockPos a_clash302(World var0, BlockPos var1) {
+   public static BlockPos getSurfaceBlockPos(World var0, BlockPos var1) {
       return new BlockPos(var1.getX(), a(var0, var1.getX(), var1.getZ()), var1.getZ());
    }
 
@@ -218,7 +218,7 @@ public class WorldUtils {
       }
    }
 
-   public static Set<? extends EntityPlayer> a_clash303(Entity var0) {
+   public static Set<? extends EntityPlayer> getNearbyPlayers(Entity var0) {
       return var0 == null
          ? Collections.emptySet()
          : FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(var0.dimension).getEntityTracker().getTrackingPlayers(var0);

@@ -50,17 +50,17 @@ public class DownloadServerModelPacket implements IMessage {
       this.modelName = var3;
    }
 
-   public int a_clash350() {
+   public int getModelIndex() {
       return this.modelIndex;
    }
 
-   public void a_clash351(int var1) {
+   public void setModelIndex(int var1) {
       this.modelIndex = var1;
    }
 
    public void fromBytes(ByteBuf var1) {
       if (null instanceof ClientProxy) {
-         if (ServerWhitelistManager.b_clash129()) {
+         if (ServerWhitelistManager.isGlobalRenderingDisabled()) {
             this.modelName = ByteBufUtils.readUTF8String(var1);
             this.packetType = DownloadServerModelPacket.DownloadServerModelPacketType.valueOf(ByteBufUtils.readUTF8String(var1));
             this.modelIndex = var1.readInt();
@@ -108,13 +108,13 @@ public class DownloadServerModelPacket implements IMessage {
       static int packetCounter = 0;
 
       @SideOnly(Side.CLIENT)
-      void a_clash159(String var1) {
+      void sendModelMessage(String var1) {
          Minecraft.getMinecraft().player.sendMessage(new TextComponentString(var1));
       }
 
       @SideOnly(Side.CLIENT)
-      void a_clash160() {
-         Minecraft.getMinecraft().addScheduledTask(() -> ServerWhitelistManager.b_clash126(true));
+      void reloadServerModels() {
+         Minecraft.getMinecraft().addScheduledTask(() -> ServerWhitelistManager.getModelCount(true));
       }
 
       public IMessage onMessage(DownloadServerModelPacket var1, MessageContext var2) {
@@ -154,21 +154,21 @@ public class DownloadServerModelPacket implements IMessage {
                int var16 = var4x.size();
 
                for (DownloadServerModelPacket var18 : (java.util.Collection<DownloadServerModelPacket>) (var4x) ) {
-                  var18.a_clash351(var16);
+                  var18.setModelIndex(var16);
                   var24.addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(var18, var2.getServerHandler().player));
                }
             });
             return null;
          }
 
-         if (!ServerWhitelistManager.b_clash129()) {
+         if (!ServerWhitelistManager.isGlobalRenderingDisabled()) {
             return null;
          }
 
          String var3 = var1.modelName;
          DownloadServerModelPacket.DownloadServerModelPacketType var4 = var1.packetType;
          byte[] var5 = var1.modelData;
-         String var6 = ServerWhitelistManager.h_clash132() + "/" + var3;
+         String var6 = ServerWhitelistManager.getCurrentGroup() + "/" + var3;
          File var7 = new File(var6);
          var7.mkdirs();
          File var8 = new File(var6 + "/" + var3 + var4.ending);
@@ -224,11 +224,11 @@ public class DownloadServerModelPacket implements IMessage {
          }
 
          if (var25 == var26) {
-            this.a_clash159(
+            this.sendModelMessage(
                String.format("%sSuccessfully downloaded the custom model '%s%s%s'!", TextFormatting.GREEN, TextFormatting.YELLOW, var3, TextFormatting.GREEN)
             );
          } else {
-            this.a_clash159(
+            this.sendModelMessage(
                String.format(
                   "%sdownloading custom model '%s%s%s' (%s/%s)...", TextFormatting.GRAY, TextFormatting.YELLOW, var3, TextFormatting.GRAY, var25, var26
                )
@@ -240,7 +240,7 @@ public class DownloadServerModelPacket implements IMessage {
          }
 
          packetCounter = 0;
-         this.a_clash160();
+         this.reloadServerModels();
          return null;
       }
 

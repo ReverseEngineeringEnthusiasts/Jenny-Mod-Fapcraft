@@ -24,8 +24,8 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
       this.distance = var2;
    }
 
-   boolean a_clash220() {
-      if (this.manglelieEntity.v_clash412() != null) {
+   boolean shouldAvoid() {
+      if (this.manglelieEntity.getCorruptPlayerUUID() != null) {
          return true;
       }
 
@@ -33,7 +33,7 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
       BlockPos var2 = new BlockPos(this.distance, this.distance, this.distance);
 
       for (GalathEntity var5 : this.manglelieEntity.world.getEntitiesWithinAABB(GalathEntity.class, new AxisAlignedBB(var1.add(var2), var1.subtract(var2)))) {
-         if (!var5.world.isRemote && !var5.isDead && var5.k_clash637()) {
+         if (!var5.world.isRemote && !var5.isDead && var5.hasMaster()) {
             return true;
          }
       }
@@ -42,11 +42,11 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
    }
 
    public boolean shouldExecute() {
-      return this.a_clash220() ? false : super.shouldExecute();
+      return this.shouldAvoid() ? false : super.shouldExecute();
    }
 
    public boolean shouldContinueExecuting() {
-      return this.a_clash220() ? false : super.shouldContinueExecuting();
+      return this.shouldAvoid() ? false : super.shouldContinueExecuting();
    }
 
    public void startExecuting() {

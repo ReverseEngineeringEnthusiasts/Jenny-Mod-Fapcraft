@@ -89,7 +89,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return -0.2F;
    }
 
@@ -100,7 +100,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    }
 
    @Override
-   public void c_clash237() {
+   public void onArriveHome() {
       this.sendChatMessage("Alright, this is my new Home~");
       this.playSound(SoundHandler.GIRLS_JENNY_HAPPYOH[1]);
    }
@@ -376,7 +376,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    }
 
    @Override
-   public void b_clash158() {
+   public void setDismounted() {
       this.ab = true;
    }
 

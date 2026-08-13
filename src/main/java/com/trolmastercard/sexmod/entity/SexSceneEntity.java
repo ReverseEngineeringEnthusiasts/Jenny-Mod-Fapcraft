@@ -83,7 +83,7 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
    }
 
    @Nullable
-   public UUID b_clash342() {
+   public UUID getGirlIdFromCode() {
       String var1 = (String)this.dataManager.get(modelCode);
       return "".equals(var1) ? null : UUID.fromString(var1);
    }
@@ -93,7 +93,7 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
    }
 
    @Nullable
-   public String a_clash343() {
+   public String getModelCode() {
       String var1 = (String)this.dataManager.get(modelData);
       return "".equals(var1) ? null : var1;
    }

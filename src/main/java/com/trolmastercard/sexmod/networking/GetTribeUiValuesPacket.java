@@ -43,7 +43,7 @@ public class GetTribeUiValuesPacket implements IMessage {
       this.tribeMembers = var2;
    }
 
-   static GetTribeUiValuesPacket a_clash29() {
+   static GetTribeUiValuesPacket createEmptyPacket() {
       return new GetTribeUiValuesPacket(false, new ArrayList<>());
    }
 
@@ -84,14 +84,14 @@ public class GetTribeUiValuesPacket implements IMessage {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                UUID var1x = KoboldManager.getTribeUUID(var2.getServerHandler().player.getPersistentID());
                if (var1x == null) {
-                  PacketHandler.networkWrapper.sendTo(GetTribeUiValuesPacket.a_clash29(), var2.getServerHandler().player);
+                  PacketHandler.networkWrapper.sendTo(GetTribeUiValuesPacket.createEmptyPacket(), var2.getServerHandler().player);
                } else {
-                  boolean var2x = KoboldManager.c_clash86(var1x);
+                  boolean var2x = KoboldManager.isTribeAlerted(var1x);
                   EntityPlayerMP var3 = var2.getServerHandler().player;
                   HashMap var4 = KoboldManager.getTribeSavedPositions(var1x, var3.world);
-                  List var5 = KoboldManager.n_clash82(var1x);
+                  List var5 = KoboldManager.getTribeMembersList(var1x);
                   ArrayList var6 = new ArrayList();
-                  int var7 = KoboldManager.l_clash75(var1x).getWoolMeta();
+                  int var7 = KoboldManager.getTribeColor(var1x).getWoolMeta();
                   HashSet var8 = new HashSet();
 
                   for (KoboldEntity var10 : (java.util.Collection<KoboldEntity>) (var5) ) {

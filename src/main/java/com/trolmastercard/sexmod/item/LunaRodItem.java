@@ -74,7 +74,7 @@ public class LunaRodItem extends ItemFishingRod {
    public ActionResult<ItemStack> a(World var1, LunaEntity var2, EnumHand var3) {
       ItemStack var4 = var2.getHeldItem(var3);
       if (var2.av != null) {
-         int var5 = var2.av.c_clash786();
+         int var5 = var2.av.getCatchResult();
          var4.damageItem(var5, var2);
          var2.swingArm(var3);
          var1.playSound(
@@ -104,7 +104,7 @@ public class LunaRodItem extends ItemFishingRod {
             SexEntity var7 = new SexEntity(var1, var2, var10 * 0.01);
             int var8 = EnchantmentHelper.getFishingSpeedBonus(var4);
             if (var8 > 0) {
-               var7.b_clash777(var8);
+               var7.setFishingLevel(var8);
             }
 
             int var9 = EnchantmentHelper.getFishingLuckBonus(var4);

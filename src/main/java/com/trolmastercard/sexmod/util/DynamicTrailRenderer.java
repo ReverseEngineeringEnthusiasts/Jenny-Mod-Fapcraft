@@ -68,7 +68,7 @@ public class DynamicTrailRenderer {
          var4
       );
       var3.begin(9, DefaultVertexFormats.POSITION_COLOR);
-      this.b_clash450();
+      this.renderTrailSegments();
       Vec3d var11 = null;
 
       for (TrailSegment var8 : this.trailSegments) {
@@ -92,13 +92,13 @@ public class DynamicTrailRenderer {
       GlStateManager.enableCull();
    }
 
-   public void a_clash449() {
+   public void updateTrails() {
       for (TrailSegment var2 : this.trailSegments) {
          var2.onUpdate();
       }
    }
 
-   void b_clash450() {
+   void renderTrailSegments() {
       if (!this.trailSegments.isEmpty() && this.trailSegments.size() > 1) {
          for (int var1 = 1; var1 < this.trailSegments.size(); var1++) {
             TrailSegment var2 = this.trailSegments.get(var1);

@@ -12,7 +12,7 @@ public class DebugWindow extends JFrame {
    public void a(ClientTickEvent var1) {
       if (!this.isVisible) {
          this.isVisible = true;
-         DebugWindow2.a_clash451();
+         DebugWindow2.showDebugWindow();
       }
    }
 

@@ -23,7 +23,7 @@ public class LivingDeathHandler {
          EntityPlayer var3 = (EntityPlayer)var1.getEntity();
          AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByOwner(var3.getPersistentID());
          if (var4 != null) {
-            ResetGirlPacket.Handler.a_clash10(var4);
+            ResetGirlPacket.Handler.resetGirl(var4);
          }
       }
    }

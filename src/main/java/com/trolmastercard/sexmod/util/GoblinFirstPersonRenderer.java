@@ -59,7 +59,7 @@ public class GoblinFirstPersonRenderer {
                );
                GoblinRenderer.forwardRotation = GoblinRenderer.forwardRotation + -(var11 - GoblinRenderer.lastPlayerPitch) * 3.0F;
                GoblinRenderer.forwardRotation = RotationHelper.lerp(GoblinRenderer.prevForwardRotation, GoblinRenderer.forwardRotation, 0.1F);
-               GoblinRenderer.a_clash398(var4, var1.getPartialTicks());
+               GoblinRenderer.renderEntityInFirstPerson(var4, var1.getPartialTicks());
                GoblinRenderer.lastPlayerYaw = var10;
                GoblinRenderer.prevStrafeRotation = GoblinRenderer.strafeRotation;
                GoblinRenderer.lastPlayerPitch = var11;

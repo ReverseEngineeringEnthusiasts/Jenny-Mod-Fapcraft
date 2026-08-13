@@ -56,7 +56,7 @@ public class CummyEntity {
    public void a(ClientTickEvent var1) {
       if (var1.phase != Phase.END) {
          for (DynamicTrailRenderer var3 : trailRenderers) {
-            var3.a_clash449();
+            var3.updateTrails();
          }
       }
    }
@@ -69,7 +69,7 @@ public class CummyEntity {
       trailRenderers.add(new DynamicTrailRenderer(var0, var1, var2, var3, var4, var5));
    }
 
-   public static void a_clash747(@Nonnull BaseGirlEntity var0) {
+   public static void spawnCummyTrails(@Nonnull BaseGirlEntity var0) {
       ArrayList var1 = new ArrayList();
 
       for (DynamicTrailRenderer var3 : trailRenderers) {

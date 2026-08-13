@@ -112,7 +112,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
       this.entityDataManager.set(at, var2.toString());
       if (this.world.isRemote) {
-         PlayerKoboldRenderer.e_clash190();
+         PlayerKoboldRenderer.clearRenderCache();
       }
    }
 
@@ -129,8 +129,8 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    protected String a(StringBuilder var1) {
       AbstractNpcOnlyEntity.b(var1, 8);
       AbstractNpcOnlyEntity.b(var1, 3);
-      AbstractNpcOnlyEntity.b_clash224(var1);
-      AbstractNpcOnlyEntity.b_clash224(var1);
+      AbstractNpcOnlyEntity.appendRandomGene(var1);
+      AbstractNpcOnlyEntity.appendRandomGene(var1);
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, 2);
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, 2);
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, 1);
@@ -159,12 +159,12 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    @Override
    protected void clearBoneColors() {
-      PlayerKoboldRenderer.e_clash190();
+      PlayerKoboldRenderer.clearRenderCache();
       KoboldRenderer.clearBoneColors();
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       float var1 = 0.25F - (Float)this.entityDataManager.get(aA);
       return 1.4F - var1;
    }
@@ -172,21 +172,21 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    @Override
    public void b(String var1, UUID var2) {
       if ("anal".equals(var1)) {
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.KOBOLD_ANAL_START);
          this.a(this.getOutfitIndex(), Action.KOBOLD_ANAL_START);
          this.setOutfitIndex(0);
       }
 
       if ("oral".equals(var1)) {
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.STARTBLOWJOB);
          this.a(this.getOutfitIndex(), Action.STARTBLOWJOB);
          this.setOutfitIndex(0);
       }
 
       if ("mating".equals(var1)) {
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.MATING_PRESS_START);
          this.a(this.getOutfitIndex(), Action.MATING_PRESS_START);
          this.setOutfitIndex(0);

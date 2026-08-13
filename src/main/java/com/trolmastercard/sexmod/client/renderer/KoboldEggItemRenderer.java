@@ -44,7 +44,7 @@ public class KoboldEggItemRenderer extends GeoItemRenderer<KoboldEggItem> {
       }
 
       if ("colorSpots".equals(var7)) {
-         Vec3i var8 = this.a_clash797(this.eggStack).getMainColor();
+         Vec3i var8 = this.getEggColor(this.eggStack).getMainColor();
          var3 = var8.getX() / 255.0F;
          var4 = var8.getY() / 255.0F;
          var5 = var8.getZ() / 255.0F;
@@ -53,7 +53,7 @@ public class KoboldEggItemRenderer extends GeoItemRenderer<KoboldEggItem> {
       super.renderRecursively(var1, var2, var3, var4, var5, var6);
    }
 
-   EyeAndKoboldColor a_clash797(ItemStack var1) {
+   EyeAndKoboldColor getEggColor(ItemStack var1) {
       return EyeAndKoboldColor.getColorByWoolId(var1.getMetadata());
    }
 }

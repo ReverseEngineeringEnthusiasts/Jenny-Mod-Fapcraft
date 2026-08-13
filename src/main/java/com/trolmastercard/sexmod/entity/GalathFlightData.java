@@ -124,7 +124,7 @@ public enum GalathFlightData {
          }
 
          var0.bL = null;
-         var0.b_clash690(0);
+         var0.setSwordAttackProgress(0);
          var0.setCurrentAction(Action.FLY);
          PacketHandler.networkWrapper.sendToAllTracking(new ResetControllerPacket(var0.getGirlId()), var0);
       },
@@ -134,7 +134,7 @@ public enum GalathFlightData {
          if (var2 != null) {
             var0.bL = var1;
             int var3 = var0.ar();
-            var0.b_clash690(var3 + 1);
+            var0.setSwordAttackProgress(var3 + 1);
             if (var3 == 0) {
                Vec3d var4 = var2.subtract(var1);
                Vec3d var5 = var4.normalize();
@@ -147,7 +147,7 @@ public enum GalathFlightData {
       var0 -> var0.ar() > 23,
       var0 -> {
          var0.setVelocity(Vec3d.ZERO);
-         var0.b_clash690(0);
+         var0.setSwordAttackProgress(0);
          var0.bL = null;
       },
       false,
@@ -174,7 +174,7 @@ public enum GalathFlightData {
             if ((Boolean)var0.getDataManager().get(GalathEntity.ay)) {
                if ((Boolean)var0.getDataManager().get(GalathEntity.bN)) {
                   Vec3d var31 = var1;
-                  Vec3d var12 = var31.add(VectorMath.rotateByYaw(VectorMath.c_clash308(GalathEntity.bz), 180.0F + var0.renderYawOffset));
+                  Vec3d var12 = var31.add(VectorMath.rotateByYaw(VectorMath.MirrorXZ(GalathEntity.bz), 180.0F + var0.renderYawOffset));
                   Vec3d var19 = var2.subtract(var12).normalize();
                   var19 = new Vec3d(
                      var19.x + var3.nextDouble() * 0.3F,
@@ -190,7 +190,7 @@ public enum GalathFlightData {
 
                if ((Boolean)var0.getDataManager().get(GalathEntity.b7)) {
                   Vec3d var32 = var1;
-                  Vec3d var13 = var32.add(VectorMath.rotateByYaw(VectorMath.c_clash308(GalathEntity.bC), 180.0F + var0.renderYawOffset));
+                  Vec3d var13 = var32.add(VectorMath.rotateByYaw(VectorMath.MirrorXZ(GalathEntity.bC), 180.0F + var0.renderYawOffset));
                   Vec3d var22 = var2.subtract(var13).normalize();
                   var22 = new Vec3d(
                      var22.x + var3.nextDouble() * 0.3F,
@@ -293,12 +293,12 @@ public enum GalathFlightData {
          var0.motionX = var13.x * 0.6F;
          var0.motionY = var13.y * 0.6F;
          var0.motionZ = var13.z * 0.6F;
-         var0.b_clash690(1);
+         var0.setSwordAttackProgress(1);
       } else {
-         var0.b_clash690(var0.ar() + 1);
+         var0.setSwordAttackProgress(var0.ar() + 1);
       }
    }, var0 -> var0.ar() > 23, var0 -> {
-      var0.b_clash690(0);
+      var0.setSwordAttackProgress(0);
       var0.setVelocity(Vec3d.ZERO);
       var0.setSwordAttackProgress(-1);
       var0.setAnchored(false);
@@ -388,7 +388,7 @@ public enum GalathFlightData {
             if (var27) {
                var20 = new Vec3d(
                   RotationHelper.b(var23.x, var25.x, Math.min(1.0, var28)),
-                  RotationHelper.b(var23.y, var25.y, Math.min(1.0, RotationHelper.a_clash27(var28))),
+                  RotationHelper.b(var23.y, var25.y, Math.min(1.0, RotationHelper.smoothDamp(var28))),
                   RotationHelper.b(var23.z, var25.z, Math.min(1.0, var28))
                );
             } else {

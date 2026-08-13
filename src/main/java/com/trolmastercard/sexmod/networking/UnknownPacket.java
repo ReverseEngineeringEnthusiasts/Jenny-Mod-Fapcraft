@@ -34,7 +34,7 @@ public class UnknownPacket implements IMessage {
    public void fromBytes(ByteBuf var1) {
       if (!(null instanceof ClientProxy)) {
          this.isValid = true;
-      } else if (ServerWhitelistManager.b_clash129()) {
+      } else if (ServerWhitelistManager.isGlobalRenderingDisabled()) {
          int var2;
          try {
             var2 = var1.readInt();
@@ -71,7 +71,7 @@ public class UnknownPacket implements IMessage {
          }
 
          if (var2.side.isClient()) {
-            if (!ServerWhitelistManager.b_clash129()) {
+            if (!ServerWhitelistManager.isGlobalRenderingDisabled()) {
                return null;
             }
 
@@ -79,7 +79,7 @@ public class UnknownPacket implements IMessage {
 
             for (Entry var5 : var1.b.entrySet()) {
                String var6 = (String)var5.getKey();
-               if (!ServerWhitelistManager.f_clash125(var6)) {
+               if (!ServerWhitelistManager.isModelDisabled(var6)) {
                   var3.add(var6);
                } else {
                   float var7 = ServerWhitelistManager.i(var6);
@@ -94,7 +94,7 @@ public class UnknownPacket implements IMessage {
          } else {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(new UnknownPacket(ServerWhitelistManager.e_clash144()), var2.getServerHandler().player));
+               .addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(new UnknownPacket(ServerWhitelistManager.getModelScales()), var2.getServerHandler().player));
             return null;
          }
       }

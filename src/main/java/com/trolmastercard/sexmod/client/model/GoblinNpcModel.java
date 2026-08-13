@@ -49,9 +49,9 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   protected boolean f_clash312(BaseGirlEntity var1) {
+   protected boolean canRender(BaseGirlEntity var1) {
       if (!(var1 instanceof GoblinEntity)) {
-         return super.f_clash312(var1);
+         return super.canRender(var1);
       }
 
       GoblinEntity var2 = (GoblinEntity)var1;
@@ -104,7 +104,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             }
 
             if (!var13.isHidden() && var15 == Action.START_THROWING || var15 == Action.THROWN) {
-               Vec3d var17 = d_clash346(var1);
+               Vec3d var17 = getInterpolatedPosition(var1);
                var13.setRotationX((float)var17.x);
                var13.setPositionY((float)var17.y);
                var13.setPositionZ((float)var17.z);
@@ -139,7 +139,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             }
 
             if (!var7.isHidden() && var9 == Action.START_THROWING || var9 == Action.THROWN) {
-               Vec3d var11 = d_clash346(var1);
+               Vec3d var11 = getInterpolatedPosition(var1);
                var7.setRotationX((float)var11.x);
                var7.setPositionY((float)var11.y);
                var7.setPositionZ((float)var11.z);

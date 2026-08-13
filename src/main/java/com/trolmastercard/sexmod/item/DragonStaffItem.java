@@ -90,14 +90,14 @@ public class DragonStaffItem extends Item implements IAnimatable {
             if (var3.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.DRAGON_STAFF
                || var3.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.DRAGON_STAFF) {
                if (!KoboldEntity.aY.isEmpty()) {
-                  this.a_clash2();
+                  this.openStructureCommand();
                }
             }
          }
       }
 
       @SideOnly(Side.CLIENT)
-      void a_clash2() {
+      void openStructureCommand() {
          Minecraft.getMinecraft().displayGuiScreen(new StructureCommandScreen());
          PacketHandler.networkWrapper.sendToServer(new GetTribeUiValuesPacket());
       }

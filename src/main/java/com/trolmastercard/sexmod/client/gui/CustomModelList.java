@@ -84,7 +84,7 @@ public class CustomModelList extends GuiListExtended {
    protected void overlayBackground(int var1, int var2, int var3, int var4) {
    }
 
-   void a_clash764() {
+   void updateScrollbar() {
       int var1 = this.entries.size() * this.slotHeight;
       if (var1 > this.height) {
          this.top = 0;
@@ -108,10 +108,10 @@ public class CustomModelList extends GuiListExtended {
       }
 
       this.entries.sort(Comparator.comparingInt(var0 -> boneTypes.indexOf(var0.boneType)));
-      List var9 = ServerWhitelistManager.a_clash143(this.parentScreen.previewGirl).get(BoneType.CUSTOM_BONE);
+      List var9 = ServerWhitelistManager.getModelParts(this.parentScreen.previewGirl).get(BoneType.CUSTOM_BONE);
       var9.add(0, "cross");
       this.entries.add(new CustomModelList.a(var4 > 1));
-      this.a_clash764();
+      this.updateScrollbar();
       this.a(var1, var2, var3);
       if (this.needsRefresh) {
          this.scrollBy(999999);
@@ -252,7 +252,7 @@ public class CustomModelList extends GuiListExtended {
          CustomModelList.this.parentScreen.a(var4, var1, this.boneType.iconXPos);
          var4 += 25;
          var4 = this.c(var4, var1, var2, var3);
-         BaseGirlEntity var5 = CustomModelList.this.parentScreen.d_clash823();
+         BaseGirlEntity var5 = CustomModelList.this.parentScreen.getPreviewGirl();
          SexSceneEntity var6;
          if (this.selectedIndex == 0) {
             var6 = SexSceneEntity.a(CustomModelList.this.mc.world, var5.getGirlId(), this.boneType);
@@ -260,13 +260,13 @@ public class CustomModelList extends GuiListExtended {
             var6 = new SexSceneEntity(var5.world, var5.getGirlId(), this.modelNames.get(this.selectedIndex));
          }
 
-         ServerWhitelistManager.b var7 = ServerWhitelistManager.b_clash142(var6.a_clash343());
+         ServerWhitelistManager.b var7 = ServerWhitelistManager.getModelDataForGirl(var6.getModelCode());
          if (var7 != null) {
-            float var8 = !var6.isItemModel ? var7.d_clash896() : 1.0F;
-            int var27 = (int)(-var7.g_clash895());
+            float var8 = !var6.isItemModel ? var7.getScale() : 1.0F;
+            int var27 = (int)(-var7.getXOffset());
             CustomModelList.this.parentScreen.a(var4, var1 + 10 + (var6.isItemModel ? 0 : 6) + var27, 30.0F * var8, var6);
             if (this.selectedIndex != 0) {
-               CustomModelList.this.parentScreen.a_clash820(var6);
+               CustomModelList.this.parentScreen.drawPreviewModel(var6);
             }
 
             CustomModelList.this.mc.world.removeEntityDangerously(var6);
@@ -279,7 +279,7 @@ public class CustomModelList extends GuiListExtended {
                var4 += this.fontRenderer.getStringWidth("MMMMMMMMMM");
                int var31 = var4;
                int var32 = var4;
-               String var33 = ServerWhitelistManager.d_clash141(var29);
+               String var33 = ServerWhitelistManager.getModelCode(var29);
                String var34 = var33.length() > 10 ? var33.substring(0, 7) + "..." : var33;
                this.a(var34, var4, var1 + 10);
                var4 += this.fontRenderer.getStringWidth("MMMMMMMMMM");
@@ -302,7 +302,7 @@ public class CustomModelList extends GuiListExtended {
             byte var9 = 0;
             CustomModelList.this.parentScreen.a(var4, var1 + 10 + (var6.isItemModel ? 0 : 6) + var9, 30.0F, var6);
             if (this.selectedIndex != 0) {
-               CustomModelList.this.parentScreen.a_clash820(var6);
+               CustomModelList.this.parentScreen.drawPreviewModel(var6);
             }
 
             CustomModelList.this.mc.world.removeEntityDangerously(var6);
@@ -315,7 +315,7 @@ public class CustomModelList extends GuiListExtended {
                var4 += this.fontRenderer.getStringWidth("MMMMMMMMMM");
                int var13 = var4;
                int var14 = var4;
-               String var15 = ServerWhitelistManager.d_clash141(var11);
+               String var15 = ServerWhitelistManager.getModelCode(var11);
                String var16 = var15.length() > 10 ? var15.substring(0, 7) + "..." : var15;
                this.a(var16, var4, var1 + 10);
                var4 += this.fontRenderer.getStringWidth("MMMMMMMMMM");
@@ -346,23 +346,23 @@ public class CustomModelList extends GuiListExtended {
          var1 += 4;
          int var6 = var1;
          int var7 = var1 + 71 - 4;
-         float var8 = this.a_clash868(var2, var6, var7, var3, var4, var5);
+         float var8 = this.getPartScale(var2, var6, var7, var3, var4, var5);
          int var9 = (int)RotationHelper.lerp(var6, var7, var8);
          CustomModelList.this.parentScreen.drawTexturedModalRect(var9, var2, this.b(var3, var4, var9, var2, var9 + 4, var2 + 20) ? 223 : 219, 20, 4, 20);
          CustomModelList.this.parentScreen.previewGirl.setCustomPartValue(var5, (int)(var8 * 100.0F));
       }
 
-      float a_clash868(int var1, int var2, int var3, int var4, int var5, int var6) {
+      float getPartScale(int var1, int var2, int var3, int var4, int var5, int var6) {
          if (!CustomModelList.this.parentScreen.isEditing) {
-            return this.a_clash869(var6);
+            return this.getPartValue(var6);
          }
 
          if (var4 > 0.33333334F * CustomModelList.this.parentScreen.width) {
-            return this.a_clash869(var6);
+            return this.getPartValue(var6);
          }
 
          if (var5 < var1 || var5 > var1 + 20) {
-            return this.a_clash869(var6);
+            return this.getPartValue(var6);
          }
 
          if (var4 < var2) {
@@ -378,7 +378,7 @@ public class CustomModelList extends GuiListExtended {
          return (float)var4 / var3;
       }
 
-      float a_clash869(int var1) {
+      float getPartValue(int var1) {
          Entry var2 = CustomModelList.this.parentScreen.previewGirl.buildCustomPartsData(CustomModelList.this.parentScreen.girlId).get(var1);
          return ((Integer)((Entry)var2.getValue()).getValue()).intValue() / 100.0F;
       }
@@ -425,8 +425,8 @@ public class CustomModelList extends GuiListExtended {
             CustomModelList.this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             ArrayList var4 = new ArrayList();
             var4.add("cross");
-            var4.addAll(ServerWhitelistManager.a_clash143(CustomModelList.this.parentScreen.previewGirl).get(BoneType.CUSTOM_BONE));
-            ClothingScreen.m.add(ClothingScreen.b_clash816(CustomModelList.this.parentScreen.previewGirl));
+            var4.addAll(ServerWhitelistManager.getModelParts(CustomModelList.this.parentScreen.previewGirl).get(BoneType.CUSTOM_BONE));
+            ClothingScreen.m.add(ClothingScreen.getCustomPartData(CustomModelList.this.parentScreen.previewGirl));
          }
 
          if (this.isSelected) {
@@ -438,7 +438,7 @@ public class CustomModelList extends GuiListExtended {
          }
       }
 
-      void a_clash870(int var1, int var2) {
+      void handleSlotClick(int var1, int var2) {
          if (var1 > 40 && var1 < 60) {
             CustomModelList.this.parentScreen.a(this.boneType, false, var2);
          }
@@ -450,7 +450,7 @@ public class CustomModelList extends GuiListExtended {
 
       void c(int var1, int var2) {
          if (!CustomModelList.this.parentScreen.previewGirl.h(var2)) {
-            this.a_clash870(var1, var2);
+            this.handleSlotClick(var1, var2);
          }
       }
 
@@ -463,7 +463,7 @@ public class CustomModelList extends GuiListExtended {
                   } else if (this.boneType == BoneType.GIRL_SPECIFIC) {
                      this.c(var1, var4);
                   } else {
-                     this.a_clash870(var1, var4);
+                     this.handleSlotClick(var1, var4);
                   }
                }
             }
