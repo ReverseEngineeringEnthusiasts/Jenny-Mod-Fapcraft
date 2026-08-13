@@ -278,7 +278,8 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       return var5.func_178788_d(var9);
    }
 
-   public void a(GeoModel var1, SexSceneEntity var2, float var3, float var4, float var5, float var6, float var7) {
+   @Override
+   public void render(GeoModel var1, SexSceneEntity var2, float var3, float var4, float var5, float var6, float var7) {
       GlStateManager.func_179129_p();
       GlStateManager.func_179091_B();
       BufferBuilder var8 = Tessellator.func_178181_a().func_178180_c();

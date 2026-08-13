@@ -22,12 +22,14 @@ public class WildSlimeRenderer extends RenderLiving<WildSlimeEntity> {
       this.func_177094_a(new WildSlimeFaceLayer(this));
    }
 
-   public void a(WildSlimeEntity var1, double var2, double var4, double var6, float var8, float var9) {
+   @Override
+   public void func_76986_a(WildSlimeEntity var1, double var2, double var4, double var6, float var8, float var9) {
       this.field_76989_e = 0.25F * var1.h_clash92();
       super.func_76986_a(var1, var2, var4, var6, var8, var9);
    }
 
-   protected void a(WildSlimeEntity var1, float var2) {
+   @Override
+   protected void func_77041_b(WildSlimeEntity var1, float var2) {
       GlStateManager.func_179152_a(0.999F, 0.999F, 0.999F);
       float var4 = var1.h_clash92();
       float var5 = (var1.h + (var1.e - var1.h) * var2) / (var4 * 0.5F + 1.0F);

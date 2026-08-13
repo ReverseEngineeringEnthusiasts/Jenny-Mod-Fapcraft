@@ -217,6 +217,26 @@ companion goal `f`/`f$a` ATTACK/RIDE/DOWNED states) but the follow gate (`ae==nu
 jar's `h`.
 Actionable: the new R-SHIFT "Leave sex scene" keybind resets any stuck girl.
 
+### 2n. MORE dropped-bridge bugs (same class as 2l) — renderers (FIXED 2026-08-13)
+The same "renamed override + dropped compiler bridge = dead code" pattern in every geckolib/
+vanilla renderer that had a custom render entry. Each was verified against the jar bytecode
+(which has the bridge) and fixed by renaming the real method back to the interface name so
+javac regenerates the bridges:
+- `GalathCoinRenderer` — `a(GeoModel,GalathCoinItem,…)` → `render(...)`: pentagram spin/color
+  animation was dead.
+- `AlliesLampRenderer` — `a(GeoModel,AlliesLampItem,…)` → `render(...)`: lamp render dead
+  (likely the 2f "hand on icon" symptom).
+- `DragonRenderer` — `a(DragonEntity,…)` → `func_76986_a(...)`: energy-ball projectile rendered
+  NOTHING (base no-op).
+- `WildSlimeRenderer` — `a(WildSlimeEntity,…)` → `func_76986_a(...)` AND
+  `a(WildSlimeEntity,float)` → `func_77041_b(...)` (preRenderCallback): slime squish/scale was
+  dead.
+- `KoboldEggRenderer` — `a(GeoModel,…)` → `render(...)`: egg's custom render (and its `this.a`
+  field) never ran → `colorSpots` bone NPE risk.
+- `SexSceneRenderer` — `a(GeoModel,…)` → `render(...)`: sex-scene custom-part matrix processing
+  was dead.
+Applied to base + remap; both build. Compiled bridges now match the jar exactly.
+
 ---
 
 ## 3. Key architecture findings (verified against original bytecode)

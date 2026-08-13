@@ -41,7 +41,8 @@ public class DragonRenderer extends Render<DragonEntity> {
       return new ResourceLocation("sexmod", "textures/entity/galath/energy_ball.png");
    }
 
-   public void a(DragonEntity var1, double var2, double var4, double var6, float var8, float var9) {
+   @Override
+   public void func_76986_a(DragonEntity var1, double var2, double var4, double var6, float var8, float var9) {
       GL11.glDisable(2896);
       GlStateManager.func_179141_d();
       GlStateManager.func_179131_c(1.0F, 1.0F, 1.0F, 0.5F);
