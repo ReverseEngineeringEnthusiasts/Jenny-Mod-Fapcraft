@@ -64,8 +64,8 @@ public class MinePacket implements IMessage {
                      EntityPlayerMP var3 = var2.getServerHandler().player;
                      UUID var4 = KoboldManager.getTribeUUID(var3.getPersistentID());
                      if (var4 != null) {
-                        int var5 = KoboldManager.h_clash81(var4);
-                        int var6 = (int)Math.floor(KoboldManager.j_clash76(var4).size() / 2.0);
+                        int var5 = KoboldManager.getTribeMemberCount(var4);
+                        int var6 = (int)Math.floor(KoboldManager.getTribeBeds(var4).size() / 2.0);
                         if (var5 > var6) {
                            var3.sendMessage(
                               new TextComponentString(

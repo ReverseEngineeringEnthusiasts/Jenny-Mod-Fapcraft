@@ -11,7 +11,7 @@ public class Point2D {
       this.y = var2;
    }
 
-   public float a_clash298(int var1, int var2) {
+   public float distanceTo(int var1, int var2) {
       float var3 = var1 - this.x;
       float var4 = var2 - this.y;
       return (float)Math.sqrt(var3 * var3 + var4 * var4);

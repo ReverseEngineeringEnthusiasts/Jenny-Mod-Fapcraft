@@ -145,13 +145,13 @@ public class SoundHandler {
             String var8 = var7.length > 2 ? var7[2] : var7[1];
 
             for (int var9 = 0; var9 < var5.length; var9++) {
-               var5[var9] = a_clash803(String.format("%s.%s%s", var6, var8, var9));
+               var5[var9] = registerSounds(String.format("%s.%s%s", var6, var8, var9));
             }
          }
       }
    }
 
-   public static SoundEvent a_clash803(String var0) {
+   public static SoundEvent registerSounds(String var0) {
       ResourceLocation var1 = new ResourceLocation("sexmod", var0);
       SoundEvent var2 = new SoundEvent(var1);
       var2.setRegistryName(var0);

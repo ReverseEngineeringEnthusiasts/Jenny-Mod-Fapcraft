@@ -37,11 +37,11 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
       super(var1, var2);
    }
 
-   public static void e_clash190() {
+   public static void clearRenderCache() {
       A.clear();
    }
 
-   protected Vec3i a_clash191(GeoBone var1) {
+   protected Vec3i getBoneColor(GeoBone var1) {
       String var2 = var1.getName();
       int var3 = var2.hashCode() + this.playerGirl.getPersistentID().hashCode();
       Vec3i var4 = A.get(var3);
@@ -69,11 +69,11 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
       }
    }
 
-   protected float a_clash193() {
+   protected float getDefaultScale() {
       return 1.0F;
    }
 
-   protected Vec3d a_clash194(ItemStack var1) {
+   protected Vec3d getItemRenderOffset(ItemStack var1) {
       return new Vec3d(-90.0, 0.0, 0.0);
    }
 
@@ -95,7 +95,7 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
       return var4;
    }
 
-   protected Vec3i a_clash195(Vec3i var1) {
+   protected Vec3i passThroughColor(Vec3i var1) {
       return var1;
    }
 
@@ -225,8 +225,8 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
             if (this.isBoneBlacklisted(var3.getName())) {
                var15 = new Vec3d(var4, var5, var6);
             } else {
-               Vec3i var16 = this.a_clash191(var3);
-               var16 = this.a_clash195(var16);
+               Vec3i var16 = this.getBoneColor(var3);
+               var16 = this.passThroughColor(var16);
                var15 = BodyParts.a(this, var3, new Vec3d(var16.getX() / 255.0F, var16.getY() / 255.0F, var16.getZ() / 255.0F), var14);
             }
 

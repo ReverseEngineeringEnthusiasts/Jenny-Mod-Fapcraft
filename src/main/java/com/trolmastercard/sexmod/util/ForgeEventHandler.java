@@ -76,13 +76,13 @@ public class ForgeEventHandler {
       MinecraftForge.EVENT_BUS.register(new ManglelieEntity.b());
       MinecraftForge.EVENT_BUS.register(new NameTagInteractHandler());
       if (var0) {
-         b_clash148();
+         registerDebugWindow();
       }
    }
 
    @SideOnly(Side.CLIENT)
-   static void b_clash148() {
-      if (a_clash149()) {
+   static void registerDebugWindow() {
+      if (shouldShowDebugWindow()) {
          MinecraftForge.EVENT_BUS.register(new DebugWindow());
       } else {
          DebugWindow2.isVisible = false;
@@ -107,7 +107,7 @@ public class ForgeEventHandler {
       MinecraftForge.EVENT_BUS.register(new GalathFlightHud());
    }
 
-   static boolean a_clash149() {
+   static boolean shouldShowDebugWindow() {
       File var0 = new File("sexmod/dontAskAgain");
       var0.getParentFile().mkdirs();
       return !var0.exists();

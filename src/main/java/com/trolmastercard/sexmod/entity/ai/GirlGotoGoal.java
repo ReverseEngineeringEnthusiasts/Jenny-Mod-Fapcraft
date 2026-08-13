@@ -23,7 +23,7 @@ public class GirlGotoGoal extends GirlFollowAiBase {
    }
 
    @Override
-   protected GirlFollowAiBase.GirlFollowAiBaseState a_clash807() {
+   protected GirlFollowAiBase.GirlFollowAiBaseState getCurrentState() {
       float var1 = this.girl.getDistance(this.master);
       boolean var2 = var1 > 5.0F;
       if (this.girl.getInteractionPlayerUUID() == null && !var2 && this.state == GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
@@ -47,19 +47,19 @@ public class GirlGotoGoal extends GirlFollowAiBase {
                this.navigator.clearPath();
                this.navigator.tryMoveToEntityLiving(this.master, 0.5);
             } else {
-               this.c_clash805();
+               this.updateNavigation();
             }
 
             this.retryTicks = 300;
-            this.b_clash806();
+            this.getFollowDistance();
             break;
          case IDLE:
-            this.b_clash806();
+            this.getFollowDistance();
       }
    }
 
    @Override
-   protected double b_clash806() {
+   protected double getFollowDistance() {
       float var1 = this.girl.getDistance(this.master);
       double var3 = Math.min(0.7, Math.floor(var1 / 3.0F) * 0.05);
       float var2 = (float)(0.02F + var3);

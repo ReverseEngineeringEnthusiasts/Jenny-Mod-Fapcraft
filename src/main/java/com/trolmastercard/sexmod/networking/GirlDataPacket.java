@@ -65,7 +65,7 @@ public class GirlDataPacket implements IMessage {
    public static class Handler implements IMessageHandler<GirlDataPacket, IMessage> {
       public IMessage onMessage(GirlDataPacket var1, MessageContext var2) {
          if (var1.isValid && var2.side == Side.CLIENT) {
-            this.a_clash9(var1.a);
+            this.applyGirlData(var1.a);
             return null;
          } else {
             return null;
@@ -73,7 +73,7 @@ public class GirlDataPacket implements IMessage {
       }
 
       @SideOnly(Side.CLIENT)
-      public void a_clash9(HashMap<NpcType, String> var1) {
+      public void applyGirlData(HashMap<NpcType, String> var1) {
          Minecraft var2 = Minecraft.getMinecraft();
          var2.addScheduledTask(() -> var2.displayGuiScreen(new GirlScreenBase(var1)));
       }

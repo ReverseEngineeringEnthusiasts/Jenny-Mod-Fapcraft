@@ -18,7 +18,7 @@ public class SkinFetcher {
    public static final int maxCacheSize = 3;
 
    @SideOnly(Side.CLIENT)
-   public static BufferedImage a_clash864(UUID var0) {
+   public static BufferedImage fetchSkin(UUID var0) {
       try {
          URL var1 = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + var0.toString().replace("-", ""));
          BufferedReader var2 = new BufferedReader(new InputStreamReader(var1.openStream()));

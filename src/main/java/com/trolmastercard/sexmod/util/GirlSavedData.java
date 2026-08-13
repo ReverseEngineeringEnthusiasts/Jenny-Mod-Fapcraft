@@ -52,21 +52,21 @@ public class GirlSavedData extends WorldSavedData {
 
    public static void clearAll() {
       mangOwnershipSet.clear();
-      h.b_clash769();
+      h.clear();
    }
 
-   public static void e_clash845(UUID var0) {
-      UUID var1 = f_clash850(var0);
+   public static void markAsManglelieOwned(UUID var0) {
+      UUID var1 = getManglelieOwnerId(var0);
       if (var1 != null) {
          mangOwnershipSet.add(var1);
       }
    }
 
-   public static boolean b_clash846(UUID var0) {
+   public static boolean isManglelieOwned(UUID var0) {
       return mangOwnershipSet.contains(var0);
    }
 
-   public static boolean c_clash847(GalathEntity var0) {
+   public static boolean isOwnerNearby(GalathEntity var0) {
       UUID var1 = h.b(var0.getGirlId());
       if (var1 == null) {
          return false;
@@ -85,7 +85,7 @@ public class GirlSavedData extends WorldSavedData {
       return var1.getGirlId().equals(h.c(var0.getPersistentID()));
    }
 
-   public static void a_clash848(GalathEntity var0) {
+   public static void updateMangleliePartner(GalathEntity var0) {
       ManglelieEntity var1 = var0.getMangleliePartner(true);
       if (var1 != null) {
          var0.world.removeEntity(var1);
@@ -105,24 +105,24 @@ public class GirlSavedData extends WorldSavedData {
       }
    }
 
-   public static boolean c_clash849(UUID var0) {
+   public static boolean hasOwner(UUID var0) {
       return h.c(var0) != null;
    }
 
-   public static UUID f_clash850(UUID var0) {
+   public static UUID getManglelieOwnerId(UUID var0) {
       return h.b(var0);
    }
 
-   public static UUID b_clash851(GalathEntity var0) {
-      return var0 == null ? null : f_clash850(var0.getGirlId());
+   public static UUID getManglelieOwnerOf(GalathEntity var0) {
+      return var0 == null ? null : getManglelieOwnerId(var0.getGirlId());
    }
 
-   public static UUID a_clash852(UUID var0) {
+   public static UUID getOwnerId(UUID var0) {
       return h.c(var0);
    }
 
-   public static UUID b_clash853(EntityPlayer var0) {
-      return var0 == null ? null : a_clash852(var0.getPersistentID());
+   public static UUID getOwnerOf(EntityPlayer var0) {
+      return var0 == null ? null : getOwnerId(var0.getPersistentID());
    }
 
    public static void a(UUID var0, UUID var1) {
@@ -137,19 +137,19 @@ public class GirlSavedData extends WorldSavedData {
       }
    }
 
-   public static void d_clash854(UUID var0) {
+   public static void removeOwner(UUID var0) {
       h.a(var0);
    }
 
-   public static void a_clash855(EntityPlayer var0) {
+   public static void removeOwnerOf(EntityPlayer var0) {
       if (var0 != null) {
-         d_clash854(var0.getPersistentID());
+         removeOwner(var0.getPersistentID());
       }
    }
 
-   public static boolean a_clash856(UUID var0, World var1) {
+   public static boolean shouldDespawn(UUID var0, World var1) {
       Long var2 = b.get(var0);
-      if (!b_clash846(var0)) {
+      if (!isManglelieOwned(var0)) {
          return false;
       } else {
          return var2 == null ? true : var1.getTotalWorldTime() - var2 > 0L;
@@ -170,7 +170,7 @@ public class GirlSavedData extends WorldSavedData {
          World var2 = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
          ArrayList var3 = new ArrayList();
 
-         for (Entry var5 : h.c_clash766()) {
+         for (Entry var5 : h.entrySet()) {
             UUID var6 = (UUID)var5.getKey();
             UUID var7 = (UUID)var5.getValue();
             EntityPlayer var8 = var2.getPlayerEntityByUUID(var6);
@@ -227,10 +227,10 @@ public class GirlSavedData extends WorldSavedData {
 
    public NBTTagCompound writeToNBT(NBTTagCompound var1) {
       NBTTagCompound var2 = new NBTTagCompound();
-      var2.setInteger("amount", h.e_clash765());
+      var2.setInteger("amount", h.size());
       int var3 = 0;
 
-      for (Entry var5 : h.c_clash766()) {
+      for (Entry var5 : h.entrySet()) {
          UUID var6 = (UUID)var5.getKey();
          UUID var7 = (UUID)var5.getValue();
          Long var8 = b.get(var6);

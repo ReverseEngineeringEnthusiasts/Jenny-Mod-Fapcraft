@@ -12,7 +12,7 @@ import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 
 public class MobPredicates {
-   public static boolean a_clash801(Entity var0) {
+   public static boolean isValidTarget(Entity var0) {
       if (var0 instanceof EntityCreeper) {
          return false;
       } else if (var0 instanceof EntityPigZombie) {

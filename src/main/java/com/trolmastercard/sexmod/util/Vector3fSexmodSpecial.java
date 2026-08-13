@@ -21,7 +21,7 @@ public class Vector3fSexmodSpecial {
       return new Vector3fSexmodSpecial(this.x + var1.x, this.y + var1.y, this.z + var1.z);
    }
 
-   public Vector3fSexmodSpecial a_clash407(float var1) {
+   public Vector3fSexmodSpecial scale(float var1) {
       return new Vector3fSexmodSpecial(this.x * var1, this.y * var1, this.z * var1);
    }
 }

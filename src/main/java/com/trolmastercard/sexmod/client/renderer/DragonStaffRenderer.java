@@ -68,11 +68,11 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       this.mc = Minecraft.getMinecraft();
    }
 
-   public static boolean b_clash631() {
+   public static boolean isRenderingStaff() {
       return isRendering;
    }
 
-   public static void a_clash632() {
+   public static void toggleStaffRendering() {
       isRendering = !isRendering;
    }
 
@@ -122,7 +122,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
          com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
          GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.animationTicks) + 0.001, 0.0);
          Vector3f var7 = n.get(this.heldItem);
-         GlStateManager.scale(this.d_clash636(), this.d_clash636(), this.d_clash636());
+         GlStateManager.scale(this.getBobOffset(), this.getBobOffset(), this.getBobOffset());
          if (var7 == null) {
             var7 = new Vector3f(0.0F, 0.0F, 0.0F);
          }
@@ -137,7 +137,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
          this.crystalModel.render(Minecraft.getMinecraft().player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
          GlStateManager.popMatrix();
          if (this.player != null) {
-            this.c_clash633();
+            this.collectAnimationBones();
          }
 
          this.mc.getTextureManager().bindTexture(new DragonStaffModel().getTextureLocation((DragonStaffItem) null));
@@ -147,7 +147,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       super.renderRecursively(var1, var2, var3, var4, var5, var6);
    }
 
-   void c_clash633() {
+   void collectAnimationBones() {
       ArrayList var1 = new ArrayList();
       ArrayList var2 = new ArrayList();
 
@@ -160,7 +160,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
          if (isRendering) {
             this.a(var1, var2);
          } else {
-            this.a_clash634(var1);
+            this.animateBones(var1);
          }
       }
    }
@@ -180,9 +180,9 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
          double var10 = -var7.x / var8;
          double var12 = -var7.y / var8;
          double var14 = var7.z / var8;
-         var10 = this.a_clash635(var10);
-         var12 = this.a_clash635(var12);
-         var14 = this.a_clash635(var14);
+         var10 = this.easeInOut(var10);
+         var12 = this.easeInOut(var12);
+         var14 = this.easeInOut(var14);
          var10 *= 1.3F;
          var12 *= 1.3F;
          var14 *= 1.3F;
@@ -190,7 +190,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       }
    }
 
-   void a_clash634(List<Integer> var1) {
+   void animateBones(List<Integer> var1) {
       float var2 = 1.0F / var1.size();
       float var3 = 0.0F;
 
@@ -200,11 +200,11 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       }
    }
 
-   double a_clash635(double var1) {
+   double easeInOut(double var1) {
       return var1 * Math.sqrt(1.0 - var1 * var1 / 2.0);
    }
 
-   double d_clash636() {
+   double getBobOffset() {
       return 0.175F + 0.025 * Math.sin(0.005 * this.animationTicks) + 0.025;
    }
 

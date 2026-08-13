@@ -67,8 +67,8 @@ public class BodyParts {
       return RotationHelper.a(var0, var3 > 0.0 ? SKIN_COLOR : SKIN_COLOR_ALT, var5);
    }
 
-   public static void a_clash795(EntityLivingBase var0, float var1) {
-      OFFSET_VEC = WorldUtils.a_clash301(var0, var1);
+   public static void updateBoneOffset(EntityLivingBase var0, float var1) {
+      OFFSET_VEC = WorldUtils.getEntityLookVector(var0, var1);
    }
 
    public static void a(List<IBone> var0, HashSet<String> var1, IGirlRenderer var2) {

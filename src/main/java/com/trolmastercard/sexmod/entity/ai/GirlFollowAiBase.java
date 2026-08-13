@@ -35,7 +35,7 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
       this.dataManager = var1.getDataManager();
    }
 
-   protected void c_clash805() {
+   protected void updateNavigation() {
       int var2 = 0;
 
       BlockPos var1;
@@ -52,7 +52,7 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
       this.girl.motionZ = 0.0;
    }
 
-   protected double b_clash806() {
+   protected double getFollowDistance() {
       float var1 = this.girl.getDistance(this.master);
       double var2;
       BaseGirlEntity.BaseGirlEntityState var4;
@@ -102,7 +102,7 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
    }
 
    public void updateTask() {
-      this.state = this.a_clash807();
+      this.state = this.getCurrentState();
       if (this.girl.watchClosestGirlGoal != null) {
          this.girl.watchClosestGirlGoal.isWatching = this.state == GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
       }
@@ -110,7 +110,7 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
       this.a(this.state);
    }
 
-   protected abstract GirlFollowAiBase.GirlFollowAiBaseState a_clash807();
+   protected abstract GirlFollowAiBase.GirlFollowAiBaseState getCurrentState();
 
    protected abstract void a(GirlFollowAiBase.GirlFollowAiBaseState var1);
 

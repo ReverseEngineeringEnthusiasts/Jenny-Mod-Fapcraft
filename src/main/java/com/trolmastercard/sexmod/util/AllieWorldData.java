@@ -76,13 +76,13 @@ public class AllieWorldData extends WorldSavedData {
    public NBTTagCompound writeToNBT(NBTTagCompound var1) {
       for (Entry var3 : b.entrySet()) {
          UUID var4 = (UUID)var3.getKey();
-         var1.setTag(var4.toString(), this.a_clash796((HashMap<NpcType, String>)var3.getValue()));
+         var1.setTag(var4.toString(), this.serializeNpcTypes((HashMap<NpcType, String>)var3.getValue()));
       }
 
       return var1;
    }
 
-   private NBTTagCompound a_clash796(HashMap<NpcType, String> var1) {
+   private NBTTagCompound serializeNpcTypes(HashMap<NpcType, String> var1) {
       NBTTagCompound var2 = new NBTTagCompound();
 
       for (Entry var4 : var1.entrySet()) {

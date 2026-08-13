@@ -67,7 +67,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       }
    }
 
-   boolean a_clash827(EntityLivingBase var1) {
+   boolean isTargetVisible(EntityLivingBase var1) {
       Vec3d var2 = this.girl.getPositionVector();
       return !(var1 instanceof BaseGirlEntity)
          && this.attackCooldown <= 0
@@ -88,14 +88,14 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             double var6 = this.girl.getDistance(this.target);
             this.navigator.clearPath();
             if (var6 < 1.9 && --this.attackTimer <= 0) {
-               this.d_clash830();
+               this.startAttack();
             } else {
                if (this.girl.inventory.getStackInSlot(1).getItem() instanceof ItemBow && this.girl.getEntitySenses().canSee(this.target) && ++this.bowTimer > 0 && var6 > 6.0) {
                   this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 2);
                   this.girl.setCurrentAction(Action.BOW);
                   if (++this.bowTimer >= 32) {
                      this.bowTimer = -20;
-                     this.e_clash828();
+                     this.shootArrow();
                      this.girl.setCurrentAction(Action.NULL);
                   }
 
@@ -122,14 +122,14 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                this.navigator.clearPath();
                if (!this.girl.downed) {
                   this.navigator.tryMoveToEntityLiving(this.master, 0.5);
-                  this.a_clash831();
+                  this.handleKnockback();
                }
             } else {
-               this.c_clash805();
+               this.updateNavigation();
             }
 
             this.wanderTimer = 300;
-            this.b_clash806();
+            this.getFollowDistance();
             break;
          case IDLE:
             this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 0);
@@ -144,9 +144,9 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                   this.navigator.tryMoveToXYZ(var5.x, var5.y, var5.z, 0.5);
                }
 
-               this.b_clash806();
+               this.getFollowDistance();
             } else if (this.girl.getDistance(this.master) > 10.0F) {
-               this.c_clash805();
+               this.updateNavigation();
             }
             break;
          case RIDE:
@@ -169,7 +169,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    }
 
    @Override
-   protected GirlFollowAiBase.GirlFollowAiBaseState a_clash807() {
+   protected GirlFollowAiBase.GirlFollowAiBaseState getCurrentState() {
       this.attackCooldown--;
       if (!this.girl.downed && this.girl.getInteractionPlayerUUID() == null) {
          if (this.master.isRiding()) {
@@ -185,21 +185,21 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             this.girl.setNoGravity(false);
          }
 
-         if (this.a_clash827(this.target)) {
+         if (this.isTargetVisible(this.target)) {
             return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
          }
 
          DamageSource var2 = this.girl.getLastDamageSource();
          if (var2 != null) {
             EntityLivingBase var8 = (EntityLivingBase)var2.getTrueSource();
-            if (this.a_clash827(var8)) {
+            if (this.isTargetVisible(var8)) {
                this.target = var8;
                return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
             }
          }
 
          EntityLivingBase var9 = this.master.getLastAttackedEntity();
-         if (this.master.ticksExisted - this.master.getLastAttackedEntityTime() < 140 && this.a_clash827(var9)) {
+         if (this.master.ticksExisted - this.master.getLastAttackedEntityTime() < 140 && this.isTargetVisible(var9)) {
             this.target = var9;
             return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
          }
@@ -208,7 +208,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             var2 = this.master.getLastDamageSource();
             if (var2 != null) {
                var9 = (EntityLivingBase)var2.getTrueSource();
-               if (this.a_clash827(var9)) {
+               if (this.isTargetVisible(var9)) {
                   this.target = var9;
                   return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
                }
@@ -235,7 +235,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             });
 
             for (EntityMob var7 : (java.util.Collection<EntityMob>) (var5) ) {
-               if (this.a_clash827(var7) && !(var7 instanceof EntityCreeper)) {
+               if (this.isTargetVisible(var7) && !(var7 instanceof EntityCreeper)) {
                   this.target = var7;
                   return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
                }
@@ -263,8 +263,8 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       }
    }
 
-   public void e_clash828() {
-      EntityArrow var1 = this.b_clash829();
+   public void shootArrow() {
+      EntityArrow var1 = this.createArrow();
       double var2 = this.target.posX - this.girl.posX;
       double var4 = this.target.getEntityBoundingBox().minY + this.target.height / 3.0F - var1.posY;
       double var6 = this.target.posZ - this.girl.posZ;
@@ -275,7 +275,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       var1.setDamage(4.5);
    }
 
-   protected EntityArrow b_clash829() {
+   protected EntityArrow createArrow() {
       EntityTippedArrow var1 = new EntityTippedArrow(this.girl.world, this.girl);
       ItemStack var2 = this.girl.inventory.getStackInSlot(1);
       double var3 = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, var2);
@@ -296,7 +296,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       return var1;
    }
 
-   void d_clash830() {
+   void startAttack() {
       this.girl.setCurrentAction(Action.ATTACK);
       this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 1);
       ItemStack var1 = this.girl.inventory.getStackInSlot(0);
@@ -351,8 +351,8 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    }
 
    @Override
-   protected double b_clash806() {
-      double var1 = super.b_clash806();
+   protected double getFollowDistance() {
+      double var1 = super.getFollowDistance();
       if (this.girl.downed) {
          var1 = 0.0;
       }
@@ -368,7 +368,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       this.girl.getDataManager().set(AbstractGirlNpcEntity.ATTACK_MODE, 0);
    }
 
-   void a_clash831() {
+   void handleKnockback() {
       if (!this.girl.onGround && !this.girl.isInWater() && this.girl.motionX + this.girl.motionZ == 0.0 && !(this.girl.motionY <= 0.0)) {
          Vec3d var1 = new Vec3d(0.0, 0.0, 0.1F);
          var1 = VectorMath.rotateByYaw(var1, this.girl.rotationYaw);

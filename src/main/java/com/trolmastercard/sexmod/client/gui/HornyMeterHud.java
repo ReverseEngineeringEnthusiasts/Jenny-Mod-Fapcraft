@@ -39,7 +39,7 @@ public class HornyMeterHud extends Gui {
       }
    }
 
-   public static void a_clash359(boolean var0) {
+   public static void setHornyMeterVisible(boolean var0) {
       if (!isVisible) {
          resetHornyMeter();
          isVisible = true;
@@ -53,7 +53,7 @@ public class HornyMeterHud extends Gui {
       displayState = true;
    }
 
-   public static boolean a_clash361() {
+   public static boolean isHornyMeterVisible() {
       return isVisible;
    }
 

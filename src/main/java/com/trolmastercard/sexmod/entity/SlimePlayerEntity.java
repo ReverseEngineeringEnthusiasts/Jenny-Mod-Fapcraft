@@ -42,7 +42,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 1.6F;
    }
 
@@ -51,7 +51,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean v_clash227() {
+   public boolean canBeInteracted() {
       return false;
    }
 
@@ -75,7 +75,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
       if ("action.names.blowjob".equals(var1)) {
          this.a(0, Action.SUCKBLOWJOB);
          this.setCurrentAction(Action.SUCKBLOWJOB);
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
       }
    }
 
@@ -116,14 +116,14 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    public void updateAITasks() {
       super.updateAITasks();
       if (this.getCurrentAction() == Action.WAITDOGGY) {
-         EntityPlayer var1 = this.j_clash575();
+         EntityPlayer var1 = this.getNearestPlayer();
          if (var1 != null) {
-            if (!(var1.getPositionVector().distanceTo(this.w_clash576()) > 1.0)) {
+            if (!(var1.getPositionVector().distanceTo(this.getPositionVec3d()) > 1.0)) {
                PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.rotationYaw = this.getYawRotation();
                this.cameraYaw = this.getYawRotation();
-               var1.setPosition(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z);
+               var1.setPosition(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z);
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
                this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
                this.setCurrentAction(Action.DOGGYSTART);

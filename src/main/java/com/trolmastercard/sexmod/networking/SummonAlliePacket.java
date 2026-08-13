@@ -53,7 +53,7 @@ public class SummonAlliePacket implements IMessage {
                      if (var3.world.getBlockState(var4).getBlock().equals(Blocks.SAND)) {
                         var3.setCurrentAction(Action.SUMMON_SAND);
                      } else {
-                        var3.setCurrentAction(var3.f_clash697() ? Action.SUMMON : Action.SUMMON_NORMAL);
+                        var3.setCurrentAction(var3.hasLampItem() ? Action.SUMMON : Action.SUMMON_NORMAL);
                      }
                   }
                );

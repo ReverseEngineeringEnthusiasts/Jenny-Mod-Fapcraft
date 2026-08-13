@@ -63,17 +63,17 @@ public class ServerWhitelistManager {
    public static boolean isGlobalRenderingDisabled = false;
    public static boolean isLoaded = false;
 
-   public static Map<String, ServerWhitelistManager.b> i_clash124() {
+   public static Map<String, ServerWhitelistManager.b> getModelDataMap() {
       return modelDataMap;
    }
 
-   public static boolean f_clash125(String var0) {
+   public static boolean isModelDisabled(String var0) {
       return modelDataMap.get(var0) != null;
    }
 
-   public static int b_clash126(boolean var0) {
-      a_clash127(var0);
-      return c_clash135(var0);
+   public static int getModelCount(boolean var0) {
+      setGlobalRenderingDisabled(var0);
+      return loadCustomModels(var0);
    }
 
    static void b(Level var0, String var1) {
@@ -84,21 +84,21 @@ public class ServerWhitelistManager {
       }
    }
 
-   public static void a_clash127(boolean var0) {
+   public static void setGlobalRenderingDisabled(boolean var0) {
       if (var0) {
-         c_clash131();
+         syncModelData();
       }
 
       modelDataMap.clear();
    }
 
-   public static void a_clash128() {
+   public static void reloadCustomModels() {
       PacketHandler.networkWrapper.sendToServer(new UnknownPacket());
    }
 
    @SideOnly(Side.CLIENT)
-   public static boolean b_clash129() {
-      String var0 = g_clash134();
+   public static boolean isGlobalRenderingDisabled() {
+      String var0 = getCustomModelsKey();
       return var0 == null ? false : l(var0);
    }
 
@@ -107,7 +107,7 @@ public class ServerWhitelistManager {
       var1.mkdirs();
       HashSet var2 = new HashSet();
       if (var1.exists()) {
-         var2 = f_clash130();
+         var2 = loadWhitelistedServers();
       }
 
       var2.add(var0);
@@ -161,10 +161,10 @@ public class ServerWhitelistManager {
    }
 
    public static boolean l(String var0) {
-      return f_clash130().contains(var0);
+      return loadWhitelistedServers().contains(var0);
    }
 
-   static HashSet<String> f_clash130() {
+   static HashSet<String> loadWhitelistedServers() {
       File var0 = new File("sexmod/custom_models/whitelisted_servers.txt");
 
       try {
@@ -195,16 +195,16 @@ public class ServerWhitelistManager {
 
    public static float i(String var0) {
       ServerWhitelistManager.b var1 = modelDataMap.get(var0);
-      return var1 == null ? 0.0F : var1.f_clash905();
+      return var1 == null ? 0.0F : var1.getZOffset();
    }
 
    @SideOnly(Side.CLIENT)
-   static void c_clash131() {
+   static void syncModelData() {
       for (Entry var1 : modelDataMap.entrySet()) {
          ServerWhitelistManager.b var2 = (ServerWhitelistManager.b)var1.getValue();
          if (var2 != null) {
-            ResourceLocation var3 = var2.c_clash904();
-            ResourceLocation var4 = var2.k_clash902();
+            ResourceLocation var3 = var2.getFallbackTexture();
+            ResourceLocation var4 = var2.getTextureLocation();
             if (var3 != null) {
                GeckoLibCache.getInstance().getGeoModels().remove(var3);
             }
@@ -235,19 +235,19 @@ public class ServerWhitelistManager {
       }
    }
 
-   public static String h_clash132() {
-      return null instanceof ClientProxy ? d_clash133() : "sexmod_custom_models";
+   public static String getCurrentGroup() {
+      return null instanceof ClientProxy ? getGlobalModelOverride() : "sexmod_custom_models";
    }
 
    @SideOnly(Side.CLIENT)
-   public static String d_clash133() {
-      String var0 = g_clash134();
+   public static String getGlobalModelOverride() {
+      String var0 = getCustomModelsKey();
       return var0 == null ? "sexmod/custom_models/singleplayer" : "sexmod/custom_models/" + var0;
    }
 
    @SideOnly(Side.CLIENT)
    @Nullable
-   public static String g_clash134() {
+   public static String getCustomModelsKey() {
       Minecraft var0 = Minecraft.getMinecraft();
       ServerData var1 = var0.getCurrentServerData();
       if (var1 == null) {
@@ -263,9 +263,9 @@ public class ServerWhitelistManager {
       return var2;
    }
 
-   public static int c_clash135(boolean var0) {
+   public static int loadCustomModels(boolean var0) {
       b(Level.INFO, "loading up custom models...");
-      String var1 = h_clash132();
+      String var1 = getCurrentGroup();
       File var2 = new File(var1);
       var2.mkdirs();
       String[] var3 = var2.list((var0x, var1x) -> new File(var0x, var1x).isDirectory());
@@ -284,7 +284,7 @@ public class ServerWhitelistManager {
       int var4 = 0;
 
       for (String var8 : var3) {
-         String var9 = a_clash136(var8, var1);
+         String var9 = getPartName(var8, var1);
          if (!"".equals(var9)) {
             b(Level.ERROR, var9);
             return -1;
@@ -304,7 +304,7 @@ public class ServerWhitelistManager {
       return 0;
    }
 
-   public static String a_clash136(String var0, String var1) {
+   public static String getPartName(String var0, String var1) {
       String var2 = String.format("%s/%s", var1, var0);
       File var3 = new File(String.format("%s/%s.geo.json", var2, var0));
       File var4 = new File(String.format("%s/%s.png", var2, var0));
@@ -405,7 +405,7 @@ public class ServerWhitelistManager {
 
       if (var2) {
          var6.b(var10);
-         var6.a_clash903(var9);
+         var6.setTextureLocation(var9);
       }
 
       modelDataMap.put(var0, var6);
@@ -422,11 +422,11 @@ public class ServerWhitelistManager {
 
          return null;
       } else {
-         return var1.c_clash904();
+         return var1.getFallbackTexture();
       }
    }
 
-   public static ResourceLocation c_clash137(String var0) {
+   public static ResourceLocation getModelTexture(String var0) {
       ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
@@ -435,7 +435,7 @@ public class ServerWhitelistManager {
 
          return null;
       } else {
-         return var1.k_clash902();
+         return var1.getTextureLocation();
       }
    }
 
@@ -443,7 +443,7 @@ public class ServerWhitelistManager {
       return GeckoLibCache.getInstance().getGeoModels().get(k(var0));
    }
 
-   public static BoneType e_clash138(String var0) {
+   public static BoneType getBoneType(String var0) {
       ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
@@ -456,7 +456,7 @@ public class ServerWhitelistManager {
       }
    }
 
-   public static HashSet<NpcType> a_clash139(String var0) {
+   public static HashSet<NpcType> getAllowedNpcTypes(String var0) {
       ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
@@ -469,7 +469,7 @@ public class ServerWhitelistManager {
       }
    }
 
-   public static HashSet<String> g_clash140(String var0) {
+   public static HashSet<String> getCustomPartBones(String var0) {
       ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
@@ -482,7 +482,7 @@ public class ServerWhitelistManager {
       }
    }
 
-   public static String d_clash141(String var0) {
+   public static String getModelCode(String var0) {
       ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
@@ -496,11 +496,11 @@ public class ServerWhitelistManager {
    }
 
    @Nullable
-   public static ServerWhitelistManager.b b_clash142(String var0) {
+   public static ServerWhitelistManager.b getModelDataForGirl(String var0) {
       return modelDataMap.get(var0);
    }
 
-   public static HashMap<BoneType, List<String>> a_clash143(BaseGirlEntity var0) {
+   public static HashMap<BoneType, List<String>> getModelParts(BaseGirlEntity var0) {
       HashMap var1 = new HashMap();
 
       for (BoneType var5 : BoneType.values()) {
@@ -521,11 +521,11 @@ public class ServerWhitelistManager {
       return var1;
    }
 
-   public static HashMap<String, Float> e_clash144() {
+   public static HashMap<String, Float> getModelScales() {
       HashMap var0 = new HashMap();
 
-      for (Entry var2 : i_clash124().entrySet()) {
-         var0.put(var2.getKey(), ((ServerWhitelistManager.b)var2.getValue()).f_clash905());
+      for (Entry var2 : getModelDataMap().entrySet()) {
+         var0.put(var2.getKey(), ((ServerWhitelistManager.b)var2.getValue()).getZOffset());
       }
 
       return var0;
@@ -564,7 +564,7 @@ public class ServerWhitelistManager {
       @SubscribeEvent
       public void a(ClientConnectedToServerEvent var1) {
          Minecraft var2 = Minecraft.getMinecraft();
-         var2.addScheduledTask(() -> ServerWhitelistManager.c_clash135(true));
+         var2.addScheduledTask(() -> ServerWhitelistManager.loadCustomModels(true));
          this.hasSentId = false;
       }
 
@@ -574,8 +574,8 @@ public class ServerWhitelistManager {
          if (var1.getEntity().equals(Minecraft.getMinecraft().player)) {
             if (!this.hasSentId) {
                this.hasSentId = true;
-               if (ServerWhitelistManager.b_clash129()) {
-                  ServerWhitelistManager.a_clash128();
+               if (ServerWhitelistManager.isGlobalRenderingDisabled()) {
+                  ServerWhitelistManager.reloadCustomModels();
                }
             }
          }
@@ -584,7 +584,7 @@ public class ServerWhitelistManager {
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
       public void a(ClientDisconnectionFromServerEvent var1) {
-         Minecraft.getMinecraft().addScheduledTask(() -> ServerWhitelistManager.a_clash127(true));
+         Minecraft.getMinecraft().addScheduledTask(() -> ServerWhitelistManager.setGlobalRenderingDisabled(true));
          this.hasSentId = false;
       }
 
@@ -779,51 +779,51 @@ public class ServerWhitelistManager {
          }
       }
 
-      public String b_clash893() {
+      public String getModelName() {
          return this.modelName;
       }
 
-      public LightingType i_clash894() {
+      public LightingType getLightingType() {
          return this.lightingType;
       }
 
-      public float g_clash895() {
+      public float getXOffset() {
          return this.xOffset;
       }
 
-      public float d_clash896() {
+      public float getScale() {
          return this.scale;
       }
 
-      public BoneType j_clash897() {
+      public BoneType getBoneType() {
          return this.boneType;
       }
 
-      public HashSet<NpcType> l_clash898() {
+      public HashSet<NpcType> getAllowedNpcTypes() {
          return this.allowedNpcTypes;
       }
 
-      public String e_clash899() {
+      public String getModelCode() {
          return this.modelCode;
       }
 
-      public boolean a_clash900() {
+      public boolean isDisabled() {
          return this.disabled;
       }
 
-      public HashSet<String> h_clash901() {
+      public HashSet<String> getCustomPartBones() {
          return this.customPartBones;
       }
 
-      public ResourceLocation k_clash902() {
+      public ResourceLocation getTextureLocation() {
          return this.textureLocation;
       }
 
-      public void a_clash903(ResourceLocation var1) {
+      public void setTextureLocation(ResourceLocation var1) {
          this.textureLocation = var1;
       }
 
-      public ResourceLocation c_clash904() {
+      public ResourceLocation getFallbackTexture() {
          return this.fallbackTexture;
       }
 
@@ -831,7 +831,7 @@ public class ServerWhitelistManager {
          this.fallbackTexture = var1;
       }
 
-      public float f_clash905() {
+      public float getZOffset() {
          return this.zOffset;
       }
 

@@ -117,7 +117,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
             return;
          }
 
-         this.generatedPositions.add(new ConfigWorldGenHandler.a(a_clash471(var5), var4));
+         this.generatedPositions.add(new ConfigWorldGenHandler.a(parseSpawnEntry(var5), var4));
          var3++;
       }
    }
@@ -140,7 +140,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       return var0.x + "|" + var0.y;
    }
 
-   static Point2D a_clash471(String var0) {
+   static Point2D parseSpawnEntry(String var0) {
       String[] var1 = var0.split("\\|");
       return new Point2D(Integer.parseInt(var1[0]), Integer.parseInt(var1[1]));
    }
@@ -170,7 +170,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
    void a(ConfigWorldGenHandler.b var1, Random var2, int var3, int var4, World var5) {
       for (ConfigWorldGenHandler.a var7 : this.generatedPositions) {
          int var8 = var7.girlName.equals(var1.girlName) ? 156 : 62;
-         if (var7.pos.a_clash298(var3, var4) < var8) {
+         if (var7.pos.distanceTo(var3, var4) < var8) {
             return;
          }
       }

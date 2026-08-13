@@ -28,11 +28,11 @@ public class GuiHandler implements IGuiHandler {
    }
 
    public GuiHandler(boolean var1) {
-      this.a_clash441();
+      this.onGuiOpen();
    }
 
    @SideOnly(Side.CLIENT)
-   void a_clash441() {
+   void onGuiOpen() {
    }
 
    public Object getServerGuiElement(int var1, EntityPlayer var2, World var3, int var4, int var5, int var6) {

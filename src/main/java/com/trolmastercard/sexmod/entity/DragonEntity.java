@@ -82,18 +82,18 @@ public class DragonEntity extends EntityLiving {
          this.motionZ = this.direction.z;
          super.onUpdate();
          if (this.world.isRemote) {
-            this.a_clash114();
+            this.spawnChargedBreath();
          }
 
-         this.c_clash113();
+         this.tickChargeState();
          if (!this.world.isAirBlock(this.getPosition())) {
-            this.b_clash116();
+            this.tickDragonLife();
             this.world.removeEntity(this);
          }
       }
    }
 
-   void c_clash113() {
+   void tickChargeState() {
       if (!this.world.isRemote) {
          if (this.isCharging) {
             Vec3d var1 = this.getPositionVector();
@@ -116,16 +116,16 @@ public class DragonEntity extends EntityLiving {
       }
    }
 
-   void a_clash114() {
-      this.a_clash115(
+   void spawnChargedBreath() {
+      this.spawnBreathParticles(
          RotationHelper.b(this.lastTickPosX, this.posX, 0.5),
          RotationHelper.b(this.lastTickPosY, this.posY, 0.5),
          RotationHelper.b(this.lastTickPosZ, this.posZ, 0.5)
       );
-      this.a_clash115(this.posX, this.posY, this.posZ);
+      this.spawnBreathParticles(this.posX, this.posY, this.posZ);
    }
 
-   void a_clash115(double var1, double var3, double var5) {
+   void spawnBreathParticles(double var1, double var3, double var5) {
       Random var7 = this.getRNG();
       this.world
          .spawnParticle(
@@ -140,12 +140,12 @@ public class DragonEntity extends EntityLiving {
          );
    }
 
-   void b_clash116() {
+   void tickDragonLife() {
       if (!this.world.isRemote) {
          if (!this.isDead) {
             if (this.shouldSpawnSkeleton) {
                Vec3d var1 = new Vec3d(this.posX, this.getPosition().getY() + 1, this.posZ);
-               if (!this.b_clash117(var1)) {
+               if (!this.isInRangeOfTarget(var1)) {
                   this.world.createExplosion(this, this.posX, this.posY, this.posZ, 2.0F, true);
                   this.shouldSpawnSkeleton = false;
                } else {
@@ -161,7 +161,7 @@ public class DragonEntity extends EntityLiving {
       }
    }
 
-   boolean b_clash117(Vec3d var1) {
+   boolean isInRangeOfTarget(Vec3d var1) {
       if (this.ownerGalath == null) {
          return true;
       }
@@ -171,7 +171,7 @@ public class DragonEntity extends EntityLiving {
    }
 
    @SideOnly(Side.CLIENT)
-   public static void a_clash118(Vec3d var0) {
+   public static void spawnDragonBreath(Vec3d var0) {
       WorldClient var1 = Minecraft.getMinecraft().world;
       float var2 = TrigMath.wrapDegrees(1.8F);
       Random var3 = Reference.RANDOM;
@@ -190,7 +190,7 @@ public class DragonEntity extends EntityLiving {
    }
 
    @SideOnly(Side.CLIENT)
-   public static void c_clash119(Vec3d var0) {
+   public static void spawnDragonBreathRandom(Vec3d var0) {
       WorldClient var1 = Minecraft.getMinecraft().world;
       Random var2 = Reference.RANDOM;
 

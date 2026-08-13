@@ -107,12 +107,12 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
 
          KoboldEntity var8 = KoboldEntity.a(this.world, this.tribeId);
          KoboldManager.c(this.tribeId, var8);
-         UUID var9 = KoboldManager.b_clash89(this.tribeId);
+         UUID var9 = KoboldManager.findTribeIdWith(this.tribeId);
          if (var9 != null) {
             var8.getDataManager().set(BaseGirlEntity.MASTER, var9.toString());
          }
 
-         List var10 = KoboldManager.n_clash82(this.tribeId);
+         List var10 = KoboldManager.getTribeMembersList(this.tribeId);
          String var11 = null;
 
          for (KoboldEntity var6 : (java.util.Collection<KoboldEntity>) (var10) ) {
@@ -129,17 +129,17 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
 
          var8.setPosition(0.5 + this.posX, this.posY, 0.5 + this.posZ);
          this.world.spawnEntity(var8);
-         this.a_clash843(var8);
+         this.hatchEgg(var8);
          this.world.playSound(null, this.getPosition(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 0.5F, 1.0F);
          this.world.removeEntity(this);
       }
    }
 
-   void a_clash843(KoboldEntity var1) {
+   void hatchEgg(KoboldEntity var1) {
       EntityPlayer var2 = var1.getMasterPlayer();
       if (var2 != null) {
          EntityPlayerMP var3 = (EntityPlayerMP)var2;
-         EyeAndKoboldColor var4 = KoboldManager.l_clash75(this.tribeId);
+         EyeAndKoboldColor var4 = KoboldManager.getTribeColor(this.tribeId);
          var2.sendMessage(
             new TextComponentString(
                String.format(

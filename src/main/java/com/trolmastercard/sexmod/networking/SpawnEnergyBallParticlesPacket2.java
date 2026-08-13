@@ -46,9 +46,9 @@ public class SpawnEnergyBallParticlesPacket2 implements IMessage {
       public IMessage onMessage(SpawnEnergyBallParticlesPacket2 var1, MessageContext var2) {
          if (var1.isLeftSide && var2.side.equals(Side.CLIENT)) {
             if (var1.isValid) {
-               DragonEntity.a_clash118(var1.energyPos);
+               DragonEntity.spawnDragonBreath(var1.energyPos);
             } else {
-               DragonEntity.c_clash119(var1.energyPos);
+               DragonEntity.spawnDragonBreathRandom(var1.energyPos);
             }
 
             return null;

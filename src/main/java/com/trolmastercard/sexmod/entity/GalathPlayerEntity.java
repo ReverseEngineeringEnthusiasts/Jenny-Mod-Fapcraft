@@ -82,21 +82,21 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 2.3F;
    }
 
    @Override
    public void b(String var1, UUID var2) {
       if ("cowgirl".equals(var1)) {
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.RAPE_INTRO);
          this.a(this.getOutfitIndex(), Action.RAPE_INTRO);
       } else if ("mating press".equals(var1)) {
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.CORRUPT_SLOW);
          this.a(this.getOutfitIndex(), Action.CORRUPT_SLOW);
-         this.a_clash442();
+         this.handleGalathPlayerOwner();
       }
    }
 
@@ -116,7 +116,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
       }
    }
 
-   void a_clash442() {
+   void handleGalathPlayerOwner() {
       EntityPlayer var1 = this.getPlayerEntity();
       if (var1 != null) {
          Vec3d var2 = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5F - var1.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
@@ -125,7 +125,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    @Override
-   public boolean b_clash23() {
+   public boolean isHuggingManglelie() {
       return false;
    }
 
@@ -136,7 +136,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    @Override
-   public boolean v_clash227() {
+   public boolean canBeInteracted() {
       return false;
    }
 
@@ -146,12 +146,12 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    @Override
-   public Vector4d d_clash20() {
+   public Vector4d getFlightData() {
       return new Vector4d(0.0, 0.0, 0.0, 0.0);
    }
 
    @Override
-   public boolean c_clash21() {
+   public boolean isWingsAnimated() {
       return this.getOutfitIndex() == 0 || this.ap;
    }
 
@@ -170,28 +170,28 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
 
    @Override
    public void B_clash233() {
-      this.c_clash573(true);
+      this.handleOwnerUUID(true);
    }
 
    @Override
    public void onUpdate() {
       super.onUpdate();
-      this.b_clash444();
+      this.handleCumState();
       if (this.world.isRemote) {
-         this.d_clash443();
+         this.handlePlayerAction();
       }
    }
 
    @SideOnly(Side.CLIENT)
-   void d_clash443() {
+   void handlePlayerAction() {
       if (this.isControlledByLocalPlayer()) {
          if (this.getCurrentAction() == Action.RAPE_INTRO) {
-            HornyMeterHud.a_clash359(false);
+            HornyMeterHud.setHornyMeterVisible(false);
          }
       }
    }
 
-   void b_clash444() {
+   void handleCumState() {
       switch (this.getCurrentAction()) {
          case CORRUPT_CUM:
          case CORRUPT_FAST:
@@ -209,8 +209,8 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
       }
    }
 
-   boolean g_clash445() {
-      EntityPlayer var1 = this.k_clash584();
+   boolean hasNoGalathOwner() {
+      EntityPlayer var1 = this.getOwnerPlayer();
       return var1 == null
          ? false
          : this.world.getBlockState(var1.getPosition().up().up()).getBlock() != Blocks.AIR;
@@ -235,16 +235,16 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
             } else if (!this.af) {
                this.createAnimation("animation.galath.controlled_flight", true, var1);
             } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) == 0.0F) {
-               this.createAnimation(this.g_clash445() ? "animation.galath.crouchidle" : "animation.galath.idle", true, var1);
+               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchidle" : "animation.galath.idle", true, var1);
             } else if (this.aj) {
                this.movementController.setAnimationSpeed(1.5);
-               this.createAnimation(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.run", true, var1);
+               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.run", true, var1);
             } else if (this.ao.y >= -0.1F) {
                this.movementController.setAnimationSpeed(2.0);
-               this.createAnimation(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.walk", true, var1);
+               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.walk", true, var1);
             } else {
                this.movementController.setAnimationSpeed(1.5);
-               this.createAnimation(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.backwards_walk", true, var1);
+               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.backwards_walk", true, var1);
             }
             break;
          case "action":
@@ -356,7 +356,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      break;
                   case "enableRapeUI":
                      if (this.isControlledByLocalPlayer()) {
-                        HornyMeterHud.a_clash359(false);
+                        HornyMeterHud.setHornyMeterVisible(false);
                      }
                      break;
                   case "reloadRenderer":
@@ -388,7 +388,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      HornyMeterHud.addToHornyMeter(0.03);
                      break;
                   case "clearcum":
-                     CummyEntity.a_clash747(this);
+                     CummyEntity.spawnCummyTrails(this);
                   case "reset":
                      if (this.isControlledByLocalPlayer()) {
                         this.resetCameraAndPhysics();
@@ -437,7 +437,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      break;
                   case "flapControlled":
                      if (this.isControlledByLocalPlayer()) {
-                        GalathFlightHud.f_clash791();
+                        GalathFlightHud.showHud();
                         this.playRandomSound(SoundHandler.MISC_FLAP);
                         Minecraft var10 = Minecraft.getMinecraft();
                         EntityPlayerSP var14 = var10.player;

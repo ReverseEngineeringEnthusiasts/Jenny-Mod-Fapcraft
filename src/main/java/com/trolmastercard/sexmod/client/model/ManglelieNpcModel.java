@@ -53,7 +53,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       return new ResourceLocation("sexmod", "textures/entity/manglelie/manglelie.png");
    }
 
-   public static boolean c_clash313(BaseGirlEntity var0) {
+   public static boolean isInThreesome(BaseGirlEntity var0) {
       return Action.a(var0, Action.THREESOME_SLOW, Action.THREESOME_FAST, Action.THREESOME_CUM);
    }
 
@@ -66,15 +66,15 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations(var1, var2, var3);
       a(var1, this.getAnimationProcessor(), var3.getPartialTick());
-      this.b_clash318(var1);
-      this.d_clash317(var1);
-      this.a_clash315(var1);
-      this.e_clash314(var1);
+      this.updatePoseBones(var1);
+      this.updateCorruptBones(var1);
+      this.updateThreesomePose(var1);
+      this.updateCorruptPose(var1);
    }
 
-   void e_clash314(BaseGirlEntity var1) {
+   void updateCorruptPose(BaseGirlEntity var1) {
       if (!this.mc.isGamePaused()) {
-         if (!c_clash313(var1)) {
+         if (!isInThreesome(var1)) {
             GalathEntity var2 = ManglelieEntity.getGalathPartnerOf(var1, false);
             if (var2 != null) {
                if (Action.a(var2.getCurrentAction(), Action.CORRUPT_CUM, Action.CARRY_FAST, Action.CORRUPT_INTRO, Action.CORRUPT_SLOW)) {
@@ -91,9 +91,9 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void a_clash315(BaseGirlEntity var1) {
+   void updateThreesomePose(BaseGirlEntity var1) {
       if (var1 instanceof ManglelieEntity) {
-         if (!c_clash313(var1)) {
+         if (!isInThreesome(var1)) {
             ManglelieEntity var2 = (ManglelieEntity)var1;
             GalathEntity var3 = var2.getGalathPartner(false);
             if (var3 != null) {
@@ -107,16 +107,16 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   Vec3d a_clash316(@Nonnull Entity var1) {
+   Vec3d getLookVector(@Nonnull Entity var1) {
       return EntityLookVectorHelper.getEntityLookVector(var1, this.mc.getRenderPartialTicks()).add(0.0, var1.getEyeHeight(), 0.0);
    }
 
-   void d_clash317(BaseGirlEntity var1) {
+   void updateCorruptBones(BaseGirlEntity var1) {
       if (!ClientProxy.IS_PRELOADING) {
-         if (!c_clash313(var1)) {
+         if (!isInThreesome(var1)) {
             if (!this.mc.isGamePaused()) {
                ManglelieEntity var2 = (ManglelieEntity)var1;
-               if (var2.r_clash411()) {
+               if (var2.isCorrupting()) {
                   GalathEntity var3 = var2.getGalathPartner(false);
                   if (var3 != null) {
                      AnimationProcessor var4 = this.getAnimationProcessor();
@@ -126,7 +126,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                      IBone var8 = var4.getBone("lowerArmR");
                      IBone var9 = var4.getBone("elbowR");
                      IBone var10 = var4.getBone("elbowL");
-                     Entity var11 = var2.b_clash424();
+                     Entity var11 = var2.getCorruptEntity();
                      boolean var12 = var11 == null;
                      if (var12) {
                         float var16 = Minecraft.getDebugFPS();
@@ -152,7 +152,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                            var15 = ManglelieNpcModel.RotationData.a(
                               this.a(var3, var6, var5, var7, var8),
                               this.a(var2, var3, var8, var7, var4),
-                              (float)(var2.aj ? RotationHelper.c_clash26(var2.VELOCITY_0) : 1.0 - RotationHelper.c_clash26(var2.VELOCITY_0))
+                              (float)(var2.aj ? RotationHelper.smoothStep(var2.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(var2.VELOCITY_0))
                            );
                         }
 
@@ -173,7 +173,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                         var9.setRotationY(var15.elbowRRotationY);
                         var10.setRotationY(var15.elbowLRotationY);
                      } else {
-                        var2.ZERO_VECTOR = this.a_clash316(var11);
+                        var2.ZERO_VECTOR = this.getLookVector(var11);
                         float var14 = Minecraft.getDebugFPS();
                         if (var14 == 0.0F) {
                            var14 = 1.0F;
@@ -197,7 +197,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                            var13 = ManglelieNpcModel.RotationData.a(
                               this.a(var3, var6, var5, var7, var8),
                               this.a(var2, var3, var8, var7, var4),
-                              (float)(var2.aj ? RotationHelper.c_clash26(var2.VELOCITY_0) : 1.0 - RotationHelper.c_clash26(var2.VELOCITY_0))
+                              (float)(var2.aj ? RotationHelper.smoothStep(var2.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(var2.VELOCITY_0))
                            );
                         }
 
@@ -231,7 +231,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       var6.lowerArmRRotation = new Vector3fSexmodSpecial(LOWER_ARM_BASE_ANGLE, 0.0F, var4.getRotationZ());
       float var7 = var2.aE + var5.getBone("upperBody").getRotationX();
       float var8 = this.mc.getRenderPartialTicks();
-      Vec3d var9 = ManglelieRenderer.a_clash376(var2, var8);
+      Vec3d var9 = ManglelieRenderer.getEntityLookVector(var2, var8);
       Vec3d var10 = var1.getCachedBoneOffset("armR").add(var9);
       Vec3d var11 = var1.getCachedBoneOffset("armL").add(var9);
       Vector2f var12 = ThreadNames.getLookAngles(var10, var1.ZERO_VECTOR);
@@ -239,7 +239,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       Float var14 = GalathEntity.getAimYaw(var2, var8);
       float var15 = var14 == null ? RotationHelper.b(var2.prevRotationYawHead, var2.rotationYawHead, var8) : var14;
       float var16 = TrigMath.wrapDegrees(var15);
-      float var17 = var1.b_clash423(var8);
+      float var17 = var1.getCorruptProgress(var8);
       float var18 = (float)RotationHelper.e(Math.min(1.0F, var17));
       float var19;
       if (var18 != 1.0F) {
@@ -307,7 +307,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void b_clash318(BaseGirlEntity var1) {
+   void updatePoseBones(BaseGirlEntity var1) {
       if (!ClientProxy.IS_PRELOADING) {
          if (!this.mc.isGamePaused()) {
             ManglelieEntity var2 = (ManglelieEntity)var1;
@@ -352,7 +352,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
 
    public static void a(BaseGirlEntity var0, AnimationProcessor var1, float var2) {
       if (!ClientProxy.IS_PRELOADING) {
-         boolean var3 = ManglelieRenderer.a_clash374(var0);
+         boolean var3 = ManglelieRenderer.isGalathLooking(var0);
          e(var1, var3);
          f(var1, var3);
          b(var0, var1, var2);

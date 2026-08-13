@@ -63,14 +63,14 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
          var5.sendStatusMessage(new TextComponentString("You gotta transform into the girl you want to apply the model-code to"), true);
       } else if ("".equals(var7)) {
          PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId()));
-         var5.sendStatusMessage(new TextComponentString(this.a_clash756(var9)), true);
+         var5.sendStatusMessage(new TextComponentString(this.getModelCodeText(var9)), true);
       } else {
          PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId(), BaseGirlEntity.decodePartIdList(var7)));
-         var5.sendStatusMessage(new TextComponentString(this.a_clash756(var9)), true);
+         var5.sendStatusMessage(new TextComponentString(this.getModelCodeText(var9)), true);
       }
    }
 
-   String a_clash756(BaseGirlEntity var1) {
+   String getModelCodeText(BaseGirlEntity var1) {
       return var1 instanceof AbstractPlayerGirlEntity
          ? TextFormatting.YELLOW + "applied model code to your player-" + ThreadNames.capitalizeFirst(NpcType.getNpcType(var1).toString())
          : TextFormatting.YELLOW + "applied model code to this " + var1.getDisplayNameText();

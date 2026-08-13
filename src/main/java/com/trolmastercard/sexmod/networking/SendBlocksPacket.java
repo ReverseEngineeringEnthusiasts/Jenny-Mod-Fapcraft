@@ -75,7 +75,7 @@ public class SendBlocksPacket implements IMessage {
 
          if (var2.side.isClient()) {
             if (var1.isBreaking) {
-               StructureMarkerRenderer.a_clash774(var1.blockPositions);
+               StructureMarkerRenderer.renderMarkers(var1.blockPositions);
             } else {
                StructureMarkerRenderer.b(var1.blockPositions);
             }

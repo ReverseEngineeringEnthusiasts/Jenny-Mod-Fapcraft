@@ -56,7 +56,7 @@ public class RotationHelper {
 
    public static Vector3fSexmodSpecial a(Vector3fSexmodSpecial var0, Vector3fSexmodSpecial var1, double var2) {
       Vector3fSexmodSpecial var4 = var1.b(var0);
-      return var0.a(var4.a_clash407((float)var2));
+      return var0.a(var4.scale((float)var2));
    }
 
    public static Vec3i a(Vec3i var0, Vec3i var1, double var2) {
@@ -81,7 +81,7 @@ public class RotationHelper {
       return 1.0 - Math.pow(1.0 - var0, 3.0);
    }
 
-   public static double c_clash26(double var0) {
+   public static double smoothStep(double var0) {
       double var2 = 1.70158;
       double var4 = 2.70158;
       return 1.0 + var4 * Math.pow(var0 - 1.0, 3.0) + var2 * Math.pow(var0 - 1.0, 2.0);
@@ -97,7 +97,7 @@ public class RotationHelper {
       return Math.sin(var0 * Math.PI / 2.0);
    }
 
-   public static double a_clash27(double var0) {
+   public static double smoothDamp(double var0) {
       return var0 * var0 * var0;
    }
 
@@ -109,7 +109,7 @@ public class RotationHelper {
       return 1.0 - Math.cos(Math.PI * var0 / 2.0);
    }
 
-   public static double a_clash28(double var0, double var2, double var4) {
+   public static double lerpAngle(double var0, double var2, double var4) {
       double var6 = (1.0 - Math.cos(var4 * Math.PI)) / 2.0;
       return var0 * (1.0 - var6) + var2 * var6;
    }

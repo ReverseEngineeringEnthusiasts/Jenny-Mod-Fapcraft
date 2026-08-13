@@ -45,7 +45,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 1.5F;
    }
 
@@ -54,7 +54,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void u_clash377() {
+   public void handleInteraction() {
    }
 
    @Override
@@ -81,7 +81,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void b(String var1, UUID var2) {
       if ("action.names.headpat".equals(var1)) {
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.HEAD_PAT);
          this.a(this.getOutfitIndex(), Action.HEAD_PAT);
       }
@@ -148,7 +148,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void onUpdate() {
       super.onUpdate();
-      this.a_clash590();
+      this.handleBiaAnalState();
    }
 
    @Override
@@ -158,17 +158,17 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean a_clash589(EntityPlayer var1) {
+   public boolean isOwnPlayer(EntityPlayer var1) {
       return Minecraft.getMinecraft().player.getPersistentID().equals(var1.getPersistentID());
    }
 
-   void a_clash590() {
+   void handleBiaAnalState() {
       Action var1 = this.getCurrentAction();
       if (var1 == Action.ANAL_WAIT || var1 == Action.SITDOWNIDLE) {
-         EntityPlayer var2 = this.j_clash575();
+         EntityPlayer var2 = this.getNearestPlayer();
          if (var2 != null) {
             if (!(var2.getDistance(this) > 1.0F)) {
-               if (!this.world.isRemote || this.a_clash589(var2)) {
+               if (!this.world.isRemote || this.isOwnPlayer(var2)) {
                   if (this.ar == -1) {
                      if (this.world.isRemote) {
                         BeeScreen.enableInteraction();
@@ -200,7 +200,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                            Vec3d var4 = this.getTargetPosition();
                            Vec3d var5 = var4.add(VectorMath.a(0.0, 0.0, 1.0, var3));
                            this.setTargetPosition(var5);
-                           EntityPlayer var6 = this.k_clash584();
+                           EntityPlayer var6 = this.getOwnerPlayer();
                            if (var6 != null) {
                               var6.setPositionAndUpdate(var5.x, var5.y, var5.z);
                            }

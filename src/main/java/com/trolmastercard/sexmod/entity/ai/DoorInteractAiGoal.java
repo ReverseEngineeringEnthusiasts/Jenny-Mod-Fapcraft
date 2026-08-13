@@ -56,7 +56,7 @@ public class DoorInteractAiGoal extends EntityAIBase {
             PathPoint var5 = var7.getPathPointFromIndex(var8);
             this.doorPosition = new BlockPos(var5.x, var5.y + 1, var5.z);
             if (this.entity.getDistanceSq(this.doorPosition.getX(), this.entity.posY, this.doorPosition.getZ()) <= 2.25) {
-               this.doorBlock = this.a_clash800(this.doorPosition);
+               this.doorBlock = this.findDoorBlock(this.doorPosition);
                if (this.doorBlock != null) {
                   return true;
                }
@@ -64,7 +64,7 @@ public class DoorInteractAiGoal extends EntityAIBase {
          }
 
          this.doorPosition = new BlockPos(this.entity).up();
-         this.doorBlock = this.a_clash800(this.doorPosition);
+         this.doorBlock = this.findDoorBlock(this.doorPosition);
          return this.doorBlock != null;
       } else {
          return false;
@@ -96,7 +96,7 @@ public class DoorInteractAiGoal extends EntityAIBase {
       this.ticksRemaining = 10;
    }
 
-   private BlockDoor a_clash800(BlockPos var1) {
+   private BlockDoor findDoorBlock(BlockPos var1) {
       IBlockState var2 = this.entity.world.getBlockState(var1);
       Block var3 = var2.getBlock();
       return var3 instanceof BlockDoor && var2.getMaterial() == Material.WOOD ? (BlockDoor)var3 : null;

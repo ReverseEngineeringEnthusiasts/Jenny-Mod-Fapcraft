@@ -36,16 +36,16 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void B_clash233() {
-      this.c_clash573(true);
+      this.handleOwnerUUID(true);
    }
 
    @Override
-   public void y_clash234() {
-      this.c_clash573(false);
+   public void onTickClient() {
+      this.handleOwnerUUID(false);
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 1.4F;
    }
 
@@ -68,7 +68,7 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
       this.a(0, Action.CITIZEN_START);
       this.setOutfitIndex(0);
       this.setCurrentAction(Action.CITIZEN_START);
-      this.b_clash577(var2);
+      this.teleportPlayerToGirl(var2);
       EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
       if (var3 != null) {
          Vec3d var4 = this.getVectorTowardPlayer(-0.2);
@@ -95,7 +95,7 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean v_clash227() {
+   public boolean canBeInteracted() {
       return false;
    }
 

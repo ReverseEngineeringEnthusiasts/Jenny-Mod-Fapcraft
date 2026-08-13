@@ -96,7 +96,7 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
       this.tasks.addTask(1, new GirlFollowGoal(this));
    }
 
-   public void c_clash237() {
+   public void onArriveHome() {
    }
 
    @Override
@@ -160,7 +160,7 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
          this.goHome();
          PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
       } else if ("action.names.setnewhome".equals(var1)) {
-         this.c_clash237();
+         this.onArriveHome();
          PacketHandler.networkWrapper.sendToServer(new SetNewHomePacket(this.getGirlId(), new Vec3d(this.getPosition())));
       }
    }

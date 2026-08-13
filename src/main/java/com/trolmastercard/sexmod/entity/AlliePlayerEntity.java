@@ -49,7 +49,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 1.9F + this.aq;
    }
 
@@ -58,7 +58,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean v_clash227() {
+   public boolean canBeInteracted() {
       return false;
    }
 
@@ -77,13 +77,13 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
       if ("action.names.deepthroat".equals(var1)) {
          this.setCurrentAction(Action.DEEPTHROAT_START);
          this.a(this.getOutfitIndex(), Action.DEEPTHROAT_START);
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
       }
 
       if ("Reverse cowgirl".equals(var1)) {
          this.setCurrentAction(Action.REVERSE_COWGIRL_START);
          this.a(0, Action.REVERSE_COWGIRL_START);
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
       }
    }
 
@@ -124,7 +124,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
       if (this.getOwnerUserUUID() != null) {
          EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
          if (var1 != null && this.as == null) {
-            this.c_clash573(true);
+            this.handleOwnerUUID(true);
          }
 
          this.as = var1;
@@ -135,12 +135,12 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    public void onUpdate() {
       super.onUpdate();
       if (this.world.isRemote) {
-         this.a_clash232();
+         this.spawnAllieParticles();
       }
    }
 
    @SideOnly(Side.CLIENT)
-   void a_clash232() {
+   void spawnAllieParticles() {
       if (this.ticksExisted % 10 == 0) {
          int var1 = this.getRNG().nextInt(8);
          Vec3d var2 = this.getCachedBoneOffset("tail" + var1).add(this.getPositionVector());
@@ -160,12 +160,12 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void B_clash233() {
-      this.c_clash573(true);
+      this.handleOwnerUUID(true);
    }
 
    @Override
-   public void y_clash234() {
-      this.c_clash573(false);
+   public void onTickClient() {
+      this.handleOwnerUUID(false);
    }
 
    @Override

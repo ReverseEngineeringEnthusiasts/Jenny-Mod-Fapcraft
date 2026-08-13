@@ -143,11 +143,11 @@ public class GirlInventoryScreen extends GuiScreen {
       }
 
       if (this.isReady) {
-         this.a_clash826(var1, var2);
+         this.drawGirlPreview(var1, var2);
       }
    }
 
-   void a_clash826(int var1, int var2) {
+   void drawGirlPreview(int var1, int var2) {
       int var3 = (int)RotationHelper.lerp(-30.0F, 120.0F, this.animProgress);
       this.itemRender.renderItemIntoGUI((ItemStack)this.dataManager.get(AbstractGirlNpcEntity.WEAPON), var3 - 105, 68);
       this.itemRender.renderItemIntoGUI((ItemStack)this.dataManager.get(AbstractGirlNpcEntity.BOW), var3 - 105, 87);

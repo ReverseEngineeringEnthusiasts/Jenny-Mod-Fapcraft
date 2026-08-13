@@ -50,7 +50,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 1.75F;
    }
 
@@ -69,7 +69,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void u_clash377() {
+   public void handleInteraction() {
       this.setCurrentAction(Action.STARTDOGGY);
       this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
       this.cameraYaw = (Float)this.entityDataManager.get(BaseGirlEntity.YAW_ROTATION);
@@ -96,13 +96,13 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
          this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
          this.setCurrentAction(Action.PAIZURI_START);
          this.a(0, Action.PAIZURI_START);
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
       }
 
       if ("action.names.blowjob".equals(var1)) {
          this.setCurrentAction(Action.STARTBLOWJOB);
          this.a(this.getOutfitIndex(), Action.PAIZURI_START);
-         this.b_clash577(var2);
+         this.teleportPlayerToGirl(var2);
       }
    }
 
@@ -110,15 +110,15 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    public void updateAITasks() {
       super.updateAITasks();
       if (this.getCurrentAction() == Action.WAITDOGGY) {
-         EntityPlayer var1 = this.j_clash575();
-         if (var1 != null && var1.getDistance(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z) < 1.0) {
-            if (this.c_clash587(var1.getPersistentID())) {
+         EntityPlayer var1 = this.getNearestPlayer();
+         if (var1 != null && var1.getDistance(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z) < 1.0) {
+            if (this.isOwnerUUID(var1.getPersistentID())) {
                var1.sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + "sowy no lesbo action yet uwu"));
                return;
             }
 
             this.setInteractionPlayerUUID(var1.getPersistentID());
-            var1.setPositionAndUpdate(this.getPositionVector().x, this.w_clash576().y, this.getPositionVector().z);
+            var1.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVec3d().y, this.getPositionVector().z);
             this.alignPlayerToGirl((EntityPlayerMP)var1, false);
             var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
             var1.capabilities.isFlying = true;

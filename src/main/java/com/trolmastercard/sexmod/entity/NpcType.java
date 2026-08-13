@@ -61,7 +61,7 @@ public enum NpcType {
       this.playerID = 0;
    }
 
-   public static NpcType a_clash750(String var0) {
+   public static NpcType getNpcTypeByName(String var0) {
       for (NpcType var4 : values()) {
          if (var4.toString().equalsIgnoreCase(var0)) {
             return var4;

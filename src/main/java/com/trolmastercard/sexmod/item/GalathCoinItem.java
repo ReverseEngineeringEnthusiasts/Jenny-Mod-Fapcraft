@@ -117,7 +117,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    boolean a(World var1, EntityPlayer var2) {
-      return !var1.isRemote ? !GirlSavedData.c_clash849(var2.getPersistentID()) : !GirlSavedData.debugEnabled;
+      return !var1.isRemote ? !GirlSavedData.hasOwner(var2.getPersistentID()) : !GirlSavedData.debugEnabled;
    }
 
    @SubscribeEvent
@@ -194,7 +194,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    @SideOnly(Side.CLIENT)
-   void a_clash182(EntityPlayer var1) {
+   void handleCoinClick(EntityPlayer var1) {
       if (Minecraft.getMinecraft().player.getPersistentID().equals(var1.getPersistentID())) {
          GirlSavedData.debugEnabled = true;
       }
@@ -219,10 +219,10 @@ public class GalathCoinItem extends Item implements IAnimatable {
    public void a(PlayerChangedDimensionEvent var1) {
       EntityPlayer var2 = var1.player;
       if (!var2.world.isRemote) {
-         UUID var3 = GirlSavedData.b_clash853(var2);
+         UUID var3 = GirlSavedData.getOwnerOf(var2);
          BaseGirlEntity var4 = BaseGirlEntity.getServerGirlEntity(var3);
          if (var4 != null) {
-            GirlSavedData.a_clash848((GalathEntity)var4);
+            GirlSavedData.updateMangleliePartner((GalathEntity)var4);
             PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var2);
          }
       }
@@ -252,37 +252,37 @@ public class GalathCoinItem extends Item implements IAnimatable {
 
             World var12 = var1.world;
             if (var12.isRemote) {
-               this.a_clash182(var1);
+               this.handleCoinClick(var1);
             } else {
                GalathEntity var11 = new GalathEntity(var1.world, var1, var8);
                var11.setPositionAndUpdate(var8.x, var8.y, var8.z);
                GirlSavedData.a(var1, var11);
                var1.world.spawnEntity(var11);
-               if (GirlSavedData.b_clash846(var1.getPersistentID())) {
-                  var11.v_clash675();
+               if (GirlSavedData.isManglelieOwned(var1.getPersistentID())) {
+                  var11.canStartPussyLicking();
                }
             }
          }
       }
    }
 
-   void d_clash183(EntityPlayer var1) {
+   void handleCoinUse(EntityPlayer var1) {
       if (var1.world.isRemote) {
-         this.b_clash186(var1);
+         this.summonGalath(var1);
       } else {
-         this.c_clash184(var1);
+         this.summonGalathFor(var1);
       }
    }
 
-   void c_clash184(EntityPlayer var1) {
-      UUID var2 = GirlSavedData.b_clash853(var1);
+   void summonGalathFor(EntityPlayer var1) {
+      UUID var2 = GirlSavedData.getOwnerOf(var1);
       BaseGirlEntity var3 = BaseGirlEntity.getServerGirlEntity(var2);
       if (var3 instanceof GalathEntity) {
-         a_clash185((GalathEntity)var3);
+         deSummonGalath((GalathEntity)var3);
       }
    }
 
-   public static void a_clash185(GalathEntity var0) {
+   public static void deSummonGalath(GalathEntity var0) {
       var0.setCurrentAction(Action.GALATH_DE_SUMMON);
       var0.aC();
       var0.setAnchored(true);
@@ -291,7 +291,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    @SideOnly(Side.CLIENT)
-   void b_clash186(EntityPlayer var1) {
+   void summonGalath(EntityPlayer var1) {
       GalathEntity var2 = null;
 
       try {
@@ -348,15 +348,15 @@ public class GalathCoinItem extends Item implements IAnimatable {
          boolean var10 = var2.getBoolean("sexmod:galath_coin_de_summoning_animation_time");
          if (!var10 && var7 > 1000L - (var9.isRemote ? 0 : 150)) {
             var2.setBoolean("sexmod:galath_coin_de_summoning_animation_time", true);
-            this.d_clash183(var1);
+            this.handleCoinUse(var1);
          }
 
          if (!var9.isRemote) {
             if (var3 - var5 > 3000L) {
-               UUID var11 = GirlSavedData.b_clash853(var1);
+               UUID var11 = GirlSavedData.getOwnerOf(var1);
                BaseGirlEntity var12 = BaseGirlEntity.getServerGirlEntity(var11);
                if (var12 instanceof GalathEntity) {
-                  GirlSavedData.a_clash848((GalathEntity)var12);
+                  GirlSavedData.updateMangleliePartner((GalathEntity)var12);
                }
             }
          }

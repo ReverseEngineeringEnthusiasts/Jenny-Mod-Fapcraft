@@ -34,32 +34,32 @@ public class GirlWorldData extends WorldSavedData {
       super("sexmod:static_custom_model_manager");
    }
 
-   public static String c_clash151(BaseGirlEntity var0) {
-      String var1 = b_clash152(var0);
+   public static String getCustomModelCode(BaseGirlEntity var0) {
+      String var1 = buildModelCode(var0);
       return var1 == null ? "" : var1;
    }
 
-   private static String b_clash152(BaseGirlEntity var0) {
+   private static String buildModelCode(BaseGirlEntity var0) {
       if (var0 instanceof GalathEntity) {
          UUID var3 = var0.getGirlId();
-         UUID var2 = GirlSavedData.f_clash850(var3);
+         UUID var2 = GirlSavedData.getManglelieOwnerId(var3);
          if (var2 == null) {
             var2 = var3;
          }
 
          return c.get(var2);
       } else if (var0 instanceof ManglelieEntity) {
-         UUID var1 = GirlSavedData.f_clash850(((ManglelieEntity)var0).v_clash412());
+         UUID var1 = GirlSavedData.getManglelieOwnerId(((ManglelieEntity)var0).getCorruptPlayerUUID());
          return b.get(var1 == null ? var0.getGirlId() : var1);
       } else {
          return null;
       }
    }
 
-   public static void a_clash153(BaseGirlEntity var0) {
+   public static void setCustomModelCode(BaseGirlEntity var0) {
       if (var0 instanceof GalathEntity) {
          UUID var3 = var0.getGirlId();
-         UUID var2 = GirlSavedData.f_clash850(var3);
+         UUID var2 = GirlSavedData.getManglelieOwnerId(var3);
          if (var2 == null) {
             var2 = var3;
          }
@@ -67,7 +67,7 @@ public class GirlWorldData extends WorldSavedData {
          c.put(var2, var0.getCustomModelCode());
       } else {
          if (var0 instanceof ManglelieEntity) {
-            UUID var1 = GirlSavedData.f_clash850(((ManglelieEntity)var0).v_clash412());
+            UUID var1 = GirlSavedData.getManglelieOwnerId(((ManglelieEntity)var0).getCorruptPlayerUUID());
             b.put(var1 == null ? var0.getGirlId() : var1, var0.getCustomModelCode());
          }
       }
@@ -94,13 +94,13 @@ public class GirlWorldData extends WorldSavedData {
 
    public NBTTagCompound writeToNBT(NBTTagCompound var1) {
       NBTTagCompound var2 = new NBTTagCompound();
-      var2.setTag("galath", this.a_clash154(c));
-      var2.setTag("mang", this.a_clash154(b));
+      var2.setTag("galath", this.serializeOwnership(c));
+      var2.setTag("mang", this.serializeOwnership(b));
       var1.setTag("sexmod:static_custom_model_manager", var2);
       return var1;
    }
 
-   NBTTagCompound a_clash154(HashMap<UUID, String> var1) {
+   NBTTagCompound serializeOwnership(HashMap<UUID, String> var1) {
       NBTTagCompound var2 = new NBTTagCompound();
       int var3 = 0;
 

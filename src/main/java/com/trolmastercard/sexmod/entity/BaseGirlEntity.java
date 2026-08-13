@@ -262,7 +262,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    public static void sendMessageToTrackingPlayers(BaseGirlEntity var0, String var1) {
-      for (EntityPlayer var3 : WorldUtils.a_clash303(var0)) {
+      for (EntityPlayer var3 : WorldUtils.getNearbyPlayers(var0)) {
          var3.sendMessage(new TextComponentString(var1));
       }
    }
@@ -270,7 +270,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    public static void girlPlaySound(BaseGirlEntity var0, SoundEvent var1, boolean var2) {
       Vec3d var3 = var0.getPositionVector();
 
-      for (EntityPlayer var5 : WorldUtils.a_clash303(var0)) {
+      for (EntityPlayer var5 : WorldUtils.getNearbyPlayers(var0)) {
          Vec3d var6;
          if (!var2) {
             var6 = var3;
@@ -422,9 +422,9 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    public void setLocallyRegistered(boolean var1) {
       this.isLocallyRegistered = var1;
       if (var1) {
-         GirlRegistry.b_clash710(this);
+         GirlRegistry.registerGirl(this);
       } else {
-         GirlRegistry.a_clash711(this);
+         GirlRegistry.unregisterGirl(this);
       }
    }
 
@@ -583,13 +583,13 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
          HashSet var1 = this.getCustomPartsSet();
          NpcType var2 = NpcType.getNpcType(this);
          HashSet var3 = new HashSet();
-         String var4 = ServerWhitelistManager.h_clash132();
+         String var4 = ServerWhitelistManager.getCurrentGroup();
 
          for (String var6 : (java.util.Collection<String>) (var1) ) {
-            if (!"".equals(ServerWhitelistManager.a_clash136(var6, var4))) {
+            if (!"".equals(ServerWhitelistManager.getPartName(var6, var4))) {
                var3.add(var6);
             } else {
-               HashSet var7 = ServerWhitelistManager.a_clash139(var6);
+               HashSet var7 = ServerWhitelistManager.getAllowedNpcTypes(var6);
                if (var7 == null) {
                   var3.add(var6);
                } else if (!var7.isEmpty() && !var7.contains(var2)) {
@@ -906,7 +906,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    protected void createAnimation(String var1, boolean var2, AnimationEvent var3, boolean var4) {
-      if (var4 || !Action.b_clash719(this, var3.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.isJumping, var3)) {
+      if (var4 || !Action.isActionComplete(this, var3.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.isJumping, var3)) {
          ILoopType.EDefaultLoopTypes var5 = var2 ? ILoopType.EDefaultLoopTypes.LOOP : ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME;
          var3.getController().setAnimation(new AnimationBuilder().addAnimation(var1, var5));
          var3.getController().transitionLengthTicks = 0.0;
@@ -920,7 +920,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    protected void playRandomizedAnimation(String var1, int var2, float var3, AnimationEvent var4, boolean var5) {
-      if (var5 || !Action.b_clash719(this, var4.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.isJumping, var4)) {
+      if (var5 || !Action.isActionComplete(this, var4.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.isJumping, var4)) {
          AnimationController var6 = var4.getController();
          Pair var7 = this.animationVariantMap.get(var1);
          if (var7 == null) {
@@ -929,7 +929,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
          int var8 = (Integer)var7.first();
          int var9 = (Integer)var7.second();
-         if (!Action.b_clash719(this, var4.getPartialTick())) {
+         if (!Action.isActionComplete(this, var4.getPartialTick())) {
             var4.getController().setAnimation(new AnimationBuilder().addAnimation(var8 == 0 ? var1 : var1 + var8, ILoopType.EDefaultLoopTypes.LOOP));
             var4.getController().transitionLengthTicks = 0.0;
          } else {
@@ -1215,7 +1215,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return !"".equals(customName) ? customName : this.getDisplayNameText();
    }
 
-   public abstract float i_clash226();
+   public abstract float getScaleFactor();
 
    @SideOnly(Side.CLIENT)
    public boolean shouldRenderNameTag() {

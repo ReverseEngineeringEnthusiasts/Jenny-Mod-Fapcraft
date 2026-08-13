@@ -23,7 +23,7 @@ public class BiDirectionalMap<K, V> {
       return this.a.get(var1);
    }
 
-   public int e_clash765() {
+   public int size() {
       return this.b.size();
    }
 
@@ -35,19 +35,19 @@ public class BiDirectionalMap<K, V> {
       }
    }
 
-   public Set<Entry<K, V>> c_clash766() {
+   public Set<Entry<K, V>> entrySet() {
       return this.b.entrySet();
    }
 
-   public Set<K> a_clash767() {
+   public Set<K> keySet() {
       return this.b.keySet();
    }
 
-   public Set<V> d_clash768() {
+   public Set<V> valueSet() {
       return this.a.keySet();
    }
 
-   public void b_clash769() {
+   public void clear() {
       this.a.clear();
       this.b.clear();
    }

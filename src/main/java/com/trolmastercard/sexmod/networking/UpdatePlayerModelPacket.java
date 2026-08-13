@@ -74,7 +74,7 @@ public class UpdatePlayerModelPacket implements IMessage {
                   } catch (ConcurrentModificationException var10) {
                   }
 
-                  var5.y_clash234();
+                  var5.onTickClient();
                   AbstractPlayerGirlEntity.al.remove(var4);
                   BaseGirlEntity.getGirlEntityList().remove(var5);
                   var5.a(Optional.absent());

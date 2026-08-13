@@ -170,13 +170,13 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    }
 
    @Override
-   protected void d_clash331() {
+   protected void renderLeftEye() {
       float var1 = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
       GlStateManager.scale(1.0F - var1, 1.0F - var1, 1.0F - var1);
    }
 
    @Override
-   protected void b_clash332() {
+   protected void renderRightEye() {
       float var1 = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
       double var2 = 1.0 / (1.0 - var1);
       GlStateManager.scale(var2, var2, var2);
@@ -216,7 +216,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       } else {
          EyeAndKoboldColor var9 = EyeAndKoboldColor.valueOf((String)var7.get(KoboldEntity.CURRENT_ACTION));
          var8 = var9.getTextColor() + " -" + var8 + "-";
-         this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName() + var8, var1, var3 + this.renderEntity.i_clash226(), var5, 300);
+         this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName() + var8, var1, var3 + this.renderEntity.getScaleFactor(), var5, 300);
       }
    }
 

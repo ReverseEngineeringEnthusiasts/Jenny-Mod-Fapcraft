@@ -62,7 +62,7 @@ public class ClaimTribePacket implements IMessage {
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     List var2x = KoboldManager.n_clash82(var1.girlUUID);
+                     List var2x = KoboldManager.getTribeMembersList(var1.girlUUID);
                      EyeAndKoboldColor var3 = null;
 
                      for (KoboldEntity var5 : (java.util.Collection<KoboldEntity>) (var2x) ) {

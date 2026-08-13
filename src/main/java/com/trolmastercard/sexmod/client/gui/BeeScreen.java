@@ -28,7 +28,7 @@ public class BeeScreen extends GuiScreen {
    static ResourceLocation MIRROR_TEXTURE = new ResourceLocation("sexmod", "textures/gui/mirroredtransitionscreen.png");
    static ResourceLocation BLANK_TEXTURE = new ResourceLocation("sexmod", "textures/gui/blackscreen.png");
 
-   public static boolean a_clash731() {
+   public static boolean isBeeScreenVisible() {
       return isVisible;
    }
 

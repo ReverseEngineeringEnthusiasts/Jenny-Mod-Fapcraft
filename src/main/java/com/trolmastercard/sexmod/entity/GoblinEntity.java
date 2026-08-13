@@ -198,7 +198,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    public GoblinEntity(World var1, boolean var2, float var3, Vec3d var4) {
       this(var1);
       if (var2) {
-         this.entityDataManager.set(APPEARANCE_DNA, this.b_clash242(new StringBuilder()));
+         this.entityDataManager.set(APPEARANCE_DNA, this.buildModelCodeDNA(new StringBuilder()));
          this.ac = var3;
          this.al = var4;
          this.aX = true;
@@ -255,18 +255,18 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
 
       if ("use her".equals(var1)) {
-         this.c_clash239(var2);
+         this.setThrowTarget(var2);
       }
    }
 
-   public void c_clash239(UUID var1) {
+   public void setThrowTarget(UUID var1) {
       this.aY = 0;
       BeeScreen.enableInteraction();
       HandlePlayerMovement.setMovementLock(false);
       this.setInteractionPlayerUUID(var1);
    }
 
-   public void b_clash240(UUID var1) {
+   public void setPickupTarget(UUID var1) {
       this.az = 0;
       BeeScreen.enableInteraction();
       HandlePlayerMovement.setMovementLock(false);
@@ -283,7 +283,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 0.1F;
    }
 
@@ -322,7 +322,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       this.aQ = var1;
    }
 
-   protected String b_clash242(StringBuilder var1) {
+   protected String buildModelCodeDNA(StringBuilder var1) {
       appendPaddedNumber(var1, 3);
       appendPaddedNumber(var1, 2);
       appendPaddedNumber(var1, 2);
@@ -416,7 +416,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   void i_clash246() {
+   void updateModelCodeDNA() {
       if (this.customPartsData != null) {
          StringBuilder var1 = new StringBuilder();
 
@@ -480,7 +480,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       this.entityDataManager.set(CURRENT_ACTION, var1.getString("bodyColor"));
       String[] var2 = getModelCodeParts(this);
       if (Integer.parseInt(var2[3]) > 7 || Integer.parseInt(var2[4]) > 7) {
-         this.entityDataManager.set(APPEARANCE_DNA, this.buildModelCodeDNA(new StringBuilder(), this.k_clash270()));
+         this.entityDataManager.set(APPEARANCE_DNA, this.buildModelCodeDNA(new StringBuilder(), this.getModelPartIndex()));
          Main.LOGGER.log(Level.INFO, "updated an old Goblin");
       }
 
@@ -529,7 +529,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
          return true;
       } else {
-         if (d_clash248(var1.getPersistentID())) {
+         if (hasGoblinWithUUID(var1.getPersistentID())) {
             var1.sendStatusMessage(new TextComponentString("you are already carrying a Goblin"), true);
          } else {
             this.setOwnerUUID(var1.getPersistentID());
@@ -544,7 +544,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   public static boolean d_clash248(UUID var0) {
+   public static boolean hasGoblinWithUUID(UUID var0) {
       if (var0 == null) {
          return false;
       }
@@ -575,20 +575,20 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    @Override
    public void updateAITasks() {
       super.updateAITasks();
-      this.f_clash262();
+      this.handleGravity();
       handlePickUpState(this);
-      this.m_clash272();
+      this.handleThrowState();
       this.B_clash269();
       this.J_clash267();
       this.E_clash260();
-      this.t_clash258();
-      this.w_clash257();
-      this.b_clash256();
-      this.d_clash255();
-      this.h_clash254();
-      this.o_clash253();
-      this.u_clash252();
-      this.n_clash250();
+      this.handleJumpThrow();
+      this.handleHoldCooldown();
+      this.handleThrowCooldown();
+      this.handleHeldParticles();
+      this.handleHeldThrow();
+      this.handleThrownLand();
+      this.handleStandUp();
+      this.handleHeldState();
    }
 
    public boolean canBeCollidedWith() {
@@ -606,7 +606,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   void b_clash249(EntityPlayer var1) {
+   void handleGoblinOwner(EntityPlayer var1) {
       AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getPersistentID());
       Vec3d var3 = new Vec3d(var1.posX, var1.posY + (var2 == null ? var1.eyeHeight : var2.getEyeHeight()), var1.posZ);
       Vec3d var4 = new Vec3d(this.posX, this.posY + this.getEyeHeight(), this.posZ);
@@ -615,17 +615,17 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       this.rotationPitch = (float)(-(Math.sin(var7 / var5) * (180.0 / Math.PI)));
    }
 
-   void n_clash250() {
+   void handleHeldState() {
       if ((Boolean)this.entityDataManager.get(aC)) {
          if (this.getInteractionPlayerUUID() == null) {
             if (this.getCurrentAction() == Action.NULL) {
                EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 15.0);
                if (var1 != null && var1.getDistance(this) < 2.0F) {
-                  this.b_clash249(var1);
+                  this.handleGoblinOwner(var1);
                   this.getNavigator().clearPath();
                } else {
                   if (this.guardPost == null
-                     || this.getDistance(this.guardPost.getX(), this.guardPost.getY(), this.guardPost.getZ()) > this.l_clash251()
+                     || this.getDistance(this.guardPost.getX(), this.guardPost.getY(), this.guardPost.getZ()) > this.getThrowRange()
                      || this.guardPostTicks > 100) {
                      int var2 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
                      int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
@@ -646,11 +646,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   double l_clash251() {
+   double getThrowRange() {
       return Math.sqrt(800.0);
    }
 
-   void u_clash252() {
+   void handleStandUp() {
       if (this.getCurrentAction() == Action.STAND_UP) {
          if (++this.aa >= 37) {
             this.aa = 0;
@@ -669,7 +669,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       return this.aJ;
    }
 
-   void o_clash253() {
+   void handleThrownLand() {
       if (this.getCurrentAction() == Action.THROWN) {
          if (this.onGround) {
             int var1 = this.getThrowTickCount() + 1;
@@ -682,7 +682,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   void h_clash254() {
+   void handleHeldThrow() {
       if (this.aX) {
          if ((Boolean)this.entityDataManager.get(aV)) {
             if (this.av + 8400L < this.world.getTotalWorldTime()) {
@@ -692,7 +692,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   void d_clash255() {
+   void handleHeldParticles() {
       if (this.aX) {
          if (!this.ab.isEmpty()) {
             boolean var1 = false;
@@ -719,7 +719,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   void b_clash256() {
+   void handleThrowCooldown() {
       if (this.aX) {
          if (this.throwCooldown != -1) {
             if (++this.throwCooldown >= 100) {
@@ -773,7 +773,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   void w_clash257() {
+   void handleHoldCooldown() {
       if (this.aX) {
          if (this.an != -1) {
             if (++this.an >= 205) {
@@ -809,7 +809,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       );
    }
 
-   void t_clash258() {
+   void handleJumpThrow() {
       if (this.aX) {
          if (this.getCurrentAction() == Action.JUMP_0) {
             if (++this.am >= 26) {
@@ -950,18 +950,18 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
 
       this.ab.clear();
-      GoblinEntity var3 = new GoblinEntity(this.world, this.getGirlId().toString(), this.k_clash270());
+      GoblinEntity var3 = new GoblinEntity(this.world, this.getGirlId().toString(), this.getModelPartIndex());
       var3.setPosition(this.posX, this.posY, this.posZ);
       this.world.spawnEntity(var3);
       this.ab.add(var3);
-      GoblinEntity var4 = new GoblinEntity(this.world, this.getGirlId().toString(), this.k_clash270());
+      GoblinEntity var4 = new GoblinEntity(this.world, this.getGirlId().toString(), this.getModelPartIndex());
       var4.setPosition(this.posX, this.posY, this.posZ);
       this.world.spawnEntity(var4);
       this.ab.add(var4);
       return this.ab;
    }
 
-   void f_clash262() {
+   void handleGravity() {
       if (!this.aZ) {
          this.noClip = false;
          this.setNoGravity(false);
@@ -973,15 +973,15 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   void e_clash263() {
+   void updateThrowProgress() {
       GoblinEntity var1 = this;
       int var2 = var1.getThrowProgress();
       if (var2 != -1) {
          var1.setThrowProgress(++var2);
          if (var2 == 15) {
-            Vec3d var3 = b_clash264(this);
-            float var4 = d_clash266(this);
-            float var5 = c_clash265(this);
+            Vec3d var3 = getGoblinThrowPos(this);
+            float var4 = getGoblinThrowHeight(this);
+            float var5 = getGoblinThrowDistance(this);
             this.setPositionAndUpdate(var3.x, var3.y, var3.z);
             Vec3d var6 = a(new Vec3d(0.0, 0.0, 1.5), var4, var5);
             this.motionX = var6.x;
@@ -1003,7 +1003,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   public static Vec3d b_clash264(BaseGirlEntity var0) {
+   public static Vec3d getGoblinThrowPos(BaseGirlEntity var0) {
       IGoblin var1 = (IGoblin)var0;
       UUID var2 = var1.getOwnerUUID();
       if (var2 == null) {
@@ -1013,10 +1013,10 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       EntityPlayer var3 = var0.world.getPlayerEntityByUUID(var2);
       return var3 == null
          ? var0.getPositionVector()
-         : var3.getPositionVector().add(0.0, var3.getEyeHeight(), 0.0).add(a(new Vec3d(0.4F, 0.0, 0.0), d_clash266(var0), c_clash265(var0)));
+         : var3.getPositionVector().add(0.0, var3.getEyeHeight(), 0.0).add(a(new Vec3d(0.4F, 0.0, 0.0), getGoblinThrowHeight(var0), getGoblinThrowDistance(var0)));
    }
 
-   public static float c_clash265(BaseGirlEntity var0) {
+   public static float getGoblinThrowDistance(BaseGirlEntity var0) {
       IGoblin var1 = (IGoblin)var0;
       UUID var2 = var1.getOwnerUUID();
       if (var2 == null) {
@@ -1027,7 +1027,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       return var3 == null ? 0.0F : var3.rotationYawHead;
    }
 
-   public static float d_clash266(BaseGirlEntity var0) {
+   public static float getGoblinThrowHeight(BaseGirlEntity var0) {
       IGoblin var1 = (IGoblin)var0;
       UUID var2 = var1.getOwnerUUID();
       if (var2 == null) {
@@ -1066,12 +1066,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    protected void jump() {
-      if (this.getCurrentAction() != Action.RUN || this.j_clash268()) {
+      if (this.getCurrentAction() != Action.RUN || this.hasValidPath()) {
          super.jump();
       }
    }
 
-   boolean j_clash268() {
+   boolean hasValidPath() {
       PathNavigate var1 = this.getNavigator();
       Path var2 = var1.getPath();
       if (var2 == null) {
@@ -1099,7 +1099,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      if (var1 != null) {
                         if (var1.onGround) {
                            if (!var1.isAirBorne) {
-                              Integer var2 = this.c_clash271(var1);
+                              Integer var2 = this.findThrowTarget(var1);
                               if (var2 != null) {
                                  Vec3d var3 = var1.getPositionVector();
                                  Vec3d var4 = this.getPositionVector();
@@ -1107,7 +1107,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                                  double var6 = Math.sqrt(var5.x * var5.x + var5.z * var5.z);
                                  if (!(var6 > 100.0)) {
                                     ItemStack var8 = var1.inventory.getStackInSlot(var2).copy();
-                                    GoblinEntity var9 = new GoblinEntity(this.world, this.getGirlId().toString(), this.k_clash270());
+                                    GoblinEntity var9 = new GoblinEntity(this.world, this.getGirlId().toString(), this.getModelPartIndex());
                                     Vec3d var10 = b(new Vec3d(0.0, 0.0, -0.2F), var1.rotationYawHead);
                                     var9.setPosition(var1.posX + var10.x, var1.posY, var1.posZ + var10.z);
                                     var9.setCurrentAction(Action.RUN);
@@ -1130,12 +1130,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   int k_clash270() {
+   int getModelPartIndex() {
       return Integer.parseInt(getModelCodeParts(this)[7]);
    }
 
    @Nullable
-   Integer c_clash271(EntityPlayer var1) {
+   Integer findThrowTarget(EntityPlayer var1) {
       NonNullList var2 = var1.inventory.mainInventory;
       ArrayList var3 = new ArrayList();
 
@@ -1149,7 +1149,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       return var3.isEmpty() ? null : (Integer)var3.get(this.getRNG().nextInt(var3.size()));
    }
 
-   void m_clash272() {
+   void handleThrowState() {
       if (this.aX) {
          if (this.getInteractionPlayerUUID() == null) {
             this.setTargetPosition(this.al);
@@ -1163,19 +1163,19 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    @Override
    public void onUpdate() {
-      this.i_clash246();
-      e_clash273(this);
-      this.e_clash263();
+      this.updateModelCodeDNA();
+      handleGoblinThrowAction(this);
+      this.updateThrowProgress();
       if (this.getOwnerUUID() != null) {
          this.inPortal = false;
       }
 
       super.onUpdate();
-      this.y_clash284();
+      this.handleShoulderIdle();
       this.H_clash275();
       this.F_clash274();
       if (this.world.isRemote) {
-         this.v_clash276();
+         this.handleHoldTick();
          this.A_clash277();
          if (this.getOwnerUUID() != null) {
             this.noClip = true;
@@ -1203,7 +1203,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       return this.aR;
    }
 
-   public static void e_clash273(BaseGirlEntity var0) {
+   public static void handleGoblinThrowAction(BaseGirlEntity var0) {
       Action var1 = var0.getCurrentAction();
       IGoblin var2 = (IGoblin)var0;
       if (var2.getPreviousAction() != Action.START_THROWING && var1 == Action.START_THROWING) {
@@ -1247,7 +1247,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @SideOnly(Side.CLIENT)
-   void v_clash276() {
+   void handleHoldTick() {
       if (this.aY != -1) {
          if (++this.aY == 15) {
             this.aY = -1;
@@ -1282,11 +1282,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
 
                if (action == Action.PAIZURI_START && !this.world.isRemote) {
-                  this.z_clash280();
+                  this.handlePlayerInteract();
                }
 
                if (action == Action.NELSON_INTRO && !this.world.isRemote) {
-                  this.q_clash279();
+                  this.handlePlayerLook();
                }
 
                if (this.getCurrentAction() == Action.PAIZURI_CUM && action == Action.NULL && !this.world.isRemote) {
@@ -1334,7 +1334,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   void q_clash279() {
+   void handlePlayerLook() {
       EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
       if (var1 != null) {
          this.setOwnerUUID(null);
@@ -1349,7 +1349,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   void z_clash280() {
+   void handlePlayerInteract() {
       EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
       if (var1 != null) {
          this.setOwnerUUID(null);
@@ -1423,7 +1423,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   void y_clash284() {
+   void handleShoulderIdle() {
       if (this.getCurrentAction() == Action.SHOULDER_IDLE) {
          UUID var1 = this.getOwnerUUID();
          if (var1 != null) {

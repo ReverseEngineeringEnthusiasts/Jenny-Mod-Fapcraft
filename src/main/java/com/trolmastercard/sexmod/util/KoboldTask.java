@@ -43,23 +43,23 @@ public class KoboldTask {
       this.facing = var4;
    }
 
-   public EnumFacing f_clash200() {
+   public EnumFacing getFacing() {
       return this.facing;
    }
 
-   public BlockPos b_clash201() {
+   public BlockPos getTargetPos() {
       return this.targetPos;
    }
 
-   public KoboldTask.TaskType d_clash202() {
+   public KoboldTask.TaskType getTaskType() {
       return this.taskType;
    }
 
-   public HashSet<BlockPos> g_clash203() {
+   public HashSet<BlockPos> getMiningTargets() {
       return this.miningTargets;
    }
 
-   public void b_clash204(BlockPos var1) {
+   public void addMiningTarget(BlockPos var1) {
       this.miningTargets.add(var1);
    }
 
@@ -77,7 +77,7 @@ public class KoboldTask {
       }
    }
 
-   public boolean c_clash207(BlockPos var1) {
+   public boolean isMiningTarget(BlockPos var1) {
       return this.miningTargets.contains(var1);
    }
 
@@ -90,7 +90,7 @@ public class KoboldTask {
       return true;
    }
 
-   public List<KoboldEntity> c_clash209() {
+   public List<KoboldEntity> getWorkers() {
       return this.workers;
    }
 
@@ -111,11 +111,11 @@ public class KoboldTask {
       this.workers.remove(var1);
    }
 
-   public boolean e_clash211() {
+   public boolean isFull() {
       return this.taskType.targetPos <= this.workers.size();
    }
 
-   public boolean b_clash212(KoboldEntity var1) {
+   public boolean hasWorker(KoboldEntity var1) {
       return this.workers.contains(var1);
    }
 
@@ -156,8 +156,8 @@ public class KoboldTask {
       HashSet var17 = new HashSet();
 
       for (BlockPos var11 : (java.util.Collection<BlockPos>) (var5) ) {
-         for (KoboldTask var13 : KoboldManager.p_clash79(var2)) {
-            HashSet var14 = var13.g_clash203();
+         for (KoboldTask var13 : KoboldManager.getTribeTasks(var2)) {
+            HashSet var14 = var13.getMiningTargets();
             if (var14.contains(var11)) {
                var17.add(var11);
                break;
@@ -273,7 +273,7 @@ public class KoboldTask {
          this.targetPos = var3;
       }
 
-      int a_clash887() {
+      int getMaxWorkers() {
          return this.targetPos;
       }
    }

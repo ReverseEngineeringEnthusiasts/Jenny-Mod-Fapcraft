@@ -37,7 +37,7 @@ public enum BoneType {
       this.buttonIDMinus = ++Reference.BUTTON_ID_COUNTER;
    }
 
-   public static int a_clash759() {
+   public static int getCustomBoneCount() {
       return values().length - 2;
    }
 }

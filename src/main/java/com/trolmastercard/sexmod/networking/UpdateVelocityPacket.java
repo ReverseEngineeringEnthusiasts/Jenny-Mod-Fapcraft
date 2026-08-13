@@ -53,7 +53,7 @@ public class UpdateVelocityPacket implements IMessage {
                BaseGirlEntity var2x = BaseGirlEntity.getServerGirlEntity(var1.girlUUID);
                if (var2x instanceof GalathEntity) {
                   GalathEntity var3 = (GalathEntity)var2x;
-                  if (var2.getServerHandler().player.equals(var3.ab_clash671())) {
+                  if (var2.getServerHandler().player.equals(var3.getRidingPlayer())) {
                      var3.d(var1.velocity);
                   }
                }

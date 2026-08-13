@@ -72,7 +72,7 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return -0.1F;
    }
 
@@ -123,13 +123,13 @@ public class BeeEntity extends BeeEntityBase {
          this.hornyTimer = 6.9420184E7F;
       }
 
-      this.c_clash752();
+      this.handleBeeIdle();
       if (this.getCurrentAction().equals(Action.CITIZEN_CUM)) {
          this.eggState = Math.max(1, this.eggState);
       }
 
       this.doParticleStuff();
-      this.b_clash753();
+      this.rayTraceFlower();
    }
 
    @Override
@@ -139,7 +139,7 @@ public class BeeEntity extends BeeEntityBase {
       }
    }
 
-   void c_clash752() {
+   void handleBeeIdle() {
       if (this.getInteractionPlayerUUID() == null) {
          if (!this.hasMaster()) {
             this.hornyTimer++;
@@ -171,7 +171,7 @@ public class BeeEntity extends BeeEntityBase {
       }
    }
 
-   void b_clash753() {
+   void rayTraceFlower() {
       RayTraceResult var1 = this.world.rayTraceBlocks(this.getPositionVector(), new Vec3d(this.posX, 0.0, this.posZ));
       if (var1 != null) {
          BlockPos var2 = var1.getBlockPos();
@@ -306,14 +306,14 @@ public class BeeEntity extends BeeEntityBase {
       }
 
       if (this.world.isRemote && (Boolean)this.entityDataManager.get(HORNY_FLAG)) {
-         this.b_clash755(var1);
+         this.openBeeDialogue(var1);
       }
 
       return super.processInteract(var1, var2);
    }
 
    @SideOnly(Side.CLIENT)
-   void b_clash755(EntityPlayer var1) {
+   void openBeeDialogue(EntityPlayer var1) {
       Minecraft.getMinecraft().displayGuiScreen(new BeeDialogueScreen(this, var1));
    }
 

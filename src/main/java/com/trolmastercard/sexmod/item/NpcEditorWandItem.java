@@ -83,13 +83,13 @@ public class NpcEditorWandItem extends Item {
                   var1.setCanceled(true);
                   if (var1.getWorld().isRemote) {
                      if (ServerWhitelistManager.isGlobalRenderingDisabled) {
-                        ServerWhitelistManager.isGlobalRenderingDisabled = 0 != ServerWhitelistManager.b_clash126(true);
+                        ServerWhitelistManager.isGlobalRenderingDisabled = 0 != ServerWhitelistManager.getModelCount(true);
                         if (ServerWhitelistManager.isGlobalRenderingDisabled) {
                            return;
                         }
                      }
 
-                     ClothingScreen.a_clash825(((BaseGirlEntity)var2).asGirl());
+                     ClothingScreen.openClothingScreen(((BaseGirlEntity)var2).asGirl());
                   }
                }
             }

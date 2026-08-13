@@ -65,7 +65,7 @@ public class StructureMarkerRenderer {
 
       try {
          for (BlockPos var4 : markerPositions) {
-            Vec3i var5 = b_clash773(var4);
+            Vec3i var5 = getBlockColor(var4);
             a(var1, var4, var5.getX(), var5.getY(), var5.getZ());
          }
       } catch (ConcurrentModificationException var6) {
@@ -77,7 +77,7 @@ public class StructureMarkerRenderer {
       GlStateManager.popMatrix();
    }
 
-   static Vec3i b_clash773(BlockPos var0) {
+   static Vec3i getBlockColor(BlockPos var0) {
       Block var1 = Minecraft.getMinecraft().world.getBlockState(var0).getBlock();
       if (var1 instanceof BlockBed) {
          return COLOR_BLUE;
@@ -185,7 +185,7 @@ public class StructureMarkerRenderer {
          .endVertex();
    }
 
-   public static void a_clash774(HashSet<BlockPos> var0) {
+   public static void renderMarkers(HashSet<BlockPos> var0) {
       markerPositions.addAll(var0);
    }
 

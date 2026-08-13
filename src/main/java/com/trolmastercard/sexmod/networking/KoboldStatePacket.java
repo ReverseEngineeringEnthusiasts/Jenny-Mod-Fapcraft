@@ -90,7 +90,7 @@ public class KoboldStatePacket implements IMessage {
                   }
 
                   IEllie var6 = (IEllie)var5;
-                  var6.b_clash158();
+                  var6.setDismounted();
                }
             }
          } catch (ConcurrentModificationException var7) {

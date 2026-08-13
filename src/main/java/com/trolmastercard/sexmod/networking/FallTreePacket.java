@@ -59,8 +59,8 @@ public class FallTreePacket implements IMessage {
                      if (var4 == null) {
                         System.out.println("not tribe for player");
                      } else {
-                        int var5 = KoboldManager.h_clash81(var4);
-                        int var6 = (int)Math.floor(KoboldManager.j_clash76(var4).size() / 2.0);
+                        int var5 = KoboldManager.getTribeMemberCount(var4);
+                        int var6 = (int)Math.floor(KoboldManager.getTribeBeds(var4).size() / 2.0);
                         if (var5 > var6) {
                            var3.sendMessage(
                               new TextComponentString(
@@ -75,7 +75,7 @@ public class FallTreePacket implements IMessage {
                            var3.sendMessage(new TextComponentString(String.format("%s%d/%d Beds", TextFormatting.YELLOW, var6, var5)));
                         } else {
                            World var7 = var3.world;
-                           BlockPos var8 = this.a_clash16(var7, var1.treePos);
+                           BlockPos var8 = this.findGroundPos(var7, var1.treePos);
                            HashSet var9 = KoboldTask.a(var7, var8, var4);
                            PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var9, true), var2.getServerHandler().player);
                         }
@@ -89,26 +89,26 @@ public class FallTreePacket implements IMessage {
          }
       }
 
-      BlockPos a_clash16(World var1, BlockPos var2) {
+      BlockPos findGroundPos(World var1, BlockPos var2) {
          if (var1.getBlockState(var2.add(0, -1, 0)).getBlock() instanceof BlockLog) {
-            return this.a_clash16(var1, var2.add(0, -1, 0));
+            return this.findGroundPos(var1, var2.add(0, -1, 0));
          } else if (var1.getBlockState(var2.add(1, -1, 0)).getBlock() instanceof BlockLog) {
-            return this.a_clash16(var1, var2.add(1, -1, 0));
+            return this.findGroundPos(var1, var2.add(1, -1, 0));
          } else if (var1.getBlockState(var2.add(-1, -1, 0)).getBlock() instanceof BlockLog) {
-            return this.a_clash16(var1, var2.add(-1, -1, 0));
+            return this.findGroundPos(var1, var2.add(-1, -1, 0));
          } else if (var1.getBlockState(var2.add(0, -1, 1)).getBlock() instanceof BlockLog) {
-            return this.a_clash16(var1, var2.add(0, -1, 1));
+            return this.findGroundPos(var1, var2.add(0, -1, 1));
          } else if (var1.getBlockState(var2.add(0, -1, -1)).getBlock() instanceof BlockLog) {
-            return this.a_clash16(var1, var2.add(0, -1, -1));
+            return this.findGroundPos(var1, var2.add(0, -1, -1));
          } else if (var1.getBlockState(var2.add(-1, -1, -1)).getBlock() instanceof BlockLog) {
-            return this.a_clash16(var1, var2.add(-1, -1, -1));
+            return this.findGroundPos(var1, var2.add(-1, -1, -1));
          } else if (var1.getBlockState(var2.add(1, -1, 1)).getBlock() instanceof BlockLog) {
-            return this.a_clash16(var1, var2.add(1, -1, 1));
+            return this.findGroundPos(var1, var2.add(1, -1, 1));
          } else if (var1.getBlockState(var2.add(-1, -1, 1)).getBlock() instanceof BlockLog) {
-            return this.a_clash16(var1, var2.add(-1, -1, 1));
+            return this.findGroundPos(var1, var2.add(-1, -1, 1));
          } else {
             return var1.getBlockState(var2.add(1, -1, -1)).getBlock() instanceof BlockLog
-               ? this.a_clash16(var1, var2.add(1, -1, -1))
+               ? this.findGroundPos(var1, var2.add(1, -1, -1))
                : var2;
          }
       }

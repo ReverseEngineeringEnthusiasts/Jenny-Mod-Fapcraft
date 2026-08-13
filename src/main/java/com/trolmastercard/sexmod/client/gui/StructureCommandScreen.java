@@ -78,39 +78,39 @@ public class StructureCommandScreen extends GuiScreen {
       float var2 = (Float) Collections.max((List<Float>) (List) var1);
       if (var2 != 0.0F) {
          if (this.animBottomLeft == var2) {
-            this.b_clash832();
+            this.updateTargetState();
          }
 
          if (this.animTopLeft == var2) {
-            this.d_clash833();
+            this.toggleFollowMode();
          }
 
          if (this.animBottomRight == var2) {
-            this.c_clash834();
+            this.toggleStaffView();
          }
 
          if (this.animTopRight == var2) {
-            this.a_clash835();
+            this.handleLogBlock();
          }
       }
    }
 
-   void b_clash832() {
+   void updateTargetState() {
       IBlockState var1 = this.mc.world.getBlockState(this.targetBlockPos);
       if (var1.getBlock() instanceof BlockBed || var1.getBlock() instanceof BlockChest) {
          PacketHandler.networkWrapper.sendToServer(new SendBlocksPacket(this.targetBlockPos, !StructureMarkerRenderer.isMarked(this.targetBlockPos)));
       }
    }
 
-   void d_clash833() {
+   void toggleFollowMode() {
       PacketHandler.networkWrapper.sendToServer(new SetTribeFollowModePacket(!isErasing));
    }
 
-   void c_clash834() {
-      DragonStaffRenderer.a_clash632();
+   void toggleStaffView() {
+      DragonStaffRenderer.toggleStaffRendering();
    }
 
-   void a_clash835() {
+   void handleLogBlock() {
       Block var1 = this.targetBlockState.getBlock();
       if (var1 instanceof BlockLog) {
          if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
@@ -121,7 +121,7 @@ public class StructureCommandScreen extends GuiScreen {
          PacketHandler.networkWrapper.sendToServer(new FallTreePacket(this.targetBlockPos));
       }
 
-      Object[] var2 = this.e_clash836();
+      Object[] var2 = this.getTargetMaterial();
       if (var2 != null) {
          if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
             PacketHandler.networkWrapper.sendToServer(new CancelTaskPacket(this.targetBlockPos));
@@ -133,7 +133,7 @@ public class StructureCommandScreen extends GuiScreen {
    }
 
    @Nullable
-   Object[] e_clash836() {
+   Object[] getTargetMaterial() {
       Material var1 = this.mc.world.getBlockState(this.targetBlockPos).getMaterial();
       EntityPlayerSP var2 = this.mc.player;
       if (!breakableMaterials.contains(var1)) {
@@ -167,7 +167,7 @@ public class StructureCommandScreen extends GuiScreen {
       } catch (NullPointerException var11) {
       }
 
-      float var4 = (float)this.a_clash841(this.animProgress);
+      float var4 = (float)this.easeOutBack(this.animProgress);
       float var5 = (1.0F - var4) * 100.0F;
       this.animBottomLeft = this.animBottomLeft + (var1 < this.width / 2 && var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
       this.animTopLeft = this.animTopLeft + (var1 < this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
@@ -184,7 +184,7 @@ public class StructureCommandScreen extends GuiScreen {
       GlStateManager.pushMatrix();
       GlStateManager.scale(1.0F + this.animTopLeft * 0.5F, 1.0F + this.animTopLeft * 0.5F, 1.0F);
       this.drawTexturedModalRect(-62.0F + var5 - this.animTopLeft * 15.0F, -62.0F + var5 - this.animTopLeft * 15.0F, 0, 0, 64, 64);
-      this.c_clash838(var5);
+      this.drawTopLeft(var5);
       if (isErasing) {
          this.drawTexturedModalRect(-62.0F + var5 - this.animTopLeft * 15.0F, -62.0F + var5 - this.animTopLeft * 15.0F, 128, 64, 64, 64);
       }
@@ -193,8 +193,8 @@ public class StructureCommandScreen extends GuiScreen {
       GlStateManager.pushMatrix();
       GlStateManager.scale(1.0F + this.animBottomRight * 0.5F, 1.0F + this.animBottomRight * 0.5F, 1.0F);
       this.drawTexturedModalRect(-2.0F - var5 + this.animBottomRight * 15.0F, -2.0F - var5 + this.animBottomRight * 15.0F, 0, 0, 64, 64);
-      this.a_clash837(var5);
-      if (DragonStaffRenderer.b_clash631()) {
+      this.drawBottomRight(var5);
+      if (DragonStaffRenderer.isRenderingStaff()) {
          this.drawTexturedModalRect(-2.0F - var5 + this.animBottomRight * 15.0F, -2.0F - var5 + this.animBottomRight * 15.0F, 128, 64, 64, 64);
       }
 
@@ -207,7 +207,7 @@ public class StructureCommandScreen extends GuiScreen {
          GlStateManager.scale(1.0F + this.animBottomLeft * 0.5F, 1.0F + this.animBottomLeft * 0.5F, 1.0F);
          this.drawTexturedModalRect(-62.0F + var5 - this.animBottomLeft * 15.0F, -2.0F - var5 + this.animBottomLeft * 15.0F, 0, 0, 64, 64);
          if (var7) {
-            this.d_clash840(var5);
+            this.drawBottomLeft(var5);
          }
 
          if (var8) {
@@ -222,7 +222,7 @@ public class StructureCommandScreen extends GuiScreen {
       }
 
       boolean var9 = var6 instanceof BlockLog;
-      boolean var10 = this.e_clash836() != null;
+      boolean var10 = this.getTargetMaterial() != null;
       if (var9 || var10) {
          GlStateManager.pushMatrix();
          GlStateManager.scale(1.0F + this.animTopRight * 0.5F, 1.0F + this.animTopRight * 0.5F, 1.0F);
@@ -232,7 +232,7 @@ public class StructureCommandScreen extends GuiScreen {
          }
 
          if (var10) {
-            this.b_clash839(var5);
+            this.drawTopRight(var5);
          }
 
          if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
@@ -246,11 +246,11 @@ public class StructureCommandScreen extends GuiScreen {
       GL11.glDisable(3042);
    }
 
-   void a_clash837(float var1) {
+   void drawBottomRight(float var1) {
       this.drawTexturedModalRect(-2.0F - var1 + this.animBottomRight * 15.0F, -2.0F - var1 + this.animBottomRight * 15.0F, 192, 64, 64, 64);
    }
 
-   void c_clash838(float var1) {
+   void drawTopLeft(float var1) {
       this.drawTexturedModalRect(-62.0F + var1 - this.animTopLeft * 15.0F, -62.0F + var1 - this.animTopLeft * 15.0F, 64, 64, 64, 64);
    }
 
@@ -258,7 +258,7 @@ public class StructureCommandScreen extends GuiScreen {
       this.drawTexturedModalRect(-2.0F - var1 + this.animTopRight * 15.0F, -62.0F + var1 - this.animTopRight * 15.0F, 64, 0, 64, 64);
    }
 
-   void b_clash839(float var1) {
+   void drawTopRight(float var1) {
       this.drawTexturedModalRect(-2.0F - var1 + this.animTopRight * 15.0F, -62.0F + var1 - this.animTopRight * 15.0F, 128, 0, 64, 64);
    }
 
@@ -266,11 +266,11 @@ public class StructureCommandScreen extends GuiScreen {
       this.drawTexturedModalRect(-62.0F + var1 - this.animBottomLeft * 15.0F, -2.0F - var1 + this.animBottomLeft * 15.0F, 0, 64, 64, 64);
    }
 
-   void d_clash840(float var1) {
+   void drawBottomLeft(float var1) {
       this.drawTexturedModalRect(-62.0F + var1 - this.animBottomLeft * 15.0F, -2.0F - var1 + this.animBottomLeft * 15.0F, 192, 0, 64, 64);
    }
 
-   double a_clash841(double var1) {
+   double easeOutBack(double var1) {
       double var3 = 1.70158;
       double var5 = 2.70158;
       return 1.0 + var5 * Math.pow(var1 - 1.0, 3.0) + var3 * Math.pow(var1 - 1.0, 2.0);

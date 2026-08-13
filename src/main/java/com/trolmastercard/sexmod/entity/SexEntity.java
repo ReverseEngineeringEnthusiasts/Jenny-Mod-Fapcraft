@@ -76,7 +76,7 @@ public class SexEntity extends Entity {
       return this.getEntityBoundingBox().grow(10.0);
    }
 
-   LunaEntity b_clash775() {
+   LunaEntity getOwnerLunaInternal() {
       Optional var1 = (Optional)this.dataManager.get(OWNER_UUID);
       if (!var1.isPresent()) {
          return null;
@@ -90,7 +90,7 @@ public class SexEntity extends Entity {
       }
    }
 
-   public LunaEntity g_clash776() {
+   public LunaEntity getOwnerLuna() {
       Optional var1 = (Optional)this.dataManager.get(OWNER_UUID);
       if (!var1.isPresent()) {
          return null;
@@ -100,7 +100,7 @@ public class SexEntity extends Entity {
       return !(var2 instanceof LunaEntity) ? null : (LunaEntity)var2;
    }
 
-   public void b_clash777(int var1) {
+   public void setFishingLevel(int var1) {
       this.fishingLevel = var1;
    }
 
@@ -112,13 +112,13 @@ public class SexEntity extends Entity {
       super.onEntityUpdate();
       if (!this.world.isRemote) {
          if ((this.caughtEntity != null || this.onGround) && this.lureTimer == 0) {
-            this.b_clash775().o_clash390();
+            this.getOwnerLunaInternal().addCaughtItem();
          }
       }
    }
 
    public void positionLunaAbove(double var1) {
-      LunaEntity var3 = this.b_clash775();
+      LunaEntity var3 = this.getOwnerLunaInternal();
       if (var3 != null) {
          BlockPos var4 = var3.ai;
          float var5 = (float)Math.sqrt(var3.getPositionVector().squareDistanceTo(var4.getX(), var4.getY(), var4.getZ()));
@@ -169,9 +169,9 @@ public class SexEntity extends Entity {
 
    public void onUpdate() {
       super.onUpdate();
-      if (this.b_clash775() == null) {
+      if (this.getOwnerLunaInternal() == null) {
          this.setDead();
-      } else if (this.world.isRemote || !this.f_clash780()) {
+      } else if (this.world.isRemote || !this.canCatch()) {
          if (this.isHooked) {
             this.despawnTimer++;
             if (this.despawnTimer >= 1200) {
@@ -205,7 +205,7 @@ public class SexEntity extends Entity {
             }
 
             if (!this.world.isRemote) {
-               this.e_clash782();
+               this.checkCatch();
             }
 
             if (!this.isHooked && !this.onGround && !this.collidedHorizontally) {
@@ -254,7 +254,7 @@ public class SexEntity extends Entity {
          }
 
          this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
-         this.h_clash781();
+         this.updateVelocity();
          this.motionX *= 0.92;
          this.motionY *= 0.92;
          this.motionZ *= 0.92;
@@ -262,11 +262,11 @@ public class SexEntity extends Entity {
       }
    }
 
-   private boolean f_clash780() {
+   private boolean canCatch() {
       return false;
    }
 
-   private void h_clash781() {
+   private void updateVelocity() {
       float var1 = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
       this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180.0 / Math.PI));
       this.rotationPitch = (float)(MathHelper.atan2(this.motionY, var1) * (180.0 / Math.PI));
@@ -291,7 +291,7 @@ public class SexEntity extends Entity {
       this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
    }
 
-   private void e_clash782() {
+   private void checkCatch() {
       Vec3d var1 = new Vec3d(this.posX, this.posY, this.posZ);
       Vec3d var2 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
       RayTraceResult var3 = this.world.rayTraceBlocks(var1, var2, false, true, false);
@@ -307,7 +307,7 @@ public class SexEntity extends Entity {
       double var6 = 0.0;
 
       for (Entity var9 : (java.util.Collection<Entity>) (var5) ) {
-         if (this.isCollidableEntity(var9) && (var9 != this.b_clash775() || this.waterBobCounter >= 5)) {
+         if (this.isCollidableEntity(var9) && (var9 != this.getOwnerLunaInternal() || this.waterBobCounter >= 5)) {
             AxisAlignedBB var10 = var9.getEntityBoundingBox().grow(0.3F);
             RayTraceResult var11 = var10.calculateIntercept(var1, var2);
             if (var11 != null) {
@@ -452,11 +452,11 @@ public class SexEntity extends Entity {
    public void readEntityFromNBT(NBTTagCompound var1) {
    }
 
-   public int c_clash786() {
-      if (!this.world.isRemote && this.b_clash775() != null) {
+   public int getCatchResult() {
+      if (!this.world.isRemote && this.getOwnerLunaInternal() != null) {
          byte var1 = 0;
          if (this.caughtEntity != null) {
-            this.d_clash787();
+            this.handleCatch();
             this.world.setEntityState(this, (byte)31);
             var1 = (byte)(this.caughtEntity instanceof EntityItem ? 3 : 5);
          } else if (this.lureTimer > 0) {
@@ -466,8 +466,8 @@ public class SexEntity extends Entity {
                .getLootTableManager()
                .getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING)
                .generateLootForPools(this.rand, var3.build())) {
-               LunaEntity var7 = this.b_clash775();
-               var7.b_clash383(var6);
+               LunaEntity var7 = this.getOwnerLunaInternal();
+               var7.setHeldItemStack(var6);
             }
 
             this.lureTimer = 9999;
@@ -484,8 +484,8 @@ public class SexEntity extends Entity {
       }
    }
 
-   protected void d_clash787() {
-      LunaEntity var1 = this.b_clash775();
+   protected void handleCatch() {
+      LunaEntity var1 = this.getOwnerLunaInternal();
       if (var1 != null) {
          double var2 = var1.posX - this.posX;
          double var4 = var1.posY - this.posY;

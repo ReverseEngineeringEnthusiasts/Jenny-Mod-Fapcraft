@@ -33,7 +33,7 @@ public class RequestRidingPacket implements IMessage {
       public IMessage onMessage(RequestRidingPacket var1, MessageContext var2) {
          if (var1.isValid && var2.side.equals(Side.SERVER)) {
             EntityPlayerMP var3 = var2.getServerHandler().player;
-            UUID var4 = GirlSavedData.b_clash853(var3);
+            UUID var4 = GirlSavedData.getOwnerOf(var3);
             BaseGirlEntity var5 = BaseGirlEntity.getServerGirlEntity(var4);
             if (var5 == null) {
                return null;

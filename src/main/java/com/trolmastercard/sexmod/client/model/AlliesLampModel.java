@@ -40,7 +40,7 @@ public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
 
       try {
          Minecraft var2 = Minecraft.getMinecraft();
-         BufferedImage var3 = SkinFetcher.a_clash864(var2.player.getPersistentID());
+         BufferedImage var3 = SkinFetcher.fetchSkin(var2.player.getPersistentID());
          Graphics var4 = var3.getGraphics();
          var4.setColor(new Color(185, 254, 255));
          var4.fillRect(0, 0, 2, 2);

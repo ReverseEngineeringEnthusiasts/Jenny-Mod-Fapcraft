@@ -76,7 +76,7 @@ public class KoboldManager {
       var3[0] = 0.25F;
 
       for (int var4 = 1; var4 < var3.length; var4++) {
-         var3[var4] = KoboldEntity.j_clash592();
+         var3[var4] = KoboldEntity.getRandomThrowDelay();
       }
 
       ArrayList var10 = new ArrayList();
@@ -98,7 +98,7 @@ public class KoboldManager {
       }
    }
 
-   public static boolean o_clash70(UUID var0) {
+   public static boolean doesTribeExist(UUID var0) {
       return c.get(var0) != null;
    }
 
@@ -163,7 +163,7 @@ public class KoboldManager {
       }
    }
 
-   public static void b_clash73(KoboldEntity var0) {
+   public static void setTribeLeader(KoboldEntity var0) {
       a.remove(var0);
    }
 
@@ -197,7 +197,7 @@ public class KoboldManager {
       } else {
          KoboldEntity var2 = var1.leaderKobold;
          if (var2 == null || var2.isDead) {
-            var1.leaderKobold = var1.b_clash884();
+            var1.leaderKobold = var1.getLeaderKobold();
          }
       }
    }
@@ -207,10 +207,10 @@ public class KoboldManager {
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
-         var2.b_clash883(var1);
-         var2.b_clash874(var1.getGirlId());
+         var2.setLeaderKobold(var1);
+         var2.savePosition(var1.getGirlId());
          if (var2.leaderKobold != null && var2.leaderKobold.getEntityId() == var1.getEntityId()) {
-            KoboldEntity var3 = var2.b_clash884();
+            KoboldEntity var3 = var2.getLeaderKobold();
             if (var3 != null) {
                var2.leaderKobold = var3;
             }
@@ -247,7 +247,7 @@ public class KoboldManager {
    }
 
    @Nullable
-   public static KoboldEntity f_clash74(UUID var0) {
+   public static KoboldEntity getTribeLeader(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -267,7 +267,7 @@ public class KoboldManager {
       }
    }
 
-   public static EyeAndKoboldColor l_clash75(UUID var0) {
+   public static EyeAndKoboldColor getTribeColor(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -277,7 +277,7 @@ public class KoboldManager {
       }
    }
 
-   public static HashSet<BlockPos> j_clash76(UUID var0) {
+   public static HashSet<BlockPos> getTribeBeds(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -307,7 +307,7 @@ public class KoboldManager {
       }
    }
 
-   public static HashSet<BlockPos> q_clash77(UUID var0) {
+   public static HashSet<BlockPos> getTribeChests(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -386,7 +386,7 @@ public class KoboldManager {
          KoboldTask var3 = null;
 
          for (KoboldTask var5 : var2.tasks) {
-            if (var5.b_clash212(var1)) {
+            if (var5.hasWorker(var1)) {
                var3 = var5;
             }
          }
@@ -400,7 +400,7 @@ public class KoboldManager {
    }
 
    @Nullable
-   public static Collection<KoboldTask> p_clash79(UUID var0) {
+   public static Collection<KoboldTask> getTribeTasks(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -410,13 +410,13 @@ public class KoboldManager {
       }
    }
 
-   public static TribeState i_clash80(UUID var0) {
+   public static TribeState getTribeState(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return TribeState.REST;
       } else {
-         return var1.e_clash881();
+         return var1.getState();
       }
    }
 
@@ -429,17 +429,17 @@ public class KoboldManager {
       }
    }
 
-   public static int h_clash81(UUID var0) {
+   public static int getTribeMemberCount(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return 0;
       } else {
-         return var1.f_clash877();
+         return var1.getTribeId();
       }
    }
 
-   public static List<KoboldEntity> n_clash82(UUID var0) {
+   public static List<KoboldEntity> getTribeMembersList(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -459,7 +459,7 @@ public class KoboldManager {
    }
 
    @Nullable
-   public static BlockPos m_clash83(UUID var0) {
+   public static BlockPos getTribeHomePos(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -469,7 +469,7 @@ public class KoboldManager {
       }
    }
 
-   public static HashSet<EntityLivingBase> e_clash84(UUID var0) {
+   public static HashSet<EntityLivingBase> getTribeTargets(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -497,7 +497,7 @@ public class KoboldManager {
       }
    }
 
-   public static boolean g_clash85(UUID var0) {
+   public static boolean hasAssignedMaster(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -513,7 +513,7 @@ public class KoboldManager {
       return false;
    }
 
-   public static boolean c_clash86(UUID var0) {
+   public static boolean isTribeAlerted(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -540,7 +540,7 @@ public class KoboldManager {
 
       for (Entry var2 : c.entrySet()) {
          KoboldManager.a var3 = (KoboldManager.a)var2.getValue();
-         if ((var3.d_clash873().size() != 0 || var3.f_clash877() != 0) && var0.equals(((KoboldManager.a)var2.getValue()).getMasterPlayerUUID())) {
+         if ((var3.getSavedPositions().size() != 0 || var3.getTribeId() != 0) && var0.equals(((KoboldManager.a)var2.getValue()).getMasterPlayerUUID())) {
             return (UUID)var2.getKey();
          }
       }
@@ -549,7 +549,7 @@ public class KoboldManager {
    }
 
    @Nullable
-   public static UUID b_clash89(UUID var0) {
+   public static UUID findTribeIdWith(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -570,7 +570,7 @@ public class KoboldManager {
       return UUID.fromString(var4);
    }
 
-   public static HashSet<BlockPos> d_clash90(UUID var0) {
+   public static HashSet<BlockPos> getAllTribeBlocks(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       HashSet var2 = new HashSet();
       if (var1 == null) {
@@ -687,7 +687,7 @@ public class KoboldManager {
          }
       }
 
-      public HashMap<UUID, BlockPos> d_clash873() {
+      public HashMap<UUID, BlockPos> getSavedPositions() {
          return this.k;
       }
 
@@ -695,7 +695,7 @@ public class KoboldManager {
          this.k.put(var1, var2);
       }
 
-      public void b_clash874(UUID var1) {
+      public void savePosition(UUID var1) {
          this.k.remove(var1);
       }
 
@@ -711,7 +711,7 @@ public class KoboldManager {
          return this.combatants;
       }
 
-      public int f_clash877() {
+      public int getTribeId() {
          HashSet var1 = new HashSet();
 
          for (KoboldEntity var3 : this.members) {
@@ -737,7 +737,7 @@ public class KoboldManager {
          this.tasks.add(var1);
       }
 
-      public TribeState e_clash881() {
+      public TribeState getState() {
          return this.state;
       }
 
@@ -758,18 +758,18 @@ public class KoboldManager {
 
             for (KoboldEntity var7 : (java.util.Collection<KoboldEntity>) (var3) ) {
                Main.LOGGER.warn(String.format("Removed old entry of kobold called %s with UUID %s owned by %s", var7.getDisplayNameText(), var7.getGirlId(), this.masterPlayerUUID));
-               this.b_clash883(var7);
+               this.setLeaderKobold(var7);
             }
 
             this.members.add(var1);
          }
       }
 
-      public void b_clash883(KoboldEntity var1) {
+      public void setLeaderKobold(KoboldEntity var1) {
          this.members.remove(var1);
       }
 
-      KoboldEntity b_clash884() {
+      KoboldEntity getLeaderKobold() {
          KoboldEntity var1 = null;
 
          for (KoboldEntity var3 : this.members) {
@@ -850,7 +850,7 @@ public class KoboldManager {
                      KoboldManager.a var9 = (KoboldManager.a)var8.getValue();
                      if (var9.tribeBeds.contains(var6)) {
                         var9.tribeBeds.add(var2);
-                        UUID var10 = KoboldManager.b_clash89((UUID)var8.getKey());
+                        UUID var10 = KoboldManager.findTribeIdWith((UUID)var8.getKey());
                         if (var10 != null) {
                            EntityPlayerMP var11 = (EntityPlayerMP)var4.getPlayerEntityByUUID(var10);
                            if (var11 != null) {
@@ -895,7 +895,7 @@ public class KoboldManager {
                   KoboldManager.a var8 = (KoboldManager.a)var7.getValue();
                   if (var8.tribeBeds.contains(var2)) {
                      var8.tribeBeds.remove(var2);
-                     UUID var9 = KoboldManager.b_clash89((UUID)var7.getKey());
+                     UUID var9 = KoboldManager.findTribeIdWith((UUID)var7.getKey());
                      if (var9 != null) {
                         EntityPlayerMP var10 = (EntityPlayerMP)var3.getPlayerEntityByUUID(var9);
                         if (var10 != null) {
@@ -913,7 +913,7 @@ public class KoboldManager {
                      BlockPos var16 = WorldUtils.a(var2, var4);
                      var15.tribeChests.remove(var2);
                      var15.tribeChests.remove(var16);
-                     UUID var17 = KoboldManager.b_clash89((UUID)var14.getKey());
+                     UUID var17 = KoboldManager.findTribeIdWith((UUID)var14.getKey());
                      if (var17 != null) {
                         EntityPlayerMP var11 = (EntityPlayerMP)var3.getPlayerEntityByUUID(var17);
                         if (var11 != null) {

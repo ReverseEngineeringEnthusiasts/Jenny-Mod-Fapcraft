@@ -132,11 +132,11 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return var2;
    }
 
-   public static void a_clash398(BaseGirlEntity var0, float var1) {
+   public static void renderEntityInFirstPerson(BaseGirlEntity var0, float var1) {
       mc.getRenderManager().renderEntity(var0, 0.0, 0.0, 0.0, -420.69F, var1, false);
    }
 
-   public static void a_clash399(float var0) {
+   public static void setFirstPersonCamera(float var0) {
       if (mc.getRenderViewEntity() instanceof EntityPlayer) {
          EntityPlayer var1 = (EntityPlayer)mc.getRenderViewEntity();
          float var2 = var1.distanceWalkedModified - var1.prevDistanceWalkedModified;
@@ -257,7 +257,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
                var6 = var23.z;
             }
          } else if (this.isShoulderIdle) {
-            a_clash399(var9);
+            setFirstPersonCamera(var9);
             Vec3d var24 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, mc.gameSettings.fovSetting / 110.0F), 0.0, 0.0);
             var24 = GoblinEntity.b(var24, mc.player.rotationYaw);
             var2 = var24.x;
@@ -278,7 +278,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
                return;
             }
 
-            Vector4f var29 = a_clash400(var26, var9);
+            Vector4f var29 = getFirstPersonView(var26, var9);
             var2 = var29.x;
             var4 = var29.y;
             var6 = var29.z;
@@ -346,7 +346,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
                var6 = var16.z;
             }
          } else if (this.isShoulderIdle) {
-            a_clash399(var9);
+            setFirstPersonCamera(var9);
             Vec3d var17 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, mc.gameSettings.fovSetting / 110.0F), 0.0, 0.0);
             var17 = GoblinEntity.b(var17, mc.player.rotationYaw);
             var2 = var17.x;
@@ -411,7 +411,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return var4.subtract(var5);
    }
 
-   public static Vector4f a_clash400(EntityPlayer var0, float var1) {
+   public static Vector4f getFirstPersonView(EntityPlayer var0, float var1) {
       EntityPlayerSP var2 = mc.player;
       float var3 = RotationHelper.lerp(var0.prevRenderYawOffset, var0.renderYawOffset, var1);
       Vec3d var4 = RotationHelper.a(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector(), var1);
@@ -428,27 +428,27 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       } else if (var1.contains("band")) {
          return DEFAULT_BONE_COLOR;
       } else if (var1.contains("eyeColor") || var1.contains("eyeColor2")) {
-         return b_clash401(var2[8]);
+         return getEyeColor(var2[8]);
       } else if (var1.contains("variant") || var1.contains("boob")) {
-         return c_clash402(var2[7]);
+         return getSkinColor(var2[7]);
       } else if (var1.contains("hair")) {
-         return d_clash403(var2[6]);
+         return getHairColor(var2[6]);
       } else if (NUDE_BONE_NAMES.contains(var1)) {
-         return c_clash402(var2[7]);
+         return getSkinColor(var2[7]);
       } else {
-         return LASH_BONE_NAMES.contains(var1) ? d_clash403(var2[6]) : DEFAULT_BONE_COLOR;
+         return LASH_BONE_NAMES.contains(var1) ? getHairColor(var2[6]) : DEFAULT_BONE_COLOR;
       }
    }
 
-   public static Vec3i b_clash401(String var0) {
+   public static Vec3i getEyeColor(String var0) {
       return EyeColor.values()[Integer.parseInt(var0)].getColor();
    }
 
-   public static Vec3i c_clash402(String var0) {
+   public static Vec3i getSkinColor(String var0) {
       return SkinColor.values()[Integer.parseInt(var0)].getColor();
    }
 
-   public static Vec3i d_clash403(String var0) {
+   public static Vec3i getHairColor(String var0) {
       return HairColor.values()[Integer.parseInt(var0)].getColor();
    }
 
@@ -529,7 +529,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    static HashSet<Integer> b(int var0, String var1) {
       int var2 = Integer.parseInt(var1);
       int var3 = var0 - 1;
-      ArrayList var4 = a_clash404(var3);
+      ArrayList var4 = buildColorIndexGroups(var3);
 
       while (var2 >= var4.size()) {
          var2 -= var4.size();
@@ -538,7 +538,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return (HashSet<Integer>)var4.get(var2);
    }
 
-   static ArrayList<HashSet<Integer>> a_clash404(int var0) {
+   static ArrayList<HashSet<Integer>> buildColorIndexGroups(int var0) {
       ArrayList var1 = new ArrayList();
       a(0, new HashSet<>(), var0, var1);
       return var1;
@@ -618,16 +618,16 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    @Override
-   protected float a_clash217() {
+   protected float getDefaultScale() {
       return this.renderEntity.getCurrentAction() == Action.CATCH ? 0.5F : 1.0F;
    }
 
    @Override
-   protected Vec3d a_clash218(ItemStack var1) {
+   protected Vec3d getItemRenderOffset(ItemStack var1) {
       if (var1 == null) {
          return Vec3d.ZERO;
       } else {
-         return !(var1.getItem() instanceof ItemBlock) && var1.getMaxStackSize() != 1 ? new Vec3d(180.0, 0.0, 0.0) : super.a_clash218(var1);
+         return !(var1.getItem() instanceof ItemBlock) && var1.getMaxStackSize() != 1 ? new Vec3d(180.0, 0.0, 0.0) : super.getItemRenderOffset(var1);
       }
    }
 

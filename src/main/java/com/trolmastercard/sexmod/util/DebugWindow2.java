@@ -24,7 +24,7 @@ public class DebugWindow2 extends JFrame {
    static DebugWindow2 instance;
    public static boolean isVisible = true;
 
-   public static void a_clash451() {
+   public static void showDebugWindow() {
       EventQueue.invokeLater(() -> {
          try {
             instance = new DebugWindow2();

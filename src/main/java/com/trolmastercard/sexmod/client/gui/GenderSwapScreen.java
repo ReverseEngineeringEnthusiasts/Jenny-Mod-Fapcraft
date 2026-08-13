@@ -30,16 +30,16 @@ public class GenderSwapScreen {
             Minecraft.getMinecraft()
                .player
                .sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + I18n.format("genderswap.sexpromt.timeout", new Object[0])));
-            this.c_clash863();
+            this.clearActiveButton();
          }
       }
    }
 
-   public GenderSwapScreen.a b_clash862() {
+   public GenderSwapScreen.a getActiveButton() {
       return instance.activeButton;
    }
 
-   void c_clash863() {
+   void clearActiveButton() {
       instance.activeButton = null;
    }
 
@@ -80,12 +80,12 @@ public class GenderSwapScreen {
 
    @SubscribeEvent
    public void a(ClientChatEvent var1) {
-      if (instance.b_clash862() != null) {
+      if (instance.getActiveButton() != null) {
          String var2 = var1.getMessage().toLowerCase();
          if (var2.equals(I18n.format("genderswap.sexpromt.accept", new Object[0]).toLowerCase())) {
-            GenderSwapScreen.a var3 = instance.b_clash862();
+            GenderSwapScreen.a var3 = instance.getActiveButton();
             this.a(var3.label, var3.playerUUID, var3.girlUUID);
-            this.c_clash863();
+            this.clearActiveButton();
             var1.setCanceled(true);
          }
 
@@ -95,7 +95,7 @@ public class GenderSwapScreen {
                .sendMessage(
                   new TextComponentString(TextFormatting.DARK_PURPLE + I18n.format("genderswap.sexpromt.declineconformation", new Object[0]))
                );
-            this.c_clash863();
+            this.clearActiveButton();
             var1.setCanceled(true);
          }
       }

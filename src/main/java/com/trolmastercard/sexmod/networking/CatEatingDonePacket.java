@@ -46,7 +46,7 @@ public class CatEatingDonePacket implements IMessage {
                for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.catUUID)) {
                   if (!var3.world.isRemote && var3 instanceof LunaEntity) {
                      LunaEntity var4 = (LunaEntity)var3;
-                     var4.h_clash388();
+                     var4.onFishingTick();
                   }
                }
             });

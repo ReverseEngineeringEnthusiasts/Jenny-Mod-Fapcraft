@@ -53,7 +53,7 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
             Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(elytraTexture);
             GlStateManager.pushMatrix();
             GlStateManager.translate(0.0F, 0.0F, 0.125F);
-            float var21 = this.a_clash198();
+            float var21 = this.renderLayer();
             float var19 = var21;
             float var18 = var7;
             float var17 = var6;
@@ -107,7 +107,7 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
       }
    }
 
-   public float a_clash198() {
+   public float renderLayer() {
       GlStateManager.enableRescaleNormal();
       GlStateManager.scale(-1.0F, -1.0F, 1.0F);
       GlStateManager.translate(0.0F, -1.501F, 0.0F);

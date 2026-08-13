@@ -21,7 +21,7 @@ public class RibbonRenderer {
          new Vec3d(-var3.thickness, -var3.advance, 0.0), new Vec3d(-var3.thickness, var3.advance, 0.0), new Vec3d(var3.thickness, var3.advance, 0.0), new Vec3d(var3.thickness, -var3.advance, 0.0)
       };
       Vec3d var5 = new Vec3d(0.0, 0.0, -var3.length);
-      Vec3d var6 = VectorMath.a_clash304(var5.normalize(), var3.width);
+      Vec3d var6 = VectorMath.scale(var5.normalize(), var3.width);
       Vec3d[] var7 = new Vec3d[4];
       System.arraycopy(var4, 0, var7, 0, 4);
       ArrayList var8 = new ArrayList();
@@ -104,7 +104,7 @@ public class RibbonRenderer {
          this.advance = var9;
       }
 
-      public RibbonRenderer.b a_clash906() {
+      public RibbonRenderer.b copy() {
          return new RibbonRenderer.b(this.color, this.width, this.segmentCount, this.length, this.xWaveFn, this.yWaveFn, this.zWaveFn, this.thickness, this.advance);
       }
    }

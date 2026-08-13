@@ -127,7 +127,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return var1;
    }
 
-   public boolean z_clash454() {
+   public boolean isRidingSomething() {
       return true;
    }
 
@@ -139,11 +139,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return false;
    }
 
-   public boolean v_clash227() {
+   public boolean canBeInteracted() {
       return true;
    }
 
-   public boolean q_clash569() {
+   public boolean canMountPlayer() {
       return false;
    }
 
@@ -151,7 +151,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public void H_clash570() {
    }
 
-   public boolean p_clash379() {
+   public boolean canOpenInteractionMenu() {
       return true;
    }
 
@@ -175,7 +175,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return "anonymous horny girl";
    }
 
-   public void u_clash377() {
+   public void handleInteraction() {
    }
 
    public abstract void b(String var1, UUID var2);
@@ -208,7 +208,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @SideOnly(Side.CLIENT)
-   public static void i_clash572() {
+   public static void rebuildPlayerGirlTable() {
       AbstractPlayerGirlEntity var0 = getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
       if (var0 != null) {
          var0.resetCameraAndPhysics();
@@ -227,7 +227,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @SideOnly(Side.CLIENT)
    @Override
    protected void resetLocalPlayerClientState() {
-      if (this.isControlledByLocalPlayer() || this.f_clash579()) {
+      if (this.isControlledByLocalPlayer() || this.hasOwnerUUID()) {
          HandlePlayerMovement.setMovementLock(true);
          EntityPlayerSP var1 = Minecraft.getMinecraft().player;
          var1.setInvisible(false);
@@ -242,10 +242,10 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    public boolean hasCustomParts() {
       Minecraft var1 = Minecraft.getMinecraft();
-      return !this.f_clash579() || var1.gameSettings.thirdPersonView != 0;
+      return !this.hasOwnerUUID() || var1.gameSettings.thirdPersonView != 0;
    }
 
-   protected void c_clash573(boolean var1) {
+   protected void handleOwnerUUID(boolean var1) {
       if (ag) {
          if (this.getOwnerUserUUID() != null) {
             EntityPlayer var2 = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
@@ -261,7 +261,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
-   public static boolean e_clash574(UUID var0) {
+   public static boolean hasPlayerGirlWithUUID(UUID var0) {
       rebuildPlayerGirlTable();
 
       for (Entry var2 : al.entrySet()) {
@@ -275,14 +275,14 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public static boolean e(EntityPlayer var0) {
-      return var0 == null ? false : e_clash574(var0.getPersistentID());
+      return var0 == null ? false : hasPlayerGirlWithUUID(var0.getPersistentID());
    }
 
    public AxisAlignedBB getEntityBoundingBox() {
       return super.getEntityBoundingBox().offset(0.0, 0.5, 0.0);
    }
 
-   protected EntityPlayer j_clash575() {
+   protected EntityPlayer getNearestPlayer() {
       List var1 = this.world.playerEntities;
       EntityPlayer var2 = null;
 
@@ -291,8 +291,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
             if (var2 == null) {
                var2 = var4;
             } else {
-               double var5 = var2.getDistanceSq(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z);
-               double var7 = var4.getDistanceSq(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z);
+               double var5 = var2.getDistanceSq(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z);
+               double var7 = var4.getDistanceSq(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z);
                if (var7 < var5) {
                   var2 = var4;
                }
@@ -306,15 +306,15 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @SideOnly(Side.CLIENT)
    @Override
    public boolean isLocalPlayerNearby() {
-      EntityPlayer var1 = this.j_clash575();
+      EntityPlayer var1 = this.getNearestPlayer();
       return var1 == null ? false : var1.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID());
    }
 
-   public Vec3d w_clash576() {
+   public Vec3d getPositionVec3d() {
       return new Vec3d(this.posX, this.posY - 0.0, this.posZ);
    }
 
-   protected void b_clash577(UUID var1) {
+   protected void teleportPlayerToGirl(UUID var1) {
       EntityPlayerMP var2 = (EntityPlayerMP)this.world.getPlayerEntityByUUID(var1);
       EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
       PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), var2);
@@ -351,19 +351,19 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       super.onUpdate();
       this.D_clash581();
       if (this.world.isRemote) {
-         if (this.f_clash579()) {
+         if (this.hasOwnerUUID()) {
             GenderSwapScreen.instance.tick();
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
-   void h_clash578() {
+   void updateEyeHeight() {
       Minecraft.getMinecraft().player.eyeHeight = this.getEyeHeight();
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean f_clash579() {
+   public boolean hasOwnerUUID() {
       return !((Optional)this.entityDataManager.get(ai)).isPresent()
          ? false
          : ((UUID)((Optional)this.entityDataManager.get(ai)).get()).equals(Minecraft.getMinecraft().player.getPersistentID());
@@ -373,7 +373,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return false;
    }
 
-   void d_clash580(EntityPlayer var1) {
+   void saveOwnerData(EntityPlayer var1) {
       NBTTagCompound var2 = var1.getEntityData();
       String var3 = var2.getString("sexmod:CustomModel" + NpcType.getNpcType(this));
       this.setCustomModelCode(var3);
@@ -390,7 +390,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          if (var2 == null) {
             this.setPositionAndUpdate(this.posX, 0.0, this.posZ);
          } else {
-            this.d_clash580(var2);
+            this.saveOwnerData(var2);
             if (this.isAnchored()) {
                Vec3d var3 = this.getTargetPosition();
                this.setPositionAndUpdate(var3.x, var3.y, var3.z);
@@ -420,7 +420,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          if (this.an >= 100) {
             if (this.getCurrentAction() == Action.STRIP) {
                if (this.world.isRemote) {
-                  this.n_clash582();
+                  this.handleClientOwner();
                } else {
                   this.setCurrentAction(Action.NULL);
                }
@@ -430,8 +430,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @SideOnly(Side.CLIENT)
-   void n_clash582() {
-      if (this.f_clash579()) {
+   void handleClientOwner() {
+      if (this.hasOwnerUUID()) {
          Minecraft var1 = Minecraft.getMinecraft();
          var1.gameSettings.thirdPersonView = 0;
          var1.entityRenderer.loadEntityShader(var1.getRenderViewEntity());
@@ -439,7 +439,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
-   public boolean o_clash456() {
+   public boolean isAnchored() {
       return this.isAnchored();
    }
 
@@ -451,11 +451,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return false;
    }
 
-   public boolean l_clash467() {
+   public boolean isPlayerGirl() {
       return true;
    }
 
-   public void b_clash468(EntityPlayer var1) {
+   public void onOwnerInteract(EntityPlayer var1) {
    }
 
    @Override
@@ -504,7 +504,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Nullable
-   public EntityPlayer k_clash584() {
+   public EntityPlayer getOwnerPlayer() {
       UUID var1 = this.getOwnerUserUUID();
       return var1 == null ? null : this.world.getPlayerEntityByUUID(var1);
    }
@@ -513,13 +513,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       this.entityDataManager.set(ai, var1);
    }
 
-   public void y_clash234() {
+   public void onTickClient() {
    }
 
    public void B_clash233() {
    }
 
-   public static void rebuildPlayerGirlTable() {
+   public static void rebuildPlayerGirlTableFromWorld() {
       ArrayList var0 = new ArrayList();
 
       try {
@@ -536,10 +536,10 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          playerGirlList.remove(var5);
       }
 
-      t_clash586();
+      rebuildPlayerGirlTableInternal();
    }
 
-   static void t_clash586() {
+   static void rebuildPlayerGirlTableInternal() {
       ArrayList var0 = new ArrayList();
 
       for (Entry var2 : al.entrySet()) {
@@ -553,7 +553,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
-   protected boolean c_clash587(UUID var1) {
+   protected boolean isOwnerUUID(UUID var1) {
       if (var1 == null) {
          return false;
       }
@@ -587,7 +587,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @Override
    public void playSoundAtPosition(SoundEvent var1, float var2, float var3) {
-      Vec3d var4 = this.w_clash576();
+      Vec3d var4 = this.getPositionVec3d();
       if (this.world.isRemote) {
          this.world.playSound(var4.x, var4.y, var4.z, var1, SoundCategory.NEUTRAL, var2, var3, false);
       } else {

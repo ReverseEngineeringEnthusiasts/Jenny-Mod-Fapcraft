@@ -31,10 +31,10 @@ public class CommandReloadCustomModels extends CommandBase {
    }
 
    public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
-      ServerWhitelistManager.b_clash126(false);
+      ServerWhitelistManager.getModelCount(false);
 
       for (EntityPlayerMP var5 : var1.getPlayerList().getPlayers()) {
-         var1.addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(new UnknownPacket(ServerWhitelistManager.e_clash144()), var5));
+         var1.addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(new UnknownPacket(ServerWhitelistManager.getModelScales()), var5));
       }
    }
 }

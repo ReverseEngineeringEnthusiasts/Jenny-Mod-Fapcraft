@@ -68,7 +68,7 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    @Override
-   public float i_clash226() {
+   public float getScaleFactor() {
       return 1.6F;
    }
 
@@ -156,7 +156,7 @@ public class SlimeEntity extends BaseGirlEntity {
    public void updateAITasks() {
       super.updateAITasks();
       this.checkInteractionTrigger();
-      this.c_clash724();
+      this.handleHornyJump();
       if (this.isPotionActive(HornyPotion.HORNY_POTION) && this.slimeState == SlimeEntity.SlimeEntityState.IDLE && (Integer)this.entityDataManager.get(HORNY_LEVEL) == -1) {
          this.entityDataManager.set(TICKS_UNTIL_BIRTH, 2);
          if ((Integer)this.entityDataManager.get(OUTFIT_INDEX) == 1) {
@@ -171,7 +171,7 @@ public class SlimeEntity extends BaseGirlEntity {
    public void onUpdate() {
       super.onUpdate();
       if (this.getCurrentAction() == Action.NULL) {
-         this.b_clash726();
+         this.handleJumpState();
       }
 
       if ((Integer)this.entityDataManager.get(TICKS_UNTIL_BIRTH) >= 2 && this.ticksExisted % 10 == 0) {
@@ -179,13 +179,13 @@ public class SlimeEntity extends BaseGirlEntity {
       }
 
       if (this.world.isRemote) {
-         this.d_clash723();
-         this.i_clash722();
+         this.handleHornyLevel();
+         this.handlePlayerInteraction();
       }
    }
 
    @SideOnly(Side.CLIENT)
-   void i_clash722() {
+   void handlePlayerInteraction() {
       if (this.getInteractionPlayerUUID() != null) {
          EntityPlayerSP var1 = Minecraft.getMinecraft().player;
          if (this.getInteractionPlayerUUID().equals(var1.getPersistentID())) {
@@ -198,7 +198,7 @@ public class SlimeEntity extends BaseGirlEntity {
       }
    }
 
-   void d_clash723() {
+   void handleHornyLevel() {
       int var1 = (Integer)this.entityDataManager.get(HORNY_LEVEL);
       if (var1 != -1) {
          spawnParticlesAround(EnumParticleTypes.SPELL_WITCH, this);
@@ -208,7 +208,7 @@ public class SlimeEntity extends BaseGirlEntity {
       }
    }
 
-   void c_clash724() {
+   void handleHornyJump() {
       int var1 = (Integer)this.entityDataManager.get(HORNY_LEVEL);
       if (var1 != -1) {
          this.entityDataManager.set(HORNY_LEVEL, var1 - 1);
@@ -256,7 +256,7 @@ public class SlimeEntity extends BaseGirlEntity {
       }
    }
 
-   void b_clash726() {
+   void handleJumpState() {
       if (this.world.isRemote) {
          if (this.jumpTicks == 90.0) {
             this.slimeState = SlimeEntity.SlimeEntityState.JUMP_START;
@@ -273,11 +273,11 @@ public class SlimeEntity extends BaseGirlEntity {
          this.renderYawOffset = var1;
       } else {
          if (this.jumpTicks == 85.0) {
-            this.entityDataManager.set(TARGET_YAW, this.e_clash728());
+            this.entityDataManager.set(TARGET_YAW, this.getBirthProgress());
          }
 
          if (this.jumpTicks == 100.0) {
-            this.h_clash727();
+            this.stopMovement();
          }
 
          if (!this.wasOnGround && this.onGround) {
@@ -301,7 +301,7 @@ public class SlimeEntity extends BaseGirlEntity {
       this.wasOnGround = this.onGround;
    }
 
-   void h_clash727() {
+   void stopMovement() {
       this.motionX = 0.0;
       this.motionY = 0.0;
       this.motionZ = 0.0;
@@ -316,25 +316,25 @@ public class SlimeEntity extends BaseGirlEntity {
       this.jumpTicks = 0;
    }
 
-   float e_clash728() {
+   float getBirthProgress() {
       int var1 = (Integer)this.entityDataManager.get(TICKS_UNTIL_BIRTH);
       if ((Integer)this.entityDataManager.get(HORNY_LEVEL) != -1) {
-         return this.f_clash729();
+         return this.getRandomAngle();
       } else if (var1 < 2) {
-         return this.f_clash729();
+         return this.getRandomAngle();
       } else {
          EntityPlayer var2 = this.world.getClosestPlayerToEntity(this, 30.0);
          if (var2 == null) {
-            return this.f_clash729();
+            return this.getRandomAngle();
          } else {
             return getActiveSceneInfo(var2) != null
-               ? this.f_clash729()
+               ? this.getRandomAngle()
                : (float)Math.atan2(this.posZ - var2.posZ, this.posX - var2.posX) * (float) (180.0 / Math.PI) + 90.0F;
          }
       }
    }
 
-   float f_clash729() {
+   float getRandomAngle() {
       return Reference.RANDOM.nextFloat() * 360.0F;
    }
 
@@ -598,7 +598,7 @@ public class SlimeEntity extends BaseGirlEntity {
 
       String animationId;
 
-      public String a_clash867() {
+      public String getAnimationId() {
          return this.animationId;
       }
 

@@ -55,7 +55,7 @@ public class GirlAiBase extends EntityAIBase {
       }
 
       if (this.tickInterval <= 0) {
-         this.a_clash349();
+         this.breedVillagers();
          this.targetVillager.tasks.removeTask(this);
       }
 
@@ -64,7 +64,7 @@ public class GirlAiBase extends EntityAIBase {
       }
    }
 
-   private void a_clash349() {
+   private void breedVillagers() {
       EntityVillager var1 = this.targetVillager.createChild(this.homeVillager);
       this.homeVillager.setGrowingAge(6000);
       this.targetVillager.setGrowingAge(6000);

@@ -195,8 +195,8 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    void e(AnimationProcessor var1, String var2) {
       List var3 = this.c(var1, "hornDL");
       List var4 = this.c(var1, "hornDR");
-      this.a_clash110(var3);
-      this.a_clash110(var4);
+      this.hideAllBones(var3);
+      this.hideAllBones(var4);
       int var5 = Integer.parseInt(var2);
       var1.getBone("hornDL" + var5).setHidden(false);
       var1.getBone("hornDR" + var5).setHidden(false);
@@ -205,8 +205,8 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    void b(AnimationProcessor var1, String var2) {
       List var3 = this.c(var1, "hornUL");
       List var4 = this.c(var1, "hornUR");
-      this.a_clash110(var3);
-      this.a_clash110(var4);
+      this.hideAllBones(var3);
+      this.hideAllBones(var4);
       int var5 = Integer.parseInt(var2);
       var1.getBone("hornUL" + var5).setHidden(false);
       var1.getBone("hornUR" + var5).setHidden(false);
@@ -227,7 +227,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void a_clash110(List<IBone> var1) {
+   void hideAllBones(List<IBone> var1) {
       for (IBone var3 : var1) {
          var3.setHidden(true);
       }

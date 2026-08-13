@@ -44,28 +44,28 @@ public class GalathScreen extends GuiScreen {
       super.onGuiClosed();
       if (this.animTop != 0.0F || this.animBottom != 0.0F || this.animLeft != 0.0F) {
          if (this.animLeft > 0.0F) {
-            this.c_clash396();
+            this.startGoblinThrow();
          } else if (this.isGoblinTarget) {
             if (this.animTop > this.animBottom) {
-               this.a_clash394();
+               this.throwGoblin();
             } else {
-               this.b_clash395();
+               this.pickupGoblin();
             }
          }
       }
    }
 
-   void a_clash394() {
+   void throwGoblin() {
       if (this.isGoblinTarget) {
-         ((GoblinEntity)this.targetEntity).c_clash239(Minecraft.getMinecraft().player.getPersistentID());
+         ((GoblinEntity)this.targetEntity).setThrowTarget(Minecraft.getMinecraft().player.getPersistentID());
       }
    }
 
-   void b_clash395() {
-      ((GoblinEntity)this.targetEntity).b_clash240(Minecraft.getMinecraft().player.getPersistentID());
+   void pickupGoblin() {
+      ((GoblinEntity)this.targetEntity).setPickupTarget(Minecraft.getMinecraft().player.getPersistentID());
    }
 
-   void c_clash396() {
+   void startGoblinThrow() {
       if (this.targetEntity.getInteractionPlayerUUID() == null) {
          this.targetEntity.setCurrentAction(Action.START_THROWING);
       }
@@ -90,7 +90,7 @@ public class GalathScreen extends GuiScreen {
       } catch (NullPointerException var6) {
       }
 
-      float var4 = (float)this.a_clash397(this.animProgress);
+      float var4 = (float)this.easeOutBack(this.animProgress);
       float var5 = (1.0F - var4) * 100.0F;
       this.animLeft = this.animLeft + (var1 < this.width / 2 ? 1 : -1) * this.mc.getTickLength();
       this.animRight = this.animRight + (var1 > this.width / 2 ? 1 : -1) * this.mc.getTickLength();
@@ -136,7 +136,7 @@ public class GalathScreen extends GuiScreen {
       }
    }
 
-   double a_clash397(double var1) {
+   double easeOutBack(double var1) {
       double var3 = 1.70158;
       double var5 = 2.70158;
       return 1.0 + var5 * Math.pow(var1 - 1.0, 3.0) + var3 * Math.pow(var1 - 1.0, 2.0);

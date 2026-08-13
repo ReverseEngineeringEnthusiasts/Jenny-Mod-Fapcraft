@@ -330,7 +330,7 @@ public enum Action {
    }
 
    @SideOnly(Side.CLIENT)
-   public static boolean b_clash719(BaseGirlEntity var0, float var1) {
+   public static boolean isActionComplete(BaseGirlEntity var0, float var1) {
       return d(var0, var1) == 1.0F;
    }
 

@@ -74,7 +74,7 @@ public class GirlInventoryContainer extends Container {
       this.inventory.closeInventory(var1);
    }
 
-   public IInventory a_clash197() {
+   public IInventory getInventoryRef() {
       return this.inventory;
    }
 

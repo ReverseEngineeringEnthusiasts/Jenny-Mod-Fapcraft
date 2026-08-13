@@ -39,7 +39,7 @@ public class SexEntityRenderer extends Render<SexEntity> {
    }
 
    public void a(SexEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      LunaEntity var10 = var1.g_clash776();
+      LunaEntity var10 = var1.getOwnerLuna();
       if (var10 != null && !this.renderOutlines && var10.zFlag != 1.0F) {
          var10.av = var1;
          ItemStack var11 = (ItemStack)var10.getDataManager().get(LunaEntity.ag);

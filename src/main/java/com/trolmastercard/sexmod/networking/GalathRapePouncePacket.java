@@ -43,7 +43,7 @@ public class GalathRapePouncePacket implements IMessage {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                BaseGirlEntity var2x = BaseGirlEntity.getActiveSceneInfo(var2.getServerHandler().player.getPersistentID());
                if (var2x instanceof GalathEntity) {
-                  ((GalathEntity)var2x).c_clash694(var1.isPounce);
+                  ((GalathEntity)var2x).handleRapeAction(var1.isPounce);
                }
             });
             return null;

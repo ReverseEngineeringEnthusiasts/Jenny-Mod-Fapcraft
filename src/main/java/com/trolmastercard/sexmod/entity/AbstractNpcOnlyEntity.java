@@ -44,10 +44,10 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
    @Override
    public void onUpdate() {
       super.onUpdate();
-      this.c_clash221();
+      this.tickClientDataCheck();
    }
 
-   void c_clash221() {
+   void tickClientDataCheck() {
       if (this.world.isRemote) {
          String var1 = (String)this.entityDataManager.get(CURRENT_ACTION);
          String var2 = (String)this.entityDataManager.get(APPEARANCE_DNA);
@@ -91,7 +91,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
       var0.append("-");
    }
 
-   public static void b_clash224(StringBuilder var0) {
+   public static void appendRandomGene(StringBuilder var0) {
       double var1 = Reference.RANDOM.nextDouble();
       double var3 = Math.pow(Math.E, -Math.pow(-2.5 + 5.0 * var1, 2.0));
       String var5 = String.format("%.2f", var3);
