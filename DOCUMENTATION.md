@@ -249,6 +249,23 @@ stuck). FIXED: `if (var1.a)`. Keybind (2m) updated to send the `(uuid, true)` fu
 and to reset any girl bound to the player (not just non-NULL actions). Base + remap build.
 **Stale half-broken girls from earlier sessions may need R-Shift (now working) or a fresh world.**
 
+### 2p. **GENERAL scene-killer: `l_clash514` had an invented `hasPlayer` reset branch (FIXED 2026-08-13)**
+The per-tick followUp transition `BaseGirlEntity.l_clash514` (called from `onUpdate` on every
+girl) had an EXTRA branch NOT in the original jar:
+```java
+} else if (var1.hasPlayer && !isRemote) {
+   if (var1.length <= 0 || ae == null || player == null) this.b(fp.NULL);
+}
+```
+Original jar (`em`)/raw/clean: `if (followUp == null) return;` — NO hasPlayer reset. This
+invented branch made EVERY `hasPlayer` scene action with `length<=0` and no `followUp`
+(STARTBLOWJOB, MISSIONARY_START, COWGIRLSTART, TOUCH_BOOBS_INTRO, PAYMENT, …) get reset to
+`fp.NULL` on the first server tick → scenes flash then die, the girl falls back to walking while
+the `d3` movement lock (sent at scene start) never releases → "locked state of her walking".
+Explains ALL reported symptoms across every character. Removed the branch; `l_clash514` now
+matches the jar. Base + remap build.
+**This is the fix to test. Rebuild + redeploy the jar to the mods folder before judging.**
+
 ---
 
 ## 3. Key architecture findings (verified against original bytecode)
