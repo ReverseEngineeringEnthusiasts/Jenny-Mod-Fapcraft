@@ -27,7 +27,7 @@ public class KoboldEggRenderer extends GeoEntityRenderer<KoboldEggEntity> {
 
 
    @Override
-   protected ResourceLocation func_110775_a(KoboldEggEntity var1) {
+   public ResourceLocation getEntityTexture(KoboldEggEntity var1) {
       return new ResourceLocation("sexmod", "textures/entity/kobold/egg.png");
    }
    public KoboldEggRenderer(RenderManager var1, AnimatedGeoModel<?> var2) {
@@ -50,10 +50,10 @@ public class KoboldEggRenderer extends GeoEntityRenderer<KoboldEggEntity> {
       }
 
       if ("colorSpots".equals(var7)) {
-         Vec3i var8 = EyeAndKoboldColor.safeValueOf((String)this.a.func_184212_Q().func_187225_a(KoboldEggEntity.b)).getMainColor();
-         var3 = var8.func_177958_n() / 255.0F;
-         var4 = var8.func_177956_o() / 255.0F;
-         var5 = var8.func_177952_p() / 255.0F;
+         Vec3i var8 = EyeAndKoboldColor.safeValueOf((String)this.a.getDataManager().get(KoboldEggEntity.b)).getMainColor();
+         var3 = var8.getX() / 255.0F;
+         var4 = var8.getY() / 255.0F;
+         var5 = var8.getZ() / 255.0F;
       }
 
       super.renderRecursively(var1, var2, var3, var4, var5, var6);

@@ -42,27 +42,27 @@ public class NpcEditorWandItem extends Item {
    public static final NpcEditorWandItem a = new NpcEditorWandItem();
 
    public NpcEditorWandItem() {
-      this.func_77637_a(CreativeTabs.field_78040_i);
-      this.field_77777_bU = 1;
+      this.setCreativeTab(CreativeTabs.TOOLS);
+      this.maxStackSize = 1;
    }
 
-   public void func_77663_a(ItemStack var1, World var2, Entity var3, int var4, boolean var5) {
-      if (var2.field_72995_K) {
+   public void onUpdate(ItemStack var1, World var2, Entity var3, int var4, boolean var5) {
+      if (var2.isRemote) {
          this.a(var3, var1);
       }
 
-      super.func_77663_a(var1, var2, var3, var4, var5);
+      super.onUpdate(var1, var2, var3, var4, var5);
    }
 
    @SideOnly(Side.CLIENT)
    void a(Entity var1, ItemStack var2) {
       if (var1 instanceof EntityPlayer) {
          EntityPlayer var3 = (EntityPlayer)var1;
-         if (!var2.equals(var3.func_184614_ca()) && !var2.equals(var3.func_184592_cb())) {
-            var2.func_77964_b(0);
+         if (!var2.equals(var3.getHeldItemMainhand()) && !var2.equals(var3.getHeldItemOffhand())) {
+            var2.setItemDamage(0);
          } else {
-            RayTraceResult var4 = Minecraft.func_71410_x().field_71476_x;
-            var2.func_77964_b(var4 != null && BaseGirlEntity.a_clash542(var4.field_72308_g) ? 1 : 0);
+            RayTraceResult var4 = Minecraft.getMinecraft().objectMouseOver;
+            var2.setItemDamage(var4 != null && BaseGirlEntity.a_clash542(var4.entityHit) ? 1 : 0);
          }
       }
    }
@@ -74,14 +74,14 @@ public class NpcEditorWandItem extends Item {
          if (BaseGirlEntity.a_clash542(var2)) {
             EntityPlayer var3 = var1.getEntityPlayer();
             if (var3 != null) {
-               ItemStack var4 = var3.func_184614_ca();
-               if (var4.func_77973_b() != a) {
-                  var4 = var3.func_184592_cb();
+               ItemStack var4 = var3.getHeldItemMainhand();
+               if (var4.getItem() != a) {
+                  var4 = var3.getHeldItemOffhand();
                }
 
-               if (var4.func_77973_b() == a) {
+               if (var4.getItem() == a) {
                   var1.setCanceled(true);
-                  if (var1.getWorld().field_72995_K) {
+                  if (var1.getWorld().isRemote) {
                      if (ServerWhitelistManager.d) {
                         ServerWhitelistManager.d = 0 != ServerWhitelistManager.b_clash126(true);
                         if (ServerWhitelistManager.d) {
@@ -104,21 +104,21 @@ public class NpcEditorWandItem extends Item {
          if (var2 instanceof BaseGirlEntity) {
             EntityPlayer var3 = var1.getEntityPlayer();
             if (var3 != null) {
-               ItemStack var4 = var3.func_184614_ca();
-               if (var4.func_77973_b() != a) {
-                  var4 = var3.func_184592_cb();
+               ItemStack var4 = var3.getHeldItemMainhand();
+               if (var4.getItem() != a) {
+                  var4 = var3.getHeldItemOffhand();
                }
 
-               if (var4.func_77973_b() == a) {
+               if (var4.getItem() == a) {
                   var1.setCanceled(true);
-                  if (var3.field_70170_p.field_72995_K) {
+                  if (var3.world.isRemote) {
                      BaseGirlEntity var5 = (BaseGirlEntity)var2;
                      String var6 = var5.getCustomModelCode();
                      String var7 = BaseGirlEntity.c(BaseGirlEntity.h_clash555(var5.getGirlId()));
-                     var3.func_145747_a(
+                     var3.sendMessage(
                         new TextComponentString(String.format("%s's model-code: %s%s$%s", var5.getDisplayNameText(), TextFormatting.YELLOW, var6, var7))
                      );
-                     var3.func_145747_a(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
+                     var3.sendMessage(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
                      ThreadNames.a_clash162(String.format("%s$%s", var6, var7));
                   }
                }
@@ -144,29 +144,29 @@ public class NpcEditorWandItem extends Item {
          return false;
       }
 
-      ItemStack var3 = var1.func_184614_ca();
-      if (var3.func_77973_b() != a) {
-         var3 = var1.func_184592_cb();
+      ItemStack var3 = var1.getHeldItemMainhand();
+      if (var3.getItem() != a) {
+         var3 = var1.getHeldItemOffhand();
       }
 
-      if (var3.func_77973_b() != a) {
+      if (var3.getItem() != a) {
          return false;
-      } else if (!var2.field_72995_K) {
+      } else if (!var2.isRemote) {
          return true;
       } else {
          AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getPersistentID());
          if (var4 == null) {
-            var1.func_146105_b(new TextComponentString("you gotta turn into the girl, you want to copy the model-code off"), true);
+            var1.sendStatusMessage(new TextComponentString("you gotta turn into the girl, you want to copy the model-code off"), true);
             return true;
          } else {
             String var5 = var4.getCustomModelCode();
             String var6 = BaseGirlEntity.c(BaseGirlEntity.h_clash555(var4.getGirlId()));
-            var1.func_145747_a(
+            var1.sendMessage(
                new TextComponentString(
                   String.format("%s's model-code: %s%s$%s", ThreadNames.b_clash163(NpcType.getNpcType(var4).toString()), TextFormatting.YELLOW, var5, var6)
                )
             );
-            var1.func_145747_a(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
+            var1.sendMessage(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
             ThreadNames.a_clash162(String.format("%s$%s", var5, var6));
             return true;
          }
@@ -175,7 +175,7 @@ public class NpcEditorWandItem extends Item {
 
    public static void register() {
       a.setRegistryName(new ResourceLocation("sexmod", "npc_editor_wand"));
-      a.func_77655_b("npc_editor_wand");
+      a.setTranslationKey("npc_editor_wand");
       MinecraftForge.EVENT_BUS.register(NpcEditorWandItem.class);
    }
 

@@ -39,8 +39,8 @@ public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
       }
 
       try {
-         Minecraft var2 = Minecraft.func_71410_x();
-         BufferedImage var3 = SkinFetcher.a_clash864(var2.field_71439_g.getPersistentID());
+         Minecraft var2 = Minecraft.getMinecraft();
+         BufferedImage var3 = SkinFetcher.a_clash864(var2.player.getPersistentID());
          Graphics var4 = var3.getGraphics();
          var4.setColor(new Color(185, 254, 255));
          var4.fillRect(0, 0, 2, 2);
@@ -48,7 +48,7 @@ public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
          var4.fillRect(2, 0, 1, 2);
          var4.setColor(new Color(0, 0, 0));
          var4.fillRect(3, 0, 1, 2);
-         this.a = var2.field_71446_o.func_110578_a("alliesLamp", new DynamicTexture(var3));
+         this.a = var2.renderEngine.getDynamicTextureLocation("alliesLamp", new DynamicTexture(var3));
       } catch (Exception var5) {
          var5.printStackTrace();
          this.a = new ResourceLocation("sexmod", "textures/entity/allie/lamp.png");

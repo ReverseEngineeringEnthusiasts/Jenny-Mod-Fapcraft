@@ -31,8 +31,8 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
 
    public GirlFollowAiBase(BaseGirlEntity var1) {
       this.d = var1;
-      this.c = var1.func_70661_as();
-      this.e = var1.func_184212_Q();
+      this.c = var1.getNavigator();
+      this.e = var1.getDataManager();
    }
 
    protected void c_clash805() {
@@ -40,23 +40,23 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
 
       BlockPos var1;
       do {
-         var1 = this.a.func_180425_c().func_177982_a(Reference.f.nextInt(10), 0, Reference.f.nextInt(10));
-      } while (++var2 < 20 && !this.d.func_184595_k(var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p()));
+         var1 = this.a.getPosition().add(Reference.f.nextInt(10), 0, Reference.f.nextInt(10));
+      } while (++var2 < 20 && !this.d.attemptTeleport(var1.getX(), var1.getY(), var1.getZ()));
 
       if (var2 >= 20) {
-         this.d.func_70107_b(this.a.field_70165_t, this.a.field_70163_u, this.a.field_70161_v);
+         this.d.setPosition(this.a.posX, this.a.posY, this.a.posZ);
       }
 
-      this.d.field_70159_w = 0.0;
-      this.d.field_70181_x = 0.0;
-      this.d.field_70179_y = 0.0;
+      this.d.motionX = 0.0;
+      this.d.motionY = 0.0;
+      this.d.motionZ = 0.0;
    }
 
    protected double b_clash806() {
-      float var1 = this.d.func_70032_d(this.a);
+      float var1 = this.d.getDistance(this.a);
       double var2;
       BaseGirlEntity.BaseGirlEntityState var4;
-      if (this.a.func_70051_ag()) {
+      if (this.a.isSprinting()) {
          var2 = 0.7;
          var4 = BaseGirlEntity.BaseGirlEntityState.RUN;
       } else {
@@ -66,42 +66,42 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
 
       double var5 = Math.floor(var1 / 5.0F) * 0.2;
       var2 += var5;
-      if (this.d.func_70090_H()) {
+      if (this.d.isInWater()) {
          var2 *= 60.0;
          var4 = BaseGirlEntity.BaseGirlEntityState.WALK;
       }
 
-      this.c.func_75489_a(var2);
+      this.c.setSpeed(var2);
       this.d.a(var4);
       return var2;
    }
 
-   public void func_75251_c() {
-      this.c.func_75499_g();
+   public void resetTask() {
+      this.c.clearPath();
       this.f = GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
       this.d.b(fp.NULL);
-      this.e.func_187227_b(BaseGirlEntity.v, "");
+      this.e.set(BaseGirlEntity.v, "");
       this.c = null;
       this.e = null;
       this.a = null;
    }
 
-   public boolean func_75250_a() {
-      return !((String)this.d.func_184212_Q().func_187225_a(BaseGirlEntity.v)).equals("");
+   public boolean shouldExecute() {
+      return !((String)this.d.getDataManager().get(BaseGirlEntity.v)).equals("");
    }
 
-   public boolean func_75253_b() {
-      String var1 = (String)this.e.func_187225_a(BaseGirlEntity.v);
-      return !var1.equals("") && this.d.field_70170_p.func_152378_a(UUID.fromString(var1)) != null;
+   public boolean shouldContinueExecuting() {
+      String var1 = (String)this.e.get(BaseGirlEntity.v);
+      return !var1.equals("") && this.d.world.getPlayerEntityByUUID(UUID.fromString(var1)) != null;
    }
 
-   public void func_75249_e() {
-      this.c = this.d.func_70661_as();
-      this.e = this.d.func_184212_Q();
-      this.a = this.d.field_70170_p.func_152378_a(UUID.fromString((String)this.e.func_187225_a(BaseGirlEntity.v)));
+   public void startExecuting() {
+      this.c = this.d.getNavigator();
+      this.e = this.d.getDataManager();
+      this.a = this.d.world.getPlayerEntityByUUID(UUID.fromString((String)this.e.get(BaseGirlEntity.v)));
    }
 
-   public void func_75246_d() {
+   public void updateTask() {
       this.f = this.a_clash807();
       if (this.d.o != null) {
          this.d.o.a = this.f == GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
@@ -118,7 +118,7 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
    public void a(LivingDeathEvent var1) {
       if (var1.getEntityLiving() instanceof BaseGirlEntity) {
          BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntityLiving();
-         if (!((String)var2.func_184212_Q().func_187225_a(BaseGirlEntity.v)).equals("")) {
+         if (!((String)var2.getDataManager().get(BaseGirlEntity.v)).equals("")) {
             var1.setCanceled(true);
          }
       }

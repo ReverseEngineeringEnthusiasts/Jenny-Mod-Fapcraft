@@ -118,7 +118,7 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       GalathEntity var2 = var1.a_clash413(false);
       if (var2 == null) {
          return false;
-      } else if (var2.field_70128_L) {
+      } else if (var2.isDead) {
          var1.a_clash414(null);
          return false;
       } else {
@@ -126,14 +126,14 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
-   public void func_76979_b(Entity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderShadowAndFire(Entity var1, double var2, double var4, double var6, float var8, float var9) {
       if (!(var1 instanceof ManglelieEntity)) {
-         super.func_76979_b(var1, var2, var4, var6, var8, var9);
+         super.doRenderShadowAndFire(var1, var2, var4, var6, var8, var9);
       } else {
          ManglelieEntity var10 = (ManglelieEntity)var1;
          if (!this.d(var10)) {
             if (!var10.r_clash411()) {
-               super.func_76979_b(var1, var2, var4, var6, var8, var9);
+               super.doRenderShadowAndFire(var1, var2, var4, var6, var8, var9);
             }
          }
       }
@@ -149,27 +149,27 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
    }
 
    public static void a_clash372(BaseGirlEntity var0, float var1) {
-      EntityPlayerSP var2 = i.field_71439_g;
+      EntityPlayerSP var2 = i.player;
       if (var2 != null) {
          if (!c_clash371(var0, 0.5F)) {
-            Tessellator var3 = Tessellator.func_178181_a();
-            BufferBuilder var4 = var3.func_178180_c();
-            GlStateManager.func_179094_E();
+            Tessellator var3 = Tessellator.getInstance();
+            BufferBuilder var4 = var3.getBuffer();
+            GlStateManager.pushMatrix();
             if (var0.isLocallyRegistered()) {
-               GlStateManager.func_179137_b(0.0, 0.01, 0.0);
+               GlStateManager.translate(0.0, 0.01, 0.0);
             } else {
                af.a(i, var0, var1);
                b_clash373(var0, var1);
             }
 
-            i.func_110434_K().func_110577_a(e);
-            GlStateManager.func_179129_p();
-            GlStateManager.func_179140_f();
+            i.getTextureManager().bindTexture(e);
+            GlStateManager.disableCull();
+            GlStateManager.disableLighting();
             a(var0, var4, var3, a_clash330(var0, var1));
             a(var0, var4, var3);
-            GlStateManager.func_179121_F();
-            GlStateManager.func_179089_o();
-            GlStateManager.func_179145_e();
+            GlStateManager.popMatrix();
+            GlStateManager.enableCull();
+            GlStateManager.enableLighting();
          }
       }
    }
@@ -181,7 +181,7 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
             if (!ManglelieNpcModel.c_clash313(var2)) {
                GalathEntity var3 = var2.a_clash413(false);
                if (var3 != null) {
-                  GlStateManager.func_179114_b(-RotationHelper.b(var0.field_70760_ar, var0.field_70761_aq, var1), 0.0F, 1.0F, 0.0F);
+                  GlStateManager.rotate(-RotationHelper.b(var0.prevRenderYawOffset, var0.renderYawOffset, var1), 0.0F, 1.0F, 0.0F);
                }
             }
          }
@@ -198,14 +198,14 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
 
    static void a(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2) {
       if (a_clash374(var0)) {
-         var1.func_181668_a(7, DefaultVertexFormats.field_181706_f);
+         var1.begin(7, DefaultVertexFormats.POSITION_COLOR);
 
          for (int var3 = 0; var3 < 39; var3++) {
             a(var0, var1, var3, var3 + 1);
          }
 
          a(var0, var1, 39, 0);
-         var2.func_78381_a();
+         var2.draw();
       }
    }
 
@@ -217,14 +217,14 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       Vec3d var8 = var0.getCachedBoneOffset("skirt_" + var3 + "_1");
       Vec3d var9 = var0.getCachedBoneOffset("skirt_" + var3 + "_2");
       UnknownScreen var10 = var2 % 2 == 0 ? x : r;
-      var1.func_181662_b(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c).func_181669_b(var10.a, var10.d, var10.c, var10.b).func_181675_d();
-      var1.func_181662_b(var5.field_72450_a, var5.field_72448_b, var5.field_72449_c).func_181669_b(var10.a, var10.d, var10.c, var10.b).func_181675_d();
-      var1.func_181662_b(var8.field_72450_a, var8.field_72448_b, var8.field_72449_c).func_181669_b(var10.a, var10.d, var10.c, var10.b).func_181675_d();
-      var1.func_181662_b(var7.field_72450_a, var7.field_72448_b, var7.field_72449_c).func_181669_b(var10.a, var10.d, var10.c, var10.b).func_181675_d();
-      var1.func_181662_b(var5.field_72450_a, var5.field_72448_b, var5.field_72449_c).func_181669_b(var10.a, var10.d, var10.c, var10.b).func_181675_d();
-      var1.func_181662_b(var8.field_72450_a, var8.field_72448_b, var8.field_72449_c).func_181669_b(var10.a, var10.d, var10.c, var10.b).func_181675_d();
-      var1.func_181662_b(var9.field_72450_a, var9.field_72448_b, var9.field_72449_c).func_181669_b(var10.a, var10.d, var10.c, var10.b).func_181675_d();
-      var1.func_181662_b(var6.field_72450_a, var6.field_72448_b, var6.field_72449_c).func_181669_b(var10.a, var10.d, var10.c, var10.b).func_181675_d();
+      var1.pos(var4.x, var4.y, var4.z).color(var10.a, var10.d, var10.c, var10.b).endVertex();
+      var1.pos(var5.x, var5.y, var5.z).color(var10.a, var10.d, var10.c, var10.b).endVertex();
+      var1.pos(var8.x, var8.y, var8.z).color(var10.a, var10.d, var10.c, var10.b).endVertex();
+      var1.pos(var7.x, var7.y, var7.z).color(var10.a, var10.d, var10.c, var10.b).endVertex();
+      var1.pos(var5.x, var5.y, var5.z).color(var10.a, var10.d, var10.c, var10.b).endVertex();
+      var1.pos(var8.x, var8.y, var8.z).color(var10.a, var10.d, var10.c, var10.b).endVertex();
+      var1.pos(var9.x, var9.y, var9.z).color(var10.a, var10.d, var10.c, var10.b).endVertex();
+      var1.pos(var6.x, var6.y, var6.z).color(var10.a, var10.d, var10.c, var10.b).endVertex();
    }
 
    @Override
@@ -232,60 +232,60 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       a(this.j, var2, var3, false);
       Entity var4 = this.j.b_clash424();
       if (var4 != null) {
-         if ("weapon".equals(var2) && this.j.a_clash434(var4, i.func_184121_ak())) {
+         if ("weapon".equals(var2) && this.j.a_clash434(var4, i.getRenderPartialTicks())) {
             this.a(var1, var3, true);
          }
 
-         if ("offhand".equals(var2) && !this.j.a_clash434(var4, i.func_184121_ak())) {
+         if ("offhand".equals(var2) && !this.j.a_clash434(var4, i.getRenderPartialTicks())) {
             this.a(var1, var3, false);
          }
       }
    }
 
    public void a(BufferBuilder var1, GeoBone var2, boolean var3) {
-      ItemRenderer var4 = Minecraft.func_71410_x().func_175597_ag();
-      GlStateManager.func_179094_E();
-      Tessellator.func_178181_a().func_78381_a();
+      ItemRenderer var4 = Minecraft.getMinecraft().getItemRenderer();
+      GlStateManager.pushMatrix();
+      Tessellator.getInstance().draw();
       com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
       GL11.glEnable(2896);
-      GlStateManager.func_179147_l();
-      GlStateManager.func_187401_a(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+      GlStateManager.enableBlend();
+      GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
       if (var3) {
-         GlStateManager.func_179137_b(-0.01, 0.0, 0.0);
-         GlStateManager.func_179114_b(120.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.translate(-0.01, 0.0, 0.0);
+         GlStateManager.rotate(120.0F, 1.0F, 0.0F, 0.0F);
       } else {
-         GlStateManager.func_179137_b(0.15, 0.0, -0.05);
-         GlStateManager.func_179114_b(-140.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.translate(0.15, 0.0, -0.05);
+         GlStateManager.rotate(-140.0F, 1.0F, 0.0F, 0.0F);
       }
 
-      GlStateManager.func_179139_a(0.7, 0.7, 0.7);
-      ItemStack var5 = new ItemStack(Items.field_151031_f);
-      float var6 = this.j.b_clash423(i.func_184121_ak());
+      GlStateManager.scale(0.7, 0.7, 0.7);
+      ItemStack var5 = new ItemStack(Items.BOW);
+      float var6 = this.j.b_clash423(i.getRenderPartialTicks());
       if (var6 < 1.0F) {
          float var7 = (float)RotationHelper.e(var6);
          this.j.d((int)(11.0F * (1.0F - var7) + 71980.0F));
          this.j.a_clash517(var5);
-         this.j.func_184598_c(EnumHand.MAIN_HAND);
+         this.j.setActiveHand(EnumHand.MAIN_HAND);
          this.j.W();
       } else {
-         this.j.a_clash517(ItemStack.field_190927_a);
+         this.j.a_clash517(ItemStack.EMPTY);
          this.j.K();
       }
 
-      var4.func_178099_a(this.j, var5, TransformType.THIRD_PERSON_RIGHT_HAND);
-      var1.func_181668_a(7, DefaultVertexFormats.field_181712_l);
-      this.func_110776_a(Objects.requireNonNull(this.getEntityTexture(this.j)));
+      var4.renderItem(this.j, var5, TransformType.THIRD_PERSON_RIGHT_HAND);
+      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
       GL11.glDisable(2896);
-      GlStateManager.func_179121_F();
-      GlStateManager.func_179147_l();
-      GlStateManager.func_187401_a(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+      GlStateManager.popMatrix();
+      GlStateManager.enableBlend();
+      GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
    }
 
    public static void a(BaseGirlEntity var0, String var1, GeoBone var2, boolean var3) {
       if (var1.contains("skirt_")) {
          int var4 = a_clash375(var1);
          if (ThreadNames.a_clash164(var4, 17.0, 35.0)) {
-            if (i.func_147113_T()) {
+            if (i.isGamePaused()) {
                return;
             }
 
@@ -364,26 +364,26 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
          MATRIX_STACK.scale(var9);
          MATRIX_STACK.moveBackFromPivot(var9);
          this.renderRecursively(var2, var10, var4, var5, var6, var7);
-         Tessellator.func_178181_a().func_78381_a();
-         var2.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+         Tessellator.getInstance().draw();
+         var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
-         Minecraft.func_71410_x().field_71446_o.func_110577_a(this.func_110775_a(this.j));
+         Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.j));
 
          this.renderRecursively(var2, var11, var4, var5, var6, this.j.v_clash550());
-         Tessellator.func_178181_a().func_78381_a();
+         Tessellator.getInstance().draw();
          MATRIX_STACK.pop();
       }
    }
 
    static void a(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
-      var1.func_181668_a(7, DefaultVertexFormats.field_181709_i);
+      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
       Vec3d[][] var4 = af.a(var0, var3, "clothBoobLconStart", "clothBoobLconEnd", D, v);
       Vec3d[][] var5 = af.a(var0, var3, "clothBoobRconStart", "clothBoobRconEnd", D, v);
       Vec3d[][] var6 = af.a(var0, var3, "clothBoobMidconStart", "clothBoobMidconEnd", z, z);
       af.a(var1, var4, C);
       af.a(var1, var5, C);
       af.a(var1, var6, C);
-      var2.func_78381_a();
+      var2.draw();
    }
 
    @Override
@@ -411,11 +411,11 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
    protected Vec3d a(ManglelieEntity var1, float var2, Vec3d var3) {
       if (var1.getCurrentAction() == fp.RUN) {
          float var5 = var1.getYawRotation();
-         var1.field_70177_z = var5;
-         var1.field_70760_ar = var5;
-         var1.field_70761_aq = var5;
-         var1.field_70758_at = var5;
-         var1.field_70759_as = var5;
+         var1.rotationYaw = var5;
+         var1.prevRenderYawOffset = var5;
+         var1.renderYawOffset = var5;
+         var1.prevRotationYawHead = var5;
+         var1.rotationYawHead = var5;
          return var3;
       }
 
@@ -440,25 +440,25 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
             var8 = var9;
          }
 
-         var2.field_70177_z = var7;
-         var2.field_70760_ar = var8;
-         var2.field_70761_aq = var7;
-         var2.field_70758_at = var8;
-         var2.field_70759_as = var7;
+         var2.rotationYaw = var7;
+         var2.prevRenderYawOffset = var8;
+         var2.renderYawOffset = var7;
+         var2.prevRotationYawHead = var8;
+         var2.rotationYawHead = var7;
       } else {
-         float var4 = var0.field_70759_as;
-         float var5 = var0.field_70758_at;
+         float var4 = var0.rotationYawHead;
+         float var5 = var0.prevRotationYawHead;
          Float var6 = GalathEntity.a_clash692(var0, var1);
          if (var6 != null) {
             var4 = var6;
             var5 = var6;
          }
 
-         var2.field_70177_z = var4;
-         var2.field_70760_ar = var5;
-         var2.field_70761_aq = var4;
-         var2.field_70758_at = var5;
-         var2.field_70759_as = var4;
+         var2.rotationYaw = var4;
+         var2.prevRenderYawOffset = var5;
+         var2.renderYawOffset = var4;
+         var2.prevRotationYawHead = var5;
+         var2.rotationYawHead = var4;
       }
    }
 
@@ -467,11 +467,11 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
    }
 
    public static Vec3d b(GalathEntity var0, float var1) {
-      return ak.a(var0, i.field_71439_g, var1).func_178787_e(var0.getCachedBoneOffset("mangPos"));
+      return ak.a(var0, i.player, var1).add(var0.getCachedBoneOffset("mangPos"));
    }
 
    public static Vec3d a_clash376(GalathEntity var0, float var1) {
-      return ak.a_clash52(var0, var1).func_178787_e(var0.getCachedBoneOffset("mangPos"));
+      return ak.a_clash52(var0, var1).add(var0.getCachedBoneOffset("mangPos"));
    }
 
 }

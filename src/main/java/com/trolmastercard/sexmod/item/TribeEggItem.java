@@ -34,38 +34,38 @@ public class TribeEggItem extends Item {
    public static final TribeEggItem a = new TribeEggItem();
 
    public TribeEggItem() {
-      this.func_77637_a(CreativeTabs.field_78026_f);
-      this.field_77777_bU = 1;
+      this.setCreativeTab(CreativeTabs.MISC);
+      this.maxStackSize = 1;
    }
 
-   public ActionResult<ItemStack> func_77659_a(World var1, EntityPlayer var2, EnumHand var3) {
-      ItemStack var4 = var2.func_184586_b(var3);
-      Vec3d var5 = var2.func_174824_e(0.0F);
-      Vec3d var6 = var2.func_70676_i(0.0F);
-      Vec3d var7 = var5.func_72441_c(var6.field_72450_a * 5.0, var6.field_72448_b * 5.0, var6.field_72449_c * 5.0);
-      RayTraceResult var8 = var1.func_147447_a(var5, var7, false, false, true);
+   public ActionResult<ItemStack> onItemRightClick(World var1, EntityPlayer var2, EnumHand var3) {
+      ItemStack var4 = var2.getHeldItem(var3);
+      Vec3d var5 = var2.getPositionEyes(0.0F);
+      Vec3d var6 = var2.getLook(0.0F);
+      Vec3d var7 = var5.add(var6.x * 5.0, var6.y * 5.0, var6.z * 5.0);
+      RayTraceResult var8 = var1.rayTraceBlocks(var5, var7, false, false, true);
       if (var8 == null) {
-         return new ActionResult(EnumActionResult.FAIL, var2.func_184586_b(var3));
+         return new ActionResult(EnumActionResult.FAIL, var2.getHeldItem(var3));
       }
 
-      if (var8.field_72313_a == Type.MISS) {
-         return new ActionResult(EnumActionResult.FAIL, var2.func_184586_b(var3));
+      if (var8.typeOfHit == Type.MISS) {
+         return new ActionResult(EnumActionResult.FAIL, var2.getHeldItem(var3));
       }
 
-      if (!var2.field_71075_bZ.field_75098_d) {
-         var4.func_190918_g(1);
+      if (!var2.capabilities.isCreativeMode) {
+         var4.shrink(1);
       }
 
-      if (!var1.field_72995_K) {
-         KoboldManager.a(var1, var8.field_72307_f);
+      if (!var1.isRemote) {
+         KoboldManager.a(var1, var8.hitVec);
       }
 
-      return new ActionResult(EnumActionResult.SUCCESS, var2.func_184586_b(var3));
+      return new ActionResult(EnumActionResult.SUCCESS, var2.getHeldItem(var3));
    }
 
    public static void register() {
       a.setRegistryName(new ResourceLocation("sexmod", "tribe_egg"));
-      a.func_77655_b("tribe_egg");
+      a.setTranslationKey("tribe_egg");
       MinecraftForge.EVENT_BUS.register(TribeEggItem.class);
    }
 

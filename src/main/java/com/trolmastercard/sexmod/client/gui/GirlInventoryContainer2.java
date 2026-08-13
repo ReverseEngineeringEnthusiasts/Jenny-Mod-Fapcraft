@@ -54,52 +54,52 @@ public class GirlInventoryContainer2 extends Container {
          }
 
          for (Slot var9 : this.b) {
-            this.func_75146_a(var9);
+            this.addSlotToContainer(var9);
          }
 
          for (Slot var14 : (java.util.Collection<Slot>) (var5) ) {
-            this.func_75146_a(var14);
+            this.addSlotToContainer(var14);
          }
       }
    }
 
-   public ItemStack func_82846_b(EntityPlayer var1, int var2) {
-      ItemStack var3 = ItemStack.field_190927_a;
-      Slot var4 = (Slot)this.field_75151_b.get(var2);
-      if (var4 != null && var4.func_75216_d()) {
-         ItemStack var5 = var4.func_75211_c();
-         var3 = var5.func_77946_l();
-         int var6 = this.field_75151_b.size() - var1.field_71071_by.field_70462_a.size();
+   public ItemStack transferStackInSlot(EntityPlayer var1, int var2) {
+      ItemStack var3 = ItemStack.EMPTY;
+      Slot var4 = (Slot)this.inventorySlots.get(var2);
+      if (var4 != null && var4.getHasStack()) {
+         ItemStack var5 = var4.getStack();
+         var3 = var5.copy();
+         int var6 = this.inventorySlots.size() - var1.inventory.mainInventory.size();
          if (var2 < var6) {
-            if (!this.func_75135_a(var5, var6, this.field_75151_b.size(), true)) {
-               return ItemStack.field_190927_a;
+            if (!this.mergeItemStack(var5, var6, this.inventorySlots.size(), true)) {
+               return ItemStack.EMPTY;
             }
-         } else if (!this.func_75135_a(var5, 0, var6, false)) {
-            return ItemStack.field_190927_a;
+         } else if (!this.mergeItemStack(var5, 0, var6, false)) {
+            return ItemStack.EMPTY;
          }
 
-         if (var5.func_190916_E() == 0) {
-            var4.func_75215_d(ItemStack.field_190927_a);
+         if (var5.getCount() == 0) {
+            var4.putStack(ItemStack.EMPTY);
          } else {
-            var4.func_75218_e();
+            var4.onSlotChanged();
          }
 
-         var4.func_190901_a(var1, var5);
+         var4.onTake(var1, var5);
       }
 
       return var3;
    }
 
-   public void func_75141_a(int var1, ItemStack var2) {
-      super.func_75141_a(var1, var2);
+   public void putStackInSlot(int var1, ItemStack var2) {
+      super.putStackInSlot(var1, var2);
    }
 
-   public boolean func_75145_c(EntityPlayer var1) {
+   public boolean canInteractWith(EntityPlayer var1) {
       return true;
    }
 
-   public void func_75134_a(EntityPlayer var1) {
-      super.func_75134_a(var1);
+   public void onContainerClosed(EntityPlayer var1) {
+      super.onContainerClosed(var1);
    }
 
 }

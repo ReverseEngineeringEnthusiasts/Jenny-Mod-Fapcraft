@@ -34,19 +34,19 @@ public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<K
       this.b = var6;
    }
 
-   public boolean func_75250_a() {
+   public boolean shouldExecute() {
       if (this.b) {
-         float var1 = this.field_75299_d.func_70013_c();
+         float var1 = this.taskOwner.getBrightness();
          if (var1 >= 0.5F) {
             return false;
          }
       }
 
-      if (this.a > 0 && this.field_75299_d.func_70681_au().nextInt(this.a) != 0) {
+      if (this.a > 0 && this.taskOwner.getRNG().nextInt(this.a) != 0) {
          return false;
       }
 
-      List var5 = this.field_75299_d.field_70170_p.func_175647_a(this.field_75307_b, this.func_188511_a(this.func_111175_f()), this.field_82643_g);
+      List var5 = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass, this.getTargetableArea(this.getTargetDistance()), this.targetEntitySelector);
       if (var5.isEmpty()) {
          return false;
       }
@@ -63,8 +63,8 @@ public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<K
          return false;
       }
 
-      var2.sort(this.field_75306_g);
-      this.field_75309_a = (KoboldEntity) var2.get(0);
+      var2.sort(this.sorter);
+      this.targetEntity = (KoboldEntity) var2.get(0);
       return true;
    }
 

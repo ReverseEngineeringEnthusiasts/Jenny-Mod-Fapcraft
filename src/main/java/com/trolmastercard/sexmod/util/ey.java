@@ -26,22 +26,22 @@ public class ey {
 
    @SubscribeEvent
    public void a(BreakEvent var1) {
-      Block var2 = var1.getState().func_177230_c();
-      if (var2 == Blocks.field_150324_C) {
+      Block var2 = var1.getState().getBlock();
+      if (var2 == Blocks.BED) {
          BlockPos var3 = var1.getPos();
          AxisAlignedBB var4 = new AxisAlignedBB(
-            var3.func_177958_n() - 3,
-            var3.func_177956_o() - 3,
-            var3.func_177952_p() - 3,
-            var3.func_177958_n() + 3,
-            var3.func_177956_o() + 3,
-            var3.func_177952_p() + 3
+            var3.getX() - 3,
+            var3.getY() - 3,
+            var3.getZ() - 3,
+            var3.getX() + 3,
+            var3.getY() + 3,
+            var3.getZ() + 3
          );
-         List var5 = var1.getWorld().func_72872_a(BaseGirlEntity.class, var4);
+         List var5 = var1.getWorld().getEntitiesWithinAABB(BaseGirlEntity.class, var4);
          boolean var6 = false;
 
          for (BaseGirlEntity var8 : (java.util.Collection<BaseGirlEntity>) (var5) ) {
-            if (!var8.field_70128_L && (Boolean)var8.func_184212_Q().func_187225_a(BaseGirlEntity.G)) {
+            if (!var8.isDead && (Boolean)var8.getDataManager().get(BaseGirlEntity.G)) {
                var6 = true;
                break;
             }
@@ -49,7 +49,7 @@ public class ey {
 
          if (var6) {
             var1.getPlayer()
-               .func_146105_b(new TextComponentString("this bed is currently used by a girl.. pls don't disturb okay? ... you are kinda mean rn"), true);
+               .sendStatusMessage(new TextComponentString("this bed is currently used by a girl.. pls don't disturb okay? ... you are kinda mean rn"), true);
             var1.setCanceled(true);
          }
       }

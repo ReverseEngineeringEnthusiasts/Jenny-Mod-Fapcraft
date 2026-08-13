@@ -49,7 +49,7 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
       return 1.4F;
    }
 
-   public float func_70047_e() {
+   public float getEyeHeight() {
       return 1.3F;
    }
 
@@ -69,10 +69,10 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
       this.f(0);
       this.b(fp.CITIZEN_START);
       this.b_clash577(var2);
-      EntityPlayer var3 = this.field_70170_p.func_152378_a(var2);
+      EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
       if (var3 != null) {
          Vec3d var4 = this.getVectorTowardPlayer(-0.2);
-         var3.func_70634_a(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c);
+         var3.setPositionAndUpdate(var4.x, var4.y, var4.z);
       }
    }
 
@@ -90,8 +90,8 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
    }
 
    @Override

@@ -143,30 +143,30 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    static final float aj = 0.2F;
    static final double aH = 0.7;
    static final int aa = 142;
-   public static final DataParameter<Float> aE = EntityDataManager.func_187226_a(KoboldEntity.class, DataSerializers.field_187193_c)
-      .func_187156_b()
-      .func_187161_a(122);
-   public static final DataParameter<String> T = EntityDataManager.func_187226_a(KoboldEntity.class, DataSerializers.field_187194_d)
-      .func_187156_b()
-      .func_187161_a(123);
-   public static final DataParameter<Boolean> aC = EntityDataManager.func_187226_a(KoboldEntity.class, DataSerializers.field_187198_h)
-      .func_187156_b()
-      .func_187161_a(124);
-   public static final DataParameter<Boolean> aZ = EntityDataManager.func_187226_a(KoboldEntity.class, DataSerializers.field_187198_h)
-      .func_187156_b()
-      .func_187161_a(125);
-   public static final DataParameter<String> aU = EntityDataManager.func_187226_a(KoboldEntity.class, DataSerializers.field_187194_d)
-      .func_187156_b()
-      .func_187161_a(126);
-   public static final DataParameter<Boolean> ak = EntityDataManager.func_187226_a(KoboldEntity.class, DataSerializers.field_187198_h)
-      .func_187156_b()
-      .func_187161_a(127);
-   public static final DataParameter<Boolean> at = EntityDataManager.func_187226_a(KoboldEntity.class, DataSerializers.field_187198_h)
-      .func_187156_b()
-      .func_187161_a(128);
-   public static final DataParameter<Optional<UUID>> aL = EntityDataManager.func_187226_a(KoboldEntity.class, DataSerializers.field_187203_m)
-      .func_187156_b()
-      .func_187161_a(129);
+   public static final DataParameter<Float> aE = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.FLOAT)
+      .getSerializer()
+      .createKey(122);
+   public static final DataParameter<String> T = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.STRING)
+      .getSerializer()
+      .createKey(123);
+   public static final DataParameter<Boolean> aC = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
+      .getSerializer()
+      .createKey(124);
+   public static final DataParameter<Boolean> aZ = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
+      .getSerializer()
+      .createKey(125);
+   public static final DataParameter<String> aU = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.STRING)
+      .getSerializer()
+      .createKey(126);
+   public static final DataParameter<Boolean> ak = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
+      .getSerializer()
+      .createKey(127);
+   public static final DataParameter<Boolean> at = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
+      .getSerializer()
+      .createKey(128);
+   public static final DataParameter<Optional<UUID>> aL = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID)
+      .getSerializer()
+      .createKey(129);
    public static final int av = 24;
    public static double af = 69.0;
    public static List<Vector4d> aY = new ArrayList<>();
@@ -203,7 +203,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    IBlockState aX = null;
    BlockPos aF = null;
    boolean ao = true;
-   Vec3d aS = Vec3d.field_186680_a;
+   Vec3d aS = Vec3d.ZERO;
    BlockPos aM = null;
    BlockPos aI = null;
    int ai = 0;
@@ -225,13 +225,13 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    public KoboldEntity(World var1) {
       super(var1);
-      this.func_70105_a(0.5F, 0.99F);
+      this.setSize(0.5F, 0.99F);
    }
 
    KoboldEntity(World var1, UUID var2, float var3) {
       this(var1);
-      this.m.func_187227_b(aL, Optional.of(var2));
-      this.m.func_187227_b(aE, var3);
+      this.m.set(aL, Optional.of(var2));
+      this.m.set(aE, var3);
    }
 
    public static KoboldEntity a(World var0, UUID var1) {
@@ -279,9 +279,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    @Override
    public ArrayList<Integer> L_clash353() {
       ArrayList var1 = new ArrayList();
-      var1.add(Math.round((Float)this.m.func_187225_a(aE) * 100.0F / 0.25F));
-      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.m.func_187225_a(N))));
-      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.m.func_187225_a(K))));
+      var1.add(Math.round((Float)this.m.get(aE) * 100.0F / 0.25F));
+      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.m.get(N))));
+      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.m.get(K))));
       return var1;
    }
 
@@ -293,26 +293,26 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          int var4 = (Integer)var1.get(var3);
          switch (var3) {
             case 0:
-               this.m.func_187227_b(aE, var4 / 100.0F * 0.25F);
+               this.m.set(aE, var4 / 100.0F * 0.25F);
                break;
             case 1:
-               String var5 = (String)this.m.func_187225_a(N);
+               String var5 = (String)this.m.get(N);
                String var6 = EyeAndKoboldColor.values()[var4].toString();
                if (!var6.equals(var5)) {
                   this.aA = true;
                }
 
-               this.m.func_187227_b(N, var6);
+               this.m.set(N, var6);
                break;
             case 2:
-               this.m.func_187227_b(K, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
+               this.m.set(K, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
                break;
             default:
                c(var2, var4);
          }
       }
 
-      this.m.func_187227_b(M, var2.toString());
+      this.m.set(M, var2.toString());
       KoboldRenderer.clearBoneColors();
    }
 
@@ -325,20 +325,20 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             int var4 = (Integer)((Entry)var3.getValue()).getValue();
             switch (var2) {
                case 0:
-                  this.m.func_187227_b(aE, var4 / 100.0F * 0.25F);
+                  this.m.set(aE, var4 / 100.0F * 0.25F);
                   break;
                case 1:
-                  this.m.func_187227_b(N, EyeAndKoboldColor.values()[var4].toString());
+                  this.m.set(N, EyeAndKoboldColor.values()[var4].toString());
                   break;
                case 2:
-                  this.m.func_187227_b(K, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
+                  this.m.set(K, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
                   break;
                default:
                   c(var1, var4);
             }
          }
 
-         this.m.func_187227_b(M, var1.toString());
+         this.m.set(M, var1.toString());
          KoboldRenderer.clearBoneColors();
       }
    }
@@ -375,15 +375,15 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    public String getDisplayNameText() {
-      return (String)this.m.func_187225_a(T);
+      return (String)this.m.get(T);
    }
 
    @Override
    public float i_clash226() {
-      return 0.2F - (0.25F - (Float)this.m.func_187225_a(aE));
+      return 0.2F - (0.25F - (Float)this.m.get(aE));
    }
 
-   public float func_70047_e() {
+   public float getEyeHeight() {
       return 0.94F;
    }
 
@@ -392,64 +392,64 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   protected void func_70088_a() {
-      super.func_70088_a();
-      EyeAndKoboldColor var1 = EyeAndKoboldColor.values()[this.func_70681_au().nextInt(EyeAndKoboldColor.values().length)];
-      this.m.func_187214_a(K, new BlockPos(var1.getMainColor()));
-      this.m.func_187214_a(N, aJ.name());
-      this.m.func_187214_a(aL, Optional.absent());
-      this.m.func_187214_a(aE, 0.0F);
-      this.m.func_187214_a(T, ba.values()[this.func_70681_au().nextInt(ba.values().length)].toString());
-      this.m.func_187214_a(aC, false);
-      this.m.func_187214_a(aZ, false);
-      this.m.func_187214_a(aU, "null");
-      this.m.func_187214_a(ak, false);
-      this.m.func_187214_a(at, false);
+   protected void entityInit() {
+      super.entityInit();
+      EyeAndKoboldColor var1 = EyeAndKoboldColor.values()[this.getRNG().nextInt(EyeAndKoboldColor.values().length)];
+      this.m.register(K, new BlockPos(var1.getMainColor()));
+      this.m.register(N, aJ.name());
+      this.m.register(aL, Optional.absent());
+      this.m.register(aE, 0.0F);
+      this.m.register(T, ba.values()[this.getRNG().nextInt(ba.values().length)].toString());
+      this.m.register(aC, false);
+      this.m.register(aZ, false);
+      this.m.register(aU, "null");
+      this.m.register(ak, false);
+      this.m.register(at, false);
    }
 
    @Override
-   protected void func_184651_r() {
+   protected void initEntityAI() {
       this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-      this.field_70714_bg.func_75776_a(0, new EntityAISwimming(this));
-      this.field_70714_bg.func_75776_a(2, new EntityAITempt(this, 0.4, false, new HashSet<>(I)));
-      this.field_70714_bg.func_75776_a(3, new DoorInteractAiGoal(this));
-      this.field_70714_bg.func_75776_a(5, this.o);
+      this.tasks.addTask(0, new EntityAISwimming(this));
+      this.tasks.addTask(2, new EntityAITempt(this, 0.4, false, new HashSet<>(I)));
+      this.tasks.addTask(3, new DoorInteractAiGoal(this));
+      this.tasks.addTask(5, this.o);
    }
 
-   protected float func_175134_bD() {
+   protected float getJumpUpwardsMotion() {
       return 0.45F;
    }
 
    @Override
-   protected void func_110147_ax() {
-      super.func_110147_ax();
-      this.func_110148_a(SharedMonsterAttributes.field_111267_a).func_111128_a(af);
-      this.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111128_a(0.5);
-      this.func_110148_a(SharedMonsterAttributes.field_111265_b).func_111128_a(30.0);
+   protected void applyEntityAttributes() {
+      super.applyEntityAttributes();
+      this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(af);
+      this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
+      this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(30.0);
    }
 
    @Override
-   public boolean func_70104_M() {
+   public boolean canBePushed() {
       return true;
    }
 
-   protected boolean func_184645_a(EntityPlayer var1, EnumHand var2) {
+   protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
       if (this.getInteractionPlayerUUID() != null) {
          return false;
       }
 
-      ItemStack var3 = var1.func_184586_b(EnumHand.MAIN_HAND);
-      if (!var3.func_77973_b().equals(Items.field_151057_cb)) {
-         var3 = var1.func_184586_b(EnumHand.OFF_HAND);
+      ItemStack var3 = var1.getHeldItem(EnumHand.MAIN_HAND);
+      if (!var3.getItem().equals(Items.NAME_TAG)) {
+         var3 = var1.getHeldItem(EnumHand.OFF_HAND);
       }
 
-      if (var3.func_77973_b().equals(Items.field_151057_cb) && var1.getPersistentID().toString().equals(this.m.func_187225_a(v))) {
-         this.m.func_187227_b(T, var3.func_82833_r());
-         var3.func_190918_g(1);
+      if (var3.getItem().equals(Items.NAME_TAG) && var1.getPersistentID().toString().equals(this.m.get(v))) {
+         this.m.set(T, var3.getDisplayName());
+         var3.shrink(1);
          return true;
       }
 
-      if ((Boolean)this.m.func_187225_a(aC)) {
+      if ((Boolean)this.m.get(aC)) {
          return false;
       }
 
@@ -457,17 +457,17 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return false;
       }
 
-      ItemStack var4 = var1.func_184586_b(EnumHand.MAIN_HAND);
-      if (var4.func_77973_b() != DragonStaffItem.b) {
-         var4 = var1.func_184586_b(EnumHand.OFF_HAND);
+      ItemStack var4 = var1.getHeldItem(EnumHand.MAIN_HAND);
+      if (var4.getItem() != DragonStaffItem.b) {
+         var4 = var1.getHeldItem(EnumHand.OFF_HAND);
       }
 
-      if (!this.J_clash526() && var4.func_77973_b() == DragonStaffItem.b) {
-         if (!this.field_70170_p.field_72995_K) {
+      if (!this.J_clash526() && var4.getItem() == DragonStaffItem.b) {
+         if (!this.world.isRemote) {
             return true;
          }
 
-         Optional var5 = (Optional)this.m.func_187225_a(aL);
+         Optional var5 = (Optional)this.m.get(aL);
          if (!var5.isPresent()) {
             return true;
          }
@@ -479,25 +479,25 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          this.m_clash593((UUID)var5.get());
          return true;
       } else {
-         if (this.J_clash526() && var4.func_77973_b() == DragonStaffItem.b && ((String)this.m.func_187225_a(v)).equals(var1.getPersistentID().toString())) {
+         if (this.J_clash526() && var4.getItem() == DragonStaffItem.b && ((String)this.m.get(v)).equals(var1.getPersistentID().toString())) {
             var1.openGui(
-               null, 1, this.field_70170_p, this.func_180425_c().func_177958_n(), this.func_180425_c().func_177956_o(), this.func_180425_c().func_177952_p()
+               null, 1, this.world, this.getPosition().getX(), this.getPosition().getY(), this.getPosition().getZ()
             );
             return true;
          }
 
-         if (this.field_70170_p.field_72995_K) {
-            if (this.J_clash526() && ((String)this.m.func_187225_a(v)).equals(var1.getPersistentID().toString())) {
+         if (this.world.isRemote) {
+            if (this.J_clash526() && ((String)this.m.get(v)).equals(var1.getPersistentID().toString())) {
                this.a_clash630(SoundHandler.GIRLS_KOBOLD_MASTER);
             }
 
             this.openInteractionMenu(var1);
          } else {
             this.setInteractionPlayerUUID(var1.getPersistentID());
-            this.func_70661_as().func_75499_g();
-            this.setYawRotation((float)(Math.atan2(this.field_70161_v - var1.field_70161_v, this.field_70165_t - var1.field_70165_t) * (180.0 / Math.PI) + 90.0));
-            this.setTargetPosition(new Vec3d(this.field_70165_t, Math.floor(this.field_70163_u), this.field_70161_v));
-            this.m.func_187227_b(G, true);
+            this.getNavigator().clearPath();
+            this.setYawRotation((float)(Math.atan2(this.posZ - var1.posZ, this.posX - var1.posX) * (180.0 / Math.PI) + 90.0));
+            this.setTargetPosition(new Vec3d(this.posX, Math.floor(this.posY), this.posZ));
+            this.m.set(G, true);
             this.b(fp.NULL);
          }
 
@@ -507,23 +507,23 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @SideOnly(Side.CLIENT)
    void m_clash593(UUID var1) {
-      Minecraft.func_71410_x().func_147108_a(new TribeNameScreen(var1));
+      Minecraft.getMinecraft().displayGuiScreen(new TribeNameScreen(var1));
    }
 
    @SideOnly(Side.CLIENT)
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
-      if (this.J_clash526() && var1.getPersistentID().toString().equals(this.m.func_187225_a(v))) {
-         Minecraft.func_71410_x().func_147108_a(new GirlInventoryScreen(this, var1, new String[]{"anal", "oral", "mating"}, null, false));
+      if (this.J_clash526() && var1.getPersistentID().toString().equals(this.m.get(v))) {
+         Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(this, var1, new String[]{"anal", "oral", "mating"}, null, false));
          return true;
-      } else if (this.func_70660_b(HornyPotion.b) != null) {
-         Minecraft.func_71410_x().func_147108_a(new GirlInventoryScreen(this, var1, new String[]{"anal", "oral"}, null, false));
+      } else if (this.getActivePotionEffect(HornyPotion.b) != null) {
+         Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(this, var1, new String[]{"anal", "oral"}, null, false));
          return true;
       } else {
-         Minecraft.func_71410_x()
-            .func_147108_a(
+         Minecraft.getMinecraft()
+            .displayGuiScreen(
                new GirlInventoryScreen(
-                  this, var1, new String[]{"anal", "oral"}, new ItemStack[]{new ItemStack(Items.field_151043_k, 3), new ItemStack(Items.field_151035_b)}, false
+                  this, var1, new String[]{"anal", "oral"}, new ItemStack[]{new ItemStack(Items.GOLD_INGOT, 3), new ItemStack(Items.IRON_PICKAXE)}, false
                )
             );
          return true;
@@ -574,7 +574,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    @Override
    public void b_clash158() {
       this.a2 = true;
-      this.m.func_187227_b(G, false);
+      this.m.set(G, false);
    }
 
    @Override
@@ -588,29 +588,29 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       this.aD++;
-      this.field_70145_X = false;
-      this.func_189654_d(false);
+      this.noClip = false;
+      this.setNoGravity(false);
       if (this.aD > 40) {
          this.a2 = false;
          this.aD = 0;
-         EntityPlayer var6 = this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID());
-         this.setYawRotation(var6.field_70177_z + 180.0F);
-         this.m.func_187227_b(G, true);
-         var6.field_70145_X = true;
-         var6.func_189654_d(true);
-         this.field_70145_X = true;
-         this.func_189654_d(true);
-         this.func_70661_as().func_75499_g();
+         EntityPlayer var6 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
+         this.setYawRotation(var6.rotationYaw + 180.0F);
+         this.m.set(G, true);
+         var6.noClip = true;
+         var6.setNoGravity(true);
+         this.noClip = true;
+         this.setNoGravity(true);
+         this.getNavigator().clearPath();
          this.U();
          return true;
       }
 
-      this.field_70177_z = this.getYawRotation();
-      this.func_189654_d(false);
-      Vec3d var1 = RotationHelper.a(this.func_174791_d(), this.getTargetPosition(), 40 - this.aD);
-      this.func_70107_b(var1.field_72450_a, var1.field_72448_b, var1.field_72449_c);
+      this.rotationYaw = this.getYawRotation();
+      this.setNoGravity(false);
+      Vec3d var1 = RotationHelper.a(this.getPositionVector(), this.getTargetPosition(), 40 - this.aD);
+      this.setPosition(var1.x, var1.y, var1.z);
       this.b(fp.NULL);
-      Optional var2 = (Optional)this.m.func_187225_a(aL);
+      Optional var2 = (Optional)this.m.get(aL);
       if (!var2.isPresent()) {
          return true;
       }
@@ -634,19 +634,19 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             if (this.getCurrentAction() == fp.MATING_PRESS_CUM) {
                UUID var2 = this.getInteractionPlayerUUID();
                if (var2 != null) {
-                  EntityPlayer var3 = this.field_70170_p.func_152378_a(var2);
+                  EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
                   if (var3 != null) {
                      EyeAndKoboldColor var4 = KoboldManager.l_clash75(var1);
                      ItemStack var5 = new ItemStack(KoboldEggItem.a, 1, var4.getWoolMeta());
-                     NBTTagCompound var6 = var5.func_77978_p();
+                     NBTTagCompound var6 = var5.getTagCompound();
                      if (var6 == null) {
                         var6 = new NBTTagCompound();
                      }
 
-                     var6.func_74778_a("tribeID", var1.toString());
-                     var6.func_74778_a("tribeColor", var4.toString());
-                     var5.func_77982_d(var6);
-                     var3.field_71071_by.func_70441_a(var5);
+                     var6.setString("tribeID", var1.toString());
+                     var6.setString("tribeColor", var4.toString());
+                     var5.setTagCompound(var6);
+                     var3.inventory.addItemStackToInventory(var5);
                   }
                }
             }
@@ -655,10 +655,10 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
+   public void updateAITasks() {
+      super.updateAITasks();
       this.ax = false;
-      Optional var1 = (Optional)this.m.func_187225_a(aL);
+      Optional var1 = (Optional)this.m.get(aL);
       if (var1.isPresent()) {
          this.o_clash595((UUID)var1.get());
          KoboldManager.k((UUID)var1.get());
@@ -670,26 +670,26 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       if (!this.g_clash594()) {
          if (this.getInteractionPlayerUUID() == null) {
-            if (!(Boolean)this.m.func_187225_a(aC)) {
-               if (this.func_110143_aJ() != this.func_110138_aP() && ++this.a5 >= 100) {
-                  this.func_70606_j(this.func_110143_aJ() + 2.0F);
+            if (!(Boolean)this.m.get(aC)) {
+               if (this.getHealth() != this.getMaxHealth() && ++this.a5 >= 100) {
+                  this.setHealth(this.getHealth() + 2.0F);
                   this.a5 = 0;
-                  PacketHandler.b.sendToAllTracking(new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.HEART.func_179346_b()), this);
+                  PacketHandler.b.sendToAllTracking(new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.HEART.getParticleName()), this);
                }
             } else {
                this.a5 = 0;
             }
 
-            if (!(Boolean)this.m.func_187225_a(G)) {
-               this.func_189654_d(false);
+            if (!(Boolean)this.m.get(G)) {
+               this.setNoGravity(false);
             }
 
             if (var1.isPresent()) {
                this.aP--;
                if (this.getCurrentAction() == fp.ATTACK) {
-                  this.func_70661_as().func_75499_g();
-                  this.field_70177_z = this.getYawRotation();
-                  this.field_70759_as = this.getYawRotation();
+                  this.getNavigator().clearPath();
+                  this.rotationYaw = this.getYawRotation();
+                  this.rotationYawHead = this.getYawRotation();
                   this.U++;
                   if (22 == this.U) {
                      this.u_clash601();
@@ -700,9 +700,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                      HashSet var3 = new HashSet();
 
                      for (EntityLivingBase var5 : (java.util.Collection<EntityLivingBase>) (var6) ) {
-                        if (!(var5.func_70032_d(this) > 2.0F)) {
-                           var5.func_70097_a(DamageSource.func_76358_a(this), 5.0F);
-                           if (var5.field_70128_L) {
+                        if (!(var5.getDistance(this) > 2.0F)) {
+                           var5.attackEntityFrom(DamageSource.causeMobDamage(this), 5.0F);
+                           if (var5.isDead) {
                               var3.add(var5);
                            }
                         }
@@ -715,13 +715,13 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
                   if (84 <= this.U) {
                      this.b(fp.NULL);
-                     this.m.func_187227_b(G, false);
+                     this.m.set(G, false);
                      this.U = 0;
                   }
                } else {
-                  this.m.func_187227_b(aC, this.c((UUID)var1.get(), false));
-                  this.m.func_187227_b(aZ, KoboldManager.e((UUID)var1.get(), this));
-                  this.m.func_187227_b(ak, KoboldManager.c_clash86((UUID)var1.get()));
+                  this.m.set(aC, this.c((UUID)var1.get(), false));
+                  this.m.set(aZ, KoboldManager.e((UUID)var1.get(), this));
+                  this.m.set(ak, KoboldManager.c_clash86((UUID)var1.get()));
                   this.d_clash603();
                   this.h_clash624();
                   this.o.a = this.o_clash602();
@@ -732,8 +732,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
       this.t_clash598();
       this.v_clash599();
       this.q_clash597();
@@ -742,22 +742,22 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void w_clash596() {
-      if (this.field_70170_p.field_72995_K) {
-         if (this.field_70170_p.func_82737_E() - 300L >= aV) {
+      if (this.world.isRemote) {
+         if (this.world.getTotalWorldTime() - 300L >= aV) {
             if (this.J_clash526()) {
                if (this.getCurrentAction() == fp.NULL) {
-                  if ("".equals(this.m.func_187225_a(h))) {
-                     if (!(Boolean)this.m.func_187225_a(ak)) {
-                        String var1 = (String)this.m.func_187225_a(v);
-                        EntityPlayer var2 = this.field_70170_p.func_72890_a(this, 10.0);
+                  if ("".equals(this.m.get(h))) {
+                     if (!(Boolean)this.m.get(ak)) {
+                        String var1 = (String)this.m.get(v);
+                        EntityPlayer var2 = this.world.getClosestPlayerToEntity(this, 10.0);
                         if (var2 == null) {
                            this.S = Float.MAX_VALUE;
                         } else if (var2.getPersistentID().toString().equals(var1)) {
-                           float var3 = this.func_70032_d(var2);
+                           float var3 = this.getDistance(var2);
                            if (var3 < 2.0F && this.S > 2.0F) {
                               this.b(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_HEYMASTER));
                               this.sendChatMessage("Hey master!");
-                              aV = this.field_70170_p.func_82737_E();
+                              aV = this.world.getTotalWorldTime();
                            }
 
                            this.S = var3;
@@ -771,11 +771,11 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void q_clash597() {
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          if (this.getCurrentAction() != fp.SLEEP) {
-            if ((Boolean)this.m.func_187225_a(ak)) {
+            if ((Boolean)this.m.get(ak)) {
                if (this.J_clash526()) {
-                  EntityPlayer var1 = this.field_70170_p.func_152378_a(UUID.fromString((String)this.m.func_187225_a(v)));
+                  EntityPlayer var1 = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.m.get(v)));
                   if (var1 != null) {
                      this.b_clash600(var1);
                   }
@@ -786,16 +786,16 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void t_clash598() {
-      if (!(Boolean)this.m.func_187225_a(aC)) {
+      if (!(Boolean)this.m.get(aC)) {
          if (!this.J_clash526()) {
-            Optional var1 = (Optional)this.m.func_187225_a(aL);
+            Optional var1 = (Optional)this.m.get(aL);
             if (var1.isPresent()) {
-               for (EntityPlayer var3 : this.field_70170_p.field_73010_i) {
-                  double var4 = var3.func_174791_d().func_72438_d(this.func_174791_d());
+               for (EntityPlayer var3 : this.world.playerEntities) {
+                  double var4 = var3.getPositionVector().distanceTo(this.getPositionVector());
                   double var6 = var4;
-                  if (!this.field_70170_p.field_72995_K) {
+                  if (!this.world.isRemote) {
                      for (KoboldEntity var9 : KoboldManager.n_clash82((UUID)var1.get())) {
-                        double var10 = var3.func_174791_d().func_72438_d(var9.func_174791_d());
+                        double var10 = var3.getPositionVector().distanceTo(var9.getPositionVector());
                         if (var10 < var6) {
                            var6 = var10;
                         }
@@ -803,18 +803,18 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   }
 
                   if (!(var6 > 10.0)) {
-                     if (var3.func_184586_b(EnumHand.MAIN_HAND).func_77973_b() != DragonStaffItem.b
-                        && var3.func_184586_b(EnumHand.OFF_HAND).func_77973_b() != DragonStaffItem.b) {
+                     if (var3.getHeldItem(EnumHand.MAIN_HAND).getItem() != DragonStaffItem.b
+                        && var3.getHeldItem(EnumHand.OFF_HAND).getItem() != DragonStaffItem.b) {
                         return;
                      }
 
-                     PathNavigate var12 = this.func_70661_as();
-                     var12.func_75499_g();
-                     if (this.field_70170_p.field_72995_K) {
+                     PathNavigate var12 = this.getNavigator();
+                     var12.clearPath();
+                     if (this.world.isRemote) {
                         this.b_clash600(var3);
                      } else if (var4 > 2.0) {
-                        BlockPos var13 = this.c_clash612(var3.func_180425_c());
-                        var12.func_75492_a(var13.func_177958_n(), var13.func_177956_o(), var13.func_177952_p(), 0.35F);
+                        BlockPos var13 = this.c_clash612(var3.getPosition());
+                        var12.tryMoveToXYZ(var13.getX(), var13.getY(), var13.getZ(), 0.35F);
                      }
 
                      return;
@@ -827,11 +827,11 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    protected void U() {
-      String var1 = (String)this.m.func_187225_a(BaseGirlEntity.h);
-      boolean var2 = this.func_70660_b(HornyPotion.b) != null;
+      String var1 = (String)this.m.get(BaseGirlEntity.h);
+      boolean var2 = this.getActivePotionEffect(HornyPotion.b) != null;
       boolean var3 = false;
       if (this.J_clash526()) {
-         var3 = ((String)this.m.func_187225_a(v)).equals(this.getInteractionPlayerUUID().toString());
+         var3 = ((String)this.m.get(v)).equals(this.getInteractionPlayerUUID().toString());
       }
 
       if (!var2 && !var3) {
@@ -870,12 +870,12 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void v_clash599() {
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          UUID var1 = this.getInteractionPlayerUUID();
          if (var1 != null) {
-            if ((Boolean)this.m.func_187225_a(G)) {
+            if ((Boolean)this.m.get(G)) {
                if (this.getCurrentAction() == fp.NULL) {
-                  EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
+                  EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
                   if (var2 != null) {
                      this.b_clash600(var2);
                   }
@@ -887,11 +887,11 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    void b_clash600(EntityPlayer var1) {
       AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getPersistentID());
-      Vec3d var3 = new Vec3d(var1.field_70165_t, var1.field_70163_u + (var2 == null ? var1.eyeHeight : var2.func_70047_e()), var1.field_70161_v);
-      Vec3d var4 = new Vec3d(this.field_70165_t, this.field_70163_u + this.func_70047_e(), this.field_70161_v);
-      double var5 = var4.func_72438_d(var3);
-      double var7 = var3.field_72448_b - var4.field_72448_b;
-      this.field_70125_A = (float)(-(Math.sin(var7 / var5) * (180.0 / Math.PI)));
+      Vec3d var3 = new Vec3d(var1.posX, var1.posY + (var2 == null ? var1.eyeHeight : var2.getEyeHeight()), var1.posZ);
+      Vec3d var4 = new Vec3d(this.posX, this.posY + this.getEyeHeight(), this.posZ);
+      double var5 = var4.distanceTo(var3);
+      double var7 = var3.y - var4.y;
+      this.rotationPitch = (float)(-(Math.sin(var7 / var5) * (180.0 / Math.PI)));
    }
 
    void u_clash601() {
@@ -901,15 +901,15 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (this.getCurrentAction() != fp.NULL) {
          return false;
       } else {
-         return Math.abs(this.field_70159_w) + Math.abs(this.field_70179_y) > 0.01 ? false : !this.a_clash355();
+         return Math.abs(this.motionX) + Math.abs(this.motionZ) > 0.01 ? false : !this.a_clash355();
       }
    }
 
    void d_clash603() {
-      Optional var1 = (Optional)this.m.func_187225_a(aL);
+      Optional var1 = (Optional)this.m.get(aL);
       if (var1.isPresent()) {
          UUID var2 = (UUID)var1.get();
-         if (!(Boolean)this.m.func_187225_a(aC) && KoboldManager.c_clash86(var2)) {
+         if (!(Boolean)this.m.get(aC) && KoboldManager.c_clash86(var2)) {
             if (!this.J_clash526()) {
                return;
             }
@@ -923,16 +923,16 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                if (var5.b_clash212(this)) {
                   var5.c(this);
                   this.b(fp.NULL);
-                  this.m.func_187227_b(G, false);
+                  this.m.set(G, false);
                }
             }
 
-            this.field_70145_X = false;
-            this.func_189654_d(false);
-            PathNavigate var7 = this.func_70661_as();
-            double var8 = this.func_174791_d().func_72438_d(var3.func_174791_d());
+            this.noClip = false;
+            this.setNoGravity(false);
+            PathNavigate var7 = this.getNavigator();
+            double var8 = this.getPositionVector().distanceTo(var3.getPositionVector());
             if (var8 > 2.0) {
-               var7.func_75497_a(var3, this.a(var3, var8));
+               var7.tryMoveToEntityLiving(var3, this.a(var3, var8));
                this.tickPathVelocity();
                if (var8 > 15.0) {
                   this.c_clash611(var3);
@@ -948,7 +948,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    protected double a(EntityPlayer var1, double var2) {
       double var4;
-      if (var1.func_70051_ag()) {
+      if (var1.isSprinting()) {
          var4 = 0.7;
       } else {
          var4 = 0.35;
@@ -956,7 +956,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       double var6 = Math.floor(var2 / 5.0) * 0.3;
       var4 += var6;
-      if (this.func_70090_H()) {
+      if (this.isInWater()) {
          var4 *= 60.0;
       }
 
@@ -967,11 +967,11 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       BlockPos var2 = KoboldManager.m_clash83(var1);
       if (var2 != null) {
          if (this.aX != null) {
-            this.field_70170_p.func_175656_a(var2, this.aX);
+            this.world.setBlockState(var2, this.aX);
          }
 
          if (this.R != null) {
-            this.field_70170_p.func_175656_a(var2.func_177982_a(0, -1, 0), this.R);
+            this.world.setBlockState(var2.add(0, -1, 0), this.R);
          }
       }
    }
@@ -979,7 +979,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    void b_clash604(UUID var1) {
       if (!this.d_clash614(var1)) {
          if (!this.J_clash526() && KoboldManager.g_clash85(var1)) {
-            this.func_70661_as().func_75499_g();
+            this.getNavigator().clearPath();
             this.aM = null;
          } else {
             fm var2 = KoboldManager.i_clash80(var1);
@@ -1024,9 +1024,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          for (KoboldEntity var4 : KoboldManager.n_clash82(var1)) {
             KoboldManager.b_clash73(var4);
             if (var4.getInteractionPlayerUUID() == null) {
-               var4.field_70145_X = false;
-               var4.func_189654_d(false);
-               var4.func_184212_Q().func_187227_b(G, false);
+               var4.noClip = false;
+               var4.setNoGravity(false);
+               var4.getDataManager().set(G, false);
                var4.b(fp.NULL);
             }
          }
@@ -1051,23 +1051,23 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    void i_clash608(UUID var1) {
       BlockPos[] var2 = KoboldManager.a_clash72(this);
       if (var2 != null) {
-         Vec3d var11 = new Vec3d(var2[0].func_177958_n() + 0.5F, var2[0].func_177956_o() + 0.5625, var2[0].func_177952_p() + 0.5F);
-         Vec3d var12 = new Vec3d(var2[1].func_177958_n() + 0.5F, var2[1].func_177956_o() + 0.5625, var2[1].func_177952_p() + 0.5F);
-         boolean var14 = var11.func_178788_d(var12).field_72450_a == 0.0;
+         Vec3d var11 = new Vec3d(var2[0].getX() + 0.5F, var2[0].getY() + 0.5625, var2[0].getZ() + 0.5F);
+         Vec3d var12 = new Vec3d(var2[1].getX() + 0.5F, var2[1].getY() + 0.5625, var2[1].getZ() + 0.5F);
+         boolean var14 = var11.subtract(var12).x == 0.0;
          Vec3d var15 = RotationHelper.a(var11, var12, 0.5);
-         this.m.func_187227_b(G, true);
+         this.m.set(G, true);
          this.setTargetPosition(var15);
          this.setYawRotation(var14 ? 0.0F : 90.0F);
-         this.field_70145_X = true;
-         this.func_189654_d(true);
+         this.noClip = true;
+         this.setNoGravity(true);
       } else {
          HashSet var3 = KoboldManager.j_clash76(var1);
          BlockPos var4 = null;
          if (var3 != null) {
             for (BlockPos var6 : (java.util.Collection<BlockPos>) (var3) ) {
-               IBlockState var7 = this.field_70170_p.func_180495_p(var6);
+               IBlockState var7 = this.world.getBlockState(var6);
                boolean var8 = false;
-               UnmodifiableIterator var9 = var7.func_177228_b().entrySet().iterator();
+               UnmodifiableIterator var9 = var7.getProperties().entrySet().iterator();
 
                while (var9.hasNext()) {
                   Entry var10 = (Entry)var9.next();
@@ -1080,21 +1080,21 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                if (!var8 && !KoboldManager.a_clash71(var6)) {
                   if (var4 == null) {
                      var4 = var6;
-                  } else if (this.func_174818_b(var4) > this.func_174818_b(var6)) {
+                  } else if (this.getDistanceSq(var4) > this.getDistanceSq(var6)) {
                      var4 = var6;
                   }
                }
             }
 
             if (var4 != null) {
-               if (var4.func_185332_f((int)this.field_70165_t, (int)this.field_70163_u, (int)this.field_70161_v) > 2.0) {
-                  if (Math.abs(var4.func_177973_b(this.func_180425_c()).func_177956_o()) > 4) {
-                     this.b_clash618(var4.func_177982_a(0, 1, 0));
+               if (var4.getDistance((int)this.posX, (int)this.posY, (int)this.posZ) > 2.0) {
+                  if (Math.abs(var4.subtract(this.getPosition()).getY()) > 4) {
+                     this.b_clash618(var4.add(0, 1, 0));
                   } else {
                      BlockPos var13 = this.c_clash612(var4);
-                     this.func_70661_as().func_75492_a(var13.func_177958_n(), var13.func_177956_o(), var13.func_177952_p(), 0.35F);
-                     if (this.func_70661_as().func_75505_d() == null) {
-                        this.b_clash618(var4.func_177982_a(0, 1, 0));
+                     this.getNavigator().tryMoveToXYZ(var13.getX(), var13.getY(), var13.getZ(), 0.35F);
+                     if (this.getNavigator().getPath() == null) {
+                        this.b_clash618(var4.add(0, 1, 0));
                      }
                   }
                } else {
@@ -1110,22 +1110,22 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       BlockPos var2 = KoboldManager.m_clash83(var1);
       if (var2 != null) {
          if (this.aF == null) {
-            this.aF = var2.func_177982_a(
-               (this.func_70681_au().nextBoolean() ? 1 : -1) * (this.func_70681_au().nextInt(2) + 1),
+            this.aF = var2.add(
+               (this.getRNG().nextBoolean() ? 1 : -1) * (this.getRNG().nextInt(2) + 1),
                0,
-               (this.func_70681_au().nextBoolean() ? 1 : -1) * (this.func_70681_au().nextInt(2) + 1)
+               (this.getRNG().nextBoolean() ? 1 : -1) * (this.getRNG().nextInt(2) + 1)
             );
          }
 
-         this.func_70661_as().func_75492_a(this.aF.func_177958_n(), this.aF.func_177956_o(), this.aF.func_177952_p(), 0.35F);
+         this.getNavigator().tryMoveToXYZ(this.aF.getX(), this.aF.getY(), this.aF.getZ(), 0.35F);
          this.tickPathVelocity();
       } else {
          if (KoboldManager.e(var1, this)) {
-            BlockPos var3 = this.func_180425_c().func_177982_a(1, 0, 0);
-            this.R = this.field_70170_p.func_180495_p(var3.func_177982_a(0, -1, 0));
-            this.aX = this.field_70170_p.func_180495_p(var3);
-            this.field_70170_p.func_175656_a(var3.func_177982_a(0, -1, 0), Blocks.field_150424_aL.func_176223_P());
-            this.field_70170_p.func_175656_a(var3, SexFireBlock.a.func_176223_P());
+            BlockPos var3 = this.getPosition().add(1, 0, 0);
+            this.R = this.world.getBlockState(var3.add(0, -1, 0));
+            this.aX = this.world.getBlockState(var3);
+            this.world.setBlockState(var3.add(0, -1, 0), Blocks.NETHERRACK.getDefaultState());
+            this.world.setBlockState(var3, SexFireBlock.a.getDefaultState());
             KoboldManager.b(var1, var3);
          }
       }
@@ -1161,22 +1161,22 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (var3 == null) {
          this.r(var1);
       } else {
-         if (this.field_70173_aa % 40 == 0) {
-            if (this.aS.equals(this.func_174791_d())) {
+         if (this.ticksExisted % 40 == 0) {
+            if (this.aS.equals(this.getPositionVector())) {
                this.r(var1);
                this.aM = null;
             }
 
-            this.aS = this.func_174791_d();
+            this.aS = this.getPositionVector();
          }
 
-         if (this.aM == null || this.aM.func_185332_f((int)this.field_70165_t, (int)this.field_70163_u, (int)this.field_70161_v) < 4.0) {
+         if (this.aM == null || this.aM.getDistance((int)this.posX, (int)this.posY, (int)this.posZ) < 4.0) {
             this.aM = this.t(var1);
          }
 
-         this.func_70661_as().func_75492_a(this.aM.func_177958_n(), this.aM.func_177956_o(), this.aM.func_177952_p(), 0.35F);
+         this.getNavigator().tryMoveToXYZ(this.aM.getX(), this.aM.getY(), this.aM.getZ(), 0.35F);
          this.tickPathVelocity();
-         if (!(Math.sqrt(this.func_180425_c().func_177951_i(var3)) > 5.0)) {
+         if (!(Math.sqrt(this.getPosition().distanceSq(var3)) > 5.0)) {
             this.ao = true;
             this.h("Time to work bitches!");
             int var4 = KoboldManager.h_clash81(var1);
@@ -1195,37 +1195,37 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       BlockPos var2;
       do {
-         var2 = var1.func_180425_c().func_177982_a(Reference.f.nextInt(10), 0, Reference.f.nextInt(10));
-      } while (++var3 < 20 && !this.func_184595_k(var2.func_177958_n(), var2.func_177956_o(), var2.func_177952_p()));
+         var2 = var1.getPosition().add(Reference.f.nextInt(10), 0, Reference.f.nextInt(10));
+      } while (++var3 < 20 && !this.attemptTeleport(var2.getX(), var2.getY(), var2.getZ()));
 
       if (var3 == 20) {
-         this.func_70107_b(var1.field_70165_t, var1.field_70163_u, var1.field_70161_v);
+         this.setPosition(var1.posX, var1.posY, var1.posZ);
       }
 
-      this.field_70159_w = 0.0;
-      this.field_70181_x = 0.0;
-      this.field_70179_y = 0.0;
+      this.motionX = 0.0;
+      this.motionY = 0.0;
+      this.motionZ = 0.0;
    }
 
    BlockPos t(UUID var1) {
       BlockPos var2 = KoboldManager.m_clash83(var1);
-      return var2 == null ? BlockPos.field_177992_a : this.c_clash612(var2);
+      return var2 == null ? BlockPos.ORIGIN : this.c_clash612(var2);
    }
 
    BlockPos c_clash612(BlockPos var1) {
-      BlockPos var2 = this.func_180425_c();
-      BlockPos var3 = var1.func_177973_b(var2);
-      if (Math.abs(var3.func_177958_n()) + Math.abs(var3.func_177952_p()) < 20) {
+      BlockPos var2 = this.getPosition();
+      BlockPos var3 = var1.subtract(var2);
+      if (Math.abs(var3.getX()) + Math.abs(var3.getZ()) < 20) {
          return var1;
       }
 
-      double var4 = Math.min(Math.abs(var3.func_177958_n()), Math.abs(var3.func_177952_p()));
-      double var6 = Math.max(Math.abs(var3.func_177958_n()), Math.abs(var3.func_177952_p()));
+      double var4 = Math.min(Math.abs(var3.getX()), Math.abs(var3.getZ()));
+      double var6 = Math.max(Math.abs(var3.getX()), Math.abs(var3.getZ()));
       double var8 = var4 / (var6 + var4);
-      int var10 = (int)((var3.func_177958_n() > 0 ? 1 : -1) * 20 * (var4 == Math.abs(var3.func_177958_n()) ? var8 : 1.0 - var8));
-      int var11 = (int)((var3.func_177952_p() > 0 ? 1 : -1) * 20 * (var4 == Math.abs(var3.func_177952_p()) ? var8 : 1.0 - var8));
-      BlockPos var12 = this.func_180425_c().func_177982_a(var10, 0, var11);
-      return new BlockPos(var12.func_177958_n(), cj.a(this.field_70170_p, var12.func_177958_n(), var12.func_177952_p()) + 1, var12.func_177952_p());
+      int var10 = (int)((var3.getX() > 0 ? 1 : -1) * 20 * (var4 == Math.abs(var3.getX()) ? var8 : 1.0 - var8));
+      int var11 = (int)((var3.getZ() > 0 ? 1 : -1) * 20 * (var4 == Math.abs(var3.getZ()) ? var8 : 1.0 - var8));
+      BlockPos var12 = this.getPosition().add(var10, 0, var11);
+      return new BlockPos(var12.getX(), cj.a(this.world, var12.getX(), var12.getZ()) + 1, var12.getZ());
    }
 
    void r(UUID var1) {
@@ -1234,25 +1234,25 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       BlockPos var5;
       do {
          var3++;
-         var5 = this.func_180425_c();
-         var5 = var5.func_177982_a(
-            (50 + this.func_70681_au().nextInt(50)) * (this.func_70681_au().nextBoolean() ? 1 : -1),
+         var5 = this.getPosition();
+         var5 = var5.add(
+            (50 + this.getRNG().nextInt(50)) * (this.getRNG().nextBoolean() ? 1 : -1),
             0,
-            (50 + this.func_70681_au().nextInt(50)) * (this.func_70681_au().nextBoolean() ? 1 : -1)
+            (50 + this.getRNG().nextInt(50)) * (this.getRNG().nextBoolean() ? 1 : -1)
          );
-         var5 = new BlockPos(var5.func_177958_n(), cj.a(this.field_70170_p, var5.func_177958_n(), var5.func_177952_p()), var5.func_177952_p());
-      } while ((var5.func_177956_o() <= 0 || !this.func_70661_as().func_188555_b(var5)) && var3 < 100);
+         var5 = new BlockPos(var5.getX(), cj.a(this.world, var5.getX(), var5.getZ()), var5.getZ());
+      } while ((var5.getY() <= 0 || !this.getNavigator().canEntityStandOnPos(var5)) && var3 < 100);
 
       KoboldManager.b(var1, var5);
    }
 
    void c(UUID var1, Collection<KoboldTask> var2) {
-      List var3 = this.a(this.func_180425_c(), BlockLog.class, 30, 4, null);
+      List var3 = this.a(this.getPosition(), BlockLog.class, 30, 4, null);
       BlockPos var4 = null;
 
       for (BlockPos var6 : (java.util.Collection<BlockPos>) (var3) ) {
-         Block var7 = this.field_70170_p.func_180495_p(var6.func_177977_b()).func_177230_c();
-         if (!(var7 instanceof BlockLog) && var7 != Blocks.field_150350_a) {
+         Block var7 = this.world.getBlockState(var6.down()).getBlock();
+         if (!(var7 instanceof BlockLog) && var7 != Blocks.AIR) {
             boolean var8 = false;
 
             for (KoboldTask var10 : var2) {
@@ -1270,13 +1270,13 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       if (var4 != null) {
-         KoboldTask.a(this.field_70170_p, var4, var1);
+         KoboldTask.a(this.world, var4, var1);
          this.h("Someone, go fall this tree!");
       }
    }
 
    fm p_clash613() {
-      long var1 = this.field_70170_p.func_72820_D();
+      long var1 = this.world.getWorldTime();
       return var1 < 12000L ? fm.ACTIVE : fm.REST;
    }
 
@@ -1291,20 +1291,20 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return false;
       }
 
-      for (KoboldEntity var6 : this.field_70170_p
-         .func_72872_a(
+      for (KoboldEntity var6 : this.world
+         .getEntitiesWithinAABB(
             KoboldEntity.class,
             new AxisAlignedBB(
-               var4.field_70165_t - 30.0,
-               var4.field_70163_u - 30.0,
-               var4.field_70161_v - 30.0,
-               var4.field_70165_t + 30.0,
-               var4.field_70163_u + 30.0,
-               var4.field_70161_v + 30.0
+               var4.posX - 30.0,
+               var4.posY - 30.0,
+               var4.posZ - 30.0,
+               var4.posX + 30.0,
+               var4.posY + 30.0,
+               var4.posZ + 30.0
             )
          )) {
-         if (this.func_70685_l(var6) && (!var6.J_clash526() || !this.J_clash526())) {
-            Optional var7 = (Optional)var6.func_184212_Q().func_187225_a(aL);
+         if (this.canEntityBeSeen(var6) && (!var6.J_clash526() || !this.J_clash526())) {
+            Optional var7 = (Optional)var6.getDataManager().get(aL);
             if (!var7.isPresent()) {
                var3.add(var6);
             } else if (!((UUID)var7.get()).equals(var1)) {
@@ -1317,9 +1317,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       ArrayList var10 = new ArrayList();
 
       for (EntityLivingBase var8 : (java.util.Collection<EntityLivingBase>) (var3) ) {
-         if (var8.field_70128_L) {
+         if (var8.isDead) {
             var10.add(var8);
-         } else if (!(var4.func_70032_d(var8) > 30.0F) && (var9 == null || this.func_70032_d(var9) > this.func_70032_d(var8))) {
+         } else if (!(var4.getDistance(var8) > 30.0F) && (var9 == null || this.getDistance(var9) > this.getDistance(var8))) {
             var9 = var8;
          }
       }
@@ -1337,14 +1337,14 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       if (this.getCurrentAction() != fp.ATTACK) {
-         this.m.func_187227_b(G, false);
+         this.m.set(G, false);
          this.b(fp.NULL);
       }
 
-      BlockPos var13 = this.c_clash612(var9.func_180425_c());
-      this.func_70661_as().func_75492_a(var13.func_177958_n(), var13.func_177956_o(), var13.func_177952_p(), 0.7);
+      BlockPos var13 = this.c_clash612(var9.getPosition());
+      this.getNavigator().tryMoveToXYZ(var13.getX(), var13.getY(), var13.getZ(), 0.7);
       this.tickPathVelocity();
-      if (this.func_70032_d(var9) > 1.5F) {
+      if (this.getDistance(var9) > 1.5F) {
          return true;
       }
 
@@ -1352,7 +1352,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return true;
       }
 
-      float var15 = (float)(Math.atan2(this.field_70161_v - var9.field_70161_v, this.field_70165_t - var9.field_70165_t) * (180.0 / Math.PI) + 90.0);
+      float var15 = (float)(Math.atan2(this.posZ - var9.posZ, this.posX - var9.posX) * (180.0 / Math.PI) + 90.0);
       this.setYawRotation(var15);
       this.b(fp.ATTACK);
       this.aP = 84;
@@ -1381,29 +1381,29 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       } else {
          KoboldEntity var3 = KoboldManager.f_clash74(var1);
          if (KoboldManager.g_clash85(var1)) {
-            this.func_70661_as().func_75499_g();
+            this.getNavigator().clearPath();
             this.aM = null;
          } else if (var3 == null) {
             System.out.println("leader of tribe " + var1 + " is null");
          } else {
-            if (var3.func_70032_d(this) > 20.0F) {
-               this.func_70107_b(var3.field_70165_t, var3.field_70163_u, var3.field_70161_v);
+            if (var3.getDistance(this) > 20.0F) {
+               this.setPosition(var3.posX, var3.posY, var3.posZ);
                this.aM = null;
             }
 
-            if (this.field_70173_aa % 40 == 0) {
-               if (this.aS.equals(this.func_174791_d())) {
+            if (this.ticksExisted % 40 == 0) {
+               if (this.aS.equals(this.getPositionVector())) {
                   this.aM = this.t(var1);
                }
 
-               this.aS = this.func_174791_d();
+               this.aS = this.getPositionVector();
             }
 
-            if (this.aM == null || this.aM.func_185332_f((int)this.field_70165_t, (int)this.field_70163_u, (int)this.field_70161_v) < 4.0) {
+            if (this.aM == null || this.aM.getDistance((int)this.posX, (int)this.posY, (int)this.posZ) < 4.0) {
                this.aM = this.t(var1);
             }
 
-            this.func_70661_as().func_75492_a(this.aM.func_177958_n(), this.aM.func_177956_o(), this.aM.func_177952_p(), 0.35F);
+            this.getNavigator().tryMoveToXYZ(this.aM.getX(), this.aM.getY(), this.aM.getZ(), 0.35F);
             this.tickPathVelocity();
          }
       }
@@ -1435,7 +1435,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                         } else {
                            this.h("Ima go mine uwu");
                            this.b_clash618(var7.b_clash201());
-                           this.field_70170_p.func_175656_a(var7.b_clash201(), Blocks.field_150350_a.func_176223_P());
+                           this.world.setBlockState(var7.b_clash201(), Blocks.AIR.getDefaultState());
                         }
                         break;
                      }
@@ -1461,14 +1461,14 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    void b_clash618(BlockPos var1) {
       PacketHandler.b
          .sendToAllTracking(
-            new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.PORTAL.func_179346_b(), 30),
-            new TargetPoint(this.field_71093_bK, this.field_70165_t, this.field_70163_u, this.field_70161_v, 30.0)
+            new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.PORTAL.getParticleName(), 30),
+            new TargetPoint(this.dimension, this.posX, this.posY, this.posZ, 30.0)
          );
-      this.func_70107_b(0.5F + var1.func_177958_n(), var1.func_177956_o(), 0.5F + var1.func_177952_p());
+      this.setPosition(0.5F + var1.getX(), var1.getY(), 0.5F + var1.getZ());
       PacketHandler.b
          .sendToAllTracking(
-            new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.PORTAL.func_179346_b(), 30),
-            new TargetPoint(this.field_71093_bK, this.field_70165_t, this.field_70163_u, this.field_70161_v, 30.0)
+            new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.PORTAL.getParticleName(), 30),
+            new TargetPoint(this.dimension, this.posX, this.posY, this.posZ, 30.0)
          );
    }
 
@@ -1479,8 +1479,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          this.Z--;
          this.ai--;
          if (this.ai == 0) {
-            IBlockState var3 = this.field_70170_p.func_180495_p(this.aI.func_177984_a());
-            if (!(var3.func_177230_c() instanceof BlockFalling)) {
+            IBlockState var3 = this.world.getBlockState(this.aI.up());
+            if (!(var3.getBlock() instanceof BlockFalling)) {
                var2.a_clash206(this.aI);
                EntityPlayer var4 = this.z_clash528();
                if (var4 != null) {
@@ -1488,9 +1488,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                }
             }
 
-            IBlockState var5 = this.field_70170_p.func_180495_p(this.aI);
-            this.b_clash629(new ItemStack(var5.func_177230_c().func_180660_a(var5, this.func_70681_au(), 0), 1, var5.func_177230_c().func_180651_a(var5)));
-            this.field_70170_p.func_175655_b(this.aI, false);
+            IBlockState var5 = this.world.getBlockState(this.aI);
+            this.b_clash629(new ItemStack(var5.getBlock().getItemDropped(var5, this.getRNG(), 0), 1, var5.getBlock().damageDropped(var5)));
+            this.world.destroyBlock(this.aI, false);
          }
 
          if (this.Z <= 0) {
@@ -1502,28 +1502,28 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void a_clash619(UUID var1, KoboldTask var2) {
-      PathNavigate var3 = this.func_70661_as();
+      PathNavigate var3 = this.getNavigator();
       if (this.aI != null && var2.g_clash203().contains(this.aI)) {
-         IBlockState var10 = this.field_70170_p.func_180495_p(this.aI);
-         if (!this.a_clash627(new ItemStack(var10.func_177230_c().func_180660_a(var10, Reference.f, 0)))) {
+         IBlockState var10 = this.world.getBlockState(this.aI);
+         if (!this.a_clash627(new ItemStack(var10.getBlock().getItemDropped(var10, Reference.f, 0)))) {
             this.ax = true;
             this.b(var1, true);
-         } else if (this.field_70159_w == 0.0
-            && this.field_70179_y == 0.0
-            && this.field_70122_E
-            && !(this.func_70011_f(this.aI.func_177958_n(), this.aI.func_177956_o(), this.aI.func_177952_p()) > 3.0)
+         } else if (this.motionX == 0.0
+            && this.motionZ == 0.0
+            && this.onGround
+            && !(this.getDistance(this.aI.getX(), this.aI.getY(), this.aI.getZ()) > 3.0)
             && ++this.aK >= 10) {
-            var3.func_75499_g();
+            var3.clearPath();
             this.aK = 0;
             this.b(fp.MINE);
-            this.field_70759_as = (float)(
-               Math.atan2(this.field_70161_v - this.aI.func_177952_p(), this.field_70165_t - this.aI.func_177958_n()) * (180.0 / Math.PI) + 90.0
+            this.rotationYawHead = (float)(
+               Math.atan2(this.posZ - this.aI.getZ(), this.posX - this.aI.getX()) * (180.0 / Math.PI) + 90.0
             );
-            this.field_70177_z = this.field_70759_as;
-            this.m.func_187227_b(at, false);
+            this.rotationYaw = this.rotationYawHead;
+            this.m.set(at, false);
          } else {
-            BlockPos var11 = this.aI.func_177971_a(var2.f_clash200().func_176734_d().func_176730_m());
-            var3.func_75492_a(var11.func_177958_n(), var11.func_177956_o(), var11.func_177952_p(), 0.35F);
+            BlockPos var11 = this.aI.add(var2.f_clash200().getOpposite().getDirectionVec());
+            var3.tryMoveToXYZ(var11.getX(), var11.getY(), var11.getZ(), 0.35F);
          }
       } else {
          this.aI = this.a(var2, var1);
@@ -1532,24 +1532,24 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             HashSet var5 = KoboldManager.a_clash78(var1, var2);
             UUID var6 = KoboldManager.b_clash89(var1);
             if (var6 != null) {
-               EntityPlayer var7 = this.field_70170_p.func_152378_a(var6);
+               EntityPlayer var7 = this.world.getPlayerEntityByUUID(var6);
                if (var7 != null) {
                   if (!var9) {
-                     var7.func_145747_a(new TextComponentString(String.format("<%s> It's impossible to mine here...", this.getDisplayNameText())));
+                     var7.sendMessage(new TextComponentString(String.format("<%s> It's impossible to mine here...", this.getDisplayNameText())));
                   }
 
                   PacketHandler.b.sendTo(new SendBlocksPacket(var5, false), (EntityPlayerMP)var7);
                }
             }
          } else {
-            if (Math.abs(this.func_180425_c().func_177956_o() - var2.b_clash201().func_177956_o()) > 3) {
-               BlockPos var4 = var2.b_clash201().func_177971_a(var2.f_clash200().func_176734_d().func_176730_m());
-               this.field_70170_p.func_175656_a(var4, Blocks.field_150350_a.func_176223_P());
+            if (Math.abs(this.getPosition().getY() - var2.b_clash201().getY()) > 3) {
+               BlockPos var4 = var2.b_clash201().add(var2.f_clash200().getOpposite().getDirectionVec());
+               this.world.setBlockState(var4, Blocks.AIR.getDefaultState());
                this.b_clash618(var4);
             }
 
-            BlockPos var8 = this.aI.func_177971_a(var2.f_clash200().func_176734_d().func_176730_m());
-            var3.func_75492_a(var8.func_177958_n(), var8.func_177956_o(), var8.func_177952_p(), 0.35F);
+            BlockPos var8 = this.aI.add(var2.f_clash200().getOpposite().getDirectionVec());
+            var3.tryMoveToXYZ(var8.getX(), var8.getY(), var8.getZ(), 0.35F);
          }
       }
    }
@@ -1566,26 +1566,26 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       for (BlockPos var8 : (java.util.Collection<BlockPos>) (var3) ) {
          switch (var4) {
             case NORTH:
-               if (var6 == null || var8.func_177952_p() >= var6) {
-                  var6 = var8.func_177952_p();
+               if (var6 == null || var8.getZ() >= var6) {
+                  var6 = var8.getZ();
                   var5.add(var8);
                }
                break;
             case SOUTH:
-               if (var6 == null || var8.func_177952_p() <= var6) {
-                  var6 = var8.func_177952_p();
+               if (var6 == null || var8.getZ() <= var6) {
+                  var6 = var8.getZ();
                   var5.add(var8);
                }
                break;
             case EAST:
-               if (var6 == null || var8.func_177958_n() <= var6) {
-                  var6 = var8.func_177958_n();
+               if (var6 == null || var8.getX() <= var6) {
+                  var6 = var8.getX();
                   var5.add(var8);
                }
                break;
             case WEST:
-               if (var6 == null || var8.func_177958_n() >= var6) {
-                  var6 = var8.func_177958_n();
+               if (var6 == null || var8.getX() >= var6) {
+                  var6 = var8.getX();
                   var5.add(var8);
                }
          }
@@ -1594,11 +1594,11 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       ArrayList var17 = new ArrayList();
 
       for (BlockPos var9 : (java.util.Collection<BlockPos>) (var5) ) {
-         if ((var4 == EnumFacing.NORTH || var4 == EnumFacing.SOUTH) && var9.func_177952_p() == var6) {
+         if ((var4 == EnumFacing.NORTH || var4 == EnumFacing.SOUTH) && var9.getZ() == var6) {
             var17.add(var9);
          }
 
-         if ((var4 == EnumFacing.EAST || var4 == EnumFacing.WEST) && var9.func_177958_n() == var6) {
+         if ((var4 == EnumFacing.EAST || var4 == EnumFacing.WEST) && var9.getX() == var6) {
             var17.add(var9);
          }
       }
@@ -1611,71 +1611,71 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       EnumFacing var20 = var1.f_clash200();
       BlockPos var10 = var1.b_clash201();
       BlockPos var21;
-      if (var20.func_176740_k() == Axis.Z) {
-         var21 = new BlockPos(var10.func_177958_n(), var10.func_177956_o(), ((BlockPos)var17.get(0)).func_177952_p());
+      if (var20.getAxis() == Axis.Z) {
+         var21 = new BlockPos(var10.getX(), var10.getY(), ((BlockPos)var17.get(0)).getZ());
          if (var20 == EnumFacing.NORTH) {
-            var21 = var21.func_177978_c();
+            var21 = var21.north();
          } else {
-            var21 = var21.func_177968_d();
+            var21 = var21.south();
          }
 
-         var19.add(var21.func_177977_b());
-         var19.add(var21.func_177977_b().func_177974_f());
-         var19.add(var21.func_177977_b().func_177976_e());
+         var19.add(var21.down());
+         var19.add(var21.down().east());
+         var19.add(var21.down().west());
          var19.add(var21);
-         var19.add(var21.func_177984_a());
-         var19.add(var21.func_177984_a().func_177984_a());
-         var19.add(var21.func_177984_a().func_177984_a().func_177984_a());
-         var19.add(var21.func_177976_e());
-         var19.add(var21.func_177976_e().func_177984_a());
-         var19.add(var21.func_177976_e().func_177984_a().func_177984_a());
-         var19.add(var21.func_177976_e().func_177984_a().func_177984_a().func_177984_a());
-         var19.add(var21.func_177976_e().func_177976_e());
-         var19.add(var21.func_177976_e().func_177976_e().func_177984_a());
-         var19.add(var21.func_177976_e().func_177976_e().func_177984_a().func_177984_a());
-         var19.add(var21.func_177974_f());
-         var19.add(var21.func_177974_f().func_177984_a());
-         var19.add(var21.func_177974_f().func_177984_a().func_177984_a());
-         var19.add(var21.func_177974_f().func_177984_a().func_177984_a().func_177984_a());
-         var19.add(var21.func_177974_f().func_177974_f());
-         var19.add(var21.func_177974_f().func_177974_f().func_177984_a());
-         var19.add(var21.func_177974_f().func_177974_f().func_177984_a().func_177984_a());
+         var19.add(var21.up());
+         var19.add(var21.up().up());
+         var19.add(var21.up().up().up());
+         var19.add(var21.west());
+         var19.add(var21.west().up());
+         var19.add(var21.west().up().up());
+         var19.add(var21.west().up().up().up());
+         var19.add(var21.west().west());
+         var19.add(var21.west().west().up());
+         var19.add(var21.west().west().up().up());
+         var19.add(var21.east());
+         var19.add(var21.east().up());
+         var19.add(var21.east().up().up());
+         var19.add(var21.east().up().up().up());
+         var19.add(var21.east().east());
+         var19.add(var21.east().east().up());
+         var19.add(var21.east().east().up().up());
       } else {
-         var21 = new BlockPos(((BlockPos)var17.get(0)).func_177958_n(), var10.func_177956_o(), var10.func_177952_p());
+         var21 = new BlockPos(((BlockPos)var17.get(0)).getX(), var10.getY(), var10.getZ());
          if (var20 == EnumFacing.EAST) {
-            var21 = var21.func_177974_f();
+            var21 = var21.east();
          } else {
-            var21 = var21.func_177976_e();
+            var21 = var21.west();
          }
 
-         var19.add(var21.func_177977_b());
-         var19.add(var21.func_177977_b().func_177978_c());
-         var19.add(var21.func_177977_b().func_177968_d());
+         var19.add(var21.down());
+         var19.add(var21.down().north());
+         var19.add(var21.down().south());
          var19.add(var21);
-         var19.add(var21.func_177984_a());
-         var19.add(var21.func_177984_a().func_177984_a());
-         var19.add(var21.func_177984_a().func_177984_a().func_177984_a());
-         var19.add(var21.func_177968_d());
-         var19.add(var21.func_177968_d().func_177984_a());
-         var19.add(var21.func_177968_d().func_177984_a().func_177984_a());
-         var19.add(var21.func_177968_d().func_177984_a().func_177984_a().func_177984_a());
-         var19.add(var21.func_177968_d().func_177968_d());
-         var19.add(var21.func_177968_d().func_177968_d().func_177984_a());
-         var19.add(var21.func_177968_d().func_177968_d().func_177984_a().func_177984_a());
-         var19.add(var21.func_177978_c());
-         var19.add(var21.func_177978_c().func_177984_a());
-         var19.add(var21.func_177978_c().func_177984_a().func_177984_a());
-         var19.add(var21.func_177978_c().func_177984_a().func_177984_a().func_177984_a());
-         var19.add(var21.func_177978_c().func_177978_c());
-         var19.add(var21.func_177978_c().func_177978_c().func_177984_a());
-         var19.add(var21.func_177978_c().func_177978_c().func_177984_a().func_177984_a());
+         var19.add(var21.up());
+         var19.add(var21.up().up());
+         var19.add(var21.up().up().up());
+         var19.add(var21.south());
+         var19.add(var21.south().up());
+         var19.add(var21.south().up().up());
+         var19.add(var21.south().up().up().up());
+         var19.add(var21.south().south());
+         var19.add(var21.south().south().up());
+         var19.add(var21.south().south().up().up());
+         var19.add(var21.north());
+         var19.add(var21.north().up());
+         var19.add(var21.north().up().up());
+         var19.add(var21.north().up().up().up());
+         var19.add(var21.north().north());
+         var19.add(var21.north().north().up());
+         var19.add(var21.north().north().up().up());
       }
 
       HashSet var12 = new HashSet();
 
       for (BlockPos var14 : (java.util.Collection<BlockPos>) (var19) ) {
-         if (this.field_70170_p.func_180495_p(var14).func_185904_a().func_76224_d()) {
-            this.field_70170_p.func_180501_a(var14, Blocks.field_150347_e.func_176223_P(), 2);
+         if (this.world.getBlockState(var14).getMaterial().isLiquid()) {
+            this.world.setBlockState(var14, Blocks.COBBLESTONE.getDefaultState(), 2);
             if (var17.contains(var14)) {
                var12.add(var14);
             }
@@ -1691,26 +1691,26 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       var19.clear();
-      var19.add(var21.func_177977_b());
-      if (var20.func_176740_k() == Axis.Z) {
-         var19.add(var21.func_177977_b().func_177976_e());
-         var19.add(var21.func_177977_b().func_177974_f());
+      var19.add(var21.down());
+      if (var20.getAxis() == Axis.Z) {
+         var19.add(var21.down().west());
+         var19.add(var21.down().east());
       } else {
-         var19.add(var21.func_177977_b().func_177978_c());
-         var19.add(var21.func_177977_b().func_177968_d());
+         var19.add(var21.down().north());
+         var19.add(var21.down().south());
       }
 
       for (BlockPos var26 : (java.util.Collection<BlockPos>) (var19) ) {
-         if (this.field_70170_p.func_180495_p(var26).func_177230_c().func_176205_b(this.field_70170_p, var26)) {
-            this.field_70170_p.func_175656_a(var26, Blocks.field_150347_e.func_176223_P());
+         if (this.world.getBlockState(var26).getBlock().isPassable(this.world, var26)) {
+            this.world.setBlockState(var26, Blocks.COBBLESTONE.getDefaultState());
          }
       }
 
       HashSet var25 = new HashSet();
 
       for (BlockPos var15 : (java.util.Collection<BlockPos>) (var17) ) {
-         Block var16 = this.field_70170_p.func_180495_p(var15).func_177230_c();
-         if (var16 == Blocks.field_150350_a) {
+         Block var16 = this.world.getBlockState(var15).getBlock();
+         if (var16 == Blocks.AIR) {
             var25.add(var15);
          }
       }
@@ -1720,7 +1720,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          var1.b(var25);
          UUID var28 = KoboldManager.b_clash89(var2);
          if (var28 != null) {
-            EntityPlayer var30 = this.field_70170_p.func_152378_a(var28);
+            EntityPlayer var30 = this.world.getPlayerEntityByUUID(var28);
             if (var30 != null) {
                PacketHandler.b.sendTo(new SendBlocksPacket(var25, false), (EntityPlayerMP)var30);
             }
@@ -1735,7 +1735,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       List var31 = var1.c_clash209();
 
       for (int var32 = 0; var32 < var31.size(); var32++) {
-         if (((KoboldEntity)var31.get(var32)).func_145782_y() == this.func_145782_y()) {
+         if (((KoboldEntity)var31.get(var32)).getEntityId() == this.getEntityId()) {
             if (var32 == 0) {
                var29 = this.a(var17, -1, var1.f_clash200(), var1.b_clash201());
                if (var29 == null) {
@@ -1784,21 +1784,21 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       ArrayList var6 = new ArrayList();
       ArrayList var7 = new ArrayList();
       int var8 = var3 != EnumFacing.SOUTH && var3 != EnumFacing.WEST ? 1 : -1;
-      if (var3.func_176740_k() == Axis.Z) {
-         BlockPos var9 = new BlockPos(var4.func_177958_n(), var4.func_177956_o(), ((BlockPos)var1.get(0)).func_177952_p());
+      if (var3.getAxis() == Axis.Z) {
+         BlockPos var9 = new BlockPos(var4.getX(), var4.getY(), ((BlockPos)var1.get(0)).getZ());
          var7.add(var9);
-         var7.add(var9.func_177984_a());
-         var7.add(var9.func_177984_a().func_177984_a());
-         var7.add(var9.func_177976_e());
-         var7.add(var9.func_177976_e().func_177984_a());
-         var7.add(var9.func_177976_e().func_177984_a().func_177984_a());
-         var7.add(var9.func_177974_f());
-         var7.add(var9.func_177974_f().func_177984_a());
-         var7.add(var9.func_177974_f().func_177984_a().func_177984_a());
+         var7.add(var9.up());
+         var7.add(var9.up().up());
+         var7.add(var9.west());
+         var7.add(var9.west().up());
+         var7.add(var9.west().up().up());
+         var7.add(var9.east());
+         var7.add(var9.east().up());
+         var7.add(var9.east().up().up());
          if (var2 == 0) {
             for (BlockPos var11 : (java.util.Collection<BlockPos>) (var7) ) {
-               var6.add(var11.func_177965_g(2));
-               var6.add(var11.func_177965_g(-2));
+               var6.add(var11.east(2));
+               var6.add(var11.east(-2));
             }
 
             for (BlockPos var20 : var1) {
@@ -1808,7 +1808,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             }
          } else {
             for (BlockPos var21 : (java.util.Collection<BlockPos>) (var7) ) {
-               var6.add(var21.func_177965_g(var8 * 2 * var2));
+               var6.add(var21.east(var8 * 2 * var2));
             }
 
             for (BlockPos var22 : (java.util.Collection<BlockPos>) (var6) ) {
@@ -1819,21 +1819,21 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          }
       }
 
-      if (var3.func_176740_k() == Axis.X) {
-         BlockPos var12 = new BlockPos(((BlockPos)var1.get(0)).func_177958_n(), var4.func_177956_o(), var4.func_177952_p());
+      if (var3.getAxis() == Axis.X) {
+         BlockPos var12 = new BlockPos(((BlockPos)var1.get(0)).getX(), var4.getY(), var4.getZ());
          var7.add(var12);
-         var7.add(var12.func_177984_a());
-         var7.add(var12.func_177984_a().func_177984_a());
-         var7.add(var12.func_177978_c());
-         var7.add(var12.func_177978_c().func_177984_a());
-         var7.add(var12.func_177978_c().func_177984_a().func_177984_a());
-         var7.add(var12.func_177968_d());
-         var7.add(var12.func_177968_d().func_177984_a());
-         var7.add(var12.func_177968_d().func_177984_a().func_177984_a());
+         var7.add(var12.up());
+         var7.add(var12.up().up());
+         var7.add(var12.north());
+         var7.add(var12.north().up());
+         var7.add(var12.north().up().up());
+         var7.add(var12.south());
+         var7.add(var12.south().up());
+         var7.add(var12.south().up().up());
          if (var2 == 0) {
             for (BlockPos var23 : (java.util.Collection<BlockPos>) (var7) ) {
-               var6.add(var23.func_177970_e(2));
-               var6.add(var23.func_177970_e(-2));
+               var6.add(var23.south(2));
+               var6.add(var23.south(-2));
             }
 
             for (BlockPos var24 : var1) {
@@ -1843,7 +1843,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             }
          } else {
             for (BlockPos var25 : (java.util.Collection<BlockPos>) (var7) ) {
-               var6.add(var25.func_177970_e(var8 * 2 * var2));
+               var6.add(var25.south(var8 * 2 * var2));
             }
 
             for (BlockPos var26 : (java.util.Collection<BlockPos>) (var6) ) {
@@ -1854,7 +1854,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          }
       }
 
-      return var5.isEmpty() ? null : (BlockPos)var5.get(this.func_70681_au().nextInt(var5.size()));
+      return var5.isEmpty() ? null : (BlockPos)var5.get(this.getRNG().nextInt(var5.size()));
    }
 
    void u(UUID var1) {
@@ -1864,22 +1864,22 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void e_clash620() {
-      EntityPlayer var1 = this.field_70170_p.func_72890_a(this, 15.0);
-      if (this.J_clash526() && var1 != null && var1.func_70032_d(this) < 2.0F && ((String)this.m.func_187225_a(v)).equals(var1.getPersistentID().toString())) {
-         this.func_70661_as().func_75499_g();
+      EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 15.0);
+      if (this.J_clash526() && var1 != null && var1.getDistance(this) < 2.0F && ((String)this.m.get(v)).equals(var1.getPersistentID().toString())) {
+         this.getNavigator().clearPath();
       } else {
          if (this.ap == null
-            || this.func_70011_f(this.ap.func_177958_n(), this.ap.func_177956_o(), this.ap.func_177952_p()) > this.n_clash621()
+            || this.getDistance(this.ap.getX(), this.ap.getY(), this.ap.getZ()) > this.n_clash621()
             || this.ab > 100) {
-            int var2 = (this.func_70681_au().nextBoolean() ? 1 : -1) * this.func_70681_au().nextInt(5);
-            int var3 = (this.func_70681_au().nextBoolean() ? 1 : -1) * this.func_70681_au().nextInt(5);
-            int var4 = cj.a(this.field_70170_p, this.func_180425_c().func_177958_n() + var2, this.func_180425_c().func_177952_p() + var3);
-            this.ap = new BlockPos(this.func_180425_c().func_177958_n() + var2, var4, this.func_180425_c().func_177952_p() + var3);
+            int var2 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
+            int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
+            int var4 = cj.a(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
+            this.ap = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
             this.ab = 0;
          }
 
-         if (Math.sqrt(this.ap.func_177951_i(this.func_180425_c())) > 2.0) {
-            this.func_70661_as().func_75492_a(this.ap.func_177958_n(), this.ap.func_177956_o(), this.ap.func_177952_p(), 0.35F);
+         if (Math.sqrt(this.ap.distanceSq(this.getPosition())) > 2.0) {
+            this.getNavigator().tryMoveToXYZ(this.ap.getX(), this.ap.getY(), this.ap.getZ(), 0.35F);
             this.tickPathVelocity();
          } else {
             this.ab++;
@@ -1903,10 +1903,10 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       if (--this.a0 < 0 && this.ax) {
          this.a0 = 300;
-         EntityPlayer var3 = this.field_70170_p.func_152378_a(UUID.fromString((String)this.m.func_187225_a(v)));
-         EyeAndKoboldColor var4 = EyeAndKoboldColor.valueOf((String)this.m.func_187225_a(N));
+         EntityPlayer var3 = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.m.get(v)));
+         EyeAndKoboldColor var4 = EyeAndKoboldColor.valueOf((String)this.m.get(N));
          if (var3 != null) {
-            var3.func_146105_b(
+            var3.sendStatusMessage(
                new TextComponentString(
                   var4.getTextColor()
                      + this.getDisplayNameText()
@@ -1933,16 +1933,16 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       BlockPos var4 = null;
 
       for (BlockPos var6 : (java.util.Collection<BlockPos>) (var3) ) {
-         TileEntityChest var7 = (TileEntityChest)this.field_70170_p.func_175625_s(var6);
+         TileEntityChest var7 = (TileEntityChest)this.world.getTileEntity(var6);
          IItemHandler var8 = var7.getSingleChestHandler();
          boolean var9 = false;
 
          for (int var10 = 0; var10 < this.X.getSlots(); var10++) {
             ItemStack var11 = this.X.getStackInSlot(var10);
-            if (!var11.func_190926_b()) {
+            if (!var11.isEmpty()) {
                for (int var12 = 0; var12 < var8.getSlots(); var12++) {
                   ItemStack var13 = var8.insertItem(var12, var11, true);
-                  if (var13.func_190916_E() != var11.func_190916_E()) {
+                  if (var13.getCount() != var11.getCount()) {
                      var9 = true;
                      break;
                   }
@@ -1957,7 +1957,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          if (var9) {
             if (var4 == null) {
                var4 = var6;
-            } else if (this.func_174818_b(var4) > this.func_174818_b(var6)) {
+            } else if (this.getDistanceSq(var4) > this.getDistanceSq(var6)) {
                var4 = var6;
             }
          }
@@ -1967,18 +1967,18 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return false;
       }
 
-      if (!(this.func_70011_f(var4.func_177958_n(), var4.func_177956_o(), var4.func_177952_p()) < 2.0)) {
-         if (Math.abs(var4.func_177956_o() - this.func_180425_c().func_177956_o()) > 4) {
+      if (!(this.getDistance(var4.getX(), var4.getY(), var4.getZ()) < 2.0)) {
+         if (Math.abs(var4.getY() - this.getPosition().getY()) > 4) {
             if (!var2) {
                return false;
             }
 
             this.b_clash618(var4);
          } else {
-            PathNavigate var15 = this.func_70661_as();
+            PathNavigate var15 = this.getNavigator();
             BlockPos var17 = this.c_clash612(var4);
-            var15.func_75492_a(var17.func_177958_n(), var17.func_177956_o(), var17.func_177952_p(), 0.35F);
-            if (var15.func_75505_d() == null) {
+            var15.tryMoveToXYZ(var17.getX(), var17.getY(), var17.getZ(), 0.35F);
+            if (var15.getPath() == null) {
                if (!var2) {
                   return false;
                }
@@ -1989,16 +1989,16 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
          return true;
       } else {
-         TileEntityChest var14 = (TileEntityChest)this.field_70170_p.func_175625_s(var4);
+         TileEntityChest var14 = (TileEntityChest)this.world.getTileEntity(var4);
          IItemHandler var16 = var14.getSingleChestHandler();
 
          for (int var18 = 0; var18 < this.X.getSlots(); var18++) {
             ItemStack var19 = this.X.getStackInSlot(var18);
-            if (!var19.func_190926_b()) {
+            if (!var19.isEmpty()) {
                for (int var20 = 0; var20 < var16.getSlots(); var20++) {
                   ItemStack var21 = var16.insertItem(var20, var19, false);
-                  if (var21.func_190916_E() <= 0) {
-                     this.X.setStackInSlot(var18, ItemStack.field_190927_a);
+                  if (var21.getCount() <= 0) {
+                     this.X.setStackInSlot(var18, ItemStack.EMPTY);
                      break;
                   }
 
@@ -2008,7 +2008,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             }
          }
 
-         this.field_70170_p.func_184133_a(null, var4, SoundEvents.field_187654_U, SoundCategory.BLOCKS, 1.0F, 1.0F);
+         this.world.playSound(null, var4, SoundEvents.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS, 1.0F, 1.0F);
          return true;
       }
    }
@@ -2017,7 +2017,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       List var3 = KoboldManager.n_clash82(var1);
       Collection var4 = KoboldManager.p_clash79(var1);
       KoboldEntity var5 = null;
-      Vec3d var6 = new Vec3d(var2.b_clash201().func_177958_n(), var2.b_clash201().func_177956_o(), var2.b_clash201().func_177952_p());
+      Vec3d var6 = new Vec3d(var2.b_clash201().getX(), var2.b_clash201().getY(), var2.b_clash201().getZ());
 
       for (KoboldEntity var8 : (java.util.Collection<KoboldEntity>) (var3) ) {
          boolean var9 = false;
@@ -2032,7 +2032,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          if (!var9 && var8.getInteractionPlayerUUID() == null) {
             if (var5 == null) {
                var5 = var8;
-            } else if (var5.func_174791_d().func_72438_d(var6) > var8.func_174791_d().func_72438_d(var6)) {
+            } else if (var5.getPositionVector().distanceTo(var6) > var8.getPositionVector().distanceTo(var6)) {
                var5 = var8;
             }
          }
@@ -2046,7 +2046,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          this.aR = 24;
          this.W = 0;
          this.b(fp.NULL);
-         this.m.func_187227_b(G, false);
+         this.m.set(G, false);
          EntityPlayer var6 = this.z_clash528();
          HashSet var7 = var2.g_clash203();
          if (var6 != null && !var7.isEmpty()) {
@@ -2055,87 +2055,87 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
          KoboldManager.b(var1, this);
       } else {
-         switch (this.ad.func_77960_j()) {
+         switch (this.ad.getMetadata()) {
             case 3:
             case 5:
-               this.field_70170_p
-                  .func_175656_a(
+               this.world
+                  .setBlockState(
                      var3,
-                     Blocks.field_150345_g
+                     Blocks.SAPLING
                         .getStateForPlacement(
-                           this.field_70170_p,
+                           this.world,
                            var3,
                            EnumFacing.NORTH,
-                           var3.func_177958_n(),
-                           var3.func_177956_o(),
-                           var3.func_177952_p(),
-                           this.ad.func_77960_j(),
+                           var3.getX(),
+                           var3.getY(),
+                           var3.getZ(),
+                           this.ad.getMetadata(),
                            this,
                            EnumHand.MAIN_HAND
                         )
                   );
-               this.field_70170_p
-                  .func_175656_a(
-                     var3.func_177978_c(),
-                     Blocks.field_150345_g
+               this.world
+                  .setBlockState(
+                     var3.north(),
+                     Blocks.SAPLING
                         .getStateForPlacement(
-                           this.field_70170_p,
-                           var3.func_177978_c(),
+                           this.world,
+                           var3.north(),
                            EnumFacing.NORTH,
-                           var3.func_177958_n(),
-                           var3.func_177956_o(),
-                           var3.func_177952_p() + 1,
-                           this.ad.func_77960_j(),
+                           var3.getX(),
+                           var3.getY(),
+                           var3.getZ() + 1,
+                           this.ad.getMetadata(),
                            this,
                            EnumHand.MAIN_HAND
                         )
                   );
-               this.field_70170_p
-                  .func_175656_a(
-                     var3.func_177976_e(),
-                     Blocks.field_150345_g
+               this.world
+                  .setBlockState(
+                     var3.west(),
+                     Blocks.SAPLING
                         .getStateForPlacement(
-                           this.field_70170_p,
-                           var3.func_177976_e(),
+                           this.world,
+                           var3.west(),
                            EnumFacing.NORTH,
-                           var3.func_177958_n() + 1,
-                           var3.func_177956_o(),
-                           var3.func_177952_p(),
-                           this.ad.func_77960_j(),
+                           var3.getX() + 1,
+                           var3.getY(),
+                           var3.getZ(),
+                           this.ad.getMetadata(),
                            this,
                            EnumHand.MAIN_HAND
                         )
                   );
-               this.field_70170_p
-                  .func_175656_a(
-                     var3.func_177978_c().func_177976_e(),
-                     Blocks.field_150345_g
+               this.world
+                  .setBlockState(
+                     var3.north().west(),
+                     Blocks.SAPLING
                         .getStateForPlacement(
-                           this.field_70170_p,
-                           var3.func_177978_c().func_177976_e(),
+                           this.world,
+                           var3.north().west(),
                            EnumFacing.NORTH,
-                           var3.func_177958_n() + 1,
-                           var3.func_177956_o(),
-                           var3.func_177952_p() + 1,
-                           this.ad.func_77960_j(),
+                           var3.getX() + 1,
+                           var3.getY(),
+                           var3.getZ() + 1,
+                           this.ad.getMetadata(),
                            this,
                            EnumHand.MAIN_HAND
                         )
                   );
                break;
             default:
-               this.field_70170_p
-                  .func_175656_a(
+               this.world
+                  .setBlockState(
                      var3,
-                     Blocks.field_150345_g
+                     Blocks.SAPLING
                         .getStateForPlacement(
-                           this.field_70170_p,
+                           this.world,
                            var3,
                            EnumFacing.NORTH,
-                           var3.func_177958_n(),
-                           var3.func_177956_o(),
-                           var3.func_177952_p(),
-                           this.ad.func_77960_j(),
+                           var3.getX(),
+                           var3.getY(),
+                           var3.getZ(),
+                           this.ad.getMetadata(),
                            this,
                            EnumHand.MAIN_HAND
                         )
@@ -2167,7 +2167,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                PacketHandler.b.sendToAllAround(new ResetControllerPacket(this.getGirlId()), this.getTargetNetworkPoint());
             }
 
-            if (this.field_70170_p.func_180495_p(var2).func_177230_c() == Blocks.field_150350_a) {
+            if (this.world.getBlockState(var2).getBlock() == Blocks.AIR) {
                this.a(var1, var3, var2);
             } else {
                this.aR--;
@@ -2178,14 +2178,14 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   EntityPlayer var5 = this.z_clash528();
 
                   for (BlockPos var7 : var3.g_clash203()) {
-                     if (this.field_70170_p.func_180495_p(var7).func_177230_c() != Blocks.field_150350_a) {
-                        if (var7.func_177958_n() != var2.func_177958_n() || var7.func_177952_p() != var2.func_177952_p()) {
+                     if (this.world.getBlockState(var7).getBlock() != Blocks.AIR) {
+                        if (var7.getX() != var2.getX() || var7.getZ() != var2.getZ()) {
                            try {
-                              ItemStack var8 = this.field_70170_p
-                                 .func_180495_p(var7)
-                                 .func_177230_c()
-                                 .func_185473_a(this.field_70170_p, var2, this.field_70170_p.func_180495_p(var2));
-                              if (var8.func_77973_b() != Items.field_190931_a) {
+                              ItemStack var8 = this.world
+                                 .getBlockState(var7)
+                                 .getBlock()
+                                 .getItem(this.world, var2, this.world.getBlockState(var2));
+                              if (var8.getItem() != Items.AIR) {
                                  this.b_clash629(var8);
                               }
                            } catch (IllegalArgumentException var13) {
@@ -2193,12 +2193,12 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                                  .error(
                                     "Couldn't get an item out of the block that a kobold just destroyed when falling a tree. As a result, the block wasn't added into the kobolds inventory. If you see this message, pls tell trol about it and send her the following stacktrace. Do you maybe remember what block the kobold just removed? Stacktrace follwing:"
                                  );
-                              Main.LOGGER.warn("block in question: " + this.field_70170_p.func_180495_p(var7).func_177230_c().func_149739_a());
+                              Main.LOGGER.warn("block in question: " + this.world.getBlockState(var7).getBlock().getTranslationKey());
                               Main.LOGGER.error(var13.getMessage());
                            }
 
                            this.ad = this.a_clash623(var7);
-                           this.field_70170_p.func_175655_b(var7, false);
+                           this.world.destroyBlock(var7, false);
                            var3.a_clash206(var7);
                            var3.b(var4);
                            var4.add(var7);
@@ -2214,11 +2214,11 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   }
 
                   try {
-                     ItemStack var15 = this.field_70170_p
-                        .func_180495_p(var2)
-                        .func_177230_c()
-                        .func_185473_a(this.field_70170_p, var2, this.field_70170_p.func_180495_p(var2));
-                     if (var15.func_77973_b() != Items.field_190931_a) {
+                     ItemStack var15 = this.world
+                        .getBlockState(var2)
+                        .getBlock()
+                        .getItem(this.world, var2, this.world.getBlockState(var2));
+                     if (var15.getItem() != Items.AIR) {
                         this.b_clash629(var15);
                      }
                   } catch (IllegalArgumentException var14) {
@@ -2226,16 +2226,16 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                         .error(
                            "Couldn't get an item out of the block that a kobold just destroyed when falling a tree. As a result, the block wasn't added into the kobolds inventory. If you see this message, pls tell trol about it and send her the following stacktrace. Do you maybe remember what block the kobold just removed? Stacktrace follwing:"
                         );
-                     Main.LOGGER.warn("block in question: " + this.field_70170_p.func_180495_p(var2).func_177230_c().func_149739_a());
+                     Main.LOGGER.warn("block in question: " + this.world.getBlockState(var2).getBlock().getTranslationKey());
                      Main.LOGGER.error(var14.getMessage());
                   }
 
                   this.ad = this.a_clash623(var2);
-                  this.field_70170_p.func_175655_b(var2, false);
+                  this.world.destroyBlock(var2, false);
                   int var16 = 0;
 
                   for (BlockPos var19 : var3.g_clash203()) {
-                     if (this.field_70170_p.func_180495_p(var19).func_177230_c() instanceof BlockLog) {
+                     if (this.world.getBlockState(var19).getBlock() instanceof BlockLog) {
                         var16++;
                      }
                   }
@@ -2243,7 +2243,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   HashSet var18 = new HashSet();
 
                   for (int var20 = 0; var20 < var16; var20++) {
-                     var18.add(var2.func_177982_a(0, var20, 0));
+                     var18.add(var2.add(0, var20, 0));
                   }
 
                   HashSet var21 = new HashSet();
@@ -2261,15 +2261,15 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   int var22 = 1;
 
                   while (true) {
-                     BlockPos var23 = var2.func_177982_a(0, var22, 0);
-                     IBlockState var11 = this.field_70170_p.func_180495_p(var23);
-                     if (this.field_70170_p.func_180495_p(var23).func_177230_c() instanceof BlockLog) {
-                        this.field_70170_p.func_175655_b(var23, false);
+                     BlockPos var23 = var2.add(0, var22, 0);
+                     IBlockState var11 = this.world.getBlockState(var23);
+                     if (this.world.getBlockState(var23).getBlock() instanceof BlockLog) {
+                        this.world.destroyBlock(var23, false);
                         EntityFallingBlock var12 = new EntityFallingBlock(
-                           this.field_70170_p, var23.func_177958_n() + 0.5, var23.func_177956_o(), var23.func_177952_p() + 0.5, var11
+                           this.world, var23.getX() + 0.5, var23.getY(), var23.getZ() + 0.5, var11
                         );
-                        var12.field_145812_b = 1;
-                        this.field_70170_p.func_72838_d(var12);
+                        var12.fallTime = 1;
+                        this.world.spawnEntity(var12);
                      }
 
                      if (!var3.g_clash203().contains(var23)) {
@@ -2287,61 +2287,61 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    ItemStack a_clash623(BlockPos var1) {
       ItemStack var2;
       try {
-         var2 = this.field_70170_p.func_180495_p(var1).func_177230_c().func_185473_a(this.field_70170_p, var1, this.field_70170_p.func_180495_p(var1));
+         var2 = this.world.getBlockState(var1).getBlock().getItem(this.world, var1, this.world.getBlockState(var1));
       } catch (IllegalArgumentException var5) {
          Main.LOGGER
             .error(
                "Couldn't turn a wooden block into an item to get its meta data. As a result the kobold is just gonna plant a oak saplinig instead. If you see this message, pls tell trol about it and send her the following stacktrace. Do you maybe remember what block the kobold just removed? Stacktrace follwing:"
             );
-         Main.LOGGER.warn("block in question: " + this.field_70170_p.func_180495_p(var1).func_177230_c().func_149739_a());
+         Main.LOGGER.warn("block in question: " + this.world.getBlockState(var1).getBlock().getTranslationKey());
          Main.LOGGER.error(var5.getMessage());
-         return new ItemStack(Blocks.field_150345_g, 1, 0);
+         return new ItemStack(Blocks.SAPLING, 1, 0);
       }
 
-      int var3 = ItemBlock.func_150891_b(var2.func_77973_b());
-      int var4 = var2.func_77973_b().getMetadata(var2);
+      int var3 = ItemBlock.getIdFromItem(var2.getItem());
+      int var4 = var2.getItem().getMetadata(var2);
       if (var3 == 17 && var4 == 1) {
-         return new ItemStack(Blocks.field_150345_g, 1, 1);
+         return new ItemStack(Blocks.SAPLING, 1, 1);
       } else if (var3 == 17 && var4 == 2) {
-         return new ItemStack(Blocks.field_150345_g, 1, 2);
+         return new ItemStack(Blocks.SAPLING, 1, 2);
       } else if (var3 == 17 && var4 == 3) {
-         return new ItemStack(Blocks.field_150345_g, 1, 3);
+         return new ItemStack(Blocks.SAPLING, 1, 3);
       } else if (var3 == 162 && var4 == 0) {
-         return new ItemStack(Blocks.field_150345_g, 1, 4);
+         return new ItemStack(Blocks.SAPLING, 1, 4);
       } else {
-         return var3 == 162 && var4 == 1 ? new ItemStack(Blocks.field_150345_g, 1, 5) : new ItemStack(Blocks.field_150345_g, 1, 0);
+         return var3 == 162 && var4 == 1 ? new ItemStack(Blocks.SAPLING, 1, 5) : new ItemStack(Blocks.SAPLING, 1, 0);
       }
    }
 
    void a(BlockPos var1, UUID var2) {
       BlockPos var3 = null;
       ArrayList var4 = new ArrayList();
-      if (this.field_70170_p.func_180495_p(var1.func_177978_c().func_177977_b()).func_185917_h()
-         && !this.field_70170_p.func_180495_p(var1.func_177978_c()).func_185913_b()) {
-         var4.add(var1.func_177978_c());
+      if (this.world.getBlockState(var1.north().down()).isFullCube()
+         && !this.world.getBlockState(var1.north()).isFullBlock()) {
+         var4.add(var1.north());
       }
 
-      if (this.field_70170_p.func_180495_p(var1.func_177974_f().func_177977_b()).func_185917_h()
-         && !this.field_70170_p.func_180495_p(var1.func_177974_f()).func_185913_b()) {
-         var4.add(var1.func_177974_f());
+      if (this.world.getBlockState(var1.east().down()).isFullCube()
+         && !this.world.getBlockState(var1.east()).isFullBlock()) {
+         var4.add(var1.east());
       }
 
-      if (this.field_70170_p.func_180495_p(var1.func_177968_d().func_177977_b()).func_185917_h()
-         && !this.field_70170_p.func_180495_p(var1.func_177968_d()).func_185913_b()) {
-         var4.add(var1.func_177968_d());
+      if (this.world.getBlockState(var1.south().down()).isFullCube()
+         && !this.world.getBlockState(var1.south()).isFullBlock()) {
+         var4.add(var1.south());
       }
 
-      if (this.field_70170_p.func_180495_p(var1.func_177976_e().func_177977_b()).func_185917_h()
-         && !this.field_70170_p.func_180495_p(var1.func_177976_e()).func_185913_b()) {
-         var4.add(var1.func_177976_e());
+      if (this.world.getBlockState(var1.west().down()).isFullCube()
+         && !this.world.getBlockState(var1.west()).isFullBlock()) {
+         var4.add(var1.west());
       }
 
       for (BlockPos var6 : (java.util.Collection<BlockPos>) (var4) ) {
          if (var3 == null) {
             var3 = var6;
          } else {
-            double var7 = new Vec3d(var3.func_177958_n() + 0.5F, var3.func_177956_o(), var3.func_177952_p() + 0.5F).func_72438_d(this.func_174791_d());
-            double var9 = new Vec3d(var6.func_177958_n() + 0.5F, var6.func_177956_o(), var6.func_177952_p() + 0.5F).func_72438_d(this.func_174791_d());
+            double var7 = new Vec3d(var3.getX() + 0.5F, var3.getY(), var3.getZ() + 0.5F).distanceTo(this.getPositionVector());
+            double var9 = new Vec3d(var6.getX() + 0.5F, var6.getY(), var6.getZ() + 0.5F).distanceTo(this.getPositionVector());
             if (var9 < var7) {
                var3 = var6;
             }
@@ -2352,46 +2352,46 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          KoboldManager.b(var2, this);
          EntityPlayer var13 = this.z_clash528();
          if (var13 != null) {
-            var13.func_146105_b(new TextComponentString("Your kobolds cannot fall this tree because it starts underground"), true);
+            var13.sendStatusMessage(new TextComponentString("Your kobolds cannot fall this tree because it starts underground"), true);
          }
-      } else if (!(this.func_180425_c().func_185332_f(var3.func_177958_n(), var3.func_177956_o(), var3.func_177952_p()) > 1.0)) {
+      } else if (!(this.getPosition().getDistance(var3.getX(), var3.getY(), var3.getZ()) > 1.0)) {
          float var11 = 0.0F;
-         if (var3.func_177973_b(var1).equals(new BlockPos(0, 0, -1))) {
+         if (var3.subtract(var1).equals(new BlockPos(0, 0, -1))) {
             var11 = 0.0F;
          }
 
-         if (var3.func_177973_b(var1).equals(new BlockPos(1, 0, 0))) {
+         if (var3.subtract(var1).equals(new BlockPos(1, 0, 0))) {
             var11 = 90.0F;
          }
 
-         if (var3.func_177973_b(var1).equals(new BlockPos(0, 0, 1))) {
+         if (var3.subtract(var1).equals(new BlockPos(0, 0, 1))) {
             var11 = 180.0F;
          }
 
-         if (var3.func_177973_b(var1).equals(new BlockPos(-1, 0, 0))) {
+         if (var3.subtract(var1).equals(new BlockPos(-1, 0, 0))) {
             var11 = -90.0F;
          }
 
-         this.setTargetPosition(new Vec3d(var3.func_177958_n() + 0.5, var3.func_177956_o(), var3.func_177952_p() + 0.5));
+         this.setTargetPosition(new Vec3d(var3.getX() + 0.5, var3.getY(), var3.getZ() + 0.5));
          this.setYawRotation(var11);
-         this.m.func_187227_b(G, true);
-         this.m.func_187227_b(at, true);
+         this.m.set(G, true);
+         this.m.set(at, true);
          this.b(fp.MINE);
-         this.field_70170_p.func_175655_b(var3.func_177984_a(), false);
-      } else if (Math.abs(this.func_180425_c().func_177956_o() - var3.func_177956_o()) > 4) {
+         this.world.destroyBlock(var3.up(), false);
+      } else if (Math.abs(this.getPosition().getY() - var3.getY()) > 4) {
          this.b_clash618(var3);
       } else {
          BlockPos var12 = this.c_clash612(var3);
-         this.func_70661_as().func_75492_a(var12.func_177958_n() + 0.5, var12.func_177956_o(), var12.func_177952_p() + 0.5, 0.35);
+         this.getNavigator().tryMoveToXYZ(var12.getX() + 0.5, var12.getY(), var12.getZ() + 0.5, 0.35);
          this.tickPathVelocity();
       }
    }
 
    void h_clash624() {
       if (!this.aA) {
-         Optional var1 = (Optional)this.m.func_187225_a(aL);
+         Optional var1 = (Optional)this.m.get(aL);
          if (var1.isPresent()) {
-            this.m.func_187227_b(N, KoboldManager.l_clash75((UUID)var1.get()).toString());
+            this.m.set(N, KoboldManager.l_clash75((UUID)var1.get()).toString());
          }
       }
    }
@@ -2411,17 +2411,17 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
    }
 
-   public void func_70645_a(DamageSource var1) {
-      super.func_70645_a(var1);
-      if (!this.field_70170_p.field_72995_K) {
-         Optional var2 = (Optional)this.m.func_187225_a(aL);
+   public void onDeath(DamageSource var1) {
+      super.onDeath(var1);
+      if (!this.world.isRemote) {
+         Optional var2 = (Optional)this.m.get(aL);
          if (var2.isPresent()) {
             UUID var3 = (UUID)var2.get();
             KoboldManager.a(var3, this);
             if (this.J_clash526()) {
-               EntityPlayer var4 = this.field_70170_p.func_152378_a(UUID.fromString((String)this.func_184212_Q().func_187225_a(v)));
+               EntityPlayer var4 = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.getDataManager().get(v)));
                if (var4 != null) {
-                  var4.func_145747_a(
+                  var4.sendMessage(
                      new TextComponentString(
                         String.format("%s%s%s has perished %suwu", TextFormatting.RED, this.getDisplayNameText(), TextFormatting.WHITE, TextFormatting.RED)
                      )
@@ -2453,62 +2453,62 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   public void func_70014_b(NBTTagCompound var1) {
-      super.func_70014_b(var1);
-      var1.func_74776_a("body_size", (Float)this.m.func_187225_a(aE));
-      var1.func_74768_a("eyeColorX", ((BlockPos)this.m.func_187225_a(K)).func_177958_n());
-      var1.func_74768_a("eyeColorY", ((BlockPos)this.m.func_187225_a(K)).func_177956_o());
-      var1.func_74768_a("eyeColorZ", ((BlockPos)this.m.func_187225_a(K)).func_177952_p());
-      var1.func_74778_a("model", (String)this.m.func_187225_a(M));
-      var1.func_74778_a("name", (String)this.m.func_187225_a(T));
-      var1.func_74778_a("master", (String)this.m.func_187225_a(v));
-      var1.func_74782_a("inventory", this.X.serializeNBT());
-      var1.func_74778_a("bodyColor", (String)this.m.func_187225_a(N));
-      var1.func_74757_a("editedColorManually", this.aA);
-      Optional var2 = (Optional)this.m.func_187225_a(aL);
+   public void writeEntityToNBT(NBTTagCompound var1) {
+      super.writeEntityToNBT(var1);
+      var1.setFloat("body_size", (Float)this.m.get(aE));
+      var1.setInteger("eyeColorX", ((BlockPos)this.m.get(K)).getX());
+      var1.setInteger("eyeColorY", ((BlockPos)this.m.get(K)).getY());
+      var1.setInteger("eyeColorZ", ((BlockPos)this.m.get(K)).getZ());
+      var1.setString("model", (String)this.m.get(M));
+      var1.setString("name", (String)this.m.get(T));
+      var1.setString("master", (String)this.m.get(v));
+      var1.setTag("inventory", this.X.serializeNBT());
+      var1.setString("bodyColor", (String)this.m.get(N));
+      var1.setBoolean("editedColorManually", this.aA);
+      Optional var2 = (Optional)this.m.get(aL);
       if (var2.isPresent()) {
-         var1.func_186854_a("tribeId", (UUID)var2.get());
-         var1.func_74757_a("isLeader", KoboldManager.e((UUID)var2.get(), this));
-         var1.func_74778_a("tribeName", (String)this.m.func_187225_a(aU));
+         var1.setUniqueId("tribeId", (UUID)var2.get());
+         var1.setBoolean("isLeader", KoboldManager.e((UUID)var2.get(), this));
+         var1.setString("tribeName", (String)this.m.get(aU));
       }
    }
 
    @Override
-   public void func_70037_a(NBTTagCompound var1) {
-      super.func_70037_a(var1);
-      String var2 = var1.func_74779_i("model");
+   public void readEntityFromNBT(NBTTagCompound var1) {
+      super.readEntityFromNBT(var1);
+      String var2 = var1.getString("model");
       if (!"".equals(var2)) {
-         this.m.func_187227_b(M, var2);
+         this.m.set(M, var2);
       }
 
-      BlockPos var3 = new BlockPos(var1.func_74762_e("eyeColorX"), var1.func_74762_e("eyeColorY"), var1.func_74762_e("eyeColorZ"));
-      if (!BlockPos.field_177992_a.equals(var3)) {
-         this.m.func_187227_b(K, var3);
+      BlockPos var3 = new BlockPos(var1.getInteger("eyeColorX"), var1.getInteger("eyeColorY"), var1.getInteger("eyeColorZ"));
+      if (!BlockPos.ORIGIN.equals(var3)) {
+         this.m.set(K, var3);
       }
 
-      this.m.func_187227_b(aE, var1.func_74760_g("body_size"));
-      this.m.func_187227_b(T, var1.func_74779_i("name"));
-      this.m.func_187227_b(v, var1.func_74779_i("master"));
-      this.X.deserializeNBT(var1.func_74775_l("inventory"));
-      String var4 = var1.func_74779_i("bodyColor");
+      this.m.set(aE, var1.getFloat("body_size"));
+      this.m.set(T, var1.getString("name"));
+      this.m.set(v, var1.getString("master"));
+      this.X.deserializeNBT(var1.getCompoundTag("inventory"));
+      String var4 = var1.getString("bodyColor");
       if (!"".equals(var4)) {
-         this.m.func_187227_b(N, var1.func_74779_i("bodyColor"));
+         this.m.set(N, var1.getString("bodyColor"));
       }
 
-      this.aA = var1.func_74767_n("editedColorManually");
-      UUID var5 = var1.func_186857_a("tribeId");
-      if (var5 != null && !this.field_70128_L) {
-         this.m.func_187227_b(aL, Optional.of(var5));
+      this.aA = var1.getBoolean("editedColorManually");
+      UUID var5 = var1.getUniqueId("tribeId");
+      if (var5 != null && !this.isDead) {
+         this.m.set(aL, Optional.of(var5));
          if (!KoboldManager.o_clash70(var5)) {
-            KoboldManager.a(var5, EyeAndKoboldColor.valueOf((String)this.m.func_187225_a(N)));
+            KoboldManager.a(var5, EyeAndKoboldColor.valueOf((String)this.m.get(N)));
          }
 
          KoboldManager.c(var5, this);
-         if (var1.func_74767_n("isLeader")) {
+         if (var1.getBoolean("isLeader")) {
             KoboldManager.d(var5, this);
          }
 
-         this.m.func_187227_b(aU, var1.func_74779_i("tribeName"));
+         this.m.set(aU, var1.getString("tribeName"));
       }
    }
 
@@ -2518,13 +2518,13 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return false;
       }
 
-      Block var1 = this.field_70170_p.func_180495_p(this.func_180425_c().func_177982_a(0, 1, 0)).func_177230_c();
-      return !var1.func_176205_b(this.field_70170_p, this.func_180425_c().func_177982_a(0, 1, 0));
+      Block var1 = this.world.getBlockState(this.getPosition().add(0, 1, 0)).getBlock();
+      return !var1.isPassable(this.world, this.getPosition().add(0, 1, 0));
    }
 
    boolean f_clash625() {
       for (int var1 = 0; var1 < this.X.getSlots(); var1++) {
-         if (!this.X.getStackInSlot(var1).func_190926_b()) {
+         if (!this.X.getStackInSlot(var1).isEmpty()) {
             return false;
          }
       }
@@ -2537,8 +2537,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       for (BlockPos var4 : var1.g_clash203()) {
          try {
-            IBlockState var5 = this.field_70170_p.func_180495_p(var4);
-            ItemStack var6 = var5.func_177230_c().func_185473_a(this.field_70170_p, var4, var5);
+            IBlockState var5 = this.world.getBlockState(var4);
+            ItemStack var6 = var5.getBlock().getItem(this.world, var4, var5);
             var2.add(var6);
          } catch (IllegalArgumentException var7) {
          }
@@ -2574,25 +2574,25 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    boolean a(ItemStackHandler var1, ItemStack var2, boolean var3, boolean var4) {
       for (int var5 = 0; var5 < var1.getSlots(); var5++) {
          ItemStack var6 = var1.getStackInSlot(var5);
-         if (var6.func_77973_b() == var2.func_77973_b() && var6.func_77960_j() == var2.func_77960_j()) {
-            int var7 = var6.func_77976_d();
-            if (var7 > var2.func_190916_E() + var6.func_190916_E()) {
+         if (var6.getItem() == var2.getItem() && var6.getMetadata() == var2.getMetadata()) {
+            int var7 = var6.getMaxStackSize();
+            if (var7 > var2.getCount() + var6.getCount()) {
                if (!var3) {
-                  var6.func_190920_e(var6.func_190916_E() + var2.func_190916_E());
+                  var6.setCount(var6.getCount() + var2.getCount());
                }
 
                return true;
             }
 
-            int var8 = var7 - var6.func_190916_E();
-            var6.func_190920_e(var7);
-            var2.func_190920_e(var2.func_190916_E() - var8);
+            int var8 = var7 - var6.getCount();
+            var6.setCount(var7);
+            var2.setCount(var2.getCount() - var8);
          }
       }
 
       for (int var9 = 0; var9 < var1.getSlots(); var9++) {
          ItemStack var11 = var1.getStackInSlot(var9);
-         if (var11.func_77973_b() == Items.field_190931_a) {
+         if (var11.getItem() == Items.AIR) {
             if (!var3) {
                var1.setStackInSlot(var9, var2);
             }
@@ -2609,15 +2609,15 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return false;
       }
 
-      EntityItem var10 = new EntityItem(this.field_70170_p);
-      var10.func_92058_a(var2);
-      var10.func_70107_b(this.field_70165_t, this.field_70163_u, this.field_70161_v);
-      this.field_70170_p.func_72838_d(var10);
+      EntityItem var10 = new EntityItem(this.world);
+      var10.setItem(var2);
+      var10.setPosition(this.posX, this.posY, this.posZ);
+      this.world.spawnEntity(var10);
       return false;
    }
 
    void b(SoundEvent var1, float var2) {
-      float var3 = 0.25F - (Float)this.m.func_187225_a(aE);
+      float var3 = 0.25F - (Float)this.m.get(aE);
       double var4 = var3 / 0.25F;
       float var6 = (float)RotationHelper.b(0.9F, 1.1F, var4);
       this.a(var1, var2, var6);
@@ -2632,12 +2632,12 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void b(SoundEvent[] var1, float var2) {
-      this.b(var1[this.func_70681_au().nextInt(var1.length)], var2);
+      this.b(var1[this.getRNG().nextInt(var1.length)], var2);
    }
 
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.field_70170_p instanceof SexWorldClient) {
+      if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
 
@@ -2645,7 +2645,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          this.p_clash506();
       }
 
-      float var2 = 0.25F - (Float)this.func_184212_Q().func_187225_a(aE);
+      float var2 = 0.25F - (Float)this.getDataManager().get(aE);
       GeckoLibCache.getInstance().parser.setValue("size", var2);
       switch (var1.getController().getName()) {
          case "eyes":
@@ -2658,18 +2658,18 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.kobold.null", true, var1);
-            } else if (this.func_184218_aH()) {
+            } else if (this.isRiding()) {
                this.a("animation.kobold.sit", true, var1);
             } else {
-               double var5 = Math.abs(this.field_70169_q - this.field_70165_t) + Math.abs(this.field_70166_s - this.field_70161_v);
-               if (!(Boolean)this.m.func_187225_a(G) && var5 > 0.0) {
-                  if (this.field_70122_E && Math.abs(Math.abs(this.field_70167_r) - Math.abs(this.field_70163_u)) < 0.1F) {
-                     this.field_70177_z = this.field_70759_as;
+               double var5 = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
+               if (!(Boolean)this.m.get(G) && var5 > 0.0) {
+                  if (this.onGround && Math.abs(Math.abs(this.prevPosY) - Math.abs(this.posY)) < 0.1F) {
+                     this.rotationYaw = this.rotationYawHead;
                      double var9 = 1.0 + var2 * 2.0F;
                      this.E.setAnimationSpeed(var9);
                      if (this.a_clash355()) {
                         this.a("animation.kobold.crouch_walk", true, var1);
-                     } else if ((Boolean)this.m.func_187225_a(aC)) {
+                     } else if ((Boolean)this.m.get(aC)) {
                         this.a("animation.kobold.run_armed", true, var1);
                      } else if (var5 > 0.2F) {
                         this.a("animation.kobold.run", true, var1);
@@ -2682,7 +2682,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                } else if (this.a_clash355()) {
                   this.a("animation.kobold.crouch_idle", true, var1);
                } else {
-                  this.a(this.m.func_187225_a(aC) ? "animation.kobold.idle_armed" : "animation.kobold.idle", true, var1);
+                  this.a(this.m.get(aC) ? "animation.kobold.idle_armed" : "animation.kobold.idle", true, var1);
                }
             }
             break;
@@ -2760,7 +2760,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackSound":
-               this.a(SoundEvents.field_187727_dV);
+               this.a(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
                break;
             case "paymentMSG1":
                this.a(this.getInteractionPlayerUUID(), "I'd like to use ur services owo");
@@ -2781,28 +2781,28 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                break;
             case "blowjobStartMSG1":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var11 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var13 = ck.rotateByYaw(new Vec3d(0.0, 0.625 - var11.func_70047_e(), -1.0), this.getYawRotation() + 180.0F);
+                  EntityPlayerSP var11 = Minecraft.getMinecraft().player;
+                  Vec3d var13 = ck.rotateByYaw(new Vec3d(0.0, 0.625 - var11.getEyeHeight(), -1.0), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(
-                        new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var13), this.getYawRotation() + 180.0F, 0.0F)
+                        new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var13), this.getYawRotation() + 180.0F, 0.0F)
                      );
                }
                break;
             case "blowjobStartMSG2":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var10 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var12 = ck.rotateByYaw(new Vec3d(0.5, 0.5 - var10.func_70047_e(), -0.6875), this.getYawRotation() + 180.0F);
+                  EntityPlayerSP var10 = Minecraft.getMinecraft().player;
+                  Vec3d var12 = ck.rotateByYaw(new Vec3d(0.5, 0.5 - var10.getEyeHeight(), -0.6875), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(
                         new TeleportPlayerPacket(
-                           this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var12), this.getYawRotation() + 180.0F - 40.0F, 0.0F
+                           this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var12), this.getYawRotation() + 180.0F - 40.0F, 0.0F
                         )
                      );
                }
                break;
             case "lipsound":
-               if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.GIRLS_ALLIE_LIPSOUND, 1.5F);
                } else {
                   this.a(SoundHandler.GIRLS_JENNY_LIPSOUND, 1.5F);
@@ -2822,7 +2822,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                }
                break;
             case "switch":
-               this.aT = this.func_70681_au().nextBoolean();
+               this.aT = this.getRNG().nextBoolean();
                this.C.clearAnimationCache();
                break;
             case "endSwitch":
@@ -2856,10 +2856,10 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                break;
             case "analStartCam":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var9 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.5625 - var9.func_70047_e(), 0.5625), this.getYawRotation() + 180.0F);
+                  EntityPlayerSP var9 = Minecraft.getMinecraft().player;
+                  Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.5625 - var9.getEyeHeight(), 0.5625), this.getYawRotation() + 180.0F);
                   PacketHandler.b
-                     .sendToServer(new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var5), this.getYawRotation(), 0.0F));
+                     .sendToServer(new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var5), this.getYawRotation(), 0.0F));
                }
                break;
             case "pounding":
@@ -2931,15 +2931,15 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                this.b(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_BJMOAN));
                break;
             case "blowjobStartbreath":
-               int var6 = this.func_70681_au().nextInt(3);
+               int var6 = this.getRNG().nextInt(3);
                this.b(SoundHandler.GIRLS_KOBOLD_LIGHTBREATHING[var6]);
                break;
             case "matingCam":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var8 = Minecraft.func_71410_x().field_71439_g;
+                  EntityPlayerSP var8 = Minecraft.getMinecraft().player;
                   Vec3d var16 = new Vec3d(0.0, 0.4375 - var8.eyeHeight, -0.6875);
                   var16 = ck.rotateByYaw(var16, this.getYawRotation() + 180.0F);
-                  var16 = var16.func_178787_e(this.getTargetPosition());
+                  var16 = var16.add(this.getTargetPosition());
                   PacketHandler.b.sendToServer(new TeleportPlayerPacket(var8.getPersistentID().toString(), var16, this.getYawRotation() + 180.0F, 10.0F));
                }
                break;
@@ -2972,16 +2972,16 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                break;
             case "mating_cum_cam":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var4 = Minecraft.func_71410_x().field_71439_g;
+                  EntityPlayerSP var4 = Minecraft.getMinecraft().player;
                   Vec3d var7 = new Vec3d(0.0, 1.1875 - var4.eyeHeight, 0.125);
                   var7 = ck.rotateByYaw(var7, this.getYawRotation() + 180.0F);
-                  var7 = var7.func_178787_e(this.getTargetPosition());
+                  var7 = var7.add(this.getTargetPosition());
                   PacketHandler.b.sendToServer(new TeleportPlayerPacket(var4.getPersistentID().toString(), var7, this.getYawRotation() + 180.0F, 70.0F));
                }
                break;
             case "cumMsg":
                this.sendChatMessage("I.. hope I am satisfying you sir");
-               this.b(SoundHandler.GIRLS_KOBOLD_SAD[this.func_70681_au().nextInt(1)]);
+               this.b(SoundHandler.GIRLS_KOBOLD_SAD[this.getRNG().nextInt(1)]);
                break;
             case "renderEgg":
                this.Q = true;
@@ -3000,63 +3000,63 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       var1.addAnimationController(this.s);
    }
 
-   public int func_70302_i_() {
+   public int getSizeInventory() {
       return 27;
    }
 
-   public boolean func_191420_l() {
+   public boolean isEmpty() {
       return false;
    }
 
-   public ItemStack func_70301_a(int var1) {
-      return var1 >= this.X.getSlots() ? ItemStack.field_190927_a : this.X.getStackInSlot(var1);
+   public ItemStack getStackInSlot(int var1) {
+      return var1 >= this.X.getSlots() ? ItemStack.EMPTY : this.X.getStackInSlot(var1);
    }
 
-   public ItemStack func_70298_a(int var1, int var2) {
+   public ItemStack decrStackSize(int var1, int var2) {
       return this.X.extractItem(var1, var2, false);
    }
 
-   public ItemStack func_70304_b(int var1) {
-      return this.X.extractItem(var1, this.X.getStackInSlot(var1).func_190916_E(), false);
+   public ItemStack removeStackFromSlot(int var1) {
+      return this.X.extractItem(var1, this.X.getStackInSlot(var1).getCount(), false);
    }
 
-   public void func_70299_a(int var1, ItemStack var2) {
+   public void setInventorySlotContents(int var1, ItemStack var2) {
       this.X.setStackInSlot(var1, var2);
    }
 
-   public int func_70297_j_() {
+   public int getInventoryStackLimit() {
       return 64;
    }
 
-   public void func_70296_d() {
+   public void markDirty() {
    }
 
-   public boolean func_70300_a(EntityPlayer var1) {
+   public boolean isUsableByPlayer(EntityPlayer var1) {
       return true;
    }
 
-   public void func_174889_b(EntityPlayer var1) {
+   public void openInventory(EntityPlayer var1) {
    }
 
-   public void func_174886_c(EntityPlayer var1) {
+   public void closeInventory(EntityPlayer var1) {
    }
 
-   public boolean func_94041_b(int var1, ItemStack var2) {
+   public boolean isItemValidForSlot(int var1, ItemStack var2) {
       return true;
    }
 
-   public int func_174887_a_(int var1) {
+   public int getField(int var1) {
       return var1;
    }
 
-   public void func_174885_b(int var1, int var2) {
+   public void setField(int var1, int var2) {
    }
 
-   public int func_174890_g() {
+   public int getFieldCount() {
       return 0;
    }
 
-   public void func_174888_l() {
+   public void clear() {
    }
 
 
@@ -3067,14 +3067,14 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       public void a(LivingDeathEvent var1) {
          if (var1.getEntityLiving() instanceof KoboldEntity) {
             KoboldEntity var2 = (KoboldEntity)var1.getEntityLiving();
-            if (var2.field_70170_p.field_72995_K) {
+            if (var2.world.isRemote) {
                return;
             }
 
             for (int var3 = 0; var3 < var2.X.getSlots(); var3++) {
                ItemStack var4 = var2.X.getStackInSlot(var3);
-               if (var4.func_77973_b() != Items.field_190931_a) {
-                  var2.func_145779_a(var4.func_77973_b(), var4.func_190916_E());
+               if (var4.getItem() != Items.AIR) {
+                  var2.dropItem(var4.getItem(), var4.getCount());
                }
             }
          }
@@ -3083,18 +3083,18 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       @SubscribeEvent
       public void b(LivingHurtEvent var1) {
          Entity var2 = var1.getEntity();
-         World var3 = var2.func_130014_f_();
-         if (!var3.field_72995_K) {
+         World var3 = var2.getEntityWorld();
+         if (!var3.isRemote) {
             if (var2 instanceof KoboldEntity) {
                KoboldEntity var4 = (KoboldEntity)var2;
-               Optional var5 = (Optional)var4.func_184212_Q().func_187225_a(KoboldEntity.aL);
+               Optional var5 = (Optional)var4.getDataManager().get(KoboldEntity.aL);
                if (var5.isPresent()) {
-                  Entity var6 = var1.getSource().func_76346_g();
+                  Entity var6 = var1.getSource().getTrueSource();
                   if (var6 != null) {
                      if (var6 instanceof EntityLivingBase) {
                         if (var6 instanceof EntityPlayer) {
                            EntityPlayer var7 = (EntityPlayer)var6;
-                           if (var7.field_71075_bZ.field_75098_d) {
+                           if (var7.capabilities.isCreativeMode) {
                               return;
                            }
 
@@ -3105,7 +3105,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
                         EntityPlayer var8 = var4.z_clash528();
                         if (var8 != null) {
-                           var8.func_146105_b(new TextComponentString(TextFormatting.RED + "Your Tribe is under Attack!"), true);
+                           var8.sendStatusMessage(new TextComponentString(TextFormatting.RED + "Your Tribe is under Attack!"), true);
                         }
 
                         KoboldManager.a((UUID)var5.get(), (EntityLivingBase)var6);
@@ -3122,7 +3122,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
                if (var3 instanceof KoboldEntity) {
                   KoboldEntity var4 = (KoboldEntity)var3;
-                  Optional var5 = (Optional)var4.func_184212_Q().func_187225_a(KoboldEntity.aL);
+                  Optional var5 = (Optional)var4.getDataManager().get(KoboldEntity.aL);
                   if (var5.isPresent() && KoboldManager.e((UUID)var5.get(), var4)) {
                      var4.s((UUID)var5.get());
                   }
@@ -3134,10 +3134,10 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       @SubscribeEvent
       public void a(LivingHurtEvent var1) {
-         if (var1.getSource() == DamageSource.field_76368_d) {
+         if (var1.getSource() == DamageSource.IN_WALL) {
             Entity var2 = var1.getEntity();
             if (var2 instanceof KoboldEntity) {
-               var2.func_70107_b(var2.field_70165_t, var2.field_70163_u + 1.0, var2.field_70161_v);
+               var2.setPosition(var2.posX, var2.posY + 1.0, var2.posZ);
                var1.setCanceled(true);
             }
          }
@@ -3146,7 +3146,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
       public void a(ClientTickEvent var1) {
-         WorldClient var2 = Minecraft.func_71410_x().field_71441_e;
+         WorldClient var2 = Minecraft.getMinecraft().world;
          if (var2 != null) {
             if (++this.a % 20 == 0) {
                PacketHandler.b.sendToServer(new GetTribeUiValuesPacket());

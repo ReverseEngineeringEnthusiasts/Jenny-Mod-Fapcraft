@@ -45,28 +45,28 @@ public class CustomModelList extends GuiListExtended {
    float g = 0.0F;
 
    public CustomModelList(Minecraft var1, ClothingScreen var2) {
-      super(var1, var2.field_146294_l / 2, var2.field_146295_m, 0, var2.field_146295_m, 30);
-      e = var2.field_146294_l / 2;
+      super(var1, var2.width / 2, var2.height, 0, var2.height, 30);
+      e = var2.width / 2;
       this.d = var2;
    }
 
-   public IGuiListEntry func_148180_b(int var1) {
+   public IGuiListEntry getListEntry(int var1) {
       return this.b.get(var1);
    }
 
-   protected int func_148127_b() {
+   protected int getSize() {
       return this.b.size();
    }
 
-   protected int func_148137_d() {
+   protected int getScrollBarX() {
       return 0;
    }
 
    protected void drawContainerBackground(Tessellator var1) {
    }
 
-   public void func_178039_p() {
-      if (this.func_148141_e(this.field_148162_h)) {
+   public void handleMouseInput() {
+      if (this.isMouseYWithinSlotBounds(this.mouseY)) {
          int var1 = Mouse.getEventDWheel();
          if (var1 != 0) {
             byte var2;
@@ -76,25 +76,25 @@ public class CustomModelList extends GuiListExtended {
                var2 = 1;
             }
 
-            this.field_148169_q = this.field_148169_q + var2 * this.field_148149_f / 2;
+            this.amountScrolled = this.amountScrolled + var2 * this.slotHeight / 2;
          }
       }
    }
 
-   protected void func_148136_c(int var1, int var2, int var3, int var4) {
+   protected void overlayBackground(int var1, int var2, int var3, int var4) {
    }
 
    void a_clash764() {
-      int var1 = this.b.size() * this.field_148149_f;
-      if (var1 > this.field_148158_l) {
-         this.field_148153_b = 0;
+      int var1 = this.b.size() * this.slotHeight;
+      if (var1 > this.height) {
+         this.top = 0;
       } else {
-         int var2 = this.field_148158_l - var1;
-         this.field_148153_b = var2 / 2;
+         int var2 = this.height - var1;
+         this.top = var2 / 2;
       }
    }
 
-   public void func_148128_a(int var1, int var2, float var3) {
+   public void drawScreen(int var1, int var2, float var3) {
       this.b.clear();
       int var4 = 0;
 
@@ -114,87 +114,87 @@ public class CustomModelList extends GuiListExtended {
       this.a_clash764();
       this.a(var1, var2, var3);
       if (this.h) {
-         this.func_148145_f(999999);
+         this.scrollBy(999999);
          this.h = false;
       }
    }
 
    void a(int var1, int var2, float var3) {
-      if (this.field_178041_q) {
-         this.field_148150_g = var1;
-         this.field_148162_h = var2;
-         this.func_148123_a();
-         int var4 = this.func_148137_d();
+      if (this.visible) {
+         this.mouseX = var1;
+         this.mouseY = var2;
+         this.drawBackground();
+         int var4 = this.getScrollBarX();
          int var5 = var4 + 6;
-         this.func_148121_k();
-         GlStateManager.func_179140_f();
-         GlStateManager.func_179106_n();
-         Tessellator var6 = Tessellator.func_178181_a();
-         BufferBuilder var7 = var6.func_178180_c();
+         this.bindAmountScrolled();
+         GlStateManager.disableLighting();
+         GlStateManager.disableFog();
+         Tessellator var6 = Tessellator.getInstance();
+         BufferBuilder var7 = var6.getBuffer();
          this.drawContainerBackground(var6);
-         int var8 = this.field_148152_e + this.field_148155_a / 2 - this.func_148139_c() / 2 + 2;
-         int var9 = this.field_148153_b + 4 - (int)this.field_148169_q;
-         if (this.field_148165_u) {
-            this.func_148129_a(var8, var9, var6);
+         int var8 = this.left + this.width / 2 - this.getListWidth() / 2 + 2;
+         int var9 = this.top + 4 - (int)this.amountScrolled;
+         if (this.hasListHeader) {
+            this.drawListHeader(var8, var9, var6);
          }
 
-         this.func_192638_a(var8, var9, var1, var2, var3);
-         GlStateManager.func_179097_i();
-         this.func_148136_c(0, this.field_148153_b, 255, 255);
-         this.func_148136_c(this.field_148154_c, this.field_148158_l, 255, 255);
-         GlStateManager.func_179147_l();
-         GlStateManager.func_187428_a(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ZERO, DestFactor.ONE);
-         GlStateManager.func_179118_c();
-         GlStateManager.func_179103_j(7425);
-         GlStateManager.func_179090_x();
-         int var10 = this.func_148135_f();
+         this.drawSelectionBox(var8, var9, var1, var2, var3);
+         GlStateManager.disableDepth();
+         this.overlayBackground(0, this.top, 255, 255);
+         this.overlayBackground(this.bottom, this.height, 255, 255);
+         GlStateManager.enableBlend();
+         GlStateManager.tryBlendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ZERO, DestFactor.ONE);
+         GlStateManager.disableAlpha();
+         GlStateManager.shadeModel(7425);
+         GlStateManager.disableTexture2D();
+         int var10 = this.getMaxScroll();
          if (var10 > 0) {
-            int var11 = (this.field_148154_c - this.field_148153_b) * (this.field_148154_c - this.field_148153_b) / this.func_148138_e();
-            var11 = MathHelper.func_76125_a(var11, 32, this.field_148154_c - this.field_148153_b - 8);
-            int var12 = (int)this.field_148169_q * (this.field_148154_c - this.field_148153_b - var11) / var10 + this.field_148153_b;
-            if (var12 < this.field_148153_b) {
-               var12 = this.field_148153_b;
+            int var11 = (this.bottom - this.top) * (this.bottom - this.top) / this.getContentHeight();
+            var11 = MathHelper.clamp(var11, 32, this.bottom - this.top - 8);
+            int var12 = (int)this.amountScrolled * (this.bottom - this.top - var11) / var10 + this.top;
+            if (var12 < this.top) {
+               var12 = this.top;
             }
 
-            var7.func_181668_a(7, DefaultVertexFormats.field_181709_i);
-            var7.func_181662_b(var4, this.field_148154_c, 0.0).func_187315_a(0.0, 1.0).func_181669_b(0, 0, 0, 255).func_181675_d();
-            var7.func_181662_b(var5, this.field_148154_c, 0.0).func_187315_a(1.0, 1.0).func_181669_b(0, 0, 0, 255).func_181675_d();
-            var7.func_181662_b(var5, this.field_148153_b, 0.0).func_187315_a(1.0, 0.0).func_181669_b(0, 0, 0, 255).func_181675_d();
-            var7.func_181662_b(var4, this.field_148153_b, 0.0).func_187315_a(0.0, 0.0).func_181669_b(0, 0, 0, 255).func_181675_d();
-            var6.func_78381_a();
-            var7.func_181668_a(7, DefaultVertexFormats.field_181709_i);
-            var7.func_181662_b(var4, var12 + var11, 0.0).func_187315_a(0.0, 1.0).func_181669_b(128, 128, 128, 255).func_181675_d();
-            var7.func_181662_b(var5, var12 + var11, 0.0).func_187315_a(1.0, 1.0).func_181669_b(128, 128, 128, 255).func_181675_d();
-            var7.func_181662_b(var5, var12, 0.0).func_187315_a(1.0, 0.0).func_181669_b(128, 128, 128, 255).func_181675_d();
-            var7.func_181662_b(var4, var12, 0.0).func_187315_a(0.0, 0.0).func_181669_b(128, 128, 128, 255).func_181675_d();
-            var6.func_78381_a();
-            var7.func_181668_a(7, DefaultVertexFormats.field_181709_i);
-            var7.func_181662_b(var4, var12 + var11 - 1, 0.0).func_187315_a(0.0, 1.0).func_181669_b(192, 192, 192, 255).func_181675_d();
-            var7.func_181662_b(var5 - 1, var12 + var11 - 1, 0.0).func_187315_a(1.0, 1.0).func_181669_b(192, 192, 192, 255).func_181675_d();
-            var7.func_181662_b(var5 - 1, var12, 0.0).func_187315_a(1.0, 0.0).func_181669_b(192, 192, 192, 255).func_181675_d();
-            var7.func_181662_b(var4, var12, 0.0).func_187315_a(0.0, 0.0).func_181669_b(192, 192, 192, 255).func_181675_d();
-            var6.func_78381_a();
+            var7.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            var7.pos(var4, this.bottom, 0.0).tex(0.0, 1.0).color(0, 0, 0, 255).endVertex();
+            var7.pos(var5, this.bottom, 0.0).tex(1.0, 1.0).color(0, 0, 0, 255).endVertex();
+            var7.pos(var5, this.top, 0.0).tex(1.0, 0.0).color(0, 0, 0, 255).endVertex();
+            var7.pos(var4, this.top, 0.0).tex(0.0, 0.0).color(0, 0, 0, 255).endVertex();
+            var6.draw();
+            var7.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            var7.pos(var4, var12 + var11, 0.0).tex(0.0, 1.0).color(128, 128, 128, 255).endVertex();
+            var7.pos(var5, var12 + var11, 0.0).tex(1.0, 1.0).color(128, 128, 128, 255).endVertex();
+            var7.pos(var5, var12, 0.0).tex(1.0, 0.0).color(128, 128, 128, 255).endVertex();
+            var7.pos(var4, var12, 0.0).tex(0.0, 0.0).color(128, 128, 128, 255).endVertex();
+            var6.draw();
+            var7.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            var7.pos(var4, var12 + var11 - 1, 0.0).tex(0.0, 1.0).color(192, 192, 192, 255).endVertex();
+            var7.pos(var5 - 1, var12 + var11 - 1, 0.0).tex(1.0, 1.0).color(192, 192, 192, 255).endVertex();
+            var7.pos(var5 - 1, var12, 0.0).tex(1.0, 0.0).color(192, 192, 192, 255).endVertex();
+            var7.pos(var4, var12, 0.0).tex(0.0, 0.0).color(192, 192, 192, 255).endVertex();
+            var6.draw();
          }
 
-         this.func_148142_b(var1, var2);
-         GlStateManager.func_179098_w();
-         GlStateManager.func_179103_j(7424);
-         GlStateManager.func_179141_d();
-         GlStateManager.func_179084_k();
+         this.renderDecorations(var1, var2);
+         GlStateManager.enableTexture2D();
+         GlStateManager.shadeModel(7424);
+         GlStateManager.enableAlpha();
+         GlStateManager.disableBlend();
       }
    }
 
-   public boolean func_148179_a(int var1, int var2, int var3) {
+   public boolean mouseClicked(int var1, int var2, int var3) {
       this.a(var1, var2, var3);
-      return super.func_148179_a(var1, var2, var3);
+      return super.mouseClicked(var1, var2, var3);
    }
 
    void a(int var1, int var2, int var3) {
-      if (var1 <= this.field_148155_a) {
-         int var4 = this.func_148148_g();
-         float var5 = var4 + var2 - 5 - this.field_148153_b;
-         int var6 = Math.round((float)Math.floor(var5 / this.field_148149_f));
-         int var7 = (int)Math.round((var5 / this.field_148149_f - Math.floor(var5 / this.field_148149_f)) * this.field_148149_f);
+      if (var1 <= this.width) {
+         int var4 = this.getAmountScrolled();
+         float var5 = var4 + var2 - 5 - this.top;
+         int var6 = Math.round((float)Math.floor(var5 / this.slotHeight));
+         int var7 = (int)Math.round((var5 / this.slotHeight - Math.floor(var5 / this.slotHeight)) * this.slotHeight);
          if (var6 >= 0) {
             if (var6 < this.b.size()) {
                this.b.get(var6).a(var1, var7, var3, var6);
@@ -217,7 +217,7 @@ public class CustomModelList extends GuiListExtended {
          this.d = var2;
          this.b = var3;
          this.f = var4;
-         this.c = CustomModelList.this.field_148161_k.field_71466_p;
+         this.c = CustomModelList.this.mc.fontRenderer;
       }
 
       public a(boolean var2) {
@@ -238,15 +238,15 @@ public class CustomModelList extends GuiListExtended {
       void b(int var1, int var2, int var3) {
          int var4 = 30;
          var1 += 5;
-         CustomModelList.this.field_148161_k.field_71446_o.func_110577_a(ClothingScreen.k);
-         CustomModelList.this.d.func_73729_b(var4, var1, 40, this.b(var2, var3, var4, var1, 50, var1 + 20) ? 40 : 20, 20, 20);
+         CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.k);
+         CustomModelList.this.d.drawTexturedModalRect(var4, var1, 40, this.b(var2, var3, var4, var1, 50, var1 + 20) ? 40 : 20, 20, 20);
          var4 += 40;
-         CustomModelList.this.d.func_73729_b(var4, var1, this.e ? 60 : 80, this.e && this.b(var2, var3, var4, var1, var4 + 20, var1 + 20) ? 40 : 20, 20, 20);
+         CustomModelList.this.d.drawTexturedModalRect(var4, var1, this.e ? 60 : 80, this.e && this.b(var2, var3, var4, var1, var4 + 20, var1 + 20) ? 40 : 20, 20, 20);
       }
 
       void a(int var1, int var2, int var3) {
-         CustomModelList.this.field_148161_k.field_71446_o.func_110577_a(ClothingScreen.k);
-         CustomModelList.this.d.func_73729_b(5, var1, 0, 60, this.f == 0 ? 119 : 256, 30);
+         CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.k);
+         CustomModelList.this.d.drawTexturedModalRect(5, var1, 0, 60, this.f == 0 ? 119 : 256, 30);
          int var4 = 15;
          var1 += 5;
          CustomModelList.this.d.a(var4, var1, this.d.iconXPos);
@@ -255,9 +255,9 @@ public class CustomModelList extends GuiListExtended {
          BaseGirlEntity var5 = CustomModelList.this.d.d_clash823();
          SexSceneEntity var6;
          if (this.f == 0) {
-            var6 = SexSceneEntity.a(CustomModelList.this.field_148161_k.field_71441_e, var5.getGirlId(), this.d);
+            var6 = SexSceneEntity.a(CustomModelList.this.mc.world, var5.getGirlId(), this.d);
          } else {
-            var6 = new SexSceneEntity(var5.field_70170_p, var5.getGirlId(), this.b.get(this.f));
+            var6 = new SexSceneEntity(var5.world, var5.getGirlId(), this.b.get(this.f));
          }
 
          ServerWhitelistManager.b var7 = ServerWhitelistManager.b_clash142(var6.a_clash343());
@@ -269,31 +269,31 @@ public class CustomModelList extends GuiListExtended {
                CustomModelList.this.d.a_clash820(var6);
             }
 
-            CustomModelList.this.field_148161_k.field_71441_e.func_72973_f(var6);
+            CustomModelList.this.mc.world.removeEntityDangerously(var6);
             var4 = (int)(var4 + 30.0F);
             if (this.f != 0) {
                int var28 = var4;
                String var29 = this.b.get(this.f);
                String var30 = var29.length() > 10 ? var29.substring(0, 7) + "..." : var29;
                this.a(var30, var4, var1 + 10);
-               var4 += this.c.func_78256_a("MMMMMMMMMM");
+               var4 += this.c.getStringWidth("MMMMMMMMMM");
                int var31 = var4;
                int var32 = var4;
                String var33 = ServerWhitelistManager.d_clash141(var29);
                String var34 = var33.length() > 10 ? var33.substring(0, 7) + "..." : var33;
                this.a(var34, var4, var1 + 10);
-               var4 += this.c.func_78256_a("MMMMMMMMMM");
+               var4 += this.c.getStringWidth("MMMMMMMMMM");
                int var35 = var4;
-               if (this.b(var2, var3, var28, var1 + 10, var31, var1 + 10 + this.c.field_78288_b)) {
+               if (this.b(var2, var3, var28, var1 + 10, var31, var1 + 10 + this.c.FONT_HEIGHT)) {
                   CustomModelList.this.d.a(var29, var2, var3);
                }
 
-               if (this.b(var2, var3, var32, var1 + 10, var35, var1 + 10 + this.c.field_78288_b)) {
+               if (this.b(var2, var3, var32, var1 + 10, var35, var1 + 10 + this.c.FONT_HEIGHT)) {
                   CustomModelList.this.d.a(var33, var2, var3);
                }
 
-               GlStateManager.func_179131_c(1.0F, 1.0F, 1.0F, 1.0F);
-               GlStateManager.func_179131_c(255.0F, 255.0F, 255.0F, 255.0F);
+               GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+               GlStateManager.color(255.0F, 255.0F, 255.0F, 255.0F);
             }
          } else {
             if (!var6.f) {
@@ -305,31 +305,31 @@ public class CustomModelList extends GuiListExtended {
                CustomModelList.this.d.a_clash820(var6);
             }
 
-            CustomModelList.this.field_148161_k.field_71441_e.func_72973_f(var6);
+            CustomModelList.this.mc.world.removeEntityDangerously(var6);
             var4 = (int)(var4 + 30.0F);
             if (this.f != 0) {
                int var10 = var4;
                String var11 = this.b.get(this.f);
                String var12 = var11.length() > 10 ? var11.substring(0, 7) + "..." : var11;
                this.a(var12, var4, var1 + 10);
-               var4 += this.c.func_78256_a("MMMMMMMMMM");
+               var4 += this.c.getStringWidth("MMMMMMMMMM");
                int var13 = var4;
                int var14 = var4;
                String var15 = ServerWhitelistManager.d_clash141(var11);
                String var16 = var15.length() > 10 ? var15.substring(0, 7) + "..." : var15;
                this.a(var16, var4, var1 + 10);
-               var4 += this.c.func_78256_a("MMMMMMMMMM");
+               var4 += this.c.getStringWidth("MMMMMMMMMM");
                int var17 = var4;
-               if (this.b(var2, var3, var10, var1 + 10, var13, var1 + 10 + this.c.field_78288_b)) {
+               if (this.b(var2, var3, var10, var1 + 10, var13, var1 + 10 + this.c.FONT_HEIGHT)) {
                   CustomModelList.this.d.a(var11, var2, var3);
                }
 
-               if (this.b(var2, var3, var14, var1 + 10, var17, var1 + 10 + this.c.field_78288_b)) {
+               if (this.b(var2, var3, var14, var1 + 10, var17, var1 + 10 + this.c.FONT_HEIGHT)) {
                   CustomModelList.this.d.a(var15, var2, var3);
                }
 
-               GlStateManager.func_179131_c(1.0F, 1.0F, 1.0F, 1.0F);
-               GlStateManager.func_179131_c(255.0F, 255.0F, 255.0F, 255.0F);
+               GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+               GlStateManager.color(255.0F, 255.0F, 255.0F, 255.0F);
             }
          }
       }
@@ -342,13 +342,13 @@ public class CustomModelList extends GuiListExtended {
       }
 
       void a(int var1, int var2, int var3, int var4, int var5) {
-         CustomModelList.this.d.func_73729_b(var1, var2, 140, 20, 79, 20);
+         CustomModelList.this.d.drawTexturedModalRect(var1, var2, 140, 20, 79, 20);
          var1 += 4;
          int var6 = var1;
          int var7 = var1 + 71 - 4;
          float var8 = this.a_clash868(var2, var6, var7, var3, var4, var5);
          int var9 = (int)RotationHelper.lerp(var6, var7, var8);
-         CustomModelList.this.d.func_73729_b(var9, var2, this.b(var3, var4, var9, var2, var9 + 4, var2 + 20) ? 223 : 219, 20, 4, 20);
+         CustomModelList.this.d.drawTexturedModalRect(var9, var2, this.b(var3, var4, var9, var2, var9 + 4, var2 + 20) ? 223 : 219, 20, 4, 20);
          CustomModelList.this.d.c.a_clash557(var5, (int)(var8 * 100.0F));
       }
 
@@ -357,7 +357,7 @@ public class CustomModelList extends GuiListExtended {
             return this.a_clash869(var6);
          }
 
-         if (var4 > 0.33333334F * CustomModelList.this.d.field_146294_l) {
+         if (var4 > 0.33333334F * CustomModelList.this.d.width) {
             return this.a_clash869(var6);
          }
 
@@ -385,16 +385,16 @@ public class CustomModelList extends GuiListExtended {
 
       void b(int var1, int var2, int var3, int var4) {
          if (CustomModelList.this.d.c.h(var4)) {
-            CustomModelList.this.field_148161_k.field_71446_o.func_110577_a(ClothingScreen.k);
-            CustomModelList.this.d.func_73729_b(5, var1, 0, 60, 119, 30);
+            CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.k);
+            CustomModelList.this.d.drawTexturedModalRect(5, var1, 0, 60, 119, 30);
             int var10 = 15;
             var1 += 5;
             CustomModelList.this.d.a(var10, var1, CustomModelList.this.d.c.g(var4));
             var10 += 25;
             this.a(var10, var1, var2, var3, var4);
          } else {
-            CustomModelList.this.field_148161_k.field_71446_o.func_110577_a(ClothingScreen.k);
-            CustomModelList.this.d.func_73729_b(5, var1, 0, 90, 95, 30);
+            CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.k);
+            CustomModelList.this.d.drawTexturedModalRect(5, var1, 0, 90, 95, 30);
             int var6 = 15;
             var1 += 5;
             CustomModelList.this.d.a(var6, var1, CustomModelList.this.d.c.g(var4));
@@ -403,7 +403,7 @@ public class CustomModelList extends GuiListExtended {
          }
       }
 
-      public void func_192634_a(int var1, int var2, int var3, int var4, int var5, int var6, int var7, boolean var8, float var9) {
+      public void drawEntry(int var1, int var2, int var3, int var4, int var5, int var6, int var7, boolean var8, float var9) {
          if (this.a) {
             this.b(var3, var6, var7);
          } else if (this.d == BoneType.GIRL_SPECIFIC) {
@@ -414,15 +414,15 @@ public class CustomModelList extends GuiListExtended {
       }
 
       void a(String var1, int var2, int var3) {
-         this.c.func_78276_b(var1, var2, var3, 3809871);
-         GlStateManager.func_179131_c(1.0F, 1.0F, 1.0F, 1.0F);
+         this.c.drawString(var1, var2, var3, 3809871);
+         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
       }
 
       void b(int var1, int var2) {
          int var3 = 30;
          if (var1 > var3 && var1 < 50) {
             CustomModelList.this.h = true;
-            CustomModelList.this.field_148161_k.func_147118_V().func_147682_a(PositionedSoundRecord.func_184371_a(SoundEvents.field_187909_gi, 1.0F));
+            CustomModelList.this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             ArrayList var4 = new ArrayList();
             var4.add("cross");
             var4.addAll(ServerWhitelistManager.a_clash143(CustomModelList.this.d.c).get(BoneType.CUSTOM_BONE));
@@ -432,7 +432,7 @@ public class CustomModelList extends GuiListExtended {
          if (this.e) {
             var3 += 40;
             if (var1 > var3 && var1 < var3 + 20) {
-               CustomModelList.this.field_148161_k.func_147118_V().func_147682_a(PositionedSoundRecord.func_184371_a(SoundEvents.field_187909_gi, 1.0F));
+               CustomModelList.this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                ClothingScreen.m.remove(ClothingScreen.m.size() - 1);
             }
          }
@@ -470,14 +470,14 @@ public class CustomModelList extends GuiListExtended {
          }
       }
 
-      public void func_192633_a(int var1, int var2, int var3, float var4) {
+      public void updatePosition(int var1, int var2, int var3, float var4) {
       }
 
-      public boolean func_148278_a(int var1, int var2, int var3, int var4, int var5, int var6) {
+      public boolean mousePressed(int var1, int var2, int var3, int var4, int var5, int var6) {
          return false;
       }
 
-      public void func_148277_b(int var1, int var2, int var3, int var4, int var5, int var6) {
+      public void mouseReleased(int var1, int var2, int var3, int var4, int var5, int var6) {
       }
    }
 }

@@ -122,37 +122,37 @@ public abstract class d9 extends GirlPlayerRenderer {
 
       this.a(var7, var2);
       this.a(var7, var2, this.w, var1);
-      if (this.u && (this.s.func_77973_b() instanceof ItemBow || this.x.func_77973_b() instanceof ItemBow)) {
+      if (this.u && (this.s.getItem() instanceof ItemBow || this.x.getItem() instanceof ItemBow)) {
          if (var7.equals("armR")) {
-            var2.setRotationX(var2.getRotationX() - this.j.field_70125_A / 50.0F);
+            var2.setRotationX(var2.getRotationX() - this.j.rotationPitch / 50.0F);
          }
 
          if (var7.equals("armL")) {
-            var2.setRotationY(var2.getRotationY() - this.j.field_70125_A / 50.0F);
+            var2.setRotationY(var2.getRotationY() - this.j.rotationPitch / 50.0F);
          }
 
-         if (this.x.func_77973_b() instanceof ItemBow) {
+         if (this.x.getItem() instanceof ItemBow) {
             ItemStack var8 = this.x;
             this.x = this.s;
             this.s = var8;
          }
       }
 
-      if (this.u && this.s.func_77973_b() instanceof ItemShield) {
+      if (this.u && this.s.getItem() instanceof ItemShield) {
          if (var7.equals("armR")) {
             var2.setRotationZ(0.0F);
             var2.setRotationX(0.5F);
-         } else if (this.x.func_77973_b() instanceof ItemShield && var7.equals("armL")) {
+         } else if (this.x.getItem() instanceof ItemShield && var7.equals("armL")) {
             var2.setRotationZ(0.0F);
             var2.setRotationX(0.5F);
          }
       }
 
-      if (var7.equals("weapon") && !this.s.func_190926_b()) {
+      if (var7.equals("weapon") && !this.s.isEmpty()) {
          this.a(var1, var2, false);
       }
 
-      if (var7.equals("offhand") && !this.x.func_190926_b()) {
+      if (var7.equals("offhand") && !this.x.isEmpty()) {
          this.a(var1, var2, true);
       }
 
@@ -176,10 +176,10 @@ public abstract class d9 extends GirlPlayerRenderer {
             if (!this.p.contains(var7)) {
                for (GeoCube var12 : var2.childCubes) {
                   MATRIX_STACK.push();
-                  GlStateManager.func_179094_E();
+                  GlStateManager.pushMatrix();
                   this.q = var2;
                   this.a(var1, var12, var2, var3, var4, var5, var6, var9);
-                  GlStateManager.func_179121_F();
+                  GlStateManager.popMatrix();
                   MATRIX_STACK.pop();
                }
             }
@@ -207,7 +207,7 @@ public abstract class d9 extends GirlPlayerRenderer {
 
       for (GeoQuad var13 : var2.quads) {
          if (var13 != null) {
-            Vector3f var14 = new Vector3f(var13.normal.func_177958_n(), var13.normal.func_177956_o(), var13.normal.func_177952_p());
+            Vector3f var14 = new Vector3f(var13.normal.getX(), var13.normal.getY(), var13.normal.getZ());
             MATRIX_STACK.getNormalMatrix().transform(var14);
             if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var14.getX() < 0.0F) {
                var14.x *= -1.0F;
@@ -227,17 +227,17 @@ public abstract class d9 extends GirlPlayerRenderer {
             } else {
                Vec3i var16 = this.a_clash191(var3);
                var16 = this.a_clash195(var16);
-               var15 = BodyParts.a(this, var3, new Vec3d(var16.func_177958_n() / 255.0F, var16.func_177956_o() / 255.0F, var16.func_177952_p() / 255.0F), var14);
+               var15 = BodyParts.a(this, var3, new Vec3d(var16.getX() / 255.0F, var16.getY() / 255.0F, var16.getZ() / 255.0F), var14);
             }
 
             for (GeoVertex var19 : var13.vertices) {
                Vector4f var20 = new Vector4f(var19.position.getX(), var19.position.getY(), var19.position.getZ(), 1.0F);
                MATRIX_STACK.getModelMatrix().transform(var20);
-               var1.func_181662_b(var20.getX(), var20.getY(), var20.getZ())
-                  .func_187315_a(var19.textureU + var8, var19.textureV)
-                  .func_181666_a((float)var15.field_72450_a, (float)var15.field_72448_b, (float)var15.field_72449_c, var7)
-                  .func_181663_c(var14.getX(), var14.getY(), var14.getZ())
-                  .func_181675_d();
+               var1.pos(var20.getX(), var20.getY(), var20.getZ())
+                  .tex(var19.textureU + var8, var19.textureV)
+                  .color((float)var15.x, (float)var15.y, (float)var15.z, var7)
+                  .normal(var14.getX(), var14.getY(), var14.getZ())
+                  .endVertex();
             }
          }
       }

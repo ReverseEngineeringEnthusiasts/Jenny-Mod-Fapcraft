@@ -21,8 +21,8 @@ public class MatrixHelper {
       ((Buffer)c).clear();
       c.put(b);
       ((Buffer)c).flip();
-      GlStateManager.func_179110_a(c);
-      GlStateManager.func_179109_b(var1.rotationPointX / 16.0F, var1.rotationPointY / 16.0F, var1.rotationPointZ / 16.0F);
+      GlStateManager.multMatrix(c);
+      GlStateManager.translate(var1.rotationPointX / 16.0F, var1.rotationPointY / 16.0F, var1.rotationPointZ / 16.0F);
    }
 
    public static void a(float[] var0, Matrix4f var1) {

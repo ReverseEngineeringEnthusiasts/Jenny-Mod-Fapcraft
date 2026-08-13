@@ -35,7 +35,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
    public static final float b = 240.0F;
    public static final float g = 120.0F;
    static final float h = 0.05F;
-   static final Minecraft a = Minecraft.func_71410_x();
+   static final Minecraft a = Minecraft.getMinecraft();
    boolean c = false;
    f7 d;
 
@@ -45,10 +45,10 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
 
    @Override
    public void render(GeoModel var1, GalathCoinItem var2, float var3, float var4, float var5, float var6, float var7) {
-      GlStateManager.func_179129_p();
-      GlStateManager.func_179091_B();
-      BufferBuilder var8 = Tessellator.func_178181_a().func_178180_c();
-      var8.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+      GlStateManager.disableCull();
+      GlStateManager.enableRescaleNormal();
+      BufferBuilder var8 = Tessellator.getInstance().getBuffer();
+      var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       GeoBone var9 = null;
       this.c = false;
       GeoBone var10 = var1.topLevelBones.get(0);
@@ -67,33 +67,33 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
          }
       }
 
-      Tessellator.func_178181_a().func_78381_a();
+      Tessellator.getInstance().draw();
       float var13 = this.a_clash107(var3);
       this.d = this.a_clash108();
       if (!GirlSavedData.f) {
-         OpenGlHelper.func_77475_a(OpenGlHelper.field_77476_b, var13, var13);
+         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, var13, var13);
          GL11.glDisable(2896);
       }
 
-      var8.func_181668_a(7, DefaultVertexFormats.field_181709_i);
+      var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
       this.c = true;
       this.renderRecursively(var8, var9, var4, var5, var6, var7);
-      Tessellator.func_178181_a().func_78381_a();
+      Tessellator.getInstance().draw();
       GL11.glEnable(2896);
       MATRIX_STACK.pop();
-      GlStateManager.func_179101_C();
-      GlStateManager.func_179089_o();
-      GlStateManager.func_179117_G();
+      GlStateManager.disableRescaleNormal();
+      GlStateManager.enableCull();
+      GlStateManager.resetColor();
    }
 
    float a_clash107(float var1) {
-      if (a.field_71439_g.func_184614_ca() != this.currentItemStack && a.field_71439_g.func_184592_cb() != this.currentItemStack) {
+      if (a.player.getHeldItemMainhand() != this.currentItemStack && a.player.getHeldItemOffhand() != this.currentItemStack) {
          return this.b_clash109(var1);
       } else {
          long var2 = System.currentTimeMillis();
-         NBTTagCompound var4 = a.field_71439_g.getEntityData();
-         long var5 = var4.func_74763_f("sexmod:galath_coin_activation_time");
-         long var7 = var4.func_74763_f("sexmod:galath_coin_deactivation_time");
+         NBTTagCompound var4 = a.player.getEntityData();
+         long var5 = var4.getLong("sexmod:galath_coin_activation_time");
+         long var7 = var4.getLong("sexmod:galath_coin_deactivation_time");
          if (var5 != 0L) {
             return this.a(var2, var5, var1);
          } else if (var7 != 0L) {
@@ -123,13 +123,13 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
    }
 
    f7 a_clash108() {
-      if (a.field_71439_g.func_184614_ca() != this.currentItemStack && a.field_71439_g.func_184592_cb() != this.currentItemStack) {
+      if (a.player.getHeldItemMainhand() != this.currentItemStack && a.player.getHeldItemOffhand() != this.currentItemStack) {
          return e;
       } else {
          long var1 = System.currentTimeMillis();
-         NBTTagCompound var3 = a.field_71439_g.getEntityData();
-         long var4 = var3.func_74763_f("sexmod:galath_coin_activation_time");
-         long var6 = var3.func_74763_f("sexmod:galath_coin_deactivation_time");
+         NBTTagCompound var3 = a.player.getEntityData();
+         long var4 = var3.getLong("sexmod:galath_coin_activation_time");
+         long var6 = var3.getLong("sexmod:galath_coin_deactivation_time");
          if (var4 != 0L) {
             return this.b(var4, var1);
          } else if (var6 != 0L) {
@@ -159,7 +159,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
    }
 
    float b_clash109(float var1) {
-      return (float)(60.0 * Math.sin((a.field_71439_g.field_70173_aa + var1) * 0.05F) + 180.0);
+      return (float)(60.0 * Math.sin((a.player.ticksExisted + var1) * 0.05F) + 180.0);
    }
 
    void a(BufferBuilder var1, GeoCube var2) {
@@ -168,10 +168,10 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
             for (GeoVertex var10 : var6.vertices) {
                Vector4f var11 = new Vector4f(var10.position.getX(), var10.position.getY(), var10.position.getZ(), 1.0F);
                MATRIX_STACK.getModelMatrix().transform(var11);
-               var1.func_181662_b(var11.getX(), var11.getY(), var11.getZ())
-                  .func_187315_a(var10.textureU, var10.textureV)
-                  .func_181666_a(this.d.a, this.d.c, this.d.b, 1.0F)
-                  .func_181675_d();
+               var1.pos(var11.getX(), var11.getY(), var11.getZ())
+                  .tex(var10.textureU, var10.textureV)
+                  .color(this.d.a, this.d.c, this.d.b, 1.0F)
+                  .endVertex();
             }
          }
       }
@@ -187,7 +187,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       } else {
          for (GeoQuad var10 : var2.quads) {
             if (var10 != null) {
-               Vector3f var11 = new Vector3f(var10.normal.func_177958_n(), var10.normal.func_177956_o(), var10.normal.func_177952_p());
+               Vector3f var11 = new Vector3f(var10.normal.getX(), var10.normal.getY(), var10.normal.getZ());
                MATRIX_STACK.getNormalMatrix().transform(var11);
                if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var11.getX() < 0.0F) {
                   var11.x *= -1.0F;
@@ -204,11 +204,11 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
                for (GeoVertex var15 : var10.vertices) {
                   Vector4f var16 = new Vector4f(var15.position.getX(), var15.position.getY(), var15.position.getZ(), 1.0F);
                   MATRIX_STACK.getModelMatrix().transform(var16);
-                  var1.func_181662_b(var16.getX(), var16.getY(), var16.getZ())
-                     .func_187315_a(var15.textureU, var15.textureV)
-                     .func_181666_a(var3, var4, var5, var6)
-                     .func_181663_c(var11.getX(), var11.getY(), var11.getZ())
-                     .func_181675_d();
+                  var1.pos(var16.getX(), var16.getY(), var16.getZ())
+                     .tex(var15.textureU, var15.textureV)
+                     .color(var3, var4, var5, var6)
+                     .normal(var11.getX(), var11.getY(), var11.getZ())
+                     .endVertex();
                }
             }
          }

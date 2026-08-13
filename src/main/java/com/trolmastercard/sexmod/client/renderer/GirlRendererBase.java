@@ -81,19 +81,19 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       float var4 = this.a_clash217();
       Vec3d var5 = this.a_clash218(var3);
       if (var3 != null) {
-         GlStateManager.func_179094_E();
-         Tessellator.func_178181_a().func_78381_a();
+         GlStateManager.pushMatrix();
+         Tessellator.getInstance().draw();
          com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
          GL11.glEnable(2896);
-         GlStateManager.func_179152_a(var4, var4, var4);
-         GlStateManager.func_179114_b((float)var5.field_72450_a, 1.0F, 0.0F, 0.0F);
-         GlStateManager.func_179114_b((float)var5.field_72448_b, 0.0F, 1.0F, 0.0F);
-         GlStateManager.func_179114_b((float)var5.field_72449_c, 0.0F, 0.0F, 1.0F);
-         Minecraft.func_71410_x().func_175597_ag().func_178099_a(this.j, var3, TransformType.THIRD_PERSON_RIGHT_HAND);
-         this.func_110776_a(Objects.requireNonNull(this.getEntityTexture(this.j)));
-         var1.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+         GlStateManager.scale(var4, var4, var4);
+         GlStateManager.rotate((float)var5.x, 1.0F, 0.0F, 0.0F);
+         GlStateManager.rotate((float)var5.y, 0.0F, 1.0F, 0.0F);
+         GlStateManager.rotate((float)var5.z, 0.0F, 0.0F, 1.0F);
+         Minecraft.getMinecraft().getItemRenderer().renderItem(this.j, var3, TransformType.THIRD_PERSON_RIGHT_HAND);
+         this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
+         var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          GL11.glDisable(2896);
-         GlStateManager.func_179121_F();
+         GlStateManager.popMatrix();
       }
    }
 
@@ -129,7 +129,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
 
    @Override
    public void a(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
-      if (!(this.j.field_70170_p instanceof SexWorldClient)) {
+      if (!(this.j.world instanceof SexWorldClient)) {
          String var9 = var2.getName();
          if (var9.equals("weapon")) {
             this.a(var1, var2);
@@ -149,10 +149,10 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
          if (!var2.isHidden) {
             for (GeoCube var11 : var2.childCubes) {
                MATRIX_STACK.push();
-               GlStateManager.func_179094_E();
+               GlStateManager.pushMatrix();
                this.q = var2;
                this.a(var1, var11, var2, var3, var4, var5, var6, var7);
-               GlStateManager.func_179121_F();
+               GlStateManager.popMatrix();
                MATRIX_STACK.pop();
             }
 
@@ -177,7 +177,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
 
       for (GeoQuad var13 : var2.quads) {
          if (var13 != null) {
-            Vector3f var14 = new Vector3f(var13.normal.func_177958_n(), var13.normal.func_177956_o(), var13.normal.func_177952_p());
+            Vector3f var14 = new Vector3f(var13.normal.getX(), var13.normal.getY(), var13.normal.getZ());
             MATRIX_STACK.getNormalMatrix().transform(var14);
             if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var14.getX() < 0.0F) {
                var14.x *= -1.0F;
@@ -194,17 +194,17 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
             Vec3i var15 = this.getCachedBoneColor(var3);
             var15 = this.a_clash219(var15);
             Vec3d var16 = BodyParts.a(
-               this, var3, new Vec3d(var15.func_177958_n() / 255.0F, var15.func_177956_o() / 255.0F, var15.func_177952_p() / 255.0F), var14
+               this, var3, new Vec3d(var15.getX() / 255.0F, var15.getY() / 255.0F, var15.getZ() / 255.0F), var14
             );
 
             for (GeoVertex var20 : var13.vertices) {
                Vector4f var21 = new Vector4f(var20.position.getX(), var20.position.getY(), var20.position.getZ(), 1.0F);
                MATRIX_STACK.getModelMatrix().transform(var21);
-               var1.func_181662_b(var21.getX(), var21.getY(), var21.getZ())
-                  .func_187315_a(var20.textureU + var8, var20.textureV)
-                  .func_181666_a((float)var16.field_72450_a, (float)var16.field_72448_b, (float)var16.field_72449_c, var7)
-                  .func_181663_c(var14.getX(), var14.getY(), var14.getZ())
-                  .func_181675_d();
+               var1.pos(var21.getX(), var21.getY(), var21.getZ())
+                  .tex(var20.textureU + var8, var20.textureV)
+                  .color((float)var16.x, (float)var16.y, (float)var16.z, var7)
+                  .normal(var14.getX(), var14.getY(), var14.getZ())
+                  .endVertex();
             }
          }
       }

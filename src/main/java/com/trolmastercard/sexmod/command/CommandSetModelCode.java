@@ -32,21 +32,21 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
       return false;
    }
 
-   public String func_71517_b() {
+   public String getName() {
       return "setmodelcode";
    }
 
-   public String func_71518_a(ICommandSender var1) {
+   public String getUsage(ICommandSender var1) {
       return "/setmodelcode";
    }
 
-   public boolean func_184882_a(MinecraftServer var1, ICommandSender var2) {
+   public boolean checkPermission(MinecraftServer var1, ICommandSender var2) {
       return true;
    }
 
-   public void func_184881_a(MinecraftServer var1, ICommandSender var2, String[] var3) {
-      Minecraft var4 = Minecraft.func_71410_x();
-      EntityPlayerSP var5 = var4.field_71439_g;
+   public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
+      Minecraft var4 = Minecraft.getMinecraft();
+      EntityPlayerSP var5 = var4.player;
       String var6 = "";
       String var7 = "";
       if (var3.length > 0) {
@@ -57,16 +57,16 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
          }
       }
 
-      RayTraceResult var10 = Minecraft.func_71410_x().field_71476_x;
+      RayTraceResult var10 = Minecraft.getMinecraft().objectMouseOver;
       BaseGirlEntity var9 = this.a(var10);
       if (var9 == null) {
-         var5.func_146105_b(new TextComponentString("You gotta transform into the girl you want to apply the model-code to"), true);
+         var5.sendStatusMessage(new TextComponentString("You gotta transform into the girl you want to apply the model-code to"), true);
       } else if ("".equals(var7)) {
          PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId()));
-         var5.func_146105_b(new TextComponentString(this.a_clash756(var9)), true);
+         var5.sendStatusMessage(new TextComponentString(this.a_clash756(var9)), true);
       } else {
          PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId(), BaseGirlEntity.c_clash554(var7)));
-         var5.func_146105_b(new TextComponentString(this.a_clash756(var9)), true);
+         var5.sendStatusMessage(new TextComponentString(this.a_clash756(var9)), true);
       }
    }
 
@@ -79,11 +79,11 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
    @SideOnly(Side.CLIENT)
    BaseGirlEntity a(RayTraceResult var1) {
       if (var1 == null) {
-         return AbstractPlayerGirlEntity.g(Minecraft.func_71410_x().field_71439_g);
+         return AbstractPlayerGirlEntity.g(Minecraft.getMinecraft().player);
       } else {
-         return BaseGirlEntity.a_clash542(var1.field_72308_g)
-            ? (BaseGirlEntity)var1.field_72308_g
-            : AbstractPlayerGirlEntity.g(Minecraft.func_71410_x().field_71439_g);
+         return BaseGirlEntity.a_clash542(var1.entityHit)
+            ? (BaseGirlEntity)var1.entityHit
+            : AbstractPlayerGirlEntity.g(Minecraft.getMinecraft().player);
       }
    }
 

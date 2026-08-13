@@ -36,20 +36,20 @@ public class CancelTaskPacket implements IMessage {
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeInt(this.b.func_177958_n());
-      var1.writeInt(this.b.func_177956_o());
-      var1.writeInt(this.b.func_177952_p());
+      var1.writeInt(this.b.getX());
+      var1.writeInt(this.b.getY());
+      var1.writeInt(this.b.getZ());
    }
 
    public static class Handler implements IMessageHandler<CancelTaskPacket, IMessage> {
       public IMessage onMessage(CancelTaskPacket var1, MessageContext var2) {
          if (var1.a && var2.side.equals(Side.SERVER)) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               UUID var2x = KoboldManager.getTribeUUID(var2.getServerHandler().field_147369_b.getPersistentID());
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+               UUID var2x = KoboldManager.getTribeUUID(var2.getServerHandler().player.getPersistentID());
                if (var2x != null) {
                   HashSet var3 = KoboldManager.c(var2x, var1.b);
                   if (!var3.isEmpty()) {
-                     PacketHandler.b.sendTo(new SendBlocksPacket(var3, false), var2.getServerHandler().field_147369_b);
+                     PacketHandler.b.sendTo(new SendBlocksPacket(var3, false), var2.getServerHandler().player);
                   }
                }
             });

@@ -48,18 +48,18 @@ public class PlayerActionPacket implements IMessage {
          if (var1.c && var2.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .func_152344_a(
+               .addScheduledTask(
                   () -> {
                      for (BaseGirlEntity var2x : BaseGirlEntity.getGirlEntityList()) {
-                        if (!var2x.field_70170_p.field_72995_K && var2x.getGirlId().equals(var1.a)) {
-                           ((EntityPlayerMP)var2x.field_70170_p.func_152378_a(var1.b))
+                        if (!var2x.world.isRemote && var2x.getGirlId().equals(var1.a)) {
+                           ((EntityPlayerMP)var2x.world.getPlayerEntityByUUID(var1.b))
                               .openGui(
                                  null,
                                  0,
-                                 var2x.field_70170_p,
-                                 var2x.func_180425_c().func_177958_n(),
-                                 var2x.func_180425_c().func_177956_o(),
-                                 var2x.func_180425_c().func_177952_p()
+                                 var2x.world,
+                                 var2x.getPosition().getX(),
+                                 var2x.getPosition().getY(),
+                                 var2x.getPosition().getZ()
                               );
                         }
                      }

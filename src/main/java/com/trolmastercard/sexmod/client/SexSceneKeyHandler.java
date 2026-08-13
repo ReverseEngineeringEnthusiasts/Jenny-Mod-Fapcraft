@@ -19,19 +19,19 @@ public class SexSceneKeyHandler {
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public void a(KeyInputEvent var1) {
-      if (ClientProxy.keyBindings[2].func_151468_f()) {
-         Minecraft var2 = Minecraft.func_71410_x();
-         if (var2.field_71439_g == null) {
+      if (ClientProxy.keyBindings[2].isPressed()) {
+         Minecraft var2 = Minecraft.getMinecraft();
+         if (var2.player == null) {
             return;
          }
 
-         UUID var3 = var2.field_71439_g.getPersistentID();
+         UUID var3 = var2.player.getPersistentID();
 
          try {
             for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {
-               if (var5.field_70170_p.field_72995_K && !var5.field_70128_L && var5.getInteractionPlayerUUID() != null) {
+               if (var5.world.isRemote && !var5.isDead && var5.getInteractionPlayerUUID() != null) {
                   UUID var6 = var5.getInteractionPlayerUUID();
-                  if (var3.equals(var6) || var2.field_71439_g.func_110124_au().equals(var6)) {
+                  if (var3.equals(var6) || var2.player.getUniqueID().equals(var6)) {
                      PacketHandler.b.sendToServer(new ResetGirlPacket(var5.getGirlId(), true));
                   }
                }

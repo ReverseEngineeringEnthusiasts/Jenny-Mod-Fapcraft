@@ -49,7 +49,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       return 1.5F;
    }
 
-   public float func_70047_e() {
+   public float getEyeHeight() {
       return 1.5F;
    }
 
@@ -75,7 +75,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    @SideOnly(Side.CLIENT)
    @Override
    public void H_clash570() {
-      BaseGirlEntity.a(Minecraft.func_71410_x().field_71439_g, this, new String[]{"anal", "doggy"}, false);
+      BaseGirlEntity.a(Minecraft.getMinecraft().player, this, new String[]{"anal", "doggy"}, false);
    }
 
    @Override
@@ -146,8 +146,8 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
       this.a_clash590();
    }
 
@@ -159,7 +159,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
 
    @SideOnly(Side.CLIENT)
    public boolean a_clash589(EntityPlayer var1) {
-      return Minecraft.func_71410_x().field_71439_g.getPersistentID().equals(var1.getPersistentID());
+      return Minecraft.getMinecraft().player.getPersistentID().equals(var1.getPersistentID());
    }
 
    void a_clash590() {
@@ -167,10 +167,10 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       if (var1 == fp.ANAL_WAIT || var1 == fp.SITDOWNIDLE) {
          EntityPlayer var2 = this.j_clash575();
          if (var2 != null) {
-            if (!(var2.func_70032_d(this) > 1.0F)) {
-               if (!this.field_70170_p.field_72995_K || this.a_clash589(var2)) {
+            if (!(var2.getDistance(this) > 1.0F)) {
+               if (!this.world.isRemote || this.a_clash589(var2)) {
                   if (this.ar == -1) {
-                     if (this.field_70170_p.field_72995_K) {
+                     if (this.world.isRemote) {
                         BeeScreen.enableInteraction();
                         d3.setMovementLock(false);
                      } else {
@@ -180,33 +180,33 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                      this.ar = 22;
                   } else if (--this.ar <= 0) {
                      this.ar = -1;
-                     var2.field_70145_X = true;
-                     var2.func_189654_d(true);
+                     var2.noClip = true;
+                     var2.setNoGravity(true);
                      if (var1 == fp.ANAL_WAIT) {
-                        if (!this.field_70170_p.field_72995_K) {
+                        if (!this.world.isRemote) {
                            this.b(fp.ANAL_START);
-                           Vec3d var8 = this.getTargetPosition().func_178787_e(ck.a(-0.3, -1.0, -0.5, this.getYawRotation()));
-                           var2.func_70634_a(var8.field_72450_a, var8.field_72448_b, var8.field_72449_c);
+                           Vec3d var8 = this.getTargetPosition().add(ck.a(-0.3, -1.0, -0.5, this.getYawRotation()));
+                           var2.setPositionAndUpdate(var8.x, var8.y, var8.z);
                         } else if (this.isControlledByLocalPlayer()) {
                            HornyMeterHud.showHornyMeter();
                         }
                      } else {
                         float var3 = this.getYawRotation();
-                        var2.field_70177_z = var3;
-                        var2.field_70125_A = 60.0F;
-                        if (!this.field_70170_p.field_72995_K) {
+                        var2.rotationYaw = var3;
+                        var2.rotationPitch = 60.0F;
+                        if (!this.world.isRemote) {
                            this.f(0);
                            this.b(fp.PRONE_DOGGY_INTRO);
                            Vec3d var4 = this.getTargetPosition();
-                           Vec3d var5 = var4.func_178787_e(ck.a(0.0, 0.0, 1.0, var3));
+                           Vec3d var5 = var4.add(ck.a(0.0, 0.0, 1.0, var3));
                            this.setTargetPosition(var5);
                            EntityPlayer var6 = this.k_clash584();
                            if (var6 != null) {
-                              var6.func_70634_a(var5.field_72450_a, var5.field_72448_b, var5.field_72449_c);
+                              var6.setPositionAndUpdate(var5.x, var5.y, var5.z);
                            }
 
-                           Vec3d var7 = var4.func_178787_e(ck.a(0.0, 1.1875 - var2.func_70047_e(), 0.5, var3));
-                           var2.func_70634_a(var7.field_72450_a, var7.field_72448_b, var7.field_72449_c);
+                           Vec3d var7 = var4.add(ck.a(0.0, 1.1875 - var2.getEyeHeight(), 0.5, var3));
+                           var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
                            this.setAnchored(true);
                         }
                      }
@@ -225,7 +225,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
          int var1 = this.aq;
 
          do {
-            this.aq = this.func_70681_au().nextInt(3) + 1;
+            this.aq = this.getRNG().nextInt(3) + 1;
          } while (var1 == this.aq);
       }
    }
@@ -406,7 +406,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "talk_responseDone":
                this.s();
-               if ((Integer)this.m.func_187225_a(BaseGirlEntity.D) != 0) {
+               if ((Integer)this.m.get(BaseGirlEntity.D) != 0) {
                   this.b(fp.STRIP);
                } else {
                   this.U();
@@ -513,7 +513,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "doggyMoan":
-               this.playRandomSound(this.func_70681_au().nextBoolean() ? SoundHandler.GIRLS_BIA_AHH : SoundHandler.GIRLS_BIA_MMM);
+               this.playRandomSound(this.getRNG().nextBoolean() ? SoundHandler.GIRLS_BIA_AHH : SoundHandler.GIRLS_BIA_MMM);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04);
                }

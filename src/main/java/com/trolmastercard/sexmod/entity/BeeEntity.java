@@ -56,14 +56,14 @@ public class BeeEntity extends BeeEntityBase {
    int P = 0;
    static final float O = 4800.0F;
    static final float Q = 10.0F;
-   public static final DataParameter<Boolean> M = EntityDataManager.func_187226_a(BeeEntity.class, DataSerializers.field_187198_h)
-      .func_187156_b()
-      .func_187161_a(112);
+   public static final DataParameter<Boolean> M = EntityDataManager.createKey(BeeEntity.class, DataSerializers.BOOLEAN)
+      .getSerializer()
+      .createKey(112);
 
    public BeeEntity(World var1) {
       super(var1);
-      this.field_70765_h = new EntityFlyHelper(this);
-      this.func_70105_a(0.3F, 1.5F);
+      this.moveHelper = new EntityFlyHelper(this);
+      this.setSize(0.3F, 1.5F);
    }
 
    @Override
@@ -77,49 +77,49 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    @Override
-   protected void func_70088_a() {
-      super.func_70088_a();
-      this.m.func_187214_a(M, false);
+   protected void entityInit() {
+      super.entityInit();
+      this.m.register(M, false);
    }
 
-   protected PathNavigate func_175447_b(World var1) {
+   protected PathNavigate createNavigator(World var1) {
       PathNavigateFlying var2 = new PathNavigateFlying(this, var1);
-      var2.func_192879_a(false);
-      var2.func_192877_c(true);
-      var2.func_192878_b(true);
+      var2.setCanOpenDoors(false);
+      var2.setCanFloat(true);
+      var2.setCanEnterDoors(true);
       this.f = var2;
       return var2;
    }
 
    @Override
-   protected void func_110147_ax() {
-      this.func_110140_aT().func_111150_b(SharedMonsterAttributes.field_111267_a);
-      this.func_110140_aT().func_111150_b(SharedMonsterAttributes.field_111266_c);
-      this.func_110140_aT().func_111150_b(SharedMonsterAttributes.field_111263_d);
-      this.func_110140_aT().func_111150_b(SharedMonsterAttributes.field_188791_g);
-      this.func_110140_aT().func_111150_b(SharedMonsterAttributes.field_189429_h);
-      this.func_110140_aT().func_111150_b(SharedMonsterAttributes.field_111265_b).func_111128_a(16.0);
-      this.func_110140_aT().func_111150_b(SharedMonsterAttributes.field_193334_e);
-      this.func_110148_a(SharedMonsterAttributes.field_111267_a).func_111128_a(12.0);
-      this.func_110148_a(SharedMonsterAttributes.field_193334_e).func_111128_a(0.4F);
-      this.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111128_a(0.2F);
+   protected void applyEntityAttributes() {
+      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.MAX_HEALTH);
+      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE);
+      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ARMOR);
+      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS);
+      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(16.0);
+      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.FLYING_SPEED);
+      this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(12.0);
+      this.getEntityAttribute(SharedMonsterAttributes.FLYING_SPEED).setBaseValue(0.4F);
+      this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.2F);
    }
 
    @Override
-   protected void func_184651_r() {
+   protected void initEntityAI() {
       this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-      this.field_70714_bg.func_75776_a(0, new GirlGotoGoal(this));
-      this.field_70714_bg.func_75776_a(1, new EntityAIPanic(this, 1.25));
-      this.field_70714_bg.func_75776_a(1, new EntityAISwimming(this));
-      this.field_70714_bg.func_75776_a(2, this.o);
-      this.field_70714_bg.func_75776_a(3, new EntityAIWanderAvoidWaterFlying(this, 1.0));
+      this.tasks.addTask(0, new GirlGotoGoal(this));
+      this.tasks.addTask(1, new EntityAIPanic(this, 1.25));
+      this.tasks.addTask(1, new EntityAISwimming(this));
+      this.tasks.addTask(2, this.o);
+      this.tasks.addTask(3, new EntityAIWanderAvoidWaterFlying(this, 1.0));
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
-      if (this.func_70644_a(HornyPotion.b) && this.N < 4800.0F && this.getInteractionPlayerUUID() == null) {
-         this.func_184589_d(HornyPotion.b);
+   public void updateAITasks() {
+      super.updateAITasks();
+      if (this.isPotionActive(HornyPotion.b) && this.N < 4800.0F && this.getInteractionPlayerUUID() == null) {
+         this.removePotionEffect(HornyPotion.b);
          this.N = 6.9420184E7F;
       }
 
@@ -144,24 +144,24 @@ public class BeeEntity extends BeeEntityBase {
          if (!this.J_clash526()) {
             this.N++;
             if (!(this.N < 4800.0F)) {
-               EntityPlayer var1 = this.field_70170_p.func_72890_a(this, 10.0);
+               EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
                if (var1 != null) {
                   if (d_clash532(var1) == null) {
                      if (!AbstractPlayerGirlEntity.e(var1)) {
-                        if (var1.func_70032_d(this) < 1.5F) {
+                        if (var1.getDistance(this) < 1.5F) {
                            this.N = 0.0F;
                            this.setInteractionPlayerUUID(var1.getPersistentID());
-                           this.m.func_187227_b(G, true);
+                           this.m.set(G, true);
                            this.setTargetPosition(this.aa_clash545());
-                           this.setYawRotation(var1.field_70177_z - 180.0F);
-                           this.f.func_75499_g();
+                           this.setYawRotation(var1.rotationYaw - 180.0F);
+                           this.f.clearPath();
                            PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
                            this.b(fp.CITIZEN_START);
                            Vec3d var2 = this.getVectorTowardPlayer(0.2);
-                           var1.func_70634_a(var2.field_72450_a, var2.field_72448_b, var2.field_72449_c);
+                           var1.setPositionAndUpdate(var2.x, var2.y, var2.z);
                         } else {
-                           this.f.func_75499_g();
-                           this.f.func_75497_a(var1, 1.0);
+                           this.f.clearPath();
+                           this.f.tryMoveToEntityLiving(var1, 1.0);
                         }
                      }
                   }
@@ -172,12 +172,12 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    void b_clash753() {
-      RayTraceResult var1 = this.field_70170_p.func_72933_a(this.func_174791_d(), new Vec3d(this.field_70165_t, 0.0, this.field_70161_v));
+      RayTraceResult var1 = this.world.rayTraceBlocks(this.getPositionVector(), new Vec3d(this.posX, 0.0, this.posZ));
       if (var1 != null) {
-         BlockPos var2 = var1.func_178782_a();
-         double var3 = this.field_70163_u - var2.func_177956_o();
-         if (var3 > 3.0 && this.field_70181_x > 0.0) {
-            this.field_70181_x = 0.0;
+         BlockPos var2 = var1.getBlockPos();
+         double var3 = this.posY - var2.getY();
+         if (var3 > 3.0 && this.motionY > 0.0) {
+            this.motionY = 0.0;
          }
       }
    }
@@ -185,19 +185,19 @@ public class BeeEntity extends BeeEntityBase {
    void a_clash754() {
       if (this.P != 0) {
          this.P++;
-         if ((Boolean)this.m.func_187225_a(M)) {
+         if ((Boolean)this.m.get(M)) {
             if (this.P < 40) {
-               for (EntityPlayer var2 : this.field_70170_p.field_73010_i) {
-                  if (var2.func_70032_d(this) < 15.0F) {
+               for (EntityPlayer var2 : this.world.playerEntities) {
+                  if (var2.getDistance(this) < 15.0F) {
                      ((EntityPlayerMP)var2)
-                        .field_71135_a
-                        .func_147359_a(
+                        .connection
+                        .sendPacket(
                            new SPacketParticles(
                               EnumParticleTypes.HEART,
                               true,
-                              (float)this.field_70165_t,
-                              (float)this.field_70163_u + 0.3F,
-                              (float)this.field_70161_v,
+                              (float)this.posX,
+                              (float)this.posY + 0.3F,
+                              (float)this.posZ,
                               0.2F,
                               0.3F,
                               0.2F,
@@ -212,17 +212,17 @@ public class BeeEntity extends BeeEntityBase {
                this.P = 0;
             }
          } else if (this.P < 200) {
-            for (EntityPlayer var6 : this.field_70170_p.field_73010_i) {
-               if (var6.func_70032_d(this) < 15.0F) {
+            for (EntityPlayer var6 : this.world.playerEntities) {
+               if (var6.getDistance(this) < 15.0F) {
                   ((EntityPlayerMP)var6)
-                     .field_71135_a
-                     .func_147359_a(
+                     .connection
+                     .sendPacket(
                         new SPacketParticles(
                            EnumParticleTypes.SPELL,
                            true,
-                           (float)this.field_70165_t,
-                           (float)this.field_70163_u + 0.3F,
-                           (float)this.field_70161_v,
+                           (float)this.posX,
+                           (float)this.posY + 0.3F,
+                           (float)this.posZ,
                            0.2F,
                            0.3F,
                            0.2F,
@@ -234,19 +234,19 @@ public class BeeEntity extends BeeEntityBase {
                }
             }
          } else if (this.P == 200) {
-            this.m.func_187227_b(M, this.func_70681_au().nextBoolean());
+            this.m.set(M, this.getRNG().nextBoolean());
          } else if (this.P < 250) {
-            for (EntityPlayer var7 : this.field_70170_p.field_73010_i) {
-               if (var7.func_70032_d(this) < 15.0F) {
+            for (EntityPlayer var7 : this.world.playerEntities) {
+               if (var7.getDistance(this) < 15.0F) {
                   ((EntityPlayerMP)var7)
-                     .field_71135_a
-                     .func_147359_a(
+                     .connection
+                     .sendPacket(
                         new SPacketParticles(
-                           this.m.func_187225_a(M) ? EnumParticleTypes.HEART : EnumParticleTypes.VILLAGER_ANGRY,
+                           this.m.get(M) ? EnumParticleTypes.HEART : EnumParticleTypes.VILLAGER_ANGRY,
                            true,
-                           (float)this.field_70165_t,
-                           (float)this.field_70163_u + 0.3F,
-                           (float)this.field_70161_v,
+                           (float)this.posX,
+                           (float)this.posY + 0.3F,
+                           (float)this.posZ,
                            0.2F,
                            0.3F,
                            0.2F,
@@ -261,17 +261,17 @@ public class BeeEntity extends BeeEntityBase {
             this.P = 0;
          }
 
-         for (EntityPlayer var8 : this.field_70170_p.field_73010_i) {
-            if (var8.func_70032_d(this) < 15.0F) {
+         for (EntityPlayer var8 : this.world.playerEntities) {
+            if (var8.getDistance(this) < 15.0F) {
                ((EntityPlayerMP)var8)
-                  .field_71135_a
-                  .func_147359_a(
+                  .connection
+                  .sendPacket(
                      new SPacketParticles(
                         EnumParticleTypes.SPELL,
                         true,
-                        (float)this.field_70165_t,
-                        (float)this.field_70163_u + 0.3F,
-                        (float)this.field_70161_v,
+                        (float)this.posX,
+                        (float)this.posY + 0.3F,
+                        (float)this.posZ,
                         0.2F,
                         0.3F,
                         0.2F,
@@ -286,35 +286,35 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
-      if (this.N < 4800.0F && !this.field_70122_E && this.field_70181_x < 0.0) {
-         this.field_70181_x *= 0.4;
+   public void onUpdate() {
+      super.onUpdate();
+      if (this.N < 4800.0F && !this.onGround && this.motionY < 0.0) {
+         this.motionY *= 0.4;
       }
    }
 
-   public void func_180430_e(float var1, float var2) {
+   public void fall(float var1, float var2) {
    }
 
-   protected boolean func_184645_a(EntityPlayer var1, EnumHand var2) {
-      if ((Boolean)this.m.func_187225_a(M)
-         && !(Boolean)this.m.func_187225_a(K)
-         && var1.func_184586_b(var2).func_77973_b() == Item.func_150898_a(Blocks.field_150486_ae)) {
-         this.m.func_187227_b(K, true);
-         var1.func_184586_b(var2).func_190918_g(1);
-         return super.func_184645_a(var1, var2);
+   protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
+      if ((Boolean)this.m.get(M)
+         && !(Boolean)this.m.get(K)
+         && var1.getHeldItem(var2).getItem() == Item.getItemFromBlock(Blocks.CHEST)) {
+         this.m.set(K, true);
+         var1.getHeldItem(var2).shrink(1);
+         return super.processInteract(var1, var2);
       }
 
-      if (this.field_70170_p.field_72995_K && (Boolean)this.m.func_187225_a(M)) {
+      if (this.world.isRemote && (Boolean)this.m.get(M)) {
          this.b_clash755(var1);
       }
 
-      return super.func_184645_a(var1, var2);
+      return super.processInteract(var1, var2);
    }
 
    @SideOnly(Side.CLIENT)
    void b_clash755(EntityPlayer var1) {
-      Minecraft.func_71410_x().func_147108_a(new BeeDialogueScreen(this, var1));
+      Minecraft.getMinecraft().displayGuiScreen(new BeeDialogueScreen(this, var1));
    }
 
    @Override
@@ -341,27 +341,27 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    @Override
-   public void func_70014_b(NBTTagCompound var1) {
-      super.func_70014_b(var1);
-      var1.func_74757_a("isTamed", (Boolean)this.m.func_187225_a(M));
-      var1.func_74757_a("hasChest", (Boolean)this.m.func_187225_a(K));
-      var1.func_74782_a("inventory", this.L.serializeNBT());
+   public void writeEntityToNBT(NBTTagCompound var1) {
+      super.writeEntityToNBT(var1);
+      var1.setBoolean("isTamed", (Boolean)this.m.get(M));
+      var1.setBoolean("hasChest", (Boolean)this.m.get(K));
+      var1.setTag("inventory", this.L.serializeNBT());
    }
 
-   public void func_70020_e(NBTTagCompound var1) {
-      super.func_70020_e(var1);
-      if (var1.func_74764_b("isTamed")) {
-         this.m.func_187227_b(M, var1.func_74767_n("isTamed"));
+   public void readFromNBT(NBTTagCompound var1) {
+      super.readFromNBT(var1);
+      if (var1.hasKey("isTamed")) {
+         this.m.set(M, var1.getBoolean("isTamed"));
       }
 
-      this.m.func_187227_b(K, var1.func_74767_n("hasChest"));
-      this.L.deserializeNBT(var1.func_74775_l("inventory"));
+      this.m.set(K, var1.getBoolean("hasChest"));
+      this.L.deserializeNBT(var1.getCompoundTag("inventory"));
    }
 
    @SideOnly(Side.CLIENT)
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.field_70170_p instanceof SexWorldClient) {
+      if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
 
@@ -370,7 +370,7 @@ public class BeeEntity extends BeeEntityBase {
             if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.bee.null", true, var1);
             } else {
-               this.a("animation.bee." + (this.m.func_187225_a(K) ? "idle_has_chest" : "idle"), true, var1);
+               this.a("animation.bee." + (this.m.get(K) ? "idle_has_chest" : "idle"), true, var1);
             }
             break;
          case "action":

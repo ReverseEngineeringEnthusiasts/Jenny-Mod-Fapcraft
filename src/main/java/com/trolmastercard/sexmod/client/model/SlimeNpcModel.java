@@ -46,7 +46,7 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations(var1, var2, var3);
       AnimationProcessor var4 = this.getAnimationProcessor();
-      if (!(var1.field_70170_p instanceof SexWorldClient) && var4.getBone("bedSlime") != null && var4.getBone("bedSlimeLayer") != null) {
+      if (!(var1.world instanceof SexWorldClient) && var4.getBone("bedSlime") != null && var4.getBone("bedSlimeLayer") != null) {
          var4.getBone("bedSlime").setHidden(!Arrays.asList(this.f).contains(var1.getCurrentAction()));
          var4.getBone("bedSlimeLayer").setHidden(!Arrays.asList(this.f).contains(var1.getCurrentAction()));
       }

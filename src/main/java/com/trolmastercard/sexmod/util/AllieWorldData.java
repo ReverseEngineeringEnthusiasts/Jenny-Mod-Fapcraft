@@ -34,14 +34,14 @@ public class AllieWorldData extends WorldSavedData {
    @SubscribeEvent
    public void a(Save var1) {
       World var2 = var1.getWorld();
-      var2.func_175693_T().func_75745_a("sexmod:customstaticgirlnames", this);
-      this.func_76185_a();
+      var2.getMapStorage().setData("sexmod:customstaticgirlnames", this);
+      this.markDirty();
    }
 
    @SubscribeEvent
    public void a(Load var1) {
       World var2 = var1.getWorld();
-      var2.func_175693_T().func_75742_a(AllieWorldData.class, "sexmod:customstaticgirlnames");
+      var2.getMapStorage().getOrLoadData(AllieWorldData.class, "sexmod:customstaticgirlnames");
    }
 
    public static void a(UUID var0, NpcType var1, String var2) {
@@ -60,8 +60,8 @@ public class AllieWorldData extends WorldSavedData {
       return var2 == null ? null : (String)var2.get(var1);
    }
 
-   public void func_76184_a(NBTTagCompound var1) {
-      for (String var3 : var1.func_150296_c()) {
+   public void readFromNBT(NBTTagCompound var1) {
+      for (String var3 : var1.getKeySet()) {
          UUID var4;
          try {
             var4 = UUID.fromString(var3);
@@ -69,14 +69,14 @@ public class AllieWorldData extends WorldSavedData {
             continue;
          }
 
-         b.put(var4, this.a(var1.func_74775_l(var3)));
+         b.put(var4, this.a(var1.getCompoundTag(var3)));
       }
    }
 
-   public NBTTagCompound func_189551_b(NBTTagCompound var1) {
+   public NBTTagCompound writeToNBT(NBTTagCompound var1) {
       for (Entry var3 : b.entrySet()) {
          UUID var4 = (UUID)var3.getKey();
-         var1.func_74782_a(var4.toString(), this.a_clash796((HashMap<NpcType, String>)var3.getValue()));
+         var1.setTag(var4.toString(), this.a_clash796((HashMap<NpcType, String>)var3.getValue()));
       }
 
       return var1;
@@ -86,7 +86,7 @@ public class AllieWorldData extends WorldSavedData {
       NBTTagCompound var2 = new NBTTagCompound();
 
       for (Entry var4 : var1.entrySet()) {
-         var2.func_74778_a(((NpcType)var4.getKey()).name(), (String)var4.getValue());
+         var2.setString(((NpcType)var4.getKey()).name(), (String)var4.getValue());
       }
 
       return var2;
@@ -96,7 +96,7 @@ public class AllieWorldData extends WorldSavedData {
       HashMap var2 = new HashMap();
 
       for (NpcType var6 : NpcType.values()) {
-         String var7 = var1.func_74779_i(var6.name());
+         String var7 = var1.getString(var6.name());
          if (!"".equals(var7)) {
             var2.put(var6, var7);
          }

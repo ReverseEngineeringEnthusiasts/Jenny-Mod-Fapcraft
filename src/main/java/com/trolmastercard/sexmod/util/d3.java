@@ -29,30 +29,30 @@ public class d3 {
    @SubscribeEvent
    public void a(InputUpdateEvent var1) {
       b = var1.getMovementInput();
-      d = b.field_78899_d;
-      a = b.field_78901_c;
+      d = b.sneak;
+      a = b.jump;
       if (!c) {
-         if (b.field_78901_c) {
+         if (b.jump) {
             AbstractPlayerGirlEntity.i_clash572();
          }
 
-         if (b.field_78899_d) {
-            BaseGirlEntity.k(Minecraft.func_71410_x().field_71439_g.getPersistentID());
+         if (b.sneak) {
+            BaseGirlEntity.k(Minecraft.getMinecraft().player.getPersistentID());
          }
 
-         if (b.field_78901_c && HornyMeterHud.c >= 1.0) {
-            BaseGirlEntity.f_clash534(Minecraft.func_71410_x().field_71439_g.getPersistentID());
+         if (b.jump && HornyMeterHud.c >= 1.0) {
+            BaseGirlEntity.f_clash534(Minecraft.getMinecraft().player.getPersistentID());
          }
 
-         b.field_187256_d = false;
-         b.field_187255_c = false;
-         b.field_187257_e = false;
-         b.field_187258_f = false;
-         b.field_78899_d = false;
-         b.field_78901_c = false;
-         b.field_192832_b = 0.0F;
-         b.field_78902_a = 0.0F;
-         Minecraft.func_71410_x().field_71439_g.func_70016_h(0.0, 0.0, 0.0);
+         b.backKeyDown = false;
+         b.forwardKeyDown = false;
+         b.leftKeyDown = false;
+         b.rightKeyDown = false;
+         b.sneak = false;
+         b.jump = false;
+         b.moveForward = 0.0F;
+         b.moveStrafe = 0.0F;
+         Minecraft.getMinecraft().player.setVelocity(0.0, 0.0, 0.0);
       }
    }
 
@@ -69,9 +69,9 @@ public class d3 {
 
    @SideOnly(Side.CLIENT)
    static void a_clash123() {
-      EntityPlayerSP var0 = Minecraft.func_71410_x().field_71439_g;
+      EntityPlayerSP var0 = Minecraft.getMinecraft().player;
       if (AbstractPlayerGirlEntity.e(var0)) {
-         var0.func_146105_b(new TextComponentString("Jump to get out of the animation"), true);
+         var0.sendStatusMessage(new TextComponentString("Jump to get out of the animation"), true);
       }
    }
 

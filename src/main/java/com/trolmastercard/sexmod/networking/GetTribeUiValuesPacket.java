@@ -81,28 +81,28 @@ public class GetTribeUiValuesPacket implements IMessage {
             KoboldEntity.aY = var1.c;
             return null;
          } else {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               UUID var1x = KoboldManager.getTribeUUID(var2.getServerHandler().field_147369_b.getPersistentID());
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+               UUID var1x = KoboldManager.getTribeUUID(var2.getServerHandler().player.getPersistentID());
                if (var1x == null) {
-                  PacketHandler.b.sendTo(GetTribeUiValuesPacket.a_clash29(), var2.getServerHandler().field_147369_b);
+                  PacketHandler.b.sendTo(GetTribeUiValuesPacket.a_clash29(), var2.getServerHandler().player);
                } else {
                   boolean var2x = KoboldManager.c_clash86(var1x);
-                  EntityPlayerMP var3 = var2.getServerHandler().field_147369_b;
-                  HashMap var4 = KoboldManager.a_clash91(var1x, var3.field_70170_p);
+                  EntityPlayerMP var3 = var2.getServerHandler().player;
+                  HashMap var4 = KoboldManager.a_clash91(var1x, var3.world);
                   List var5 = KoboldManager.n_clash82(var1x);
                   ArrayList var6 = new ArrayList();
                   int var7 = KoboldManager.l_clash75(var1x).getWoolMeta();
                   HashSet var8 = new HashSet();
 
                   for (KoboldEntity var10 : (java.util.Collection<KoboldEntity>) (var5) ) {
-                     if (!var10.field_70128_L) {
+                     if (!var10.isDead) {
                         UUID var11 = var10.getGirlId();
                         if (!var8.contains(var11)) {
                            if (var10.aA) {
-                              var7 = EyeAndKoboldColor.safeValueOf((String)var10.func_184212_Q().func_187225_a(AbstractNpcOnlyEntity.N)).getWoolMeta();
+                              var7 = EyeAndKoboldColor.safeValueOf((String)var10.getDataManager().get(AbstractNpcOnlyEntity.N)).getWoolMeta();
                            }
 
-                           var6.add(new Vector4d(var10.field_70165_t, var10.field_70163_u, var10.field_70161_v, var7));
+                           var6.add(new Vector4d(var10.posX, var10.posY, var10.posZ, var7));
                            var8.add(var11);
                         }
                      }
@@ -111,7 +111,7 @@ public class GetTribeUiValuesPacket implements IMessage {
                   for (Entry var13 : (java.util.Set<Entry>) var4.entrySet()) {
                      if (!var8.contains(var13.getKey())) {
                         BlockPos var14 = (BlockPos)var13.getValue();
-                        var6.add(new Vector4d(var14.func_177958_n(), var14.func_177956_o(), var14.func_177952_p(), var7));
+                        var6.add(new Vector4d(var14.getX(), var14.getY(), var14.getZ(), var7));
                      }
                   }
 

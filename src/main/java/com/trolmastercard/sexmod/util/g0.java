@@ -27,7 +27,7 @@ public class g0 {
          return false;
       }
 
-      boolean var2 = var1.func_152345_ab();
+      boolean var2 = var1.isCallingFromMinecraftThread();
       Main.LOGGER.warn("couldn't clarify if is running on a server or client thread. Came to the solution onServer=" + var2);
       return var2;
    }

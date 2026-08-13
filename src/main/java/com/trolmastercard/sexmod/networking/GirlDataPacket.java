@@ -46,7 +46,7 @@ public class GirlDataPacket implements IMessage {
    public void toBytes(ByteBuf var1) {
       for (NpcType var5 : NpcType.values()) {
          if (var5.hasSpecifics) {
-            String var6 = this.b.getEntityData().func_74779_i("sexmod:GirlSpecific" + var5);
+            String var6 = this.b.getEntityData().getString("sexmod:GirlSpecific" + var5);
             if (!"".equals(var6)) {
                this.a.put(var5, var6);
             }
@@ -74,8 +74,8 @@ public class GirlDataPacket implements IMessage {
 
       @SideOnly(Side.CLIENT)
       public void a_clash9(HashMap<NpcType, String> var1) {
-         Minecraft var2 = Minecraft.func_71410_x();
-         var2.func_152344_a(() -> var2.func_147108_a(new GirlScreenBase(var1)));
+         Minecraft var2 = Minecraft.getMinecraft();
+         var2.addScheduledTask(() -> var2.displayGuiScreen(new GirlScreenBase(var1)));
       }
 
    }

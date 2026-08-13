@@ -50,15 +50,15 @@ public class StartStandingSexAnimationPacket implements IMessage {
    public static class Handler implements IMessageHandler<StartStandingSexAnimationPacket, IMessage> {
       public IMessage onMessage(StartStandingSexAnimationPacket var1, MessageContext var2) {
          if (var1.c && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                AbstractPlayerGirlEntity var1x = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.a);
                if (var1x != null) {
-                  if (!FMLCommonHandler.instance().getMinecraftServerInstance().func_71262_S()) {
+                  if (!FMLCommonHandler.instance().getMinecraftServerInstance().isDedicatedServer()) {
                      try {
                         for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
                            if (var3 instanceof AbstractPlayerGirlEntity) {
                               var1x = (AbstractPlayerGirlEntity)var3;
-                              if (!var1x.field_70170_p.field_72995_K && var1x.getOwnerUserUUID().equals(var1.a)) {
+                              if (!var1x.world.isRemote && var1x.getOwnerUserUUID().equals(var1.a)) {
                                  break;
                               }
                            }

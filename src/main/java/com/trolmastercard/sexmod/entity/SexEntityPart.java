@@ -16,7 +16,7 @@ public class SexEntityPart extends MultiPartEntityPart {
       super(var1, var2, var3, var4);
    }
 
-   public boolean func_70067_L() {
+   public boolean canBeCollidedWith() {
       return this.a;
    }
 }

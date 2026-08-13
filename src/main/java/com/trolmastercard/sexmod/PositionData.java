@@ -33,9 +33,9 @@ public class PositionData {
    public void a(Pre var1) {
       try {
          for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
-            if (!var3.field_70128_L && var3.getInteractionPlayerUUID() != null && var3.getCurrentAction() != fp.NULL) {
+            if (!var3.isDead && var3.getInteractionPlayerUUID() != null && var3.getCurrentAction() != fp.NULL) {
                EntityPlayer var4 = var1.getEntityPlayer();
-               if (var3.getCurrentAction().hasPlayer && (var3.getInteractionPlayerUUID().equals(var4.getPersistentID()) || var3.getInteractionPlayerUUID().equals(var4.func_110124_au()))) {
+               if (var3.getCurrentAction().hasPlayer && (var3.getInteractionPlayerUUID().equals(var4.getPersistentID()) || var3.getInteractionPlayerUUID().equals(var4.getUniqueID()))) {
                   var1.setCanceled(true);
                   return;
                }
@@ -47,8 +47,8 @@ public class PositionData {
 
    @SubscribeEvent
    public void a(RenderHandEvent var1) {
-      Minecraft var2 = Minecraft.func_71410_x();
-      EntityPlayerSP var3 = var2.field_71439_g;
+      Minecraft var2 = Minecraft.getMinecraft();
+      EntityPlayerSP var3 = var2.player;
       AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.g(var3);
       if (var4 != null && var4.isAnchored()) {
          var1.setCanceled(true);
@@ -57,11 +57,11 @@ public class PositionData {
             for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
                UUID var7 = var6.getInteractionPlayerUUID();
                fp var8 = var6.getCurrentAction();
-               if (!var6.field_70128_L
+               if (!var6.isDead
                   && var7 != null
                   && var8 != null
                   && var8.hasPlayer
-                  && (var7.equals(var3.func_110124_au()) || var7.equals(var3.getPersistentID()))) {
+                  && (var7.equals(var3.getUniqueID()) || var7.equals(var3.getPersistentID()))) {
                   var1.setCanceled(true);
                   return;
                }
@@ -74,36 +74,36 @@ public class PositionData {
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public void a(RenderTickEvent var1) {
-      Minecraft var2 = Minecraft.func_71410_x();
-      if (var2.field_71439_g != null) {
+      Minecraft var2 = Minecraft.getMinecraft();
+      if (var2.player != null) {
          if (var1.phase == Phase.END) {
             if (this.b != null) {
-               var2.field_71439_g.func_70107_b(this.b.field_72450_a, this.b.field_72448_b, this.b.field_72449_c);
-               var2.field_71439_g.field_70142_S = this.a.field_72450_a;
-               var2.field_71439_g.field_70137_T = this.a.field_72448_b;
-               var2.field_71439_g.field_70136_U = this.a.field_72449_c;
+               var2.player.setPosition(this.b.x, this.b.y, this.b.z);
+               var2.player.lastTickPosX = this.a.x;
+               var2.player.lastTickPosY = this.a.y;
+               var2.player.lastTickPosZ = this.a.z;
                this.b = null;
                this.a = null;
             }
-         } else if (var2.field_71474_y.field_74320_O == 0) {
-            BaseGirlEntity var3 = BaseGirlEntity.a(var2.field_71439_g.getPersistentID(), Boolean.valueOf(false));
+         } else if (var2.gameSettings.thirdPersonView == 0) {
+            BaseGirlEntity var3 = BaseGirlEntity.a(var2.player.getPersistentID(), Boolean.valueOf(false));
             if (var3 != null) {
                if (var3.getCurrentAction().useBoyCam) {
                   if (!var3.m_clash494()) {
-                     this.b = var2.field_71439_g.func_174791_d();
-                     this.a = new Vec3d(var2.field_71439_g.field_70142_S, var2.field_71439_g.field_70137_T, var2.field_71439_g.field_70136_U);
+                     this.b = var2.player.getPositionVector();
+                     this.a = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
                      Vec3d var4 = var3.isAnchored()
-                        ? var3.getCachedBoneOffset("boyCam").func_178787_e(var3.getTargetPosition())
+                        ? var3.getCachedBoneOffset("boyCam").add(var3.getTargetPosition())
                         : var3.getCachedBoneOffset("boyCam")
-                           .func_178787_e(
-                              RotationHelper.a(new Vec3d(var3.field_70142_S, var3.field_70137_T, var3.field_70136_U), var3.func_174791_d(), var1.renderTickTime)
+                           .add(
+                              RotationHelper.a(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var1.renderTickTime)
                            );
-                     var2.field_71439_g.field_70165_t = var4.field_72450_a;
-                     var2.field_71439_g.field_70163_u = var4.field_72448_b - var2.field_71439_g.func_70047_e();
-                     var2.field_71439_g.field_70161_v = var4.field_72449_c;
-                     var2.field_71439_g.field_70142_S = var4.field_72450_a;
-                     var2.field_71439_g.field_70137_T = var4.field_72448_b - var2.field_71439_g.func_70047_e();
-                     var2.field_71439_g.field_70136_U = var4.field_72449_c;
+                     var2.player.posX = var4.x;
+                     var2.player.posY = var4.y - var2.player.getEyeHeight();
+                     var2.player.posZ = var4.z;
+                     var2.player.lastTickPosX = var4.x;
+                     var2.player.lastTickPosY = var4.y - var2.player.getEyeHeight();
+                     var2.player.lastTickPosZ = var4.z;
                   }
                }
             }

@@ -97,10 +97,10 @@ public class KoboldTask {
    public void a_clash210() {
       for (KoboldEntity var2 : this.f) {
          if (var2.getInteractionPlayerUUID() == null) {
-            var2.func_189654_d(false);
-            var2.field_70145_X = false;
+            var2.setNoGravity(false);
+            var2.noClip = false;
             var2.b(fp.NULL);
-            var2.func_184212_Q().func_187227_b(BaseGirlEntity.G, false);
+            var2.getDataManager().set(BaseGirlEntity.G, false);
          }
       }
 
@@ -123,27 +123,27 @@ public class KoboldTask {
       BlockPos var3 = var1;
 
       while (!c(var0, var3)) {
-         var3 = var1.func_177977_b();
+         var3 = var1.down();
       }
 
       BlockPos var4 = var1;
 
       while (!b(var0, var4)) {
-         var4 = var4.func_177984_a();
+         var4 = var4.up();
       }
 
       HashSet var5 = new HashSet();
-      int var6 = var4.func_177956_o() - var3.func_177956_o();
+      int var6 = var4.getY() - var3.getY();
 
       for (int var7 = 0; var7 <= var6; var7++) {
-         var5.add(var3.func_177982_a(0, var7, 0));
+         var5.add(var3.add(0, var7, 0));
       }
 
       HashSet var15 = a_clash213(var0, var3);
       HashSet var8 = new HashSet();
 
       for (BlockPos var10 : (java.util.Collection<BlockPos>) (var15) ) {
-         if (var10.func_177958_n() == var3.func_177958_n() && var10.func_177952_p() == var3.func_177952_p()) {
+         if (var10.getX() == var3.getX() && var10.getZ() == var3.getZ()) {
             var8.add(var10);
          }
       }
@@ -172,13 +172,13 @@ public class KoboldTask {
    }
 
    static boolean b(World var0, BlockPos var1) {
-      Block var2 = var0.func_180495_p(var1.func_177984_a()).func_177230_c();
+      Block var2 = var0.getBlockState(var1.up()).getBlock();
       return !(var2 instanceof BlockLog);
    }
 
    static boolean c(World var0, BlockPos var1) {
-      IBlockState var2 = var0.func_180495_p(var1.func_177977_b());
-      return !(var2 instanceof BlockLog) && var2.func_185904_a() != Material.field_151579_a;
+      IBlockState var2 = var0.getBlockState(var1.down());
+      return !(var2 instanceof BlockLog) && var2.getMaterial() != Material.AIR;
    }
 
    static HashSet<BlockPos> a_clash213(World var0, BlockPos var1) {
@@ -191,72 +191,72 @@ public class KoboldTask {
       }
 
       var2.add(var1);
-      if (var0.func_180495_p(var1.func_177982_a(1, 0, 0)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(1, 0, 0), var2));
+      if (var0.getBlockState(var1.add(1, 0, 0)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(1, 0, 0), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(-1, 0, 0)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(-1, 0, 0), var2));
+      if (var0.getBlockState(var1.add(-1, 0, 0)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(-1, 0, 0), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(0, 0, 1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(0, 0, 1), var2));
+      if (var0.getBlockState(var1.add(0, 0, 1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(0, 0, 1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(0, 0, -1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(0, 0, -1), var2));
+      if (var0.getBlockState(var1.add(0, 0, -1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(0, 0, -1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(1, 0, 1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(1, 0, 1), var2));
+      if (var0.getBlockState(var1.add(1, 0, 1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(1, 0, 1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(-1, 0, -1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(-1, 0, -1), var2));
+      if (var0.getBlockState(var1.add(-1, 0, -1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(-1, 0, -1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(-1, 0, 1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(-1, 0, 1), var2));
+      if (var0.getBlockState(var1.add(-1, 0, 1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(-1, 0, 1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(1, 0, -1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(1, 0, -1), var2));
+      if (var0.getBlockState(var1.add(1, 0, -1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(1, 0, -1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(0, 1, 0)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(0, 1, 0), var2));
+      if (var0.getBlockState(var1.add(0, 1, 0)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(0, 1, 0), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(1, 1, 0)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(1, 1, 0), var2));
+      if (var0.getBlockState(var1.add(1, 1, 0)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(1, 1, 0), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(-1, 1, 0)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(-1, 1, 0), var2));
+      if (var0.getBlockState(var1.add(-1, 1, 0)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(-1, 1, 0), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(0, 1, 1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(0, 1, 1), var2));
+      if (var0.getBlockState(var1.add(0, 1, 1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(0, 1, 1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(0, 1, -1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(0, 1, -1), var2));
+      if (var0.getBlockState(var1.add(0, 1, -1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(0, 1, -1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(1, 1, 1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(1, 1, 1), var2));
+      if (var0.getBlockState(var1.add(1, 1, 1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(1, 1, 1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(-1, 1, -1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(-1, 1, -1), var2));
+      if (var0.getBlockState(var1.add(-1, 1, -1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(-1, 1, -1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(-1, 1, 1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(-1, 1, 1), var2));
+      if (var0.getBlockState(var1.add(-1, 1, 1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(-1, 1, 1), var2));
       }
 
-      if (var0.func_180495_p(var1.func_177982_a(1, 1, -1)).func_177230_c() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.func_177982_a(1, 1, -1), var2));
+      if (var0.getBlockState(var1.add(1, 1, -1)).getBlock() instanceof BlockLog) {
+         var2.addAll(a(var0, var1.add(1, 1, -1), var2));
       }
 
       return var2;

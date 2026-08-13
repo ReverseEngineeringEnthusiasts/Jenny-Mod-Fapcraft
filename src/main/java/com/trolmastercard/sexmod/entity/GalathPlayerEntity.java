@@ -119,8 +119,8 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    void a_clash442() {
       EntityPlayer var1 = this.S_clash495();
       if (var1 != null) {
-         Vec3d var2 = ck.rotateByYaw(new Vec3d(0.5, 0.5F - var1.func_70047_e(), 0.4F), this.getYawRotation()).func_178787_e(this.getTargetPosition());
-         var1.func_70634_a(var2.field_72450_a, var2.field_72448_b, var2.field_72449_c);
+         Vec3d var2 = ck.rotateByYaw(new Vec3d(0.5, 0.5F - var1.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
+         var1.setPositionAndUpdate(var2.x, var2.y, var2.z);
       }
    }
 
@@ -174,10 +174,10 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
       this.b_clash444();
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          this.d_clash443();
       }
    }
@@ -213,7 +213,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
       EntityPlayer var1 = this.k_clash584();
       return var1 == null
          ? false
-         : this.field_70170_p.func_180495_p(var1.func_180425_c().func_177984_a().func_177984_a()).func_177230_c() != Blocks.field_150350_a;
+         : this.world.getBlockState(var1.getPosition().up().up()).getBlock() != Blocks.AIR;
    }
 
    @Override
@@ -323,16 +323,16 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      break;
                   case "setNude":
                      this.ap = true;
-                     Vec3d var4 = this.func_174791_d();
-                     Vec3d var5 = this.getCachedBoneOffset("slipR").func_178787_e(var4);
-                     Vec3d var6 = this.getCachedBoneOffset("slipL").func_178787_e(var4);
-                     Vec3d var7 = this.getCachedBoneOffset("turnable").func_178787_e(var4);
-                     this.field_70170_p
-                        .func_175688_a(EnumParticleTypes.DRAGON_BREATH, var5.field_72450_a, var5.field_72448_b, var5.field_72449_c, 0.0, 0.0, 0.0, new int[0]);
-                     this.field_70170_p
-                        .func_175688_a(EnumParticleTypes.DRAGON_BREATH, var6.field_72450_a, var6.field_72448_b, var6.field_72449_c, 0.0, 0.0, 0.0, new int[0]);
-                     this.field_70170_p
-                        .func_175688_a(EnumParticleTypes.DRAGON_BREATH, var7.field_72450_a, var7.field_72448_b, var7.field_72449_c, 0.0, 0.0, 0.0, new int[0]);
+                     Vec3d var4 = this.getPositionVector();
+                     Vec3d var5 = this.getCachedBoneOffset("slipR").add(var4);
+                     Vec3d var6 = this.getCachedBoneOffset("slipL").add(var4);
+                     Vec3d var7 = this.getCachedBoneOffset("turnable").add(var4);
+                     this.world
+                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, var5.x, var5.y, var5.z, 0.0, 0.0, 0.0, new int[0]);
+                     this.world
+                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, var6.x, var6.y, var6.z, 0.0, 0.0, 0.0, new int[0]);
+                     this.world
+                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, var7.x, var7.y, var7.z, 0.0, 0.0, 0.0, new int[0]);
                      break;
                   case "rapeIntroDone":
                      if (this.isControlledByLocalPlayer()) {
@@ -340,7 +340,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      }
                      break;
                   case "rape_switch":
-                     Random var8 = this.func_70681_au();
+                     Random var8 = this.getRNG();
                      int var9 = this.ar;
 
                      do {
@@ -364,9 +364,9 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                         return;
                      }
 
-                     Minecraft var18 = Minecraft.func_71410_x();
-                     if (var18.field_71474_y.field_74320_O != 0) {
-                        var18.field_71438_f.func_72712_a();
+                     Minecraft var18 = Minecraft.getMinecraft();
+                     if (var18.gameSettings.thirdPersonView != 0) {
+                        var18.renderGlobal.loadRenderers();
                      }
                      break;
                   case "corruptSwitch":
@@ -400,9 +400,9 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      }
 
                      this.aq = true;
-                     EntityPlayerSP var11 = Minecraft.func_71410_x().field_71439_g;
+                     EntityPlayerSP var11 = Minecraft.getMinecraft().player;
                      float var12 = this.getYawRotation() + 220.0F;
-                     Vec3d var13 = ck.rotateByYaw(new Vec3d(0.5, 0.5F - var11.func_70047_e(), 0.4F), this.getYawRotation()).func_178787_e(this.getTargetPosition());
+                     Vec3d var13 = ck.rotateByYaw(new Vec3d(0.5, 0.5F - var11.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
                      PacketHandler.b.sendToServer(new TeleportPlayerPacket(var11.getPersistentID().toString(), var13, var12, 15.0F));
                      HornyMeterHud.showHornyMeter();
                      break;
@@ -415,13 +415,13 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      CummyEntity.a(new ep(130, var0 -> {
                         Vec3d var1xx = var0.d_clash548("futaCockTip");
                         Vec3d var2 = var0.d_clash548("futaCockTipDirHelp");
-                        return var1xx.func_178788_d(var2).func_72432_b();
-                     }, var0 -> var0.getCachedBoneOffset("futaCockTip").func_178787_e(var0.getTargetPosition()), this, 0.3F, 0.3F));
+                        return var1xx.subtract(var2).normalize();
+                     }, var0 -> var0.getCachedBoneOffset("futaCockTip").add(var0.getTargetPosition()), this, 0.3F, 0.3F));
                      CummyEntity.a(
                         new ep(
                            100,
                            var1xx -> ck.rotateByYaw(new Vec3d(0.0, 0.0, 0.6F), this.getYawRotation()),
-                           var0 -> var0.getCachedBoneOffset("creampiePos").func_178787_e(var0.getTargetPosition()),
+                           var0 -> var0.getCachedBoneOffset("creampiePos").add(var0.getTargetPosition()),
                            this,
                            0.6F,
                            0.5F
@@ -439,15 +439,15 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      if (this.isControlledByLocalPlayer()) {
                         GalathFlightHud.f_clash791();
                         this.playRandomSound(SoundHandler.MISC_FLAP);
-                        Minecraft var10 = Minecraft.func_71410_x();
-                        EntityPlayerSP var14 = var10.field_71439_g;
-                        MovementInput var15 = var14.field_71158_b;
-                        Vec2f var16 = var15.func_190020_b();
-                        if (var16.field_189982_i != 0.0F || var16.field_189983_j != 0.0F) {
+                        Minecraft var10 = Minecraft.getMinecraft();
+                        EntityPlayerSP var14 = var10.player;
+                        MovementInput var15 = var14.movementInput;
+                        Vec2f var16 = var15.getMoveVector();
+                        if (var16.x != 0.0F || var16.y != 0.0F) {
                            Vec3d var17 = ck.a(
-                              new Vec3d(-var16.field_189982_i, 0.0, var16.field_189983_j),
-                              RotationHelper.lerp(var14.field_70127_C, var14.field_70125_A, var10.func_184121_ak()),
-                              RotationHelper.lerp(var14.field_70758_at, var14.field_70759_as, var10.func_184121_ak())
+                              new Vec3d(-var16.x, 0.0, var16.y),
+                              RotationHelper.lerp(var14.prevRotationPitch, var14.rotationPitch, var10.getRenderPartialTicks()),
+                              RotationHelper.lerp(var14.prevRotationYawHead, var14.rotationYawHead, var10.getRenderPartialTicks())
                            );
                            PacketHandler.b.sendToServer(new UpdateVelocityPacket(var17, this.getGirlId()));
                         }

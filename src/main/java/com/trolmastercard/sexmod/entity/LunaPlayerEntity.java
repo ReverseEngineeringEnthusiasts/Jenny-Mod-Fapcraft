@@ -50,7 +50,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       return 1.6F;
    }
 
-   public float func_70047_e() {
+   public float getEyeHeight() {
       return 1.34F;
    }
 
@@ -69,7 +69,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       if ("action.names.touchboobs".equals(var1)) {
          this.a(0, fp.TOUCH_BOOBS_INTRO);
          this.b(fp.TOUCH_BOOBS_INTRO);
-         this.m.func_187227_b(D, 0);
+         this.m.set(D, 0);
          this.b_clash577(var2);
       }
 
@@ -105,8 +105,8 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
       if (fp.WAIT_CAT.equals(this.getCurrentAction())) {
          this.a_clash378();
       } else {
@@ -117,20 +117,20 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    void a_clash378() {
       EntityPlayer var1 = this.j_clash575();
       if (var1 != null) {
-         if (!(var1.func_70011_f(this.field_70165_t, this.w_clash576().field_72448_b, this.field_70161_v) > 1.25)) {
-            if (this.field_70170_p.field_72995_K) {
+         if (!(var1.getDistance(this.posX, this.w_clash576().y, this.posZ) > 1.25)) {
+            if (this.world.isRemote) {
                this.a(var1, this.ar);
             } else if (this.ar == 25) {
                this.setInteractionPlayerUUID(var1.getPersistentID());
-               var1.func_191958_b(0.0F, 0.0F, 0.0F, 0.0F);
-               var1.func_70634_a(this.func_174791_d().field_72450_a, this.w_clash576().field_72448_b, this.func_174791_d().field_72449_c);
+               var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
+               var1.setPositionAndUpdate(this.getPositionVector().x, this.w_clash576().y, this.getPositionVector().z);
                this.b(fp.COWGIRL_SITTING_INTRO);
-               var1.func_70034_d(this.getYawRotation() + 180.0F);
-               var1.field_70177_z = this.getYawRotation() + 180.0F;
-               var1.field_70126_B = this.getYawRotation() + 180.0F;
+               var1.setRotationYawHead(this.getYawRotation() + 180.0F);
+               var1.rotationYaw = this.getYawRotation() + 180.0F;
+               var1.prevRotationYaw = this.getYawRotation() + 180.0F;
                this.r = this.getYawRotation() + 180.0F;
                this.positionPlayerRelative(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
-               this.m.func_187227_b(D, 0);
+               this.m.set(D, 0);
             }
 
             this.ar++;
@@ -141,18 +141,18 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    @SideOnly(Side.CLIENT)
    void a(EntityPlayer var1, int var2) {
       if (var2 == 0) {
-         EntityPlayerSP var3 = Minecraft.func_71410_x().field_71439_g;
+         EntityPlayerSP var3 = Minecraft.getMinecraft().player;
          if (var3.getPersistentID().equals(var1.getPersistentID())) {
             BeeScreen.enableInteraction();
-            var3.func_70016_h(0.0, 0.0, 0.0);
+            var3.setVelocity(0.0, 0.0, 0.0);
             d3.setMovementLock(false);
          }
       }
 
       if (var2 == 25) {
-         EntityPlayerSP var4 = Minecraft.func_71410_x().field_71439_g;
+         EntityPlayerSP var4 = Minecraft.getMinecraft().player;
          if (var4.getPersistentID().equals(var1.getPersistentID())) {
-            Minecraft.func_71410_x().field_71474_y.field_74320_O = 2;
+            Minecraft.getMinecraft().gameSettings.thirdPersonView = 2;
          }
       }
    }
@@ -298,7 +298,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "idleDone":
-               this.as = this.func_70681_au().nextInt(10) == 0;
+               this.as = this.getRNG().nextInt(10) == 0;
                break;
             case "idle2Done":
                this.as = false;
@@ -317,7 +317,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
             case "paymentMSG3":
                this.sendChatMessage("nyyyaaaa~ :D");
                int[] var4 = new int[]{1, 7, 10, 11};
-               int var5 = var4[this.func_70681_au().nextInt(var4.length)];
+               int var5 = var4[this.getRNG().nextInt(var4.length)];
                this.a(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
                break;
             case "paymentMSG4":
@@ -457,8 +457,8 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "sitting_slowMSG1":
-               if (this.func_70681_au().nextBoolean()) {
-                  if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
+                  if (this.getRNG().nextBoolean()) {
                      this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                      break;
                   }
@@ -473,7 +473,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "sitting_fastMSG1":
-               if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                } else {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
@@ -488,12 +488,12 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                   this.b(fp.COWGIRL_SITTING_SLOW);
                   Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
                   Vec3d var9 = ck.rotateByYaw(var8, this.getYawRotation() + 180.0F);
-                  Minecraft.func_71410_x()
-                     .field_71439_g
-                     .func_70107_b(
-                        this.getTargetPosition().field_72450_a + var9.field_72450_a,
-                        this.getTargetPosition().field_72448_b - 0.0 + var9.field_72448_b,
-                        this.getTargetPosition().field_72449_c + var9.field_72449_c
+                  Minecraft.getMinecraft()
+                     .player
+                     .setPosition(
+                        this.getTargetPosition().x + var9.x,
+                        this.getTargetPosition().y - 0.0 + var9.y,
+                        this.getTargetPosition().z + var9.z
                      );
                }
                break;
@@ -501,12 +501,12 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                if (this.isControlledByLocalPlayer()) {
                   Vec3d var6 = new Vec3d(0.0, -0.160625, -0.9925);
                   Vec3d var7 = ck.rotateByYaw(var6, this.getYawRotation() + 180.0F);
-                  Minecraft.func_71410_x()
-                     .field_71439_g
-                     .func_70107_b(
-                        this.getTargetPosition().field_72450_a + var7.field_72450_a,
-                        this.getTargetPosition().field_72448_b - 0.0 + var7.field_72448_b,
-                        this.getTargetPosition().field_72449_c + var7.field_72449_c
+                  Minecraft.getMinecraft()
+                     .player
+                     .setPosition(
+                        this.getTargetPosition().x + var7.x,
+                        this.getTargetPosition().y - 0.0 + var7.y,
+                        this.getTargetPosition().z + var7.z
                      );
                }
                break;

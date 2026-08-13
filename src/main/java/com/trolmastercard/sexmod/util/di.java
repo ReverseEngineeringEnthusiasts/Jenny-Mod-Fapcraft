@@ -28,8 +28,8 @@ public class di extends GirlPlayerRenderer {
 
    @Override
    protected void c_clash145() {
-      GlStateManager.func_179109_b(0.0F, -1.0F, 0.0F);
-      GlStateManager.func_179152_a(0.65F, 0.65F, 0.65F);
+      GlStateManager.translate(0.0F, -1.0F, 0.0F);
+      GlStateManager.scale(0.65F, 0.65F, 0.65F);
    }
 
    @Override
@@ -38,7 +38,7 @@ public class di extends GirlPlayerRenderer {
          case FISHING_IDLE:
          case FISHING_START:
             ItemStack var2 = ((LunaEntity)this.j).ao;
-            this.j.func_184611_a(EnumHand.MAIN_HAND, var2);
+            this.j.setHeldItem(EnumHand.MAIN_HAND, var2);
             return var2;
          default:
             return var1;
@@ -46,12 +46,12 @@ public class di extends GirlPlayerRenderer {
    }
 
    boolean b_clash370() {
-      return (Boolean)this.j.func_184212_Q().func_187225_a(BaseGirlEntity.G);
+      return (Boolean)this.j.getDataManager().get(BaseGirlEntity.G);
    }
 
    @Override
    protected void a(String var1, GeoBone var2) {
-      if (!Minecraft.func_71410_x().func_147113_T()) {
+      if (!Minecraft.getMinecraft().isGamePaused()) {
          switch (var1) {
             case "head":
                this.z = var2.getRotationX();
@@ -77,10 +77,10 @@ public class di extends GirlPlayerRenderer {
    @Override
    protected void a(boolean var1, ItemStack var2) {
       super.a(var1, var2);
-      switch (var2.func_77973_b().func_77661_b(var2)) {
+      switch (var2.getItem().getItemUseAction(var2)) {
          default:
-            GlStateManager.func_179114_b(var1 ? 60.0F : 150.0F, 1.0F, 0.0F, 0.0F);
-            GlStateManager.func_179137_b(0.0, 0.08, -0.05);
+            GlStateManager.rotate(var1 ? 60.0F : 150.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.translate(0.0, 0.08, -0.05);
          case BLOCK:
          case BOW:
       }
@@ -88,9 +88,9 @@ public class di extends GirlPlayerRenderer {
 
    @Override
    protected void a_clash146(boolean var1) {
-      GlStateManager.func_179114_b(var1 ? 60.0F : 150.0F, 1.0F, 0.0F, 0.0F);
+      GlStateManager.rotate(var1 ? 60.0F : 150.0F, 1.0F, 0.0F, 0.0F);
       if (var1) {
-         GlStateManager.func_179137_b(0.12, 0.0, 0.0);
+         GlStateManager.translate(0.12, 0.0, 0.0);
       }
    }
 
@@ -98,12 +98,12 @@ public class di extends GirlPlayerRenderer {
    protected void a(boolean var1, boolean var2) {
       super.a(var1, var2);
       if (!var1 && var2) {
-         GlStateManager.func_179114_b(120.0F, 0.0F, 1.0F, 0.0F);
+         GlStateManager.rotate(120.0F, 0.0F, 1.0F, 0.0F);
       } else if (!var1 && !var2) {
-         GlStateManager.func_179137_b(0.0, 0.3, -0.15);
-         GlStateManager.func_179114_b(-45.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.translate(0.0, 0.3, -0.15);
+         GlStateManager.rotate(-45.0F, 1.0F, 0.0F, 0.0F);
       } else if (var1 && !var2) {
-         GlStateManager.func_179137_b(-0.025, -0.05, 0.0);
+         GlStateManager.translate(-0.025, -0.05, 0.0);
       }
    }
 

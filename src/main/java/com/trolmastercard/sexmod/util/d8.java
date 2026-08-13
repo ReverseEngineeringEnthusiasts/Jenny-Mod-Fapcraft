@@ -27,8 +27,8 @@ public class d8 extends GirlRenderer {
       if (var2.getCurrentAction() != fp.NULL || var2.isLocallyRegistered()) {
          var8.U = var8.U == 1.0F ? var8.U : var8.U - 0.01F;
          var7 = var8.U;
-         GlStateManager.func_179152_a(var7, var7, var7);
-         GlStateManager.func_179109_b(0.0F, var7 == 1.0F ? 0.0F : 3.0F - var7 * 3.0F, 0.0F);
+         GlStateManager.scale(var7, var7, var7);
+         GlStateManager.translate(0.0F, var7 == 1.0F ? 0.0F : 3.0F - var7 * 3.0F, 0.0F);
          super.a(var1, var2, var3, var4, var5, var6, var7);
       }
    }
@@ -38,8 +38,8 @@ public class d8 extends GirlRenderer {
       if (this.j.getCurrentAction() != fp.NULL) {
          if (!this.j.isLocallyRegistered()) {
             if (!this.j.getCurrentAction().hideNameTag) {
-               if (i.func_175598_ae().field_78734_h != null) {
-                  this.func_147906_a(this.j, this.j.ab_clash540(), var1, var3 + this.j.i_clash226(), var5, 300);
+               if (i.getRenderManager().renderViewEntity != null) {
+                  this.renderLivingLabel(this.j, this.j.ab_clash540(), var1, var3 + this.j.i_clash226(), var5, 300);
                }
             }
          }

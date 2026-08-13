@@ -48,17 +48,17 @@ public class SetPlayerCamPacket implements IMessage {
       public IMessage onMessage(SetPlayerCamPacket var1, MessageContext var2) {
          if (var1.d && var2.side == Side.CLIENT) {
             System.out.println(Thread.currentThread().getName());
-            Minecraft var3 = Minecraft.func_71410_x();
-            var3.func_152344_a(() -> {
-               var3.field_71474_y.field_74320_O = var1.c;
-               EntityPlayerSP var2x = var3.field_71439_g;
-               var2x.field_70177_z = var1.b;
-               var2x.field_70126_B = var1.b;
-               var2x.field_70758_at = var1.b;
-               var2x.field_70759_as = var1.b;
-               var2x.field_70761_aq = var1.b;
-               var2x.field_70125_A = var1.a;
-               var2x.field_70127_C = var1.a;
+            Minecraft var3 = Minecraft.getMinecraft();
+            var3.addScheduledTask(() -> {
+               var3.gameSettings.thirdPersonView = var1.c;
+               EntityPlayerSP var2x = var3.player;
+               var2x.rotationYaw = var1.b;
+               var2x.prevRotationYaw = var1.b;
+               var2x.prevRotationYawHead = var1.b;
+               var2x.rotationYawHead = var1.b;
+               var2x.renderYawOffset = var1.b;
+               var2x.rotationPitch = var1.a;
+               var2x.prevRotationPitch = var1.a;
             });
             return null;
          } else {

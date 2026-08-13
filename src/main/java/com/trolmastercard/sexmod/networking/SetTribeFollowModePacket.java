@@ -39,8 +39,8 @@ public class SetTribeFollowModePacket implements IMessage {
    public static class Handler implements IMessageHandler<SetTribeFollowModePacket, IMessage> {
       public IMessage onMessage(SetTribeFollowModePacket var1, MessageContext var2) {
          if (var1.a && !var2.side.isClient()) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               UUID var2x = KoboldManager.getTribeUUID(var2.getServerHandler().field_147369_b.getPersistentID());
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+               UUID var2x = KoboldManager.getTribeUUID(var2.getServerHandler().player.getPersistentID());
                if (var2x != null) {
                   KoboldManager.a_clash87(var2x, var1.b);
                }

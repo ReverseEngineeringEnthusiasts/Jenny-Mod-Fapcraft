@@ -26,10 +26,10 @@ public class ThreadNames {
    }
 
    public static bm a_clash161(Vec3d var0, Vec3d var1) {
-      Vec3d var2 = var1.func_178788_d(var0).func_72432_b();
+      Vec3d var2 = var1.subtract(var0).normalize();
       return new bm(
-         (float)Math.atan2(var2.field_72450_a, var2.field_72449_c),
-         (float)Math.atan2(var2.field_72448_b, Math.sqrt(var2.field_72450_a * var2.field_72450_a + var2.field_72449_c * var2.field_72449_c))
+         (float)Math.atan2(var2.x, var2.z),
+         (float)Math.atan2(var2.y, Math.sqrt(var2.x * var2.x + var2.z * var2.z))
       );
    }
 

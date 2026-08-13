@@ -23,21 +23,21 @@ public class f4 {
       if (var2 instanceof BaseGirlEntity) {
          EntityPlayer var3 = var1.getEntityPlayer();
          ItemStack var4;
-         if (var3.func_184614_ca().func_77973_b() == Items.field_151057_cb) {
-            var4 = var3.func_184614_ca();
+         if (var3.getHeldItemMainhand().getItem() == Items.NAME_TAG) {
+            var4 = var3.getHeldItemMainhand();
          } else {
-            if (var3.func_184592_cb().func_77973_b() != Items.field_151057_cb) {
+            if (var3.getHeldItemOffhand().getItem() != Items.NAME_TAG) {
                return;
             }
 
-            var4 = var3.func_184592_cb();
+            var4 = var3.getHeldItemOffhand();
          }
 
-         String var5 = var4.func_82833_r();
+         String var5 = var4.getDisplayName();
          if (!"".equals(var5)) {
             ((BaseGirlEntity)var2).g_clash538(var5);
-            if (!var3.field_71075_bZ.field_75098_d) {
-               var4.func_190918_g(1);
+            if (!var3.capabilities.isCreativeMode) {
+               var4.shrink(1);
             }
 
             var1.setCanceled(true);

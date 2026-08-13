@@ -28,37 +28,37 @@ public class GirlInventoryContainerGui extends GuiContainer {
       super(new GirlInventoryContainer2(var1, var2, var3));
       this.c = var3;
       this.d = var1;
-      this.a = var2.field_70458_d.getPersistentID();
+      this.a = var2.player.getPersistentID();
    }
 
-   public void func_73863_a(int var1, int var2, float var3) {
-      this.func_146276_q_();
-      super.func_73863_a(var1, var2, var3);
-      this.func_191948_b(var1, var2);
+   public void drawScreen(int var1, int var2, float var3) {
+      this.drawDefaultBackground();
+      super.drawScreen(var1, var2, var3);
+      this.renderHoveredToolTip(var1, var2);
    }
 
-   public void func_146281_b() {
-      super.func_146281_b();
+   public void onGuiClosed() {
+      super.onGuiClosed();
 
       for (GirlInventoryContainer2 var2 : GirlInventoryContainer2.c) {
          if (var2.a.equals(this.c)) {
             ItemStack[] var3 = new ItemStack[43];
-            Minecraft.func_71410_x().field_71439_g.field_71071_by.field_70462_a.toArray(var3);
-            var3[36] = var2.func_75139_a(0).func_75211_c();
-            var3[37] = var2.func_75139_a(1).func_75211_c();
-            var3[38] = var2.func_75139_a(2).func_75211_c();
-            var3[39] = var2.func_75139_a(3).func_75211_c();
-            var3[40] = var2.func_75139_a(4).func_75211_c();
-            var3[41] = var2.func_75139_a(5).func_75211_c();
-            var3[42] = var2.func_75139_a(6).func_75211_c();
+            Minecraft.getMinecraft().player.inventory.mainInventory.toArray(var3);
+            var3[36] = var2.getSlot(0).getStack();
+            var3[37] = var2.getSlot(1).getStack();
+            var3[38] = var2.getSlot(2).getStack();
+            var3[39] = var2.getSlot(3).getStack();
+            var3[40] = var2.getSlot(4).getStack();
+            var3[41] = var2.getSlot(5).getStack();
+            var3[42] = var2.getSlot(6).getStack();
             PacketHandler.b.sendToServer(new UploadInventoryToServerPacket(this.d.getGirlId(), this.a, var3));
          }
       }
    }
 
-   protected void func_146976_a(float var1, int var2, int var3) {
-      GlStateManager.func_179131_c(1.0F, 1.0F, 1.0F, 1.0F);
-      this.field_146297_k.field_71446_o.func_110577_a(b);
-      this.func_73729_b(this.field_146294_l / 2 - 88, this.field_146295_m / 2 - 7 - 24, 80, 142, 176, 114);
+   protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
+      GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+      this.mc.renderEngine.bindTexture(b);
+      this.drawTexturedModalRect(this.width / 2 - 88, this.height / 2 - 7 - 24, 80, 142, 176, 114);
    }
 }

@@ -99,10 +99,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    void i(BaseGirlEntity var1) {
       if (fp.a(var1, fp.PUSSY_LICKING)) {
          if (var1 instanceof GalathEntity) {
-            if (!this.a.func_147113_T()) {
+            if (!this.a.isGamePaused()) {
                AnimationProcessor var2 = this.getAnimationProcessor();
                IBone var3 = var2.getBone("head");
-               float var4 = this.a.func_184121_ak() + this.a.field_71439_g.field_70173_aa;
+               float var4 = this.a.getRenderPartialTicks() + this.a.player.ticksExisted;
                f7 var5 = this.a_clash171((GalathEntity)var1, var4);
                var3.setRotationX(var3.getRotationX() + var5.a);
                var3.setRotationY(var3.getRotationY() + var5.c);
@@ -121,7 +121,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    f7 a_clash171(GalathEntity var1, float var2) {
-      return RotationHelper.a(this.a_clash172(var2), f7.d, var1.b_clash696(this.a.func_184121_ak()));
+      return RotationHelper.a(this.a_clash172(var2), f7.d, var1.b_clash696(this.a.getRenderPartialTicks()));
    }
 
    f7 a_clash172(float var1) {
@@ -164,16 +164,16 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
          if (var1.getCurrentAction() == fp.MASTERBATE) {
             Object var2 = var1.z_clash528();
             if (var2 == null) {
-               var2 = this.a.field_71439_g;
+               var2 = this.a.player;
             }
 
             MolangParser var3 = GeckoLibCache.getInstance().parser;
-            Vec3d var4 = ak.b(var1, (EntityPlayer)var2, this.a.func_184121_ak()).func_178787_e(var1.getCachedBoneOffset("head"));
-            float var5 = (float)gc.b(Math.atan2(var4.field_72449_c, var4.field_72450_a)) - var1.getYawRotation();
+            Vec3d var4 = ak.b(var1, (EntityPlayer)var2, this.a.getRenderPartialTicks()).add(var1.getCachedBoneOffset("head"));
+            float var5 = (float)gc.b(Math.atan2(var4.z, var4.x)) - var1.getYawRotation();
             float var6 = (float)gc.b(
-               Math.atan2(var4.field_72448_b, Math.sqrt(var4.field_72450_a * var4.field_72450_a + var4.field_72449_c * var4.field_72449_c))
+               Math.atan2(var4.y, Math.sqrt(var4.x * var4.x + var4.z * var4.z))
             );
-            double var7 = Math.abs(var4.field_72450_a) + Math.abs(var4.field_72448_b) + Math.abs(var4.field_72449_c);
+            double var7 = Math.abs(var4.x) + Math.abs(var4.y) + Math.abs(var4.z);
             double var9 = var7 * 7.0 + -20.0;
             double var11 = var7 * 5.0 + -20.0;
             var3.setValue("pitch", var9 + var6 - 80.0);
@@ -243,21 +243,21 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
 
    void b_clash178(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
-         if ((Boolean)var1.func_184212_Q().func_187225_a(GalathEntity.bP)) {
+         if ((Boolean)var1.getDataManager().get(GalathEntity.bP)) {
             if (var1.getCurrentAction() == fp.KNOCK_OUT_FLY) {
                IBone var2 = this.getAnimationProcessor().getBone("body");
-               Vec3d var3 = new Vec3d(var1.field_70142_S, var1.field_70137_T, var1.field_70136_U);
-               Vec3d var4 = var1.func_174791_d().func_178788_d(var3);
-               boolean var5 = Math.abs(var4.field_72450_a) + Math.abs(var4.field_72449_c) < 0.01F;
+               Vec3d var3 = new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ);
+               Vec3d var4 = var1.getPositionVector().subtract(var3);
+               boolean var5 = Math.abs(var4.x) + Math.abs(var4.z) < 0.01F;
                if (var5) {
                   var2.setRotationX(gc.wrapDegrees(-90.0F));
                   var2.setPositionY(0.0F);
                   var2.setPositionZ(0.0F);
                } else {
                   Vec3d var6 = d_clash346(var1);
-                  var2.setRotationX(-((float)var6.field_72450_a));
-                  var2.setPositionY((float)var6.field_72448_b);
-                  var2.setPositionZ((float)var6.field_72449_c);
+                  var2.setRotationX(-((float)var6.x));
+                  var2.setPositionY((float)var6.y);
+                  var2.setPositionZ((float)var6.z);
                }
             }
          }
@@ -270,10 +270,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
             Vec3d var2 = d_clash346(var1);
             IBone var3 = this.getAnimationProcessor().getBone("body");
             IBone var4 = this.getAnimationProcessor().getBone("rotationTool");
-            var4.setRotationX((float)var2.field_72450_a);
-            var3.setPositionY((float)var2.field_72448_b);
-            var3.setPositionZ((float)var2.field_72449_c);
-            float var5 = (Float)var1.func_184212_Q().func_187225_a(GalathEntity.bO);
+            var4.setRotationX((float)var2.x);
+            var3.setPositionY((float)var2.y);
+            var3.setPositionZ((float)var2.z);
+            float var5 = (Float)var1.getDataManager().get(GalathEntity.bO);
             var3.setRotationY(gc.wrapDegrees(var5 * 180.0F));
          }
       }
@@ -288,18 +288,18 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
          } else {
             int var3 = var2.az();
             if (var3 == 24 && this.f == -1L) {
-               this.f = this.a.field_71441_e.func_82737_E();
+               this.f = this.a.world.getTotalWorldTime();
                this.i = this.f + 8L;
             }
 
             if (ThreadNames.a_clash164(var3, 24.0, 32.0)) {
                IBone var4 = this.getAnimationProcessor().getBone("body");
                Vec3d var5 = a(var2, var2.B_clash642());
-               float var6 = ((float)Minecraft.func_71410_x().field_71441_e.func_82737_E() + this.a.func_184121_ak() - (float)this.f) / (float)(this.i - this.f);
-               var5 = RotationHelper.a(var5, Vec3d.field_186680_a, var6);
-               var4.setRotationX((float)var5.field_72450_a);
-               var4.setPositionY((float)var5.field_72448_b);
-               var4.setPositionZ((float)var5.field_72449_c);
+               float var6 = ((float)Minecraft.getMinecraft().world.getTotalWorldTime() + this.a.getRenderPartialTicks() - (float)this.f) / (float)(this.i - this.f);
+               var5 = RotationHelper.a(var5, Vec3d.ZERO, var6);
+               var4.setRotationX((float)var5.x);
+               var4.setPositionY((float)var5.y);
+               var4.setPositionZ((float)var5.z);
             }
          }
       }
@@ -314,7 +314,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
             }
          case FLY:
          case CONTROLLED_FLIGHT:
-            float var3 = Minecraft.func_71410_x().func_184121_ak();
+            float var3 = Minecraft.getMinecraft().getRenderPartialTicks();
             IBone var4 = this.getAnimationProcessor().getBone("rotationTool");
             f2 var5 = ((IGalath)var1).d_clash20();
             var4.setRotationX((float)RotationHelper.b(var5.c + var2, var5.d + var2, var3));

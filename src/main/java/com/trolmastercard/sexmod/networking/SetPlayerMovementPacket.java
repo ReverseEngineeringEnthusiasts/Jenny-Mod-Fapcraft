@@ -46,7 +46,7 @@ public class SetPlayerMovementPacket implements IMessage {
             d3.setMovementLock(var1.b);
 
             try {
-               Minecraft.func_71410_x().field_71439_g.func_70016_h(0.0, 0.0, 0.0);
+               Minecraft.getMinecraft().player.setVelocity(0.0, 0.0, 0.0);
             } catch (Exception var3) {
             }
 

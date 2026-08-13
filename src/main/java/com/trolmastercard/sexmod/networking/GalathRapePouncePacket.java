@@ -40,8 +40,8 @@ public class GalathRapePouncePacket implements IMessage {
    public static class Handler implements IMessageHandler<GalathRapePouncePacket, IMessage> {
       public IMessage onMessage(GalathRapePouncePacket var1, MessageContext var2) {
          if (var1.a && var2.side.equals(Side.SERVER)) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               BaseGirlEntity var2x = BaseGirlEntity.c_clash531(var2.getServerHandler().field_147369_b.getPersistentID());
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+               BaseGirlEntity var2x = BaseGirlEntity.c_clash531(var2.getServerHandler().player.getPersistentID());
                if (var2x instanceof GalathEntity) {
                   ((GalathEntity)var2x).c_clash694(var1.b);
                }

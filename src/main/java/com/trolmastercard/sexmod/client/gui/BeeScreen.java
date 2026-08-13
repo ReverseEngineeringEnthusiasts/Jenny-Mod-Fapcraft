@@ -41,7 +41,7 @@ public class BeeScreen extends GuiScreen {
       ThreadNames.a(1200, var0);
    }
 
-   public boolean func_73868_f() {
+   public boolean doesGuiPauseGame() {
       return false;
    }
 
@@ -49,9 +49,9 @@ public class BeeScreen extends GuiScreen {
    public void a(RenderGameOverlayEvent var1) {
       if (b) {
          if (var1.getType() == ElementType.TEXT) {
-            Minecraft var2 = Minecraft.func_71410_x();
-            e = e + var2.func_193989_ak() * 0.75F;
-            int var4 = var2.field_71474_y.field_74335_Z;
+            Minecraft var2 = Minecraft.getMinecraft();
+            e = e + var2.getTickLength() * 0.75F;
+            int var4 = var2.gameSettings.guiScale;
             float var3;
             if (var4 == 1) {
                var3 = (float)RotationHelper.b(-1800.0, 1000.0, 0.5 * Math.cos(e / 25.0) + 0.5);
@@ -61,27 +61,27 @@ public class BeeScreen extends GuiScreen {
                var3 = (float)RotationHelper.b(-900.0, 600.0, 0.5 * Math.cos(e / 25.0) + 0.5);
             }
 
-            GlStateManager.func_179094_E();
+            GlStateManager.pushMatrix();
             if (var4 == 1) {
-               GlStateManager.func_179152_a(2.0F, 2.0F, 2.0F);
+               GlStateManager.scale(2.0F, 2.0F, 2.0F);
             }
 
             if (var4 == 2) {
-               GlStateManager.func_179139_a(1.5, 1.5, 1.5);
+               GlStateManager.scale(1.5, 1.5, 1.5);
             }
 
-            var2.field_71446_o.func_110577_a(c);
-            this.func_175174_a(var3, 0.0F, 0, (int)(e * 1.5), 256, 256);
-            this.func_175174_a(var3, 256.0F, 0, (int)(e * 1.5), 256, 256);
-            this.func_175174_a(var3, 512.0F, 0, (int)(e * 1.5), 256, 256);
-            var2.field_71446_o.func_110577_a(f);
-            this.func_175174_a(var3 + 600.0F, 0.0F, 0, (int)(e * 1.5), 256, 256);
-            this.func_175174_a(var3 + 600.0F, 256.0F, 0, (int)(e * 1.5), 256, 256);
-            this.func_175174_a(var3 + 600.0F, 512.0F, 0, (int)(e * 1.5), 256, 256);
-            var2.field_71446_o.func_110577_a(a);
-            this.func_175174_a(var3 + 200.0F, 0.0F, 0, 0, 400, 256);
-            this.func_175174_a(var3 + 200.0F, 256.0F, 0, 0, 400, 256);
-            this.func_175174_a(var3 + 200.0F, 512.0F, 0, 0, 400, 256);
+            var2.renderEngine.bindTexture(c);
+            this.drawTexturedModalRect(var3, 0.0F, 0, (int)(e * 1.5), 256, 256);
+            this.drawTexturedModalRect(var3, 256.0F, 0, (int)(e * 1.5), 256, 256);
+            this.drawTexturedModalRect(var3, 512.0F, 0, (int)(e * 1.5), 256, 256);
+            var2.renderEngine.bindTexture(f);
+            this.drawTexturedModalRect(var3 + 600.0F, 0.0F, 0, (int)(e * 1.5), 256, 256);
+            this.drawTexturedModalRect(var3 + 600.0F, 256.0F, 0, (int)(e * 1.5), 256, 256);
+            this.drawTexturedModalRect(var3 + 600.0F, 512.0F, 0, (int)(e * 1.5), 256, 256);
+            var2.renderEngine.bindTexture(a);
+            this.drawTexturedModalRect(var3 + 200.0F, 0.0F, 0, 0, 400, 256);
+            this.drawTexturedModalRect(var3 + 200.0F, 256.0F, 0, 0, 400, 256);
+            this.drawTexturedModalRect(var3 + 200.0F, 512.0F, 0, 0, 400, 256);
             if (e > 30.0) {
                HornyMeterHud.hideHornyMeter();
             }
@@ -91,7 +91,7 @@ public class BeeScreen extends GuiScreen {
                b = false;
             }
 
-            GlStateManager.func_179121_F();
+            GlStateManager.popMatrix();
          }
       }
    }

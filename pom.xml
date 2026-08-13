@@ -25,9 +25,22 @@
   </repositories>
 
   <dependencies>
-    <!-- Minecraft 1.12.2 (SRG/obfuscated names, matches decompiled source) -->
+    <!-- Minecraft 1.12.2 (MCP-named; source uses readable names, reobfuscated to SRG at package time) -->
     <dependency>
-      <groupId>local</groupId><artifactId>mc-1.12.2-srg</artifactId><version>1.0</version>
+      <groupId>local</groupId><artifactId>mc-1.12.2-mcp</artifactId><version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- ASM (build-time only, used by the SRG reobfuscation step) -->
+    <dependency>
+      <groupId>local</groupId><artifactId>asm</artifactId><version>7.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>local</groupId><artifactId>asm-commons</artifactId><version>7.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>local</groupId><artifactId>asm-tree</artifactId><version>7.1</version>
       <scope>provided</scope>
     </dependency>
     <!-- Forge 1.12.2 universal (SRG-remapped for compile consistency) -->
@@ -37,7 +50,7 @@
     </dependency>
     <!-- GeckoLib 3 (bundled by the mod) -->
     <dependency>
-      <groupId>local</groupId><artifactId>geckolib3-1.12.2</artifactId><version>3.0</version>
+      <groupId>local</groupId><artifactId>geckolib3-1.12.2-mcp</artifactId><version>3.0</version>
       <scope>compile</scope>
     </dependency>
     <!-- jackson relocated to software.bernie.shadowed (bundled) -->
@@ -151,11 +164,41 @@
             <configuration>
               <artifactSet>
                 <includes>
-                  <include>local:geckolib3-1.12.2</include>
+                  <include>local:geckolib3-1.12.2-mcp</include>
                   <include>local:geckolib3-shadowed-libs</include>
                   <include>local:apache-commons-lang3</include>
                 </includes>
               </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>reobf-srg</id>
+            <phase>package</phase>
+            <goals><goal>run</goal></goals>
+            <configuration>
+              <target>
+                <java classname="MCRepack" fork="true" failonerror="true">
+                  <classpath>
+                    <pathelement path="${project.basedir}/tools" />
+                    <pathelement path="${project.basedir}/lib-repo/local/asm/7.1/asm-7.1.jar" />
+                    <pathelement path="${project.basedir}/lib-repo/local/asm-commons/7.1/asm-commons-7.1.jar" />
+                    <pathelement path="${project.basedir}/lib-repo/local/asm-tree/7.1/asm-tree-7.1.jar" />
+                  </classpath>
+                  <arg value="${project.basedir}/lib/mc-1.12.2-srg.jar" />
+                  <arg value="${project.basedir}/tools/mappings/methods.csv" />
+                  <arg value="${project.basedir}/tools/mappings/fields.csv" />
+                  <arg value="mcp2srg" />
+                  <arg value="${project.build.directory}/${project.build.finalName}.jar" />
+                  <arg value="${project.build.directory}/${project.build.finalName}.jar" />
+                </java>
+              </target>
             </configuration>
           </execution>
         </executions>

@@ -44,7 +44,7 @@ public class StructureCommandScreen extends GuiScreen {
    static final float j = 0.5F;
    static final ResourceLocation h = new ResourceLocation("sexmod", "textures/gui/command.png");
    static final HashSet<Material> l = new HashSet<>(
-      Arrays.asList(Material.field_151571_B, Material.field_151576_e, Material.field_151595_p, Material.field_151578_c)
+      Arrays.asList(Material.CLAY, Material.ROCK, Material.SAND, Material.GROUND)
    );
    public static boolean d = false;
    float m = 0.0F;
@@ -57,23 +57,23 @@ public class StructureCommandScreen extends GuiScreen {
    EnumFacing b;
 
    public StructureCommandScreen() {
-      Minecraft var1 = Minecraft.func_71410_x();
-      this.c = var1.field_71476_x.func_178782_a();
-      if (var1.field_71476_x.field_178784_b == null) {
+      Minecraft var1 = Minecraft.getMinecraft();
+      this.c = var1.objectMouseOver.getBlockPos();
+      if (var1.objectMouseOver.sideHit == null) {
          this.b = EnumFacing.NORTH;
       } else {
-         this.b = var1.field_71476_x.field_178784_b.func_176734_d();
+         this.b = var1.objectMouseOver.sideHit.getOpposite();
       }
 
       if (this.c == null) {
-         this.c = BlockPos.field_177992_a;
+         this.c = BlockPos.ORIGIN;
       }
 
-      this.e = var1.field_71441_e.func_180495_p(this.c);
+      this.e = var1.world.getBlockState(this.c);
    }
 
-   public void func_146281_b() {
-      super.func_146281_b();
+   public void onGuiClosed() {
+      super.onGuiClosed();
       List var1 = Arrays.asList(this.a, this.k, this.n, this.i);
       float var2 = (Float) Collections.max((List<Float>) (List) var1);
       if (var2 != 0.0F) {
@@ -96,8 +96,8 @@ public class StructureCommandScreen extends GuiScreen {
    }
 
    void b_clash832() {
-      IBlockState var1 = this.field_146297_k.field_71441_e.func_180495_p(this.c);
-      if (var1.func_177230_c() instanceof BlockBed || var1.func_177230_c() instanceof BlockChest) {
+      IBlockState var1 = this.mc.world.getBlockState(this.c);
+      if (var1.getBlock() instanceof BlockBed || var1.getBlock() instanceof BlockChest) {
          PacketHandler.b.sendToServer(new SendBlocksPacket(this.c, !gm.a_clash771(this.c)));
       }
    }
@@ -111,7 +111,7 @@ public class StructureCommandScreen extends GuiScreen {
    }
 
    void a_clash835() {
-      Block var1 = this.e.func_177230_c();
+      Block var1 = this.e.getBlock();
       if (var1 instanceof BlockLog) {
          if (gm.a_clash771(this.c)) {
             PacketHandler.b.sendToServer(new CancelTaskPacket(this.c));
@@ -134,78 +134,78 @@ public class StructureCommandScreen extends GuiScreen {
 
    @Nullable
    Object[] e_clash836() {
-      Material var1 = this.field_146297_k.field_71441_e.func_180495_p(this.c).func_185904_a();
-      EntityPlayerSP var2 = this.field_146297_k.field_71439_g;
+      Material var1 = this.mc.world.getBlockState(this.c).getMaterial();
+      EntityPlayerSP var2 = this.mc.player;
       if (!l.contains(var1)) {
          return null;
       }
 
-      if (var2.func_180425_c().func_177956_o() > this.c.func_177956_o()) {
+      if (var2.getPosition().getY() > this.c.getY()) {
          return null;
       }
 
       BlockPos var3 = this.c;
 
       while (
-         this.field_146297_k.field_71441_e.func_180495_p(var3.func_177977_b().func_177971_a(this.b.func_176734_d().func_176730_m())).func_177230_c()
-            == Blocks.field_150350_a
+         this.mc.world.getBlockState(var3.down().add(this.b.getOpposite().getDirectionVec())).getBlock()
+            == Blocks.AIR
       ) {
-         var3 = var3.func_177977_b();
+         var3 = var3.down();
       }
 
-      return this.c.func_177956_o() - var3.func_177956_o() > 3 ? null : new Object[]{var3, this.b};
+      return this.c.getY() - var3.getY() > 3 ? null : new Object[]{var3, this.b};
    }
 
-   public void func_73863_a(int var1, int var2, float var3) {
-      super.func_73863_a(var1, var2, var3);
+   public void drawScreen(int var1, int var2, float var3) {
+      super.drawScreen(var1, var2, var3);
       GL11.glEnable(3042);
-      OpenGlHelper.func_148821_a(770, 771, 1, 0);
+      OpenGlHelper.glBlendFunc(770, 771, 1, 0);
       GL11.glBlendFunc(770, 771);
 
       try {
-         this.m = Math.min(1.0F, this.m + this.field_146297_k.func_193989_ak() / 5.0F);
+         this.m = Math.min(1.0F, this.m + this.mc.getTickLength() / 5.0F);
       } catch (NullPointerException var11) {
       }
 
       float var4 = (float)this.a_clash841(this.m);
       float var5 = (1.0F - var4) * 100.0F;
-      this.a = this.a + (var1 < this.field_146294_l / 2 && var2 > this.field_146295_m / 2 ? 1 : -1) * this.field_146297_k.func_193989_ak();
-      this.k = this.k + (var1 < this.field_146294_l / 2 && var2 < this.field_146295_m / 2 ? 1 : -1) * this.field_146297_k.func_193989_ak();
-      this.n = this.n + (var1 > this.field_146294_l / 2 && var2 > this.field_146295_m / 2 ? 1 : -1) * this.field_146297_k.func_193989_ak();
-      this.i = this.i + (var1 > this.field_146294_l / 2 && var2 < this.field_146295_m / 2 ? 1 : -1) * this.field_146297_k.func_193989_ak();
+      this.a = this.a + (var1 < this.width / 2 && var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.k = this.k + (var1 < this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.n = this.n + (var1 > this.width / 2 && var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.i = this.i + (var1 > this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
       this.a = ThreadNames.b(this.a, 0.0F, 1.0F);
       this.k = ThreadNames.b(this.k, 0.0F, 1.0F);
       this.n = ThreadNames.b(this.n, 0.0F, 1.0F);
       this.i = ThreadNames.b(this.i, 0.0F, 1.0F);
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179109_b(this.field_146294_l / 2.0F, this.field_146295_m / 2.0F, 0.0F);
-      GlStateManager.func_179152_a(var4, var4, var4);
-      this.field_146297_k.field_71446_o.func_110577_a(h);
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179152_a(1.0F + this.k * 0.5F, 1.0F + this.k * 0.5F, 1.0F);
-      this.func_175174_a(-62.0F + var5 - this.k * 15.0F, -62.0F + var5 - this.k * 15.0F, 0, 0, 64, 64);
+      GlStateManager.pushMatrix();
+      GlStateManager.translate(this.width / 2.0F, this.height / 2.0F, 0.0F);
+      GlStateManager.scale(var4, var4, var4);
+      this.mc.renderEngine.bindTexture(h);
+      GlStateManager.pushMatrix();
+      GlStateManager.scale(1.0F + this.k * 0.5F, 1.0F + this.k * 0.5F, 1.0F);
+      this.drawTexturedModalRect(-62.0F + var5 - this.k * 15.0F, -62.0F + var5 - this.k * 15.0F, 0, 0, 64, 64);
       this.c_clash838(var5);
       if (d) {
-         this.func_175174_a(-62.0F + var5 - this.k * 15.0F, -62.0F + var5 - this.k * 15.0F, 128, 64, 64, 64);
+         this.drawTexturedModalRect(-62.0F + var5 - this.k * 15.0F, -62.0F + var5 - this.k * 15.0F, 128, 64, 64, 64);
       }
 
-      GlStateManager.func_179121_F();
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179152_a(1.0F + this.n * 0.5F, 1.0F + this.n * 0.5F, 1.0F);
-      this.func_175174_a(-2.0F - var5 + this.n * 15.0F, -2.0F - var5 + this.n * 15.0F, 0, 0, 64, 64);
+      GlStateManager.popMatrix();
+      GlStateManager.pushMatrix();
+      GlStateManager.scale(1.0F + this.n * 0.5F, 1.0F + this.n * 0.5F, 1.0F);
+      this.drawTexturedModalRect(-2.0F - var5 + this.n * 15.0F, -2.0F - var5 + this.n * 15.0F, 0, 0, 64, 64);
       this.a_clash837(var5);
       if (DragonStaffRenderer.b_clash631()) {
-         this.func_175174_a(-2.0F - var5 + this.n * 15.0F, -2.0F - var5 + this.n * 15.0F, 128, 64, 64, 64);
+         this.drawTexturedModalRect(-2.0F - var5 + this.n * 15.0F, -2.0F - var5 + this.n * 15.0F, 128, 64, 64, 64);
       }
 
-      GlStateManager.func_179121_F();
-      Block var6 = this.e.func_177230_c();
+      GlStateManager.popMatrix();
+      Block var6 = this.e.getBlock();
       boolean var7 = var6 instanceof BlockChest;
       boolean var8 = var6 instanceof BlockBed;
       if (var7 || var8) {
-         GlStateManager.func_179094_E();
-         GlStateManager.func_179152_a(1.0F + this.a * 0.5F, 1.0F + this.a * 0.5F, 1.0F);
-         this.func_175174_a(-62.0F + var5 - this.a * 15.0F, -2.0F - var5 + this.a * 15.0F, 0, 0, 64, 64);
+         GlStateManager.pushMatrix();
+         GlStateManager.scale(1.0F + this.a * 0.5F, 1.0F + this.a * 0.5F, 1.0F);
+         this.drawTexturedModalRect(-62.0F + var5 - this.a * 15.0F, -2.0F - var5 + this.a * 15.0F, 0, 0, 64, 64);
          if (var7) {
             this.d_clash840(var5);
          }
@@ -215,18 +215,18 @@ public class StructureCommandScreen extends GuiScreen {
          }
 
          if (gm.a_clash771(this.c)) {
-            this.func_175174_a(-62.0F + var5 - this.a * 15.0F, -2.0F - var5 + this.a * 15.0F, 128, 64, 64, 64);
+            this.drawTexturedModalRect(-62.0F + var5 - this.a * 15.0F, -2.0F - var5 + this.a * 15.0F, 128, 64, 64, 64);
          }
 
-         GlStateManager.func_179121_F();
+         GlStateManager.popMatrix();
       }
 
       boolean var9 = var6 instanceof BlockLog;
       boolean var10 = this.e_clash836() != null;
       if (var9 || var10) {
-         GlStateManager.func_179094_E();
-         GlStateManager.func_179152_a(1.0F + this.i * 0.5F, 1.0F + this.i * 0.5F, 1.0F);
-         this.func_175174_a(-2.0F - var5 + this.i * 15.0F, -62.0F + var5 - this.i * 15.0F, 0, 0, 64, 64);
+         GlStateManager.pushMatrix();
+         GlStateManager.scale(1.0F + this.i * 0.5F, 1.0F + this.i * 0.5F, 1.0F);
+         this.drawTexturedModalRect(-2.0F - var5 + this.i * 15.0F, -62.0F + var5 - this.i * 15.0F, 0, 0, 64, 64);
          if (var9) {
             this.e(var5);
          }
@@ -236,38 +236,38 @@ public class StructureCommandScreen extends GuiScreen {
          }
 
          if (gm.a_clash771(this.c)) {
-            this.func_175174_a(-2.0F - var5 + this.i * 15.0F, -62.0F + var5 - this.i * 15.0F, 128, 64, 64, 64);
+            this.drawTexturedModalRect(-2.0F - var5 + this.i * 15.0F, -62.0F + var5 - this.i * 15.0F, 128, 64, 64, 64);
          }
 
-         GlStateManager.func_179121_F();
+         GlStateManager.popMatrix();
       }
 
-      GlStateManager.func_179121_F();
+      GlStateManager.popMatrix();
       GL11.glDisable(3042);
    }
 
    void a_clash837(float var1) {
-      this.func_175174_a(-2.0F - var1 + this.n * 15.0F, -2.0F - var1 + this.n * 15.0F, 192, 64, 64, 64);
+      this.drawTexturedModalRect(-2.0F - var1 + this.n * 15.0F, -2.0F - var1 + this.n * 15.0F, 192, 64, 64, 64);
    }
 
    void c_clash838(float var1) {
-      this.func_175174_a(-62.0F + var1 - this.k * 15.0F, -62.0F + var1 - this.k * 15.0F, 64, 64, 64, 64);
+      this.drawTexturedModalRect(-62.0F + var1 - this.k * 15.0F, -62.0F + var1 - this.k * 15.0F, 64, 64, 64, 64);
    }
 
    void e(float var1) {
-      this.func_175174_a(-2.0F - var1 + this.i * 15.0F, -62.0F + var1 - this.i * 15.0F, 64, 0, 64, 64);
+      this.drawTexturedModalRect(-2.0F - var1 + this.i * 15.0F, -62.0F + var1 - this.i * 15.0F, 64, 0, 64, 64);
    }
 
    void b_clash839(float var1) {
-      this.func_175174_a(-2.0F - var1 + this.i * 15.0F, -62.0F + var1 - this.i * 15.0F, 128, 0, 64, 64);
+      this.drawTexturedModalRect(-2.0F - var1 + this.i * 15.0F, -62.0F + var1 - this.i * 15.0F, 128, 0, 64, 64);
    }
 
    void f(float var1) {
-      this.func_175174_a(-62.0F + var1 - this.a * 15.0F, -2.0F - var1 + this.a * 15.0F, 0, 64, 64, 64);
+      this.drawTexturedModalRect(-62.0F + var1 - this.a * 15.0F, -2.0F - var1 + this.a * 15.0F, 0, 64, 64, 64);
    }
 
    void d_clash840(float var1) {
-      this.func_175174_a(-62.0F + var1 - this.a * 15.0F, -2.0F - var1 + this.a * 15.0F, 192, 0, 64, 64);
+      this.drawTexturedModalRect(-62.0F + var1 - this.a * 15.0F, -2.0F - var1 + this.a * 15.0F, 192, 0, 64, 64);
    }
 
    double a_clash841(double var1) {
@@ -276,12 +276,12 @@ public class StructureCommandScreen extends GuiScreen {
       return 1.0 + var5 * Math.pow(var1 - 1.0, 3.0) + var3 * Math.pow(var1 - 1.0, 2.0);
    }
 
-   protected void func_146286_b(int var1, int var2, int var3) {
-      this.field_146297_k.field_71439_g.func_71053_j();
-      super.func_146286_b(var1, var2, var3);
+   protected void mouseReleased(int var1, int var2, int var3) {
+      this.mc.player.closeScreen();
+      super.mouseReleased(var1, var2, var3);
    }
 
-   public boolean func_73868_f() {
+   public boolean doesGuiPauseGame() {
       return false;
    }
 

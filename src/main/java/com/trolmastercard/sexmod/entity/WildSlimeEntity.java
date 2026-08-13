@@ -39,12 +39,12 @@ import net.minecraft.world.storage.loot.LootTableList;
 
 public class WildSlimeEntity extends EntityLiving {
    public static List<WildSlimeEntity> g = new ArrayList<>();
-   private static final DataParameter<Integer> d = EntityDataManager.func_187226_a(WildSlimeEntity.class, DataSerializers.field_187192_b)
-      .func_187156_b()
-      .func_187161_a(111);
-   private static final DataParameter<Integer> c = EntityDataManager.func_187226_a(WildSlimeEntity.class, DataSerializers.field_187192_b)
-      .func_187156_b()
-      .func_187161_a(110);
+   private static final DataParameter<Integer> d = EntityDataManager.createKey(WildSlimeEntity.class, DataSerializers.VARINT)
+      .getSerializer()
+      .createKey(111);
+   private static final DataParameter<Integer> c = EntityDataManager.createKey(WildSlimeEntity.class, DataSerializers.VARINT)
+      .getSerializer()
+      .createKey(110);
    public float a;
    public float e;
    public float h;
@@ -52,65 +52,65 @@ public class WildSlimeEntity extends EntityLiving {
 
    public WildSlimeEntity(World var1) {
       super(var1);
-      this.field_70765_h = new WildSlimeEntity.b(this);
+      this.moveHelper = new WildSlimeEntity.b(this);
    }
 
-   protected void func_184651_r() {
-      this.field_70714_bg.func_75776_a(1, new WildSlimeEntity.d(this));
-      this.field_70714_bg.func_75776_a(5, new WildSlimeEntity.c(this));
+   protected void initEntityAI() {
+      this.tasks.addTask(1, new WildSlimeEntity.d(this));
+      this.tasks.addTask(5, new WildSlimeEntity.c(this));
    }
 
-   protected void func_70088_a() {
-      super.func_70088_a();
-      this.field_70180_af.func_187214_a(c, 1);
-      this.field_70180_af.func_187214_a(d, 0);
+   protected void entityInit() {
+      super.entityInit();
+      this.dataManager.register(c, 1);
+      this.dataManager.register(d, 0);
    }
 
-   public void func_180430_e(float var1, float var2) {
+   public void fall(float var1, float var2) {
    }
 
-   protected boolean func_70692_ba() {
+   protected boolean canDespawn() {
       return false;
    }
 
    protected void a(int var1, boolean var2) {
-      this.field_70180_af.func_187227_b(c, var1);
-      this.func_70105_a(0.51000005F * var1, 0.51000005F * var1);
-      this.func_70107_b(this.field_70165_t, this.field_70163_u, this.field_70161_v);
-      this.func_110148_a(SharedMonsterAttributes.field_111267_a).func_111128_a(var1 * var1);
-      this.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111128_a(0.2F + 0.1F * var1);
+      this.dataManager.set(c, var1);
+      this.setSize(0.51000005F * var1, 0.51000005F * var1);
+      this.setPosition(this.posX, this.posY, this.posZ);
+      this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(var1 * var1);
+      this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.2F + 0.1F * var1);
       if (var2) {
-         this.func_70606_j(this.func_110138_aP());
+         this.setHealth(this.getMaxHealth());
       }
 
-      this.field_70728_aV = var1;
+      this.experienceValue = var1;
    }
 
    public int getSquishFactor() {
-      return (Integer)this.field_70180_af.func_187225_a(c);
+      return (Integer)this.dataManager.get(c);
    }
 
    public static void a(DataFixer var0) {
-      EntityLiving.func_189752_a(var0, WildSlimeEntity.class);
+      EntityLiving.registerFixesMob(var0, WildSlimeEntity.class);
    }
 
-   public void func_70014_b(NBTTagCompound var1) {
-      super.func_70014_b(var1);
-      var1.func_74768_a("Size", this.getSquishFactor() - 1);
-      var1.func_74757_a("wasOnGround", this.f);
-      var1.func_74768_a("ageInTicks", (Integer)this.field_70180_af.func_187225_a(d));
+   public void writeEntityToNBT(NBTTagCompound var1) {
+      super.writeEntityToNBT(var1);
+      var1.setInteger("Size", this.getSquishFactor() - 1);
+      var1.setBoolean("wasOnGround", this.f);
+      var1.setInteger("ageInTicks", (Integer)this.dataManager.get(d));
    }
 
-   public void func_70037_a(NBTTagCompound var1) {
-      super.func_70037_a(var1);
-      int var2 = var1.func_74762_e("Size");
+   public void readEntityFromNBT(NBTTagCompound var1) {
+      super.readEntityFromNBT(var1);
+      int var2 = var1.getInteger("Size");
       if (var2 < 0) {
          var2 = 0;
       }
 
       this.a(var2 + 1, false);
-      this.f = var1.func_74767_n("wasOnGround");
-      this.field_70180_af.func_187227_b(d, var1.func_74762_e("ageInTicks"));
+      this.f = var1.getBoolean("wasOnGround");
+      this.dataManager.set(d, var1.getInteger("ageInTicks"));
    }
 
    public boolean j_clash93() {
@@ -136,10 +136,10 @@ public class WildSlimeEntity extends EntityLiving {
       try {
          for (WildSlimeEntity var5 : g) {
             if (var5 != null) {
-               double var6 = Math.abs(var5.field_70169_q - var0.field_72450_a)
-                  + Math.abs(var5.field_70167_r - var0.field_72448_b)
-                  + Math.abs(var5.field_70166_s - var0.field_72449_c);
-               if (var5.field_70170_p != null && var6 < var1) {
+               double var6 = Math.abs(var5.prevPosX - var0.x)
+                  + Math.abs(var5.prevPosY - var0.y)
+                  + Math.abs(var5.prevPosZ - var0.z);
+               if (var5.world != null && var6 < var1) {
                   var3.add(var5);
                }
             }
@@ -152,19 +152,19 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    public Vec3d e_clash97() {
-      return new Vec3d(this.field_70169_q, this.field_70167_r, this.field_70166_s);
+      return new Vec3d(this.prevPosX, this.prevPosY, this.prevPosZ);
    }
 
    void a(EnumParticleTypes var1) {
       double var2 = Reference.f.nextGaussian() * 0.02;
       double var4 = Reference.f.nextGaussian() * 0.02;
       double var6 = Reference.f.nextGaussian() * 0.02;
-      this.field_70170_p
-         .func_175688_a(
+      this.world
+         .spawnParticle(
             var1,
-            this.field_70165_t + Reference.f.nextFloat() * this.field_70130_N * 2.0F - this.field_70130_N,
-            this.field_70163_u + 0.15 + Reference.f.nextFloat() * this.field_70131_O,
-            this.field_70161_v + Reference.f.nextFloat() * this.field_70130_N * 2.0F - this.field_70130_N,
+            this.posX + Reference.f.nextFloat() * this.width * 2.0F - this.width,
+            this.posY + 0.15 + Reference.f.nextFloat() * this.height,
+            this.posZ + Reference.f.nextFloat() * this.width * 2.0F - this.width,
             var2,
             var4,
             var6,
@@ -172,50 +172,50 @@ public class WildSlimeEntity extends EntityLiving {
          );
    }
 
-   public void func_70071_h_() {
-      this.field_70180_af.func_187227_b(d, (Integer)this.field_70180_af.func_187225_a(d) + 1);
-      if (this.field_70170_p.field_72995_K) {
-         if (((Integer)this.field_70180_af.func_187225_a(d)).intValue() > 7980.0) {
+   public void onUpdate() {
+      this.dataManager.set(d, (Integer)this.dataManager.get(d) + 1);
+      if (this.world.isRemote) {
+         if (((Integer)this.dataManager.get(d)).intValue() > 7980.0) {
             this.a(EnumParticleTypes.CLOUD);
-         } else if (((Integer)this.field_70180_af.func_187225_a(d)).intValue() > 5880.0 && this.field_70173_aa % 10 == 0) {
+         } else if (((Integer)this.dataManager.get(d)).intValue() > 5880.0 && this.ticksExisted % 10 == 0) {
             this.a(EnumParticleTypes.VILLAGER_HAPPY);
          }
-      } else if ((Integer)this.field_70180_af.func_187225_a(d) > 8400) {
-         SlimeEntity var1 = new SlimeEntity(this.field_70170_p);
-         var1.func_70080_a(this.field_70165_t, this.field_70163_u, this.field_70161_v, this.field_70177_z, this.field_70125_A);
-         this.field_70170_p.func_72838_d(var1);
-         var1.a(SoundEvents.field_187604_bf);
-         this.field_70170_p.func_72900_e(this);
+      } else if ((Integer)this.dataManager.get(d) > 8400) {
+         SlimeEntity var1 = new SlimeEntity(this.world);
+         var1.setPositionAndRotation(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
+         this.world.spawnEntity(var1);
+         var1.a(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP);
+         this.world.removeEntity(this);
       }
 
       this.e = this.e + (this.a - this.e) * 0.5F;
       this.h = this.e;
-      super.func_70071_h_();
-      if (this.field_70122_E && !this.f) {
+      super.onUpdate();
+      if (this.onGround && !this.f) {
          int var13 = this.getSquishFactor();
          if (this.k_clash104()) {
             var13 = 0;
          }
 
          for (int var2 = 0; var2 < var13 * 8; var2++) {
-            float var3 = this.field_70146_Z.nextFloat() * (float) (Math.PI * 2);
-            float var4 = this.field_70146_Z.nextFloat() * 0.5F + 0.5F;
-            float var5 = MathHelper.func_76126_a(var3) * var13 * 0.5F * var4;
-            float var6 = MathHelper.func_76134_b(var3) * var13 * 0.5F * var4;
-            World var7 = this.field_70170_p;
+            float var3 = this.rand.nextFloat() * (float) (Math.PI * 2);
+            float var4 = this.rand.nextFloat() * 0.5F + 0.5F;
+            float var5 = MathHelper.sin(var3) * var13 * 0.5F * var4;
+            float var6 = MathHelper.cos(var3) * var13 * 0.5F * var4;
+            World var7 = this.world;
             EnumParticleTypes var8 = this.g_clash94();
-            double var9 = this.field_70165_t + var5;
-            double var11 = this.field_70161_v + var6;
-            var7.func_175688_a(var8, var9, this.func_174813_aQ().field_72338_b, var11, 0.0, 0.0, 0.0, new int[0]);
+            double var9 = this.posX + var5;
+            double var11 = this.posZ + var6;
+            var7.spawnParticle(var8, var9, this.getEntityBoundingBox().minY, var11, 0.0, 0.0, 0.0, new int[0]);
          }
 
-         this.func_184185_a(this.f_clash101(), this.func_70599_aP(), ((this.field_70146_Z.nextFloat() - this.field_70146_Z.nextFloat()) * 0.2F + 1.0F) / 0.8F);
+         this.playSound(this.f_clash101(), this.getSoundVolume(), ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F) / 0.8F);
          this.a = -0.5F;
-      } else if (!this.field_70122_E && this.f) {
+      } else if (!this.onGround && this.f) {
          this.a = 1.0F;
       }
 
-      this.f = this.field_70122_E;
+      this.f = this.onGround;
       this.b_clash98();
    }
 
@@ -224,83 +224,83 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    protected int a_clash99() {
-      return this.field_70146_Z.nextInt(100) + 50;
+      return this.rand.nextInt(100) + 50;
    }
 
    protected WildSlimeEntity d_clash100() {
-      return new WildSlimeEntity(this.field_70170_p);
+      return new WildSlimeEntity(this.world);
    }
 
-   public void func_184206_a(DataParameter<?> var1) {
+   public void notifyDataManagerChange(DataParameter<?> var1) {
       if (c.equals(var1)) {
          int var2 = this.getSquishFactor();
-         this.func_70105_a(0.51000005F * var2, 0.51000005F * var2);
-         this.field_70177_z = this.field_70759_as;
-         this.field_70761_aq = this.field_70759_as;
-         if (this.func_70090_H() && this.field_70146_Z.nextInt(20) == 0) {
-            this.func_71061_d_();
+         this.setSize(0.51000005F * var2, 0.51000005F * var2);
+         this.rotationYaw = this.rotationYawHead;
+         this.renderYawOffset = this.rotationYawHead;
+         if (this.isInWater() && this.rand.nextInt(20) == 0) {
+            this.doWaterSplashEffect();
          }
       }
 
-      super.func_184206_a(var1);
+      super.notifyDataManagerChange(var1);
    }
 
-   public void func_70106_y() {
+   public void setDead() {
       int var1 = this.getSquishFactor();
-      if (!this.field_70170_p.field_72995_K && var1 > 1 && this.func_110143_aJ() <= 0.0F) {
-         int var2 = 2 + this.field_70146_Z.nextInt(3);
+      if (!this.world.isRemote && var1 > 1 && this.getHealth() <= 0.0F) {
+         int var2 = 2 + this.rand.nextInt(3);
 
          for (int var3 = 0; var3 < var2; var3++) {
             float var4 = (var3 % 2 - 0.5F) * var1 / 4.0F;
             float var5 = (var3 / 2 - 0.5F) * var1 / 4.0F;
             WildSlimeEntity var6 = this.d_clash100();
-            if (this.func_145818_k_()) {
-               var6.func_96094_a(this.func_95999_t());
+            if (this.hasCustomName()) {
+               var6.setCustomNameTag(this.getCustomNameTag());
             }
 
-            if (this.func_104002_bU()) {
-               var6.func_110163_bv();
+            if (this.isNoDespawnRequired()) {
+               var6.enablePersistence();
             }
 
             var6.a(var1 / 2, true);
-            var6.func_70012_b(this.field_70165_t + var4, this.field_70163_u + 0.5, this.field_70161_v + var5, this.field_70146_Z.nextFloat() * 360.0F, 0.0F);
-            this.field_70170_p.func_72838_d(var6);
+            var6.setLocationAndAngles(this.posX + var4, this.posY + 0.5, this.posZ + var5, this.rand.nextFloat() * 360.0F, 0.0F);
+            this.world.spawnEntity(var6);
          }
       }
 
-      super.func_70106_y();
+      super.setDead();
    }
 
-   public float func_70047_e() {
-      return 0.625F * this.field_70131_O;
+   public float getEyeHeight() {
+      return 0.625F * this.height;
    }
 
-   protected SoundEvent func_184601_bQ(DamageSource var1) {
-      return this.j_clash93() ? SoundEvents.field_187898_fy : SoundEvents.field_187880_fp;
+   protected SoundEvent getHurtSound(DamageSource var1) {
+      return this.j_clash93() ? SoundEvents.ENTITY_SMALL_SLIME_HURT : SoundEvents.ENTITY_SLIME_HURT;
    }
 
-   protected SoundEvent func_184615_bR() {
-      return this.j_clash93() ? SoundEvents.field_187896_fx : SoundEvents.field_187874_fm;
+   protected SoundEvent getDeathSound() {
+      return this.j_clash93() ? SoundEvents.ENTITY_SMALL_SLIME_DEATH : SoundEvents.ENTITY_SLIME_DEATH;
    }
 
    protected SoundEvent f_clash101() {
-      return this.j_clash93() ? SoundEvents.field_187900_fz : SoundEvents.field_187886_fs;
+      return this.j_clash93() ? SoundEvents.ENTITY_SMALL_SLIME_SQUISH : SoundEvents.ENTITY_SLIME_SQUISH;
    }
 
-   protected Item func_146068_u() {
-      return this.getSquishFactor() == 1 ? Items.field_151123_aH : null;
+   protected Item getDropItem() {
+      return this.getSquishFactor() == 1 ? Items.SLIME_BALL : null;
    }
 
    @Nullable
-   protected ResourceLocation func_184647_J() {
-      return this.getSquishFactor() == 1 ? LootTableList.field_186378_ac : LootTableList.field_186419_a;
+   protected ResourceLocation getLootTable() {
+      return this.getSquishFactor() == 1 ? LootTableList.ENTITIES_SLIME : LootTableList.EMPTY;
    }
 
-   protected float func_70599_aP() {
+   protected float getSoundVolume() {
       return 0.4F * this.getSquishFactor();
    }
 
-   public int func_70646_bf() {
+   public int getVerticalFaceSpeed() {
       return 0;
    }
 
@@ -308,19 +308,19 @@ public class WildSlimeEntity extends EntityLiving {
       return this.getSquishFactor() > 0;
    }
 
-   protected void func_70664_aZ() {
-      this.field_70181_x = 0.42F;
-      this.field_70160_al = true;
+   protected void jump() {
+      this.motionY = 0.42F;
+      this.isAirBorne = true;
    }
 
    @Nullable
-   public IEntityLivingData func_180482_a(DifficultyInstance var1, @Nullable IEntityLivingData var2) {
+   public IEntityLivingData onInitialSpawn(DifficultyInstance var1, @Nullable IEntityLivingData var2) {
       this.a(1, true);
-      return super.func_180482_a(var1, var2);
+      return super.onInitialSpawn(var1, var2);
    }
 
    protected SoundEvent c_clash103() {
-      return this.j_clash93() ? SoundEvents.field_189110_fE : SoundEvents.field_187882_fq;
+      return this.j_clash93() ? SoundEvents.ENTITY_SMALL_SLIME_JUMP : SoundEvents.ENTITY_SLIME_JUMP;
    }
 
    protected boolean k_clash104() {
@@ -335,21 +335,21 @@ public class WildSlimeEntity extends EntityLiving {
 
       public a(WildSlimeEntity var1) {
          this.b = var1;
-         this.func_75248_a(2);
+         this.setMutexBits(2);
       }
 
-      public boolean func_75250_a() {
-         return this.b.func_70638_az() == null
-            && (this.b.field_70122_E || this.b.func_70090_H() || this.b.func_180799_ab() || this.b.func_70644_a(MobEffects.field_188424_y));
+      public boolean shouldExecute() {
+         return this.b.getAttackTarget() == null
+            && (this.b.onGround || this.b.isInWater() || this.b.isInLava() || this.b.isPotionActive(MobEffects.LEVITATION));
       }
 
-      public void func_75246_d() {
+      public void updateTask() {
          if (--this.c <= 0) {
-            this.c = 40 + this.b.func_70681_au().nextInt(60);
-            this.a = this.b.func_70681_au().nextInt(360);
+            this.c = 40 + this.b.getRNG().nextInt(60);
+            this.a = this.b.getRNG().nextInt(360);
          }
 
-         ((WildSlimeEntity.b)this.b.func_70605_aq()).a_clash0(this.a, false);
+         ((WildSlimeEntity.b)this.b.getMoveHelper()).a_clash0(this.a, false);
       }
 
    }
@@ -363,7 +363,7 @@ public class WildSlimeEntity extends EntityLiving {
       public b(WildSlimeEntity var1) {
          super(var1);
          this.d = var1;
-         this.b = 180.0F * var1.field_70177_z / (float) Math.PI;
+         this.b = 180.0F * var1.rotationYaw / (float) Math.PI;
       }
 
       public void a_clash0(float var1, boolean var2) {
@@ -372,21 +372,21 @@ public class WildSlimeEntity extends EntityLiving {
       }
 
       public void a_clash1(double var1) {
-         this.field_75645_e = var1;
-         this.field_188491_h = Action.MOVE_TO;
+         this.speed = var1;
+         this.action = Action.MOVE_TO;
       }
 
-      public void func_75641_c() {
-         this.field_75648_a.field_70177_z = this.func_75639_a(this.field_75648_a.field_70177_z, this.b, 90.0F);
-         this.field_75648_a.field_70759_as = this.field_75648_a.field_70177_z;
-         this.field_75648_a.field_70761_aq = this.field_75648_a.field_70177_z;
-         if (this.field_188491_h != Action.MOVE_TO) {
-            this.field_75648_a.func_191989_p(0.0F);
+      public void onUpdateMoveHelper() {
+         this.entity.rotationYaw = this.limitAngle(this.entity.rotationYaw, this.b, 90.0F);
+         this.entity.rotationYawHead = this.entity.rotationYaw;
+         this.entity.renderYawOffset = this.entity.rotationYaw;
+         if (this.action != Action.MOVE_TO) {
+            this.entity.setMoveForward(0.0F);
          } else {
-            this.field_188491_h = Action.WAIT;
-            if (this.field_75648_a.field_70122_E) {
-               this.field_75648_a
-                  .func_70659_e((float)(this.field_75645_e * this.field_75648_a.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111126_e()));
+            this.action = Action.WAIT;
+            if (this.entity.onGround) {
+               this.entity
+                  .setAIMoveSpeed((float)(this.speed * this.entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue()));
                if (this.c-- <= 0) {
                   this.c = this.d.a_clash99();
                   if (this.a) {
@@ -394,24 +394,24 @@ public class WildSlimeEntity extends EntityLiving {
                   }
 
                   float var1 = Reference.f.nextInt(360);
-                  ((WildSlimeEntity.b)this.d.func_70605_aq()).a_clash0(var1, false);
-                  this.d.func_70683_ar().func_75660_a();
+                  ((WildSlimeEntity.b)this.d.getMoveHelper()).a_clash0(var1, false);
+                  this.d.getJumpHelper().setJumping();
                   if (this.d.i_clash102()) {
                      this.d
-                        .func_184185_a(
+                        .playSound(
                            this.d.c_clash103(),
-                           this.d.func_70599_aP(),
-                           ((this.d.func_70681_au().nextFloat() - this.d.func_70681_au().nextFloat()) * 0.2F + 1.0F) * 0.8F
+                           this.d.getSoundVolume(),
+                           ((this.d.getRNG().nextFloat() - this.d.getRNG().nextFloat()) * 0.2F + 1.0F) * 0.8F
                         );
                   }
                } else {
-                  this.d.field_70702_br = 0.0F;
-                  this.d.field_191988_bg = 0.0F;
-                  this.field_75648_a.func_70659_e(0.0F);
+                  this.d.moveStrafing = 0.0F;
+                  this.d.moveForward = 0.0F;
+                  this.entity.setAIMoveSpeed(0.0F);
                }
             } else {
-               this.field_75648_a
-                  .func_70659_e((float)(this.field_75645_e * this.field_75648_a.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111126_e()));
+               this.entity
+                  .setAIMoveSpeed((float)(this.speed * this.entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue()));
             }
          }
       }
@@ -423,15 +423,15 @@ public class WildSlimeEntity extends EntityLiving {
 
       public c(WildSlimeEntity var1) {
          this.a = var1;
-         this.func_75248_a(5);
+         this.setMutexBits(5);
       }
 
-      public boolean func_75250_a() {
+      public boolean shouldExecute() {
          return true;
       }
 
-      public void func_75246_d() {
-         ((WildSlimeEntity.b)this.a.func_70605_aq()).a_clash1(1.0);
+      public void updateTask() {
+         ((WildSlimeEntity.b)this.a.getMoveHelper()).a_clash1(1.0);
       }
    }
 
@@ -440,20 +440,20 @@ public class WildSlimeEntity extends EntityLiving {
 
       public d(WildSlimeEntity var1) {
          this.a = var1;
-         this.func_75248_a(5);
-         ((PathNavigateGround)var1.func_70661_as()).func_179693_d(true);
+         this.setMutexBits(5);
+         ((PathNavigateGround)var1.getNavigator()).setCanSwim(true);
       }
 
-      public boolean func_75250_a() {
-         return this.a.func_70090_H() || this.a.func_180799_ab();
+      public boolean shouldExecute() {
+         return this.a.isInWater() || this.a.isInLava();
       }
 
-      public void func_75246_d() {
-         if (this.a.func_70681_au().nextFloat() < 0.8F) {
-            this.a.func_70683_ar().func_75660_a();
+      public void updateTask() {
+         if (this.a.getRNG().nextFloat() < 0.8F) {
+            this.a.getJumpHelper().setJumping();
          }
 
-         ((WildSlimeEntity.b)this.a.func_70605_aq()).a_clash1(1.2);
+         ((WildSlimeEntity.b)this.a.getMoveHelper()).a_clash1(1.2);
       }
 
    }

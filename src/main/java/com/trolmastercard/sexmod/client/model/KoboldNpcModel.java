@@ -47,10 +47,10 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    @Override
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations(var1, var2, var3);
-      if (!(var1.field_70170_p instanceof SexWorldClient)) {
+      if (!(var1.world instanceof SexWorldClient)) {
          AnimationProcessor var4 = this.getAnimationProcessor();
          if (!var1.isLocallyRegistered() && var1 instanceof KoboldEntity) {
-            var4.getBone("crown").setHidden(!(Boolean)var1.func_184212_Q().func_187225_a(KoboldEntity.aZ));
+            var4.getBone("crown").setHidden(!(Boolean)var1.getDataManager().get(KoboldEntity.aZ));
             var4.getBone("egg").setHidden(!((KoboldEntity)var1).Q);
          } else {
             var4.getBone("crown").setHidden(true);
@@ -83,7 +83,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
 
    void b(BaseGirlEntity var1, AnimationProcessor var2) {
       if (var1.C.getAnimationState() == AnimationState.Transitioning) {
-         float var3 = (Float)var1.func_184212_Q().func_187225_a(KoboldEntity.aE);
+         float var3 = (Float)var1.getDataManager().get(KoboldEntity.aE);
          var3 = 0.25F - var3;
          switch (var1.getCurrentAction()) {
             case SUCKBLOWJOB_BLINK:
@@ -166,7 +166,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    void a(AnimationProcessor var1, String var2, float var3, float var4) {
-      if (!Minecraft.func_71410_x().func_147113_T()) {
+      if (!Minecraft.getMinecraft().isGamePaused()) {
          float var5 = Float.parseFloat(var2);
          var5 /= 100.0F;
          var5 = var3 + (var4 - var3) * var5 - 1.0F;
@@ -235,11 +235,11 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
 
    @Override
    protected void a(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
-      if (!(var1.field_70170_p instanceof SexWorldClient)) {
+      if (!(var1.world instanceof SexWorldClient)) {
          switch (var1.getCurrentAction()) {
             case NULL:
-               if (Math.abs(var1.field_70169_q - var1.field_70165_t) + Math.abs(var1.field_70166_s - var1.field_70161_v) < 0.0
-                  || var1.field_70122_E && Math.abs(Math.abs(var1.field_70167_r) - Math.abs(var1.field_70163_u)) > 0.1F
+               if (Math.abs(var1.prevPosX - var1.posX) + Math.abs(var1.prevPosZ - var1.posZ) < 0.0
+                  || var1.onGround && Math.abs(Math.abs(var1.prevPosY) - Math.abs(var1.posY)) > 0.1F
                   || !((IKobold)var1).a_clash355()) {
                   EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
                   IBone var5 = var2.getBone("head");

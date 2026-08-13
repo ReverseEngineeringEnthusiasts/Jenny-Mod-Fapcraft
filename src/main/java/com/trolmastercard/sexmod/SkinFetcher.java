@@ -45,7 +45,7 @@ public class SkinFetcher {
       } catch (Exception var12) {
          try {
             return ImageIO.read(
-               Minecraft.func_71410_x().func_110442_L().func_110536_a(new ResourceLocation("sexmod", "textures/player/steve.png")).func_110527_b()
+               Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("sexmod", "textures/player/steve.png")).getInputStream()
             );
          } catch (java.io.IOException var13) {
             return null;

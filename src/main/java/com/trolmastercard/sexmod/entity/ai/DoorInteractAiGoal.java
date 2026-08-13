@@ -14,7 +14,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class DoorInteractAiGoal extends EntityAIBase {
    protected EntityLiving c;
-   protected BlockPos b = BlockPos.field_177992_a;
+   protected BlockPos b = BlockPos.ORIGIN;
    protected BlockDoor d;
    boolean e;
    float f;
@@ -23,18 +23,18 @@ public class DoorInteractAiGoal extends EntityAIBase {
 
    public DoorInteractAiGoal(EntityLiving var1) {
       this.c = var1;
-      if (!(var1.func_70661_as() instanceof PathNavigateGround)) {
+      if (!(var1.getNavigator() instanceof PathNavigateGround)) {
          throw new IllegalArgumentException("Unsupported mob type for DoorInteractGoal");
       }
    }
 
-   public boolean func_75250_a() {
+   public boolean shouldExecute() {
       boolean var1 = true;
 
       for (int var2 = -3; var2 < 5; var2++) {
          for (int var3 = -3; var3 < 5; var3++) {
-            IBlockState var4 = this.c.field_70170_p.func_180495_p(this.c.func_180425_c().func_177982_a(var2, 0, var3));
-            if (var4.func_177230_c() instanceof BlockDoor && var4.func_185904_a() == Material.field_151575_d) {
+            IBlockState var4 = this.c.world.getBlockState(this.c.getPosition().add(var2, 0, var3));
+            if (var4.getBlock() instanceof BlockDoor && var4.getMaterial() == Material.WOOD) {
                var1 = false;
                break;
             }
@@ -49,13 +49,13 @@ public class DoorInteractAiGoal extends EntityAIBase {
          return false;
       }
 
-      PathNavigateGround var6 = (PathNavigateGround)this.c.func_70661_as();
-      Path var7 = var6.func_75505_d();
-      if (var7 != null && !var7.func_75879_b() && var6.func_179686_g()) {
-         for (int var8 = 0; var8 < Math.min(var7.func_75873_e() + 2, var7.func_75874_d()); var8++) {
-            PathPoint var5 = var7.func_75877_a(var8);
-            this.b = new BlockPos(var5.field_75839_a, var5.field_75837_b + 1, var5.field_75838_c);
-            if (this.c.func_70092_e(this.b.func_177958_n(), this.c.field_70163_u, this.b.func_177952_p()) <= 2.25) {
+      PathNavigateGround var6 = (PathNavigateGround)this.c.getNavigator();
+      Path var7 = var6.getPath();
+      if (var7 != null && !var7.isFinished() && var6.getEnterDoors()) {
+         for (int var8 = 0; var8 < Math.min(var7.getCurrentPathIndex() + 2, var7.getCurrentPathLength()); var8++) {
+            PathPoint var5 = var7.getPathPointFromIndex(var8);
+            this.b = new BlockPos(var5.x, var5.y + 1, var5.z);
+            if (this.c.getDistanceSq(this.b.getX(), this.c.posY, this.b.getZ()) <= 2.25) {
                this.d = this.a_clash800(this.b);
                if (this.d != null) {
                   return true;
@@ -63,7 +63,7 @@ public class DoorInteractAiGoal extends EntityAIBase {
             }
          }
 
-         this.b = new BlockPos(this.c).func_177984_a();
+         this.b = new BlockPos(this.c).up();
          this.d = this.a_clash800(this.b);
          return this.d != null;
       } else {
@@ -71,35 +71,35 @@ public class DoorInteractAiGoal extends EntityAIBase {
       }
    }
 
-   public boolean func_75253_b() {
+   public boolean shouldContinueExecuting() {
       return this.g >= 0;
    }
 
-   public void func_75249_e() {
+   public void startExecuting() {
       this.e = false;
-      this.f = (float)(this.b.func_177958_n() + 0.5F - this.c.field_70165_t);
-      this.a = (float)(this.b.func_177952_p() + 0.5F - this.c.field_70161_v);
-      this.d.func_176512_a(this.c.field_70170_p, this.b, true);
+      this.f = (float)(this.b.getX() + 0.5F - this.c.posX);
+      this.a = (float)(this.b.getZ() + 0.5F - this.c.posZ);
+      this.d.toggleDoor(this.c.world, this.b, true);
    }
 
-   public void func_75246_d() {
-      float var1 = (float)(this.b.func_177958_n() + 0.5F - this.c.field_70165_t);
-      float var2 = (float)(this.b.func_177952_p() + 0.5F - this.c.field_70161_v);
+   public void updateTask() {
+      float var1 = (float)(this.b.getX() + 0.5F - this.c.posX);
+      float var2 = (float)(this.b.getZ() + 0.5F - this.c.posZ);
       float var3 = this.f * var1 + this.a * var2;
       if (var3 < 0.0F && --this.g <= 0) {
-         this.d.func_176512_a(this.c.field_70170_p, this.b, false);
+         this.d.toggleDoor(this.c.world, this.b, false);
          this.e = true;
       }
    }
 
-   public void func_75251_c() {
+   public void resetTask() {
       this.g = 10;
    }
 
    private BlockDoor a_clash800(BlockPos var1) {
-      IBlockState var2 = this.c.field_70170_p.func_180495_p(var1);
-      Block var3 = var2.func_177230_c();
-      return var3 instanceof BlockDoor && var2.func_185904_a() == Material.field_151575_d ? (BlockDoor)var3 : null;
+      IBlockState var2 = this.c.world.getBlockState(var1);
+      Block var3 = var2.getBlock();
+      return var3 instanceof BlockDoor && var2.getMaterial() == Material.WOOD ? (BlockDoor)var3 : null;
    }
 
 }

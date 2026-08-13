@@ -73,17 +73,17 @@ public class SendChatMessagePacket implements IMessage {
          }
 
          if (var2.side.isClient()) {
-            Minecraft.func_71410_x().field_71439_g.func_145747_a(new TextComponentString(var1.a));
+            Minecraft.getMinecraft().player.sendMessage(new TextComponentString(var1.a));
          } else {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .func_152344_a(
+               .addScheduledTask(
                   () -> {
                      Vec3d var1x = BaseGirlEntity.girlList(var1.c).get(0).M_clash518();
                      PacketHandler.b
                         .sendToAllAround(
                            new SendChatMessagePacket(var1.a, var1.d, var1.c),
-                           new TargetPoint(var1.d, var1x.field_72450_a, var1x.field_72448_b, var1x.field_72449_c, 40.0)
+                           new TargetPoint(var1.d, var1x.x, var1x.y, var1x.z, 40.0)
                         );
                   }
                );

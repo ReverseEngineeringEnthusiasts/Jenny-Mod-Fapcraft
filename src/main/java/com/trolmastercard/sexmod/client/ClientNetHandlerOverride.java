@@ -9,6 +9,6 @@ import net.minecraft.network.EnumPacketDirection;
 
 public class ClientNetHandlerOverride extends NetHandlerPlayClient {
    public ClientNetHandlerOverride(Minecraft var1) {
-      super(var1, var1.field_71462_r, new SexNetworkManager(EnumPacketDirection.CLIENTBOUND), var1.func_110432_I().func_148256_e());
+      super(var1, var1.currentScreen, new SexNetworkManager(EnumPacketDirection.CLIENTBOUND), var1.getSession().getProfile());
    }
 }

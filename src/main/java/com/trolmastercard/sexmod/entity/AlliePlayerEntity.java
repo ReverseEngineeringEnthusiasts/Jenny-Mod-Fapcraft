@@ -53,7 +53,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
       return 1.9F + this.aq;
    }
 
-   public float func_70047_e() {
+   public float getEyeHeight() {
       return 1.63F;
    }
 
@@ -119,10 +119,10 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
+   public void updateAITasks() {
+      super.updateAITasks();
       if (this.getOwnerUserUUID() != null) {
-         EntityPlayer var1 = this.field_70170_p.func_152378_a(this.getOwnerUserUUID());
+         EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
          if (var1 != null && this.as == null) {
             this.c_clash573(true);
          }
@@ -132,27 +132,27 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
-      if (this.field_70170_p.field_72995_K) {
+   public void onUpdate() {
+      super.onUpdate();
+      if (this.world.isRemote) {
          this.a_clash232();
       }
    }
 
    @SideOnly(Side.CLIENT)
    void a_clash232() {
-      if (this.field_70173_aa % 10 == 0) {
-         int var1 = this.func_70681_au().nextInt(8);
-         Vec3d var2 = this.getCachedBoneOffset("tail" + var1).func_178787_e(this.func_174791_d());
-         this.field_70170_p
-            .func_175688_a(
+      if (this.ticksExisted % 10 == 0) {
+         int var1 = this.getRNG().nextInt(8);
+         Vec3d var2 = this.getCachedBoneOffset("tail" + var1).add(this.getPositionVector());
+         this.world
+            .spawnParticle(
                EnumParticleTypes.PORTAL,
-               var2.field_72450_a,
-               var2.field_72448_b,
-               var2.field_72449_c,
-               this.func_70681_au().nextGaussian() * 0.01F,
-               this.func_70681_au().nextGaussian() * 0.01F,
-               this.func_70681_au().nextGaussian() * 0.01F,
+               var2.x,
+               var2.y,
+               var2.z,
+               this.getRNG().nextGaussian() * 0.01F,
+               this.getRNG().nextGaussian() * 0.01F,
+               this.getRNG().nextGaussian() * 0.01F,
                new int[0]
             );
       }
@@ -202,11 +202,11 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "deepthroat_prepareMSG1":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.hihi", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.hihi", new Object[0]));
                this.a(SoundHandler.MISC_PLOB[0]);
                break;
             case "deepthroat_prepareMSG2":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.boys", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.boys", new Object[0]));
                this.a(SoundHandler.MISC_PLOB[0]);
                break;
             case "blackscreen":
@@ -218,7 +218,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                this.b(fp.DEEPTHROAT_START);
                if (this.isControlledByLocalPlayer()) {
                   PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
-                  this.r = this.field_70177_z + 180.0F;
+                  this.r = this.rotationYaw + 180.0F;
                   this.positionPlayerRelative(0.0, 0.0, 1.35F, 0.0F, 30.0F);
                   HornyMeterHud.resetHornyMeter();
                }
@@ -256,7 +256,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "deepthroat_normal_prepareMSG1":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.alright", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.alright", new Object[0]));
                this.a(SoundHandler.randomSound(SoundHandler.MISC_PLOB));
                break;
             case "giggle":
@@ -275,7 +275,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.MISC_SLIDE, 0, 1, 4, 6);
                break;
             case "slowMoan":
-               if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_AHH));
                }
 
@@ -287,7 +287,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                int var6 = this.ar;
 
                do {
-                  this.ar = this.func_70681_au().nextInt(3) + 1;
+                  this.ar = this.getRNG().nextInt(3) + 1;
                } while (this.ar == var6);
 
                return;
@@ -313,7 +313,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                      int var4 = this.av;
 
                      do {
-                        this.av = this.func_70681_au().nextInt(3) + 1;
+                        this.av = this.getRNG().nextInt(3) + 1;
                      } while (this.av == var4);
                   }
                }
@@ -337,7 +337,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.field_70170_p instanceof SexWorldClient) {
+      if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
 
@@ -352,9 +352,9 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
          case "movement":
             double var4 = 4.0
                * (
-                  Math.abs(this.field_70165_t - this.field_70142_S)
-                     + Math.abs(this.field_70163_u - this.field_70137_T)
-                     + Math.abs(this.field_70161_v - this.field_70136_U)
+                  Math.abs(this.posX - this.lastTickPosX)
+                     + Math.abs(this.posY - this.lastTickPosY)
+                     + Math.abs(this.posZ - this.lastTickPosZ)
                );
             var4 = Math.min(1.0 + var4, 4.0);
             this.E.setAnimationSpeed(var4);

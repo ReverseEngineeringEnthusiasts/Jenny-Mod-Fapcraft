@@ -20,30 +20,30 @@ public class GirlHouseGenerator extends WorldGenerator implements IWorldGen {
    }
 
    public void a_clash30(World var1, BlockPos var2) {
-      MinecraftServer var3 = var1.func_73046_m();
-      TemplateManager var4 = b.func_184163_y();
+      MinecraftServer var3 = var1.getMinecraftServer();
+      TemplateManager var4 = b.getStructureTemplateManager();
       ResourceLocation var5 = new ResourceLocation("sexmod", this.c);
-      Template var6 = var4.func_189942_b(var3, var5);
+      Template var6 = var4.get(var3, var5);
       if (var6 != null) {
-         IBlockState var7 = var1.func_180495_p(var2);
-         var1.func_184138_a(var2, var7, var7, 3);
-         var6.func_186253_b(var1, var2, a);
+         IBlockState var7 = var1.getBlockState(var2);
+         var1.notifyBlockUpdate(var2, var7, var7, 3);
+         var6.addBlocksToWorld(var1, var2, a);
       }
    }
 
    public void a(World var1, BlockPos var2, Rotation var3) {
-      MinecraftServer var4 = var1.func_73046_m();
-      TemplateManager var5 = b.func_184163_y();
+      MinecraftServer var4 = var1.getMinecraftServer();
+      TemplateManager var5 = b.getStructureTemplateManager();
       ResourceLocation var6 = new ResourceLocation("sexmod", this.c);
-      Template var7 = var5.func_189942_b(var4, var6);
+      Template var7 = var5.get(var4, var6);
       if (var7 != null) {
-         IBlockState var8 = var1.func_180495_p(var2);
-         var1.func_184138_a(var2, var8, var8, 2);
-         var7.func_186253_b(var1, var2, a.func_186220_a(var3));
+         IBlockState var8 = var1.getBlockState(var2);
+         var1.notifyBlockUpdate(var2, var8, var8, 2);
+         var7.addBlocksToWorld(var1, var2, a.setRotation(var3));
       }
    }
 
-   public boolean func_180709_b(World var1, Random var2, BlockPos var3) {
+   public boolean generate(World var1, Random var2, BlockPos var3) {
       this.a_clash30(var1, var3);
       return true;
    }

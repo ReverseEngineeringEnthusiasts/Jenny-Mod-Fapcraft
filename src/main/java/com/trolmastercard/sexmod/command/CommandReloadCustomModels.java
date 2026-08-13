@@ -18,23 +18,23 @@ import net.minecraft.server.MinecraftServer;
 public class CommandReloadCustomModels extends CommandBase {
    public static final CommandReloadCustomModels a = new CommandReloadCustomModels();
 
-   public String func_71517_b() {
+   public String getName() {
       return "reloadcustommodels";
    }
 
-   public String func_71518_a(ICommandSender var1) {
+   public String getUsage(ICommandSender var1) {
       return "/reloadcustommodels";
    }
 
-   public int func_82362_a() {
+   public int getRequiredPermissionLevel() {
       return 2;
    }
 
-   public void func_184881_a(MinecraftServer var1, ICommandSender var2, String[] var3) {
+   public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
       ServerWhitelistManager.b_clash126(false);
 
-      for (EntityPlayerMP var5 : var1.func_184103_al().func_181057_v()) {
-         var1.func_152344_a(() -> PacketHandler.b.sendTo(new UnknownPacket(ServerWhitelistManager.e_clash144()), var5));
+      for (EntityPlayerMP var5 : var1.getPlayerList().getPlayers()) {
+         var1.addScheduledTask(() -> PacketHandler.b.sendTo(new UnknownPacket(ServerWhitelistManager.e_clash144()), var5));
       }
    }
 }

@@ -66,13 +66,13 @@ public class dg extends d9 {
    @Override
    protected Vector4f a(String var1, float var2, float var3, float var4) {
       if (var1.startsWith("crown")) {
-         ItemStack var5 = (ItemStack)this.j.func_184212_Q().func_187225_a(AbstractGirlNpcEntity.X);
-         if (var5.func_190926_b()) {
+         ItemStack var5 = (ItemStack)this.j.getDataManager().get(AbstractGirlNpcEntity.X);
+         if (var5.isEmpty()) {
             return super.a(var1, var2, var3, var4);
          }
 
-         ItemArmor var6 = (ItemArmor)var5.func_77973_b();
-         ArmorMaterial var7 = var6.func_82812_d();
+         ItemArmor var6 = (ItemArmor)var5.getItem();
+         ArmorMaterial var7 = var6.getArmorMaterial();
          float var8 = 0.0F;
          switch (var7) {
             case GOLD:
@@ -84,7 +84,7 @@ public class dg extends d9 {
                break;
             case LEATHER:
                var8 = 4.0F;
-               int var9 = var6.func_82814_b(var5);
+               int var9 = var6.getColor(var5);
                float var10 = (var9 >> 16 & 0xFF) / 255.0F;
                float var11 = (var9 >> 8 & 0xFF) / 255.0F;
                float var12 = (var9 & 0xFF) / 255.0F;
@@ -170,77 +170,77 @@ public class dg extends d9 {
       UUID var11 = this.B.getOwnerUUID();
       if (var11 != null) {
          if (var1.isLocallyRegistered()) {
-            Vec3d var19 = GoblinRenderer.a(var1.field_70170_p, var1, var11, var2, var4, var6);
-            var2 = var19.field_72450_a;
-            var4 = var19.field_72448_b;
-            var6 = var19.field_72449_c;
+            Vec3d var19 = GoblinRenderer.a(var1.world, var1, var11, var2, var4, var6);
+            var2 = var19.x;
+            var4 = var19.y;
+            var6 = var19.z;
          }
 
          if (var10 == fp.THROWN || var10 == fp.START_THROWING) {
-            if (i.field_71474_y.field_74320_O == 0 && var8 == -420.69F && !var1.isLocallyRegistered()) {
+            if (i.gameSettings.thirdPersonView == 0 && var8 == -420.69F && !var1.isLocallyRegistered()) {
                return;
             }
 
             if (!var1.isLocallyRegistered()) {
                float var20 = var1.getYawRotation();
-               var1.field_70760_ar = var20;
-               var1.field_70761_aq = var20;
+               var1.prevRenderYawOffset = var20;
+               var1.renderYawOffset = var20;
             }
          }
 
          if (GoblinRenderer.a(var1, var10)) {
-            if (i.field_71439_g.getPersistentID().equals(var11)) {
+            if (i.player.getPersistentID().equals(var11)) {
                if (-420.69F != var8) {
                   return;
                }
 
-               var1.field_70761_aq = i.field_71439_g.field_70177_z + 180.0F;
-               var1.field_70760_ar = i.field_71439_g.field_70177_z + 180.0F;
-               Vec3d var21 = i.field_71439_g.func_70040_Z();
-               GlStateManager.func_179094_E();
-               GlStateManager.func_179137_b(var21.field_72450_a, var21.field_72448_b + i.field_71439_g.func_70047_e(), var21.field_72449_c);
-               Vec3d var28 = GoblinEntity.b(new Vec3d(-Math.abs(i.field_71439_g.field_70125_A), 0.0, 0.0), i.field_71439_g.field_70177_z);
-               GlStateManager.func_179114_b(i.field_71439_g.field_70125_A, (float)var28.field_72450_a, 0.0F, (float)var28.field_72449_c);
+               var1.renderYawOffset = i.player.rotationYaw + 180.0F;
+               var1.prevRenderYawOffset = i.player.rotationYaw + 180.0F;
+               Vec3d var21 = i.player.getLookVec();
+               GlStateManager.pushMatrix();
+               GlStateManager.translate(var21.x, var21.y + i.player.getEyeHeight(), var21.z);
+               Vec3d var28 = GoblinEntity.b(new Vec3d(-Math.abs(i.player.rotationPitch), 0.0, 0.0), i.player.rotationYaw);
+               GlStateManager.rotate(i.player.rotationPitch, (float)var28.x, 0.0F, (float)var28.z);
                var2 = 0.0;
                var4 = 0.0;
                var6 = 0.0;
-            } else if (!this.B.getOwnerUserUUID().equals(i.field_71439_g.getPersistentID())) {
-               if (!var1.isLocallyRegistered() || i.field_71439_g.getPersistentID().equals(var11)) {
-                  if (!i.field_71439_g.getPersistentID().equals(var11)) {
-                     EntityPlayer var22 = var1.field_70170_p.func_152378_a(var11);
+            } else if (!this.B.getOwnerUserUUID().equals(i.player.getPersistentID())) {
+               if (!var1.isLocallyRegistered() || i.player.getPersistentID().equals(var11)) {
+                  if (!i.player.getPersistentID().equals(var11)) {
+                     EntityPlayer var22 = var1.world.getPlayerEntityByUUID(var11);
                      if (var22 != null) {
-                        var1.field_70761_aq = var22.field_70177_z;
-                        var1.field_70760_ar = var22.field_70177_z;
+                        var1.renderYawOffset = var22.rotationYaw;
+                        var1.prevRenderYawOffset = var22.rotationYaw;
                      }
                   } else {
-                     var1.field_70761_aq = i.field_71439_g.field_70177_z;
-                     var1.field_70760_ar = i.field_71439_g.field_70177_z;
+                     var1.renderYawOffset = i.player.rotationYaw;
+                     var1.prevRenderYawOffset = i.player.rotationYaw;
                   }
                }
 
                Vec3d var23 = GoblinRenderer.a(var1, this.B.getOwnerUUID(), var9);
-               var2 = var23.field_72450_a;
-               var4 = var23.field_72448_b;
-               var6 = var23.field_72449_c;
+               var2 = var23.x;
+               var4 = var23.y;
+               var6 = var23.z;
             }
          } else if (this.C) {
             GoblinRenderer.a_clash399(var9);
-            Vec3d var24 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, i.field_71474_y.field_74334_X / 110.0F), 0.0, 0.0);
-            var24 = GoblinEntity.b(var24, i.field_71439_g.field_70177_z);
-            var2 = var24.field_72450_a;
-            var4 = var24.field_72448_b;
-            var6 = var24.field_72449_c;
-            var1.field_70761_aq = i.field_71439_g.field_70177_z;
-            var1.field_70760_ar = i.field_71439_g.field_70126_B;
-            if (i.field_71439_g.func_70093_af()) {
+            Vec3d var24 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, i.gameSettings.fovSetting / 110.0F), 0.0, 0.0);
+            var24 = GoblinEntity.b(var24, i.player.rotationYaw);
+            var2 = var24.x;
+            var4 = var24.y;
+            var6 = var24.z;
+            var1.renderYawOffset = i.player.rotationYaw;
+            var1.prevRenderYawOffset = i.player.prevRotationYaw;
+            if (i.player.isSneaking()) {
                var4 -= 0.075;
             }
          } else if (var10 == fp.SHOULDER_IDLE) {
-            if (i.field_71439_g.getPersistentID().equals(var11) && i.field_71474_y.field_74320_O == 0) {
+            if (i.player.getPersistentID().equals(var11) && i.gameSettings.thirdPersonView == 0) {
                return;
             }
 
-            EntityPlayer var26 = var1.field_70170_p.func_152378_a(var11);
+            EntityPlayer var26 = var1.world.getPlayerEntityByUUID(var11);
             if (var26 == null) {
                return;
             }
@@ -249,79 +249,79 @@ public class dg extends d9 {
             var2 = var29.x;
             var4 = var29.y;
             var6 = var29.z;
-            var1.field_70761_aq = var29.w;
-            if (var26.func_70093_af()) {
+            var1.renderYawOffset = var29.w;
+            if (var26.isSneaking()) {
                var4 -= 0.32;
             }
          } else if (var10 == fp.PICK_UP) {
-            EntityPlayer var27 = var1.field_70170_p.func_152378_a(var11);
+            EntityPlayer var27 = var1.world.getPlayerEntityByUUID(var11);
             if (var27 != null) {
-               var1.field_70760_ar = var27.field_70758_at;
-               var1.field_70761_aq = var27.field_70759_as;
+               var1.prevRenderYawOffset = var27.prevRotationYawHead;
+               var1.renderYawOffset = var27.rotationYawHead;
             }
          }
 
          super.a(var1, (double)var2, (double)var4, (double)var6, var8, var9);
-         if (GoblinRenderer.a(var1, var10) && i.field_71474_y.field_74320_O == 0 && i.field_71439_g.getPersistentID().equals(var11)) {
-            GlStateManager.func_179121_F();
+         if (GoblinRenderer.a(var1, var10) && i.gameSettings.thirdPersonView == 0 && i.player.getPersistentID().equals(var11)) {
+            GlStateManager.popMatrix();
          }
       } else {
          if (var1.isLocallyRegistered()) {
-            Vec3d var12 = GoblinRenderer.a(var1.field_70170_p, var1, var11, var2, var4, var6);
-            var2 = var12.field_72450_a;
-            var4 = var12.field_72448_b;
-            var6 = var12.field_72449_c;
+            Vec3d var12 = GoblinRenderer.a(var1.world, var1, var11, var2, var4, var6);
+            var2 = var12.x;
+            var4 = var12.y;
+            var6 = var12.z;
          }
 
          if (var10 == fp.THROWN || var10 == fp.START_THROWING) {
-            if (i.field_71474_y.field_74320_O == 0 && var8 == -420.69F && !var1.isLocallyRegistered()) {
+            if (i.gameSettings.thirdPersonView == 0 && var8 == -420.69F && !var1.isLocallyRegistered()) {
                return;
             }
 
             if (!var1.isLocallyRegistered()) {
                float var14 = var1.getYawRotation();
-               var1.field_70760_ar = var14;
-               var1.field_70761_aq = var14;
+               var1.prevRenderYawOffset = var14;
+               var1.renderYawOffset = var14;
             }
          }
 
          if (GoblinRenderer.a(var1, var10)) {
-            if (i.field_71439_g.getPersistentID().equals(var11)) {
+            if (i.player.getPersistentID().equals(var11)) {
                if (-420.69F != var8) {
                   return;
                }
 
-               var1.field_70761_aq = i.field_71439_g.field_70177_z + 180.0F;
-               var1.field_70760_ar = i.field_71439_g.field_70177_z + 180.0F;
-               Vec3d var15 = i.field_71439_g.func_70040_Z();
-               GlStateManager.func_179094_E();
-               GlStateManager.func_179137_b(var15.field_72450_a, var15.field_72448_b + i.field_71439_g.func_70047_e(), var15.field_72449_c);
-               Vec3d var13 = GoblinEntity.b(new Vec3d(-Math.abs(i.field_71439_g.field_70125_A), 0.0, 0.0), i.field_71439_g.field_70177_z);
-               GlStateManager.func_179114_b(i.field_71439_g.field_70125_A, (float)var13.field_72450_a, 0.0F, (float)var13.field_72449_c);
+               var1.renderYawOffset = i.player.rotationYaw + 180.0F;
+               var1.prevRenderYawOffset = i.player.rotationYaw + 180.0F;
+               Vec3d var15 = i.player.getLookVec();
+               GlStateManager.pushMatrix();
+               GlStateManager.translate(var15.x, var15.y + i.player.getEyeHeight(), var15.z);
+               Vec3d var13 = GoblinEntity.b(new Vec3d(-Math.abs(i.player.rotationPitch), 0.0, 0.0), i.player.rotationYaw);
+               GlStateManager.rotate(i.player.rotationPitch, (float)var13.x, 0.0F, (float)var13.z);
                var2 = 0.0;
                var4 = 0.0;
                var6 = 0.0;
-            } else if (!this.B.getOwnerUserUUID().equals(i.field_71439_g.getPersistentID())) {
+            } else if (!this.B.getOwnerUserUUID().equals(i.player.getPersistentID())) {
                if (var1.isLocallyRegistered()) {
                }
 
-               var1.field_70761_aq = i.field_71439_g.field_70177_z;
-               var1.field_70760_ar = i.field_71439_g.field_70177_z;
+               var1.renderYawOffset = i.player.rotationYaw;
+               var1.prevRenderYawOffset = i.player.rotationYaw;
                Vec3d var16 = GoblinRenderer.a(var1, this.B.getOwnerUUID(), var9);
-               var2 = var16.field_72450_a;
-               var4 = var16.field_72448_b;
-               var6 = var16.field_72449_c;
+               var2 = var16.x;
+               var4 = var16.y;
+               var6 = var16.z;
             }
          } else if (this.C) {
             GoblinRenderer.a_clash399(var9);
-            Vec3d var17 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, i.field_71474_y.field_74334_X / 110.0F), 0.0, 0.0);
-            var17 = GoblinEntity.b(var17, i.field_71439_g.field_70177_z);
-            var2 = var17.field_72450_a;
-            var4 = var17.field_72448_b;
-            var6 = var17.field_72449_c;
-            var1.field_70761_aq = i.field_71439_g.field_70177_z;
-            var1.field_70760_ar = i.field_71439_g.field_70126_B;
-            if (i.field_71439_g.func_70093_af()) {
+            Vec3d var17 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, i.gameSettings.fovSetting / 110.0F), 0.0, 0.0);
+            var17 = GoblinEntity.b(var17, i.player.rotationYaw);
+            var2 = var17.x;
+            var4 = var17.y;
+            var6 = var17.z;
+            var1.renderYawOffset = i.player.rotationYaw;
+            var1.prevRenderYawOffset = i.player.prevRotationYaw;
+            if (i.player.isSneaking()) {
                var4 -= 0.075;
             }
          } else {
@@ -334,8 +334,8 @@ public class dg extends d9 {
          }
 
          super.a(var1, (double)var2, (double)var4, (double)var6, var8, var9);
-         if (GoblinRenderer.a(var1, var10) && i.field_71474_y.field_74320_O == 0 && i.field_71439_g.getPersistentID().equals(var11)) {
-            GlStateManager.func_179121_F();
+         if (GoblinRenderer.a(var1, var10) && i.gameSettings.thirdPersonView == 0 && i.player.getPersistentID().equals(var11)) {
+            GlStateManager.popMatrix();
          }
       }
    }
@@ -358,31 +358,31 @@ public class dg extends d9 {
 
       GoblinPlayerEntity var2 = (GoblinPlayerEntity)var1;
       UUID var3 = var2.getOwnerUserUUID();
-      EntityPlayerSP var4 = i.field_71439_g;
-      if (var3 != null && (i.field_71474_y.field_74320_O != 0 || !var4.getPersistentID().equals(var3))) {
+      EntityPlayerSP var4 = i.player;
+      if (var3 != null && (i.gameSettings.thirdPersonView != 0 || !var4.getPersistentID().equals(var3))) {
          EntityPlayer var5 = var2.k_clash584();
          if (var5 == null) {
             return null;
          }
 
-         ItemStack var6 = (ItemStack)var2.func_184212_Q().func_187225_a(AbstractGirlNpcEntity.T);
-         if (var6.func_190926_b()) {
+         ItemStack var6 = (ItemStack)var2.getDataManager().get(AbstractGirlNpcEntity.T);
+         if (var6.isEmpty()) {
             return null;
          }
 
-         if (!(var6.func_77973_b() instanceof ItemArmor)) {
+         if (!(var6.getItem() instanceof ItemArmor)) {
             return null;
          }
 
-         ItemArmor var7 = (ItemArmor)var6.func_77973_b();
-         switch (var7.func_82812_d()) {
+         ItemArmor var7 = (ItemArmor)var6.getItem();
+         switch (var7.getArmorMaterial()) {
             case GOLD:
                return new f7(99.0F, 98.0F, 14.0F);
             case CHAIN:
             case IRON:
                return new f7(85.0F, 85.0F, 85.0F);
             case LEATHER:
-               int var8 = var7.func_82814_b(var6);
+               int var8 = var7.getColor(var6);
                float var9 = var8 >> 16 & 0xFF;
                float var10 = var8 >> 8 & 0xFF;
                float var11 = var8 & 0xFF;
@@ -398,23 +398,23 @@ public class dg extends d9 {
 
    @Override
    protected void c_clash145() {
-      GlStateManager.func_179137_b(0.0, -0.77, -0.05);
-      GlStateManager.func_179139_a(0.5, 0.5, 0.5);
+      GlStateManager.translate(0.0, -0.77, -0.05);
+      GlStateManager.scale(0.5, 0.5, 0.5);
    }
 
    @Override
    protected void a(boolean var1, ItemStack var2) {
       super.a(var1, var2);
-      if (var2.func_77973_b().func_77661_b(var2) == EnumAction.BOW) {
+      if (var2.getItem().getItemUseAction(var2) == EnumAction.BOW) {
          if (var1) {
-            GlStateManager.func_179109_b(0.1F, 0.0F, 0.0F);
-            GlStateManager.func_179114_b(90.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.translate(0.1F, 0.0F, 0.0F);
+            GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
          } else {
-            GlStateManager.func_179114_b(170.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(170.0F, 1.0F, 0.0F, 0.0F);
          }
       } else {
-         GlStateManager.func_179114_b(var1 ? 70.0F : 180.0F, 1.0F, 0.0F, 0.0F);
-         GlStateManager.func_179137_b(0.0, 0.05, -0.03);
+         GlStateManager.rotate(var1 ? 70.0F : 180.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.translate(0.0, 0.05, -0.03);
       }
    }
 
@@ -427,21 +427,21 @@ public class dg extends d9 {
       super.a(var1, var2);
       if (var1) {
          if (var2) {
-            GlStateManager.func_179137_b(0.0, 0.2, -0.25);
-            GlStateManager.func_179114_b(85.0F, 0.0F, 1.0F, 0.0F);
-            GlStateManager.func_179114_b(38.0F, 1.0F, 0.0F, 0.0F);
-            GlStateManager.func_179114_b(90.0F, 0.0F, 0.0F, 1.0F);
+            GlStateManager.translate(0.0, 0.2, -0.25);
+            GlStateManager.rotate(85.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(38.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(90.0F, 0.0F, 0.0F, 1.0F);
          } else {
-            GlStateManager.func_179114_b(90.0F, 1.0F, 0.0F, 0.0F);
-            GlStateManager.func_179137_b(0.0, -0.265, -0.04);
+            GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.translate(0.0, -0.265, -0.04);
          }
       } else if (var2) {
-         GlStateManager.func_179114_b(0.0F, 1.0F, 0.0F, 0.0F);
-         GlStateManager.func_179114_b(150.0F, 0.0F, 1.0F, 0.0F);
-         GlStateManager.func_179114_b(0.0F, 0.0F, 0.0F, 1.0F);
-         GlStateManager.func_179137_b(0.0, -0.33, -0.1);
+         GlStateManager.rotate(0.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.rotate(150.0F, 0.0F, 1.0F, 0.0F);
+         GlStateManager.rotate(0.0F, 0.0F, 0.0F, 1.0F);
+         GlStateManager.translate(0.0, -0.33, -0.1);
       } else {
-         GlStateManager.func_179137_b(-0.02, -0.05, -0.05);
+         GlStateManager.translate(-0.02, -0.05, -0.05);
       }
    }
 

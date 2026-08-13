@@ -59,9 +59,9 @@ public class SendBlocksPacket implements IMessage {
       var1.writeInt(this.c.size());
 
       for (BlockPos var3 : this.c) {
-         var1.writeInt(var3.func_177958_n());
-         var1.writeInt(var3.func_177956_o());
-         var1.writeInt(var3.func_177952_p());
+         var1.writeInt(var3.getX());
+         var1.writeInt(var3.getY());
+         var1.writeInt(var3.getZ());
       }
    }
 
@@ -84,57 +84,57 @@ public class SendBlocksPacket implements IMessage {
          } else {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .func_152344_a(
+               .addScheduledTask(
                   () -> {
-                     UUID var2x = var2.getServerHandler().field_147369_b.getPersistentID();
+                     UUID var2x = var2.getServerHandler().player.getPersistentID();
                      UUID var3 = KoboldManager.getTribeUUID(var2x);
                      if (var3 != null) {
                         if (var1.c.size() == 1) {
-                           World var4 = var2.getServerHandler().field_147369_b.field_70170_p;
+                           World var4 = var2.getServerHandler().player.world;
 
                            for (BlockPos var6 : var1.c) {
-                              IBlockState var7 = var4.func_180495_p(var6);
+                              IBlockState var7 = var4.getBlockState(var6);
                               BlockPos var8 = null;
-                              if (var7.func_177230_c() instanceof BlockBed) {
+                              if (var7.getBlock() instanceof BlockBed) {
                                  var8 = cj.a(var6, var7);
                               }
 
-                              if (var7.func_177230_c() instanceof BlockChest) {
-                                 Type var9 = ((BlockChest)var7.func_177230_c()).field_149956_a;
-                                 if (var4.func_180495_p(var6.func_177978_c()).func_177230_c() instanceof BlockChest
-                                    && var9.equals(((BlockChest)var4.func_180495_p(var6.func_177978_c()).func_177230_c()).field_149956_a)) {
-                                    var8 = var6.func_177978_c();
+                              if (var7.getBlock() instanceof BlockChest) {
+                                 Type var9 = ((BlockChest)var7.getBlock()).chestType;
+                                 if (var4.getBlockState(var6.north()).getBlock() instanceof BlockChest
+                                    && var9.equals(((BlockChest)var4.getBlockState(var6.north()).getBlock()).chestType)) {
+                                    var8 = var6.north();
                                  }
 
-                                 if (var4.func_180495_p(var6.func_177974_f()).func_177230_c() instanceof BlockChest
-                                    && var9.equals(((BlockChest)var4.func_180495_p(var6.func_177974_f()).func_177230_c()).field_149956_a)) {
-                                    var8 = var6.func_177974_f();
+                                 if (var4.getBlockState(var6.east()).getBlock() instanceof BlockChest
+                                    && var9.equals(((BlockChest)var4.getBlockState(var6.east()).getBlock()).chestType)) {
+                                    var8 = var6.east();
                                  }
 
-                                 if (var4.func_180495_p(var6.func_177968_d()).func_177230_c() instanceof BlockChest
-                                    && var9.equals(((BlockChest)var4.func_180495_p(var6.func_177968_d()).func_177230_c()).field_149956_a)) {
-                                    var8 = var6.func_177968_d();
+                                 if (var4.getBlockState(var6.south()).getBlock() instanceof BlockChest
+                                    && var9.equals(((BlockChest)var4.getBlockState(var6.south()).getBlock()).chestType)) {
+                                    var8 = var6.south();
                                  }
 
-                                 if (var4.func_180495_p(var6.func_177976_e()).func_177230_c() instanceof BlockChest
-                                    && var9.equals(((BlockChest)var4.func_180495_p(var6.func_177976_e()).func_177230_c()).field_149956_a)) {
-                                    var8 = var6.func_177976_e();
+                                 if (var4.getBlockState(var6.west()).getBlock() instanceof BlockChest
+                                    && var9.equals(((BlockChest)var4.getBlockState(var6.west()).getBlock()).chestType)) {
+                                    var8 = var6.west();
                                  }
                               }
 
-                              if (var8 == null && var7.func_177230_c() instanceof BlockBed) {
+                              if (var8 == null && var7.getBlock() instanceof BlockBed) {
                                  return;
                               }
 
                               if (var1.a) {
-                                 if (var7.func_177230_c() instanceof BlockBed) {
+                                 if (var7.getBlock() instanceof BlockBed) {
                                     KoboldManager.a(var3, var6);
                                     KoboldManager.a(var3, var8);
                                  } else {
                                     KoboldManager.f(var3, var6);
                                     KoboldManager.f(var3, var8);
                                  }
-                              } else if (var7.func_177230_c() instanceof BlockBed) {
+                              } else if (var7.getBlock() instanceof BlockBed) {
                                  KoboldManager.e(var3, var6);
                                  KoboldManager.e(var3, var8);
                               } else {
@@ -148,7 +148,7 @@ public class SendBlocksPacket implements IMessage {
                                  var10.add(var8);
                               }
 
-                              PacketHandler.b.sendTo(new SendBlocksPacket(var10, var1.a), var2.getServerHandler().field_147369_b);
+                              PacketHandler.b.sendTo(new SendBlocksPacket(var10, var1.a), var2.getServerHandler().player);
                            }
                         }
                      }

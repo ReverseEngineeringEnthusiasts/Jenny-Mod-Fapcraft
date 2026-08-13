@@ -36,12 +36,12 @@ public class KoboldEggItem extends Item implements IAnimatable {
    public static KoboldEggItem a = new KoboldEggItem();
 
    public KoboldEggItem() {
-      this.func_77625_d(1);
+      this.setMaxStackSize(1);
    }
 
    public static void register() {
       a.setRegistryName(new ResourceLocation("sexmod", "kobold_egg_item"));
-      a.func_77655_b("kobold_egg_item");
+      a.setTranslationKey("kobold_egg_item");
       MinecraftForge.EVENT_BUS.register(KoboldEggItem.class);
    }
 
@@ -73,18 +73,18 @@ public class KoboldEggItem extends Item implements IAnimatable {
       World var1 = var0.getWorld();
       ItemStack var2 = var0.getItemStack();
       Vec3d var3 = var0.getHitVec();
-      if (!var1.field_72995_K) {
-         if (var2.func_77973_b() == a) {
+      if (!var1.isRemote) {
+         if (var2.getItem() == a) {
             KoboldEggEntity var4 = new KoboldEggEntity(var1);
-            var4.func_70107_b(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
-            var4.func_184212_Q().func_187227_b(KoboldEggEntity.b, EyeAndKoboldColor.getColorByWoolId(var2.func_77960_j()).toString());
-            NBTTagCompound var5 = var2.func_77978_p();
+            var4.setPosition(var3.x, var3.y, var3.z);
+            var4.getDataManager().set(KoboldEggEntity.b, EyeAndKoboldColor.getColorByWoolId(var2.getMetadata()).toString());
+            NBTTagCompound var5 = var2.getTagCompound();
             if (var5 != null) {
-               var4.f = UUID.fromString(var5.func_74779_i("tribeID"));
+               var4.f = UUID.fromString(var5.getString("tribeID"));
             }
 
-            var1.func_72838_d(var4);
-            var2.func_190918_g(1);
+            var1.spawnEntity(var4);
+            var2.shrink(1);
          }
       }
    }

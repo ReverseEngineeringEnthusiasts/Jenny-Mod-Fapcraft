@@ -32,12 +32,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SexEntity extends Entity {
    public static final int m = 15;
-   private static final DataParameter<Integer> g = EntityDataManager.func_187226_a(SexEntity.class, DataSerializers.field_187192_b)
-      .func_187156_b()
-      .func_187161_a(111);
-   private static final DataParameter<Optional<UUID>> f = EntityDataManager.func_187226_a(SexEntity.class, DataSerializers.field_187203_m)
-      .func_187156_b()
-      .func_187161_a(110);
+   private static final DataParameter<Integer> g = EntityDataManager.createKey(SexEntity.class, DataSerializers.VARINT)
+      .getSerializer()
+      .createKey(111);
+   private static final DataParameter<Optional<UUID>> f = EntityDataManager.createKey(SexEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID)
+      .getSerializer()
+      .createKey(110);
    private boolean k;
    private int l;
    private int h;
@@ -62,22 +62,22 @@ public class SexEntity extends Entity {
    }
 
    private void a(LunaEntity var1) {
-      this.func_70105_a(0.25F, 0.25F);
-      this.field_70158_ak = true;
+      this.setSize(0.25F, 0.25F);
+      this.ignoreFrustumCheck = true;
       var1.av = this;
    }
 
-   protected void func_70088_a() {
-      this.func_184212_Q().func_187214_a(g, 0);
-      this.func_184212_Q().func_187214_a(f, Optional.of(b.getGirlId()));
+   protected void entityInit() {
+      this.getDataManager().register(g, 0);
+      this.getDataManager().register(f, Optional.of(b.getGirlId()));
    }
 
-   public AxisAlignedBB func_184177_bl() {
-      return this.func_174813_aQ().func_186662_g(10.0);
+   public AxisAlignedBB getRenderBoundingBox() {
+      return this.getEntityBoundingBox().grow(10.0);
    }
 
    LunaEntity b_clash775() {
-      Optional var1 = (Optional)this.field_70180_af.func_187225_a(f);
+      Optional var1 = (Optional)this.dataManager.get(f);
       if (!var1.isPresent()) {
          return null;
       } else {
@@ -91,7 +91,7 @@ public class SexEntity extends Entity {
    }
 
    public LunaEntity g_clash776() {
-      Optional var1 = (Optional)this.field_70180_af.func_187225_a(f);
+      Optional var1 = (Optional)this.dataManager.get(f);
       if (!var1.isPresent()) {
          return null;
       }
@@ -108,10 +108,10 @@ public class SexEntity extends Entity {
       this.a = var1;
    }
 
-   public void func_70030_z() {
-      super.func_70030_z();
-      if (!this.field_70170_p.field_72995_K) {
-         if ((this.i != null || this.field_70122_E) && this.d == 0) {
+   public void onEntityUpdate() {
+      super.onEntityUpdate();
+      if (!this.world.isRemote) {
+         if ((this.i != null || this.onGround) && this.d == 0) {
             this.b_clash775().o_clash390();
          }
       }
@@ -121,113 +121,113 @@ public class SexEntity extends Entity {
       LunaEntity var3 = this.b_clash775();
       if (var3 != null) {
          BlockPos var4 = var3.ai;
-         float var5 = (float)Math.sqrt(var3.func_174791_d().func_186679_c(var4.func_177958_n(), var4.func_177956_o(), var4.func_177952_p()));
+         float var5 = (float)Math.sqrt(var3.getPositionVector().squareDistanceTo(var4.getX(), var4.getY(), var4.getZ()));
          float var6 = -22.5F + 45.0F * (var5 / 7.0F);
          float var7 = var3.getYawRotation();
-         float var8 = MathHelper.func_76134_b(-var7 * (float) (Math.PI / 180.0) - (float) Math.PI);
-         float var9 = MathHelper.func_76126_a(-var7 * (float) (Math.PI / 180.0) - (float) Math.PI);
-         float var10 = -MathHelper.func_76134_b(-var6 * (float) (Math.PI / 180.0));
-         float var11 = MathHelper.func_76126_a(-var6 * (float) (Math.PI / 180.0));
-         double var12 = var3.field_70169_q + (var3.field_70165_t - var3.field_70169_q) - var9 * 0.3;
-         double var14 = var3.field_70167_r + (var3.field_70163_u - var3.field_70167_r) + var3.func_70047_e();
-         double var16 = var3.field_70166_s + (var3.field_70161_v - var3.field_70166_s) - var8 * 0.3;
-         this.func_70012_b(var12, var14, var16, var7, var6);
-         this.field_70159_w = var1 * -var9;
-         this.field_70181_x = var1 * MathHelper.func_76131_a(-(var11 / var10), -5.0F, 5.0F);
-         this.field_70179_y = var1 * -var8;
-         float var18 = MathHelper.func_76133_a(
-            this.field_70159_w * this.field_70159_w + this.field_70181_x * this.field_70181_x + this.field_70179_y * this.field_70179_y
+         float var8 = MathHelper.cos(-var7 * (float) (Math.PI / 180.0) - (float) Math.PI);
+         float var9 = MathHelper.sin(-var7 * (float) (Math.PI / 180.0) - (float) Math.PI);
+         float var10 = -MathHelper.cos(-var6 * (float) (Math.PI / 180.0));
+         float var11 = MathHelper.sin(-var6 * (float) (Math.PI / 180.0));
+         double var12 = var3.prevPosX + (var3.posX - var3.prevPosX) - var9 * 0.3;
+         double var14 = var3.prevPosY + (var3.posY - var3.prevPosY) + var3.getEyeHeight();
+         double var16 = var3.prevPosZ + (var3.posZ - var3.prevPosZ) - var8 * 0.3;
+         this.setLocationAndAngles(var12, var14, var16, var7, var6);
+         this.motionX = var1 * -var9;
+         this.motionY = var1 * MathHelper.clamp(-(var11 / var10), -5.0F, 5.0F);
+         this.motionZ = var1 * -var8;
+         float var18 = MathHelper.sqrt(
+            this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ
          );
-         this.field_70159_w = this.field_70159_w * (0.6 / var18 + 0.5 + this.field_70146_Z.nextGaussian() * 0.0045);
-         this.field_70181_x = this.field_70181_x * (0.6 / var18 + 0.5 + this.field_70146_Z.nextGaussian() * 0.0045);
-         this.field_70179_y = this.field_70179_y * (0.6 / var18 + 0.5 + this.field_70146_Z.nextGaussian() * 0.0045);
-         float var19 = MathHelper.func_76133_a(this.field_70159_w * this.field_70159_w + this.field_70179_y * this.field_70179_y);
-         this.field_70177_z = (float)(MathHelper.func_181159_b(this.field_70159_w, this.field_70179_y) * (180.0 / Math.PI));
-         this.field_70125_A = (float)(MathHelper.func_181159_b(this.field_70181_x, var19) * (180.0 / Math.PI));
-         this.field_70126_B = this.field_70177_z;
-         this.field_70127_C = this.field_70125_A;
+         this.motionX = this.motionX * (0.6 / var18 + 0.5 + this.rand.nextGaussian() * 0.0045);
+         this.motionY = this.motionY * (0.6 / var18 + 0.5 + this.rand.nextGaussian() * 0.0045);
+         this.motionZ = this.motionZ * (0.6 / var18 + 0.5 + this.rand.nextGaussian() * 0.0045);
+         float var19 = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+         this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180.0 / Math.PI));
+         this.rotationPitch = (float)(MathHelper.atan2(this.motionY, var19) * (180.0 / Math.PI));
+         this.prevRotationYaw = this.rotationYaw;
+         this.prevRotationPitch = this.rotationPitch;
       }
    }
 
-   public void func_184206_a(DataParameter<?> var1) {
+   public void notifyDataManagerChange(DataParameter<?> var1) {
       if (g.equals(var1)) {
-         int var2 = (Integer)this.func_184212_Q().func_187225_a(g);
-         this.i = var2 > 0 ? this.field_70170_p.func_73045_a(var2 - 1) : null;
+         int var2 = (Integer)this.getDataManager().get(g);
+         this.i = var2 > 0 ? this.world.getEntityByID(var2 - 1) : null;
       }
 
-      super.func_184206_a(var1);
+      super.notifyDataManagerChange(var1);
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean func_70112_a(double var1) {
+   public boolean isInRangeToRenderDist(double var1) {
       return var1 < 4096.0;
    }
 
    @SideOnly(Side.CLIENT)
-   public void func_180426_a(double var1, double var3, double var5, float var7, float var8, int var9, boolean var10) {
+   public void setPositionAndRotationDirect(double var1, double var3, double var5, float var7, float var8, int var9, boolean var10) {
    }
 
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
       if (this.b_clash775() == null) {
-         this.func_70106_y();
-      } else if (this.field_70170_p.field_72995_K || !this.f_clash780()) {
+         this.setDead();
+      } else if (this.world.isRemote || !this.f_clash780()) {
          if (this.k) {
             this.l++;
             if (this.l >= 1200) {
-               this.func_70106_y();
+               this.setDead();
                return;
             }
          }
 
          float var1 = 0.0F;
          BlockPos var2 = new BlockPos(this);
-         IBlockState var3 = this.field_70170_p.func_180495_p(var2);
-         if (var3.func_185904_a() == Material.field_151586_h) {
-            var1 = BlockLiquid.func_190973_f(var3, this.field_70170_p, var2);
+         IBlockState var3 = this.world.getBlockState(var2);
+         if (var3.getMaterial() == Material.WATER) {
+            var1 = BlockLiquid.getBlockLiquidHeight(var3, this.world, var2);
          }
 
          if (this.n == SexEntity.SexEntityState.FLYING) {
             if (this.i != null) {
-               this.field_70159_w = 0.0;
-               this.field_70181_x = 0.0;
-               this.field_70179_y = 0.0;
+               this.motionX = 0.0;
+               this.motionY = 0.0;
+               this.motionZ = 0.0;
                this.n = SexEntity.SexEntityState.HOOKED_IN_ENTITY;
                return;
             }
 
             if (var1 > 0.0F) {
-               this.field_70159_w *= 0.3;
-               this.field_70181_x *= 0.2;
-               this.field_70179_y *= 0.3;
+               this.motionX *= 0.3;
+               this.motionY *= 0.2;
+               this.motionZ *= 0.3;
                this.n = SexEntity.SexEntityState.BOBBING;
                return;
             }
 
-            if (!this.field_70170_p.field_72995_K) {
+            if (!this.world.isRemote) {
                this.e_clash782();
             }
 
-            if (!this.k && !this.field_70122_E && !this.field_70123_F) {
+            if (!this.k && !this.onGround && !this.collidedHorizontally) {
                this.h++;
             } else {
                this.h = 0;
-               this.field_70159_w = 0.0;
-               this.field_70181_x = 0.0;
-               this.field_70179_y = 0.0;
+               this.motionX = 0.0;
+               this.motionY = 0.0;
+               this.motionZ = 0.0;
             }
          } else {
             if (this.n == SexEntity.SexEntityState.HOOKED_IN_ENTITY) {
                if (this.i != null) {
-                  if (this.i.field_70128_L) {
+                  if (this.i.isDead) {
                      this.i = null;
                      this.n = SexEntity.SexEntityState.FLYING;
                   } else {
-                     this.field_70165_t = this.i.field_70165_t;
-                     double var6 = this.i.field_70131_O;
-                     this.field_70163_u = this.i.func_174813_aQ().field_72338_b + var6 * 0.8;
-                     this.field_70161_v = this.i.field_70161_v;
-                     this.func_70107_b(this.field_70165_t, this.field_70163_u, this.field_70161_v);
+                     this.posX = this.i.posX;
+                     double var6 = this.i.height;
+                     this.posY = this.i.getEntityBoundingBox().minY + var6 * 0.8;
+                     this.posZ = this.i.posZ;
+                     this.setPosition(this.posX, this.posY, this.posZ);
                   }
                }
 
@@ -235,30 +235,30 @@ public class SexEntity extends Entity {
             }
 
             if (this.n == SexEntity.SexEntityState.BOBBING) {
-               this.field_70159_w *= 0.9;
-               this.field_70179_y *= 0.9;
-               double var4 = this.field_70163_u + this.field_70181_x - var2.func_177956_o() - var1;
+               this.motionX *= 0.9;
+               this.motionZ *= 0.9;
+               double var4 = this.posY + this.motionY - var2.getY() - var1;
                if (Math.abs(var4) < 0.01) {
                   var4 += Math.signum(var4) * 0.1;
                }
 
-               this.field_70181_x = this.field_70181_x - var4 * this.field_70146_Z.nextFloat() * 0.2;
-               if (!this.field_70170_p.field_72995_K && var1 > 0.0F) {
+               this.motionY = this.motionY - var4 * this.rand.nextFloat() * 0.2;
+               if (!this.world.isRemote && var1 > 0.0F) {
                   this.a_clash784(var2);
                }
             }
          }
 
-         if (var3.func_185904_a() != Material.field_151586_h) {
-            this.field_70181_x -= 0.03;
+         if (var3.getMaterial() != Material.WATER) {
+            this.motionY -= 0.03;
          }
 
-         this.func_70091_d(MoverType.SELF, this.field_70159_w, this.field_70181_x, this.field_70179_y);
+         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
          this.h_clash781();
-         this.field_70159_w *= 0.92;
-         this.field_70181_x *= 0.92;
-         this.field_70179_y *= 0.92;
-         this.func_70107_b(this.field_70165_t, this.field_70163_u, this.field_70161_v);
+         this.motionX *= 0.92;
+         this.motionY *= 0.92;
+         this.motionZ *= 0.92;
+         this.setPosition(this.posX, this.posY, this.posZ);
       }
    }
 
@@ -267,51 +267,51 @@ public class SexEntity extends Entity {
    }
 
    private void h_clash781() {
-      float var1 = MathHelper.func_76133_a(this.field_70159_w * this.field_70159_w + this.field_70179_y * this.field_70179_y);
-      this.field_70177_z = (float)(MathHelper.func_181159_b(this.field_70159_w, this.field_70179_y) * (180.0 / Math.PI));
-      this.field_70125_A = (float)(MathHelper.func_181159_b(this.field_70181_x, var1) * (180.0 / Math.PI));
+      float var1 = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+      this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180.0 / Math.PI));
+      this.rotationPitch = (float)(MathHelper.atan2(this.motionY, var1) * (180.0 / Math.PI));
 
-      while (this.field_70125_A - this.field_70127_C < -180.0F) {
-         this.field_70127_C -= 360.0F;
+      while (this.rotationPitch - this.prevRotationPitch < -180.0F) {
+         this.prevRotationPitch -= 360.0F;
       }
 
-      while (this.field_70125_A - this.field_70127_C >= 180.0F) {
-         this.field_70127_C += 360.0F;
+      while (this.rotationPitch - this.prevRotationPitch >= 180.0F) {
+         this.prevRotationPitch += 360.0F;
       }
 
-      while (this.field_70177_z - this.field_70126_B < -180.0F) {
-         this.field_70126_B -= 360.0F;
+      while (this.rotationYaw - this.prevRotationYaw < -180.0F) {
+         this.prevRotationYaw -= 360.0F;
       }
 
-      while (this.field_70177_z - this.field_70126_B >= 180.0F) {
-         this.field_70126_B += 360.0F;
+      while (this.rotationYaw - this.prevRotationYaw >= 180.0F) {
+         this.prevRotationYaw += 360.0F;
       }
 
-      this.field_70125_A = this.field_70127_C + (this.field_70125_A - this.field_70127_C) * 0.2F;
-      this.field_70177_z = this.field_70126_B + (this.field_70177_z - this.field_70126_B) * 0.2F;
+      this.rotationPitch = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * 0.2F;
+      this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
    }
 
    private void e_clash782() {
-      Vec3d var1 = new Vec3d(this.field_70165_t, this.field_70163_u, this.field_70161_v);
-      Vec3d var2 = new Vec3d(this.field_70165_t + this.field_70159_w, this.field_70163_u + this.field_70181_x, this.field_70161_v + this.field_70179_y);
-      RayTraceResult var3 = this.field_70170_p.func_147447_a(var1, var2, false, true, false);
-      var1 = new Vec3d(this.field_70165_t, this.field_70163_u, this.field_70161_v);
-      var2 = new Vec3d(this.field_70165_t + this.field_70159_w, this.field_70163_u + this.field_70181_x, this.field_70161_v + this.field_70179_y);
+      Vec3d var1 = new Vec3d(this.posX, this.posY, this.posZ);
+      Vec3d var2 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+      RayTraceResult var3 = this.world.rayTraceBlocks(var1, var2, false, true, false);
+      var1 = new Vec3d(this.posX, this.posY, this.posZ);
+      var2 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
       if (var3 != null) {
-         var2 = new Vec3d(var3.field_72307_f.field_72450_a, var3.field_72307_f.field_72448_b, var3.field_72307_f.field_72449_c);
+         var2 = new Vec3d(var3.hitVec.x, var3.hitVec.y, var3.hitVec.z);
       }
 
       Entity var4 = null;
-      List var5 = this.field_70170_p
-         .func_72839_b(this, this.func_174813_aQ().func_72321_a(this.field_70159_w, this.field_70181_x, this.field_70179_y).func_186662_g(1.0));
+      List var5 = this.world
+         .getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).grow(1.0));
       double var6 = 0.0;
 
       for (Entity var9 : (java.util.Collection<Entity>) (var5) ) {
          if (this.a_clash785(var9) && (var9 != this.b_clash775() || this.h >= 5)) {
-            AxisAlignedBB var10 = var9.func_174813_aQ().func_186662_g(0.3F);
-            RayTraceResult var11 = var10.func_72327_a(var1, var2);
+            AxisAlignedBB var10 = var9.getEntityBoundingBox().grow(0.3F);
+            RayTraceResult var11 = var10.calculateIntercept(var1, var2);
             if (var11 != null) {
-               double var12 = var1.func_72436_e(var11.field_72307_f);
+               double var12 = var1.squareDistanceTo(var11.hitVec);
                if (var12 < var6 || var6 == 0.0) {
                   var4 = var9;
                   var6 = var12;
@@ -324,9 +324,9 @@ public class SexEntity extends Entity {
          var3 = new RayTraceResult(var4);
       }
 
-      if (var3 != null && var3.field_72313_a != Type.MISS) {
-         if (var3.field_72313_a == Type.ENTITY) {
-            this.i = var3.field_72308_g;
+      if (var3 != null && var3.typeOfHit != Type.MISS) {
+         if (var3.typeOfHit == Type.ENTITY) {
+            this.i = var3.entityHit;
             this.a_clash783();
          } else {
             this.k = true;
@@ -335,18 +335,18 @@ public class SexEntity extends Entity {
    }
 
    private void a_clash783() {
-      this.func_184212_Q().func_187227_b(g, this.i.func_145782_y() + 1);
+      this.getDataManager().set(g, this.i.getEntityId() + 1);
    }
 
    private void a_clash784(BlockPos var1) {
-      WorldServer var2 = (WorldServer)this.field_70170_p;
+      WorldServer var2 = (WorldServer)this.world;
       int var3 = 1;
-      BlockPos var4 = var1.func_177984_a();
-      if (this.field_70146_Z.nextFloat() < 0.25F && this.field_70170_p.func_175727_C(var4)) {
+      BlockPos var4 = var1.up();
+      if (this.rand.nextFloat() < 0.25F && this.world.isRainingAt(var4)) {
          var3++;
       }
 
-      if (this.field_70146_Z.nextFloat() < 0.5F && !this.field_70170_p.func_175678_i(var4)) {
+      if (this.rand.nextFloat() < 0.5F && !this.world.canSeeSky(var4)) {
          var3--;
       }
 
@@ -356,58 +356,58 @@ public class SexEntity extends Entity {
             this.c = 0;
             this.j = 0;
          } else {
-            this.field_70181_x = this.field_70181_x - 0.2 * this.field_70146_Z.nextFloat() * this.field_70146_Z.nextFloat();
+            this.motionY = this.motionY - 0.2 * this.rand.nextFloat() * this.rand.nextFloat();
          }
       } else if (this.j > 0) {
          this.j -= var3;
          if (this.j > 0) {
-            this.e = (float)(this.e + this.field_70146_Z.nextGaussian() * 4.0);
+            this.e = (float)(this.e + this.rand.nextGaussian() * 4.0);
             float var5 = this.e * (float) (Math.PI / 180.0);
-            float var6 = MathHelper.func_76126_a(var5);
-            float var7 = MathHelper.func_76134_b(var5);
-            double var8 = this.field_70165_t + var6 * this.j * 0.1F;
-            double var10 = MathHelper.func_76128_c(this.func_174813_aQ().field_72338_b) + 1.0F;
-            double var12 = this.field_70161_v + var7 * this.j * 0.1F;
-            IBlockState var14 = var2.func_180495_p(new BlockPos(var8, var10 - 1.0, var12));
-            if (var14.func_185904_a() == Material.field_151586_h) {
-               if (this.field_70146_Z.nextFloat() < 0.15F) {
-                  var2.func_175739_a(EnumParticleTypes.WATER_BUBBLE, var8, var10 - 0.1F, var12, 1, var6, 0.1, var7, 0.0, new int[0]);
+            float var6 = MathHelper.sin(var5);
+            float var7 = MathHelper.cos(var5);
+            double var8 = this.posX + var6 * this.j * 0.1F;
+            double var10 = MathHelper.floor(this.getEntityBoundingBox().minY) + 1.0F;
+            double var12 = this.posZ + var7 * this.j * 0.1F;
+            IBlockState var14 = var2.getBlockState(new BlockPos(var8, var10 - 1.0, var12));
+            if (var14.getMaterial() == Material.WATER) {
+               if (this.rand.nextFloat() < 0.15F) {
+                  var2.spawnParticle(EnumParticleTypes.WATER_BUBBLE, var8, var10 - 0.1F, var12, 1, var6, 0.1, var7, 0.0, new int[0]);
                }
 
                float var15 = var6 * 0.04F;
                float var16 = var7 * 0.04F;
-               var2.func_175739_a(EnumParticleTypes.WATER_WAKE, var8, var10, var12, 0, var16, 0.01, -var15, 1.0, new int[0]);
-               var2.func_175739_a(EnumParticleTypes.WATER_WAKE, var8, var10, var12, 0, -var16, 0.01, var15, 1.0, new int[0]);
+               var2.spawnParticle(EnumParticleTypes.WATER_WAKE, var8, var10, var12, 0, var16, 0.01, -var15, 1.0, new int[0]);
+               var2.spawnParticle(EnumParticleTypes.WATER_WAKE, var8, var10, var12, 0, -var16, 0.01, var15, 1.0, new int[0]);
             }
          } else {
-            this.field_70181_x = -0.4F * MathHelper.func_151240_a(this.field_70146_Z, 0.6F, 1.0F);
-            this.func_184185_a(SoundEvents.field_187609_F, 0.25F, 1.0F + (this.field_70146_Z.nextFloat() - this.field_70146_Z.nextFloat()) * 0.4F);
-            double var17 = this.func_174813_aQ().field_72338_b + 0.5;
-            var2.func_175739_a(
+            this.motionY = -0.4F * MathHelper.nextFloat(this.rand, 0.6F, 1.0F);
+            this.playSound(SoundEvents.ENTITY_BOBBER_SPLASH, 0.25F, 1.0F + (this.rand.nextFloat() - this.rand.nextFloat()) * 0.4F);
+            double var17 = this.getEntityBoundingBox().minY + 0.5;
+            var2.spawnParticle(
                EnumParticleTypes.WATER_BUBBLE,
-               this.field_70165_t,
+               this.posX,
                var17,
-               this.field_70161_v,
-               (int)(1.0F + this.field_70130_N * 20.0F),
-               this.field_70130_N,
+               this.posZ,
+               (int)(1.0F + this.width * 20.0F),
+               this.width,
                0.0,
-               this.field_70130_N,
+               this.width,
                0.2F,
                new int[0]
             );
-            var2.func_175739_a(
+            var2.spawnParticle(
                EnumParticleTypes.WATER_WAKE,
-               this.field_70165_t,
+               this.posX,
                var17,
-               this.field_70161_v,
-               (int)(1.0F + this.field_70130_N * 20.0F),
-               this.field_70130_N,
+               this.posZ,
+               (int)(1.0F + this.width * 20.0F),
+               this.width,
                0.0,
-               this.field_70130_N,
+               this.width,
                0.2F,
                new int[0]
             );
-            this.d = MathHelper.func_76136_a(this.field_70146_Z, 20, 40);
+            this.d = MathHelper.getInt(this.rand, 20, 40);
          }
       } else if (this.c > 0) {
          this.c -= var3;
@@ -420,52 +420,52 @@ public class SexEntity extends Entity {
             var18 = (float)(0.15F + (60 - this.c) * 0.01);
          }
 
-         if (this.field_70146_Z.nextFloat() < var18) {
-            float var19 = MathHelper.func_151240_a(this.field_70146_Z, 0.0F, 360.0F) * (float) (Math.PI / 180.0);
-            float var20 = MathHelper.func_151240_a(this.field_70146_Z, 25.0F, 60.0F);
-            double var21 = this.field_70165_t + MathHelper.func_76126_a(var19) * var20 * 0.1F;
-            double var22 = MathHelper.func_76128_c(this.func_174813_aQ().field_72338_b) + 1.0F;
-            double var23 = this.field_70161_v + MathHelper.func_76134_b(var19) * var20 * 0.1F;
-            IBlockState var24 = var2.func_180495_p(new BlockPos((int)var21, (int)var22 - 1, (int)var23));
-            if (var24.func_185904_a() == Material.field_151586_h) {
-               var2.func_175739_a(EnumParticleTypes.WATER_SPLASH, var21, var22, var23, 2 + this.field_70146_Z.nextInt(2), 0.1F, 0.0, 0.1F, 0.0, new int[0]);
+         if (this.rand.nextFloat() < var18) {
+            float var19 = MathHelper.nextFloat(this.rand, 0.0F, 360.0F) * (float) (Math.PI / 180.0);
+            float var20 = MathHelper.nextFloat(this.rand, 25.0F, 60.0F);
+            double var21 = this.posX + MathHelper.sin(var19) * var20 * 0.1F;
+            double var22 = MathHelper.floor(this.getEntityBoundingBox().minY) + 1.0F;
+            double var23 = this.posZ + MathHelper.cos(var19) * var20 * 0.1F;
+            IBlockState var24 = var2.getBlockState(new BlockPos((int)var21, (int)var22 - 1, (int)var23));
+            if (var24.getMaterial() == Material.WATER) {
+               var2.spawnParticle(EnumParticleTypes.WATER_SPLASH, var21, var22, var23, 2 + this.rand.nextInt(2), 0.1F, 0.0, 0.1F, 0.0, new int[0]);
             }
          }
 
          if (this.c <= 0) {
-            this.e = MathHelper.func_151240_a(this.field_70146_Z, 0.0F, 360.0F);
-            this.j = MathHelper.func_76136_a(this.field_70146_Z, 20, 80);
+            this.e = MathHelper.nextFloat(this.rand, 0.0F, 360.0F);
+            this.j = MathHelper.getInt(this.rand, 20, 80);
          }
       } else {
-         this.c = MathHelper.func_76136_a(this.field_70146_Z, 100, 600);
+         this.c = MathHelper.getInt(this.rand, 100, 600);
          this.c = this.c - this.o * 20 * 5;
       }
    }
 
    protected boolean a_clash785(Entity var1) {
-      return var1.func_70067_L() || var1 instanceof EntityItem;
+      return var1.canBeCollidedWith() || var1 instanceof EntityItem;
    }
 
-   public void func_70014_b(NBTTagCompound var1) {
+   public void writeEntityToNBT(NBTTagCompound var1) {
    }
 
-   public void func_70037_a(NBTTagCompound var1) {
+   public void readEntityFromNBT(NBTTagCompound var1) {
    }
 
    public int c_clash786() {
-      if (!this.field_70170_p.field_72995_K && this.b_clash775() != null) {
+      if (!this.world.isRemote && this.b_clash775() != null) {
          byte var1 = 0;
          if (this.i != null) {
             this.d_clash787();
-            this.field_70170_p.func_72960_a(this, (byte)31);
+            this.world.setEntityState(this, (byte)31);
             var1 = (byte)(this.i instanceof EntityItem ? 3 : 5);
          } else if (this.d > 0) {
-            Builder var3 = new Builder((WorldServer)this.field_70170_p);
+            Builder var3 = new Builder((WorldServer)this.world);
 
-            for (ItemStack var6 : this.field_70170_p
-               .func_184146_ak()
-               .func_186521_a(LootTableList.field_186387_al)
-               .func_186462_a(this.field_70146_Z, var3.func_186471_a())) {
+            for (ItemStack var6 : this.world
+               .getLootTableManager()
+               .getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING)
+               .generateLootForPools(this.rand, var3.build())) {
                LunaEntity var7 = this.b_clash775();
                var7.b_clash383(var6);
             }
@@ -487,23 +487,23 @@ public class SexEntity extends Entity {
    protected void d_clash787() {
       LunaEntity var1 = this.b_clash775();
       if (var1 != null) {
-         double var2 = var1.field_70165_t - this.field_70165_t;
-         double var4 = var1.field_70163_u - this.field_70163_u;
-         double var6 = var1.field_70161_v - this.field_70161_v;
-         this.i.field_70159_w += var2 * 0.1;
-         this.i.field_70181_x += var4 * 0.1;
-         this.i.field_70179_y += var6 * 0.1;
+         double var2 = var1.posX - this.posX;
+         double var4 = var1.posY - this.posY;
+         double var6 = var1.posZ - this.posZ;
+         this.i.motionX += var2 * 0.1;
+         this.i.motionY += var4 * 0.1;
+         this.i.motionZ += var6 * 0.1;
       }
    }
 
-   protected boolean func_70041_e_() {
+   protected boolean canTriggerWalking() {
       return false;
    }
 
-   public void func_70020_e(NBTTagCompound var1) {
+   public void readFromNBT(NBTTagCompound var1) {
    }
 
-   public NBTTagCompound func_189511_e(NBTTagCompound var1) {
+   public NBTTagCompound writeToNBT(NBTTagCompound var1) {
       return null;
    }
 

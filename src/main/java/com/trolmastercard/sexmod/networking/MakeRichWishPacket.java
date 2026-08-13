@@ -38,9 +38,9 @@ public class MakeRichWishPacket implements IMessage {
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeDouble(this.a.field_72450_a);
-      var1.writeDouble(this.a.field_72448_b);
-      var1.writeDouble(this.a.field_72449_c);
+      var1.writeDouble(this.a.x);
+      var1.writeDouble(this.a.y);
+      var1.writeDouble(this.a.z);
    }
 
    public static class Handler implements IMessageHandler<MakeRichWishPacket, IMessage> {
@@ -48,33 +48,33 @@ public class MakeRichWishPacket implements IMessage {
          if (var1.b && var2.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .func_152344_a(
+               .addScheduledTask(
                   () -> {
-                     World var2x = var2.getServerHandler().field_147369_b.field_70170_p;
+                     World var2x = var2.getServerHandler().player.world;
                      EntityItem var3 = new EntityItem(
                         var2x,
-                        var1.a.field_72450_a,
-                        var1.a.field_72448_b,
-                        var1.a.field_72449_c,
-                        new ItemStack(Items.field_151045_i, Reference.f.nextInt(2) + 1)
+                        var1.a.x,
+                        var1.a.y,
+                        var1.a.z,
+                        new ItemStack(Items.DIAMOND, Reference.f.nextInt(2) + 1)
                      );
                      EntityItem var4 = new EntityItem(
                         var2x,
-                        var1.a.field_72450_a,
-                        var1.a.field_72448_b,
-                        var1.a.field_72449_c,
-                        new ItemStack(Items.field_151166_bC, Reference.f.nextInt(2) + 1)
+                        var1.a.x,
+                        var1.a.y,
+                        var1.a.z,
+                        new ItemStack(Items.EMERALD, Reference.f.nextInt(2) + 1)
                      );
                      EntityItem var5 = new EntityItem(
                         var2x,
-                        var1.a.field_72450_a,
-                        var1.a.field_72448_b,
-                        var1.a.field_72449_c,
-                        new ItemStack(Items.field_151043_k, Reference.f.nextInt(2) + 1)
+                        var1.a.x,
+                        var1.a.y,
+                        var1.a.z,
+                        new ItemStack(Items.GOLD_INGOT, Reference.f.nextInt(2) + 1)
                      );
-                     var2x.func_72838_d(var3);
-                     var2x.func_72838_d(var4);
-                     var2x.func_72838_d(var5);
+                     var2x.spawnEntity(var3);
+                     var2x.spawnEntity(var4);
+                     var2x.spawnEntity(var5);
                   }
                );
             return null;

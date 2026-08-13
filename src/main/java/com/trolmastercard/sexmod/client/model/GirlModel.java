@@ -55,7 +55,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    public static final List<String> e = Arrays.asList("boyCam", "girlCam");
    public static boolean d = true;
    protected ResourceLocation[] c = this.getModelLocations();
-   protected Minecraft a = Minecraft.func_71410_x();
+   protected Minecraft a = Minecraft.getMinecraft();
 
    protected GirlModel() {
    }
@@ -86,13 +86,13 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    }
 
    public ResourceLocation a_clash34(BaseGirlEntity var1) {
-      if (var1.field_70170_p instanceof SexWorldClient) {
+      if (var1.world instanceof SexWorldClient) {
          return this.c[0];
-      } else if ((Integer)var1.func_184212_Q().func_187225_a(BaseGirlEntity.D) > this.c.length) {
-         System.out.println("Girl doesn't have an outfit Nr." + var1.func_184212_Q().func_187225_a(BaseGirlEntity.D) + " so im just making her nude lol");
+      } else if ((Integer)var1.getDataManager().get(BaseGirlEntity.D) > this.c.length) {
+         System.out.println("Girl doesn't have an outfit Nr." + var1.getDataManager().get(BaseGirlEntity.D) + " so im just making her nude lol");
          return this.c[0];
       } else {
-         return this.c[var1.func_184212_Q().func_187225_a(BaseGirlEntity.D)];
+         return this.c[var1.getDataManager().get(BaseGirlEntity.D)];
       }
    }
 
@@ -102,7 +102,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
 
    @Override
    public void setMolangQueries(IAnimatable var1, double var2) {
-      if (Minecraft.func_71410_x().field_71441_e != null) {
+      if (Minecraft.getMinecraft().world != null) {
          super.setMolangQueries(var1, var2);
       }
    }
@@ -112,25 +112,25 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       super.setLivingAnimations((T)var1, var2, var3);
       AnimationProcessor var4 = this.getAnimationProcessor();
       this.a((T)var1, var4);
-      if (!(var1.field_70170_p instanceof SexWorldClient)) {
-         if ((Boolean)var1.func_184212_Q().func_187225_a(BaseGirlEntity.G)) {
-            var1.func_180426_a(
-               var1.getTargetPosition().field_72450_a, var1.getTargetPosition().field_72448_b, var1.getTargetPosition().field_72449_c, var1.getYawRotation(), 0.0F, 3, true
+      if (!(var1.world instanceof SexWorldClient)) {
+         if ((Boolean)var1.getDataManager().get(BaseGirlEntity.G)) {
+            var1.setPositionAndRotationDirect(
+               var1.getTargetPosition().x, var1.getTargetPosition().y, var1.getTargetPosition().z, var1.getYawRotation(), 0.0F, 3, true
             );
          }
 
          if (var1.C != null) {
-            var1.C.transitionLengthTicks = !(var1.field_70170_p instanceof SexWorldClient) && var1.getCurrentAction() != null ? var1.getCurrentAction().transitionTick : 5.0;
+            var1.C.transitionLengthTicks = !(var1.world instanceof SexWorldClient) && var1.getCurrentAction() != null ? var1.getCurrentAction().transitionTick : 5.0;
          }
 
          this.a((T)var1, var4, var3);
          if (var1 instanceof AbstractGirlNpcEntity && !var1.isLocallyRegistered() && var1.getOutfitIndex() != 0) {
             this.a(
                var4,
-               (ItemStack)var1.m.func_187225_a(AbstractGirlNpcEntity.X),
-               (ItemStack)var1.m.func_187225_a(AbstractGirlNpcEntity.T),
-               (ItemStack)var1.m.func_187225_a(AbstractGirlNpcEntity.U),
-               (ItemStack)var1.m.func_187225_a(AbstractGirlNpcEntity.W)
+               (ItemStack)var1.m.get(AbstractGirlNpcEntity.X),
+               (ItemStack)var1.m.get(AbstractGirlNpcEntity.T),
+               (ItemStack)var1.m.get(AbstractGirlNpcEntity.U),
+               (ItemStack)var1.m.get(AbstractGirlNpcEntity.W)
             );
          } else {
             this.a(var4);
@@ -139,23 +139,23 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    }
 
    public static Vec3d d_clash346(BaseGirlEntity var0) {
-      return a_clash347(new Vec3d(var0.field_70142_S, var0.field_70137_T, var0.field_70136_U), var0.func_174791_d());
+      return a_clash347(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector());
    }
 
    public static Vec3d a(BaseGirlEntity var0, Vec3d var1) {
-      return a_clash347(var1, var0.func_174791_d());
+      return a_clash347(var1, var0.getPositionVector());
    }
 
    public static Vec3d a_clash347(Vec3d var0, Vec3d var1) {
-      Vec3d var2 = var1.func_178788_d(var0);
-      Vec3d var3 = new Vec3d(Math.abs(var2.field_72450_a), Math.abs(var2.field_72448_b), Math.abs(var2.field_72449_c));
-      double var4 = var3.field_72450_a / (var3.field_72450_a + var3.field_72448_b + var3.field_72449_c);
-      double var6 = var3.field_72448_b / (var3.field_72450_a + var3.field_72448_b + var3.field_72449_c);
-      double var8 = var3.field_72449_c / (var3.field_72450_a + var3.field_72448_b + var3.field_72449_c);
+      Vec3d var2 = var1.subtract(var0);
+      Vec3d var3 = new Vec3d(Math.abs(var2.x), Math.abs(var2.y), Math.abs(var2.z));
+      double var4 = var3.x / (var3.x + var3.y + var3.z);
+      double var6 = var3.y / (var3.x + var3.y + var3.z);
+      double var8 = var3.z / (var3.x + var3.y + var3.z);
       Vec3d var10 = new Vec3d(
-         (var2.field_72450_a > 0.0 ? 1 : -1) * var4, (var2.field_72448_b > 0.0 ? 1 : -1) * var6, (var2.field_72449_c > 0.0 ? 1 : -1) * var8
+         (var2.x > 0.0 ? 1 : -1) * var4, (var2.y > 0.0 ? 1 : -1) * var6, (var2.z > 0.0 ? 1 : -1) * var8
       );
-      double var11 = var10.field_72448_b / 2.0 + 0.5;
+      double var11 = var10.y / 2.0 + 0.5;
       float var13 = (float)RotationHelper.b(-180.0, 0.0, var11);
       if (Float.isNaN(var13)) {
          var13 = -90.0F;
@@ -175,10 +175,10 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    }
 
    void a(AnimationProcessor<T> var1, ItemStack var2, ItemStack var3, ItemStack var4, ItemStack var5) {
-      this.c(var1, !var2.func_190926_b());
-      this.b(var1, var3.func_77973_b() instanceof ItemArmor);
-      this.d(var1, !var4.func_190926_b());
-      this.a(var1, !var5.func_190926_b());
+      this.c(var1, !var2.isEmpty());
+      this.b(var1, var3.getItem() instanceof ItemArmor);
+      this.d(var1, !var4.isEmpty());
+      this.a(var1, !var5.isEmpty());
    }
 
    protected void a(AnimationProcessor<T> var1) {
@@ -226,9 +226,9 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
          return true;
       }
 
-      World var3 = var1.field_70170_p;
-      AbstractClientPlayer var4 = (AbstractClientPlayer)var3.func_152378_a(var2);
-      return var4 == null ? true : "default".equals(var4.func_175154_l());
+      World var3 = var1.world;
+      AbstractClientPlayer var4 = (AbstractClientPlayer)var3.getPlayerEntityByUUID(var2);
+      return var4 == null ? true : "default".equals(var4.getSkinType());
    }
 
    void a(T var1, AnimationProcessor<T> var2) {
@@ -275,7 +275,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    }
 
    protected void a(T var1, AnimationProcessor<T> var2, AnimationEvent var3) {
-      if (!(var1.field_70170_p instanceof SexWorldClient)) {
+      if (!(var1.world instanceof SexWorldClient)) {
          if (this.e_clash170(var1)) {
             if (var1.getCurrentAction() == fp.NULL || var1.getCurrentAction() == fp.ATTACK || var1.getCurrentAction() == fp.BOW) {
                EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
@@ -293,13 +293,13 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
 
    public ItemStack a_clash348(BaseGirlEntity var1, String var2) {
       if (Arrays.asList(this.c()).contains(var2)) {
-         return (ItemStack)var1.m.func_187225_a(AbstractGirlNpcEntity.X);
+         return (ItemStack)var1.m.get(AbstractGirlNpcEntity.X);
       } else if (Arrays.asList(this.f()).contains(var2)) {
-         return (ItemStack)var1.m.func_187225_a(AbstractGirlNpcEntity.T);
+         return (ItemStack)var1.m.get(AbstractGirlNpcEntity.T);
       } else if (Arrays.asList(this.h()).contains(var2)) {
-         return (ItemStack)var1.m.func_187225_a(AbstractGirlNpcEntity.U);
+         return (ItemStack)var1.m.get(AbstractGirlNpcEntity.U);
       } else {
-         return Arrays.asList(this.b()).contains(var2) ? (ItemStack)var1.m.func_187225_a(AbstractGirlNpcEntity.W) : ItemStack.field_190927_a;
+         return Arrays.asList(this.b()).contains(var2) ? (ItemStack)var1.m.get(AbstractGirlNpcEntity.W) : ItemStack.EMPTY;
       }
    }
 

@@ -41,8 +41,8 @@ public class gm {
    static final Vec3i d = new Vec3i(0, 0, 255);
    static final ResourceLocation b = new ResourceLocation("sexmod", "textures/mark.png");
    static HashSet<BlockPos> f = new HashSet<>();
-   static Minecraft a = Minecraft.func_71410_x();
-   static TextureManager c = Minecraft.func_71410_x().func_110434_K();
+   static Minecraft a = Minecraft.getMinecraft();
+   static TextureManager c = Minecraft.getMinecraft().getTextureManager();
 
    public static void a_clash770() {
       f.clear();
@@ -53,32 +53,32 @@ public class gm {
    }
 
    public static void b_clash772() {
-      Tessellator var0 = Tessellator.func_178181_a();
-      BufferBuilder var1 = var0.func_178180_c();
-      Vec3d var2 = RotationHelper.a(Reference.k, Reference.j, a.func_184121_ak());
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179129_p();
-      GlStateManager.func_179097_i();
-      c.func_110577_a(b);
-      GlStateManager.func_179137_b(-var2.field_72450_a, -var2.field_72448_b, -var2.field_72449_c);
-      var1.func_181668_a(7, DefaultVertexFormats.field_181709_i);
+      Tessellator var0 = Tessellator.getInstance();
+      BufferBuilder var1 = var0.getBuffer();
+      Vec3d var2 = RotationHelper.a(Reference.k, Reference.j, a.getRenderPartialTicks());
+      GlStateManager.pushMatrix();
+      GlStateManager.disableCull();
+      GlStateManager.disableDepth();
+      c.bindTexture(b);
+      GlStateManager.translate(-var2.x, -var2.y, -var2.z);
+      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
 
       try {
          for (BlockPos var4 : f) {
             Vec3i var5 = b_clash773(var4);
-            a(var1, var4, var5.func_177958_n(), var5.func_177956_o(), var5.func_177952_p());
+            a(var1, var4, var5.getX(), var5.getY(), var5.getZ());
          }
       } catch (ConcurrentModificationException var6) {
       }
 
-      var0.func_78381_a();
-      GlStateManager.func_179126_j();
-      GlStateManager.func_179089_o();
-      GlStateManager.func_179121_F();
+      var0.draw();
+      GlStateManager.enableDepth();
+      GlStateManager.enableCull();
+      GlStateManager.popMatrix();
    }
 
    static Vec3i b_clash773(BlockPos var0) {
-      Block var1 = Minecraft.func_71410_x().field_71441_e.func_180495_p(var0).func_177230_c();
+      Block var1 = Minecraft.getMinecraft().world.getBlockState(var0).getBlock();
       if (var1 instanceof BlockBed) {
          return d;
       } else {
@@ -87,102 +87,102 @@ public class gm {
    }
 
    static void a(BufferBuilder var0, BlockPos var1, int var2, int var3, int var4) {
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o() + 1, var1.func_177952_p())
-         .func_187315_a(0.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o() + 1, var1.func_177952_p())
-         .func_187315_a(1.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p())
-         .func_187315_a(1.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p())
-         .func_187315_a(0.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o() + 1, 1 + var1.func_177952_p())
-         .func_187315_a(0.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o() + 1, 1 + var1.func_177952_p())
-         .func_187315_a(1.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o(), 1 + var1.func_177952_p())
-         .func_187315_a(1.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o(), 1 + var1.func_177952_p())
-         .func_187315_a(0.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o() + 1, var1.func_177952_p())
-         .func_187315_a(0.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o() + 1, 1 + var1.func_177952_p())
-         .func_187315_a(1.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o(), 1 + var1.func_177952_p())
-         .func_187315_a(1.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p())
-         .func_187315_a(0.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o() + 1, var1.func_177952_p())
-         .func_187315_a(0.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o() + 1, 1 + var1.func_177952_p())
-         .func_187315_a(1.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o(), 1 + var1.func_177952_p())
-         .func_187315_a(1.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p())
-         .func_187315_a(0.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o(), 1 + var1.func_177952_p())
-         .func_187315_a(0.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o(), 1 + var1.func_177952_p())
-         .func_187315_a(1.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p())
-         .func_187315_a(1.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p())
-         .func_187315_a(0.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o() + 1, 1 + var1.func_177952_p())
-         .func_187315_a(0.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o() + 1, 1 + var1.func_177952_p())
-         .func_187315_a(1.0, 1.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(1 + var1.func_177958_n(), var1.func_177956_o() + 1, var1.func_177952_p())
-         .func_187315_a(1.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
-      var0.func_181662_b(var1.func_177958_n(), var1.func_177956_o() + 1, var1.func_177952_p())
-         .func_187315_a(0.0, 0.0)
-         .func_181669_b(var2, var3, var4, 255)
-         .func_181675_d();
+      var0.pos(var1.getX(), var1.getY() + 1, var1.getZ())
+         .tex(0.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY() + 1, var1.getZ())
+         .tex(1.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY(), var1.getZ())
+         .tex(1.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY(), var1.getZ())
+         .tex(0.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+         .tex(0.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+         .tex(1.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY(), 1 + var1.getZ())
+         .tex(1.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY(), 1 + var1.getZ())
+         .tex(0.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY() + 1, var1.getZ())
+         .tex(0.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+         .tex(1.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY(), 1 + var1.getZ())
+         .tex(1.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY(), var1.getZ())
+         .tex(0.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY() + 1, var1.getZ())
+         .tex(0.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+         .tex(1.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY(), 1 + var1.getZ())
+         .tex(1.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY(), var1.getZ())
+         .tex(0.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY(), 1 + var1.getZ())
+         .tex(0.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY(), 1 + var1.getZ())
+         .tex(1.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY(), var1.getZ())
+         .tex(1.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY(), var1.getZ())
+         .tex(0.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+         .tex(0.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+         .tex(1.0, 1.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(1 + var1.getX(), var1.getY() + 1, var1.getZ())
+         .tex(1.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
+      var0.pos(var1.getX(), var1.getY() + 1, var1.getZ())
+         .tex(0.0, 0.0)
+         .color(var2, var3, var4, 255)
+         .endVertex();
    }
 
    public static void a_clash774(HashSet<BlockPos> var0) {
@@ -195,20 +195,20 @@ public class gm {
 
    @SubscribeEvent
    public void a(RenderWorldLastEvent var1) {
-      GlStateManager.func_179142_g();
+      GlStateManager.enableColorMaterial();
       GL11.glDisable(2896);
-      ItemStack var2 = a.field_71439_g.func_184586_b(EnumHand.MAIN_HAND);
-      if (var2.func_77973_b() != DragonStaffItem.b) {
-         var2 = a.field_71439_g.func_184586_b(EnumHand.OFF_HAND);
+      ItemStack var2 = a.player.getHeldItem(EnumHand.MAIN_HAND);
+      if (var2.getItem() != DragonStaffItem.b) {
+         var2 = a.player.getHeldItem(EnumHand.OFF_HAND);
       }
 
-      if (var2.func_77973_b() == DragonStaffItem.b) {
+      if (var2.getItem() == DragonStaffItem.b) {
          b_clash772();
       }
 
-      GlStateManager.func_179145_e();
-      GlStateManager.func_179126_j();
-      GlStateManager.func_179141_d();
+      GlStateManager.enableLighting();
+      GlStateManager.enableDepth();
+      GlStateManager.enableAlpha();
       GL11.glEnable(2896);
    }
 
@@ -216,10 +216,10 @@ public class gm {
    @SubscribeEvent
    public void a(ClientTickEvent var1) {
       if (var1.phase != Phase.START) {
-         EntityPlayerSP var2 = Minecraft.func_71410_x().field_71439_g;
+         EntityPlayerSP var2 = Minecraft.getMinecraft().player;
          if (var2 != null) {
             Reference.k = Reference.j;
-            Reference.j = var2.func_174791_d();
+            Reference.j = var2.getPositionVector();
          }
       }
    }

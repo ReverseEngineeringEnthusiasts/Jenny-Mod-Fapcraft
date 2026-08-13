@@ -70,7 +70,7 @@ public class UploadModelStringPacket implements IMessage {
    public static class Handler implements IMessageHandler<UploadModelStringPacket, IMessage> {
       public IMessage onMessage(UploadModelStringPacket var1, MessageContext var2) {
          if (var1.a && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                BaseGirlEntity var3 = BaseGirlEntity.getServerGirlEntity(var1.b);
                if (var1.d.size() > 0) {
                   boolean var5 = this.a(var3, var1.d);
@@ -81,26 +81,26 @@ public class UploadModelStringPacket implements IMessage {
                   if (!(var3 instanceof AbstractPlayerGirlEntity)) {
                      var3.setCustomModelCode(var1.c);
                   } else {
-                     EntityPlayerMP var10 = var2.getServerHandler().field_147369_b;
+                     EntityPlayerMP var10 = var2.getServerHandler().player;
                      NBTTagCompound var11 = var10.getEntityData();
                      AbstractPlayerGirlEntity var12 = AbstractPlayerGirlEntity.g(var10);
                      if (var12 != null) {
                         NpcType var13 = NpcType.getNpcType(var12);
-                        var11.func_74778_a("sexmod:CustomModel" + var13.toString(), var1.c);
+                        var11.setString("sexmod:CustomModel" + var13.toString(), var1.c);
                         if (var5) {
-                           var11.func_74778_a("sexmod:GirlSpecific" + var13.toString(), BaseGirlEntity.c(var1.d));
+                           var11.setString("sexmod:GirlSpecific" + var13.toString(), BaseGirlEntity.c(var1.d));
                         }
                      }
                   }
                } else if (!(var3 instanceof AbstractPlayerGirlEntity)) {
                   var3.setCustomModelCode(var1.c);
                } else {
-                  EntityPlayerMP var6 = var2.getServerHandler().field_147369_b;
+                  EntityPlayerMP var6 = var2.getServerHandler().player;
                   NBTTagCompound var7 = var6.getEntityData();
                   AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.g(var6);
                   if (var8 != null) {
                      NpcType var9 = NpcType.getNpcType(var8);
-                     var7.func_74778_a("sexmod:CustomModel" + var9.toString(), var1.c);
+                     var7.setString("sexmod:CustomModel" + var9.toString(), var1.c);
                   }
                }
             });

@@ -17,14 +17,14 @@ public class GirlGotoGoal extends GirlFollowAiBase {
    }
 
    @Override
-   public void func_75251_c() {
-      super.func_75251_c();
-      this.d.field_70747_aH = 0.02F;
+   public void resetTask() {
+      super.resetTask();
+      this.d.jumpMovementFactor = 0.02F;
    }
 
    @Override
    protected GirlFollowAiBase.GirlFollowAiBaseState a_clash807() {
-      float var1 = this.d.func_70032_d(this.a);
+      float var1 = this.d.getDistance(this.a);
       boolean var2 = var1 > 5.0F;
       if (this.d.getInteractionPlayerUUID() == null && !var2 && this.f == GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
          if (++this.j > 60) {
@@ -42,10 +42,10 @@ public class GirlGotoGoal extends GirlFollowAiBase {
    protected void a(GirlFollowAiBase.GirlFollowAiBaseState var1) {
       switch (var1) {
          case FOLLOW:
-            double var2 = this.d.func_70032_d(this.a);
-            if (this.c.func_111269_d() > var2) {
-               this.c.func_75499_g();
-               this.c.func_75497_a(this.a, 0.5);
+            double var2 = this.d.getDistance(this.a);
+            if (this.c.getPathSearchRange() > var2) {
+               this.c.clearPath();
+               this.c.tryMoveToEntityLiving(this.a, 0.5);
             } else {
                this.c_clash805();
             }
@@ -60,10 +60,10 @@ public class GirlGotoGoal extends GirlFollowAiBase {
 
    @Override
    protected double b_clash806() {
-      float var1 = this.d.func_70032_d(this.a);
+      float var1 = this.d.getDistance(this.a);
       double var3 = Math.min(0.7, Math.floor(var1 / 3.0F) * 0.05);
       float var2 = (float)(0.02F + var3);
-      this.d.field_70747_aH = var2;
+      this.d.jumpMovementFactor = var2;
       return var2;
    }
 

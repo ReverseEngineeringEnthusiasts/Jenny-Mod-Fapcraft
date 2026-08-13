@@ -83,18 +83,18 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 
 public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    public ItemStack ao = new ItemStack(LunaRodItem.a);
-   public static final DataParameter<Float> Y = EntityDataManager.func_187226_a(LunaEntity.class, DataSerializers.field_187193_c)
-      .func_187156_b()
-      .func_187161_a(121);
-   public static final DataParameter<ItemStack> az = EntityDataManager.func_187226_a(LunaEntity.class, DataSerializers.field_187196_f)
-      .func_187156_b()
-      .func_187161_a(120);
-   public static final DataParameter<Boolean> af = EntityDataManager.func_187226_a(LunaEntity.class, DataSerializers.field_187198_h)
-      .func_187156_b()
-      .func_187161_a(119);
-   public static final DataParameter<ItemStack> ag = EntityDataManager.func_187226_a(LunaEntity.class, DataSerializers.field_187196_f)
-      .func_187156_b()
-      .func_187161_a(118);
+   public static final DataParameter<Float> Y = EntityDataManager.createKey(LunaEntity.class, DataSerializers.FLOAT)
+      .getSerializer()
+      .createKey(121);
+   public static final DataParameter<ItemStack> az = EntityDataManager.createKey(LunaEntity.class, DataSerializers.ITEM_STACK)
+      .getSerializer()
+      .createKey(120);
+   public static final DataParameter<Boolean> af = EntityDataManager.createKey(LunaEntity.class, DataSerializers.BOOLEAN)
+      .getSerializer()
+      .createKey(119);
+   public static final DataParameter<ItemStack> ag = EntityDataManager.createKey(LunaEntity.class, DataSerializers.ITEM_STACK)
+      .getSerializer()
+      .createKey(118);
    static final float ah = 3.0F;
    static final float ax = 1200.0F;
    @Nullable
@@ -125,12 +125,12 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       this.O = 150;
       this.K = 320;
       this.V = new Vec3d(0.0, -0.05999999718368053, 0.10000001192092894);
-      if (this.Q.getStackInSlot(0) == ItemStack.field_190927_a) {
-         this.Q.setStackInSlot(0, new ItemStack(Items.field_151036_c));
+      if (this.Q.getStackInSlot(0) == ItemStack.EMPTY) {
+         this.Q.setStackInSlot(0, new ItemStack(Items.IRON_AXE));
       }
 
-      if (this.Q.getStackInSlot(6) == ItemStack.field_190927_a) {
-         this.Q.setStackInSlot(6, new ItemStack(Items.field_151112_aM));
+      if (this.Q.getStackInSlot(6) == ItemStack.EMPTY) {
+         this.Q.setStackInSlot(6, new ItemStack(Items.FISHING_ROD));
       }
    }
 
@@ -145,12 +145,12 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   protected void func_70088_a() {
-      super.func_70088_a();
-      this.m.func_187214_a(Y, 0.0F);
-      this.m.func_187214_a(az, ItemStack.field_190927_a);
-      this.m.func_187214_a(af, false);
-      this.m.func_187214_a(ag, ItemStack.field_190927_a);
+   protected void entityInit() {
+      super.entityInit();
+      this.m.register(Y, 0.0F);
+      this.m.register(az, ItemStack.EMPTY);
+      this.m.register(af, false);
+      this.m.register(ag, ItemStack.EMPTY);
    }
 
    @Override
@@ -173,24 +173,24 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       this.ac = true;
    }
 
-   public float func_70047_e() {
+   public float getEyeHeight() {
       return 1.34F;
    }
 
-   public boolean func_184645_a(EntityPlayer var1, EnumHand var2) {
-      if (super.func_184645_a(var1, var2)) {
+   public boolean processInteract(EntityPlayer var1, EnumHand var2) {
+      if (super.processInteract(var1, var2)) {
          return true;
       }
 
-      ItemStack var3 = var1.func_184586_b(var2);
-      boolean var4 = var3.func_77973_b() == Items.field_151057_cb;
+      ItemStack var3 = var1.getHeldItem(var2);
+      boolean var4 = var3.getItem() == Items.NAME_TAG;
       if (var4) {
-         var3.func_111282_a(var1, this, var2);
+         var3.interactWithEntity(var1, this, var2);
          return true;
       }
 
-      if (this.field_70170_p.field_72995_K && !this.openInteractionMenu(var1)) {
-         this.sendChatMessage(I18n.func_135052_a("bia.dialogue.busy", new Object[0]));
+      if (this.world.isRemote && !this.openInteractionMenu(var1)) {
+         this.sendChatMessage(I18n.format("bia.dialogue.busy", new Object[0]));
       }
 
       return true;
@@ -199,98 +199,98 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
       String[] var2 = new String[]{"action.names.sex", "action.names.touchboobs", "action.names.headpat"};
-      ItemStack[] var3 = new ItemStack[]{new ItemStack(Items.field_151115_aP, 3, 0), new ItemStack(Items.field_151115_aP, 2, 1), null};
+      ItemStack[] var3 = new ItemStack[]{new ItemStack(Items.FISH, 3, 0), new ItemStack(Items.FISH, 2, 1), null};
       a(var1, this, var2, var3);
       return true;
    }
 
    @SideOnly(Side.CLIENT)
    protected static void a(EntityPlayer var0, BaseGirlEntity var1, String[] var2, ItemStack[] var3) {
-      Minecraft.func_71410_x().func_147108_a(new GirlInventoryScreen(var1, var0, var2, var3, true));
+      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(var1, var0, var2, var3, true));
    }
 
    public void b_clash383(ItemStack var1) {
-      this.m.func_187227_b(ag, var1);
+      this.m.set(ag, var1);
    }
 
    @Override
    public void reinitTasks() {
       this.z = new EntityAIWanderAvoidWater(this, 0.35);
       this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-      this.field_70714_bg.func_75776_a(5, this.o);
-      this.field_70714_bg.func_75776_a(5, this.z);
+      this.tasks.addTask(5, this.o);
+      this.tasks.addTask(5, this.z);
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
+   public void updateAITasks() {
+      super.updateAITasks();
       if (!this.J_clash526()) {
-         this.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111128_a(1.0);
+         this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(1.0);
       } else {
-         this.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111128_a(0.5);
+         this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
       }
 
       this.m_clash393();
       this.i_clash389();
-      this.m.func_187227_b(af, this.av != null && this.m.func_187225_a(ag) == ItemStack.field_190927_a);
-      if (this.al == this.field_70170_p.func_82737_E() && this.av != null) {
-         this.field_70170_p.func_72900_e(this.av);
+      this.m.set(af, this.av != null && this.m.get(ag) == ItemStack.EMPTY);
+      if (this.al == this.world.getTotalWorldTime() && this.av != null) {
+         this.world.removeEntity(this.av);
          this.av = null;
       }
 
       if (this.ay) {
-         double var1 = this.getTargetPosition().func_72438_d(this.func_174791_d());
+         double var1 = this.getTargetPosition().distanceTo(this.getPositionVector());
          if (!(var1 < 0.5) && this.ak <= 200) {
             if (++this.ak == 60 || this.ak == 120) {
-               this.func_70661_as().func_75499_g();
-               this.func_70661_as().func_75492_a(this.getTargetPosition().field_72450_a, this.getTargetPosition().field_72448_b, this.getTargetPosition().field_72449_c, 0.2);
+               this.getNavigator().clearPath();
+               this.getNavigator().tryMoveToXYZ(this.getTargetPosition().x, this.getTargetPosition().y, this.getTargetPosition().z, 0.2);
             }
          } else {
             this.ay = false;
             this.ak = 0;
-            this.m.func_187227_b(G, true);
-            this.field_70145_X = true;
-            this.func_189654_d(true);
-            this.field_70159_w = 0.0;
-            this.field_70181_x = 0.0;
-            this.field_70179_y = 0.0;
+            this.m.set(G, true);
+            this.noClip = true;
+            this.setNoGravity(true);
+            this.motionX = 0.0;
+            this.motionY = 0.0;
+            this.motionZ = 0.0;
             this.b(fp.WAIT_CAT);
          }
       }
 
       if (this.ac) {
          this.aw++;
-         if (!this.func_174791_d().equals(this.getTargetPosition()) && this.aw <= 40) {
-            this.field_70177_z = this.getYawRotation();
-            this.func_189654_d(false);
-            Vec3d var3 = RotationHelper.a(this.func_174791_d(), this.getTargetPosition(), 40 - this.aw);
-            this.func_70107_b(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
+         if (!this.getPositionVector().equals(this.getTargetPosition()) && this.aw <= 40) {
+            this.rotationYaw = this.getYawRotation();
+            this.setNoGravity(false);
+            Vec3d var3 = RotationHelper.a(this.getPositionVector(), this.getTargetPosition(), 40 - this.aw);
+            this.setPosition(var3.x, var3.y, var3.z);
          } else {
             this.ac = false;
             this.aw = 0;
-            this.setYawRotation(this.field_70170_p.func_73046_m().func_184103_al().func_177451_a(this.getInteractionPlayerUUID()).field_70177_z + 180.0F);
-            this.m.func_187227_b(G, true);
-            this.func_70661_as().func_75499_g();
+            this.setYawRotation(this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID()).rotationYaw + 180.0F);
+            this.m.set(G, true);
+            this.getNavigator().clearPath();
             this.U();
          }
       }
 
       this.d_clash384();
-      this.m.func_187227_b(az, this.Q.getStackInSlot(6));
+      this.m.set(az, this.Q.getStackInSlot(6));
    }
 
    void d_clash384() {
       ItemStack var1 = this.ao;
-      ItemStack var2 = (ItemStack)this.m.func_187225_a(az);
-      if (!var2.equals(ItemStack.field_190927_a)) {
-         Map var3 = EnchantmentHelper.func_82781_a(var2);
-         EnchantmentHelper.func_82782_a(var3, var1);
+      ItemStack var2 = (ItemStack)this.m.get(az);
+      if (!var2.equals(ItemStack.EMPTY)) {
+         Map var3 = EnchantmentHelper.getEnchantments(var2);
+         EnchantmentHelper.setEnchantments(var3, var1);
       }
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
       if (fp.WAIT_CAT.equals(this.getCurrentAction())) {
          this.f_clash385();
       } else {
@@ -299,22 +299,22 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    void f_clash385() {
-      EntityPlayer var1 = this.field_70170_p.func_72890_a(this, 10.0);
+      EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
       if (var1 != null) {
-         if (!(var1.func_70032_d(this) > 1.25F)) {
-            if (this.field_70170_p.field_72995_K) {
+         if (!(var1.getDistance(this) > 1.25F)) {
+            if (this.world.isRemote) {
                this.a(var1, this.ab);
             } else if (this.ab == 25) {
                this.setInteractionPlayerUUID(var1.getPersistentID());
-               var1.func_191958_b(0.0F, 0.0F, 0.0F, 0.0F);
-               var1.func_70634_a(this.func_174791_d().field_72450_a, this.func_174791_d().field_72448_b, this.func_174791_d().field_72449_c);
+               var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
+               var1.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVector().y, this.getPositionVector().z);
                this.b(fp.COWGIRL_SITTING_INTRO);
-               var1.func_70034_d(this.getYawRotation() + 180.0F);
-               var1.field_70177_z = this.getYawRotation() + 180.0F;
-               var1.field_70126_B = this.getYawRotation() + 180.0F;
+               var1.setRotationYawHead(this.getYawRotation() + 180.0F);
+               var1.rotationYaw = this.getYawRotation() + 180.0F;
+               var1.prevRotationYaw = this.getYawRotation() + 180.0F;
                this.r = this.getYawRotation() + 180.0F;
                this.positionPlayerRelative(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
-               this.m.func_187227_b(D, 0);
+               this.m.set(D, 0);
             }
 
             this.ab++;
@@ -325,39 +325,39 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @SideOnly(Side.CLIENT)
    void a(EntityPlayer var1, int var2) {
       if (var2 == 0) {
-         EntityPlayerSP var3 = Minecraft.func_71410_x().field_71439_g;
+         EntityPlayerSP var3 = Minecraft.getMinecraft().player;
          if (var3.getPersistentID().equals(var1.getPersistentID())) {
             BeeScreen.enableInteraction();
-            var3.func_70016_h(0.0, 0.0, 0.0);
+            var3.setVelocity(0.0, 0.0, 0.0);
             d3.setMovementLock(false);
          }
       }
 
       if (var2 == 25) {
-         EntityPlayerSP var4 = Minecraft.func_71410_x().field_71439_g;
+         EntityPlayerSP var4 = Minecraft.getMinecraft().player;
          if (var4.getPersistentID().equals(var1.getPersistentID())) {
-            Minecraft.func_71410_x().field_71474_y.field_74320_O = 2;
+            Minecraft.getMinecraft().gameSettings.thirdPersonView = 2;
          }
       }
    }
 
    @Override
    public void a_clash292() {
-      this.m.func_187227_b(G, false);
+      this.m.set(G, false);
       this.b(fp.NULL);
       this.ar = true;
-      BlockPos var1 = this.a_clash525(this.func_180425_c());
+      BlockPos var1 = this.a_clash525(this.getPosition());
       if (var1 == null) {
          this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
          PacketHandler.b
             .sendToAllAround(
                new SendChatMessagePacket(
-                  "<" + this.getDisplayNameText() + "> Heh.. there is no bed nearby.. but I already ate the fish so nya~ hehe", this.field_71093_bK, this.getGirlId()
+                  "<" + this.getDisplayNameText() + "> Heh.. there is no bed nearby.. but I already ate the fish so nya~ hehe", this.dimension, this.getGirlId()
                ),
                this.getTargetNetworkPoint()
             );
       } else {
-         Vec3d var2 = new Vec3d(var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p());
+         Vec3d var2 = new Vec3d(var1.getX(), var1.getY(), var1.getZ());
          int[] var3 = new int[]{0, 180, -90, 90};
          Vec3d[][] var4 = new Vec3d[][]{
             {new Vec3d(0.5, 0.0, -0.5), new Vec3d(0.0, 0.0, -1.0)},
@@ -368,23 +368,23 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          int var5 = -1;
 
          for (int var6 = 0; var6 < var4.length; var6++) {
-            Vec3d var7 = var2.func_178787_e(var4[var6][1]);
-            if (this.field_70170_p.func_180495_p(new BlockPos(var7.field_72450_a, var7.field_72448_b, var7.field_72449_c)).func_177230_c()
-               == Blocks.field_150350_a) {
+            Vec3d var7 = var2.add(var4[var6][1]);
+            if (this.world.getBlockState(new BlockPos(var7.x, var7.y, var7.z)).getBlock()
+               == Blocks.AIR) {
                if (var5 == -1) {
                   var5 = var6;
                } else {
-                  double var8 = this.func_180425_c()
-                     .func_177954_c(
-                        var2.func_178787_e(var4[var5][0]).field_72450_a,
-                        var2.func_178787_e(var4[var5][0]).field_72448_b,
-                        var2.func_178787_e(var4[var5][0]).field_72449_c
+                  double var8 = this.getPosition()
+                     .distanceSq(
+                        var2.add(var4[var5][0]).x,
+                        var2.add(var4[var5][0]).y,
+                        var2.add(var4[var5][0]).z
                      );
-                  double var10 = this.func_180425_c()
-                     .func_177954_c(
-                        var2.func_178787_e(var4[var6][0]).field_72450_a,
-                        var2.func_178787_e(var4[var6][0]).field_72448_b,
-                        var2.func_178787_e(var4[var6][0]).field_72449_c
+                  double var10 = this.getPosition()
+                     .distanceSq(
+                        var2.add(var4[var6][0]).x,
+                        var2.add(var4[var6][0]).y,
+                        var2.add(var4[var6][0]).z
                      );
                   if (var10 < var8) {
                      var5 = var6;
@@ -399,25 +399,25 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             return;
          }
 
-         Vec3d var12 = var2.func_178787_e(var4[var5][0]);
+         Vec3d var12 = var2.add(var4[var5][0]);
          this.setYawRotation(var3[var5]);
-         this.setTargetPosition(new Vec3d(var12.field_72450_a, var12.field_72448_b, var12.field_72449_c));
+         this.setTargetPosition(new Vec3d(var12.x, var12.y, var12.z));
          this.r = this.getYawRotation();
-         this.func_70661_as().func_75499_g();
-         this.func_70661_as().func_75492_a(var12.field_72450_a, var12.field_72448_b, var12.field_72449_c, 0.2);
+         this.getNavigator().clearPath();
+         this.getNavigator().tryMoveToXYZ(var12.x, var12.y, var12.z, 0.2);
          this.ay = true;
          this.ak = 0;
       }
    }
 
    public void j_clash386() {
-      EntityItem var1 = new EntityItem(this.field_70170_p, this.field_70165_t, this.field_70163_u, this.field_70161_v, (ItemStack)this.m.func_187225_a(ag));
-      Vec3d var2 = ck.rotateByYaw(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.field_70177_z);
-      var1.field_70159_w = var2.field_72450_a;
-      var1.field_70181_x = var2.field_72448_b;
-      var1.field_70179_y = var2.field_72449_c;
-      this.field_70170_p.func_72838_d(var1);
-      this.m.func_187227_b(ag, ItemStack.field_190927_a);
+      EntityItem var1 = new EntityItem(this.world, this.posX, this.posY, this.posZ, (ItemStack)this.m.get(ag));
+      Vec3d var2 = ck.rotateByYaw(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.rotationYaw);
+      var1.motionX = var2.x;
+      var1.motionY = var2.y;
+      var1.motionZ = var2.z;
+      this.world.spawnEntity(var1);
+      this.m.set(ag, ItemStack.EMPTY);
    }
 
    public void q_clash387() {
@@ -425,21 +425,21 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       this.at = 0;
       this.as = 0;
       this.am = false;
-      this.m.func_187227_b(G, false);
-      this.m.func_187227_b(ag, ItemStack.field_190927_a);
-      this.func_174810_b(false);
+      this.m.set(G, false);
+      this.m.set(ag, ItemStack.EMPTY);
+      this.setSilent(false);
       this.b(fp.NULL);
       if (this.av != null) {
-         this.field_70170_p.func_72900_e(this.av);
+         this.world.removeEntity(this.av);
          this.av = null;
       }
 
       if (this.getInteractionPlayerUUID() == null) {
          this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-         this.field_70714_bg.func_75776_a(5, this.o);
+         this.tasks.addTask(5, this.o);
          if (!this.J_clash526()) {
             this.z = new EntityAIWanderAvoidWater(this, 0.35);
-            this.field_70714_bg.func_75776_a(5, this.z);
+            this.tasks.addTask(5, this.z);
          }
       }
    }
@@ -456,11 +456,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       if (!this.J_clash526() && this.getInteractionPlayerUUID() == null && !this.ar) {
          if (!(++this.aj < 1200.0F)) {
             if (this.av != null && this.av.d == 15) {
-               ((LunaRodItem)this.ao.func_77973_b()).a(this.field_70170_p, this, EnumHand.MAIN_HAND);
-               this.al = this.field_70170_p.func_82737_E() + 20L;
-               ItemStack var1 = (ItemStack)this.m.func_187225_a(ag);
-               if (var1 != ItemStack.field_190927_a) {
-                  if (var1.func_77973_b() instanceof ItemFood) {
+               ((LunaRodItem)this.ao.getItem()).a(this.world, this, EnumHand.MAIN_HAND);
+               this.al = this.world.getTotalWorldTime() + 20L;
+               ItemStack var1 = (ItemStack)this.m.get(ag);
+               if (var1 != ItemStack.EMPTY) {
+                  if (var1.getItem() instanceof ItemFood) {
                      this.b(fp.FISHING_EAT);
                   } else {
                      this.b(fp.FISHING_THROW_AWAY);
@@ -473,39 +473,39 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.e_clash391();
             }
 
-            if (this.ai != null && this.au == null && this.func_70661_as().func_75505_d() == null && !this.field_70171_ac && this.field_70122_E) {
-               this.field_70170_p
-                  .func_72901_a(
-                     this.func_174791_d().func_72441_c(0.0, this.func_70047_e(), 0.0),
-                     new Vec3d(this.ai.func_177958_n(), this.ai.func_177956_o(), this.ai.func_177952_p()),
+            if (this.ai != null && this.au == null && this.getNavigator().getPath() == null && !this.inWater && this.onGround) {
+               this.world
+                  .rayTraceBlocks(
+                     this.getPositionVector().add(0.0, this.getEyeHeight(), 0.0),
+                     new Vec3d(this.ai.getX(), this.ai.getY(), this.ai.getZ()),
                      true
                   );
-               this.func_174810_b(true);
+               this.setSilent(true);
                if (this.z != null) {
-                  this.field_70714_bg.func_85156_a(this.z);
+                  this.tasks.removeTask(this.z);
                   this.z = null;
                }
 
                if (this.o != null) {
-                  this.field_70714_bg.func_85156_a(this.o);
+                  this.tasks.removeTask(this.o);
                   this.o = null;
                }
 
                if (this.getCurrentAction() == fp.NULL) {
                   this.b(fp.FISHING_START);
-                  this.setTargetPosition(this.func_174791_d());
-                  this.m.func_187227_b(G, true);
+                  this.setTargetPosition(this.getPositionVector());
+                  this.m.set(G, true);
                   this.setYawRotation(
-                     (float)Math.atan2(this.field_70161_v - this.ai.func_177952_p(), this.field_70165_t - this.ai.func_177958_n()) * (float) (180.0 / Math.PI)
+                     (float)Math.atan2(this.posZ - this.ai.getZ(), this.posX - this.ai.getX()) * (float) (180.0 / Math.PI)
                         + 90.0F
                   );
                }
             } else {
-               this.au = this.func_70661_as().func_75505_d();
+               this.au = this.getNavigator().getPath();
             }
          }
       } else {
-         if ((Boolean)this.m.func_187225_a(af)) {
+         if ((Boolean)this.m.get(af)) {
             this.q_clash387();
          }
       }
@@ -518,30 +518,30 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    void e_clash391() {
       if (this.ai != null) {
-         PathNavigate var1 = this.func_70661_as();
-         var1.func_75492_a(this.ai.func_177958_n(), this.ai.func_177956_o(), this.ai.func_177952_p(), 0.35F);
-         Path var2 = var1.func_75505_d();
+         PathNavigate var1 = this.getNavigator();
+         var1.tryMoveToXYZ(this.ai.getX(), this.ai.getY(), this.ai.getZ(), 0.35F);
+         Path var2 = var1.getPath();
          if (var2 != null) {
-            if (var2.func_75874_d() > var2.func_75873_e() + 1) {
-               PathPoint var3 = var2.func_75877_a(var2.func_75873_e() + 1);
-               PathPoint var4 = var2.func_75877_a(var2.func_75874_d() - 1);
-               Vec3d var5 = new Vec3d(var4.field_75839_a, var4.field_75837_b, var4.field_75838_c);
-               BlockPos var6 = new BlockPos(var3.field_75839_a, var3.field_75837_b, var3.field_75838_c);
-               if (this.func_174791_d().func_72438_d(var5) < 0.75) {
-                  var1.func_75499_g();
-                  this.func_70107_b(var5.field_72450_a, var5.field_72448_b, var5.field_72449_c);
+            if (var2.getCurrentPathLength() > var2.getCurrentPathIndex() + 1) {
+               PathPoint var3 = var2.getPathPointFromIndex(var2.getCurrentPathIndex() + 1);
+               PathPoint var4 = var2.getPathPointFromIndex(var2.getCurrentPathLength() - 1);
+               Vec3d var5 = new Vec3d(var4.x, var4.y, var4.z);
+               BlockPos var6 = new BlockPos(var3.x, var3.y, var3.z);
+               if (this.getPositionVector().distanceTo(var5) < 0.75) {
+                  var1.clearPath();
+                  this.setPosition(var5.x, var5.y, var5.z);
                }
 
-               if (this.field_70170_p.func_180495_p(var6.func_177982_a(0, 1, 0)).func_177230_c() == Blocks.field_150355_j) {
-                  var1.func_75499_g();
+               if (this.world.getBlockState(var6.add(0, 1, 0)).getBlock() == Blocks.WATER) {
+                  var1.clearPath();
                }
 
-               if (this.field_70170_p.func_180495_p(var6).func_177230_c() == Blocks.field_150355_j) {
-                  var1.func_75499_g();
+               if (this.world.getBlockState(var6).getBlock() == Blocks.WATER) {
+                  var1.clearPath();
                }
 
-               if (this.field_70170_p.func_180495_p(var6.func_177982_a(0, -1, 0)).func_177230_c() == Blocks.field_150355_j) {
-                  var1.func_75499_g();
+               if (this.world.getBlockState(var6.add(0, -1, 0)).getBlock() == Blocks.WATER) {
+                  var1.clearPath();
                }
             }
          }
@@ -555,20 +555,20 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
       while (++var1 < 50) {
          BlockPos var4 = this.a(
-            this.func_180425_c(),
+            this.getPosition(),
             var1 + 1,
-            Blocks.field_150355_j,
+            Blocks.WATER,
             60,
             10,
             new HashSet<>(
                Arrays.asList(
-                  Biomes.field_76781_i,
-                  Biomes.field_76771_b,
-                  Biomes.field_150575_M,
-                  Biomes.field_76787_r,
-                  Biomes.field_150576_N,
-                  Biomes.field_76780_h,
-                  Biomes.field_150599_m
+                  Biomes.RIVER,
+                  Biomes.OCEAN,
+                  Biomes.DEEP_OCEAN,
+                  Biomes.BEACH,
+                  Biomes.STONE_BEACH,
+                  Biomes.SWAMPLAND,
+                  Biomes.MUTATED_SWAMPLAND
                )
             )
          );
@@ -576,14 +576,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             break;
          }
 
-         while (this.field_70170_p.func_180495_p(var4.func_177982_a(0, 1, 0)).func_177230_c() == Blocks.field_150355_j) {
-            var4 = var4.func_177982_a(0, 1, 0);
+         while (this.world.getBlockState(var4.add(0, 1, 0)).getBlock() == Blocks.WATER) {
+            var4 = var4.add(0, 1, 0);
          }
 
          int var5 = 1;
 
-         for (BlockPos var6 = var4; this.field_70170_p.func_180495_p(var6.func_177982_a(0, -1, 0)).func_177230_c() == Blocks.field_150355_j; var5++) {
-            var6 = var6.func_177982_a(0, -1, 0);
+         for (BlockPos var6 = var4; this.world.getBlockState(var6.add(0, -1, 0)).getBlock() == Blocks.WATER; var5++) {
+            var6 = var6.add(0, -1, 0);
          }
 
          if (!this.an.contains(var4)) {
@@ -616,14 +616,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    void m_clash393() {
-      Path var1 = this.func_70661_as().func_75505_d();
+      Path var1 = this.getNavigator().getPath();
       if (var1 != null) {
-         PathPoint var2 = var1.func_75870_c();
+         PathPoint var2 = var1.getFinalPathPoint();
          PathPoint var3 = new PathPoint(
-            ThreadNames.a_clash169(this.field_70165_t), ThreadNames.a_clash169(this.field_70163_u), ThreadNames.a_clash169(this.field_70161_v)
+            ThreadNames.a_clash169(this.posX), ThreadNames.a_clash169(this.posY), ThreadNames.a_clash169(this.posZ)
          );
          if (var2 != null) {
-            this.m.func_187227_b(Y, var2.func_75829_a(var3));
+            this.m.set(Y, var2.distanceTo(var3));
          }
       }
    }
@@ -674,7 +674,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    protected void U() {
-      switch ((String)this.m.func_187225_a(h)) {
+      switch ((String)this.m.get(h)) {
          case "touch_boobs":
             if (this.getCurrentAction() != fp.PAYMENT) {
                this.b(fp.PAYMENT);
@@ -696,35 +696,35 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             this.b(fp.HEAD_PAT);
       }
 
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          this.changeDataParameterFromClient("animationFollowUp", "");
       } else {
-         this.m.func_187227_b(h, "");
+         this.m.set(h, "");
       }
    }
 
-   protected void func_184581_c(DamageSource var1) {
+   protected void playHurtSound(DamageSource var1) {
       this.a(SoundHandler.GIRLS_LUNA_OUU);
    }
 
    @Nullable
-   protected SoundEvent func_184615_bR() {
-      return this.func_70681_au().nextFloat() * 100.0F > 95.0F ? SoundHandler.GIRLS_ALLIE_SCAWY[2] : SoundHandler.GIRLS_LUNA_OUU[12];
+   protected SoundEvent getDeathSound() {
+      return this.getRNG().nextFloat() * 100.0F > 95.0F ? SoundHandler.GIRLS_ALLIE_SCAWY[2] : SoundHandler.GIRLS_LUNA_OUU[12];
    }
 
    @Override
-   protected void func_110147_ax() {
-      super.func_110147_ax();
-      this.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111128_a(1.0);
+   protected void applyEntityAttributes() {
+      super.applyEntityAttributes();
+      this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(1.0);
    }
 
-   protected float func_175134_bD() {
-      return this.func_70090_H() ? 1.0F : 0.5F;
+   protected float getJumpUpwardsMotion() {
+      return this.isInWater() ? 1.0F : 0.5F;
    }
 
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.field_70170_p instanceof SexWorldClient) {
+      if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
 
@@ -739,16 +739,16 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.cat.null", true, var1);
-            } else if (this.func_184218_aH()) {
+            } else if (this.isRiding()) {
                this.a("animation.cat.sit", true, var1);
-            } else if (Math.abs(this.field_70169_q - this.field_70165_t) + Math.abs(this.field_70166_s - this.field_70161_v) > 0.0) {
-               if (this.field_70122_E && Math.abs(Math.abs(this.field_70167_r) - Math.abs(this.field_70163_u)) < 0.1F) {
-                  this.a(this.m.func_187225_a(Y) < 3.0F ? "animation.cat.walk" : "animation.cat.run", true, var1);
+            } else if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
+               if (this.onGround && Math.abs(Math.abs(this.prevPosY) - Math.abs(this.posY)) < 0.1F) {
+                  this.a(this.m.get(Y) < 3.0F ? "animation.cat.walk" : "animation.cat.run", true, var1);
                } else {
                   this.a("animation.cat.fly", true, var1);
                }
 
-               this.field_70177_z = this.field_70759_as;
+               this.rotationYaw = this.rotationYawHead;
             } else {
                this.a("animation.cat.idle" + (this.ad ? "2" : ""), true, var1);
             }
@@ -833,7 +833,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackSound":
-               this.a(SoundEvents.field_187727_dV);
+               this.a(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
                break;
             case "attackDone":
                this.b(fp.NULL);
@@ -842,7 +842,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "idleDone":
-               this.ad = this.func_70681_au().nextInt(10) == 0;
+               this.ad = this.getRNG().nextInt(10) == 0;
                break;
             case "idle2Done":
                this.ad = false;
@@ -863,21 +863,21 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "eat":
                this.a(
                   SoundHandler.randomSound(SoundHandler.MISC_EAT),
-                  0.5F + 0.5F * this.field_70146_Z.nextInt(2),
-                  (this.field_70146_Z.nextFloat() - this.field_70146_Z.nextFloat()) * 0.2F + 1.0F
+                  0.5F + 0.5F * this.rand.nextInt(2),
+                  (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F
                );
                this.aa -= 0.33333334F;
                break;
             case "eatPay":
                this.a(
                   SoundHandler.randomSound(SoundHandler.MISC_EAT),
-                  0.5F + 0.5F * this.field_70146_Z.nextInt(2),
-                  (this.field_70146_Z.nextFloat() - this.field_70146_Z.nextFloat()) * 0.2F + 1.0F
+                  0.5F + 0.5F * this.rand.nextInt(2),
+                  (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F
                );
                this.n -= 0.33333334F;
                break;
             case "burp":
-               this.a(SoundEvents.field_187739_dZ, 0.5F, this.field_70146_Z.nextFloat() * 0.1F + 0.9F);
+               this.a(SoundEvents.ENTITY_PLAYER_BURP, 0.5F, this.rand.nextFloat() * 0.1F + 0.9F);
                break;
             case "eatingDone":
                if (this.isLocalPlayerNearby()) {
@@ -910,7 +910,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "paymentMSG3":
                this.sendChatMessage("nyyyaaaa~ :D");
                int[] var4 = new int[]{1, 7, 10, 11};
-               int var5 = var4[this.func_70681_au().nextInt(var4.length)];
+               int var5 = var4[this.getRNG().nextInt(var4.length)];
                this.a(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
                break;
             case "paymentMSG4":
@@ -1050,8 +1050,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "sitting_slowMSG1":
-               if (this.func_70681_au().nextBoolean()) {
-                  if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
+                  if (this.getRNG().nextBoolean()) {
                      this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                      break;
                   }
@@ -1066,7 +1066,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "sitting_fastMSG1":
-               if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                } else {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
@@ -1081,12 +1081,12 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                   this.b(fp.COWGIRL_SITTING_SLOW);
                   Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
                   Vec3d var9 = ck.rotateByYaw(var8, this.getYawRotation() + 180.0F);
-                  Minecraft.func_71410_x()
-                     .field_71439_g
-                     .func_70107_b(
-                        this.getTargetPosition().field_72450_a + var9.field_72450_a,
-                        this.getTargetPosition().field_72448_b + var9.field_72448_b,
-                        this.getTargetPosition().field_72449_c + var9.field_72449_c
+                  Minecraft.getMinecraft()
+                     .player
+                     .setPosition(
+                        this.getTargetPosition().x + var9.x,
+                        this.getTargetPosition().y + var9.y,
+                        this.getTargetPosition().z + var9.z
                      );
                }
                break;
@@ -1094,12 +1094,12 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                if (this.isControlledByLocalPlayer()) {
                   Vec3d var6 = new Vec3d(0.0, -0.160625, -0.9925);
                   Vec3d var7 = ck.rotateByYaw(var6, this.getYawRotation() + 180.0F);
-                  Minecraft.func_71410_x()
-                     .field_71439_g
-                     .func_70107_b(
-                        this.getTargetPosition().field_72450_a + var7.field_72450_a,
-                        this.getTargetPosition().field_72448_b + var7.field_72448_b,
-                        this.getTargetPosition().field_72449_c + var7.field_72449_c
+                  Minecraft.getMinecraft()
+                     .player
+                     .setPosition(
+                        this.getTargetPosition().x + var7.x,
+                        this.getTargetPosition().y + var7.y,
+                        this.getTargetPosition().z + var7.z
                      );
                }
                break;
@@ -1123,9 +1123,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public void func_70037_a(NBTTagCompound var1) {
-      super.func_70037_a(var1);
-      this.func_189654_d(false);
+   public void readEntityFromNBT(NBTTagCompound var1) {
+      super.readEntityFromNBT(var1);
+      this.setNoGravity(false);
    }
 
 
@@ -1135,7 +1135,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          Entity var2 = var1.getEntity();
          if (var2 instanceof EntityCreeper) {
             EntityCreeper var3 = (EntityCreeper)var2;
-            var3.field_70714_bg.func_75776_a(3, new EntityAIAvoidEntity(var3, LunaEntity.class, 6.0F, 1.0, 1.2));
+            var3.tasks.addTask(3, new EntityAIAvoidEntity(var3, LunaEntity.class, 6.0F, 1.0, 1.2));
          }
       }
    }

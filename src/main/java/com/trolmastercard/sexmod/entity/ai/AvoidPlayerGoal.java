@@ -29,11 +29,11 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
          return true;
       }
 
-      BlockPos var1 = this.a.func_180425_c();
+      BlockPos var1 = this.a.getPosition();
       BlockPos var2 = new BlockPos(this.b, this.b, this.b);
 
-      for (GalathEntity var5 : this.a.field_70170_p.func_72872_a(GalathEntity.class, new AxisAlignedBB(var1.func_177971_a(var2), var1.func_177973_b(var2)))) {
-         if (!var5.field_70170_p.field_72995_K && !var5.field_70128_L && var5.k_clash637()) {
+      for (GalathEntity var5 : this.a.world.getEntitiesWithinAABB(GalathEntity.class, new AxisAlignedBB(var1.add(var2), var1.subtract(var2)))) {
+         if (!var5.world.isRemote && !var5.isDead && var5.k_clash637()) {
             return true;
          }
       }
@@ -41,22 +41,22 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
       return false;
    }
 
-   public boolean func_75250_a() {
-      return this.a_clash220() ? false : super.func_75250_a();
+   public boolean shouldExecute() {
+      return this.a_clash220() ? false : super.shouldExecute();
    }
 
-   public boolean func_75253_b() {
-      return this.a_clash220() ? false : super.func_75253_b();
+   public boolean shouldContinueExecuting() {
+      return this.a_clash220() ? false : super.shouldContinueExecuting();
    }
 
-   public void func_75249_e() {
-      this.a.func_184212_Q().func_187227_b(ManglelieEntity.ar, true);
-      super.func_75249_e();
+   public void startExecuting() {
+      this.a.getDataManager().set(ManglelieEntity.ar, true);
+      super.startExecuting();
    }
 
-   public void func_75251_c() {
-      this.a.func_184212_Q().func_187227_b(ManglelieEntity.ar, false);
-      super.func_75251_c();
+   public void resetTask() {
+      this.a.getDataManager().set(ManglelieEntity.ar, false);
+      super.resetTask();
    }
 
 }

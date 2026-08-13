@@ -76,9 +76,9 @@ public class ad {
                   return;
                }
 
-               Minecraft.func_71410_x()
-                  .field_71439_g
-                  .func_145747_a(new TextComponentString(String.format("%sSet dev float N.%s from %s to %s", TextFormatting.GRAY, var4, b[var4], var5)));
+               Minecraft.getMinecraft()
+                  .player
+                  .sendMessage(new TextComponentString(String.format("%sSet dev float N.%s from %s to %s", TextFormatting.GRAY, var4, b[var4], var5)));
                b[var4] = var5;
                var1.setCanceled(true);
             }
@@ -104,9 +104,9 @@ public class ad {
                   return;
                }
 
-               Minecraft.func_71410_x()
-                  .field_71439_g
-                  .func_145747_a(new TextComponentString(String.format("%sdev float N.%s is %s", TextFormatting.YELLOW, var4, b[var4])));
+               Minecraft.getMinecraft()
+                  .player
+                  .sendMessage(new TextComponentString(String.format("%sdev float N.%s is %s", TextFormatting.YELLOW, var4, b[var4])));
                var1.setCanceled(true);
             }
          }
@@ -117,7 +117,7 @@ public class ad {
    @SubscribeEvent
    public void a(LivingHurtEvent var1) {
       if (a_clash64()) {
-         EntityPlayerSP var2 = Minecraft.func_71410_x().field_71439_g;
+         EntityPlayerSP var2 = Minecraft.getMinecraft().player;
          EntityLivingBase var3 = var1.getEntityLiving();
          if (var3 instanceof KoboldEntity) {
             KoboldEntity var4 = (KoboldEntity)var3;
@@ -144,7 +144,7 @@ public class ad {
 
             boolean var13 = false;
 
-            for (Entry var16 : KoboldManager.a_clash91(var5, var2.field_70170_p).entrySet()) {
+            for (Entry var16 : KoboldManager.a_clash91(var5, var2.world).entrySet()) {
                if (((UUID)var16.getKey()).equals(var4.getGirlId())) {
                   var13 = true;
                }
@@ -161,17 +161,17 @@ public class ad {
    public void d(ClientChatEvent var1) {
       if (a_clash64()) {
          String var2 = var1.getOriginalMessage().toLowerCase();
-         EntityPlayerSP var3 = Minecraft.func_71410_x().field_71439_g;
+         EntityPlayerSP var3 = Minecraft.getMinecraft().player;
          if ("time".equals(var2)) {
-            var3.func_145747_a(new TextComponentString(String.valueOf(var3.field_70170_p.func_82737_E())));
+            var3.sendMessage(new TextComponentString(String.valueOf(var3.world.getTotalWorldTime())));
          }
 
          if ("girls".equals(var2)) {
-            List var4 = var3.field_70170_p.func_175644_a(BaseGirlEntity.class, var0 -> true);
-            var3.func_145747_a(new TextComponentString(String.valueOf(var4.size())));
+            List var4 = var3.world.getEntities(BaseGirlEntity.class, var0 -> true);
+            var3.sendMessage(new TextComponentString(String.valueOf(var4.size())));
 
             for (BaseGirlEntity var6 : (java.util.Collection<BaseGirlEntity>) (var4) ) {
-               System.out.printf("%s at %s %s %s\n", var6, var6.field_70165_t, var6.field_70163_u, var6.field_70161_v);
+               System.out.printf("%s at %s %s %s\n", var6, var6.posX, var6.posY, var6.posZ);
             }
          }
 
@@ -184,21 +184,21 @@ public class ad {
                   String.format(
                      "alive member %s at %s world.isremote? %s isdead %s girlID %s entityID %s",
                      var8.getDisplayNameText(),
-                     var8.func_180425_c(),
-                     var8.field_70170_p.field_72995_K,
-                     var8.field_70128_L,
+                     var8.getPosition(),
+                     var8.world.isRemote,
+                     var8.isDead,
                      var8.getGirlId(),
-                     var8.func_145782_y()
+                     var8.getEntityId()
                   )
                );
                this.a_clash65(
-                  var3.field_70170_p.func_72872_a(KoboldEntity.class, new AxisAlignedBB(var8.func_180425_c())).isEmpty()
+                  var3.world.getEntitiesWithinAABB(KoboldEntity.class, new AxisAlignedBB(var8.getPosition())).isEmpty()
                      ? "couldn't be located"
                      : "appears to actually exist"
                );
             }
 
-            HashMap var16 = KoboldManager.a_clash91(var11, var3.field_70170_p);
+            HashMap var16 = KoboldManager.a_clash91(var11, var3.world);
 
             for (Entry var9 : (java.util.Set<Entry>) var16.entrySet()) {
                this.a_clash65(String.format("saved pos of %s at %s", ((UUID)var9.getKey()).toString(), ((BlockPos)var9.getValue()).toString()));
@@ -220,14 +220,14 @@ public class ad {
             }
 
             GirlSavedData.a(var3.getPersistentID(), var14);
-            var3.func_145747_a(new TextComponentString("set to: " + var14));
+            var3.sendMessage(new TextComponentString("set to: " + var14));
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
    void a_clash65(String var1) {
-      Minecraft.func_71410_x().field_71439_g.func_145747_a(new TextComponentString(var1));
+      Minecraft.getMinecraft().player.sendMessage(new TextComponentString(var1));
    }
 
 }

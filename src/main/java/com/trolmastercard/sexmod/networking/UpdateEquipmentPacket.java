@@ -49,7 +49,7 @@ public class UpdateEquipmentPacket implements IMessage {
             System.out.println("received an invalid message @UpdateEquipment :(");
             return null;
          } else {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.c)) {
                   if (var3 instanceof AbstractGirlNpcEntity) {
                      ((AbstractGirlNpcEntity)var3).Q.deserializeNBT(var1.b);

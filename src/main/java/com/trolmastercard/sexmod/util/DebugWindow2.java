@@ -48,13 +48,13 @@ public class DebugWindow2 extends JFrame {
       JTextPane var2 = new JTextPane();
       var2.setFont(new Font("Tahoma", 0, 16));
       var2.setBackground(SystemColor.control);
-      var2.setText(I18n.func_135052_a("window.pornwarning.title", new Object[0]));
+      var2.setText(I18n.format("window.pornwarning.title", new Object[0]));
       var1.add(var2);
       JPanel var3 = new JPanel();
       this.c.add(var3, "South");
-      JCheckBox var4 = new JCheckBox(I18n.func_135052_a("window.pornwarning.dontaskagain", new Object[0]));
+      JCheckBox var4 = new JCheckBox(I18n.format("window.pornwarning.dontaskagain", new Object[0]));
       var3.add(var4);
-      JButton var5 = new JButton(I18n.func_135052_a("window.pornwarning.am18", new Object[0]));
+      JButton var5 = new JButton(I18n.format("window.pornwarning.am18", new Object[0]));
       var5.addActionListener(var1x -> {
          a = false;
          if (var4.isSelected()) {
@@ -72,7 +72,7 @@ public class DebugWindow2 extends JFrame {
          b.dispose();
       });
       var3.add(var5);
-      JButton var6 = new JButton(I18n.func_135052_a("window.pornwarning.not18", new Object[0]));
+      JButton var6 = new JButton(I18n.format("window.pornwarning.not18", new Object[0]));
       var6.addActionListener(var0 -> {
          a = false;
          System.out.println("MINOR!!! WHEOO WOOO WHEEE WHOOO WHEEE WHOO");
@@ -108,7 +108,7 @@ public class DebugWindow2 extends JFrame {
       var8.setContentType("text/html");
       var8.setBackground(SystemColor.control);
       var8.setEditable(false);
-      var8.setText("<html><center><p style='font-family: Tahoma'>" + I18n.func_135052_a("window.pornwarning.text", new Object[0]) + "</p></center></html> ");
+      var8.setText("<html><center><p style='font-family: Tahoma'>" + I18n.format("window.pornwarning.text", new Object[0]) + "</p></center></html> ");
       var7.add(var8);
    }
 }

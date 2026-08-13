@@ -108,7 +108,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
          "assholeCoverUp2"
       )
    );
-   Minecraft w = Minecraft.func_71410_x();
+   Minecraft w = Minecraft.getMinecraft();
    Vector3f v;
 
    public KoboldRenderer(RenderManager var1, AnimatedGeoModel var2, double var3) {
@@ -117,9 +117,9 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
 
    @Override
    protected Vec3i getBoneColor(String var1) {
-      EntityDataManager var2 = this.j.func_184212_Q();
-      EyeAndKoboldColor var3 = EyeAndKoboldColor.valueOf((String)var2.func_187225_a(KoboldEntity.N));
-      BlockPos var4 = (BlockPos)var2.func_187225_a(KoboldEntity.K);
+      EntityDataManager var2 = this.j.getDataManager();
+      EyeAndKoboldColor var3 = EyeAndKoboldColor.valueOf((String)var2.get(KoboldEntity.N));
+      BlockPos var4 = (BlockPos)var2.get(KoboldEntity.K);
       if (t.contains(var1)) {
          return var3.getMainColor();
       } else if (u.contains(var1)) {
@@ -133,25 +133,25 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    protected ItemStack a_clash341(@Nullable ItemStack var1) {
       switch (this.j.getCurrentAction()) {
          case MINE:
-            if ((Boolean)this.j.func_184212_Q().func_187225_a(KoboldEntity.at)) {
-               return new ItemStack(Items.field_151036_c);
+            if ((Boolean)this.j.getDataManager().get(KoboldEntity.at)) {
+               return new ItemStack(Items.IRON_AXE);
             }
 
-            return new ItemStack(Items.field_151035_b);
+            return new ItemStack(Items.IRON_PICKAXE);
          case NULL:
-            if ((Boolean)this.j.func_184212_Q().func_187225_a(KoboldEntity.aC)) {
-               return new ItemStack(Items.field_151040_l);
+            if ((Boolean)this.j.getDataManager().get(KoboldEntity.aC)) {
+               return new ItemStack(Items.IRON_SWORD);
             }
          default:
             return var1;
          case ATTACK:
-            return new ItemStack(Items.field_151040_l);
+            return new ItemStack(Items.IRON_SWORD);
       }
    }
 
    @Override
    public void a(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
-      if (!(this.j.field_70170_p instanceof SexWorldClient)) {
+      if (!(this.j.world instanceof SexWorldClient)) {
          String var9 = var2.getName();
          if ("blowOpening".equals(var9)) {
             var7 = 0.0;
@@ -171,29 +171,29 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
 
    @Override
    protected void d_clash331() {
-      float var1 = 0.25F - (Float)this.j.func_184212_Q().func_187225_a(KoboldPlayerEntity.aA);
-      GlStateManager.func_179152_a(1.0F - var1, 1.0F - var1, 1.0F - var1);
+      float var1 = 0.25F - (Float)this.j.getDataManager().get(KoboldPlayerEntity.aA);
+      GlStateManager.scale(1.0F - var1, 1.0F - var1, 1.0F - var1);
    }
 
    @Override
    protected void b_clash332() {
-      float var1 = 0.25F - (Float)this.j.func_184212_Q().func_187225_a(KoboldPlayerEntity.aA);
+      float var1 = 0.25F - (Float)this.j.getDataManager().get(KoboldPlayerEntity.aA);
       double var2 = 1.0 / (1.0 - var1);
-      GlStateManager.func_179139_a(var2, var2, var2);
+      GlStateManager.scale(var2, var2, var2);
    }
 
    @Override
    protected ItemStack a_clash340() {
-      String var1 = (String)this.j.func_184212_Q().func_187225_a(BaseGirlEntity.h);
+      String var1 = (String)this.j.getDataManager().get(BaseGirlEntity.h);
       if ("STARTBLOWJOB".equals(var1)) {
-         return new ItemStack(Items.field_151035_b);
+         return new ItemStack(Items.IRON_PICKAXE);
       } else {
-         return "ANAL_START".equals(var1) ? new ItemStack(Items.field_151043_k, 3) : null;
+         return "ANAL_START".equals(var1) ? new ItemStack(Items.GOLD_INGOT, 3) : null;
       }
    }
 
    public void a(KoboldEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      String var10 = (String)var1.func_184212_Q().func_187225_a(AbstractNpcOnlyEntity.N);
+      String var10 = (String)var1.getDataManager().get(AbstractNpcOnlyEntity.N);
       if (var1.as == null) {
          var1.as = var10;
       }
@@ -209,14 +209,14 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
 
    @Override
    protected void a_clash199(double var1, double var3, double var5) {
-      EntityDataManager var7 = this.j.func_184212_Q();
-      String var8 = (String)var7.func_187225_a(KoboldEntity.aU);
+      EntityDataManager var7 = this.j.getDataManager();
+      String var8 = (String)var7.get(KoboldEntity.aU);
       if ("null".equals(var8)) {
          super.a_clash199(var1, var3, var5);
       } else {
-         EyeAndKoboldColor var9 = EyeAndKoboldColor.valueOf((String)var7.func_187225_a(KoboldEntity.N));
+         EyeAndKoboldColor var9 = EyeAndKoboldColor.valueOf((String)var7.get(KoboldEntity.N));
          var8 = var9.getTextColor() + " -" + var8 + "-";
-         this.func_147906_a(this.j, this.j.ab_clash540() + var8, var1, var3 + this.j.i_clash226(), var5, 300);
+         this.renderLivingLabel(this.j, this.j.ab_clash540() + var8, var1, var3 + this.j.i_clash226(), var5, 300);
       }
    }
 

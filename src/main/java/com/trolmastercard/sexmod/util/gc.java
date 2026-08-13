@@ -5,9 +5,9 @@ import net.minecraft.util.math.Vec3d;
 
 public class gc {
    public static double a_clash740(Vec3d var0, Vec3d var1) {
-      double var2 = var1.field_72450_a - var0.field_72450_a;
-      double var4 = var1.field_72448_b - var0.field_72448_b;
-      double var6 = var1.field_72449_c - var0.field_72449_c;
+      double var2 = var1.x - var0.x;
+      double var4 = var1.y - var0.y;
+      double var6 = var1.z - var0.z;
       return Math.atan2(var6, Math.sqrt(var2 * var2 + var4 * var4));
    }
 

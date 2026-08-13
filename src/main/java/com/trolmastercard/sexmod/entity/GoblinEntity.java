@@ -122,44 +122,44 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    static final Vector2f aS = new Vector2f(0.5F, 0.99F);
    static final HashSet<Item> ag = new HashSet<>(
       Arrays.asList(
-         Items.field_151013_M,
-         Items.field_151136_bY,
-         Items.field_151043_k,
-         Items.field_151153_ao,
-         Items.field_151006_E,
-         Items.field_151011_C,
-         Items.field_151005_D,
-         Items.field_151010_B,
-         Items.field_151150_bK,
-         Items.field_151169_ag,
-         Items.field_151151_aj,
-         Items.field_151171_ah,
-         Items.field_151149_ai,
-         Items.field_151043_k,
-         Items.field_151074_bl,
-         Item.func_150898_a(Blocks.field_150340_R),
-         Item.func_150898_a(Blocks.field_150352_o)
+         Items.GOLDEN_HOE,
+         Items.GOLDEN_HORSE_ARMOR,
+         Items.GOLD_INGOT,
+         Items.GOLDEN_APPLE,
+         Items.GOLDEN_AXE,
+         Items.GOLDEN_SHOVEL,
+         Items.GOLDEN_PICKAXE,
+         Items.GOLDEN_SWORD,
+         Items.GOLDEN_CARROT,
+         Items.GOLDEN_HELMET,
+         Items.GOLDEN_BOOTS,
+         Items.GOLDEN_CHESTPLATE,
+         Items.GOLDEN_LEGGINGS,
+         Items.GOLD_INGOT,
+         Items.GOLD_NUGGET,
+         Item.getItemFromBlock(Blocks.GOLD_BLOCK),
+         Item.getItemFromBlock(Blocks.GOLD_ORE)
       )
    );
-   public static final DataParameter<String> Q = EntityDataManager.func_187226_a(GoblinEntity.class, DataSerializers.field_187194_d)
-      .func_187156_b()
-      .func_187161_a(122);
-   public static final DataParameter<String> aK = EntityDataManager.func_187226_a(GoblinEntity.class, DataSerializers.field_187194_d)
-      .func_187156_b()
-      .func_187161_a(123);
-   public static final DataParameter<ItemStack> a0 = EntityDataManager.func_187226_a(GoblinEntity.class, DataSerializers.field_187196_f)
-      .func_187156_b()
-      .func_187161_a(124);
-   public static final DataParameter<Boolean> aC = EntityDataManager.func_187226_a(GoblinEntity.class, DataSerializers.field_187198_h)
-      .func_187156_b()
-      .func_187161_a(125);
-   public static final DataParameter<Boolean> aV = EntityDataManager.func_187226_a(GoblinEntity.class, DataSerializers.field_187198_h)
-      .func_187156_b()
-      .func_187161_a(126);
+   public static final DataParameter<String> Q = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.STRING)
+      .getSerializer()
+      .createKey(122);
+   public static final DataParameter<String> aK = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.STRING)
+      .getSerializer()
+      .createKey(123);
+   public static final DataParameter<ItemStack> a0 = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.ITEM_STACK)
+      .getSerializer()
+      .createKey(124);
+   public static final DataParameter<Boolean> aC = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.BOOLEAN)
+      .getSerializer()
+      .createKey(125);
+   public static final DataParameter<Boolean> aV = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.BOOLEAN)
+      .getSerializer()
+      .createKey(126);
    public boolean aX = false;
    public float ac = 0.0F;
    public long av = -1L;
-   public Vec3d al = Vec3d.field_186680_a;
+   public Vec3d al = Vec3d.ZERO;
    List<UUID> T = new ArrayList<>();
    int aO = 31520;
    int aQ = -1;
@@ -186,19 +186,19 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    public GoblinEntity(World var1) {
       super(var1);
-      this.func_70105_a(aS.x, aS.y);
+      this.setSize(aS.x, aS.y);
    }
 
    public GoblinEntity(World var1, @Nonnull String var2, int var3) {
       this(var1);
-      this.m.func_187227_b(aK, var2);
-      this.m.func_187227_b(M, this.a_clash247(new StringBuilder(), var3));
+      this.m.set(aK, var2);
+      this.m.set(M, this.a_clash247(new StringBuilder(), var3));
    }
 
    public GoblinEntity(World var1, boolean var2, float var3, Vec3d var4) {
       this(var1);
       if (var2) {
-         this.m.func_187227_b(M, this.b_clash242(new StringBuilder()));
+         this.m.set(M, this.b_clash242(new StringBuilder()));
          this.ac = var3;
          this.al = var4;
          this.aX = true;
@@ -206,7 +206,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          this.setYawRotation(var3);
          this.b(fp.SIT);
          this.setAnchored(true);
-         this.func_70107_b(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c);
+         this.setPosition(var4.x, var4.y, var4.z);
       }
    }
 
@@ -214,21 +214,21 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    public void reinitTasks() {
       super.reinitTasks();
       this.setOwnerUUID(null);
-      this.field_70145_X = false;
-      this.func_189654_d(false);
+      this.noClip = false;
+      this.setNoGravity(false);
    }
 
    @Override
-   protected void func_70088_a() {
-      super.func_70088_a();
-      eh var1 = eh.values()[this.func_70681_au().nextInt(eh.values().length)];
-      this.m.func_187214_a(K, new BlockPos(var1.a_clash565()));
-      this.m.func_187214_a(N, ax.name());
-      this.m.func_187214_a(Q, "");
-      this.m.func_187214_a(aK, "");
-      this.m.func_187214_a(a0, ItemStack.field_190927_a);
-      this.m.func_187214_a(aC, false);
-      this.m.func_187214_a(aV, false);
+   protected void entityInit() {
+      super.entityInit();
+      eh var1 = eh.values()[this.getRNG().nextInt(eh.values().length)];
+      this.m.register(K, new BlockPos(var1.a_clash565()));
+      this.m.register(N, ax.name());
+      this.m.register(Q, "");
+      this.m.register(aK, "");
+      this.m.register(a0, ItemStack.EMPTY);
+      this.m.register(aC, false);
+      this.m.register(aV, false);
    }
 
    @Override
@@ -236,14 +236,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       GoblinRenderer.clearBoneColors();
    }
 
-   public void func_70106_y() {
-      super.func_70106_y();
+   public void setDead() {
+      super.setDead();
       this.setOwnerUUID(null);
-      if (!this.field_70170_p.field_72995_K) {
-         ItemStack var1 = (ItemStack)this.m.func_187225_a(a0);
-         if (var1 != ItemStack.field_190927_a) {
-            EntityItem var2 = new EntityItem(this.field_70170_p, this.field_70165_t, this.field_70163_u, this.field_70161_v, var1);
-            this.field_70170_p.func_72838_d(var2);
+      if (!this.world.isRemote) {
+         ItemStack var1 = (ItemStack)this.m.get(a0);
+         if (var1 != ItemStack.EMPTY) {
+            EntityItem var2 = new EntityItem(this.world, this.posX, this.posY, this.posZ, var1);
+            this.world.spawnEntity(var2);
          }
       }
    }
@@ -278,7 +278,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       return "Goblin";
    }
 
-   public float func_70047_e() {
+   public float getEyeHeight() {
       return 0.75F;
    }
 
@@ -290,22 +290,22 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    @Override
    public void setOwnerUUID(UUID var1) {
       if (var1 == null) {
-         this.m.func_187227_b(Q, "");
+         this.m.set(Q, "");
       } else {
-         this.m.func_187227_b(Q, var1.toString());
+         this.m.set(Q, var1.toString());
       }
    }
 
    @Nullable
    @Override
    public UUID getOwnerUUID() {
-      String var1 = (String)this.m.func_187225_a(Q);
+      String var1 = (String)this.m.get(Q);
       if ("".equals(var1)) {
          return null;
       }
 
       try {
-         return UUID.fromString((String)this.m.func_187225_a(Q));
+         return UUID.fromString((String)this.m.get(Q));
       } catch (Exception var3) {
          var3.printStackTrace();
          return null;
@@ -410,7 +410,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
 
       c(var2, Integer.parseInt(getModelCodeParts(this)[9]));
-      this.m.func_187227_b(M, var2.toString());
+      this.m.set(M, var2.toString());
       if (null instanceof ClientProxy) {
          GoblinRenderer.clearBoneColors();
       }
@@ -426,7 +426,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          }
 
          c(var1, Integer.parseInt(getModelCodeParts(this)[9]));
-         this.m.func_187227_b(M, var1.toString());
+         this.m.set(M, var1.toString());
          GoblinRenderer.clearBoneColors();
       }
    }
@@ -446,64 +446,64 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   public void func_70014_b(NBTTagCompound var1) {
-      super.func_70014_b(var1);
-      var1.func_74778_a("bodyColor", (String)this.m.func_187225_a(N));
-      var1.func_74768_a("eyeColorX", ((BlockPos)this.m.func_187225_a(K)).func_177958_n());
-      var1.func_74768_a("eyeColorY", ((BlockPos)this.m.func_187225_a(K)).func_177956_o());
-      var1.func_74768_a("eyeColorZ", ((BlockPos)this.m.func_187225_a(K)).func_177952_p());
-      var1.func_74778_a("model", (String)this.m.func_187225_a(M));
-      var1.func_74778_a("girlID", (String)this.m.func_187225_a(u));
-      var1.func_74778_a("queen", (String)this.m.func_187225_a(aK));
-      var1.func_74757_a("isQueen", this.aX);
-      var1.func_74757_a("isTamed", (Boolean)this.m.func_187225_a(aC));
-      var1.func_74768_a("robTicks", this.aO);
+   public void writeEntityToNBT(NBTTagCompound var1) {
+      super.writeEntityToNBT(var1);
+      var1.setString("bodyColor", (String)this.m.get(N));
+      var1.setInteger("eyeColorX", ((BlockPos)this.m.get(K)).getX());
+      var1.setInteger("eyeColorY", ((BlockPos)this.m.get(K)).getY());
+      var1.setInteger("eyeColorZ", ((BlockPos)this.m.get(K)).getZ());
+      var1.setString("model", (String)this.m.get(M));
+      var1.setString("girlID", (String)this.m.get(u));
+      var1.setString("queen", (String)this.m.get(aK));
+      var1.setBoolean("isQueen", this.aX);
+      var1.setBoolean("isTamed", (Boolean)this.m.get(aC));
+      var1.setInteger("robTicks", this.aO);
       if (this.aX) {
-         var1.func_74757_a("preggo", (Boolean)this.m.func_187225_a(aV));
-         var1.func_74776_a("throneRot", this.ac);
-         var1.func_74780_a("thronePosX", this.al.field_72450_a);
-         var1.func_74780_a("thronePosY", this.al.field_72448_b);
-         var1.func_74780_a("thronePosZ", this.al.field_72449_c);
-         var1.func_74772_a("impregnationTick", this.av);
+         var1.setBoolean("preggo", (Boolean)this.m.get(aV));
+         var1.setFloat("throneRot", this.ac);
+         var1.setDouble("thronePosX", this.al.x);
+         var1.setDouble("thronePosY", this.al.y);
+         var1.setDouble("thronePosZ", this.al.z);
+         var1.setLong("impregnationTick", this.av);
 
          for (int var2 = 0; var2 < this.T.size(); var2++) {
-            var1.func_74778_a("guard" + var2, this.T.get(var2).toString());
+            var1.setString("guard" + var2, this.T.get(var2).toString());
          }
       }
    }
 
    @Override
-   public void func_70037_a(NBTTagCompound var1) {
-      super.func_70037_a(var1);
-      this.aX = var1.func_74767_n("isQueen");
-      this.m.func_187227_b(M, var1.func_74779_i("model"));
-      this.m.func_187227_b(N, var1.func_74779_i("bodyColor"));
+   public void readEntityFromNBT(NBTTagCompound var1) {
+      super.readEntityFromNBT(var1);
+      this.aX = var1.getBoolean("isQueen");
+      this.m.set(M, var1.getString("model"));
+      this.m.set(N, var1.getString("bodyColor"));
       String[] var2 = getModelCodeParts(this);
       if (Integer.parseInt(var2[3]) > 7 || Integer.parseInt(var2[4]) > 7) {
-         this.m.func_187227_b(M, this.a_clash247(new StringBuilder(), this.k_clash270()));
+         this.m.set(M, this.a_clash247(new StringBuilder(), this.k_clash270()));
          Main.LOGGER.log(Level.INFO, "updated an old Goblin");
       }
 
-      this.m.func_187227_b(K, new BlockPos(var1.func_74762_e("eyeColorX"), var1.func_74762_e("eyeColorY"), var1.func_74762_e("eyeColorZ")));
-      this.m.func_187227_b(u, var1.func_74779_i("girlID"));
-      this.m.func_187227_b(aK, var1.func_74779_i("queen"));
-      this.m.func_187227_b(aC, var1.func_74767_n("isTamed"));
-      this.aO = var1.func_74762_e("robTicks");
+      this.m.set(K, new BlockPos(var1.getInteger("eyeColorX"), var1.getInteger("eyeColorY"), var1.getInteger("eyeColorZ")));
+      this.m.set(u, var1.getString("girlID"));
+      this.m.set(aK, var1.getString("queen"));
+      this.m.set(aC, var1.getBoolean("isTamed"));
+      this.aO = var1.getInteger("robTicks");
       if (this.aX) {
-         this.ac = var1.func_74760_g("throneRot");
-         this.al = new Vec3d(var1.func_74769_h("thronePosX"), var1.func_74769_h("thronePosY"), var1.func_74769_h("thronePosZ"));
+         this.ac = var1.getFloat("throneRot");
+         this.al = new Vec3d(var1.getDouble("thronePosX"), var1.getDouble("thronePosY"), var1.getDouble("thronePosZ"));
 
-         for (int var3 = 0; !"".equals(var1.func_74779_i("guard" + var3)); var3++) {
-            this.T.add(UUID.fromString(var1.func_74779_i("guard" + var3)));
+         for (int var3 = 0; !"".equals(var1.getString("guard" + var3)); var3++) {
+            this.T.add(UUID.fromString(var1.getString("guard" + var3)));
          }
 
-         this.m.func_187227_b(aV, var1.func_74767_n("preggo"));
-         this.av = var1.func_74763_f("impregnationTick");
+         this.m.set(aV, var1.getBoolean("preggo"));
+         this.av = var1.getLong("impregnationTick");
       }
    }
 
-   protected boolean func_184645_a(EntityPlayer var1, EnumHand var2) {
-      if (this.field_70170_p.field_72995_K) {
+   protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
+      if (this.world.isRemote) {
          return true;
       }
 
@@ -512,32 +512,32 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
 
       if (this.getCurrentAction() == fp.RUN) {
-         if (this.func_70032_d(var1) > 3.5) {
-            var1.func_146105_b(new TextComponentString("get a bit closer..."), true);
+         if (this.getDistance(var1) > 3.5) {
+            var1.sendStatusMessage(new TextComponentString("get a bit closer..."), true);
          } else {
-            this.setTargetPosition(var1.func_174791_d());
-            this.setYawRotation(var1.field_70177_z);
+            this.setTargetPosition(var1.getPositionVector());
+            this.setYawRotation(var1.rotationYaw);
             this.b(fp.CATCH);
-            this.m.func_187227_b(h, "bj");
+            this.m.set(h, "bj");
             this.setOwnerUUID(var1.getPersistentID());
             this.setInteractionPlayerUUID(var1.getPersistentID());
-            this.func_70661_as().func_75499_g();
-            this.field_70159_w = 0.0;
-            this.field_70181_x = 0.0;
-            this.field_70179_y = 0.0;
+            this.getNavigator().clearPath();
+            this.motionX = 0.0;
+            this.motionY = 0.0;
+            this.motionZ = 0.0;
          }
 
          return true;
       } else {
          if (d_clash248(var1.getPersistentID())) {
-            var1.func_146105_b(new TextComponentString("you are already carrying a Goblin"), true);
+            var1.sendStatusMessage(new TextComponentString("you are already carrying a Goblin"), true);
          } else {
             this.setOwnerUUID(var1.getPersistentID());
             this.b(fp.PICK_UP);
             this.aQ = 45;
             this.setAnchored(false);
-            this.m.func_187227_b(aC, true);
-            this.func_70661_as().func_75499_g();
+            this.m.set(aC, true);
+            this.getNavigator().clearPath();
          }
 
          return true;
@@ -551,7 +551,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
       try {
          for (BaseGirlEntity var2 : BaseGirlEntity.getGirlEntityList()) {
-            if (var2 instanceof IGoblin && !var2.field_70170_p.field_72995_K && !var2.field_70128_L) {
+            if (var2 instanceof IGoblin && !var2.world.isRemote && !var2.isDead) {
                UUID var3 = ((IGoblin)var2).getOwnerUUID();
                if (var0.equals(var3)) {
                   return true;
@@ -565,16 +565,16 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   protected void func_184651_r() {
+   protected void initEntityAI() {
       this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 2.0F, 1.0F);
-      this.field_70714_bg.func_75776_a(0, new EntityAISwimming(this));
-      this.field_70714_bg.func_75776_a(3, new DoorInteractAiGoal(this));
-      this.field_70714_bg.func_75776_a(5, this.o);
+      this.tasks.addTask(0, new EntityAISwimming(this));
+      this.tasks.addTask(3, new DoorInteractAiGoal(this));
+      this.tasks.addTask(5, this.o);
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
+   public void updateAITasks() {
+      super.updateAITasks();
       this.f_clash262();
       a_clash282(this);
       this.m_clash272();
@@ -591,51 +591,51 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       this.n_clash250();
    }
 
-   public boolean func_70067_L() {
+   public boolean canBeCollidedWith() {
       fp var1 = this.getCurrentAction();
       if (var1 == fp.THROWN) {
          return false;
       } else if (var1 == fp.RUN) {
-         return super.func_70067_L();
+         return super.canBeCollidedWith();
       } else if (var1 == fp.AWAIT_PICK_UP) {
-         return super.func_70067_L();
+         return super.canBeCollidedWith();
       } else if (this.getOwnerUUID() != null) {
          return false;
       } else {
-         return var1 != fp.NULL ? false : super.func_70067_L();
+         return var1 != fp.NULL ? false : super.canBeCollidedWith();
       }
    }
 
    void b_clash249(EntityPlayer var1) {
       AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getPersistentID());
-      Vec3d var3 = new Vec3d(var1.field_70165_t, var1.field_70163_u + (var2 == null ? var1.eyeHeight : var2.func_70047_e()), var1.field_70161_v);
-      Vec3d var4 = new Vec3d(this.field_70165_t, this.field_70163_u + this.func_70047_e(), this.field_70161_v);
-      double var5 = var4.func_72438_d(var3);
-      double var7 = var3.field_72448_b - var4.field_72448_b;
-      this.field_70125_A = (float)(-(Math.sin(var7 / var5) * (180.0 / Math.PI)));
+      Vec3d var3 = new Vec3d(var1.posX, var1.posY + (var2 == null ? var1.eyeHeight : var2.getEyeHeight()), var1.posZ);
+      Vec3d var4 = new Vec3d(this.posX, this.posY + this.getEyeHeight(), this.posZ);
+      double var5 = var4.distanceTo(var3);
+      double var7 = var3.y - var4.y;
+      this.rotationPitch = (float)(-(Math.sin(var7 / var5) * (180.0 / Math.PI)));
    }
 
    void n_clash250() {
-      if ((Boolean)this.m.func_187225_a(aC)) {
+      if ((Boolean)this.m.get(aC)) {
          if (this.getInteractionPlayerUUID() == null) {
             if (this.getCurrentAction() == fp.NULL) {
-               EntityPlayer var1 = this.field_70170_p.func_72890_a(this, 15.0);
-               if (var1 != null && var1.func_70032_d(this) < 2.0F) {
+               EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 15.0);
+               if (var1 != null && var1.getDistance(this) < 2.0F) {
                   this.b_clash249(var1);
-                  this.func_70661_as().func_75499_g();
+                  this.getNavigator().clearPath();
                } else {
                   if (this.R == null
-                     || this.func_70011_f(this.R.func_177958_n(), this.R.func_177956_o(), this.R.func_177952_p()) > this.l_clash251()
+                     || this.getDistance(this.R.getX(), this.R.getY(), this.R.getZ()) > this.l_clash251()
                      || this.Y > 100) {
-                     int var2 = (this.func_70681_au().nextBoolean() ? 1 : -1) * this.func_70681_au().nextInt(5);
-                     int var3 = (this.func_70681_au().nextBoolean() ? 1 : -1) * this.func_70681_au().nextInt(5);
-                     int var4 = cj.a(this.field_70170_p, this.func_180425_c().func_177958_n() + var2, this.func_180425_c().func_177952_p() + var3);
-                     this.R = new BlockPos(this.func_180425_c().func_177958_n() + var2, var4, this.func_180425_c().func_177952_p() + var3);
+                     int var2 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
+                     int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
+                     int var4 = cj.a(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
+                     this.R = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
                      this.Y = 0;
                   }
 
-                  if (Math.sqrt(this.R.func_177951_i(this.func_180425_c())) > 2.0) {
-                     this.func_70661_as().func_75492_a(this.R.func_177958_n(), this.R.func_177956_o(), this.R.func_177952_p(), 0.3F);
+                  if (Math.sqrt(this.R.distanceSq(this.getPosition())) > 2.0) {
+                     this.getNavigator().tryMoveToXYZ(this.R.getX(), this.R.getY(), this.R.getZ(), 0.3F);
                      this.tickPathVelocity();
                   } else {
                      this.Y++;
@@ -671,7 +671,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    void o_clash253() {
       if (this.getCurrentAction() == fp.THROWN) {
-         if (this.field_70122_E) {
+         if (this.onGround) {
             int var1 = this.d_clash60() + 1;
             this.a_clash59(var1);
             if (var1 >= 30) {
@@ -684,9 +684,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    void h_clash254() {
       if (this.aX) {
-         if ((Boolean)this.m.func_187225_a(aV)) {
-            if (this.av + 8400L < this.field_70170_p.func_82737_E()) {
-               this.m.func_187227_b(aV, false);
+         if ((Boolean)this.m.get(aV)) {
+            if (this.av + 8400L < this.world.getTotalWorldTime()) {
+               this.m.set(aV, false);
             }
          }
       }
@@ -698,7 +698,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             boolean var1 = false;
 
             for (GoblinEntity var3 : this.ab) {
-               if ((Boolean)var3.func_184212_Q().func_187225_a(aC)) {
+               if ((Boolean)var3.getDataManager().get(aC)) {
                   var1 = true;
                }
             }
@@ -707,7 +707,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                this.h("Farewell my knight. You are welcome once I am breedable again.");
 
                for (GoblinEntity var5 : this.ab) {
-                  if (!(Boolean)var5.func_184212_Q().func_187225_a(aC)) {
+                  if (!(Boolean)var5.getDataManager().get(aC)) {
                      var5.b(fp.VANISH);
                   }
                }
@@ -728,7 +728,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                if (var1 == null) {
                   this.r_clash533();
                } else {
-                  EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
+                  EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
                   if (var2 == null) {
                      this.r_clash533();
                   } else {
@@ -740,9 +740,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
                      List var10 = this.I_clash261();
                      float var11 = this.ac + 180.0F;
-                     Vec3d var5 = this.al.func_178787_e(b(aT, var11));
-                     Vec3d var6 = this.al.func_178787_e(b(ap, var11));
-                     Vec3d var7 = this.al.func_178787_e(b(as, var11));
+                     Vec3d var5 = this.al.add(b(aT, var11));
+                     Vec3d var6 = this.al.add(b(ap, var11));
+                     Vec3d var7 = this.al.add(b(as, var11));
                      GoblinEntity var8 = (GoblinEntity)var10.get(0);
                      GoblinEntity var9 = (GoblinEntity)var10.get(1);
                      var8.setTargetPosition(var5);
@@ -753,15 +753,15 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      var9.setAnchored(true);
                      var8.b(fp.AWAIT_PICK_UP);
                      var9.b(fp.AWAIT_PICK_UP);
-                     var8.func_189654_d(false);
-                     var9.func_189654_d(false);
-                     var2.func_189654_d(false);
-                     var8.field_70145_X = false;
-                     var9.field_70145_X = false;
-                     var2.field_70145_X = false;
-                     var2.field_70177_z = var11;
-                     var2.field_70125_A = 30.0F;
-                     var2.func_70634_a(var7.field_72450_a, var7.field_72448_b, var7.field_72449_c);
+                     var8.setNoGravity(false);
+                     var9.setNoGravity(false);
+                     var2.setNoGravity(false);
+                     var8.noClip = false;
+                     var9.noClip = false;
+                     var2.noClip = false;
+                     var2.rotationYaw = var11;
+                     var2.rotationPitch = 30.0F;
+                     var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
                      PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)var2);
                      this.h(
                         "Thanks to you, my clan is soon going to get a few new members! In return I will bear of one of my guards to serve as your personal Onahole. Choose wisely~"
@@ -780,11 +780,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                this.an = -1;
                UUID var1 = this.getInteractionPlayerUUID();
                if (var1 != null) {
-                  EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
+                  EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
                   if (var2 != null) {
-                     Vec3d var3 = b(new Vec3d(0.0, 0.15625 - var2.func_70047_e(), -0.8859375), this.ac - 180.0F);
-                     var3 = var3.func_178787_e(this.getTargetPosition());
-                     var2.func_70634_a(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
+                     Vec3d var3 = b(new Vec3d(0.0, 0.15625 - var2.getEyeHeight(), -0.8859375), this.ac - 180.0F);
+                     var3 = var3.add(this.getTargetPosition());
+                     var2.setPositionAndUpdate(var3.x, var3.y, var3.z);
                   }
                }
             }
@@ -798,14 +798,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    public static Vec3d a(Vec3d var0, float var1, float var2) {
       Vec3d var3 = new Vec3d(
-         var0.field_72450_a,
-         var0.field_72448_b * Math.cos(var1 * (Math.PI / 180.0)) - var0.field_72449_c * Math.sin(var1 * (Math.PI / 180.0)),
-         var0.field_72448_b * Math.sin(var1 * (Math.PI / 180.0)) + var0.field_72449_c * Math.cos(var1 * (Math.PI / 180.0))
+         var0.x,
+         var0.y * Math.cos(var1 * (Math.PI / 180.0)) - var0.z * Math.sin(var1 * (Math.PI / 180.0)),
+         var0.y * Math.sin(var1 * (Math.PI / 180.0)) + var0.z * Math.cos(var1 * (Math.PI / 180.0))
       );
       return new Vec3d(
-         -Math.sin((var2 + 90.0F) * (Math.PI / 180.0)) * var3.field_72450_a - Math.sin(var2 * (Math.PI / 180.0)) * var3.field_72449_c,
-         var3.field_72448_b,
-         Math.cos((var2 + 90.0F) * (Math.PI / 180.0)) * var3.field_72450_a + Math.cos(var2 * (Math.PI / 180.0)) * var3.field_72449_c
+         -Math.sin((var2 + 90.0F) * (Math.PI / 180.0)) * var3.x - Math.sin(var2 * (Math.PI / 180.0)) * var3.z,
+         var3.y,
+         Math.cos((var2 + 90.0F) * (Math.PI / 180.0)) * var3.x + Math.cos(var2 * (Math.PI / 180.0)) * var3.z
       );
    }
 
@@ -817,32 +817,32 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                Vec3d var1;
                switch ((int)this.ac) {
                   case -90:
-                     var1 = this.al.func_178787_e(at);
+                     var1 = this.al.add(at);
                      break;
                   case 90:
-                     var1 = this.al.func_178787_e(au);
+                     var1 = this.al.add(au);
                      break;
                   case 180:
-                     var1 = this.al.func_178787_e(W);
+                     var1 = this.al.add(W);
                      break;
                   default:
-                     var1 = this.al.func_178787_e(af);
+                     var1 = this.al.add(af);
                }
 
                UUID var2 = this.getInteractionPlayerUUID();
                if (var2 != null) {
-                  EntityPlayer var3 = this.field_70170_p.func_152378_a(var2);
+                  EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
                   if (var3 != null) {
                      this.setTargetPosition(var1);
                      this.setYawRotation(this.ac);
                      this.b(fp.BREEDING_INTRO_0);
-                     this.field_70145_X = true;
-                     this.func_189654_d(true);
+                     this.noClip = true;
+                     this.setNoGravity(true);
                      Vec3d var4 = b(new Vec3d(0.0, 0.44375 - var3.eyeHeight, -0.7875), this.ac - 180.0F);
-                     var3.field_70145_X = true;
-                     var3.func_189654_d(true);
-                     var3.func_70634_a(
-                        var4.field_72450_a + var1.field_72450_a, var4.field_72448_b + var1.field_72448_b, var4.field_72449_c + var1.field_72449_c
+                     var3.noClip = true;
+                     var3.setNoGravity(true);
+                     var3.setPositionAndUpdate(
+                        var4.x + var1.x, var4.y + var1.y, var4.z + var1.z
                      );
                      List var5 = this.I_clash261();
                      if (var5.size() >= 1) {
@@ -850,8 +850,8 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                         var6.setTargetPosition(var1);
                         var6.setYawRotation(this.ac);
                         var6.b(fp.BREEDING_INTRO_1);
-                        var6.field_70145_X = true;
-                        var6.func_189654_d(true);
+                        var6.noClip = true;
+                        var6.setNoGravity(true);
                      }
 
                      if (var5.size() >= 2) {
@@ -859,8 +859,8 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                         var7.setTargetPosition(var1);
                         var7.setYawRotation(this.ac);
                         var7.b(fp.BREEDING_INTRO_2);
-                        var7.field_70145_X = true;
-                        var7.func_189654_d(true);
+                        var7.noClip = true;
+                        var7.setNoGravity(true);
                      }
 
                      this.an = 0;
@@ -872,7 +872,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    AxisAlignedBB a_clash259(Vec3d var1, Vec3d var2) {
-      return new AxisAlignedBB(var1.field_72450_a, var1.field_72448_b, var1.field_72449_c, var2.field_72450_a, var2.field_72448_b, var2.field_72449_c);
+      return new AxisAlignedBB(var1.x, var1.y, var1.z, var2.x, var2.y, var2.z);
    }
 
    void E_clash260() {
@@ -894,21 +894,21 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             }
 
             if (var1 != null) {
-               Vec3d var2 = this.al.func_178786_a(0.5, 0.0, 0.5).func_178788_d(var1);
-               AxisAlignedBB var3 = this.a_clash259(var2, var2.func_72441_c(ah.func_177958_n(), ah.func_177956_o(), ah.func_177952_p()));
-               List var4 = this.field_70170_p.func_72872_a(EntityPlayer.class, var3);
+               Vec3d var2 = this.al.subtract(0.5, 0.0, 0.5).subtract(var1);
+               AxisAlignedBB var3 = this.a_clash259(var2, var2.add(ah.getX(), ah.getY(), ah.getZ()));
+               List var4 = this.world.getEntitiesWithinAABB(EntityPlayer.class, var3);
                if (!var4.isEmpty()) {
                   EntityPlayer var5 = (EntityPlayer)var4.get(0);
-                  if (var5.field_70122_E) {
-                     if ((Boolean)this.m.func_187225_a(aV)) {
-                        if (this.ai + 1200L < this.field_70170_p.func_82737_E()) {
-                           var5.func_146105_b(new TextComponentString("The Queen is still pregnant - so no breeding for you uwu"), true);
-                           this.ai = this.field_70170_p.func_82737_E();
+                  if (var5.onGround) {
+                     if ((Boolean)this.m.get(aV)) {
+                        if (this.ai + 1200L < this.world.getTotalWorldTime()) {
+                           var5.sendStatusMessage(new TextComponentString("The Queen is still pregnant - so no breeding for you uwu"), true);
+                           this.ai = this.world.getTotalWorldTime();
                         }
                      } else {
                         UUID var6 = var5.getPersistentID();
-                        Vec3d var7 = var5.func_174791_d();
-                        float var8 = var5.field_70177_z + 180.0F;
+                        Vec3d var7 = var5.getPositionVector();
+                        float var8 = var5.rotationYaw + 180.0F;
                         PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var5);
                         this.setInteractionPlayerUUID(var6);
                         this.b(fp.JUMP_0);
@@ -946,27 +946,27 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
 
       for (GoblinEntity var2 : this.ab) {
-         this.field_70170_p.func_72900_e(var2);
+         this.world.removeEntity(var2);
       }
 
       this.ab.clear();
-      GoblinEntity var3 = new GoblinEntity(this.field_70170_p, this.getGirlId().toString(), this.k_clash270());
-      var3.func_70107_b(this.field_70165_t, this.field_70163_u, this.field_70161_v);
-      this.field_70170_p.func_72838_d(var3);
+      GoblinEntity var3 = new GoblinEntity(this.world, this.getGirlId().toString(), this.k_clash270());
+      var3.setPosition(this.posX, this.posY, this.posZ);
+      this.world.spawnEntity(var3);
       this.ab.add(var3);
-      GoblinEntity var4 = new GoblinEntity(this.field_70170_p, this.getGirlId().toString(), this.k_clash270());
-      var4.func_70107_b(this.field_70165_t, this.field_70163_u, this.field_70161_v);
-      this.field_70170_p.func_72838_d(var4);
+      GoblinEntity var4 = new GoblinEntity(this.world, this.getGirlId().toString(), this.k_clash270());
+      var4.setPosition(this.posX, this.posY, this.posZ);
+      this.world.spawnEntity(var4);
       this.ab.add(var4);
       return this.ab;
    }
 
    void f_clash262() {
       if (!this.aZ) {
-         this.field_70145_X = false;
-         this.func_189654_d(false);
-         if (!this.aX && !(Boolean)this.m.func_187225_a(aC) && !((String)this.m.func_187225_a(aK)).equals("") && this.getCurrentAction() == fp.NULL) {
-            this.field_70170_p.func_72900_e(this);
+         this.noClip = false;
+         this.setNoGravity(false);
+         if (!this.aX && !(Boolean)this.m.get(aC) && !((String)this.m.get(aK)).equals("") && this.getCurrentAction() == fp.NULL) {
+            this.world.removeEntity(this);
          }
 
          this.aZ = true;
@@ -982,18 +982,18 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             Vec3d var3 = b_clash264(this);
             float var4 = d_clash266(this);
             float var5 = c_clash265(this);
-            this.func_70634_a(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
+            this.setPositionAndUpdate(var3.x, var3.y, var3.z);
             Vec3d var6 = a(new Vec3d(0.0, 0.0, 1.5), var4, var5);
-            this.field_70159_w = var6.field_72450_a;
-            this.field_70181_x = var6.field_72448_b;
-            this.field_70179_y = var6.field_72449_c;
-            if (!this.field_70170_p.field_72995_K) {
+            this.motionX = var6.x;
+            this.motionY = var6.y;
+            this.motionZ = var6.z;
+            if (!this.world.isRemote) {
                this.setYawRotation(var5);
             }
          }
 
-         this.field_70145_X = false;
-         this.func_189654_d(false);
+         this.noClip = false;
+         this.setNoGravity(false);
          if (var2 == 39) {
             this.c_clash57(-1);
             this.b(fp.THROWN);
@@ -1007,13 +1007,13 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       IGoblin var1 = (IGoblin)var0;
       UUID var2 = var1.getOwnerUUID();
       if (var2 == null) {
-         return var0.func_174791_d();
+         return var0.getPositionVector();
       }
 
-      EntityPlayer var3 = var0.field_70170_p.func_152378_a(var2);
+      EntityPlayer var3 = var0.world.getPlayerEntityByUUID(var2);
       return var3 == null
-         ? var0.func_174791_d()
-         : var3.func_174791_d().func_72441_c(0.0, var3.func_70047_e(), 0.0).func_178787_e(a(new Vec3d(0.4F, 0.0, 0.0), d_clash266(var0), c_clash265(var0)));
+         ? var0.getPositionVector()
+         : var3.getPositionVector().add(0.0, var3.getEyeHeight(), 0.0).add(a(new Vec3d(0.4F, 0.0, 0.0), d_clash266(var0), c_clash265(var0)));
    }
 
    public static float c_clash265(BaseGirlEntity var0) {
@@ -1023,8 +1023,8 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          return 0.0F;
       }
 
-      EntityPlayer var3 = var0.field_70170_p.func_152378_a(var2);
-      return var3 == null ? 0.0F : var3.field_70759_as;
+      EntityPlayer var3 = var0.world.getPlayerEntityByUUID(var2);
+      return var3 == null ? 0.0F : var3.rotationYawHead;
    }
 
    public static float d_clash266(BaseGirlEntity var0) {
@@ -1034,27 +1034,27 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          return 0.0F;
       }
 
-      EntityPlayer var3 = var0.field_70170_p.func_152378_a(var2);
-      return var3 == null ? 0.0F : var3.field_70125_A;
+      EntityPlayer var3 = var0.world.getPlayerEntityByUUID(var2);
+      return var3 == null ? 0.0F : var3.rotationPitch;
    }
 
    void J_clash267() {
-      if (this.field_70122_E) {
+      if (this.onGround) {
          if (this.getCurrentAction() == fp.RUN) {
-            EntityPlayer var1 = this.field_70170_p.func_72890_a(this, 100.0);
+            EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 100.0);
             if (var1 != null) {
                double var2 = 20.0;
 
                while (!(var2 <= 0.0)) {
-                  Vec3d var5 = this.func_174791_d().func_178788_d(var1.func_174791_d());
-                  Vec3d var6 = new Vec3d(Math.abs(var5.field_72450_a), Math.abs(var5.field_72448_b), Math.abs(var5.field_72449_c));
-                  double var7 = var6.field_72450_a / (var6.field_72450_a + var6.field_72449_c);
-                  double var9 = var6.field_72449_c / (var6.field_72450_a + var6.field_72449_c);
-                  Vec3d var11 = this.func_174791_d()
-                     .func_178787_e(new Vec3d((var5.field_72450_a > 0.0 ? 1 : -1) * var7 * var2, 0.0, (var5.field_72449_c > 0.0 ? 1 : -1) * var9 * var2));
-                  PathNavigate var12 = this.func_70661_as();
-                  var12.func_75499_g();
-                  boolean var4 = var12.func_75492_a(var11.field_72450_a, var11.field_72448_b, var11.field_72449_c, 0.825F);
+                  Vec3d var5 = this.getPositionVector().subtract(var1.getPositionVector());
+                  Vec3d var6 = new Vec3d(Math.abs(var5.x), Math.abs(var5.y), Math.abs(var5.z));
+                  double var7 = var6.x / (var6.x + var6.z);
+                  double var9 = var6.z / (var6.x + var6.z);
+                  Vec3d var11 = this.getPositionVector()
+                     .add(new Vec3d((var5.x > 0.0 ? 1 : -1) * var7 * var2, 0.0, (var5.z > 0.0 ? 1 : -1) * var9 * var2));
+                  PathNavigate var12 = this.getNavigator();
+                  var12.clearPath();
+                  boolean var4 = var12.tryMoveToXYZ(var11.x, var11.y, var11.z, 0.825F);
                   var2--;
                   if (var4) {
                      return;
@@ -1065,24 +1065,24 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   protected void func_70664_aZ() {
+   protected void jump() {
       if (this.getCurrentAction() != fp.RUN || this.j_clash268()) {
-         super.func_70664_aZ();
+         super.jump();
       }
    }
 
    boolean j_clash268() {
-      PathNavigate var1 = this.func_70661_as();
-      Path var2 = var1.func_75505_d();
+      PathNavigate var1 = this.getNavigator();
+      Path var2 = var1.getPath();
       if (var2 == null) {
          return true;
       } else {
-         int var3 = var2.func_75873_e();
-         int var4 = var2.func_75874_d();
+         int var3 = var2.getCurrentPathIndex();
+         int var4 = var2.getCurrentPathLength();
          if (var4 != var3 && var4 - 1 != var3) {
-            PathPoint var5 = var2.func_75877_a(var3);
-            PathPoint var6 = var2.func_75877_a(var3 + 1);
-            return var6.field_75837_b - var5.field_75837_b == 1;
+            PathPoint var5 = var2.getPathPointFromIndex(var3);
+            PathPoint var6 = var2.getPathPointFromIndex(var3 + 1);
+            return var6.y - var5.y == 1;
          } else {
             return true;
          }
@@ -1091,32 +1091,32 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    void B_clash269() {
       if (this.aX) {
-         if (!(Boolean)this.m.func_187225_a(aC)) {
-            if (!(Boolean)this.m.func_187225_a(aV)) {
+         if (!(Boolean)this.m.get(aC)) {
+            if (!(Boolean)this.m.get(aV)) {
                if (this.getCurrentAction() == fp.SIT) {
                   if (++this.aO >= 32000) {
-                     EntityPlayer var1 = this.field_70170_p.func_72890_a(this, 3000.0);
+                     EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 3000.0);
                      if (var1 != null) {
-                        if (var1.field_70122_E) {
-                           if (!var1.field_70160_al) {
+                        if (var1.onGround) {
+                           if (!var1.isAirBorne) {
                               Integer var2 = this.c_clash271(var1);
                               if (var2 != null) {
-                                 Vec3d var3 = var1.func_174791_d();
-                                 Vec3d var4 = this.func_174791_d();
-                                 Vec3d var5 = var3.func_178788_d(var4);
-                                 double var6 = Math.sqrt(var5.field_72450_a * var5.field_72450_a + var5.field_72449_c * var5.field_72449_c);
+                                 Vec3d var3 = var1.getPositionVector();
+                                 Vec3d var4 = this.getPositionVector();
+                                 Vec3d var5 = var3.subtract(var4);
+                                 double var6 = Math.sqrt(var5.x * var5.x + var5.z * var5.z);
                                  if (!(var6 > 100.0)) {
-                                    ItemStack var8 = var1.field_71071_by.func_70301_a(var2).func_77946_l();
-                                    GoblinEntity var9 = new GoblinEntity(this.field_70170_p, this.getGirlId().toString(), this.k_clash270());
-                                    Vec3d var10 = b(new Vec3d(0.0, 0.0, -0.2F), var1.field_70759_as);
-                                    var9.func_70107_b(var1.field_70165_t + var10.field_72450_a, var1.field_70163_u, var1.field_70161_v + var10.field_72449_c);
+                                    ItemStack var8 = var1.inventory.getStackInSlot(var2).copy();
+                                    GoblinEntity var9 = new GoblinEntity(this.world, this.getGirlId().toString(), this.k_clash270());
+                                    Vec3d var10 = b(new Vec3d(0.0, 0.0, -0.2F), var1.rotationYawHead);
+                                    var9.setPosition(var1.posX + var10.x, var1.posY, var1.posZ + var10.z);
                                     var9.b(fp.RUN);
-                                    this.field_70170_p.func_72838_d(var9);
-                                    var9.m.func_187227_b(a0, var8);
-                                    var1.func_145747_a(
-                                       new TextComponentString(String.format("<%s> I got your %s hehe~", var9.getDisplayNameText(), var8.func_82833_r()))
+                                    this.world.spawnEntity(var9);
+                                    var9.m.set(a0, var8);
+                                    var1.sendMessage(
+                                       new TextComponentString(String.format("<%s> I got your %s hehe~", var9.getDisplayNameText(), var8.getDisplayName()))
                                     );
-                                    var1.field_71071_by.func_70304_b(var2);
+                                    var1.inventory.removeStackFromSlot(var2);
                                     this.aO = 0;
                                  }
                               }
@@ -1136,17 +1136,17 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    @Nullable
    Integer c_clash271(EntityPlayer var1) {
-      NonNullList var2 = var1.field_71071_by.field_70462_a;
+      NonNullList var2 = var1.inventory.mainInventory;
       ArrayList var3 = new ArrayList();
 
       for (int var4 = 0; var4 < var2.size(); var4++) {
          ItemStack var5 = (ItemStack)var2.get(var4);
-         if (var5 != ItemStack.field_190927_a && ag.contains(var5.func_77973_b())) {
+         if (var5 != ItemStack.EMPTY && ag.contains(var5.getItem())) {
             var3.add(var4);
          }
       }
 
-      return var3.isEmpty() ? null : (Integer)var3.get(this.func_70681_au().nextInt(var3.size()));
+      return var3.isEmpty() ? null : (Integer)var3.get(this.getRNG().nextInt(var3.size()));
    }
 
    void m_clash272() {
@@ -1155,30 +1155,30 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             this.setTargetPosition(this.al);
             this.setYawRotation(this.ac);
             this.setAnchored(true);
-            this.func_189654_d(true);
+            this.setNoGravity(true);
             this.b(fp.SIT);
          }
       }
    }
 
    @Override
-   public void func_70071_h_() {
+   public void onUpdate() {
       this.i_clash246();
       e_clash273(this);
       this.e_clash263();
       if (this.getOwnerUUID() != null) {
-         this.field_71087_bX = false;
+         this.inPortal = false;
       }
 
-      super.func_70071_h_();
+      super.onUpdate();
       this.y_clash284();
       this.H_clash275();
       this.F_clash274();
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          this.v_clash276();
          this.A_clash277();
          if (this.getOwnerUUID() != null) {
-            this.field_70145_X = true;
+            this.noClip = true;
          }
       }
    }
@@ -1213,9 +1213,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       var2.a_clash61(var1);
    }
 
-   public void func_70015_d(int var1) {
+   public void setFire(int var1) {
       if (this.getOwnerUUID() == null) {
-         super.func_70015_d(var1);
+         super.setFire(var1);
       }
    }
 
@@ -1223,22 +1223,22 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (this.getCurrentAction() == fp.VANISH) {
          this.ar -= 0.05F;
          if (!(this.ar > 0.0F)) {
-            this.field_70170_p.func_72900_e(this);
+            this.world.removeEntity(this);
          }
       }
    }
 
    void H_clash275() {
-      if (!(Boolean)this.m.func_187225_a(aC)) {
+      if (!(Boolean)this.m.get(aC)) {
          if (this.getCurrentAction() == fp.THROWN) {
-            if (this.field_70122_E || this.func_70090_H()) {
+            if (this.onGround || this.isInWater()) {
                this.ar = (float)(this.ar - 0.05);
                if (!(this.ar > 0.0F)) {
-                  if (!this.field_70170_p.field_72995_K) {
+                  if (!this.world.isRemote) {
                      this.b(fp.NULL);
                      this.setInteractionPlayerUUID(null);
                      this.setOwnerUUID(null);
-                     this.field_70170_p.func_72900_e(this);
+                     this.world.removeEntity(this);
                   }
                }
             }
@@ -1252,7 +1252,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          if (++this.aY == 15) {
             this.aY = -1;
             this.b(fp.PAIZURI_START);
-            Minecraft.func_71410_x().field_71439_g.func_71053_j();
+            Minecraft.getMinecraft().player.closeScreen();
          }
       }
    }
@@ -1263,9 +1263,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          if (++this.az == 15) {
             this.az = -1;
             this.b(fp.NELSON_INTRO);
-            Minecraft var1 = Minecraft.func_71410_x();
-            var1.field_71439_g.func_71053_j();
-            var1.field_71474_y.field_74320_O = 2;
+            Minecraft var1 = Minecraft.getMinecraft();
+            var1.player.closeScreen();
+            var1.gameSettings.thirdPersonView = 2;
          }
       }
    }
@@ -1276,27 +1276,27 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (var2 != fp.PAIZURI_CUM || var1 != fp.PAIZURI_SLOW && var1 != fp.PAIZURI_FAST) {
          if (var2 != fp.NELSON_CUM || var1 != fp.NELSON_SLOW && var1 != fp.NELSON_FAST) {
             if (var2 != fp.BREEDING_CUM_0 || var1 != fp.BREEDING_SLOW_0 && var1 != fp.BREEDING_FAST_0) {
-               if (var1 == fp.START_THROWING && !this.field_70170_p.field_72995_K) {
+               if (var1 == fp.START_THROWING && !this.world.isRemote) {
                   this.setInteractionPlayerUUID(this.getOwnerUUID());
                   this.L_clash281();
                }
 
-               if (var1 == fp.PAIZURI_START && !this.field_70170_p.field_72995_K) {
+               if (var1 == fp.PAIZURI_START && !this.world.isRemote) {
                   this.z_clash280();
                }
 
-               if (var1 == fp.NELSON_INTRO && !this.field_70170_p.field_72995_K) {
+               if (var1 == fp.NELSON_INTRO && !this.world.isRemote) {
                   this.q_clash279();
                }
 
-               if (this.getCurrentAction() == fp.PAIZURI_CUM && var1 == fp.NULL && !this.field_70170_p.field_72995_K) {
+               if (this.getCurrentAction() == fp.PAIZURI_CUM && var1 == fp.NULL && !this.world.isRemote) {
                   this.D_clash278();
                }
 
                if (var1 == fp.BREEDING_CUM_0) {
-                  this.m.func_187227_b(aV, true);
-                  this.av = this.field_70170_p.func_82737_E();
-                  this.ai = this.field_70170_p.func_82737_E();
+                  this.m.set(aV, true);
+                  this.av = this.world.getTotalWorldTime();
+                  this.ai = this.world.getTotalWorldTime();
                }
 
                if (var1 == fp.BREEDING_CUM_0) {
@@ -1304,11 +1304,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
 
                if (var1 == fp.NELSON_CUM) {
-                  this.m.func_187227_b(aV, true);
+                  this.m.set(aV, true);
                }
 
                if (var2 == fp.NELSON_CUM && var1 != fp.NELSON_CUM) {
-                  this.m.func_187227_b(aV, false);
+                  this.m.set(aV, false);
                }
 
                super.b(var1);
@@ -1318,62 +1318,62 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    void D_clash278() {
-      EntityPlayer var1 = this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID());
+      EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
       if (var1 != null) {
          ResetGirlPacket.Handler.a((EntityPlayerMP)var1);
       }
 
       this.setInteractionPlayerUUID(null);
       this.setAnchored(false);
-      this.field_70145_X = false;
-      this.func_189654_d(false);
-      this.m.func_187227_b(a0, ItemStack.field_190927_a);
-      if (!(Boolean)this.m.func_187225_a(aC)) {
-         this.func_70634_a(this.l.field_72450_a, this.l.field_72448_b, this.l.field_72449_c);
-         this.field_70170_p.func_72900_e(this);
+      this.noClip = false;
+      this.setNoGravity(false);
+      this.m.set(a0, ItemStack.EMPTY);
+      if (!(Boolean)this.m.get(aC)) {
+         this.setPositionAndUpdate(this.l.x, this.l.y, this.l.z);
+         this.world.removeEntity(this);
       }
    }
 
    void q_clash279() {
-      EntityPlayer var1 = this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID());
+      EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
       if (var1 != null) {
          this.setOwnerUUID(null);
-         this.setTargetPosition(var1.func_174791_d());
-         this.setYawRotation(var1.field_70177_z);
+         this.setTargetPosition(var1.getPositionVector());
+         this.setYawRotation(var1.rotationYaw);
          this.setAnchored(true);
-         this.field_70145_X = true;
-         this.func_189654_d(true);
-         var1.func_189654_d(true);
-         var1.field_70145_X = true;
+         this.noClip = true;
+         this.setNoGravity(true);
+         var1.setNoGravity(true);
+         var1.noClip = true;
          this.setInteractionPlayerUUID(var1.getPersistentID());
       }
    }
 
    void z_clash280() {
-      EntityPlayer var1 = this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID());
+      EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
       if (var1 != null) {
          this.setOwnerUUID(null);
-         this.setTargetPosition(var1.func_174791_d());
-         this.setYawRotation(var1.field_70177_z + 180.0F);
+         this.setTargetPosition(var1.getPositionVector());
+         this.setYawRotation(var1.rotationYaw + 180.0F);
          this.setAnchored(true);
-         this.field_70145_X = true;
-         this.func_189654_d(true);
-         var1.func_189654_d(true);
-         var1.field_70145_X = true;
+         this.noClip = true;
+         this.setNoGravity(true);
+         var1.setNoGravity(true);
+         var1.noClip = true;
          this.setInteractionPlayerUUID(var1.getPersistentID());
-         var1.func_70634_a(var1.field_70165_t, var1.field_70163_u - 0.5, var1.field_70161_v);
-         var1.field_70125_A = 70.0F;
-         var1.field_70127_C = 70.0F;
+         var1.setPositionAndUpdate(var1.posX, var1.posY - 0.5, var1.posZ);
+         var1.rotationPitch = 70.0F;
+         var1.prevRotationPitch = 70.0F;
       }
    }
 
    void L_clash281() {
-      ItemStack var1 = (ItemStack)this.m.func_187225_a(a0);
-      if (var1 != ItemStack.field_190927_a) {
-         EntityPlayer var2 = this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID());
+      ItemStack var1 = (ItemStack)this.m.get(a0);
+      if (var1 != ItemStack.EMPTY) {
+         EntityPlayer var2 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
          if (var2 != null) {
-            var2.field_71071_by.func_70441_a(var1.func_77946_l());
-            this.m.func_187227_b(a0, ItemStack.field_190927_a);
+            var2.inventory.addItemStackToInventory(var1.copy());
+            this.m.set(a0, ItemStack.EMPTY);
          }
       }
    }
@@ -1387,14 +1387,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             var0.b(fp.NULL);
             var1.setOwnerUUID(null);
          } else {
-            EntityPlayer var3 = var0.field_70170_p.func_152378_a(var2);
+            EntityPlayer var3 = var0.world.getPlayerEntityByUUID(var2);
             if (var3 == null) {
                var1.b_clash63(-1);
                var0.b(fp.NULL);
                var1.setOwnerUUID(null);
             } else {
-               var0.func_70107_b(var3.field_70165_t, var3.field_70163_u, var3.field_70161_v);
-               if (var0.func_174791_d().func_72438_d(var3.func_174791_d()) > 10.0) {
+               var0.setPosition(var3.posX, var3.posY, var3.posZ);
+               if (var0.getPositionVector().distanceTo(var3.getPositionVector()) > 10.0) {
                   var1.b_clash63(-1);
                   var0.b(fp.NULL);
                   var1.setOwnerUUID(null);
@@ -1403,7 +1403,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                   var1.b_clash63(var4);
                   if (var4 == 0) {
                      var0.b(fp.SHOULDER_IDLE);
-                     var0.field_70145_X = true;
+                     var0.noClip = true;
                   }
                }
             }
@@ -1419,7 +1419,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       } else if (this.getOwnerUUID() != null) {
          return false;
       } else {
-         return !this.m.func_187225_a(aC) && !Minecraft.func_71410_x().field_71439_g.func_70685_l(this) ? false : this.getOwnerUUID() == null;
+         return !this.m.get(aC) && !Minecraft.getMinecraft().player.canEntityBeSeen(this) ? false : this.getOwnerUUID() == null;
       }
    }
 
@@ -1427,11 +1427,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (this.getCurrentAction() == fp.SHOULDER_IDLE) {
          UUID var1 = this.getOwnerUUID();
          if (var1 != null) {
-            EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
+            EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
             if (var2 != null) {
-               this.func_70107_b(var2.field_70165_t, var2.field_70163_u, var2.field_70161_v);
-               this.field_70145_X = true;
-               this.func_189654_d(true);
+               this.setPosition(var2.posX, var2.posY, var2.posZ);
+               this.noClip = true;
+               this.setNoGravity(true);
             }
          }
       }
@@ -1482,20 +1482,20 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    public boolean C_clash285() {
-      Block var1 = this.field_70170_p.func_180495_p(this.func_180425_c().func_177982_a(0, 1, 0)).func_177230_c();
-      return !var1.func_176205_b(this.field_70170_p, this.func_180425_c().func_177982_a(0, 1, 0));
+      Block var1 = this.world.getBlockState(this.getPosition().add(0, 1, 0)).getBlock();
+      return !var1.isPassable(this.world, this.getPosition().add(0, 1, 0));
    }
 
-   public void func_180430_e(float var1, float var2) {
+   public void fall(float var1, float var2) {
       fp var3 = this.getCurrentAction();
       if (var3 != fp.THROWN && var3 != fp.START_THROWING) {
-         super.func_180430_e(var1, var2);
+         super.fall(var1, var2);
       }
    }
 
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.field_70170_p instanceof SexWorldClient) {
+      if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
 
@@ -1515,16 +1515,16 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.goblin.null", true, var1);
             } else {
-               double var4 = Math.abs(this.field_70169_q - this.field_70165_t) + Math.abs(this.field_70166_s - this.field_70161_v);
-               if (!(Boolean)this.m.func_187225_a(G) && var4 > 0.0) {
-                  if (this.field_70122_E && Math.abs(Math.abs(this.field_70167_r) - Math.abs(this.field_70163_u)) < 0.1F) {
+               double var4 = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
+               if (!(Boolean)this.m.get(G) && var4 > 0.0) {
+                  if (this.onGround && Math.abs(Math.abs(this.prevPosY) - Math.abs(this.posY)) < 0.1F) {
                      if (var4 > 0.2F) {
                         this.a("animation.goblin.walk", true, var1);
                      } else {
                         this.a("animation.goblin.walk", true, var1);
                      }
 
-                     this.field_70177_z = this.field_70759_as;
+                     this.rotationYaw = this.rotationYawHead;
                   } else {
                      this.a("animation.goblin.fly", true, var1);
                   }
@@ -1534,8 +1534,8 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             }
             break;
          case "action":
-            Minecraft var6 = Minecraft.func_71410_x();
-            String var7 = var6.field_71439_g.getPersistentID().equals(this.getOwnerUUID()) && var6.field_71474_y.field_74320_O == 0 ? "1" : "3";
+            Minecraft var6 = Minecraft.getMinecraft();
+            String var7 = var6.player.getPersistentID().equals(this.getOwnerUUID()) && var6.gameSettings.thirdPersonView == 0 ? "1" : "3";
             switch (this.getCurrentAction()) {
                case PAIZURI_IDLE:
                   this.a("animation.goblin.paizuri_idle", true, var1);
@@ -1583,7 +1583,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                   this.a("animation.goblin.sit", true, var1);
                   break;
                case RUN:
-                  if (this.field_70122_E) {
+                  if (this.onGround) {
                      this.a("animation.goblin.running", true, var1);
                   } else {
                      this.a("animation.goblin.fly", true, var1);
@@ -1685,14 +1685,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                this.a(SoundHandler.MISC_PLOB);
                break;
             case "catchDone":
-               if ("bj".equals(this.m.func_187225_a(h))) {
+               if ("bj".equals(this.m.get(h))) {
                   this.b(fp.CATCH_BJ);
                }
                break;
             case "catchBjDone":
                this.b(fp.CATCH_BJ_IDLE);
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var6 = Minecraft.func_71410_x().field_71439_g;
+                  EntityPlayerSP var6 = Minecraft.getMinecraft().player;
                   a(var6, this, new String[]{"use her", "take ur stuff back"}, null, false);
                }
                break;
@@ -1709,7 +1709,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                this.a(SoundHandler.MISC_PLOB);
                break;
             case "paizuriSwitch":
-               if (!this.func_70681_au().nextBoolean()) {
+               if (!this.getRNG().nextBoolean()) {
                   this.aP = "".equals(this.aP) ? "2" : "";
                }
                break;
@@ -1749,9 +1749,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                break;
             case "paizruiCam":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var4 = Minecraft.func_71410_x().field_71439_g;
-                  var4.field_70125_A = 70.0F;
-                  var4.field_70127_C = 70.0F;
+                  EntityPlayerSP var4 = Minecraft.getMinecraft().player;
+                  var4.rotationPitch = 70.0F;
+                  var4.prevRotationPitch = 70.0F;
                }
                break;
             case "blackScreen":
@@ -1767,20 +1767,20 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                break;
             case "jumpCam":
                if (this.isControlledByLocalPlayer()) {
-                  Minecraft var9 = Minecraft.func_71410_x();
-                  var9.field_71439_g.field_70177_z = this.getYawRotation() + 170.0F;
-                  var9.field_71439_g.field_70125_A = -20.0F;
-                  var9.field_71439_g.field_70759_as = var9.field_71439_g.field_70177_z;
-                  var9.field_71474_y.field_74320_O = 2;
+                  Minecraft var9 = Minecraft.getMinecraft();
+                  var9.player.rotationYaw = this.getYawRotation() + 170.0F;
+                  var9.player.rotationPitch = -20.0F;
+                  var9.player.rotationYawHead = var9.player.rotationYaw;
+                  var9.gameSettings.thirdPersonView = 2;
                }
                break;
             case "breedingHmm":
                if (this.isControlledByLocalPlayer()) {
-                  Minecraft var8 = Minecraft.func_71410_x();
-                  var8.field_71439_g.field_70177_z = this.getYawRotation() + 180.0F;
-                  var8.field_71439_g.field_70125_A = -15.0F;
-                  var8.field_71439_g.field_70759_as = var8.field_71439_g.field_70177_z;
-                  var8.field_71474_y.field_74320_O = 0;
+                  Minecraft var8 = Minecraft.getMinecraft();
+                  var8.player.rotationYaw = this.getYawRotation() + 180.0F;
+                  var8.player.rotationPitch = -15.0F;
+                  var8.player.rotationYawHead = var8.player.rotationYaw;
+                  var8.gameSettings.thirdPersonView = 0;
                }
 
                this.sendChatMessage("hmm...");
@@ -1796,10 +1796,10 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                break;
             case "breedingCam2":
                if (this.isControlledByLocalPlayer()) {
-                  Minecraft var7 = Minecraft.func_71410_x();
-                  var7.field_71474_y.field_74320_O = 2;
-                  var7.field_71439_g.field_70177_z = this.getYawRotation() - 120.0F;
-                  var7.field_71439_g.field_70125_A = -30.0F;
+                  Minecraft var7 = Minecraft.getMinecraft();
+                  var7.gameSettings.thirdPersonView = 2;
+                  var7.player.rotationYaw = this.getYawRotation() - 120.0F;
+                  var7.player.rotationPitch = -30.0F;
                }
             case "breedingIntroDone":
                this.b(fp.BREEDING_SLOW_0);
@@ -1808,7 +1808,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
                break;
             case "breeding_slow1Done":
-               if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
                   this.aD = !this.aD;
                }
 
@@ -1837,7 +1837,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                this.b(fp.BREEDING_SLOW_2);
                break;
             case "breeding_3_wiggle":
-               if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
                   this.C.tickOffset = 0.0;
                }
                break;
@@ -1851,12 +1851,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                break;
             case "breeding_cumCam":
                if (this.isControlledByLocalPlayer()) {
-                  Minecraft var5 = Minecraft.func_71410_x();
-                  var5.field_71474_y.field_74320_O = 0;
-                  var5.field_71439_g.field_70177_z = this.getYawRotation() + 180.0F;
-                  var5.field_71439_g.field_70125_A = -15.0F;
-                  var5.field_71439_g.field_70759_as = var5.field_71439_g.field_70177_z;
-                  var5.field_71474_y.field_74320_O = 0;
+                  Minecraft var5 = Minecraft.getMinecraft();
+                  var5.gameSettings.thirdPersonView = 0;
+                  var5.player.rotationYaw = this.getYawRotation() + 180.0F;
+                  var5.player.rotationPitch = -15.0F;
+                  var5.player.rotationYawHead = var5.player.rotationYaw;
+                  var5.gameSettings.thirdPersonView = 0;
                }
                break;
             case "neslon_introDone":
@@ -1866,7 +1866,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
                break;
             case "nelson_slowDone":
-               if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
                   this.aF = !this.aF;
                }
                break;
@@ -1918,12 +1918,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
             try {
                for (BaseGirlEntity var4 : BaseGirlEntity.getGirlEntityList()) {
-                  if (var4.field_70170_p.field_72995_K && var4 instanceof GoblinEntity) {
+                  if (var4.world.isRemote && var4 instanceof GoblinEntity) {
                      GoblinEntity var5 = (GoblinEntity)var4;
                      UUID var6 = var5.getOwnerUUID();
                      if (var6 != null) {
-                        EntityPlayer var7 = var5.field_70170_p.func_152378_a(var6);
-                        if (var7 != null && var7.field_71093_bK != var5.field_71093_bK) {
+                        EntityPlayer var7 = var5.world.getPlayerEntityByUUID(var6);
+                        if (var7 != null && var7.dimension != var5.dimension) {
                            var2.add(var5);
                         }
                      }
@@ -1935,7 +1935,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             for (GoblinEntity var10 : (java.util.Collection<GoblinEntity>) (var2) ) {
                var10.setOwnerUUID(null);
                var10.setInteractionPlayerUUID(null);
-               var10.func_70106_y();
+               var10.setDead();
             }
          }
       }
@@ -1945,12 +1945,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          EntityPlayer var2 = var1.player;
          UUID var3 = var2.getPersistentID();
          int var4 = var1.toDim;
-         World var5 = var2.field_70170_p;
+         World var5 = var2.world;
          GoblinEntity var6 = null;
 
          try {
             for (BaseGirlEntity var8 : BaseGirlEntity.getGirlEntityList()) {
-               if (!var8.field_70170_p.field_72995_K && var8 instanceof GoblinEntity) {
+               if (!var8.world.isRemote && var8 instanceof GoblinEntity) {
                   GoblinEntity var9 = (GoblinEntity)var8;
                   if (var3.equals(var9.getOwnerUUID())) {
                      String var10 = var9.getCustomModelCode();
@@ -1960,13 +1960,13 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      var6.setInteractionPlayerUUID(null);
                      var6.b(fp.NULL);
                      GoblinEntity var12 = new GoblinEntity(var5);
-                     var12.field_71093_bK = var4;
-                     var12.field_98038_p = true;
+                     var12.dimension = var4;
+                     var12.forceSpawn = true;
                      var12.setCustomModelCode(var10);
                      var12.e_clash558(var11);
-                     var12.m.func_187227_b(GoblinEntity.aC, true);
-                     var5.func_72838_d(var12);
-                     var12.func_70634_a(var2.field_70165_t, var2.field_70163_u, var2.field_70161_v);
+                     var12.m.set(GoblinEntity.aC, true);
+                     var5.spawnEntity(var12);
+                     var12.setPositionAndUpdate(var2.posX, var2.posY, var2.posZ);
                      var12.setOwnerUUID(var3);
                      var12.b(fp.SHOULDER_IDLE);
                      break;
@@ -1977,14 +1977,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          }
 
          if (var6 != null) {
-            var5.func_72900_e(var6);
+            var5.removeEntity(var6);
             BaseGirlEntity.getGirlEntityList().remove(var6);
          }
       }
 
       @SubscribeEvent
       public void a(LivingAttackEvent var1) {
-         if (var1.getSource() != DamageSource.field_76380_i) {
+         if (var1.getSource() != DamageSource.OUT_OF_WORLD) {
             EntityLivingBase var2 = var1.getEntityLiving();
             if (var2 instanceof GoblinEntity) {
                GoblinEntity var3 = (GoblinEntity)var2;
@@ -1999,17 +1999,17 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       @SideOnly(Side.CLIENT)
       public void a(KeyInputEvent var1) {
          if (a == null) {
-            a = Minecraft.func_71410_x();
+            a = Minecraft.getMinecraft();
          }
 
-         if (!(a.field_71462_r instanceof GalathScreen)) {
-            if (ClientProxy.keyBindings[0].func_151468_f()) {
+         if (!(a.currentScreen instanceof GalathScreen)) {
+            if (ClientProxy.keyBindings[0].isPressed()) {
                BaseGirlEntity var2 = null;
-               UUID var3 = Minecraft.func_71410_x().field_71439_g.getPersistentID();
+               UUID var3 = Minecraft.getMinecraft().player.getPersistentID();
 
                try {
                   for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {
-                     if (var5.field_70170_p.field_72995_K && var5 instanceof IGoblin) {
+                     if (var5.world.isRemote && var5 instanceof IGoblin) {
                         IGoblin var6 = (IGoblin)var5;
                         if (var3.equals(var6.getOwnerUUID())) {
                            var2 = var5;
@@ -2022,7 +2022,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
                if (var2 != null) {
                   if (var2.getCurrentAction() == fp.SHOULDER_IDLE) {
-                     Minecraft.func_71410_x().func_147108_a(new GalathScreen(var2));
+                     Minecraft.getMinecraft().displayGuiScreen(new GalathScreen(var2));
                   }
                }
             }
