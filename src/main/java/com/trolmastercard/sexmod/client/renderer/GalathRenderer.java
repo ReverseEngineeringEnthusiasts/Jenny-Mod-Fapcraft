@@ -412,12 +412,12 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
 
       Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.j));
 
-      this.renderRecursively(var2, var12, var4, var5, var6, this.j.v_clash550());
+      this.renderRecursively(var2, var12, var4, var5, var6, this.j.getRenderScaleFactor());
       Tessellator.getInstance().draw();
       if (var13 != null) {
          var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          Minecraft.getMinecraft().renderEngine.bindTexture(ManglelieNpcModel.j);
-         this.renderRecursively(var2, var13, var4, var5, var6, this.j.v_clash550());
+         this.renderRecursively(var2, var13, var4, var5, var6, this.j.getRenderScaleFactor());
          Tessellator.getInstance().draw();
       }
 

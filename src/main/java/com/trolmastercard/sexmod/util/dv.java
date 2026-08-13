@@ -89,7 +89,7 @@ public class dv extends GirlPlayerRenderer {
 
    @Override
    protected void a(String var1, GeoBone var2) {
-      if (!(Boolean)this.w.getDataManager().get(BaseGirlEntity.G)) {
+      if (!(Boolean)this.w.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
          if ("tail".equals(var1)) {
             this.a(var2, 0.0F, 0.0F, 1.0F);
          }

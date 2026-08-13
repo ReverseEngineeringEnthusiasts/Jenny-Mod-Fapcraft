@@ -80,31 +80,31 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
       this.c.clearPath();
       this.f = GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
       this.d.b(fp.NULL);
-      this.e.set(BaseGirlEntity.v, "");
+      this.e.set(BaseGirlEntity.MASTER, "");
       this.c = null;
       this.e = null;
       this.a = null;
    }
 
    public boolean shouldExecute() {
-      return !((String)this.d.getDataManager().get(BaseGirlEntity.v)).equals("");
+      return !((String)this.d.getDataManager().get(BaseGirlEntity.MASTER)).equals("");
    }
 
    public boolean shouldContinueExecuting() {
-      String var1 = (String)this.e.get(BaseGirlEntity.v);
+      String var1 = (String)this.e.get(BaseGirlEntity.MASTER);
       return !var1.equals("") && this.d.world.getPlayerEntityByUUID(UUID.fromString(var1)) != null;
    }
 
    public void startExecuting() {
       this.c = this.d.getNavigator();
       this.e = this.d.getDataManager();
-      this.a = this.d.world.getPlayerEntityByUUID(UUID.fromString((String)this.e.get(BaseGirlEntity.v)));
+      this.a = this.d.world.getPlayerEntityByUUID(UUID.fromString((String)this.e.get(BaseGirlEntity.MASTER)));
    }
 
    public void updateTask() {
       this.f = this.a_clash807();
-      if (this.d.o != null) {
-         this.d.o.a = this.f == GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
+      if (this.d.watchClosestGirlGoal != null) {
+         this.d.watchClosestGirlGoal.a = this.f == GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
       }
 
       this.a(this.f);
@@ -118,7 +118,7 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
    public void a(LivingDeathEvent var1) {
       if (var1.getEntityLiving() instanceof BaseGirlEntity) {
          BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntityLiving();
-         if (!((String)var2.getDataManager().get(BaseGirlEntity.v)).equals("")) {
+         if (!((String)var2.getDataManager().get(BaseGirlEntity.MASTER)).equals("")) {
             var1.setCanceled(true);
          }
       }

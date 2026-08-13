@@ -73,7 +73,7 @@ public class fu {
       if (var2 != null) {
          if (var2.v_clash227()) {
             if (cj.a(var4, var3, var1.getHitVec(), var1.getFace(), var5)) {
-               if ((Boolean)var2.getDataManager().get(BaseGirlEntity.G)) {
+               if ((Boolean)var2.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
                   var1.setCanceled(true);
                } else if (var5.isSneaking()) {
                   ArrayList var6 = new ArrayList();
@@ -138,7 +138,7 @@ public class fu {
                      } else {
                         var2.setTargetPosition(new Vec3d(var7.getX() + 0.5, var7.getY() + 0.0F, var7.getZ() + 0.5));
                         var2.setYawRotation(var5.rotationYaw);
-                        var2.getDataManager().set(BaseGirlEntity.G, true);
+                        var2.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
                         var2.u_clash377();
                      }
                   }
@@ -225,7 +225,7 @@ public class fu {
          if (var3 instanceof SlimePlayerEntity) {
             if (var2.isSneaking()) {
                if (var2.getHeldItemMainhand().equals(ItemStack.EMPTY)) {
-                  if (!(Boolean)var3.getDataManager().get(BaseGirlEntity.G)) {
+                  if (!(Boolean)var3.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
                      if (!(var2.rotationPitch < 20.0F)) {
                         Vec3d var4 = var1.getHitVec();
                         if (var4 != null) {
@@ -234,8 +234,8 @@ public class fu {
                               var2.setPosition(var5.x, Math.floor(var4.y), var5.z);
                               var3.setTargetPosition(var5);
                               var3.setYawRotation(var2.rotationYaw);
-                              var3.getDataManager().set(BaseGirlEntity.G, true);
-                              var3.getDataManager().set(BaseGirlEntity.D, 0);
+                              var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
+                              var3.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, 0);
                               var3.b(fp.STARTDOGGY);
                               if (var1.getWorld().isRemote && Minecraft.getMinecraft().player.getPersistentID().equals(var2.getPersistentID())) {
                                  d3.setMovementLock(false);

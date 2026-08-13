@@ -44,7 +44,7 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
    protected void entityInit() {
       super.entityInit();
       if (!this.world.isRemote || !(this.world instanceof SexWorldClient)) {
-         this.m.register(at, this.a(new StringBuilder()));
+         this.entityDataManager.register(at, this.a(new StringBuilder()));
       }
    }
 
@@ -68,7 +68,7 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
                String var2 = var1.getEntityData().getString("sexmod:GirlSpecific" + NpcType.getNpcType(this));
                this.ar = false;
                if (!"".equals(var2)) {
-                  this.a_clash245(c_clash554(var2));
+                  this.setCustomPartList(decodePartIdList(var2));
                }
             }
          }
@@ -77,9 +77,9 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
 
    void b_clash703() {
       if (this.world.isRemote) {
-         String var1 = (String)this.m.get(as);
-         String var2 = (String)this.m.get(at);
-         BlockPos var3 = (BlockPos)this.m.get(au);
+         String var1 = (String)this.entityDataManager.get(as);
+         String var2 = (String)this.entityDataManager.get(at);
+         BlockPos var3 = (BlockPos)this.entityDataManager.get(au);
          if (this.ap == null) {
             this.ap = var1;
             this.av = var2;

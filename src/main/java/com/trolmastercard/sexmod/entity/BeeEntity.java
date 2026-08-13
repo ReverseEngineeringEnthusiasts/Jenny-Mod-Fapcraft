@@ -79,7 +79,7 @@ public class BeeEntity extends BeeEntityBase {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.m.register(M, false);
+      this.entityDataManager.register(M, false);
    }
 
    protected PathNavigate createNavigator(World var1) {
@@ -87,7 +87,7 @@ public class BeeEntity extends BeeEntityBase {
       var2.setCanOpenDoors(false);
       var2.setCanFloat(true);
       var2.setCanEnterDoors(true);
-      this.f = var2;
+      this.pathNavigator = var2;
       return var2;
    }
 
@@ -107,11 +107,11 @@ public class BeeEntity extends BeeEntityBase {
 
    @Override
    protected void initEntityAI() {
-      this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
+      this.watchClosestGirlGoal = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
       this.tasks.addTask(0, new GirlGotoGoal(this));
       this.tasks.addTask(1, new EntityAIPanic(this, 1.25));
       this.tasks.addTask(1, new EntityAISwimming(this));
-      this.tasks.addTask(2, this.o);
+      this.tasks.addTask(2, this.watchClosestGirlGoal);
       this.tasks.addTask(3, new EntityAIWanderAvoidWaterFlying(this, 1.0));
    }
 
@@ -141,27 +141,27 @@ public class BeeEntity extends BeeEntityBase {
 
    void c_clash752() {
       if (this.getInteractionPlayerUUID() == null) {
-         if (!this.J_clash526()) {
+         if (!this.hasMaster()) {
             this.N++;
             if (!(this.N < 4800.0F)) {
                EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
                if (var1 != null) {
-                  if (d_clash532(var1) == null) {
+                  if (getActiveSceneInfo(var1) == null) {
                      if (!AbstractPlayerGirlEntity.e(var1)) {
                         if (var1.getDistance(this) < 1.5F) {
                            this.N = 0.0F;
                            this.setInteractionPlayerUUID(var1.getPersistentID());
-                           this.m.set(G, true);
-                           this.setTargetPosition(this.aa_clash545());
+                           this.entityDataManager.set(IS_ANCHORED, true);
+                           this.setTargetPosition(this.getFrontOffsetVector());
                            this.setYawRotation(var1.rotationYaw - 180.0F);
-                           this.f.clearPath();
+                           this.pathNavigator.clearPath();
                            PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
                            this.b(fp.CITIZEN_START);
                            Vec3d var2 = this.getVectorTowardPlayer(0.2);
                            var1.setPositionAndUpdate(var2.x, var2.y, var2.z);
                         } else {
-                           this.f.clearPath();
-                           this.f.tryMoveToEntityLiving(var1, 1.0);
+                           this.pathNavigator.clearPath();
+                           this.pathNavigator.tryMoveToEntityLiving(var1, 1.0);
                         }
                      }
                   }
@@ -185,7 +185,7 @@ public class BeeEntity extends BeeEntityBase {
    void a_clash754() {
       if (this.P != 0) {
          this.P++;
-         if ((Boolean)this.m.get(M)) {
+         if ((Boolean)this.entityDataManager.get(M)) {
             if (this.P < 40) {
                for (EntityPlayer var2 : this.world.playerEntities) {
                   if (var2.getDistance(this) < 15.0F) {
@@ -234,7 +234,7 @@ public class BeeEntity extends BeeEntityBase {
                }
             }
          } else if (this.P == 200) {
-            this.m.set(M, this.getRNG().nextBoolean());
+            this.entityDataManager.set(M, this.getRNG().nextBoolean());
          } else if (this.P < 250) {
             for (EntityPlayer var7 : this.world.playerEntities) {
                if (var7.getDistance(this) < 15.0F) {
@@ -242,7 +242,7 @@ public class BeeEntity extends BeeEntityBase {
                      .connection
                      .sendPacket(
                         new SPacketParticles(
-                           this.m.get(M) ? EnumParticleTypes.HEART : EnumParticleTypes.VILLAGER_ANGRY,
+                           this.entityDataManager.get(M) ? EnumParticleTypes.HEART : EnumParticleTypes.VILLAGER_ANGRY,
                            true,
                            (float)this.posX,
                            (float)this.posY + 0.3F,
@@ -297,15 +297,15 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
-      if ((Boolean)this.m.get(M)
-         && !(Boolean)this.m.get(K)
+      if ((Boolean)this.entityDataManager.get(M)
+         && !(Boolean)this.entityDataManager.get(K)
          && var1.getHeldItem(var2).getItem() == Item.getItemFromBlock(Blocks.CHEST)) {
-         this.m.set(K, true);
+         this.entityDataManager.set(K, true);
          var1.getHeldItem(var2).shrink(1);
          return super.processInteract(var1, var2);
       }
 
-      if (this.world.isRemote && (Boolean)this.m.get(M)) {
+      if (this.world.isRemote && (Boolean)this.entityDataManager.get(M)) {
          this.b_clash755(var1);
       }
 
@@ -343,18 +343,18 @@ public class BeeEntity extends BeeEntityBase {
    @Override
    public void writeEntityToNBT(NBTTagCompound var1) {
       super.writeEntityToNBT(var1);
-      var1.setBoolean("isTamed", (Boolean)this.m.get(M));
-      var1.setBoolean("hasChest", (Boolean)this.m.get(K));
+      var1.setBoolean("isTamed", (Boolean)this.entityDataManager.get(M));
+      var1.setBoolean("hasChest", (Boolean)this.entityDataManager.get(K));
       var1.setTag("inventory", this.L.serializeNBT());
    }
 
    public void readFromNBT(NBTTagCompound var1) {
       super.readFromNBT(var1);
       if (var1.hasKey("isTamed")) {
-         this.m.set(M, var1.getBoolean("isTamed"));
+         this.entityDataManager.set(M, var1.getBoolean("isTamed"));
       }
 
-      this.m.set(K, var1.getBoolean("hasChest"));
+      this.entityDataManager.set(K, var1.getBoolean("hasChest"));
       this.L.deserializeNBT(var1.getCompoundTag("inventory"));
    }
 
@@ -370,7 +370,7 @@ public class BeeEntity extends BeeEntityBase {
             if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.bee.null", true, var1);
             } else {
-               this.a("animation.bee." + (this.m.get(K) ? "idle_has_chest" : "idle"), true, var1);
+               this.a("animation.bee." + (this.entityDataManager.get(K) ? "idle_has_chest" : "idle"), true, var1);
             }
             break;
          case "action":
@@ -397,8 +397,8 @@ public class BeeEntity extends BeeEntityBase {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -447,7 +447,7 @@ public class BeeEntity extends BeeEntityBase {
             case "sex_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "sex_fastReady":
@@ -456,10 +456,10 @@ public class BeeEntity extends BeeEntityBase {
                }
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
    }
 
 }

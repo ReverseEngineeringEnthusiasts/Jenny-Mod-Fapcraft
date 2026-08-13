@@ -66,9 +66,9 @@ public class ClaimTribePacket implements IMessage {
                      EyeAndKoboldColor var3 = null;
 
                      for (KoboldEntity var5 : (java.util.Collection<KoboldEntity>) (var2x) ) {
-                        if (!var5.J_clash526()) {
+                        if (!var5.hasMaster()) {
                            EntityDataManager var6 = var5.getDataManager();
-                           var6.set(BaseGirlEntity.v, var1.a.toString());
+                           var6.set(BaseGirlEntity.MASTER, var1.a.toString());
                            var6.set(KoboldEntity.aU, var1.b);
                            var3 = EyeAndKoboldColor.valueOf((String)var6.get(KoboldEntity.N));
                         }

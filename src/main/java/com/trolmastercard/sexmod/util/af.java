@@ -217,7 +217,7 @@ public class af {
             : RotationHelper.a(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
          Vec3d var6 = RotationHelper.a(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var2);
          Vec3d var7 = var5.subtract(var6);
-         var7 = var1.a_clash432(var7, var2);
+         var7 = var1.transformRenderOffset(var7, var2);
          GlStateManager.translate(var7.x, var7.y, var7.z);
       }
    }

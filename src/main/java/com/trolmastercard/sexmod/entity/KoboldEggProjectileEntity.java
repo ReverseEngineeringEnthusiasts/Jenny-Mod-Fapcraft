@@ -59,7 +59,7 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
 
          if (!this.world.isRemote) {
             BaseGirlEntity var9 = (BaseGirlEntity)var2;
-            if (var9.l.distanceTo(this.getPositionVector()) < 5.0) {
+            if (var9.homePos.distanceTo(this.getPositionVector()) < 5.0) {
                EnderTeleportEvent var11 = new EnderTeleportEvent(var2, this.posX, this.posY, this.posZ, 5.0F);
                if (!MinecraftForge.EVENT_BUS.post(var11)) {
                   if (var2.isRiding()) {
@@ -110,10 +110,10 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
       public void a(EnderTeleportEvent var1) {
          if (var1.getEntityLiving() instanceof BaseGirlEntity) {
             BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntityLiving();
-            var2.q = null;
+            var2.activeEnderPearl = null;
             var2.b(fp.NULL);
-            var2.getDataManager().set(BaseGirlEntity.G, false);
-            var2.x_clash475();
+            var2.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
+            var2.goHome();
          }
       }
    }

@@ -64,8 +64,8 @@ public class KoboldStatePacket implements IMessage {
             for (BaseGirlEntity var5 : BaseGirlEntity.girlList(var0)) {
                if (!var5.world.isRemote) {
                   if (var5 instanceof JennyEntity || var5 instanceof EllieEntity || var5 instanceof LunaEntity) {
-                     var5.tasks.removeTask(var5.o);
-                     var5.tasks.removeTask(var5.z);
+                     var5.tasks.removeTask(var5.watchClosestGirlGoal);
+                     var5.tasks.removeTask(var5.wanderGoal);
                   }
 
                   var5.getNavigator().clearPath();
@@ -77,10 +77,10 @@ public class KoboldStatePacket implements IMessage {
                   }
 
                   if (var3) {
-                     var5.setTargetPosition(var5.aa_clash545());
+                     var5.setTargetPosition(var5.getFrontOffsetVector());
                   }
 
-                  var5.j_clash521(var5.getInteractionPlayerUUID());
+                  var5.snapPlayerToPosition(var5.getInteractionPlayerUUID());
                   if (!var2) {
                      return;
                   }

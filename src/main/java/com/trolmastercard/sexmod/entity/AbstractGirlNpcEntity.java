@@ -81,13 +81,13 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.m.register(M, 0);
-      this.m.register(L, ItemStack.EMPTY);
-      this.m.register(R, ItemStack.EMPTY);
-      this.m.register(X, ItemStack.EMPTY);
-      this.m.register(T, ItemStack.EMPTY);
-      this.m.register(U, ItemStack.EMPTY);
-      this.m.register(W, ItemStack.EMPTY);
+      this.entityDataManager.register(M, 0);
+      this.entityDataManager.register(L, ItemStack.EMPTY);
+      this.entityDataManager.register(R, ItemStack.EMPTY);
+      this.entityDataManager.register(X, ItemStack.EMPTY);
+      this.entityDataManager.register(T, ItemStack.EMPTY);
+      this.entityDataManager.register(U, ItemStack.EMPTY);
+      this.entityDataManager.register(W, ItemStack.EMPTY);
    }
 
    @Override
@@ -103,7 +103,7 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
    public void updateAITasks() {
       super.updateAITasks();
       if (this.ticksExisted % 80 == 0 && this.getHealth() != this.getMaxHealth()) {
-         if (!this.J_clash526()) {
+         if (!this.hasMaster()) {
             this.heal(1.0F);
          } else {
             List var1 = this.world
@@ -133,17 +133,17 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
          }
       }
 
-      if (this.N && !this.J_clash526()) {
+      if (this.N && !this.hasMaster()) {
          this.N = false;
       }
 
-      this.m.set(HAND_STATES, Byte.valueOf("1"));
-      this.m.set(L, this.Q.getStackInSlot(0));
-      this.m.set(R, this.Q.getStackInSlot(1));
-      this.m.set(X, this.Q.getStackInSlot(2));
-      this.m.set(T, this.Q.getStackInSlot(3));
-      this.m.set(U, this.Q.getStackInSlot(4));
-      this.m.set(W, this.Q.getStackInSlot(5));
+      this.entityDataManager.set(HAND_STATES, Byte.valueOf("1"));
+      this.entityDataManager.set(L, this.Q.getStackInSlot(0));
+      this.entityDataManager.set(R, this.Q.getStackInSlot(1));
+      this.entityDataManager.set(X, this.Q.getStackInSlot(2));
+      this.entityDataManager.set(T, this.Q.getStackInSlot(3));
+      this.entityDataManager.set(U, this.Q.getStackInSlot(4));
+      this.entityDataManager.set(W, this.Q.getStackInSlot(5));
    }
 
    @SideOnly(Side.CLIENT)
@@ -152,12 +152,12 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
       if ("action.names.followme".equals(var1)) {
          this.changeDataParameterFromClient("master", var2.toString());
       } else if ("action.names.stopfollowme".equals(var1)) {
-         this.x_clash475();
+         this.goHome();
       } else if ("action.names.equipment".equals(var1)) {
          EntityPlayerSP var3 = Minecraft.getMinecraft().player;
          PacketHandler.b.sendToServer(new PlayerActionPacket(this.getGirlId(), var3.getPersistentID()));
       } else if ("action.names.gohome".equals(var1)) {
-         this.x_clash475();
+         this.goHome();
          PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
       } else if ("action.names.setnewhome".equals(var1)) {
          this.c_clash237();

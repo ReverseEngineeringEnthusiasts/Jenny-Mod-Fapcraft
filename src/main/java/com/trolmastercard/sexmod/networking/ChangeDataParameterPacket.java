@@ -65,7 +65,7 @@ public class ChangeDataParameterPacket implements IMessage {
                         var1x.getDataManager().set(SlimeEntity.U, Integer.valueOf(var1.c));
                         break;
                      case "currentModel":
-                        var1x.getDataManager().set(BaseGirlEntity.D, Integer.valueOf(var1.c));
+                        var1x.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, Integer.valueOf(var1.c));
                         break;
                      case "currentAction":
                         if (fp.valueOf(var1.c) != fp.ATTACK || var1x.getCurrentAction() == fp.NULL) {
@@ -73,7 +73,7 @@ public class ChangeDataParameterPacket implements IMessage {
                         }
                         break;
                      case "animationFollowUp":
-                        var1x.getDataManager().set(BaseGirlEntity.h, var1.c);
+                        var1x.getDataManager().set(BaseGirlEntity.GIRL_HAND_STATES, var1.c);
                         break;
                      case "playerSheHasSexWith":
                         if (var1.c.equals("null")) {
@@ -88,13 +88,13 @@ public class ChangeDataParameterPacket implements IMessage {
                         var1x.setTargetPosition(var5);
                         break;
                      case "master":
-                        var1x.getDataManager().set(BaseGirlEntity.v, var1.c);
+                        var1x.getDataManager().set(BaseGirlEntity.MASTER, var1.c);
                         break;
                      case "walk speed":
-                        var1x.getDataManager().set(BaseGirlEntity.a, var1.c);
+                        var1x.getDataManager().set(BaseGirlEntity.WALK_SPEED, var1.c);
                         break;
                      case "shouldbeattargetpos":
-                        var1x.getDataManager().set(BaseGirlEntity.G, Boolean.valueOf(var1.c));
+                        var1x.getDataManager().set(BaseGirlEntity.IS_ANCHORED, Boolean.valueOf(var1.c));
                   }
                }
             });

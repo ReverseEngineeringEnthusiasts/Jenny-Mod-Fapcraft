@@ -100,7 +100,7 @@ public class KoboldTask {
             var2.setNoGravity(false);
             var2.noClip = false;
             var2.b(fp.NULL);
-            var2.getDataManager().set(BaseGirlEntity.G, false);
+            var2.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
          }
       }
 

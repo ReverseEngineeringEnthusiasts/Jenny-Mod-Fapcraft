@@ -161,8 +161,8 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -221,13 +221,13 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
             case "sex_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
    }
 
 }

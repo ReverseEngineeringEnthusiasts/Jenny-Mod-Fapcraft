@@ -128,7 +128,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
          Entity var4 = var1.getTarget();
          if (var4 instanceof GalathEntity) {
             GalathEntity var5 = (GalathEntity)var4;
-            if (var2.getPersistentID().equals(var5.O_clash527())) {
+            if (var2.getPersistentID().equals(var5.getMasterUUID())) {
                var2.world
                   .playSound(
                      var2.posX, var2.posY, var2.posZ, SoundHandler.MISC_WEOWEO[0], SoundCategory.PLAYERS, 1.0F, 1.0F, false
@@ -170,7 +170,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
 
             try {
                for (BaseGirlEntity var8 : BaseGirlEntity.getGirlEntityList()) {
-                  if (!var8.isDead && var8.world.isRemote && var8 instanceof GalathEntity && var1.equals(var8.z_clash528())) {
+                  if (!var8.isDead && var8.world.isRemote && var8 instanceof GalathEntity && var1.equals(var8.getMasterPlayer())) {
                      var6 = (GalathEntity)var8;
                      break;
                   }
@@ -296,7 +296,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
 
       try {
          for (BaseGirlEntity var4 : BaseGirlEntity.getGirlEntityList()) {
-            if (!var4.isDead && var4.world.isRemote && var4 instanceof GalathEntity && var1.equals(var4.z_clash528())) {
+            if (!var4.isDead && var4.world.isRemote && var4 instanceof GalathEntity && var1.equals(var4.getMasterPlayer())) {
                var2 = (GalathEntity)var4;
                break;
             }

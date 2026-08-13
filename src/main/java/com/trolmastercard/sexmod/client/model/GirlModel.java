@@ -88,11 +88,11 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    public ResourceLocation a_clash34(BaseGirlEntity var1) {
       if (var1.world instanceof SexWorldClient) {
          return this.c[0];
-      } else if ((Integer)var1.getDataManager().get(BaseGirlEntity.D) > this.c.length) {
-         System.out.println("Girl doesn't have an outfit Nr." + var1.getDataManager().get(BaseGirlEntity.D) + " so im just making her nude lol");
+      } else if ((Integer)var1.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) > this.c.length) {
+         System.out.println("Girl doesn't have an outfit Nr." + var1.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) + " so im just making her nude lol");
          return this.c[0];
       } else {
-         return this.c[var1.getDataManager().get(BaseGirlEntity.D)];
+         return this.c[var1.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX)];
       }
    }
 
@@ -113,24 +113,24 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       AnimationProcessor var4 = this.getAnimationProcessor();
       this.a((T)var1, var4);
       if (!(var1.world instanceof SexWorldClient)) {
-         if ((Boolean)var1.getDataManager().get(BaseGirlEntity.G)) {
+         if ((Boolean)var1.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
             var1.setPositionAndRotationDirect(
                var1.getTargetPosition().x, var1.getTargetPosition().y, var1.getTargetPosition().z, var1.getYawRotation(), 0.0F, 3, true
             );
          }
 
-         if (var1.C != null) {
-            var1.C.transitionLengthTicks = !(var1.world instanceof SexWorldClient) && var1.getCurrentAction() != null ? var1.getCurrentAction().transitionTick : 5.0;
+         if (var1.actionController != null) {
+            var1.actionController.transitionLengthTicks = !(var1.world instanceof SexWorldClient) && var1.getCurrentAction() != null ? var1.getCurrentAction().transitionTick : 5.0;
          }
 
          this.a((T)var1, var4, var3);
          if (var1 instanceof AbstractGirlNpcEntity && !var1.isLocallyRegistered() && var1.getOutfitIndex() != 0) {
             this.a(
                var4,
-               (ItemStack)var1.m.get(AbstractGirlNpcEntity.X),
-               (ItemStack)var1.m.get(AbstractGirlNpcEntity.T),
-               (ItemStack)var1.m.get(AbstractGirlNpcEntity.U),
-               (ItemStack)var1.m.get(AbstractGirlNpcEntity.W)
+               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.X),
+               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.T),
+               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.U),
+               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.W)
             );
          } else {
             this.a(var4);
@@ -293,13 +293,13 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
 
    public ItemStack a_clash348(BaseGirlEntity var1, String var2) {
       if (Arrays.asList(this.c()).contains(var2)) {
-         return (ItemStack)var1.m.get(AbstractGirlNpcEntity.X);
+         return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.X);
       } else if (Arrays.asList(this.f()).contains(var2)) {
-         return (ItemStack)var1.m.get(AbstractGirlNpcEntity.T);
+         return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.T);
       } else if (Arrays.asList(this.h()).contains(var2)) {
-         return (ItemStack)var1.m.get(AbstractGirlNpcEntity.U);
+         return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.U);
       } else {
-         return Arrays.asList(this.b()).contains(var2) ? (ItemStack)var1.m.get(AbstractGirlNpcEntity.W) : ItemStack.EMPTY;
+         return Arrays.asList(this.b()).contains(var2) ? (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.W) : ItemStack.EMPTY;
       }
    }
 

@@ -71,7 +71,7 @@ public class ResetGirlPacket implements IMessage {
                      .getWorld(var0.dimension)
                      .getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID())
                );
-            var0.getDataManager().set(BaseGirlEntity.D, 1);
+            var0.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, 1);
             EntityPlayer var1 = var0.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID());
             var1.capabilities.isFlying = false;
             var1.setNoGravity(false);
@@ -90,7 +90,7 @@ public class ResetGirlPacket implements IMessage {
 
          var0.setAnchored(false);
          var0.setInteractionPlayerUUID(null);
-         var0.B = null;
+         var0.cameraOriginPos = null;
          var0.setNoGravity(false);
          var0.noClip = false;
          World var3 = var0.world;

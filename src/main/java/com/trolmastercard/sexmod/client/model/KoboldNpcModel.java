@@ -82,7 +82,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    void b(BaseGirlEntity var1, AnimationProcessor var2) {
-      if (var1.C.getAnimationState() == AnimationState.Transitioning) {
+      if (var1.actionController.getAnimationState() == AnimationState.Transitioning) {
          float var3 = (Float)var1.getDataManager().get(KoboldEntity.aE);
          var3 = 0.25F - var3;
          switch (var1.getCurrentAction()) {

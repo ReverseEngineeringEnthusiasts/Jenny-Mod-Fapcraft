@@ -39,7 +39,7 @@ public class d8 extends GirlRenderer {
          if (!this.j.isLocallyRegistered()) {
             if (!this.j.getCurrentAction().hideNameTag) {
                if (i.getRenderManager().renderViewEntity != null) {
-                  this.renderLivingLabel(this.j, this.j.ab_clash540(), var1, var3 + this.j.i_clash226(), var5, 300);
+                  this.renderLivingLabel(this.j, this.j.getEffectiveDisplayName(), var1, var3 + this.j.i_clash226(), var5, 300);
                }
             }
          }

@@ -97,8 +97,8 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
          this.changeDataParameterFromClient("animationFollowUp", "Cowgirl");
       } else if ("action.names.missionary".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", "Missionary");
-      } else if (((Optional)this.m.get(ai)).isPresent()) {
-         PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.m.get(ai)).get(), this.ab));
+      } else if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
+         PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
          this.ab = true;
       }
    }
@@ -154,7 +154,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
    public void updateAITasks() {
       super.updateAITasks();
       if (this.getCurrentAction() == fp.SITDOWNIDLE) {
-         String var1 = (String)this.m.get(BaseGirlEntity.h);
+         String var1 = (String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES);
          if (!"Missionary".equals(var1) && !"Cowgirl".equals(var1)) {
             return;
          }
@@ -164,10 +164,10 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
             return;
          }
 
-         this.m.set(BaseGirlEntity.h, "");
-         this.m.set(BaseGirlEntity.D, 0);
+         this.entityDataManager.set(BaseGirlEntity.GIRL_HAND_STATES, "");
+         this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
          this.setInteractionPlayerUUID(var2.getPersistentID());
-         EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.m.get(ai)).get());
+         EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var3);
          var2.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
@@ -221,7 +221,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
             } else if (this.ak) {
                this.a("animation.ellie.ride", true, var1);
             } else {
-               if (this.E.getCurrentAnimation() != null && this.E.getCurrentAnimation().animationName.contains("fly") && this.af) {
+               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.ar = !this.ar;
                }
 
@@ -229,13 +229,13 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                   this.a("animation.ellie.fly" + (this.ar ? "2" : ""), true, var1);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
-                     this.E.setAnimationSpeed(1.5);
+                     this.movementController.setAnimationSpeed(1.5);
                      this.a(this.a_clash382() ? "animation.ellie.crouchwalk" : "animation.ellie.run", true, var1);
                   } else if (this.ao.y >= -0.1F) {
-                     this.E.setAnimationSpeed(2.0);
+                     this.movementController.setAnimationSpeed(2.0);
                      this.a(this.a_clash382() ? "animation.ellie.crouchwalk" : "animation.ellie.fastwalk", true, var1);
                   } else {
-                     this.E.setAnimationSpeed(1.5);
+                     this.movementController.setAnimationSpeed(1.5);
                      this.a(this.a_clash382() ? "animation.ellie.crouchwalk" : "animation.ellie.backwards_walk", true, var1);
                   }
                } else {
@@ -331,8 +331,8 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -415,7 +415,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                   );
                   String var6 = var10.x + "f" + var10.y + "f" + var10.z + "f";
                   PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.getGirlId(), "targetPos", var6));
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                   PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
                   this.b(fp.NULL);
                }
@@ -477,7 +477,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                   if (!d3.d) {
                      this.b(fp.COWGIRLSLOW);
                   } else if (Reference.f.nextInt(4) != 1) {
-                     this.C.clearAnimationCache();
+                     this.actionController.clearAnimationCache();
                   }
                }
                break;
@@ -520,7 +520,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
             case "carry_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "attackDone":
@@ -622,10 +622,10 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                }
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
    }
 
 }

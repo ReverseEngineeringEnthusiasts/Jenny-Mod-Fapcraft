@@ -1,0 +1,169 @@
+# Fapcraft 1.12.2 Remap — Full Handoff / Todo Prompt
+
+You are working on a byte-faithful deobfuscation + cleanup of the **Fapcraft 1.12.2 v1.1** Minecraft mod
+("SexMod", modid `sexmod`, package `com.trolmastercard.sexmod`). The goal is FULLY READABLE code:
+MCP method/field names, meaningful variable names, javadoc on every class/method, and zero regressions
+vs the original jar. Everything below has been verified to build; do not break it.
+
+=====================================================================
+0. REPOS / PATHS
+=====================================================================
+Main project (work here):
+  /home/zoroaster/Documents/Projects/Minecraft/Jenny/Fapcraft-1.12.2-remap
+    - Maven build (pom.xml), source in src/main/java, deployed jar in target/
+    - GIT repo, identity must be RealCrystalNight (see .opencode skill git-identity)
+Byte-faithful base (flat package, reference only):
+  /home/zoroaster/Documents/Projects/Minecraft/Jenny/Fapcraft-1.12.2
+Other people's deobfuscation attempts (naming reference):
+  /tmp/opencode/jennymodre        (raw CFR decompile, obfuscated names)
+  /tmp/opencode/jennymodre-clean  (clean-team rename, good method-name source)
+Original obfuscated jar (ground truth for bytecode):
+  /home/zoroaster/Documents/Projects/Minecraft/Jenny/Fapcraft.1.12.2.v1.1.jar
+  (copy already extracted once at /tmp/opencode/jarcheck* — re-extract if needed)
+Forge/MC libs (SRG and MCP-named):
+  lib/mc-1.12.2-srg.jar          (SRG-named vanilla — scan source for mappings)
+  lib/mc-1.12.2-mcp.jar          (MCP-named vanilla — COMPILE dependency, generated)
+  lib/geckolib3-1.12.2-mcp.jar   (MCP-named geckolib — COMPILE dependency, generated)
+  lib/forge-1.12.2-srg.jar       (Forge, SRG — compile dependency)
+Engineering log: DOCUMENTATION.md (read it — it has every crash/bug/root-cause history)
+Dev kit (deobfuscators/decompilers, ASM guide + JLS/JVMS PDFs):
+  /home/zoroaster/Documents/Projects/Zyvori/Zyvori/development-kit/{Deobfuscators,Decompilers,Theory}
+
+=====================================================================
+1. CURRENT STATE — WHAT IS DONE (do not regress)
+=====================================================================
+- BUILD: `cd Fapcraft-1.12.2-remap && mvn clean package` -> target/fapcraft-1.12.2-1.1.0.jar
+  is the DEPLOYABLE jar (shaded + reobfuscated to SRG). BUILD MUST STAY GREEN.
+- Source compiles against MCP-named MC (pom uses `mc-1.12.2-mcp` + `geckolib3-1.12.2-mcp`).
+- The final jar is reobfuscated to SRG automatically by the antrun step (so Forge runtime works).
+- func_XXX + field_XXX already renamed to MCP names project-wide (1012 method tokens, all fields).
+- ~70 a_clashXXX method names renamed to meaningful names (getCurrentAction, getTargetPosition,
+  setInteractionPlayerUUID, isAnchored, getOutfitIndex, lerp, rotateByYaw, wrapDegrees,
+  setMovementLock, randomSound, playRandomSound, showHornyMeter, etc.)
+- 232 dead exception pass-and-return wrappers removed.
+- CRITICAL BUGS FIXED (verify before touching these files):
+  * GirlModel/7 NpcModels: setLivingAnimations bridge restored (steve/armour overlay dead-code bug).
+  * 6 renderers got dropped compiler bridges restored (GalathCoin, AlliesLamp, Dragon, WildSlime,
+    KoboldEgg, SexScene -> renamed a(...) to render/func_76986_a/func_77041_b so javac regenerates them).
+  * ResetGirlPacket boolean inversion fixed (a==true => full reset, matches jar bytecode).
+  * BaseGirlEntity.l_clash514 (tickFollowUpTransitions) invented hasPlayer reset branch REMOVED
+    (this was THE general scene-killer: every hasPlayer scene action reset to NULL on first tick).
+  * R-Shift keybind added (ClientProxy keyBindings[2]) -> client/SexSceneKeyHandler -> ResetGirlPacket(uuid,true).
+
+=====================================================================
+2. THE TOOLING — HOW EVERYTHING WORKS
+=====================================================================
+---- 2a. MCP mappings (the CSV source of truth) ----
+  tools/mappings/{methods,fields,params}.csv  (MCP stable_39 for MC 1.12; func_XXX,name,side,comment)
+  Source: official MCP via wayback snapshot of files.minecraftforge.net
+    (mcp_stable-39-1.12.zip). Keep these in the repo; do not lose them.
+  NOTE: the CSV has SIDE-specific entries (side 0=client, 1=server, 2=both). Two funcs can share one
+  MCP name+desc (e.g. func_70071_h_=onUpdate=both AND func_189213_a=onUpdate=client). MCRepack
+  resolves these by preferring side-2 ("both"). See betterSide().
+
+---- 2b. MCRepack (the remapper, lives in tools/) ----
+  java -cp "tools:lib-repo/local/asm/7.1/asm-7.1.jar:.../asm-commons-7.1.jar:.../asm-tree-7.1.jar" \
+      MCRepack <srgJar> <methods.csv> <fields.csv> <mode> <in.jar> <out.jar>
+  mode:
+    srg2mcp  -> rename func_XXX/field_XXX to MCP names (generates mc-1.12.2-mcp.jar etc.)
+    mcp2srg  -> rename MCP names back to SRG (reobfuscates the built mod jar)
+  It scans the SRG jar for (name, desc) of every func_XXX/field_XXX, builds a (name,desc) -> mapped
+  map, and applies with ASM ClassRemapper. It uses (name, desc) matching so mod methods that merely
+  share an MCP name with MC (e.g. getCurrentAction) are NOT wrongly renamed, while genuine MC
+  overrides (onUpdate, doRender, getEntityTexture...) ARE renamed to their SRG names.
+  Field reobfuscation is scoped to net/minecraft/* owners.
+  Regenerate MCP jars (e.g. after changing mappings): tools/regenerate-mcp-jar.sh
+  TinyGen.java in tools/ generates a Tiny v2 mapping from the same CSVs (used if you ever want
+  to try tiny-remapper / Fabric-style tooling).
+
+---- 2c. Build / reobfuscation flow ----
+  pom.xml:
+    - compile deps: local:mc-1.12.2-mcp, local:geckolib3-1.12.2-mcp, forge, ASM (provided)
+    - maven-shade-plugin packages geckolib + shadowed libs
+    - maven-antrun-plugin (reobf-srg, phase=package) runs MCRepack mcp2srg in-place on the shaded jar
+  Order matters: shade MUST run before antrun. Output = target/fapcraft-1.12.2-1.1.0.jar (SRG).
+  Deploy: copy that jar into the Prism instance mods folder
+  (only ONE fap jar active at a time; same modid).
+
+---- 2d. Verification against the original ----
+  Original jar: Fapcraft.1.12.2.v1.1.jar. Ground truth = its BYTECODE (SRG names).
+  - javap -c -p -classpath lib/mc-1.12.2-srg.jar <net.minecraft class>  -> check a vanilla method's SRG name
+  - javap -c -p -classpath target/fapcraft-1.12.2-1.1.0.jar <mod class> -> confirm SRG names in final jar
+  - To check the original mod's classes: extract the jar and javap the obfuscated classes
+    (e.g. em = BaseGirlEntity, eb = LunaEntity, s$a = ResetGirlPacket.Handler, d_ = GirlRenderer).
+  - Decompiler tools available in the Zyvori dev-kit (cfr/fernflower/vineflower/procyon/jadx/krak2)
+    and Recaf MCP (headless recaf + 28 MCP tools) for heavy lifting.
+
+---- 2e. Recaf MCP ----
+  Start headless: cd ~ && java -jar ~/Recaf/recaf-4x-alpha-linux-x64.jar -h --idle -r "$HOME/Recaf/plugins"
+  (needs JDK 22: `sdk use java 22.0.2.fx-zulu`). Bridge on port 9847; opencode tools.recaf.*.
+  Useful: open_jar both jars, decompile_class (CFR), diff_classes, list_workspaces.
+
+=====================================================================
+3. WHAT STILL NEEDS TO BE DONE (the remaining cleanup)
+=====================================================================
+Priority order (highest value first):
+
+[P1] VARIABLE RENAMES — per class, read method bodies and rename:
+  - `var1, var2, ...` parameters and locals -> meaningful (e.g. var1 -> player, var2 -> girl, var3 -> targetPos)
+  - Instance fields that are still obfuscated single letters (`m`=entityDataManager, `f`=navigator,
+    `l`=lastTarget, `n`, `g`, `z`, `o`, `y`, `u`...) — ONLY rename after confirming what they are
+    from usage + the clean/raw references.
+  - Start with the core flow: entity/BaseGirlEntity.java, AbstractGirlNpcEntity,
+    AbstractPlayerGirlEntity, each girl entity (Jenny/Luna/Ellie/Allie/Bee/Bia/Slime/Goblin/Kobold/
+    Galath/Manglelie), client/renderer/*, client/model/*, networking/* (packets), client/gui/*.
+  - Method PARAMETERS of renamed methods: after renaming the method, rename its params too.
+  - Use the clean project (jennymodre-clean) as a naming oracle for fields/methods it already named.
+
+[P2] JAVADOC — add on every class and every non-trivial method:
+  - Class javadoc: what the class is, its role (entity/renderer/model/packet/gui/handler).
+  - Method javadoc: @param, @return, what it does, side (CLIENT/SERVER), network packets used.
+  - Preserve any MCP comment text from methods.csv (the CSV has a comment column).
+  - Focus on the flow: scene lifecycle (approach -> PAYMENT -> intro -> slow/fast -> cum -> reset),
+    the follow AI, the renderer geometry, the packet handlers.
+
+[P3] REMAINING OBFUSCATED METHOD NAMES (lower frequency):
+  - Still ~765 distinct a_clashNNN / plain a,b,c,... names across per-girl classes, renderers,
+    models, GUI. Rename with semantics verified from usage (NOT guessed).
+  - Useful sources: clean jennymodre-clean (already has many good names), the raw decompile,
+    and the original jar bytecode.
+
+[P4] REMAINING KNOWN BEHAVIORAL VERIFICATION (documented in DOCUMENTATION.md §2):
+  - Girls half-broken by older sessions: test in a FRESH world, use R-Shift to reset stuck girls.
+  - PAYMENT gate: girls (Luna/Jenny etc.) demand items (fish/emeralds) before scenes unless the
+    player is FLYING (isFlying field_75098_d) — that is ORIGINAL behavior.
+  - Right-click menus for slime/manglelie/bee, lamp icon hand, Ellie hand textures: verify in-game.
+
+=====================================================================
+4. RULES / PITFALLS (things that broke before — avoid)
+=====================================================================
+1. NEVER guess a rename. If you can't determine a method's purpose, leave it obfuscated and note it.
+   Wrong names are worse than obfuscated names.
+2. Do NOT rename the mod's OWN methods to MCP names that collide with vanilla MCP names
+   (e.g. don't create a method named `getModel` unless it truly is one). The reobfuscator uses
+   (name, desc); an exact (name, desc) collision WILL be reobfuscated and break the mod.
+3. Do NOT remove or change override names on geckolib/MC methods without verifying javac generates
+   the right bridges. The dropped-bridge bugs (setLivingAnimations, render(GeoModel,Object),
+   func_76986_a, func_77041_b) silently killed features — always rebuild and check bytecode.
+4. Do NOT re-add "safety" resets to l_clash514/tickFollowUpTransitions or flip ResetGirlPacket
+   booleans — both are jar-faithful now.
+5. ALWAYS run `mvn clean package` after changes and confirm BUILD SUCCESS + the jar still has SRG
+   names (spot-check: javap a class, expect func_XXX not getMinecraft).
+6. Keep tools/mappings/*.csv and tools/MCRepack* in the repo; never edit the mappings by hand
+   unless you truly know the MCP rename is wrong.
+7. Commit often with the git-identity skill (repo-local RealCrystalNight config).
+8. The MCP jar + geckolib-mcp jar are GENERATED. If you change the mappings, regenerate them
+   with tools/regenerate-mcp-jar.sh and re-verify the build + final jar bytecode.
+9. When in doubt about a vanilla method's MCP or SRG name: grep tools/mappings/methods.csv
+   (func_XXX -> MCP) or javap lib/mc-1.12.2-srg.jar (the SRG name is the runtime truth).
+
+=====================================================================
+5. DONE CRITERIA
+=====================================================================
+- Every source file has zero obfuscated identifiers (no func_XXX, no field_XXX, no a_clashNNN,
+  no single-letter obfuscated methods) EXCEPT where a comment documents "unknown semantics".
+- Every class and public/protected method has javadoc.
+- Variables/params are meaningful everywhere.
+- `mvn clean package` green; target/fapcraft-1.12.2-1.1.0.jar bytecode verified SRG and
+  behaviorally matches the original jar (scenes start, progress, and exit on all girls).
+- DOCUMENTATION.md updated with any new findings.

@@ -109,7 +109,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
          KoboldManager.c(this.f, var8);
          UUID var9 = KoboldManager.b_clash89(this.f);
          if (var9 != null) {
-            var8.getDataManager().set(BaseGirlEntity.v, var9.toString());
+            var8.getDataManager().set(BaseGirlEntity.MASTER, var9.toString());
          }
 
          List var10 = KoboldManager.n_clash82(this.f);
@@ -136,7 +136,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
    }
 
    void a_clash843(KoboldEntity var1) {
-      EntityPlayer var2 = var1.z_clash528();
+      EntityPlayer var2 = var1.getMasterPlayer();
       if (var2 != null) {
          EntityPlayerMP var3 = (EntityPlayerMP)var2;
          EyeAndKoboldColor var4 = KoboldManager.l_clash75(this.f);

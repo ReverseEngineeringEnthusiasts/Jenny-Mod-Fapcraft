@@ -33,7 +33,7 @@ public class BeeDialogueScreen extends GuiScreen {
    public BeeDialogueScreen(BeeEntityBase var1, EntityPlayer var2) {
       this.c = var1;
       this.a = var2;
-      this.e = !"".equals(var1.getDataManager().get(BaseGirlEntity.v));
+      this.e = !"".equals(var1.getDataManager().get(BaseGirlEntity.MASTER));
    }
 
    public boolean doesGuiPauseGame() {

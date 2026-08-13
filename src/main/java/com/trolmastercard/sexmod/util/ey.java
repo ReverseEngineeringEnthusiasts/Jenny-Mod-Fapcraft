@@ -41,7 +41,7 @@ public class ey {
          boolean var6 = false;
 
          for (BaseGirlEntity var8 : (java.util.Collection<BaseGirlEntity>) (var5) ) {
-            if (!var8.isDead && (Boolean)var8.getDataManager().get(BaseGirlEntity.G)) {
+            if (!var8.isDead && (Boolean)var8.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
                var6 = true;
                break;
             }
@@ -58,7 +58,7 @@ public class ey {
    @SubscribeEvent
    @SideOnly(Side.CLIENT)
    public void a(PlayerSPPushOutOfBlocksEvent var1) {
-      if (BaseGirlEntity.d_clash532(var1.getEntityPlayer()) != null) {
+      if (BaseGirlEntity.getActiveSceneInfo(var1.getEntityPlayer()) != null) {
          var1.setCanceled(true);
       }
    }

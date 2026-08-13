@@ -23,7 +23,7 @@ public abstract class BeeEntityBase extends BaseGirlEntity implements IInventory
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.m.register(K, false);
+      this.entityDataManager.register(K, false);
    }
 
    public int getSizeInventory() {

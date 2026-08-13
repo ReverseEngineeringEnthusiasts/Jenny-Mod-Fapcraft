@@ -281,7 +281,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    }
 
    public void a(GeoModel var1, T var2, float var3, float var4, float var5, float var6, float var7) {
-      if (i.player == null || var2.isLocallyRegistered() || !var2.d_clash453() || this.a(var2, i.player)) {
+      if (i.player == null || var2.isLocallyRegistered() || !var2.shouldRenderModel() || this.a(var2, i.player)) {
          GlStateManager.enableRescaleNormal();
          this.a((T)var2, var3, var4, var5, var6, var7);
          this.renderLate((T)var2, var3, var4, var5, var6, var7);
@@ -319,7 +319,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
          Minecraft.getMinecraft().renderEngine.bindTexture(this.getSkinTexture(this.j));
 
-         this.renderRecursively(var2, var9, var4, var5, var6, this.j.v_clash550());
+         this.renderRecursively(var2, var9, var4, var5, var6, this.j.getRenderScaleFactor());
          Tessellator.getInstance().draw();
       }
    }
@@ -347,7 +347,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       if (!this.j.isLocallyRegistered()) {
          if (!this.j.getCurrentAction().hideNameTag) {
             if (i.getRenderManager().renderViewEntity != null) {
-               this.renderLivingLabel(this.j, this.j.ab_clash540(), var1, var3 + this.j.i_clash226(), var5, 300);
+               this.renderLivingLabel(this.j, this.j.getEffectiveDisplayName(), var1, var3 + this.j.i_clash226(), var5, 300);
             }
          }
       }
@@ -374,11 +374,11 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          return var9;
       }
 
-      if (var1.t_clash283() && (!(var1 instanceof AbstractPlayerGirlEntity) || i.gameSettings.thirdPersonView != 0)) {
+      if (var1.shouldRenderNameTag() && (!(var1 instanceof AbstractPlayerGirlEntity) || i.gameSettings.thirdPersonView != 0)) {
          this.a_clash199(var3, var5, var7);
       }
 
-      EntityPlayer var10 = var1.z_clash528();
+      EntityPlayer var10 = var1.getMasterPlayer();
       if (var10 != null && var10.isRiding() && var10.getRidingEntity() instanceof EntityHorse && ((EntityHorse)var10.getRidingEntity()).isHorseSaddled()) {
          return this.a_clash334(var10, var2);
       }
@@ -563,7 +563,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
    void a_clash335(T var1) {
       ArrayList var2 = new ArrayList<>(GirlModel.e);
-      var2.addAll(var1.p);
+      var2.addAll(var1.boneTrackingList);
 
       for (String var4 : (java.util.Collection<String>) (var2) ) {
          MatrixStack var5 = var1.a(var4, !var1.isLocallyRegistered());
@@ -851,7 +851,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          return this.a_clash337(var2, var3, var4);
       }
 
-      if ((Integer)this.j.m.get(BaseGirlEntity.D) == 0) {
+      if ((Integer)this.j.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) == 0) {
          return this.a_clash337(var2, var3, var4);
       }
 
@@ -975,7 +975,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    }
 
    protected ItemStack a_clash340() {
-      switch ((String)this.j.m.get(BaseGirlEntity.h)) {
+      switch ((String)this.j.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES)) {
          case "doggy":
             return new ItemStack(Items.DIAMOND, 2);
          case "blowjob":
@@ -1016,7 +1016,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
                   GlStateManager.translate(0.0, 0.0, 0.025);
             }
 
-            GlStateManager.scale(this.j.n, this.j.n, this.j.n);
+            GlStateManager.scale(this.j.scaleFactor, this.j.scaleFactor, this.j.scaleFactor);
             var4.renderItem(this.j, new ItemStack(var3.getItem(), 1), TransformType.THIRD_PERSON_RIGHT_HAND);
             this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
             var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
@@ -1052,7 +1052,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
                if (var6.getItem().equals(Items.BOW) && var4.getCurrentAction() == fp.BOW) {
                   this.a += 0.015F;
                   var4.d(Math.round(-this.a * 20.0F + var6.getMaxItemUseDuration()));
-                  var4.a_clash517(var6);
+                  var4.setHeldItemOverride(var6);
                }
 
                GlStateManager.pushMatrix();

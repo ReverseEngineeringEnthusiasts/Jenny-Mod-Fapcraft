@@ -85,7 +85,7 @@ public class GirlCameraHelper {
    }
 
    static float a(AbstractPlayerGirlEntity var0, EntityPlayer var1) {
-      if ((Boolean)var0.getDataManager().get(BaseGirlEntity.G)) {
+      if ((Boolean)var0.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
          return 0.0F;
       }
 

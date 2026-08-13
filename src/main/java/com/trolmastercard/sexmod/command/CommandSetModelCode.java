@@ -65,7 +65,7 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
          PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId()));
          var5.sendStatusMessage(new TextComponentString(this.a_clash756(var9)), true);
       } else {
-         PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId(), BaseGirlEntity.c_clash554(var7)));
+         PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId(), BaseGirlEntity.decodePartIdList(var7)));
          var5.sendStatusMessage(new TextComponentString(this.a_clash756(var9)), true);
       }
    }
@@ -81,7 +81,7 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
       if (var1 == null) {
          return AbstractPlayerGirlEntity.g(Minecraft.getMinecraft().player);
       } else {
-         return BaseGirlEntity.a_clash542(var1.entityHit)
+         return BaseGirlEntity.isValidGirl(var1.entityHit)
             ? (BaseGirlEntity)var1.entityHit
             : AbstractPlayerGirlEntity.g(Minecraft.getMinecraft().player);
       }

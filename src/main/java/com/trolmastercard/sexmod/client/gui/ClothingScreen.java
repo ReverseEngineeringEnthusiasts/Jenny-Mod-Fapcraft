@@ -92,7 +92,7 @@ public class ClothingScreen extends GuiScreen {
 
       this.e_clash817();
       String var12 = var1.getCustomModelCode();
-      this.c.getDataManager().set(BaseGirlEntity.b, var12);
+      this.c.getDataManager().set(BaseGirlEntity.CUSTOM_MODEL_KEY, var12);
       int var4 = 0;
 
       for (String var6 : this.c.getCustomPartsSet()) {
@@ -154,7 +154,7 @@ public class ClothingScreen extends GuiScreen {
 
    void e_clash817() {
       m.clear();
-      List var1 = this.c.d_clash556(this.g);
+      List var1 = this.c.buildCustomPartsData(this.g);
       this.i = var1.size();
       m.addAll(var1);
 

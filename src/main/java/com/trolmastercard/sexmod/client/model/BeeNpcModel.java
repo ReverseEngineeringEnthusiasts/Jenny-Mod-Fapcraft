@@ -39,7 +39,7 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
          AnimationProcessor var4 = this.getAnimationProcessor();
          IBone var5 = var4.getBone("chest");
          if (var5 != null) {
-            var5.setHidden(var1.E.getCurrentAnimation() == null || !var1.E.getCurrentAnimation().animationName.contains("chest"));
+            var5.setHidden(var1.movementController.getCurrentAnimation() == null || !var1.movementController.getCurrentAnimation().animationName.contains("chest"));
          }
       }
    }

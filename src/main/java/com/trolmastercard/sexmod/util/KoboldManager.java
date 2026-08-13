@@ -222,8 +222,8 @@ public class KoboldManager {
 
          if (!var2.a.isEmpty()) {
             c.replace(var0, var2);
-         } else if (var1.J_clash526()) {
-            EntityPlayer var8 = var1.z_clash528();
+         } else if (var1.hasMaster()) {
+            EntityPlayer var8 = var1.getMasterPlayer();
             if (var8 != null) {
                HashSet var9 = new HashSet();
                var9.addAll(var2.i);
@@ -562,11 +562,11 @@ public class KoboldManager {
       }
 
       KoboldEntity var3 = (KoboldEntity)var2.get(0);
-      if (!var3.J_clash526()) {
+      if (!var3.hasMaster()) {
          return null;
       }
 
-      String var4 = (String)((KoboldEntity)var2.get(0)).getDataManager().get(BaseGirlEntity.v);
+      String var4 = (String)((KoboldEntity)var2.get(0)).getDataManager().get(BaseGirlEntity.MASTER);
       return UUID.fromString(var4);
    }
 
@@ -674,7 +674,7 @@ public class KoboldManager {
                var3.b(fp.NULL);
                var3.setNoGravity(false);
                var3.noClip = false;
-               var3.getDataManager().set(BaseGirlEntity.G, false);
+               var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
             }
 
             this.f.remove(var1);

@@ -55,12 +55,12 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public float T_clash293() {
+   public float getLeftArmAngle() {
       return 35.0F;
    }
 
    @Override
-   public float ai_clash294() {
+   public float getRightArmAngle() {
       return 140.0F;
    }
 
@@ -71,8 +71,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void u_clash377() {
       this.b(fp.STARTDOGGY);
-      this.m.set(BaseGirlEntity.D, 0);
-      this.r = (Float)this.m.get(BaseGirlEntity.w);
+      this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
+      this.cameraYaw = (Float)this.entityDataManager.get(BaseGirlEntity.YAW_ROTATION);
    }
 
    @Override
@@ -93,7 +93,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void b(String var1, UUID var2) {
       if ("action.names.boobjob".equals(var1)) {
-         this.m.set(BaseGirlEntity.D, 0);
+         this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
          this.b(fp.PAIZURI_START);
          this.a(0, fp.PAIZURI_START);
          this.b_clash577(var2);
@@ -124,7 +124,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             var1.capabilities.isFlying = true;
             this.world.getPlayerEntityByUUID(this.getOwnerUserUUID()).capabilities.isFlying = true;
             this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
-            this.B = null;
+            this.cameraOriginPos = null;
             this.b(fp.DOGGYSTART);
             PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
          }
@@ -196,7 +196,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             } else if (this.ak) {
                this.a("animation.jenny.sit", true, var1);
             } else {
-               if (this.E.getCurrentAnimation() != null && this.E.getCurrentAnimation().animationName.contains("fly") && this.af) {
+               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.ap = !this.ap;
                }
 
@@ -204,13 +204,13 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                   this.a("animation.jenny.fly" + (this.ap ? "2" : ""), true, var1);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
-                     this.E.setAnimationSpeed(1.2F);
+                     this.movementController.setAnimationSpeed(1.2F);
                      this.a("animation.jenny.run", true, var1);
                   } else if (this.ao.y >= -0.1F) {
-                     this.E.setAnimationSpeed(1.5);
+                     this.movementController.setAnimationSpeed(1.5);
                      this.a("animation.jenny.fastwalk", true, var1);
                   } else {
-                     this.E.setAnimationSpeed(1.2F);
+                     this.movementController.setAnimationSpeed(1.2F);
                      this.a("animation.jenny.backwards_walk", true, var1);
                   }
                } else {
@@ -296,8 +296,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -318,7 +318,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             case "paymentMSG2":
                this.a(SoundHandler.MISC_PLOB[0], 0.5F);
                String var4 = "<" + Minecraft.getMinecraft().player.getName() + "> ";
-               switch ((String)this.m.get(BaseGirlEntity.h)) {
+               switch ((String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES)) {
                   case "strip":
                      this.b(var4 + "show Bobs and vegana pls", true);
                      return;
@@ -353,7 +353,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             case "bjiMSG1":
                this.h("What are you...");
                this.a(SoundHandler.GIRLS_JENNY_MMM[8]);
-               this.r = 180.0F;
+               this.cameraYaw = 180.0F;
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                }
@@ -475,12 +475,12 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             case "doggyCumDone":
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "doggyGoOnBedMSG1":
                this.a(SoundHandler.MISC_BEDRUSTLE[0]);
-               this.r = this.rotationYaw;
+               this.cameraYaw = this.rotationYaw;
                break;
             case "doggyGoOnBedMSG2":
                this.sendChatMessage("what are you waiting for?~");
@@ -590,7 +590,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             case "boobjob_camera":
                if (this.isControlledByLocalPlayer() && !this.as) {
                   this.as = true;
-                  this.r = 180.0F;
+                  this.cameraYaw = 180.0F;
                   this.positionPlayerRelative(-0.7, -0.6, -0.2, 60.0F, -3.0F);
                }
                break;
@@ -637,10 +637,10 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                }
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
    }
 
 }

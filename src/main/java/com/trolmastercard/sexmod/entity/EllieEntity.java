@@ -128,7 +128,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    @Override
-   public boolean t_clash283() {
+   public boolean shouldRenderNameTag() {
       return this.getCurrentAction() != fp.CARRY_INTRO;
    }
 
@@ -136,7 +136,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       if (var2) {
          a(var1, this, new String[]{"action.names.cowgirl", "action.names.missionary"}, false);
          return true;
-      } else if ((Integer)this.m.get(D) == 0) {
+      } else if ((Integer)this.entityDataManager.get(OUTFIT_INDEX) == 0) {
          a(var1, this, new String[]{"action.names.dressup"}, true);
          return true;
       } else {
@@ -146,8 +146,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    @Override
-   public void x_clash475() {
-      super.x_clash475();
+   public void goHome() {
+      super.goHome();
       this.sendChatMessage("stay safe darling~");
       this.a(SoundHandler.GIRLS_ELLIE_SIGH[1], 6.0F);
    }
@@ -276,9 +276,9 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    @Override
    protected void U() {
-      String var1 = (String)this.m.get(h);
+      String var1 = (String)this.entityDataManager.get(GIRL_HAND_STATES);
       if ("Missionary".equals(var1)) {
-         this.m.set(D, 0);
+         this.entityDataManager.set(OUTFIT_INDEX, 0);
          this.b(fp.MISSIONARY_START);
          UUID var2 = this.getInteractionPlayerUUID();
          if (var2 == null) {
@@ -287,7 +287,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
          EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
          if (var3 == null) {
-            this.r_clash533();
+            this.resetCameraAndPhysics();
             return;
          }
 
@@ -302,7 +302,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       }
 
       if ("cowgirl".equals(var1)) {
-         this.m.set(D, 0);
+         this.entityDataManager.set(OUTFIT_INDEX, 0);
          this.b(fp.COWGIRLSTART);
          UUID var6 = this.getInteractionPlayerUUID();
          if (var6 == null) {
@@ -311,7 +311,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
          EntityPlayer var7 = this.world.getPlayerEntityByUUID(var6);
          if (var7 == null) {
-            this.r_clash533();
+            this.resetCameraAndPhysics();
             return;
          }
 
@@ -359,7 +359,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    void q_clash484() {
       if (--this.ai == 0 || this.ah) {
          this.ah = true;
-         this.m.set(G, false);
+         this.entityDataManager.set(IS_ANCHORED, false);
          this.b(fp.NULL);
          this.noClip = false;
          this.setNoGravity(false);
@@ -388,7 +388,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                this.setTargetPosition(var2);
                this.setYawRotation(var3);
                this.b(fp.SITDOWN);
-               this.m.set(G, true);
+               this.entityDataManager.set(IS_ANCHORED, true);
                this.al = 109;
                this.noClip = true;
                this.setNoGravity(true);
@@ -467,14 +467,14 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             float var2 = (float)(Math.atan2(this.posZ - var1.posZ, this.posX - var1.posX) * (180.0 / Math.PI));
             this.setYawRotation(var2);
             this.setTargetPosition(this.getPositionVector());
-            this.m.set(G, true);
+            this.entityDataManager.set(IS_ANCHORED, true);
             this.b(fp.DASH);
             this.Z = 16;
             this.setNoGravity(true);
             this.noClip = true;
             PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
-            this.tasks.removeTask(this.z);
-            this.tasks.removeTask(this.o);
+            this.tasks.removeTask(this.wanderGoal);
+            this.tasks.removeTask(this.watchClosestGirlGoal);
          }
       }
    }
@@ -503,7 +503,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    void f_clash488() {
-      this.m.set(G, false);
+      this.entityDataManager.set(IS_ANCHORED, false);
       this.b(fp.NULL);
       this.setInteractionPlayerUUID(null);
       this.noClip = false;
@@ -516,7 +516,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
-      if (d_clash532(var1) != null) {
+      if (getActiveSceneInfo(var1) != null) {
          return false;
       }
 
@@ -577,7 +577,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                } else if (this.i_clash474()) {
                   this.a("animation.ellie.crouchwalk", true, var1);
                } else {
-                  switch (this.q_clash489()) {
+                  switch (this.getWalkType()) {
                      case RUN:
                         this.a("animation.ellie.run", true, var1);
                         return PlayState.CONTINUE;
@@ -678,20 +678,20 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "becomeNude":
                if (this.isLocalPlayerNearby()) {
-                  this.changeDataParameterFromClient("currentModel", this.m.get(D) == 1 ? "0" : "1");
+                  this.changeDataParameterFromClient("currentModel", this.entityDataManager.get(OUTFIT_INDEX) == 1 ? "0" : "1");
                }
                break;
             case "stripDone":
                this.b((fp) null);
-               this.r_clash533();
+               this.resetCameraAndPhysics();
                this.U();
                break;
             case "hugMSG2":
@@ -811,7 +811,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             case "carry_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "attackSound":
@@ -914,10 +914,10 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
    }
 
 }

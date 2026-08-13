@@ -147,10 +147,10 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.m.register(Y, 0.0F);
-      this.m.register(az, ItemStack.EMPTY);
-      this.m.register(af, false);
-      this.m.register(ag, ItemStack.EMPTY);
+      this.entityDataManager.register(Y, 0.0F);
+      this.entityDataManager.register(az, ItemStack.EMPTY);
+      this.entityDataManager.register(af, false);
+      this.entityDataManager.register(ag, ItemStack.EMPTY);
    }
 
    @Override
@@ -210,21 +210,21 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    public void b_clash383(ItemStack var1) {
-      this.m.set(ag, var1);
+      this.entityDataManager.set(ag, var1);
    }
 
    @Override
    public void reinitTasks() {
-      this.z = new EntityAIWanderAvoidWater(this, 0.35);
-      this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-      this.tasks.addTask(5, this.o);
-      this.tasks.addTask(5, this.z);
+      this.wanderGoal = new EntityAIWanderAvoidWater(this, 0.35);
+      this.watchClosestGirlGoal = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
+      this.tasks.addTask(5, this.watchClosestGirlGoal);
+      this.tasks.addTask(5, this.wanderGoal);
    }
 
    @Override
    public void updateAITasks() {
       super.updateAITasks();
-      if (!this.J_clash526()) {
+      if (!this.hasMaster()) {
          this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(1.0);
       } else {
          this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
@@ -232,7 +232,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
       this.m_clash393();
       this.i_clash389();
-      this.m.set(af, this.av != null && this.m.get(ag) == ItemStack.EMPTY);
+      this.entityDataManager.set(af, this.av != null && this.entityDataManager.get(ag) == ItemStack.EMPTY);
       if (this.al == this.world.getTotalWorldTime() && this.av != null) {
          this.world.removeEntity(this.av);
          this.av = null;
@@ -248,7 +248,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          } else {
             this.ay = false;
             this.ak = 0;
-            this.m.set(G, true);
+            this.entityDataManager.set(IS_ANCHORED, true);
             this.noClip = true;
             this.setNoGravity(true);
             this.motionX = 0.0;
@@ -269,19 +269,19 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             this.ac = false;
             this.aw = 0;
             this.setYawRotation(this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID()).rotationYaw + 180.0F);
-            this.m.set(G, true);
+            this.entityDataManager.set(IS_ANCHORED, true);
             this.getNavigator().clearPath();
             this.U();
          }
       }
 
       this.d_clash384();
-      this.m.set(az, this.Q.getStackInSlot(6));
+      this.entityDataManager.set(az, this.Q.getStackInSlot(6));
    }
 
    void d_clash384() {
       ItemStack var1 = this.ao;
-      ItemStack var2 = (ItemStack)this.m.get(az);
+      ItemStack var2 = (ItemStack)this.entityDataManager.get(az);
       if (!var2.equals(ItemStack.EMPTY)) {
          Map var3 = EnchantmentHelper.getEnchantments(var2);
          EnchantmentHelper.setEnchantments(var3, var1);
@@ -312,9 +312,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                var1.setRotationYawHead(this.getYawRotation() + 180.0F);
                var1.rotationYaw = this.getYawRotation() + 180.0F;
                var1.prevRotationYaw = this.getYawRotation() + 180.0F;
-               this.r = this.getYawRotation() + 180.0F;
+               this.cameraYaw = this.getYawRotation() + 180.0F;
                this.positionPlayerRelative(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
-               this.m.set(D, 0);
+               this.entityDataManager.set(OUTFIT_INDEX, 0);
             }
 
             this.ab++;
@@ -343,10 +343,10 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    public void a_clash292() {
-      this.m.set(G, false);
+      this.entityDataManager.set(IS_ANCHORED, false);
       this.b(fp.NULL);
       this.ar = true;
-      BlockPos var1 = this.a_clash525(this.getPosition());
+      BlockPos var1 = this.getNearestBed(this.getPosition());
       if (var1 == null) {
          this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
          PacketHandler.b
@@ -402,7 +402,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          Vec3d var12 = var2.add(var4[var5][0]);
          this.setYawRotation(var3[var5]);
          this.setTargetPosition(new Vec3d(var12.x, var12.y, var12.z));
-         this.r = this.getYawRotation();
+         this.cameraYaw = this.getYawRotation();
          this.getNavigator().clearPath();
          this.getNavigator().tryMoveToXYZ(var12.x, var12.y, var12.z, 0.2);
          this.ay = true;
@@ -411,13 +411,13 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    public void j_clash386() {
-      EntityItem var1 = new EntityItem(this.world, this.posX, this.posY, this.posZ, (ItemStack)this.m.get(ag));
+      EntityItem var1 = new EntityItem(this.world, this.posX, this.posY, this.posZ, (ItemStack)this.entityDataManager.get(ag));
       Vec3d var2 = ck.rotateByYaw(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.rotationYaw);
       var1.motionX = var2.x;
       var1.motionY = var2.y;
       var1.motionZ = var2.z;
       this.world.spawnEntity(var1);
-      this.m.set(ag, ItemStack.EMPTY);
+      this.entityDataManager.set(ag, ItemStack.EMPTY);
    }
 
    public void q_clash387() {
@@ -425,8 +425,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       this.at = 0;
       this.as = 0;
       this.am = false;
-      this.m.set(G, false);
-      this.m.set(ag, ItemStack.EMPTY);
+      this.entityDataManager.set(IS_ANCHORED, false);
+      this.entityDataManager.set(ag, ItemStack.EMPTY);
       this.setSilent(false);
       this.b(fp.NULL);
       if (this.av != null) {
@@ -435,11 +435,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       }
 
       if (this.getInteractionPlayerUUID() == null) {
-         this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-         this.tasks.addTask(5, this.o);
-         if (!this.J_clash526()) {
-            this.z = new EntityAIWanderAvoidWater(this, 0.35);
-            this.tasks.addTask(5, this.z);
+         this.watchClosestGirlGoal = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
+         this.tasks.addTask(5, this.watchClosestGirlGoal);
+         if (!this.hasMaster()) {
+            this.wanderGoal = new EntityAIWanderAvoidWater(this, 0.35);
+            this.tasks.addTask(5, this.wanderGoal);
          }
       }
    }
@@ -453,12 +453,12 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    void i_clash389() {
-      if (!this.J_clash526() && this.getInteractionPlayerUUID() == null && !this.ar) {
+      if (!this.hasMaster() && this.getInteractionPlayerUUID() == null && !this.ar) {
          if (!(++this.aj < 1200.0F)) {
             if (this.av != null && this.av.d == 15) {
                ((LunaRodItem)this.ao.getItem()).a(this.world, this, EnumHand.MAIN_HAND);
                this.al = this.world.getTotalWorldTime() + 20L;
-               ItemStack var1 = (ItemStack)this.m.get(ag);
+               ItemStack var1 = (ItemStack)this.entityDataManager.get(ag);
                if (var1 != ItemStack.EMPTY) {
                   if (var1.getItem() instanceof ItemFood) {
                      this.b(fp.FISHING_EAT);
@@ -481,20 +481,20 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                      true
                   );
                this.setSilent(true);
-               if (this.z != null) {
-                  this.tasks.removeTask(this.z);
-                  this.z = null;
+               if (this.wanderGoal != null) {
+                  this.tasks.removeTask(this.wanderGoal);
+                  this.wanderGoal = null;
                }
 
-               if (this.o != null) {
-                  this.tasks.removeTask(this.o);
-                  this.o = null;
+               if (this.watchClosestGirlGoal != null) {
+                  this.tasks.removeTask(this.watchClosestGirlGoal);
+                  this.watchClosestGirlGoal = null;
                }
 
                if (this.getCurrentAction() == fp.NULL) {
                   this.b(fp.FISHING_START);
                   this.setTargetPosition(this.getPositionVector());
-                  this.m.set(G, true);
+                  this.entityDataManager.set(IS_ANCHORED, true);
                   this.setYawRotation(
                      (float)Math.atan2(this.posZ - this.ai.getZ(), this.posX - this.ai.getX()) * (float) (180.0 / Math.PI)
                         + 90.0F
@@ -505,7 +505,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             }
          }
       } else {
-         if ((Boolean)this.m.get(af)) {
+         if ((Boolean)this.entityDataManager.get(af)) {
             this.q_clash387();
          }
       }
@@ -623,7 +623,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             ThreadNames.a_clash169(this.posX), ThreadNames.a_clash169(this.posY), ThreadNames.a_clash169(this.posZ)
          );
          if (var2 != null) {
-            this.m.set(Y, var2.distanceTo(var3));
+            this.entityDataManager.set(Y, var2.distanceTo(var3));
          }
       }
    }
@@ -674,7 +674,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    protected void U() {
-      switch ((String)this.m.get(h)) {
+      switch ((String)this.entityDataManager.get(GIRL_HAND_STATES)) {
          case "touch_boobs":
             if (this.getCurrentAction() != fp.PAYMENT) {
                this.b(fp.PAYMENT);
@@ -699,7 +699,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       if (this.world.isRemote) {
          this.changeDataParameterFromClient("animationFollowUp", "");
       } else {
-         this.m.set(h, "");
+         this.entityDataManager.set(GIRL_HAND_STATES, "");
       }
    }
 
@@ -743,7 +743,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a("animation.cat.sit", true, var1);
             } else if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
                if (this.onGround && Math.abs(Math.abs(this.prevPosY) - Math.abs(this.posY)) < 0.1F) {
-                  this.a(this.m.get(Y) < 3.0F ? "animation.cat.walk" : "animation.cat.run", true, var1);
+                  this.a(this.entityDataManager.get(Y) < 3.0F ? "animation.cat.walk" : "animation.cat.run", true, var1);
                } else {
                   this.a("animation.cat.fly", true, var1);
                }
@@ -826,8 +826,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -874,7 +874,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                   0.5F + 0.5F * this.rand.nextInt(2),
                   (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F
                );
-               this.n -= 0.33333334F;
+               this.scaleFactor -= 0.33333334F;
                break;
             case "burp":
                this.a(SoundEvents.ENTITY_PLAYER_BURP, 0.5F, this.rand.nextFloat() * 0.1F + 0.9F);
@@ -922,7 +922,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                   this.U();
                }
 
-               this.n = 1.0F;
+               this.scaleFactor = 1.0F;
                break;
             case "breath":
             case "rod_breath":
@@ -1017,12 +1017,12 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "touch_boobs_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "resetGirl":
                if (this.isLocalPlayerNearby()) {
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "touch_boobs_cumMSG1":
@@ -1115,11 +1115,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a(SoundHandler.GIRLS_LUNA_HORNINYA[0]);
          }
       };
-      this.E.transitionLengthTicks = 10.0;
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
+      this.movementController.transitionLengthTicks = 10.0;
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
    }
 
    @Override

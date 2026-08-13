@@ -37,7 +37,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
    protected void entityInit() {
       super.entityInit();
       if (!this.world.isRemote || !(this.world instanceof SexWorldClient)) {
-         this.m.register(M, this.a(new StringBuilder()));
+         this.entityDataManager.register(M, this.a(new StringBuilder()));
       }
    }
 
@@ -49,9 +49,9 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
 
    void c_clash221() {
       if (this.world.isRemote) {
-         String var1 = (String)this.m.get(N);
-         String var2 = (String)this.m.get(M);
-         BlockPos var3 = (BlockPos)this.m.get(K);
+         String var1 = (String)this.entityDataManager.get(N);
+         String var2 = (String)this.entityDataManager.get(M);
+         BlockPos var3 = (BlockPos)this.entityDataManager.get(K);
          if (this.P == null) {
             this.P = var1;
             this.O = var2;

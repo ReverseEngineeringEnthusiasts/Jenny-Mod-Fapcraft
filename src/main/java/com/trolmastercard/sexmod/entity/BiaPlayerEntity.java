@@ -98,12 +98,12 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public float T_clash293() {
+   public float getLeftArmAngle() {
       return 35.0F;
    }
 
    @Override
-   public float ai_clash294() {
+   public float getRightArmAngle() {
       return 140.0F;
    }
 
@@ -246,7 +246,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
             } else if (this.ak) {
                this.a("animation.bia.sit", true, var1);
             } else {
-               if (this.E.getCurrentAnimation() != null && this.E.getCurrentAnimation().animationName.contains("fly") && this.af) {
+               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.ap = !this.ap;
                }
 
@@ -254,13 +254,13 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                   this.a("animation.bia.fly" + (this.ap ? "2" : ""), true, var1);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
-                     this.E.setAnimationSpeed(1.2);
+                     this.movementController.setAnimationSpeed(1.2);
                      this.a("animation.bia.run", true, var1);
                   } else if (this.ao.y >= -0.1F) {
-                     this.E.setAnimationSpeed(1.2);
+                     this.movementController.setAnimationSpeed(1.2);
                      this.a("animation.bia.fastwalk", true, var1);
                   } else {
-                     this.E.setAnimationSpeed(1.2);
+                     this.movementController.setAnimationSpeed(1.2);
                      this.a("animation.bia.backwards_walk", true, var1);
                   }
                } else {
@@ -353,8 +353,8 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -406,7 +406,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "talk_responseDone":
                this.s();
-               if ((Integer)this.m.get(BaseGirlEntity.D) != 0) {
+               if ((Integer)this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) != 0) {
                   this.b(fp.STRIP);
                } else {
                   this.U();
@@ -473,7 +473,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                   HornyMeterHud.resetHornyMeter();
                }
 
-               this.r_clash533();
+               this.resetCameraAndPhysics();
                break;
             case "headpatMSG1":
                this.sendChatMessage("Ooh headpats!");
@@ -493,7 +493,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "headpatDone":
                if (this.isLocalPlayerNearby()) {
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "sitdownMSG1":
@@ -543,10 +543,10 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                }
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
-      var1.addAnimationController(this.C);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
+      var1.addAnimationController(this.actionController);
    }
 
 }
