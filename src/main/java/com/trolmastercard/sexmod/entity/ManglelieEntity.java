@@ -117,11 +117,11 @@ public class ManglelieEntity extends BaseGirlEntity {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.m.register(ad, "");
-      this.m.register(ap, false);
-      this.m.register(ab, -1);
-      this.m.register(al, "");
-      this.m.register(ar, false);
+      this.entityDataManager.register(ad, "");
+      this.entityDataManager.register(ap, false);
+      this.entityDataManager.register(ab, -1);
+      this.entityDataManager.register(al, "");
+      this.entityDataManager.register(ar, false);
    }
 
    @Override
@@ -141,16 +141,16 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    public void c_clash410(boolean var1) {
-      this.m.set(ap, var1);
+      this.entityDataManager.set(ap, var1);
    }
 
    public boolean r_clash411() {
-      return (Boolean)this.m.get(ap);
+      return (Boolean)this.entityDataManager.get(ap);
    }
 
    @Nullable
    public UUID v_clash412() {
-      String var1 = (String)this.m.get(ad);
+      String var1 = (String)this.entityDataManager.get(ad);
       if ("".equals(var1)) {
          return null;
       }
@@ -164,7 +164,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Override
-   public boolean t_clash283() {
+   public boolean shouldRenderNameTag() {
       return !this.r_clash411();
    }
 
@@ -181,9 +181,9 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    public void a_clash414(UUID var1) {
       if (var1 == null) {
-         this.m.set(ad, "");
+         this.entityDataManager.set(ad, "");
       } else {
-         this.m.set(ad, var1.toString());
+         this.entityDataManager.set(ad, var1.toString());
       }
    }
 
@@ -251,7 +251,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    public long e_clash420() {
-      String var1 = (String)this.m.get(al);
+      String var1 = (String)this.entityDataManager.get(al);
       if ("".equals(var1)) {
          return -1L;
       }
@@ -264,7 +264,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    public void a(long var1) {
-      this.m.set(al, Long.toString(var1));
+      this.entityDataManager.set(al, Long.toString(var1));
       this.U = false;
    }
 
@@ -342,12 +342,12 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    @Nullable
    public Entity b_clash424() {
-      int var1 = (Integer)this.m.get(ab);
+      int var1 = (Integer)this.entityDataManager.get(ab);
       return var1 == -1 ? null : this.world.getEntityByID(var1);
    }
 
    void a_clash425(int var1) {
-      this.m.set(ab, var1);
+      this.entityDataManager.set(ab, var1);
       this.a(var1 == -1 ? -1L : this.world.getTotalWorldTime());
    }
 
@@ -488,7 +488,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Override
-   public Vec3d a_clash432(Vec3d var1, float var2) {
+   public Vec3d transformRenderOffset(Vec3d var1, float var2) {
       if (!this.r_clash411()) {
          return var1;
       }
@@ -530,9 +530,9 @@ public class ManglelieEntity extends BaseGirlEntity {
                Vec3d var9 = var12.subtract(var11);
                float var10 = (float)gc.b(Math.atan2(var9.z, var9.x)) - 90.0F;
                this.setYawRotation(var10);
-               this.f = this.getNavigator();
-               this.f.clearPath();
-               this.f.tryMoveToEntityLiving(var6, 0.65F);
+               this.pathNavigator = this.getNavigator();
+               this.pathNavigator.clearPath();
+               this.pathNavigator.tryMoveToEntityLiving(var6, 0.65F);
             }
          }
       }
@@ -657,7 +657,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Override
-   protected boolean X_clash438() {
+   protected boolean supportsCustomModels() {
       return false;
    }
 
@@ -694,7 +694,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       if (this.r_clash411()) {
          this.b(fp.RIDE_MOMMY_HEAD);
          this.setYawRotation(0.0F);
-         this.m.setDirty(w);
+         this.entityDataManager.setDirty(YAW_ROTATION);
       }
    }
 
@@ -725,10 +725,10 @@ public class ManglelieEntity extends BaseGirlEntity {
          this.Y = false;
          this.M = false;
          this.an = 2;
-         this.r_clash533();
+         this.resetCameraAndPhysics();
          GalathEntity var8 = this.a_clash413(false);
          if (var8 != null) {
-            var8.r_clash533();
+            var8.resetCameraAndPhysics();
             CummyEntity.a_clash747(var8);
          }
 
@@ -787,17 +787,17 @@ public class ManglelieEntity extends BaseGirlEntity {
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
       AnimationController var2 = var1.getController();
-      if (this.s == var2) {
+      if (this.eyesController == var2) {
          if (this.b_clash424() == null) {
             return PlayState.STOP;
          }
 
          this.a("animation.manglelie.angry_face", true, var1);
          return PlayState.CONTINUE;
-      } else if (this.E == var2) {
+      } else if (this.movementController == var2) {
          if (this.getCurrentAction() == fp.NULL && !this.r_clash411()) {
             if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
-               if ((Boolean)this.m.get(ar)) {
+               if ((Boolean)this.entityDataManager.get(ar)) {
                   this.a("animation.manglelie.scared_run", true, var1);
                } else {
                   this.a("animation.manglelie.walk", true, var1);
@@ -847,9 +847,9 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
-      this.C.registerSoundListener(var1x -> {
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
+      this.actionController.registerSoundListener(var1x -> {
          switch (var1x.sound) {
             case "pound":
                this.a(SoundHandler.MISC_POUNDING);
@@ -887,7 +887,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                }
          }
       });
-      var1.addAnimationController(this.C);
+      var1.addAnimationController(this.actionController);
    }
 
 

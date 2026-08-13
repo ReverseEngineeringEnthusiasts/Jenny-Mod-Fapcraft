@@ -190,8 +190,8 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -218,7 +218,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                this.b(fp.DEEPTHROAT_START);
                if (this.isControlledByLocalPlayer()) {
                   PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
-                  this.r = this.rotationYaw + 180.0F;
+                  this.cameraYaw = this.rotationYaw + 180.0F;
                   this.positionPlayerRelative(0.0, 0.0, 1.35F, 0.0F, 30.0F);
                   HornyMeterHud.resetHornyMeter();
                }
@@ -252,7 +252,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
             case "cowgirl_cumDone":
             case "deepthroat_cumDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "deepthroat_normal_prepareMSG1":
@@ -330,9 +330,9 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                this.playRandomSound(SoundHandler.GIRLS_ALLIE_AFTERSESSIONMOAN);
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
    }
 
    @Override
@@ -357,7 +357,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                      + Math.abs(this.posZ - this.lastTickPosZ)
                );
             var4 = Math.min(1.0 + var4, 4.0);
-            this.E.setAnimationSpeed(var4);
+            this.movementController.setAnimationSpeed(var4);
             this.a("animation.allie.tail", true, var1);
             break;
          case "action":

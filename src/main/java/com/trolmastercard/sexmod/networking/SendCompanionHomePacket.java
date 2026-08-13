@@ -55,25 +55,25 @@ public class SendCompanionHomePacket implements IMessage {
                            if (var3.getCurrentAction() != fp.THROW_PEARL) {
                               var3.b(fp.THROW_PEARL);
                               var3.setYawRotation(
-                                 (float)Math.atan2(var3.posZ - var3.l.z, var3.posX - var3.l.x)
+                                 (float)Math.atan2(var3.posZ - var3.homePos.z, var3.posX - var3.homePos.x)
                                        * (float) (180.0 / Math.PI)
                                     + 90.0F
                               );
                               var3.setTargetPosition(var3.getPositionVector());
-                              var3.getDataManager().set(BaseGirlEntity.G, true);
-                              var3.q = null;
-                           } else if (var3.q == null) {
-                              float var6 = (float)var3.getPositionVector().distanceTo(var3.l);
-                              var3.q = new KoboldEggProjectileEntity(var3.world, var3);
-                              var3.q
+                              var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
+                              var3.activeEnderPearl = null;
+                           } else if (var3.activeEnderPearl == null) {
+                              float var6 = (float)var3.getPositionVector().distanceTo(var3.homePos);
+                              var3.activeEnderPearl = new KoboldEggProjectileEntity(var3.world, var3);
+                              var3.activeEnderPearl
                                  .shoot(
-                                    var3.l.x - var3.posX,
-                                    var3.l.y - var3.posY,
-                                    var3.l.z - var3.posZ,
+                                    var3.homePos.x - var3.posX,
+                                    var3.homePos.y - var3.posY,
+                                    var3.homePos.z - var3.posZ,
                                     Math.min(4.0F, var6 * 0.1F),
                                     0.0F
                                  );
-                              var3.world.spawnEntity(var3.q);
+                              var3.world.spawnEntity(var3.activeEnderPearl);
                            } else {
                               WorldServer var4 = (WorldServer)var3.world;
 
@@ -93,11 +93,11 @@ public class SendCompanionHomePacket implements IMessage {
                                  );
                               }
 
-                              var3.setPosition(var3.l.x, var3.l.y, var3.l.z);
-                              var3.q = null;
+                              var3.setPosition(var3.homePos.x, var3.homePos.y, var3.homePos.z);
+                              var3.activeEnderPearl = null;
                               var3.b(fp.NULL);
-                              var3.getDataManager().set(BaseGirlEntity.G, false);
-                              var3.x_clash475();
+                              var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
+                              var3.goHome();
                            }
                         }
                      }

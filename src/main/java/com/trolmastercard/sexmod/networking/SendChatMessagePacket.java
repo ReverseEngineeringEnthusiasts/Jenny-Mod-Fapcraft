@@ -79,7 +79,7 @@ public class SendChatMessagePacket implements IMessage {
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     Vec3d var1x = BaseGirlEntity.girlList(var1.c).get(0).M_clash518();
+                     Vec3d var1x = BaseGirlEntity.girlList(var1.c).get(0).getPreviousPosition();
                      PacketHandler.b
                         .sendToAllAround(
                            new SendChatMessagePacket(var1.a, var1.d, var1.c),

@@ -54,7 +54,7 @@ public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<K
       ArrayList var2 = new ArrayList();
 
       for (KoboldEntity var4 : (java.util.Collection<KoboldEntity>) (var5) ) {
-         if (var4.J_clash526()) {
+         if (var4.hasMaster()) {
             var2.add(var4);
          }
       }

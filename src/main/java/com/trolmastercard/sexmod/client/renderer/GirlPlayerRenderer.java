@@ -257,13 +257,13 @@ public class GirlPlayerRenderer extends GirlRenderer {
       if (this.u && !var3 && var5.getItem() instanceof ItemBow) {
          this.t += 0.015F;
          this.j.d(Math.round(-this.t * 20.0F + var5.getMaxItemUseDuration()));
-         this.j.a_clash517(var5);
+         this.j.setHeldItemOverride(var5);
          this.j.setActiveHand(EnumHand.MAIN_HAND);
          this.j.W();
       } else {
          this.t = 0.0F;
          this.j.d(0);
-         this.j.a_clash517(ItemStack.EMPTY);
+         this.j.setHeldItemOverride(ItemStack.EMPTY);
          this.j.W();
       }
 

@@ -89,7 +89,7 @@ public class PositionData {
             BaseGirlEntity var3 = BaseGirlEntity.a(var2.player.getPersistentID(), Boolean.valueOf(false));
             if (var3 != null) {
                if (var3.getCurrentAction().useBoyCam) {
-                  if (!var3.m_clash494()) {
+                  if (!var3.isCustomType()) {
                      this.b = var2.player.getPositionVector();
                      this.a = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
                      Vec3d var4 = var3.isAnchored()

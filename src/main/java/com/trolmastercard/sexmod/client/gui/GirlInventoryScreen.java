@@ -156,7 +156,7 @@ public class GirlInventoryScreen extends GuiScreen {
       this.itemRender.renderItemIntoGUI((ItemStack)this.l.get(AbstractGirlNpcEntity.U), var3 - 105, 146);
       this.itemRender.renderItemIntoGUI((ItemStack)this.l.get(AbstractGirlNpcEntity.W), var3 - 105, 166);
       if (this.n != 0.0F) {
-         if (!((String)this.l.get(BaseGirlEntity.v)).equals("")) {
+         if (!((String)this.l.get(BaseGirlEntity.MASTER)).equals("")) {
             byte var10 = 35;
             byte var11 = 70;
 

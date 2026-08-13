@@ -117,7 +117,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    void a_clash442() {
-      EntityPlayer var1 = this.S_clash495();
+      EntityPlayer var1 = this.getPlayerEntity();
       if (var1 != null) {
          Vec3d var2 = ck.rotateByYaw(new Vec3d(0.5, 0.5F - var1.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
          var1.setPositionAndUpdate(var2.x, var2.y, var2.z);
@@ -227,7 +227,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
             }
             break;
          case "movement":
-            this.E.setAnimationSpeed(1.0);
+            this.movementController.setAnimationSpeed(1.0);
             if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.galath.null", true, var1);
             } else if (this.ak) {
@@ -237,13 +237,13 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
             } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) == 0.0F) {
                this.a(this.g_clash445() ? "animation.galath.crouchidle" : "animation.galath.idle", true, var1);
             } else if (this.aj) {
-               this.E.setAnimationSpeed(1.5);
+               this.movementController.setAnimationSpeed(1.5);
                this.a(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.run", true, var1);
             } else if (this.ao.y >= -0.1F) {
-               this.E.setAnimationSpeed(2.0);
+               this.movementController.setAnimationSpeed(2.0);
                this.a(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.walk", true, var1);
             } else {
-               this.E.setAnimationSpeed(1.5);
+               this.movementController.setAnimationSpeed(1.5);
                this.a(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.backwards_walk", true, var1);
             }
             break;
@@ -302,8 +302,8 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {
-      this.p_clash506();
-      this.C
+      this.initAnimationControllers();
+      this.actionController
          .registerSoundListener(
             var1x -> {
                switch (var1x.sound) {
@@ -391,7 +391,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      CummyEntity.a_clash747(this);
                   case "reset":
                      if (this.isControlledByLocalPlayer()) {
-                        this.r_clash533();
+                        this.resetCameraAndPhysics();
                      }
                      break;
                   case "setCamCorrupt":
@@ -472,9 +472,9 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                }
             }
          );
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.s);
-      var1.addAnimationController(this.E);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.eyesController);
+      var1.addAnimationController(this.movementController);
    }
 
 }

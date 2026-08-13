@@ -143,7 +143,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    void d_clash174(BaseGirlEntity var1) {
-      if (var1.C.getAnimationState() == AnimationState.Transitioning) {
+      if (var1.actionController.getAnimationState() == AnimationState.Transitioning) {
          AnimationProcessor var2 = this.getAnimationProcessor();
          fp var3 = var1.getCurrentAction();
          if (var3 == fp.HUG_MANG) {
@@ -162,7 +162,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    void k(BaseGirlEntity var1) {
       if (!ClientProxy.IS_PRELOADING) {
          if (var1.getCurrentAction() == fp.MASTERBATE) {
-            Object var2 = var1.z_clash528();
+            Object var2 = var1.getMasterPlayer();
             if (var2 == null) {
                var2 = this.a.player;
             }

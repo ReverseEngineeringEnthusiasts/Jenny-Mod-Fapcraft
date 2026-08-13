@@ -69,7 +69,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       if ("action.names.touchboobs".equals(var1)) {
          this.a(0, fp.TOUCH_BOOBS_INTRO);
          this.b(fp.TOUCH_BOOBS_INTRO);
-         this.m.set(D, 0);
+         this.entityDataManager.set(OUTFIT_INDEX, 0);
          this.b_clash577(var2);
       }
 
@@ -128,9 +128,9 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                var1.setRotationYawHead(this.getYawRotation() + 180.0F);
                var1.rotationYaw = this.getYawRotation() + 180.0F;
                var1.prevRotationYaw = this.getYawRotation() + 180.0F;
-               this.r = this.getYawRotation() + 180.0F;
+               this.cameraYaw = this.getYawRotation() + 180.0F;
                this.positionPlayerRelative(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
-               this.m.set(D, 0);
+               this.entityDataManager.set(OUTFIT_INDEX, 0);
             }
 
             this.ar++;
@@ -191,7 +191,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
             } else if (this.ak) {
                this.a("animation.cat.sit", true, var1);
             } else {
-               if (this.E.getCurrentAnimation() != null && this.E.getCurrentAnimation().animationName.contains("fly") && this.af) {
+               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.aq = !this.aq;
                }
 
@@ -199,13 +199,13 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                   this.a("animation.cat.fly" + (this.aq ? "2" : ""), true, var1);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
-                     this.E.setAnimationSpeed(1.5);
+                     this.movementController.setAnimationSpeed(1.5);
                      this.a("animation.cat.run", true, var1);
                   } else if (this.ao.y >= -0.1F) {
-                     this.E.setAnimationSpeed(2.0);
+                     this.movementController.setAnimationSpeed(2.0);
                      this.a("animation.cat.fastwalk", true, var1);
                   } else {
-                     this.E.setAnimationSpeed(2.0);
+                     this.movementController.setAnimationSpeed(2.0);
                      this.a("animation.cat.backwards_walk", true, var1);
                   }
                } else {
@@ -286,8 +286,8 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -329,7 +329,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                   this.U();
                }
 
-               this.n = 1.0F;
+               this.scaleFactor = 1.0F;
                break;
             case "breath":
             case "rod_breath":
@@ -424,12 +424,12 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
             case "touch_boobs_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "resetGirl":
                if (this.isControlledByLocalPlayer()) {
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "touch_boobs_cumMSG1":
@@ -522,11 +522,11 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.GIRLS_LUNA_HORNINYA[0]);
          }
       };
-      this.E.transitionLengthTicks = 10.0;
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
+      this.movementController.transitionLengthTicks = 10.0;
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
    }
 
 }

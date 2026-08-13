@@ -55,7 +55,7 @@ public class SetNewHomePacket implements IMessage {
                ArrayList var1x = BaseGirlEntity.girlList(var1.c);
                if (!var1x.isEmpty()) {
                   for (BaseGirlEntity var3 : (java.util.Collection<BaseGirlEntity>) (var1x) ) {
-                     var3.l = new Vec3d(var1.a.x, Math.floor(var1.a.y), var1.a.z);
+                     var3.homePos = new Vec3d(var1.a.x, Math.floor(var1.a.y), var1.a.z);
                   }
                }
             });

@@ -358,7 +358,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       }
 
       this.c.setSpeed(var1);
-      this.q.a(this.q.q_clash489());
+      this.q.a(this.q.getWalkType());
       return var1;
    }
 
@@ -385,7 +385,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
             if (var2.N) {
                var1.setCanceled(true);
-            } else if (var2.getHealth() - var1.getAmount() < 0.0F && !((String)var2.getDataManager().get(AbstractGirlNpcEntity.v)).equals("")) {
+            } else if (var2.getHealth() - var1.getAmount() < 0.0F && !((String)var2.getDataManager().get(AbstractGirlNpcEntity.MASTER)).equals("")) {
                var2.N = true;
                var2.b(fp.DOWNED);
                var1.setAmount(var2.getHealth() - 1.0F);

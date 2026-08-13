@@ -349,7 +349,7 @@ public class CustomModelList extends GuiListExtended {
          float var8 = this.a_clash868(var2, var6, var7, var3, var4, var5);
          int var9 = (int)RotationHelper.lerp(var6, var7, var8);
          CustomModelList.this.d.drawTexturedModalRect(var9, var2, this.b(var3, var4, var9, var2, var9 + 4, var2 + 20) ? 223 : 219, 20, 4, 20);
-         CustomModelList.this.d.c.a_clash557(var5, (int)(var8 * 100.0F));
+         CustomModelList.this.d.c.setCustomPartValue(var5, (int)(var8 * 100.0F));
       }
 
       float a_clash868(int var1, int var2, int var3, int var4, int var5, int var6) {
@@ -379,7 +379,7 @@ public class CustomModelList extends GuiListExtended {
       }
 
       float a_clash869(int var1) {
-         Entry var2 = CustomModelList.this.d.c.d_clash556(CustomModelList.this.d.g).get(var1);
+         Entry var2 = CustomModelList.this.d.c.buildCustomPartsData(CustomModelList.this.d.g).get(var1);
          return ((Integer)((Entry)var2.getValue()).getValue()).intValue() / 100.0F;
       }
 

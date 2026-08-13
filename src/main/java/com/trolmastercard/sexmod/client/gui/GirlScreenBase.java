@@ -45,7 +45,7 @@ public class GirlScreenBase extends GuiScreen {
                this.a.add(var7);
                String var8 = (String)var1.get(var5);
                if (var8 != null) {
-                  var7.a_clash245(BaseGirlEntity.c_clash554(var8));
+                  var7.setCustomPartList(BaseGirlEntity.decodePartIdList(var8));
                }
             } catch (Exception var9) {
                var9.printStackTrace();

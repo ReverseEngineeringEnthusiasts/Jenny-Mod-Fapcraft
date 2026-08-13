@@ -184,7 +184,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
 
    @Override
    protected ItemStack a_clash340() {
-      String var1 = (String)this.j.getDataManager().get(BaseGirlEntity.h);
+      String var1 = (String)this.j.getDataManager().get(BaseGirlEntity.GIRL_HAND_STATES);
       if ("STARTBLOWJOB".equals(var1)) {
          return new ItemStack(Items.IRON_PICKAXE);
       } else {
@@ -216,7 +216,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       } else {
          EyeAndKoboldColor var9 = EyeAndKoboldColor.valueOf((String)var7.get(KoboldEntity.N));
          var8 = var9.getTextColor() + " -" + var8 + "-";
-         this.renderLivingLabel(this.j, this.j.ab_clash540() + var8, var1, var3 + this.j.i_clash226(), var5, 300);
+         this.renderLivingLabel(this.j, this.j.getEffectiveDisplayName() + var8, var1, var3 + this.j.i_clash226(), var5, 300);
       }
    }
 

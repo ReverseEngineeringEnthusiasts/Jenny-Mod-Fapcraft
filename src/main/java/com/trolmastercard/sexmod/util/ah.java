@@ -35,7 +35,7 @@ public class ah {
       if (var2 != DamageSource.OUT_OF_WORLD && !(var2 instanceof SuccubusDamageSource)) {
          if (var1.getEntity() instanceof EntityPlayer) {
             EntityPlayer var3 = (EntityPlayer)var1.getEntity();
-            BaseGirlEntity var4 = BaseGirlEntity.i_clash530(var3.getPersistentID());
+            BaseGirlEntity var4 = BaseGirlEntity.getGirlByUUID(var3.getPersistentID());
             if (var4 != null) {
                if (var4.getDistance(var3) < 1.0F) {
                   var1.setCanceled(true);

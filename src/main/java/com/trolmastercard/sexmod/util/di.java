@@ -46,7 +46,7 @@ public class di extends GirlPlayerRenderer {
    }
 
    boolean b_clash370() {
-      return (Boolean)this.j.getDataManager().get(BaseGirlEntity.G);
+      return (Boolean)this.j.getDataManager().get(BaseGirlEntity.IS_ANCHORED);
    }
 
    @Override

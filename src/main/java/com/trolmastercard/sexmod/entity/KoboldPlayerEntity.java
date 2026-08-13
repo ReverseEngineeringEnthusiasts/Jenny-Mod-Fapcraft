@@ -72,9 +72,9 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    protected void entityInit() {
       super.entityInit();
       EyeAndKoboldColor var1 = EyeAndKoboldColor.values()[this.getRNG().nextInt(EyeAndKoboldColor.values().length)];
-      this.m.register(au, new BlockPos(var1.getMainColor()));
-      this.m.register(as, aw.name());
-      this.m.register(aA, 0.0F);
+      this.entityDataManager.register(au, new BlockPos(var1.getMainColor()));
+      this.entityDataManager.register(as, aw.name());
+      this.entityDataManager.register(aA, 0.0F);
    }
 
    @Override
@@ -90,38 +90,38 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   public void a_clash245(List<Integer> var1) {
+   public void setCustomPartList(List<Integer> var1) {
       StringBuilder var2 = new StringBuilder();
 
       for (int var3 = 0; var3 < var1.size(); var3++) {
          int var4 = (Integer)var1.get(var3);
          switch (var3) {
             case 0:
-               this.m.set(aA, var4 / 100.0F * 0.25F);
+               this.entityDataManager.set(aA, var4 / 100.0F * 0.25F);
                break;
             case 1:
-               this.m.set(as, EyeAndKoboldColor.values()[var4].toString());
+               this.entityDataManager.set(as, EyeAndKoboldColor.values()[var4].toString());
                break;
             case 2:
-               this.m.set(au, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
+               this.entityDataManager.set(au, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
                break;
             default:
                AbstractNpcOnlyEntity.c(var2, var4);
          }
       }
 
-      this.m.set(at, var2.toString());
+      this.entityDataManager.set(at, var2.toString());
       if (this.world.isRemote) {
          de.e_clash190();
       }
    }
 
    @Override
-   public ArrayList<Integer> L_clash353() {
+   public ArrayList<Integer> getBasePartIdList() {
       ArrayList var1 = new ArrayList();
-      var1.add(Math.round((Float)this.m.get(aA) * 100.0F / 0.25F));
-      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.m.get(as))));
-      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.m.get(au))));
+      var1.add(Math.round((Float)this.entityDataManager.get(aA) * 100.0F / 0.25F));
+      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.entityDataManager.get(as))));
+      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.entityDataManager.get(au))));
       return var1;
    }
 
@@ -139,7 +139,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   public ArrayList<Integer> D_clash243() {
+   public ArrayList<Integer> getCustomPartIdList() {
       return new ArrayList<Integer>() {
          {
             this.add(101);
@@ -165,7 +165,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    @Override
    public float i_clash226() {
-      float var1 = 0.25F - (Float)this.m.get(aA);
+      float var1 = 0.25F - (Float)this.entityDataManager.get(aA);
       return 1.4F - var1;
    }
 
@@ -208,14 +208,14 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    @Override
    protected MatrixStack a(MatrixStack var1) {
-      float var2 = 0.25F - (Float)this.m.get(aA);
+      float var2 = 0.25F - (Float)this.entityDataManager.get(aA);
       var1.scale(1.0F - var2, 1.0F - var2, 1.0F - var2);
       return var1;
    }
 
    @Override
-   protected float a_clash356(float var1) {
-      float var2 = 1.0F - (0.25F - (Float)this.m.get(aA));
+   protected float transformCameraPivotY(float var1) {
+      float var2 = 1.0F - (0.25F - (Float)this.entityDataManager.get(aA));
       return var1 * var2;
    }
 
@@ -232,7 +232,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    @Override
    public Vec3i getHandColor(int var1) {
       try {
-         return EyeAndKoboldColor.valueOf((String)this.m.get(as)).getMainColor();
+         return EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(as)).getMainColor();
       } catch (Exception var3) {
          var3.printStackTrace();
          return super.getHandColor(var1);
@@ -294,7 +294,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
             } else if (this.ak) {
                this.a("animation.kobold.sit", true, var1);
             } else {
-               if (this.E.getCurrentAnimation() != null && this.E.getCurrentAnimation().animationName.contains("fly") && this.af) {
+               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.aB = !this.aB;
                }
 
@@ -302,13 +302,13 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                   this.a("animation.kobold.fly" + (this.aB ? "2" : ""), true, var1);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
-                     this.E.setAnimationSpeed(1.2F);
+                     this.movementController.setAnimationSpeed(1.2F);
                      this.a("animation.kobold.run", true, var1);
                   } else if (this.ao.y >= -0.1F) {
-                     this.E.setAnimationSpeed(2.0);
+                     this.movementController.setAnimationSpeed(2.0);
                      this.a("animation.kobold.walk", true, var1);
                   } else {
-                     this.E.setAnimationSpeed(1.75);
+                     this.movementController.setAnimationSpeed(1.75);
                      this.a("animation.kobold.backwards_walk", true, var1);
                   }
                } else {
@@ -398,7 +398,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    void b(SoundEvent var1, float var2) {
-      float var3 = 0.25F - (Float)this.m.get(aA);
+      float var3 = 0.25F - (Float)this.entityDataManager.get(aA);
       double var4 = var3 / 0.25F;
       float var6 = (float)RotationHelper.b(0.9F, 1.1F, var4);
       this.a(var1, var2, var6);
@@ -407,8 +407,8 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -479,12 +479,12 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                break;
             case "switch":
                this.ay = this.getRNG().nextBoolean();
-               this.C.clearAnimationCache();
+               this.actionController.clearAnimationCache();
                break;
             case "endSwitch":
                this.ay = false;
                this.az = !this.az;
-               this.C.clearAnimationCache();
+               this.actionController.clearAnimationCache();
                break;
             case "blowjobFastDone":
                if (this.isControlledByLocalPlayer() && !d3.d) {
@@ -500,7 +500,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
             case "analCumDone":
             case "blowjobCumDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                   HornyMeterHud.hideHornyMeter();
                }
                break;
@@ -641,15 +641,15 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                break;
             case "mating_press_cumDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
          }
       };
-      this.E.transitionLengthTicks = 3.0;
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
+      this.movementController.transitionLengthTicks = 3.0;
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
    }
 
 }

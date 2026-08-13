@@ -75,7 +75,7 @@ public class UploadModelStringPacket implements IMessage {
                if (var1.d.size() > 0) {
                   boolean var5 = this.a(var3, var1.d);
                   if (var5) {
-                     var3.a_clash245(var1.d);
+                     var3.setCustomPartList(var1.d);
                   }
 
                   if (!(var3 instanceof AbstractPlayerGirlEntity)) {
@@ -112,7 +112,7 @@ public class UploadModelStringPacket implements IMessage {
       }
 
       boolean a(BaseGirlEntity var1, List<Integer> var2) {
-         ArrayList var3 = var1.D_clash243();
+         ArrayList var3 = var1.getCustomPartIdList();
 
          try {
             for (int var4 = 0; var4 < var3.size(); var4++) {

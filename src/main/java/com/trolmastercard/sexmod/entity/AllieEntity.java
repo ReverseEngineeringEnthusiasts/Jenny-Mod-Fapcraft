@@ -59,7 +59,7 @@ public class AllieEntity extends BaseGirlEntity {
 
    public AllieEntity(World var1, ItemStack var2) {
       this(var1);
-      this.m.set(N, var2);
+      this.entityDataManager.set(N, var2);
    }
 
    @Override
@@ -75,11 +75,11 @@ public class AllieEntity extends BaseGirlEntity {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.m.register(N, ItemStack.EMPTY);
+      this.entityDataManager.register(N, ItemStack.EMPTY);
    }
 
    public boolean f_clash697() {
-      NBTTagCompound var1 = ((ItemStack)this.m.get(N)).getTagCompound();
+      NBTTagCompound var1 = ((ItemStack)this.entityDataManager.get(N)).getTagCompound();
       return var1 == null ? true : var1.getInteger("sexmodUses") == 1;
    }
 
@@ -205,7 +205,7 @@ public class AllieEntity extends BaseGirlEntity {
    }
 
    void a_clash701() {
-      EntityPlayer var1 = this.S_clash495();
+      EntityPlayer var1 = this.getPlayerEntity();
       if (var1 != null) {
          Vec3d var2 = this.getTargetPosition();
          var1.setPositionAndUpdate(var2.x, var2.y, var2.z);
@@ -291,8 +291,8 @@ public class AllieEntity extends BaseGirlEntity {
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -351,13 +351,13 @@ public class AllieEntity extends BaseGirlEntity {
                break;
             case "deepthroat_prepareDone":
                if (this.isControlledByLocalPlayer()) {
-                  if ("reverse_cowgirl".equals(this.m.get(h))) {
+                  if ("reverse_cowgirl".equals(this.entityDataManager.get(GIRL_HAND_STATES))) {
                      this.rotationPitch = 30.0F;
                      this.b(fp.REVERSE_COWGIRL_START);
                   } else {
                      this.b(fp.DEEPTHROAT_START);
                      PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
-                     this.r = this.rotationYaw + 180.0F;
+                     this.cameraYaw = this.rotationYaw + 180.0F;
                      this.positionPlayerRelative(0.0, 0.0, 1.35F, 0.0F, 30.0F);
                      HornyMeterHud.resetHornyMeter();
                   }
@@ -398,7 +398,7 @@ public class AllieEntity extends BaseGirlEntity {
             case "cowgirl_cumDone":
             case "deepthroat_cumDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                   PacketHandler.b.sendToServer(new UploadInventoryToServerPacket2(this.getGirlId()));
                }
                break;
@@ -410,7 +410,7 @@ public class AllieEntity extends BaseGirlEntity {
                this.sendChatMessage(I18n.format("allie.dialogue.youhave", new Object[0]));
                break;
             case "summon_normalMSG3":
-               if (((ItemStack)this.m.get(N)).getTagCompound().getInteger("sexmodUses") == 2) {
+               if (((ItemStack)this.entityDataManager.get(N)).getTagCompound().getInteger("sexmodUses") == 2) {
                   this.sendChatMessage(I18n.format("allie.dialogue.2wishes", new Object[0]));
                } else {
                   this.sendChatMessage(I18n.format("allie.dialogue.1wish", new Object[0]));
@@ -525,10 +525,10 @@ public class AllieEntity extends BaseGirlEntity {
                this.a(SoundHandler.GIRLS_ALLIE_AFTERSESSIONMOAN);
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
    }
 
    @Override

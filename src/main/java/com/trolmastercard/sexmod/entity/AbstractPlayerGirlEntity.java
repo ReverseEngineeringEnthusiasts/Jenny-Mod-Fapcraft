@@ -84,7 +84,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    protected AbstractPlayerGirlEntity(World var1, UUID var2) {
       this(var1);
-      this.m.set(ai, Optional.of(var2));
+      this.entityDataManager.set(ai, Optional.of(var2));
    }
 
    @Nullable
@@ -165,8 +165,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @Override
    public String getDisplayNameText() {
-      if (((Optional)this.m.get(ai)).isPresent()) {
-         EntityPlayer var1 = this.world.getPlayerEntityByUUID((UUID)((Optional)this.m.get(ai)).get());
+      if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
+         EntityPlayer var1 = this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
          if (var1 != null) {
             return var1.getName();
          }
@@ -204,20 +204,20 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.m.register(ai, Optional.absent());
+      this.entityDataManager.register(ai, Optional.absent());
    }
 
    @SideOnly(Side.CLIENT)
    public static void i_clash572() {
       AbstractPlayerGirlEntity var0 = getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
       if (var0 != null) {
-         var0.r_clash533();
+         var0.resetCameraAndPhysics();
       }
    }
 
    @Override
-   public void r_clash533() {
-      this.B = null;
+   public void resetCameraAndPhysics() {
+      this.cameraOriginPos = null;
       this.setNoGravity(false);
       if (this.world.isRemote) {
          this.V();
@@ -233,14 +233,14 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          var1.setInvisible(false);
          var1.setNoGravity(false);
          var1.noClip = false;
-         this.m.set(G, false);
+         this.entityDataManager.set(IS_ANCHORED, false);
          PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
       }
    }
 
    @SideOnly(Side.CLIENT)
    @Override
-   public boolean H_clash562() {
+   public boolean hasCustomParts() {
       Minecraft var1 = Minecraft.getMinecraft();
       return !this.f_clash579() || var1.gameSettings.thirdPersonView != 0;
    }
@@ -287,7 +287,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       EntityPlayer var2 = null;
 
       for (EntityPlayer var4 : (java.util.Collection<EntityPlayer>) (var1) ) {
-         if (!var4.getPersistentID().equals(((Optional)this.m.get(ai)).get())) {
+         if (!var4.getPersistentID().equals(((Optional)this.entityDataManager.get(ai)).get())) {
             if (var2 == null) {
                var2 = var4;
             } else {
@@ -316,7 +316,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    protected void b_clash577(UUID var1) {
       EntityPlayerMP var2 = (EntityPlayerMP)this.world.getPlayerEntityByUUID(var1);
-      EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.m.get(ai)).get());
+      EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
       PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var2);
       PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var3);
       this.setInteractionPlayerUUID(var1);
@@ -330,8 +330,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       var2.setPositionAndUpdate(var4.x, var4.y, var4.z + 1.0);
       var2.capabilities.isFlying = true;
       var3.capabilities.isFlying = true;
-      this.j_clash521(var1);
-      this.m.set(G, true);
+      this.snapPlayerToPosition(var1);
+      this.entityDataManager.set(IS_ANCHORED, true);
       this.setTargetPosition(var4);
       this.setYawRotation(0.0F);
    }
@@ -364,9 +364,9 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @SideOnly(Side.CLIENT)
    public boolean f_clash579() {
-      return !((Optional)this.m.get(ai)).isPresent()
+      return !((Optional)this.entityDataManager.get(ai)).isPresent()
          ? false
-         : ((UUID)((Optional)this.m.get(ai)).get()).equals(Minecraft.getMinecraft().player.getPersistentID());
+         : ((UUID)((Optional)this.entityDataManager.get(ai)).get()).equals(Minecraft.getMinecraft().player.getPersistentID());
    }
 
    public boolean E_clash458() {
@@ -472,35 +472,35 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public void f(EntityPlayer var1) {
-      this.m.set(X, ItemStack.EMPTY);
-      this.m.set(T, ItemStack.EMPTY);
-      this.m.set(U, ItemStack.EMPTY);
-      this.m.set(W, ItemStack.EMPTY);
+      this.entityDataManager.set(X, ItemStack.EMPTY);
+      this.entityDataManager.set(T, ItemStack.EMPTY);
+      this.entityDataManager.set(U, ItemStack.EMPTY);
+      this.entityDataManager.set(W, ItemStack.EMPTY);
 
       for (ItemStack var3 : var1.getArmorInventoryList()) {
          if (var3.getItem() instanceof ItemElytra) {
-            this.m.set(T, var3);
+            this.entityDataManager.set(T, var3);
          } else if (var3.getItem() instanceof ItemArmor) {
             ItemArmor var4 = (ItemArmor)var3.getItem();
             switch (var4.getEquipmentSlot()) {
                case HEAD:
-                  this.m.set(X, var3);
+                  this.entityDataManager.set(X, var3);
                   break;
                case CHEST:
-                  this.m.set(T, var3);
+                  this.entityDataManager.set(T, var3);
                   break;
                case LEGS:
-                  this.m.set(U, var3);
+                  this.entityDataManager.set(U, var3);
                   break;
                case FEET:
-                  this.m.set(W, var3);
+                  this.entityDataManager.set(W, var3);
             }
          }
       }
    }
 
    public UUID getOwnerUserUUID() {
-      return ((Optional)this.m.get(ai)).isPresent() ? (UUID)((Optional)this.m.get(ai)).get() : null;
+      return ((Optional)this.entityDataManager.get(ai)).isPresent() ? (UUID)((Optional)this.entityDataManager.get(ai)).get() : null;
    }
 
    @Nullable
@@ -510,7 +510,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public void a(Optional<UUID> var1) {
-      this.m.set(ai, var1);
+      this.entityDataManager.set(ai, var1);
    }
 
    public void y_clash234() {
@@ -565,8 +565,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    public void a(String var1, UUID var2) {
       if (!this.a_clash571(var1)) {
-         if (((Optional)this.m.get(ai)).isPresent()) {
-            PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.m.get(ai)).get(), this.ab));
+         if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
+            PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
             this.ab = true;
          }
       }
@@ -575,13 +575,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    public void writeEntityToNBT(NBTTagCompound var1) {
       super.writeEntityToNBT(var1);
-      var1.setString("owner", ((UUID)((Optional)this.m.get(ai)).get()).toString());
+      var1.setString("owner", ((UUID)((Optional)this.entityDataManager.get(ai)).get()).toString());
    }
 
    @Override
    public void readEntityFromNBT(NBTTagCompound var1) {
       super.readEntityFromNBT(var1);
-      this.m.set(ai, Optional.of(UUID.fromString(var1.getString("owner"))));
+      this.entityDataManager.set(ai, Optional.of(UUID.fromString(var1.getString("owner"))));
       Z.add(this);
    }
 

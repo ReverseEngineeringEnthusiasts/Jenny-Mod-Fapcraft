@@ -79,7 +79,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    public static JennyEntity a(World var0) {
       JennyEntity var1 = new JennyEntity(var0);
-      var1.F = true;
+      var1.isSpecialState = true;
       return var1;
    }
 
@@ -96,7 +96,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.m.register(Y, false);
+      this.entityDataManager.register(Y, false);
    }
 
    @Override
@@ -123,14 +123,14 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 15.0);
       if (this.af && var1 != null && var1.getPositionVector().distanceTo(this.getPositionVector()) < 0.5) {
          this.af = false;
-         this.m.set(BaseGirlEntity.y, this.world.getClosestPlayerToEntity(this, 15.0).getPersistentID().toString());
+         this.entityDataManager.set(BaseGirlEntity.INTERACTION_PARTNER_UUID, this.world.getClosestPlayerToEntity(this, 15.0).getPersistentID().toString());
          EntityPlayerMP var2 = this.getServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID());
-         this.m.set(BaseGirlEntity.y, var2.getPersistentID().toString());
+         this.entityDataManager.set(BaseGirlEntity.INTERACTION_PARTNER_UUID, var2.getPersistentID().toString());
          var2.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVector().y, this.getPositionVector().z);
          this.a(var2, false);
          var2.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
          this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
-         this.B = null;
+         this.cameraOriginPos = null;
          this.b(fp.DOGGYSTART);
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var2);
       }
@@ -144,7 +144,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             }
          } else {
             this.Z = false;
-            this.m.set(BaseGirlEntity.G, true);
+            this.entityDataManager.set(BaseGirlEntity.IS_ANCHORED, true);
             this.ad = 0;
             this.noClip = true;
             this.setNoGravity(true);
@@ -157,9 +157,9 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
       if (this.ab) {
          this.ac++;
-         if (!this.getPositionVector().equals(BaseGirlEntity.e) && this.ac <= 40) {
+         if (!this.getPositionVector().equals(BaseGirlEntity.TARGET_POS) && this.ac <= 40) {
             this.rotationYaw = this.getYawRotation();
-            this.setTargetPosition(this.aa_clash545());
+            this.setTargetPosition(this.getFrontOffsetVector());
             this.setNoGravity(false);
             Vec3d var3 = RotationHelper.a(this.getPositionVector(), this.getTargetPosition(), 40 - this.ac);
             this.setPosition(var3.x, var3.y, var3.z);
@@ -167,9 +167,9 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             this.ab = false;
             this.ac = 0;
             this.setYawRotation(this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID()).rotationYaw + 180.0F);
-            this.m.set(BaseGirlEntity.G, true);
+            this.entityDataManager.set(BaseGirlEntity.IS_ANCHORED, true);
             this.getNavigator().clearPath();
-            if ((Boolean)this.m.get(Y)) {
+            if ((Boolean)this.entityDataManager.get(Y)) {
                this.U();
                return;
             }
@@ -195,23 +195,23 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    public void onUpdate() {
       super.onUpdate();
       if (!this.world.isRemote) {
-         this.m.set(Y, this.isPotionActive(HornyPotion.b));
+         this.entityDataManager.set(Y, this.isPotionActive(HornyPotion.b));
       }
    }
 
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
       if (this.getInteractionPlayerUUID() == null
-         && (!this.J_clash526() || ((String)this.m.get(BaseGirlEntity.v)).equals(Minecraft.getMinecraft().player.getPersistentID().toString()))
+         && (!this.hasMaster() || ((String)this.entityDataManager.get(BaseGirlEntity.MASTER)).equals(Minecraft.getMinecraft().player.getPersistentID().toString()))
          )
        {
          String[] var2 = new String[]{
             "action.names.blowjob",
             "action.names.boobjob",
             "action.names.doggy",
-            this.m.get(BaseGirlEntity.D) == 1 ? "action.names.strip" : "action.names.dressup"
+            this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) == 1 ? "action.names.strip" : "action.names.dressup"
          };
-         if ((Boolean)this.m.get(Y)) {
+         if ((Boolean)this.entityDataManager.get(Y)) {
             BaseGirlEntity.a(var1, this, var2, true);
             return true;
          } else {
@@ -223,7 +223,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                   new ItemStack(Items.EMERALD, 3),
                   new ItemStack(Items.ENDER_PEARL, 2),
                   new ItemStack(Items.DIAMOND, 2),
-                  this.m.get(BaseGirlEntity.D) == 1 ? new ItemStack(Items.GOLD_INGOT, 1) : new ItemStack(Items.AIR, 0)
+                  this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) == 1 ? new ItemStack(Items.GOLD_INGOT, 1) : new ItemStack(Items.AIR, 0)
                },
                true
             );
@@ -261,13 +261,13 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    public void a_clash292() {
-      BlockPos var1 = this.a_clash525(this.getPosition());
+      BlockPos var1 = this.getNearestBed(this.getPosition());
       if (var1 == null) {
          this.a(SoundHandler.GIRLS_JENNY_HMPH[2]);
          this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
       } else {
-         this.tasks.removeTask(this.z);
-         this.tasks.removeTask(this.o);
+         this.tasks.removeTask(this.wanderGoal);
+         this.tasks.removeTask(this.watchClosestGirlGoal);
          Vec3d var2 = new Vec3d(var1.getX(), var1.getY(), var1.getZ());
          int[] var3 = new int[]{0, 180, -90, 90};
          Vec3d[][] var4 = new Vec3d[][]{
@@ -314,7 +314,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          this.setAnchored(false);
          this.setYawRotation(var3[var5]);
          this.setTargetPosition(new Vec3d(var12.x, var12.y, var12.z));
-         this.r = this.getYawRotation();
+         this.cameraYaw = this.getYawRotation();
          this.getNavigator().clearPath();
          this.getNavigator().tryMoveToXYZ(var12.x, var12.y, var12.z, 0.35);
          this.Z = true;
@@ -382,15 +382,15 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    public void reinitTasks() {
-      this.z = new EntityAIWanderAvoidWater(this, 0.35);
-      this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-      this.tasks.addTask(5, this.o);
-      this.tasks.addTask(5, this.z);
+      this.wanderGoal = new EntityAIWanderAvoidWater(this, 0.35);
+      this.watchClosestGirlGoal = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
+      this.tasks.addTask(5, this.watchClosestGirlGoal);
+      this.tasks.addTask(5, this.wanderGoal);
    }
 
    @Override
    protected void U() {
-      switch ((String)this.m.get(BaseGirlEntity.h)) {
+      switch ((String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES)) {
          case "strip":
             this.s();
             this.b(fp.STRIP);
@@ -399,7 +399,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             this.b(fp.STARTBLOWJOB);
             break;
          case "boobjob":
-            if ((Integer)this.m.get(BaseGirlEntity.D) != 0) {
+            if ((Integer)this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) != 0) {
                this.b(fp.STRIP);
                return;
             }
@@ -407,13 +407,13 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             this.b(fp.PAIZURI_START);
             break;
          case "doggy":
-            if ((Integer)this.m.get(BaseGirlEntity.D) != 0) {
+            if ((Integer)this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) != 0) {
                this.b(fp.STRIP);
                this.s();
                return;
             }
 
-            this.r_clash533();
+            this.resetCameraAndPhysics();
             if (this.world.isRemote) {
                PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
             } else {
@@ -425,7 +425,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       if (this.world.isRemote) {
          this.changeDataParameterFromClient("animationFollowUp", "");
       } else {
-         this.m.set(BaseGirlEntity.h, "");
+         this.entityDataManager.set(BaseGirlEntity.GIRL_HAND_STATES, "");
       }
    }
 
@@ -449,7 +449,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             } else if (this.isRiding()) {
                this.a("animation.jenny.sit", true, var1);
             } else if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
-               switch (this.q_clash489()) {
+               switch (this.getWalkType()) {
                   case RUN:
                      this.a("animation.jenny.run", true, var1);
                      break;
@@ -550,8 +550,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -567,12 +567,12 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "becomeNude":
                if (this.isLocalPlayerNearby()) {
-                  this.changeDataParameterFromClient("currentModel", this.m.get(BaseGirlEntity.D) == 1 ? "0" : "1");
+                  this.changeDataParameterFromClient("currentModel", this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) == 1 ? "0" : "1");
                }
                break;
             case "stripDone":
-               if (!((String)this.m.get(BaseGirlEntity.h)).equals("boobjob")) {
-                  this.r_clash533();
+               if (!((String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES)).equals("boobjob")) {
+                  this.resetCameraAndPhysics();
                }
 
                this.U();
@@ -588,7 +588,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "paymentMSG2":
                this.a(SoundHandler.MISC_PLOB[0], 0.5F);
                String var4 = "<" + Minecraft.getMinecraft().player.getName() + "> ";
-               switch ((String)this.m.get(BaseGirlEntity.h)) {
+               switch ((String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES)) {
                   case "strip":
                      this.b(var4 + I18n.format("jenny.dialogue.showBobsandveganapls", new Object[0]), true);
                      return;
@@ -623,7 +623,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "bjiMSG1":
                this.h(I18n.format("jenny.dialogue.blowjobtext1", new Object[0]));
                this.a(SoundHandler.GIRLS_JENNY_MMM[8]);
-               this.r = this.rotationYaw + 180.0F;
+               this.cameraYaw = this.rotationYaw + 180.0F;
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                }
@@ -751,12 +751,12 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "doggyCumDone":
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "doggyGoOnBedMSG1":
                this.a(SoundHandler.MISC_BEDRUSTLE[0]);
-               this.r = this.rotationYaw;
+               this.cameraYaw = this.rotationYaw;
                break;
             case "doggyGoOnBedMSG2":
                this.sendChatMessage(I18n.format("jenny.dialogue.doggytext1", new Object[0]));
@@ -865,8 +865,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "boobjob_camera":
                UUID var6 = Minecraft.getMinecraft().player.getPersistentID();
-               if (var6.equals(this.world.getClosestPlayerToEntity(this.af_clash520(), 2.0).getPersistentID())) {
-                  this.r = this.world.getPlayerEntityByUUID(var6).rotationYaw;
+               if (var6.equals(this.world.getClosestPlayerToEntity(this.getSelf(), 2.0).getPersistentID())) {
+                  this.cameraYaw = this.world.getPlayerEntityByUUID(var6).rotationYaw;
                   this.setInteractionPlayerUUID(var6);
                   if (!this.ae) {
                      this.ae = true;
@@ -917,10 +917,10 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.E);
-      var1.addAnimationController(this.s);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.movementController);
+      var1.addAnimationController(this.eyesController);
    }
 
 }

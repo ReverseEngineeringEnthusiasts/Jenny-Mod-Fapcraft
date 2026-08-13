@@ -35,7 +35,7 @@ public class f4 {
 
          String var5 = var4.getDisplayName();
          if (!"".equals(var5)) {
-            ((BaseGirlEntity)var2).g_clash538(var5);
+            ((BaseGirlEntity)var2).setCustomNameOverride(var5);
             if (!var3.capabilities.isCreativeMode) {
                var4.shrink(1);
             }

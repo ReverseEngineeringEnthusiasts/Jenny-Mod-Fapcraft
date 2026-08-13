@@ -41,7 +41,7 @@ public class d3 {
          }
 
          if (b.jump && HornyMeterHud.c >= 1.0) {
-            BaseGirlEntity.f_clash534(Minecraft.getMinecraft().player.getPersistentID());
+            BaseGirlEntity.triggerCumAction(Minecraft.getMinecraft().player.getPersistentID());
          }
 
          b.backKeyDown = false;

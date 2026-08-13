@@ -90,8 +90,8 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       this.f.put("customLowerArmL", "lowerArmL");
       this.f.put("customArmR", "armR");
       this.f.put("customLowerArmR", "lowerArmR");
-      this.g.put("lowerArmR", var0 -> gc.wrapDegrees(var0.ai_clash294()));
-      this.g.put("lowerArmL", var0 -> gc.wrapDegrees(var0.T_clash293()));
+      this.g.put("lowerArmR", var0 -> gc.wrapDegrees(var0.getRightArmAngle()));
+      this.g.put("lowerArmL", var0 -> gc.wrapDegrees(var0.getLeftArmAngle()));
    }
 
    boolean d(SexSceneEntity var1) {
@@ -125,7 +125,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    public static void a_clash810(BaseGirlEntity var0, float var1) {
       if (!var0.isDead) {
          if (var0.world.isRemote) {
-            if (var0.H_clash562()) {
+            if (var0.hasCustomParts()) {
                RenderManager var2 = Minecraft.getMinecraft().getRenderManager();
 
                for (String var4 : var0.getCustomPartsSet()) {

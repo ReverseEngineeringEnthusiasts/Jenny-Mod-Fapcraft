@@ -264,11 +264,11 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       if (var6 < 1.0F) {
          float var7 = (float)RotationHelper.e(var6);
          this.j.d((int)(11.0F * (1.0F - var7) + 71980.0F));
-         this.j.a_clash517(var5);
+         this.j.setHeldItemOverride(var5);
          this.j.setActiveHand(EnumHand.MAIN_HAND);
          this.j.W();
       } else {
-         this.j.a_clash517(ItemStack.EMPTY);
+         this.j.setHeldItemOverride(ItemStack.EMPTY);
          this.j.K();
       }
 
@@ -369,7 +369,7 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
 
          Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.j));
 
-         this.renderRecursively(var2, var11, var4, var5, var6, this.j.v_clash550());
+         this.renderRecursively(var2, var11, var4, var5, var6, this.j.getRenderScaleFactor());
          Tessellator.getInstance().draw();
          MATRIX_STACK.pop();
       }

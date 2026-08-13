@@ -198,7 +198,7 @@ public class dx extends GirlPlayerRenderer {
 
       Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.j));
 
-      this.renderRecursively(var2, var11, var4, var5, var6, this.j.v_clash550());
+      this.renderRecursively(var2, var11, var4, var5, var6, this.j.getRenderScaleFactor());
       Tessellator.getInstance().draw();
       MATRIX_STACK.pop();
    }

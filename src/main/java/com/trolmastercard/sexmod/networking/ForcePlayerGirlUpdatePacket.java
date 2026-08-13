@@ -55,8 +55,8 @@ public class ForcePlayerGirlUpdatePacket implements IMessage {
                return null;
             }
 
-            var3.getDataManager().set(BaseGirlEntity.J, var1.a.toString());
-            var3.getDataManager().set(BaseGirlEntity.D, var1.b);
+            var3.getDataManager().set(BaseGirlEntity.CUR_ACTION, var1.a.toString());
+            var3.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, var1.b);
             return null;
          } else {
             System.out.println("received an invalid message @ForcePlayerGirlUpdate :(");

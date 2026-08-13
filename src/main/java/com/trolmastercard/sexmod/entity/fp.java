@@ -310,12 +310,12 @@ public enum fp {
 
    @SideOnly(Side.CLIENT)
    public static float a_clash716(BaseGirlEntity var0) {
-      return (float)a(var0.C);
+      return (float)a(var0.actionController);
    }
 
    @SideOnly(Side.CLIENT)
    public static float c_clash717(BaseGirlEntity var0, float var1) {
-      return (float)(var0.getFactory().getOrCreateAnimationData(var0.getUniqueID().hashCode()).tick + var1 - var0.C.tickOffset);
+      return (float)(var0.getFactory().getOrCreateAnimationData(var0.getUniqueID().hashCode()).tick + var1 - var0.actionController.tickOffset);
    }
 
    @SideOnly(Side.CLIENT)

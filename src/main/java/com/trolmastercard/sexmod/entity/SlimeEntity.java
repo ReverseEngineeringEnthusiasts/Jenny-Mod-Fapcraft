@@ -83,7 +83,7 @@ public class SlimeEntity extends BaseGirlEntity {
 
    @SideOnly(Side.CLIENT)
    @Override
-   public boolean t_clash283() {
+   public boolean shouldRenderNameTag() {
       return false;
    }
 
@@ -124,17 +124,17 @@ public class SlimeEntity extends BaseGirlEntity {
    @Override
    public void writeEntityToNBT(NBTTagCompound var1) {
       super.writeEntityToNBT(var1);
-      var1.setInteger("hornyLevel", (Integer)this.m.get(T));
-      var1.setInteger("ticksUntilBirth", (Integer)this.m.get(U));
+      var1.setInteger("hornyLevel", (Integer)this.entityDataManager.get(T));
+      var1.setInteger("ticksUntilBirth", (Integer)this.entityDataManager.get(U));
    }
 
    @Override
    public void readEntityFromNBT(NBTTagCompound var1) {
       super.readEntityFromNBT(var1);
-      this.m.set(T, var1.getInteger("hornyLevel"));
-      this.m.set(U, var1.getInteger("ticksUntilBirth"));
-      if ((Integer)this.m.get(T) != 0) {
-         this.m.set(D, 0);
+      this.entityDataManager.set(T, var1.getInteger("hornyLevel"));
+      this.entityDataManager.set(U, var1.getInteger("ticksUntilBirth"));
+      if ((Integer)this.entityDataManager.get(T) != 0) {
+         this.entityDataManager.set(OUTFIT_INDEX, 0);
       }
 
       this.noClip = false;
@@ -148,8 +148,8 @@ public class SlimeEntity extends BaseGirlEntity {
 
    @Override
    public void reinitTasks() {
-      this.m.set(T, 0);
-      this.m.set(D, 1);
+      this.entityDataManager.set(T, 0);
+      this.entityDataManager.set(OUTFIT_INDEX, 1);
    }
 
    @Override
@@ -157,9 +157,9 @@ public class SlimeEntity extends BaseGirlEntity {
       super.updateAITasks();
       this.a_clash725();
       this.c_clash724();
-      if (this.isPotionActive(HornyPotion.b) && this.S == SlimeEntity.SlimeEntityState.IDLE && (Integer)this.m.get(U) == -1) {
-         this.m.set(T, 2);
-         if ((Integer)this.m.get(D) == 1) {
+      if (this.isPotionActive(HornyPotion.b) && this.S == SlimeEntity.SlimeEntityState.IDLE && (Integer)this.entityDataManager.get(U) == -1) {
+         this.entityDataManager.set(T, 2);
+         if ((Integer)this.entityDataManager.get(OUTFIT_INDEX) == 1) {
             this.b(fp.UNDRESS);
          }
 
@@ -174,7 +174,7 @@ public class SlimeEntity extends BaseGirlEntity {
          this.b_clash726();
       }
 
-      if ((Integer)this.m.get(T) >= 2 && this.ticksExisted % 10 == 0) {
+      if ((Integer)this.entityDataManager.get(T) >= 2 && this.ticksExisted % 10 == 0) {
          a(EnumParticleTypes.HEART, this);
       }
 
@@ -199,7 +199,7 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    void d_clash723() {
-      int var1 = (Integer)this.m.get(U);
+      int var1 = (Integer)this.entityDataManager.get(U);
       if (var1 != -1) {
          a(EnumParticleTypes.SPELL_WITCH, this);
          if (var1 == 0) {
@@ -209,34 +209,34 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    void c_clash724() {
-      int var1 = (Integer)this.m.get(U);
+      int var1 = (Integer)this.entityDataManager.get(U);
       if (var1 != -1) {
-         this.m.set(U, var1 - 1);
+         this.entityDataManager.set(U, var1 - 1);
          if (--var1 < 0) {
             WildSlimeEntity var2 = new WildSlimeEntity(this.world);
             var2.setPosition(this.posX, this.posY, this.posZ);
             this.world.spawnEntity(var2);
-            this.m.set(U, -1);
+            this.entityDataManager.set(U, -1);
          }
       }
    }
 
    void a_clash725() {
-      int var1 = (Integer)this.m.get(T);
+      int var1 = (Integer)this.entityDataManager.get(T);
       if (var1 >= 2) {
          if (var1 >= 4 && this.onGround && this.getCurrentAction() == fp.NULL) {
             this.setTargetPosition(this.getPositionVector());
             this.setYawRotation(this.rotationYaw);
-            this.m.set(G, true);
+            this.entityDataManager.set(IS_ANCHORED, true);
             this.setNoGravity(true);
             this.noClip = true;
             this.b(fp.STARTDOGGY);
          } else {
             EntityPlayer var2 = this.world.getClosestPlayerToEntity(this, 1.0);
-            if (var2 != null && var2.onGround && d_clash532(var2) == null) {
+            if (var2 != null && var2.onGround && getActiveSceneInfo(var2) == null) {
                this.setTargetPosition(this.getPositionVector());
                this.setYawRotation(this.rotationYaw);
-               this.m.set(G, true);
+               this.entityDataManager.set(IS_ANCHORED, true);
                this.setNoGravity(true);
                this.noClip = true;
                var2.setNoGravity(true);
@@ -267,13 +267,13 @@ public class SlimeEntity extends BaseGirlEntity {
             this.N = 0;
          }
 
-         float var1 = (Float)this.m.get(R);
+         float var1 = (Float)this.entityDataManager.get(R);
          this.rotationYaw = var1;
          this.rotationYawHead = var1;
          this.renderYawOffset = var1;
       } else {
          if (this.N == 85.0) {
-            this.m.set(R, this.e_clash728());
+            this.entityDataManager.set(R, this.e_clash728());
          }
 
          if (this.N == 100.0) {
@@ -281,13 +281,13 @@ public class SlimeEntity extends BaseGirlEntity {
          }
 
          if (!this.K && this.onGround) {
-            this.V = (Integer)this.m.get(U) == -1 && this.getRNG().nextFloat() < 0.1F;
+            this.V = (Integer)this.entityDataManager.get(U) == -1 && this.getRNG().nextFloat() < 0.1F;
          }
 
          if (this.V && this.N == 50) {
-            int var3 = (Integer)this.m.get(T);
+            int var3 = (Integer)this.entityDataManager.get(T);
             int var2 = var3 + 1;
-            this.m.set(T, var2);
+            this.entityDataManager.set(T, var2);
             if (var2 == 1) {
                this.b(fp.UNDRESS);
             }
@@ -306,7 +306,7 @@ public class SlimeEntity extends BaseGirlEntity {
       this.motionY = 0.0;
       this.motionZ = 0.0;
       this.jump();
-      float var1 = (Float)this.m.get(R);
+      float var1 = (Float)this.entityDataManager.get(R);
       this.rotationYaw = var1;
       this.prevRotationYaw = var1;
       Vec3d var2 = new Vec3d(0.0, 0.0, 0.7F);
@@ -317,8 +317,8 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    float e_clash728() {
-      int var1 = (Integer)this.m.get(T);
-      if ((Integer)this.m.get(U) != -1) {
+      int var1 = (Integer)this.entityDataManager.get(T);
+      if ((Integer)this.entityDataManager.get(U) != -1) {
          return this.f_clash729();
       } else if (var1 < 2) {
          return this.f_clash729();
@@ -327,7 +327,7 @@ public class SlimeEntity extends BaseGirlEntity {
          if (var2 == null) {
             return this.f_clash729();
          } else {
-            return d_clash532(var2) != null
+            return getActiveSceneInfo(var2) != null
                ? this.f_clash729()
                : (float)Math.atan2(this.posZ - var2.posZ, this.posX - var2.posX) * (float) (180.0 / Math.PI) + 90.0F;
          }
@@ -357,7 +357,7 @@ public class SlimeEntity extends BaseGirlEntity {
             break;
          case "action":
             if (this.getCurrentAction() == fp.NULL) {
-               this.a(this.S.a, true, var1);
+               this.a(this.S.animationId, true, var1);
             } else {
                switch (this.getCurrentAction()) {
                   case UNDRESS:
@@ -417,13 +417,13 @@ public class SlimeEntity extends BaseGirlEntity {
                break;
             case "dress":
                if (this.isLocalPlayerNearby()) {
-                  this.m.set(D, 1);
+                  this.entityDataManager.set(OUTFIT_INDEX, 1);
                   this.b((fp) null);
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "becomeNude":
-               this.m.set(D, 0);
+               this.entityDataManager.set(OUTFIT_INDEX, 0);
                break;
             case "sexUiOn":
                if (this.isControlledByLocalPlayer() && !HornyMeterHud.d) {
@@ -494,13 +494,13 @@ public class SlimeEntity extends BaseGirlEntity {
             case "doggyCumDone":
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                   this.changeDataParameterFromClient("pregnant", String.valueOf(2400));
                }
                break;
             case "doggyGoOnBedMSG1":
                this.a(SoundEvents.ENTITY_SLIME_SQUISH);
-               this.r = this.rotationYaw;
+               this.cameraYaw = this.rotationYaw;
                break;
             case "doggyGoOnBedDone":
                this.b(fp.WAITDOGGY);
@@ -584,9 +584,9 @@ public class SlimeEntity extends BaseGirlEntity {
                this.S = SlimeEntity.SlimeEntityState.IDLE;
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.s);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.eyesController);
    }
 
 
@@ -596,14 +596,14 @@ public class SlimeEntity extends BaseGirlEntity {
       JUMP_AIR("animation.slime.jumpair"),
       JUMP_END("animation.slime.jumpend");
 
-      String a;
+      String animationId;
 
       public String a_clash867() {
-         return this.a;
+         return this.animationId;
       }
 
       SlimeEntityState(String var3) {
-         this.a = var3;
+         this.animationId = var3;
       }
    }
 }

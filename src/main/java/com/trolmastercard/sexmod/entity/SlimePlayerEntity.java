@@ -122,7 +122,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.rotationYaw = this.getYawRotation();
-               this.r = this.getYawRotation();
+               this.cameraYaw = this.getYawRotation();
                var1.setPosition(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z);
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
                this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
@@ -155,7 +155,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
             } else if (this.ak) {
                this.a("animation.slime.sit", true, var1);
             } else {
-               if (this.E.getCurrentAnimation() != null && this.E.getCurrentAnimation().animationName.contains("fly") && this.af) {
+               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.ap = !this.ap;
                }
 
@@ -235,8 +235,8 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      if (this.C == null) {
-         this.p_clash506();
+      if (this.actionController == null) {
+         this.initAnimationControllers();
       }
 
       AnimationController.ISoundListener var2 = var1x -> {
@@ -249,15 +249,15 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "undress":
                if (this.isLocalPlayerNearby()) {
-                  this.m.set(D, 0);
-                  this.r_clash533();
+                  this.entityDataManager.set(OUTFIT_INDEX, 0);
+                  this.resetCameraAndPhysics();
                }
                break;
             case "dress":
                if (this.isLocalPlayerNearby()) {
-                  this.m.set(D, 1);
+                  this.entityDataManager.set(OUTFIT_INDEX, 1);
                   this.b((fp) null);
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "sexUiOn":
@@ -333,12 +333,12 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
             case "doggyCumDone":
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
-                  this.r_clash533();
+                  this.resetCameraAndPhysics();
                }
                break;
             case "doggyGoOnBedMSG1":
                this.a(SoundEvents.ENTITY_SLIME_SQUISH);
-               this.r = this.rotationYaw;
+               this.cameraYaw = this.rotationYaw;
                break;
             case "doggyGoOnBedDone":
                PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
@@ -414,10 +414,10 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundEvents.ENTITY_SLIME_DEATH);
          }
       };
-      this.C.registerSoundListener(var2);
-      var1.addAnimationController(this.C);
-      var1.addAnimationController(this.s);
-      var1.addAnimationController(this.E);
+      this.actionController.registerSoundListener(var2);
+      var1.addAnimationController(this.actionController);
+      var1.addAnimationController(this.eyesController);
+      var1.addAnimationController(this.movementController);
    }
 
 }
