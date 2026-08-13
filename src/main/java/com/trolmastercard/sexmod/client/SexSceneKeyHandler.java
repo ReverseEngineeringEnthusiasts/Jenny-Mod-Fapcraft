@@ -29,10 +29,10 @@ public class SexSceneKeyHandler {
 
          try {
             for (BaseGirlEntity var5 : BaseGirlEntity.ad_clash509()) {
-               if (var5.field_70170_p.field_72995_K && !var5.field_70128_L && var5.ae_clash498() != null && var5.y_clash492() != fp.NULL) {
+               if (var5.field_70170_p.field_72995_K && !var5.field_70128_L && var5.ae_clash498() != null) {
                   UUID var6 = var5.ae_clash498();
                   if (var3.equals(var6) || var2.field_71439_g.func_110124_au().equals(var6)) {
-                     PacketHandler.b.sendToServer(new ResetGirlPacket(var5.f_clash491()));
+                     PacketHandler.b.sendToServer(new ResetGirlPacket(var5.f_clash491(), true));
                   }
                }
             }
@@ -41,7 +41,7 @@ public class SexSceneKeyHandler {
 
          AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.d_clash567(var3);
          if (var8 != null && var8.y_clash492() != fp.NULL) {
-            PacketHandler.b.sendToServer(new ResetGirlPacket(var8.f_clash491()));
+            PacketHandler.b.sendToServer(new ResetGirlPacket(var8.f_clash491(), true));
          }
       }
    }

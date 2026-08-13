@@ -237,6 +237,18 @@ javac regenerates the bridges:
   was dead.
 Applied to base + remap; both build. Compiled bridges now match the jar exactly.
 
+### 2o. ResetGirlPacket boolean INVERTED — general scene breakage (FIXED 2026-08-13)
+`ResetGirlPacket.Handler.onMessage` had `if (!var1.a) a_clash10(girl)`. Original jar bytecode:
+`getfield s.a; ifeq skip; invokestatic a(em)` → **`a==true` = full girl reset**. The deobfuscation
+flipped it, so every single-arg `ResetGirlPacket(uuid)` (a=false, sent as "unlock player, keep
+scene") instead did a FULL reset — and `ResetGirlPacket(uuid,true)` (the real "leave" path) did
+NOTHING but unlock. Effects: any scene that binds then sends ResetGirl (Luna/Jenny "sex":
+`SendGirlToSex` + `ResetGirl`) instantly died ("Ellie face-fuck launched then removed me", "all
+sex scenes broken"), and proper scene exits left girls half-reset (stuck walk/state, sex HUD bar
+stuck). FIXED: `if (var1.a)`. Keybind (2m) updated to send the `(uuid, true)` full-reset variant
+and to reset any girl bound to the player (not just non-NULL actions). Base + remap build.
+**Stale half-broken girls from earlier sessions may need R-Shift (now working) or a fresh world.**
+
 ---
 
 ## 3. Key architecture findings (verified against original bytecode)
