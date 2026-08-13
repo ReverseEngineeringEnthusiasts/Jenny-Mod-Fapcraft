@@ -201,6 +201,22 @@ bridges `setLivingAnimations(IAnimatable,…)` and `setLivingAnimations(Object,�
 plus `SexSceneModel.a(SexSceneEntity,…)` → `setLivingAnimations(...)`. javac now generates the
 bridges; compiled bytecode matches the jar. Both projects build (0 errors).
 
+### 2m. Luna "touch boobs" — verified byte-faithful; expected flow is approach → PAYMENT gate (2026-08-13)
+Reported: "she walks to me, sometimes stuck in walk animation, sometimes stops but nothing happens".
+Cross-checked the whole chain against the original jar via Recaf MCP (CFR) + javap bytecode:
+`LunaEntity` (`eb`) — `a(String,UUID)`, `func_70619_bc` (ac/ay lerp + U() + PAYMENT), `b_clash158`
+(ac=true), sound-keyframe listener (paymentDone → U()), animation predicate, registerControllers
+(`E.transitionLengthTicks=10`), `func_70037_a` — all byte-faithful. `KoboldStatePacket`/`ChangeData
+ParameterPacket`/`d3` movement lock / packet registrations / cat.animation.json (json-identical to
+jar) — all faithful.
+The "walk to me" is the follow goal (walks when `ae==null`); the "stuck walk" is the ac-lerp
+glide (movement controller sees `func_70107_b` position deltas → walk anim during the ≤40t
+approach — original behavior); "stops, nothing happens" = the **PAYMENT gate**: she demands
+2 cooked fish before `TOUCH_BOOBS_INTRO`. GirlFollowGoal is an elaboration (merged the fighter
+companion goal `f`/`f$a` ATTACK/RIDE/DOWNED states) but the follow gate (`ae==null`) matches the
+jar's `h`.
+Actionable: the new R-SHIFT "Leave sex scene" keybind resets any stuck girl.
+
 ---
 
 ## 3. Key architecture findings (verified against original bytecode)
