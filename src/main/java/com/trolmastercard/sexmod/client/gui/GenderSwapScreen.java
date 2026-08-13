@@ -21,12 +21,12 @@ import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class GenderSwapScreen {
-   public static GenderSwapScreen a;
-   private GenderSwapScreen.a b;
+   public static GenderSwapScreen instance;
+   private GenderSwapScreen.a activeButton;
 
    public void tick() {
-      if (a.b != null) {
-         if (--a.b.e <= 0.0F) {
+      if (instance.activeButton != null) {
+         if (--instance.activeButton.countdown <= 0.0F) {
             Minecraft.getMinecraft()
                .player
                .sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + I18n.format("genderswap.sexpromt.timeout", new Object[0])));
@@ -36,27 +36,27 @@ public class GenderSwapScreen {
    }
 
    public GenderSwapScreen.a b_clash862() {
-      return a.b;
+      return instance.activeButton;
    }
 
    void c_clash863() {
-      a.b = null;
+      instance.activeButton = null;
    }
 
    public void a(@Nonnull GenderSwapScreen.a var1) {
       World var2 = Minecraft.getMinecraft().player.world;
-      EntityPlayer var3 = var2.getPlayerEntityByUUID(var1.d);
-      EntityPlayer var4 = var2.getPlayerEntityByUUID(var1.c);
+      EntityPlayer var3 = var2.getPlayerEntityByUUID(var1.playerUUID);
+      EntityPlayer var4 = var2.getPlayerEntityByUUID(var1.girlUUID);
       if (var4 != null && var3 != null) {
          TextComponentString var5 = new TextComponentString(
             TextFormatting.LIGHT_PURPLE
-               + (var1.b ? var4.getName() : var3.getName())
+               + (var1.isMale ? var4.getName() : var3.getName())
                + " "
                + TextFormatting.DARK_PURPLE
                + I18n.format("genderswap.sexpromt.playerxaskedfory", new Object[0])
                + " "
                + TextFormatting.LIGHT_PURPLE
-               + I18n.format(var1.a, new Object[0])
+               + I18n.format(var1.label, new Object[0])
          );
          TextComponentString var6 = new TextComponentString(TextFormatting.DARK_PURPLE + I18n.format("genderswap.sexpromt.autodeletion", new Object[0]));
          TextComponentString var7 = new TextComponentString(
@@ -74,17 +74,17 @@ public class GenderSwapScreen {
          var3.sendMessage(var5);
          var3.sendMessage(var6);
          var3.sendMessage(var7);
-         this.b = var1;
+         this.activeButton = var1;
       }
    }
 
    @SubscribeEvent
    public void a(ClientChatEvent var1) {
-      if (a.b_clash862() != null) {
+      if (instance.b_clash862() != null) {
          String var2 = var1.getMessage().toLowerCase();
          if (var2.equals(I18n.format("genderswap.sexpromt.accept", new Object[0]).toLowerCase())) {
-            GenderSwapScreen.a var3 = a.b_clash862();
-            this.a(var3.a, var3.d, var3.c);
+            GenderSwapScreen.a var3 = instance.b_clash862();
+            this.a(var3.label, var3.playerUUID, var3.girlUUID);
             this.c_clash863();
             var1.setCanceled(true);
          }
@@ -102,23 +102,23 @@ public class GenderSwapScreen {
    }
 
    void a(String var1, UUID var2, UUID var3) {
-      PacketHandler.b.sendToServer(new StartStandingSexAnimationPacket(var2, var3, var1));
+      PacketHandler.networkWrapper.sendToServer(new StartStandingSexAnimationPacket(var2, var3, var1));
    }
 
 
    public static class a {
-      public String a;
-      public UUID c;
-      public UUID d;
-      public float e;
-      boolean b;
+      public String label;
+      public UUID girlUUID;
+      public UUID playerUUID;
+      public float countdown;
+      boolean isMale;
 
       public a(String var1, UUID var2, UUID var3, boolean var4) {
-         this.a = var1;
-         this.c = var2;
-         this.d = var3;
-         this.e = 1200.0F;
-         this.b = var4;
+         this.label = var1;
+         this.girlUUID = var2;
+         this.playerUUID = var3;
+         this.countdown = 1200.0F;
+         this.isMale = var4;
       }
    }
 }

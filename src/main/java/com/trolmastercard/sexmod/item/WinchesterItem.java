@@ -10,12 +10,12 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 public class WinchesterItem extends Item implements IAnimatable {
-   public static final WinchesterItem b = new WinchesterItem();
-   private final AnimationFactory a = new AnimationFactory(this);
+   public static final WinchesterItem WINCHESTER_ITEM = new WinchesterItem();
+   private final AnimationFactory animationFactory = new AnimationFactory(this);
 
    public static void register() {
-      b.setRegistryName(new ResourceLocation("sexmod", "winchester"));
-      b.setTranslationKey("winchester");
+      WINCHESTER_ITEM.setRegistryName(new ResourceLocation("sexmod", "winchester"));
+      WINCHESTER_ITEM.setTranslationKey("winchester");
       MinecraftForge.EVENT_BUS.register(WinchesterItem.class);
    }
 
@@ -25,6 +25,6 @@ public class WinchesterItem extends Item implements IAnimatable {
 
    @Override
    public AnimationFactory getFactory() {
-      return this.a;
+      return this.animationFactory;
    }
 }

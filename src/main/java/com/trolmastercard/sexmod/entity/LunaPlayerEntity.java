@@ -219,7 +219,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.cat.null", true, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.cat.attack" + this.S, false, var1);
+                  this.createAnimation("animation.cat.attack" + this.nextAttack, false, var1);
                   break;
                case RIDE:
                case SIT:
@@ -293,8 +293,8 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackDone":
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "idleDone":
@@ -304,7 +304,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.as = false;
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "paymentMSG1":
                this.sendChatMessageToPlayer(this.getInteractionPlayerUUID(), "Here, I know u like fish and yea.. these are for you");
@@ -405,7 +405,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "fastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.TOUCH_BOOBS_SLOW);
                }
                break;
@@ -484,7 +484,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "sitting_fastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.COWGIRL_SITTING_SLOW);
                   Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
                   Vec3d var9 = VectorMath.rotateByYaw(var8, this.getYawRotation() + 180.0F);

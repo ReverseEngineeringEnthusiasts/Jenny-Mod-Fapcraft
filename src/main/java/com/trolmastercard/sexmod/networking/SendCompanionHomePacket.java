@@ -24,33 +24,33 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class SendCompanionHomePacket implements IMessage {
-   boolean b;
-   UUID a;
+   boolean isValid;
+   UUID girlUUID;
 
    public SendCompanionHomePacket() {
    }
 
    public SendCompanionHomePacket(UUID var1) {
-      this.a = var1;
+      this.girlUUID = var1;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.a = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.b = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.a.toString());
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<SendCompanionHomePacket, IMessage> {
       public IMessage onMessage(SendCompanionHomePacket var1, MessageContext var2) {
-         if (var1.b && var2.side == Side.SERVER) {
+         if (var1.isValid && var2.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.a)) {
+                     for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
                         if (!var3.world.isRemote) {
                            if (var3.getCurrentAction() != Action.THROW_PEARL) {
                               var3.setCurrentAction(Action.THROW_PEARL);
@@ -82,13 +82,13 @@ public class SendCompanionHomePacket implements IMessage {
                                     EnumParticleTypes.PORTAL,
                                     false,
                                     var3.posX,
-                                    var3.posY + Reference.f.nextDouble() * 2.0,
+                                    var3.posY + Reference.RANDOM.nextDouble() * 2.0,
                                     var3.posZ,
                                     32,
                                     0.2,
                                     0.2,
                                     0.2,
-                                    Reference.f.nextGaussian(),
+                                    Reference.RANDOM.nextGaussian(),
                                     new int[0]
                                  );
                               }

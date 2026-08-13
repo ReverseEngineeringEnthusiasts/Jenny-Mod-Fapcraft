@@ -38,7 +38,7 @@ public enum NpcType {
       this.playerClass = var5;
       this.isNpcOnly = false;
       this.hasSpecifics = var7;
-      this.editorID = Reference.b++;
+      this.editorID = Reference.EDITOR_ID_COUNTER++;
    }
 
    NpcType(Class<? extends BaseGirlEntity> var3, int var4, Class<? extends AbstractPlayerGirlEntity> var5, int var6) {
@@ -48,7 +48,7 @@ public enum NpcType {
       this.playerClass = var5;
       this.isNpcOnly = false;
       this.hasSpecifics = false;
-      this.editorID = Reference.b++;
+      this.editorID = Reference.EDITOR_ID_COUNTER++;
    }
 
    NpcType(Class<? extends BaseGirlEntity> var3, int var4) {
@@ -56,7 +56,7 @@ public enum NpcType {
       this.npcClass = var3;
       this.isNpcOnly = true;
       this.hasSpecifics = false;
-      this.editorID = Reference.b++;
+      this.editorID = Reference.EDITOR_ID_COUNTER++;
       this.playerClass = null;
       this.playerID = 0;
    }

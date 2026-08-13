@@ -31,25 +31,25 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SexEntity extends Entity {
-   public static final int m = 15;
-   private static final DataParameter<Integer> g = EntityDataManager.createKey(SexEntity.class, DataSerializers.VARINT)
+   public static final int MAX_HOOK_RANGE = 15;
+   private static final DataParameter<Integer> CAUGHT_ENTITY_ID = EntityDataManager.createKey(SexEntity.class, DataSerializers.VARINT)
       .getSerializer()
       .createKey(111);
-   private static final DataParameter<Optional<UUID>> f = EntityDataManager.createKey(SexEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID)
+   private static final DataParameter<Optional<UUID>> OWNER_UUID = EntityDataManager.createKey(SexEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID)
       .getSerializer()
       .createKey(110);
-   private boolean k;
-   private int l;
-   private int h;
-   public int d;
-   private int c;
-   private int j;
-   private float e;
-   public Entity i;
-   private SexEntity.SexEntityState n = SexEntity.SexEntityState.FLYING;
-   private int a;
-   private int o;
-   public static LunaEntity b = null;
+   private boolean isHooked;
+   private int despawnTimer;
+   private int waterBobCounter;
+   public int lureTimer;
+   private int catchDelay;
+   private int bobMotion;
+   private float bobAngle;
+   public Entity caughtEntity;
+   private SexEntity.SexEntityState hookState = SexEntity.SexEntityState.FLYING;
+   private int phase;
+   private int fishingLevel;
+   public static LunaEntity ownerLuna = null;
 
    public SexEntity(World var1, LunaEntity var2, double var3) {
       super(var1);
@@ -68,8 +68,8 @@ public class SexEntity extends Entity {
    }
 
    protected void entityInit() {
-      this.getDataManager().register(g, 0);
-      this.getDataManager().register(f, Optional.of(b.getGirlId()));
+      this.getDataManager().register(CAUGHT_ENTITY_ID, 0);
+      this.getDataManager().register(OWNER_UUID, Optional.of(ownerLuna.getGirlId()));
    }
 
    public AxisAlignedBB getRenderBoundingBox() {
@@ -77,7 +77,7 @@ public class SexEntity extends Entity {
    }
 
    LunaEntity b_clash775() {
-      Optional var1 = (Optional)this.dataManager.get(f);
+      Optional var1 = (Optional)this.dataManager.get(OWNER_UUID);
       if (!var1.isPresent()) {
          return null;
       } else {
@@ -91,7 +91,7 @@ public class SexEntity extends Entity {
    }
 
    public LunaEntity g_clash776() {
-      Optional var1 = (Optional)this.dataManager.get(f);
+      Optional var1 = (Optional)this.dataManager.get(OWNER_UUID);
       if (!var1.isPresent()) {
          return null;
       }
@@ -101,17 +101,17 @@ public class SexEntity extends Entity {
    }
 
    public void b_clash777(int var1) {
-      this.o = var1;
+      this.fishingLevel = var1;
    }
 
    public void setPhase(int var1) {
-      this.a = var1;
+      this.phase = var1;
    }
 
    public void onEntityUpdate() {
       super.onEntityUpdate();
       if (!this.world.isRemote) {
-         if ((this.i != null || this.onGround) && this.d == 0) {
+         if ((this.caughtEntity != null || this.onGround) && this.lureTimer == 0) {
             this.b_clash775().o_clash390();
          }
       }
@@ -150,9 +150,9 @@ public class SexEntity extends Entity {
    }
 
    public void notifyDataManagerChange(DataParameter<?> var1) {
-      if (g.equals(var1)) {
-         int var2 = (Integer)this.getDataManager().get(g);
-         this.i = var2 > 0 ? this.world.getEntityByID(var2 - 1) : null;
+      if (CAUGHT_ENTITY_ID.equals(var1)) {
+         int var2 = (Integer)this.getDataManager().get(CAUGHT_ENTITY_ID);
+         this.caughtEntity = var2 > 0 ? this.world.getEntityByID(var2 - 1) : null;
       }
 
       super.notifyDataManagerChange(var1);
@@ -172,9 +172,9 @@ public class SexEntity extends Entity {
       if (this.b_clash775() == null) {
          this.setDead();
       } else if (this.world.isRemote || !this.f_clash780()) {
-         if (this.k) {
-            this.l++;
-            if (this.l >= 1200) {
+         if (this.isHooked) {
+            this.despawnTimer++;
+            if (this.despawnTimer >= 1200) {
                this.setDead();
                return;
             }
@@ -187,12 +187,12 @@ public class SexEntity extends Entity {
             var1 = BlockLiquid.getBlockLiquidHeight(var3, this.world, var2);
          }
 
-         if (this.n == SexEntity.SexEntityState.FLYING) {
-            if (this.i != null) {
+         if (this.hookState == SexEntity.SexEntityState.FLYING) {
+            if (this.caughtEntity != null) {
                this.motionX = 0.0;
                this.motionY = 0.0;
                this.motionZ = 0.0;
-               this.n = SexEntity.SexEntityState.HOOKED_IN_ENTITY;
+               this.hookState = SexEntity.SexEntityState.HOOKED_IN_ENTITY;
                return;
             }
 
@@ -200,7 +200,7 @@ public class SexEntity extends Entity {
                this.motionX *= 0.3;
                this.motionY *= 0.2;
                this.motionZ *= 0.3;
-               this.n = SexEntity.SexEntityState.BOBBING;
+               this.hookState = SexEntity.SexEntityState.BOBBING;
                return;
             }
 
@@ -208,25 +208,25 @@ public class SexEntity extends Entity {
                this.e_clash782();
             }
 
-            if (!this.k && !this.onGround && !this.collidedHorizontally) {
-               this.h++;
+            if (!this.isHooked && !this.onGround && !this.collidedHorizontally) {
+               this.waterBobCounter++;
             } else {
-               this.h = 0;
+               this.waterBobCounter = 0;
                this.motionX = 0.0;
                this.motionY = 0.0;
                this.motionZ = 0.0;
             }
          } else {
-            if (this.n == SexEntity.SexEntityState.HOOKED_IN_ENTITY) {
-               if (this.i != null) {
-                  if (this.i.isDead) {
-                     this.i = null;
-                     this.n = SexEntity.SexEntityState.FLYING;
+            if (this.hookState == SexEntity.SexEntityState.HOOKED_IN_ENTITY) {
+               if (this.caughtEntity != null) {
+                  if (this.caughtEntity.isDead) {
+                     this.caughtEntity = null;
+                     this.hookState = SexEntity.SexEntityState.FLYING;
                   } else {
-                     this.posX = this.i.posX;
-                     double var6 = this.i.height;
-                     this.posY = this.i.getEntityBoundingBox().minY + var6 * 0.8;
-                     this.posZ = this.i.posZ;
+                     this.posX = this.caughtEntity.posX;
+                     double var6 = this.caughtEntity.height;
+                     this.posY = this.caughtEntity.getEntityBoundingBox().minY + var6 * 0.8;
+                     this.posZ = this.caughtEntity.posZ;
                      this.setPosition(this.posX, this.posY, this.posZ);
                   }
                }
@@ -234,7 +234,7 @@ public class SexEntity extends Entity {
                return;
             }
 
-            if (this.n == SexEntity.SexEntityState.BOBBING) {
+            if (this.hookState == SexEntity.SexEntityState.BOBBING) {
                this.motionX *= 0.9;
                this.motionZ *= 0.9;
                double var4 = this.posY + this.motionY - var2.getY() - var1;
@@ -307,7 +307,7 @@ public class SexEntity extends Entity {
       double var6 = 0.0;
 
       for (Entity var9 : (java.util.Collection<Entity>) (var5) ) {
-         if (this.isCollidableEntity(var9) && (var9 != this.b_clash775() || this.h >= 5)) {
+         if (this.isCollidableEntity(var9) && (var9 != this.b_clash775() || this.waterBobCounter >= 5)) {
             AxisAlignedBB var10 = var9.getEntityBoundingBox().grow(0.3F);
             RayTraceResult var11 = var10.calculateIntercept(var1, var2);
             if (var11 != null) {
@@ -326,16 +326,16 @@ public class SexEntity extends Entity {
 
       if (var3 != null && var3.typeOfHit != Type.MISS) {
          if (var3.typeOfHit == Type.ENTITY) {
-            this.i = var3.entityHit;
+            this.caughtEntity = var3.entityHit;
             this.bindTargetEntity();
          } else {
-            this.k = true;
+            this.isHooked = true;
          }
       }
    }
 
    private void bindTargetEntity() {
-      this.getDataManager().set(g, this.i.getEntityId() + 1);
+      this.getDataManager().set(CAUGHT_ENTITY_ID, this.caughtEntity.getEntityId() + 1);
    }
 
    private void spawnLootBlocks(BlockPos var1) {
@@ -350,24 +350,24 @@ public class SexEntity extends Entity {
          var3--;
       }
 
-      if (this.d > 0) {
-         this.d--;
-         if (this.d <= 0) {
-            this.c = 0;
-            this.j = 0;
+      if (this.lureTimer > 0) {
+         this.lureTimer--;
+         if (this.lureTimer <= 0) {
+            this.catchDelay = 0;
+            this.bobMotion = 0;
          } else {
             this.motionY = this.motionY - 0.2 * this.rand.nextFloat() * this.rand.nextFloat();
          }
-      } else if (this.j > 0) {
-         this.j -= var3;
-         if (this.j > 0) {
-            this.e = (float)(this.e + this.rand.nextGaussian() * 4.0);
-            float var5 = this.e * (float) (Math.PI / 180.0);
+      } else if (this.bobMotion > 0) {
+         this.bobMotion -= var3;
+         if (this.bobMotion > 0) {
+            this.bobAngle = (float)(this.bobAngle + this.rand.nextGaussian() * 4.0);
+            float var5 = this.bobAngle * (float) (Math.PI / 180.0);
             float var6 = MathHelper.sin(var5);
             float var7 = MathHelper.cos(var5);
-            double var8 = this.posX + var6 * this.j * 0.1F;
+            double var8 = this.posX + var6 * this.bobMotion * 0.1F;
             double var10 = MathHelper.floor(this.getEntityBoundingBox().minY) + 1.0F;
-            double var12 = this.posZ + var7 * this.j * 0.1F;
+            double var12 = this.posZ + var7 * this.bobMotion * 0.1F;
             IBlockState var14 = var2.getBlockState(new BlockPos(var8, var10 - 1.0, var12));
             if (var14.getMaterial() == Material.WATER) {
                if (this.rand.nextFloat() < 0.15F) {
@@ -407,17 +407,17 @@ public class SexEntity extends Entity {
                0.2F,
                new int[0]
             );
-            this.d = MathHelper.getInt(this.rand, 20, 40);
+            this.lureTimer = MathHelper.getInt(this.rand, 20, 40);
          }
-      } else if (this.c > 0) {
-         this.c -= var3;
+      } else if (this.catchDelay > 0) {
+         this.catchDelay -= var3;
          float var18 = 0.15F;
-         if (this.c < 20) {
-            var18 = (float)(0.15F + (20 - this.c) * 0.05);
-         } else if (this.c < 40) {
-            var18 = (float)(0.15F + (40 - this.c) * 0.02);
-         } else if (this.c < 60) {
-            var18 = (float)(0.15F + (60 - this.c) * 0.01);
+         if (this.catchDelay < 20) {
+            var18 = (float)(0.15F + (20 - this.catchDelay) * 0.05);
+         } else if (this.catchDelay < 40) {
+            var18 = (float)(0.15F + (40 - this.catchDelay) * 0.02);
+         } else if (this.catchDelay < 60) {
+            var18 = (float)(0.15F + (60 - this.catchDelay) * 0.01);
          }
 
          if (this.rand.nextFloat() < var18) {
@@ -432,13 +432,13 @@ public class SexEntity extends Entity {
             }
          }
 
-         if (this.c <= 0) {
-            this.e = MathHelper.nextFloat(this.rand, 0.0F, 360.0F);
-            this.j = MathHelper.getInt(this.rand, 20, 80);
+         if (this.catchDelay <= 0) {
+            this.bobAngle = MathHelper.nextFloat(this.rand, 0.0F, 360.0F);
+            this.bobMotion = MathHelper.getInt(this.rand, 20, 80);
          }
       } else {
-         this.c = MathHelper.getInt(this.rand, 100, 600);
-         this.c = this.c - this.o * 20 * 5;
+         this.catchDelay = MathHelper.getInt(this.rand, 100, 600);
+         this.catchDelay = this.catchDelay - this.fishingLevel * 20 * 5;
       }
    }
 
@@ -455,11 +455,11 @@ public class SexEntity extends Entity {
    public int c_clash786() {
       if (!this.world.isRemote && this.b_clash775() != null) {
          byte var1 = 0;
-         if (this.i != null) {
+         if (this.caughtEntity != null) {
             this.d_clash787();
             this.world.setEntityState(this, (byte)31);
-            var1 = (byte)(this.i instanceof EntityItem ? 3 : 5);
-         } else if (this.d > 0) {
+            var1 = (byte)(this.caughtEntity instanceof EntityItem ? 3 : 5);
+         } else if (this.lureTimer > 0) {
             Builder var3 = new Builder((WorldServer)this.world);
 
             for (ItemStack var6 : this.world
@@ -470,11 +470,11 @@ public class SexEntity extends Entity {
                var7.b_clash383(var6);
             }
 
-            this.d = 9999;
+            this.lureTimer = 9999;
             var1 = 1;
          }
 
-         if (this.k) {
+         if (this.isHooked) {
             var1 = 2;
          }
 
@@ -490,9 +490,9 @@ public class SexEntity extends Entity {
          double var2 = var1.posX - this.posX;
          double var4 = var1.posY - this.posY;
          double var6 = var1.posZ - this.posZ;
-         this.i.motionX += var2 * 0.1;
-         this.i.motionY += var4 * 0.1;
-         this.i.motionZ += var6 * 0.1;
+         this.caughtEntity.motionX += var2 * 0.1;
+         this.caughtEntity.motionY += var4 * 0.1;
+         this.caughtEntity.motionZ += var6 * 0.1;
       }
    }
 

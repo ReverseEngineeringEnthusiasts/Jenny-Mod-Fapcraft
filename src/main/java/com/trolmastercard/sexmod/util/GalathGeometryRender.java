@@ -36,24 +36,24 @@ public class GalathGeometryRender {
       Vec3d var6 = var0.getCachedBoneOffset(var2);
       Vec3d var7 = var0.getCachedBoneOffset(var3);
       Vec3d[] var8 = new Vec3d[8];
-      if (var4.a == 0.0F && var5.a == 0.0F) {
-         var8[0] = new Vec3d(0.0, var4.c, var4.b);
-         var8[1] = new Vec3d(0.0, -var4.c, var4.b);
-         var8[2] = new Vec3d(0.0, -var4.c, -var4.b);
-         var8[3] = new Vec3d(0.0, var4.c, -var4.b);
-         var8[4] = new Vec3d(0.0, var5.c, var5.b);
-         var8[5] = new Vec3d(0.0, -var5.c, var5.b);
-         var8[6] = new Vec3d(0.0, -var5.c, -var5.b);
-         var8[7] = new Vec3d(0.0, var5.c, -var5.b);
+      if (var4.x == 0.0F && var5.x == 0.0F) {
+         var8[0] = new Vec3d(0.0, var4.y, var4.z);
+         var8[1] = new Vec3d(0.0, -var4.y, var4.z);
+         var8[2] = new Vec3d(0.0, -var4.y, -var4.z);
+         var8[3] = new Vec3d(0.0, var4.y, -var4.z);
+         var8[4] = new Vec3d(0.0, var5.y, var5.z);
+         var8[5] = new Vec3d(0.0, -var5.y, var5.z);
+         var8[6] = new Vec3d(0.0, -var5.y, -var5.z);
+         var8[7] = new Vec3d(0.0, var5.y, -var5.z);
       } else {
-         var8[0] = new Vec3d(var4.a, var4.c, 0.0);
-         var8[1] = new Vec3d(-var4.a, var4.c, 0.0);
-         var8[2] = new Vec3d(-var4.a, -var4.c, 0.0);
-         var8[3] = new Vec3d(var4.a, -var4.c, 0.0);
-         var8[4] = new Vec3d(var5.a, var5.c, 0.0);
-         var8[5] = new Vec3d(-var5.a, var5.c, 0.0);
-         var8[6] = new Vec3d(-var5.a, -var5.c, 0.0);
-         var8[7] = new Vec3d(var5.a, -var5.c, 0.0);
+         var8[0] = new Vec3d(var4.x, var4.y, 0.0);
+         var8[1] = new Vec3d(-var4.x, var4.y, 0.0);
+         var8[2] = new Vec3d(-var4.x, -var4.y, 0.0);
+         var8[3] = new Vec3d(var4.x, -var4.y, 0.0);
+         var8[4] = new Vec3d(var5.x, var5.y, 0.0);
+         var8[5] = new Vec3d(-var5.x, var5.y, 0.0);
+         var8[6] = new Vec3d(-var5.x, -var5.y, 0.0);
+         var8[7] = new Vec3d(var5.x, -var5.y, 0.0);
       }
 
       for (int var9 = 0; var9 < var8.length; var9++) {
@@ -201,7 +201,7 @@ public class GalathGeometryRender {
          for (Vec3d var10 : var6) {
             var0.pos(var10.x, var10.y, var10.z)
                .tex(0.0, 0.0)
-               .color(var2.a, var2.d, var2.c, var2.b)
+               .color(var2.red, var2.green, var2.blue, var2.alpha)
                .endVertex();
          }
       }

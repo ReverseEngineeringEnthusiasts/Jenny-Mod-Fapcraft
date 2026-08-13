@@ -21,98 +21,98 @@ import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
 public class HornyMeterHud extends Gui {
-   static ResourceLocation e = new ResourceLocation("sexmod", "textures/gui/buttons.png");
-   static ResourceLocation b = new ResourceLocation("sexmod", "textures/gui/hornymeter.png");
-   public static boolean d = false;
-   public static double c = 0.0;
-   static double a = c;
-   static float f = 0.0F;
-   static float g = 0.0F;
-   static boolean i = false;
-   static boolean h = true;
+   static ResourceLocation BUTTON_TEXTURE = new ResourceLocation("sexmod", "textures/gui/buttons.png");
+   static ResourceLocation METER_TEXTURE = new ResourceLocation("sexmod", "textures/gui/hornymeter.png");
+   public static boolean isVisible = false;
+   public static double meterValue = 0.0;
+   static double smoothedMeter = meterValue;
+   static float slideInProgress = 0.0F;
+   static float slideOutProgress = 0.0F;
+   static boolean isExpanded = false;
+   static boolean displayState = true;
 
    public static void showHornyMeter() {
-      if (!d) {
+      if (!isVisible) {
          resetHornyMeter();
-         d = true;
-         h = true;
+         isVisible = true;
+         displayState = true;
       }
    }
 
    public static void a_clash359(boolean var0) {
-      if (!d) {
+      if (!isVisible) {
          resetHornyMeter();
-         d = true;
-         h = var0;
+         isVisible = true;
+         displayState = var0;
       }
    }
 
    public static void hideHornyMeter() {
       resetHornyMeter();
-      d = false;
-      h = true;
+      isVisible = false;
+      displayState = true;
    }
 
    public static boolean a_clash361() {
-      return d;
+      return isVisible;
    }
 
    @SubscribeEvent
    public void a(RenderGameOverlayEvent var1) {
-      if (d && var1.getType() == ElementType.TEXT) {
+      if (isVisible && var1.getType() == ElementType.TEXT) {
          Minecraft var2 = Minecraft.getMinecraft();
-         if (f < 1.0F) {
-            f = f + var2.getTickLength() / 25.0F;
+         if (slideInProgress < 1.0F) {
+            slideInProgress = slideInProgress + var2.getTickLength() / 25.0F;
          } else {
-            f = 1.0F;
+            slideInProgress = 1.0F;
          }
 
          GL11.glPushMatrix();
-         var2.renderEngine.bindTexture(e);
+         var2.renderEngine.bindTexture(BUTTON_TEXTURE);
          GL11.glScalef(0.35F, 0.35F, 0.35F);
-         if (c >= 1.0) {
-            if (HandlePlayerMovement.a) {
-               i = true;
+         if (meterValue >= 1.0) {
+            if (HandlePlayerMovement.isInAction) {
+               isExpanded = true;
             }
 
-            int var3 = i ? 54 : 0;
+            int var3 = isExpanded ? 54 : 0;
             this.drawTexturedModalRect(240, 160, 0, 108 + var3, 256, 52);
          }
 
-         if (h && !i) {
-            int var7 = HandlePlayerMovement.d ? 54 : 0;
-            this.drawTexturedModalRect((int)RotationHelper.lerp(-200.0F, 98.0F, f), 405, 0, var7, 158, 54);
+         if (displayState && !isExpanded) {
+            int var7 = HandlePlayerMovement.isJumping ? 54 : 0;
+            this.drawTexturedModalRect((int)RotationHelper.lerp(-200.0F, 98.0F, slideInProgress), 405, 0, var7, 158, 54);
          }
 
          GL11.glScalef(2.857143F, 2.857143F, 2.857143F);
-         var2.renderEngine.bindTexture(b);
+         var2.renderEngine.bindTexture(METER_TEXTURE);
          GL11.glScalef(0.75F, 0.75F, 0.75F);
-         this.drawTexturedModalRect(10, (int)RotationHelper.lerp(-200.0F, 10.0F, f), 0, 0, 146, 175);
-         a = RotationHelper.b(a, c, var2.getTickLength());
-         int var8 = (int)RotationHelper.b(0.0, 160.0, a);
-         int var4 = (int)RotationHelper.b(167.0, 8.0, a);
-         double var5 = RotationHelper.b(178.0, 18.0, a);
-         if (!i) {
-            this.drawTexturedModalRect(67, (int)RotationHelper.b(-45.0, var5, f), 159, var4, 32, var8);
+         this.drawTexturedModalRect(10, (int)RotationHelper.lerp(-200.0F, 10.0F, slideInProgress), 0, 0, 146, 175);
+         smoothedMeter = RotationHelper.b(smoothedMeter, meterValue, var2.getTickLength());
+         int var8 = (int)RotationHelper.b(0.0, 160.0, smoothedMeter);
+         int var4 = (int)RotationHelper.b(167.0, 8.0, smoothedMeter);
+         double var5 = RotationHelper.b(178.0, 18.0, smoothedMeter);
+         if (!isExpanded) {
+            this.drawTexturedModalRect(67, (int)RotationHelper.b(-45.0, var5, slideInProgress), 159, var4, 32, var8);
             this.drawTexturedModalRect(
                120,
-               (int)RotationHelper.b(-58.0, RotationHelper.b(178.0, 149.0, 1.0 - a), f),
+               (int)RotationHelper.b(-58.0, RotationHelper.b(178.0, 149.0, 1.0 - smoothedMeter), slideInProgress),
                212,
-               (int)RotationHelper.b(169.0, 141.0, 1.0 - a),
+               (int)RotationHelper.b(169.0, 141.0, 1.0 - smoothedMeter),
                28,
-               (int)RotationHelper.b(1.0, 29.0, 1.0 - a)
+               (int)RotationHelper.b(1.0, 29.0, 1.0 - smoothedMeter)
             );
             this.drawTexturedModalRect(
                18,
-               (int)RotationHelper.b(-58.0, RotationHelper.b(178.0, 149.0, 1.0 - a), f),
+               (int)RotationHelper.b(-58.0, RotationHelper.b(178.0, 149.0, 1.0 - smoothedMeter), slideInProgress),
                212,
-               (int)RotationHelper.b(169.0, 141.0, 1.0 - a),
+               (int)RotationHelper.b(169.0, 141.0, 1.0 - smoothedMeter),
                28,
-               (int)RotationHelper.b(1.0, 29.0, 1.0 - a)
+               (int)RotationHelper.b(1.0, 29.0, 1.0 - smoothedMeter)
             );
          } else {
-            g = g + var2.getTickLength() / 15.0F;
-            this.drawTexturedModalRect(67, (int)RotationHelper.lerp(18.0F, -300.0F, g), 159, 8, 32, 160);
+            slideOutProgress = slideOutProgress + var2.getTickLength() / 15.0F;
+            this.drawTexturedModalRect(67, (int)RotationHelper.lerp(18.0F, -300.0F, slideOutProgress), 159, 8, 32, 160);
          }
 
          GL11.glPopMatrix();
@@ -120,13 +120,13 @@ public class HornyMeterHud extends Gui {
    }
 
    public static void addToHornyMeter(double var0) {
-      c += var0;
-      c = c > 1.0 ? 1.0 : c;
+      meterValue += var0;
+      meterValue = meterValue > 1.0 ? 1.0 : meterValue;
    }
 
    public static void resetHornyMeter() {
-      c = 0.0;
-      i = false;
+      meterValue = 0.0;
+      isExpanded = false;
    }
 
 }

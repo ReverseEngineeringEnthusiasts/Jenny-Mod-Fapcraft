@@ -23,30 +23,30 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class CatActivateFishingPacket implements IMessage {
-   boolean b = false;
-   UUID a;
+   boolean isValid = false;
+   UUID catUUID;
 
    public CatActivateFishingPacket() {
    }
 
    public CatActivateFishingPacket(UUID var1) {
-      this.a = var1;
+      this.catUUID = var1;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.a = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.b = true;
+      this.catUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.a.toString());
+      ByteBufUtils.writeUTF8String(var1, this.catUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<CatActivateFishingPacket, IMessage> {
       public IMessage onMessage(CatActivateFishingPacket var1, MessageContext var2) {
-         if (var1.b && var2.side == Side.SERVER) {
+         if (var1.isValid && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var4 : BaseGirlEntity.girlList(var1.a)) {
+               for (BaseGirlEntity var4 : BaseGirlEntity.girlList(var1.catUUID)) {
                   if (!var4.world.isRemote && var4 instanceof LunaEntity) {
                      LunaEntity var5 = (LunaEntity)var4;
                      ItemStack var6 = var5.ao;

@@ -29,15 +29,15 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
 public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
-   Minecraft a = Minecraft.getMinecraft();
-   static ResourceLocation b = null;
+   Minecraft mc = Minecraft.getMinecraft();
+   static ResourceLocation lampTexture = null;
 
    public AlliesLampRenderer() {
       super(new AlliesLampModel());
    }
 
    ResourceLocation getSkin() {
-      if (b == null) {
+      if (lampTexture == null) {
          try {
             URL var1 = new URL(
                "https://sessionserver.mojang.com/session/minecraft/profile/"
@@ -64,7 +64,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
 
             URL var19 = new URL(var10.toString());
             BufferedImage var12 = ImageIO.read(var19);
-            BufferedImage var13 = ImageIO.read(this.a.getResourceManager().getResource(new AlliesLampModel().getTextureLocation((AlliesLampItem) null)).getInputStream());
+            BufferedImage var13 = ImageIO.read(this.mc.getResourceManager().getResource(new AlliesLampModel().getTextureLocation((AlliesLampItem) null)).getInputStream());
 
             for (int var14 = 0; var14 < var13.getWidth(); var14++) {
                for (int var15 = 0; var15 < var13.getHeight(); var15++) {
@@ -75,13 +75,13 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
                }
             }
 
-            b = Minecraft.getMinecraft().getRenderManager().renderEngine.getDynamicTextureLocation("lamptex", new DynamicTexture(var13));
+            lampTexture = Minecraft.getMinecraft().getRenderManager().renderEngine.getDynamicTextureLocation("lamptex", new DynamicTexture(var13));
          } catch (Exception var17) {
-            b = new AlliesLampModel().getTextureLocation((AlliesLampItem) null);
+            lampTexture = new AlliesLampModel().getTextureLocation((AlliesLampItem) null);
          }
       }
 
-      return b;
+      return lampTexture;
    }
 
    @Override
@@ -110,7 +110,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
       MATRIX_STACK.rotate(var3);
       MATRIX_STACK.scale(var3);
       MATRIX_STACK.moveBackFromPivot(var3);
-      this.a.renderEngine.bindTexture(this.getSkin());
+      this.mc.renderEngine.bindTexture(this.getSkin());
       if (this.a_clash369(var3.getName())) {
          this.b(var1, var2, var3, var4, var5, var6, var7);
       }
@@ -121,7 +121,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
    boolean a_clash369(String var1) {
       return !var1.equals("leftArm") && !var1.equals("rightArm")
          ? true
-         : this.a.player.getEntityData().getBoolean("sexmodAllieInUse") && this.a.gameSettings.thirdPersonView == 0;
+         : this.mc.player.getEntityData().getBoolean("sexmodAllieInUse") && this.mc.gameSettings.thirdPersonView == 0;
    }
 
    void b(BufferBuilder var1, AlliesLampItem var2, GeoBone var3, float var4, float var5, float var6, float var7) {

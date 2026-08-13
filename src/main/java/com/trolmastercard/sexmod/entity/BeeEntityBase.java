@@ -11,10 +11,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.ItemStackHandler;
 
 public abstract class BeeEntityBase extends BaseGirlEntity implements IInventory {
-   public static final DataParameter<Boolean> K = EntityDataManager.createKey(BaseGirlEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> HORNY_FLAG = EntityDataManager.createKey(BaseGirlEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(111);
-   public ItemStackHandler L = new ItemStackHandler(27);
+   public ItemStackHandler inventory = new ItemStackHandler(27);
 
    protected BeeEntityBase(World var1) {
       super(var1);
@@ -23,7 +23,7 @@ public abstract class BeeEntityBase extends BaseGirlEntity implements IInventory
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.entityDataManager.register(K, false);
+      this.entityDataManager.register(HORNY_FLAG, false);
    }
 
    public int getSizeInventory() {
@@ -35,19 +35,19 @@ public abstract class BeeEntityBase extends BaseGirlEntity implements IInventory
    }
 
    public ItemStack getStackInSlot(int var1) {
-      return var1 >= this.L.getSlots() ? ItemStack.EMPTY : this.L.getStackInSlot(var1);
+      return var1 >= this.inventory.getSlots() ? ItemStack.EMPTY : this.inventory.getStackInSlot(var1);
    }
 
    public ItemStack decrStackSize(int var1, int var2) {
-      return this.L.extractItem(var1, var2, false);
+      return this.inventory.extractItem(var1, var2, false);
    }
 
    public ItemStack removeStackFromSlot(int var1) {
-      return this.L.extractItem(var1, this.L.getStackInSlot(var1).getCount(), false);
+      return this.inventory.extractItem(var1, this.inventory.getStackInSlot(var1).getCount(), false);
    }
 
    public void setInventorySlotContents(int var1, ItemStack var2) {
-      this.L.setStackInSlot(var1, var2);
+      this.inventory.setStackInSlot(var1, var2);
    }
 
    public int getInventoryStackLimit() {

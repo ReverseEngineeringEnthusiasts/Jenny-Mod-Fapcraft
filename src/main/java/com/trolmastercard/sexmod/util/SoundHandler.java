@@ -165,7 +165,7 @@ public class SoundHandler {
 
       int var1;
       do {
-         var1 = Reference.f.nextInt(var0.length);
+         var1 = Reference.RANDOM.nextInt(var0.length);
       } while (++var2 < 10 && var1 == lastRandomSound.get(var0[0]));
 
       lastRandomSound.replace(var0[0], var1);

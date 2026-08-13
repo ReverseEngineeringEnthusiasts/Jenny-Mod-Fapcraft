@@ -22,56 +22,56 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class SexPromptPacket implements IMessage {
-   boolean e = false;
-   String c;
-   UUID b;
-   UUID a;
-   boolean d;
+   boolean isValid = false;
+   String actionName;
+   UUID playerUUID;
+   UUID girlUUID;
+   boolean accepted;
 
    public SexPromptPacket() {
    }
 
    public SexPromptPacket(String var1, UUID var2, UUID var3, boolean var4) {
-      this.c = var1;
-      this.b = var2;
-      this.a = var3;
-      this.d = var4;
+      this.actionName = var1;
+      this.playerUUID = var2;
+      this.girlUUID = var3;
+      this.accepted = var4;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.c = ByteBufUtils.readUTF8String(var1);
-      this.b = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.a = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.d = var1.readBoolean();
-      this.e = true;
+      this.actionName = ByteBufUtils.readUTF8String(var1);
+      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.accepted = var1.readBoolean();
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.c);
-      ByteBufUtils.writeUTF8String(var1, this.b.toString());
-      ByteBufUtils.writeUTF8String(var1, this.a.toString());
-      var1.writeBoolean(this.d);
+      ByteBufUtils.writeUTF8String(var1, this.actionName);
+      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      var1.writeBoolean(this.accepted);
    }
 
    public static class Handler implements IMessageHandler<SexPromptPacket, IMessage> {
       public IMessage onMessage(SexPromptPacket var1, MessageContext var2) {
-         if (!var1.e) {
+         if (!var1.isValid) {
             System.out.println("received an invalid message @SexPrompt :(");
             return null;
          } else if (var2.side.equals(Side.CLIENT)) {
-            GenderSwapScreen.a.a(new GenderSwapScreen.a(var1.c, var1.b, var1.a, var1.d));
+            GenderSwapScreen.instance.a(new GenderSwapScreen.a(var1.actionName, var1.playerUUID, var1.girlUUID, var1.accepted));
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                World var2x = var2.getServerHandler().player.world;
-               EntityPlayer var3 = var2x.getPlayerEntityByUUID(var1.a);
-               EntityPlayer var4 = var2x.getPlayerEntityByUUID(var1.b);
+               EntityPlayer var3 = var2x.getPlayerEntityByUUID(var1.girlUUID);
+               EntityPlayer var4 = var2x.getPlayerEntityByUUID(var1.playerUUID);
                if (var3 == null) {
                   System.out.println("Sex prompt invalid -> female player not found");
                } else if (var4 == null) {
                   System.out.println("Sex prompt invalid -> male player not found");
                } else {
-                  PacketHandler.b.sendTo(new SexPromptPacket(var1.c, var1.b, var1.a, var1.d), (EntityPlayerMP)(var1.d ? var3 : var4));
+                  PacketHandler.networkWrapper.sendTo(new SexPromptPacket(var1.actionName, var1.playerUUID, var1.girlUUID, var1.accepted), (EntityPlayerMP)(var1.accepted ? var3 : var4));
                }
             });
             return null;

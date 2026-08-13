@@ -9,8 +9,8 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 
 
 public class GirlGotoGoal extends GirlFollowAiBase {
-   int j = 0;
-   int i = 0;
+   int gotoTicks = 0;
+   int retryTicks = 0;
 
    public GirlGotoGoal(BaseGirlEntity var1) {
       super(var1);
@@ -19,17 +19,17 @@ public class GirlGotoGoal extends GirlFollowAiBase {
    @Override
    public void resetTask() {
       super.resetTask();
-      this.d.jumpMovementFactor = 0.02F;
+      this.girl.jumpMovementFactor = 0.02F;
    }
 
    @Override
    protected GirlFollowAiBase.GirlFollowAiBaseState a_clash807() {
-      float var1 = this.d.getDistance(this.a);
+      float var1 = this.girl.getDistance(this.master);
       boolean var2 = var1 > 5.0F;
-      if (this.d.getInteractionPlayerUUID() == null && !var2 && this.f == GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
-         if (++this.j > 60) {
+      if (this.girl.getInteractionPlayerUUID() == null && !var2 && this.state == GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
+         if (++this.gotoTicks > 60) {
             var2 = false;
-            this.j = 0;
+            this.gotoTicks = 0;
          } else {
             var2 = true;
          }
@@ -42,15 +42,15 @@ public class GirlGotoGoal extends GirlFollowAiBase {
    protected void a(GirlFollowAiBase.GirlFollowAiBaseState var1) {
       switch (var1) {
          case FOLLOW:
-            double var2 = this.d.getDistance(this.a);
-            if (this.c.getPathSearchRange() > var2) {
-               this.c.clearPath();
-               this.c.tryMoveToEntityLiving(this.a, 0.5);
+            double var2 = this.girl.getDistance(this.master);
+            if (this.navigator.getPathSearchRange() > var2) {
+               this.navigator.clearPath();
+               this.navigator.tryMoveToEntityLiving(this.master, 0.5);
             } else {
                this.c_clash805();
             }
 
-            this.i = 300;
+            this.retryTicks = 300;
             this.b_clash806();
             break;
          case IDLE:
@@ -60,10 +60,10 @@ public class GirlGotoGoal extends GirlFollowAiBase {
 
    @Override
    protected double b_clash806() {
-      float var1 = this.d.getDistance(this.a);
+      float var1 = this.girl.getDistance(this.master);
       double var3 = Math.min(0.7, Math.floor(var1 / 3.0F) * 0.05);
       float var2 = (float)(0.02F + var3);
-      this.d.jumpMovementFactor = var2;
+      this.girl.jumpMovementFactor = var2;
       return var2;
    }
 

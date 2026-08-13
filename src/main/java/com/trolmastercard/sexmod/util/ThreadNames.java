@@ -73,7 +73,7 @@ public class ThreadNames {
    }
 
    public static int randomSign() {
-      return Reference.f.nextBoolean() ? 1 : -1;
+      return Reference.RANDOM.nextBoolean() ? 1 : -1;
    }
 
    public static float b(float var0, float var1, float var2) {

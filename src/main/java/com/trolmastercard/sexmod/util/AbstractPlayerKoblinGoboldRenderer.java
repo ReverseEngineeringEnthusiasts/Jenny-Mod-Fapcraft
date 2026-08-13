@@ -30,7 +30,7 @@ import software.bernie.geckolib3.geo.render.built.GeoVertex;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRenderer {
-   protected static final Vec3i z = new Vec3i(255, 255, 255);
+   protected static final Vec3i tintColor = new Vec3i(255, 255, 255);
    static HashMap<Integer, Vec3i> A = new HashMap<>();
 
    public AbstractPlayerKoblinGoboldRenderer(RenderManager var1, AnimatedGeoModel var2) {
@@ -43,7 +43,7 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
 
    protected Vec3i a_clash191(GeoBone var1) {
       String var2 = var1.getName();
-      int var3 = var2.hashCode() + this.j.getPersistentID().hashCode();
+      int var3 = var2.hashCode() + this.playerGirl.getPersistentID().hashCode();
       Vec3i var4 = A.get(var3);
       if (var4 != null) {
          return var4;
@@ -102,7 +102,7 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
    @Override
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
       String var7 = var2.getName();
-      if (this.r) {
+      if (this.isRendering) {
          if (var7.equals("upperBody")) {
             var2.setRotationX(var2.getRotationX() - 0.5F);
          }
@@ -121,38 +121,38 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
       }
 
       this.onBoneRenderStart(var7, var2);
-      this.onBoneRenderingLayer(var7, var2, this.w, var1);
-      if (this.u && (this.s.getItem() instanceof ItemBow || this.x.getItem() instanceof ItemBow)) {
+      this.onBoneRenderingLayer(var7, var2, this.playerGirl, var1);
+      if (this.isUsingItem && (this.mainhandItem.getItem() instanceof ItemBow || this.offhandItem.getItem() instanceof ItemBow)) {
          if (var7.equals("armR")) {
-            var2.setRotationX(var2.getRotationX() - this.j.rotationPitch / 50.0F);
+            var2.setRotationX(var2.getRotationX() - this.playerGirl.rotationPitch / 50.0F);
          }
 
          if (var7.equals("armL")) {
-            var2.setRotationY(var2.getRotationY() - this.j.rotationPitch / 50.0F);
+            var2.setRotationY(var2.getRotationY() - this.playerGirl.rotationPitch / 50.0F);
          }
 
-         if (this.x.getItem() instanceof ItemBow) {
-            ItemStack var8 = this.x;
-            this.x = this.s;
-            this.s = var8;
+         if (this.offhandItem.getItem() instanceof ItemBow) {
+            ItemStack var8 = this.offhandItem;
+            this.offhandItem = this.mainhandItem;
+            this.mainhandItem = var8;
          }
       }
 
-      if (this.u && this.s.getItem() instanceof ItemShield) {
+      if (this.isUsingItem && this.mainhandItem.getItem() instanceof ItemShield) {
          if (var7.equals("armR")) {
             var2.setRotationZ(0.0F);
             var2.setRotationX(0.5F);
-         } else if (this.x.getItem() instanceof ItemShield && var7.equals("armL")) {
+         } else if (this.offhandItem.getItem() instanceof ItemShield && var7.equals("armL")) {
             var2.setRotationZ(0.0F);
             var2.setRotationX(0.5F);
          }
       }
 
-      if (var7.equals("weapon") && !this.s.isEmpty()) {
+      if (var7.equals("weapon") && !this.mainhandItem.isEmpty()) {
          this.renderEquippedItem(var1, var2, false);
       }
 
-      if (var7.equals("offhand") && !this.x.isEmpty()) {
+      if (var7.equals("offhand") && !this.offhandItem.isEmpty()) {
          this.renderEquippedItem(var1, var2, true);
       }
 
@@ -173,11 +173,11 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
             var4 = var17.y;
             var5 = var17.z;
             double var9 = var17.w;
-            if (!this.p.contains(var7)) {
+            if (!this.activeCustomPartBones.contains(var7)) {
                for (GeoCube var12 : var2.childCubes) {
                   MATRIX_STACK.push();
                   GlStateManager.pushMatrix();
-                  this.q = var2;
+                  this.currentRenderingBone = var2;
                   this.renderCubeGeometry(var1, var12, var2, var3, var4, var5, var6, var9);
                   GlStateManager.popMatrix();
                   MATRIX_STACK.pop();

@@ -33,8 +33,8 @@ public enum BoneType {
    BoneType(int var3, String var4) {
       this.iconXPos = var3;
       this.boneName = var4;
-      this.buttonIDPlus = ++Reference.i;
-      this.buttonIDMinus = ++Reference.i;
+      this.buttonIDPlus = ++Reference.BUTTON_ID_COUNTER;
+      this.buttonIDMinus = ++Reference.BUTTON_ID_COUNTER;
    }
 
    public static int a_clash759() {

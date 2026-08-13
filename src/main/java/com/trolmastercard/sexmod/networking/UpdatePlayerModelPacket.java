@@ -26,39 +26,39 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class UpdatePlayerModelPacket implements IMessage {
-   boolean b = false;
-   NpcType a;
+   boolean isValid = false;
+   NpcType npcType;
 
    public UpdatePlayerModelPacket() {
    }
 
    public UpdatePlayerModelPacket(NpcType var1) {
-      this.a = var1;
+      this.npcType = var1;
    }
 
    public void fromBytes(ByteBuf var1) {
       String var2 = ByteBufUtils.readUTF8String(var1);
       if ("player".equals(var2)) {
-         this.a = null;
+         this.npcType = null;
       } else {
-         this.a = NpcType.valueOf(var2);
+         this.npcType = NpcType.valueOf(var2);
       }
 
-      this.b = true;
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      if (this.a == null) {
+      if (this.npcType == null) {
          ByteBufUtils.writeUTF8String(var1, "player");
       } else {
-         ByteBufUtils.writeUTF8String(var1, this.a.toString());
+         ByteBufUtils.writeUTF8String(var1, this.npcType.toString());
       }
    }
 
 
    public static class Handler implements IMessageHandler<UpdatePlayerModelPacket, IMessage> {
       public IMessage onMessage(UpdatePlayerModelPacket var1, MessageContext var2) {
-         if (var1.b && var2.side == Side.SERVER) {
+         if (var1.isValid && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                EntityPlayerMP var2x = var2.getServerHandler().player;
                World var3 = var2x.world;
@@ -80,7 +80,7 @@ public class UpdatePlayerModelPacket implements IMessage {
                   var5.a(Optional.absent());
                }
 
-               NpcType var12 = var1.a;
+               NpcType var12 = var1.npcType;
                if (var12 != null) {
                   AbstractPlayerGirlEntity var11;
                   try {

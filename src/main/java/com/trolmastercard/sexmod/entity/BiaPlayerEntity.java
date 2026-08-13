@@ -277,7 +277,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.bia.strip", false, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.bia.attack" + this.S, false, var1);
+                  this.createAnimation("animation.bia.attack" + this.nextAttack, false, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.bia.bowcharge", false, var1);
@@ -360,8 +360,8 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackDone":
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "stripMSG1":
@@ -374,7 +374,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "talk_hornyMSG1":
                this.sendChatMessage("Heyaaa~");
@@ -450,7 +450,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
                break;
             case "anal_fastDone":
-               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.d) {
+               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.isJumping) {
                   return;
                }
             case "anal_startDone":
@@ -519,12 +519,12 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "doggySwitch":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.PRONE_DOGGY_HARD);
                }
                break;
             case "doggyReset":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
                break;

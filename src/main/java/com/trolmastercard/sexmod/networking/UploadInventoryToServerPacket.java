@@ -25,23 +25,23 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class UploadInventoryToServerPacket implements IMessage {
-   boolean b = false;
+   boolean isValid = false;
    ItemStack[] d;
-   UUID a;
-   UUID c;
+   UUID girlUUID;
+   UUID playerUUID;
 
    public UploadInventoryToServerPacket() {
    }
 
    public UploadInventoryToServerPacket(UUID var1, UUID var2, ItemStack[] var3) {
-      this.a = var1;
+      this.girlUUID = var1;
       this.d = var3;
-      this.c = var2;
+      this.playerUUID = var2;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.a = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.c = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
       int var2 = var1.readInt();
       this.d = new ItemStack[var2];
 
@@ -49,12 +49,12 @@ public class UploadInventoryToServerPacket implements IMessage {
          this.d[var3] = ByteBufUtils.readItemStack(var1);
       }
 
-      this.b = true;
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.a.toString());
-      ByteBufUtils.writeUTF8String(var1, this.c.toString());
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
       var1.writeInt(this.d.length);
 
       for (ItemStack var5 : this.d) {
@@ -65,11 +65,11 @@ public class UploadInventoryToServerPacket implements IMessage {
 
    public static class Handler implements IMessageHandler<UploadInventoryToServerPacket, IMessage> {
       public IMessage onMessage(UploadInventoryToServerPacket var1, MessageContext var2) {
-         if (var1.b && var2.side == Side.SERVER) {
+         if (var1.isValid && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.a)) {
+               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
                   if (!var3.world.isRemote) {
-                     EntityPlayer var4 = var3.world.getPlayerEntityByUUID(var1.c);
+                     EntityPlayer var4 = var3.world.getPlayerEntityByUUID(var1.playerUUID);
                      if (var4 == null) {
                         return;
                      }
@@ -82,28 +82,28 @@ public class UploadInventoryToServerPacket implements IMessage {
 
                      if (var3 instanceof LunaEntity) {
                         AbstractGirlNpcEntity var8 = (AbstractGirlNpcEntity)var3;
-                        var8.Q.setStackInSlot(0, var1.d[36]);
-                        var8.Q.setStackInSlot(1, var1.d[37]);
-                        var8.Q.setStackInSlot(2, var1.d[38]);
-                        var8.Q.setStackInSlot(3, var1.d[39]);
-                        var8.Q.setStackInSlot(4, var1.d[40]);
-                        var8.Q.setStackInSlot(5, var1.d[41]);
-                        var8.Q.setStackInSlot(6, var1.d[42]);
+                        var8.inventory.setStackInSlot(0, var1.d[36]);
+                        var8.inventory.setStackInSlot(1, var1.d[37]);
+                        var8.inventory.setStackInSlot(2, var1.d[38]);
+                        var8.inventory.setStackInSlot(3, var1.d[39]);
+                        var8.inventory.setStackInSlot(4, var1.d[40]);
+                        var8.inventory.setStackInSlot(5, var1.d[41]);
+                        var8.inventory.setStackInSlot(6, var1.d[42]);
                      } else if (var3 instanceof AbstractGirlNpcEntity) {
                         AbstractGirlNpcEntity var9 = (AbstractGirlNpcEntity)var3;
-                        var9.Q.setStackInSlot(0, var1.d[36]);
-                        var9.Q.setStackInSlot(1, var1.d[37]);
-                        var9.Q.setStackInSlot(2, var1.d[38]);
-                        var9.Q.setStackInSlot(3, var1.d[39]);
-                        var9.Q.setStackInSlot(4, var1.d[40]);
-                        var9.Q.setStackInSlot(5, var1.d[41]);
+                        var9.inventory.setStackInSlot(0, var1.d[36]);
+                        var9.inventory.setStackInSlot(1, var1.d[37]);
+                        var9.inventory.setStackInSlot(2, var1.d[38]);
+                        var9.inventory.setStackInSlot(3, var1.d[39]);
+                        var9.inventory.setStackInSlot(4, var1.d[40]);
+                        var9.inventory.setStackInSlot(5, var1.d[41]);
                      }
 
                      if (var3 instanceof BeeEntityBase) {
                         BeeEntityBase var10 = (BeeEntityBase)var3;
 
                         for (int var7 = 0; var7 < 27; var7++) {
-                           var10.L.setStackInSlot(var7, var1.d[var7 + 36]);
+                           var10.inventory.setStackInSlot(var7, var1.d[var7 + 36]);
                         }
                      }
                   }

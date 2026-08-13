@@ -26,11 +26,11 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.IClientCommand;
 
 public class CommandFuta extends CommandBase implements IClientCommand {
-   static final String d = "sexmod/futa";
-   static final int a = 10;
-   static final float c = 0.025F;
-   public static boolean e = true;
-   public static final CommandFuta b = new CommandFuta();
+   static final String CONFIG_FILE_PATH = "sexmod/futa";
+   static final int PARTICLE_COUNT = 10;
+   static final float PARTICLE_SPREAD = 0.025F;
+   public static boolean ENABLED = true;
+   public static final CommandFuta FUTA_COMMAND = new CommandFuta();
 
    public CommandFuta() {
       String var1 = "";
@@ -42,11 +42,11 @@ public class CommandFuta extends CommandBase implements IClientCommand {
 
       if (!"".equals(var1)) {
          if ("true".equals(var1)) {
-            e = true;
+            ENABLED = true;
          }
 
          if ("false".equals(var1)) {
-            e = false;
+            ENABLED = false;
          }
       }
    }
@@ -65,14 +65,14 @@ public class CommandFuta extends CommandBase implements IClientCommand {
       } else {
          String var4 = var3[0].toLowerCase();
          if ("true".equals(var4)) {
-            e = true;
+            ENABLED = true;
          } else {
             if (!"false".equals(var4)) {
                this.a(var2);
                return;
             }
 
-            e = false;
+            ENABLED = false;
          }
 
          try {

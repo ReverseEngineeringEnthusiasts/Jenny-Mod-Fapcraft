@@ -24,8 +24,8 @@ import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.model.provider.data.EntityModelData;
 
 public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
-   static final float g = 1.2F;
-   static final float f = 1.0F;
+   static final float swingProgress = 1.2F;
+   static final float legSwing = 1.0F;
 
    @Override
    protected ResourceLocation[] getModelLocations() {
@@ -51,7 +51,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
          AnimationProcessor var4 = this.getAnimationProcessor();
          if (!var1.isLocallyRegistered() && var1 instanceof KoboldEntity) {
             var4.getBone("crown").setHidden(!(Boolean)var1.getDataManager().get(KoboldEntity.aZ));
-            var4.getBone("egg").setHidden(!((KoboldEntity)var1).Q);
+            var4.getBone("egg").setHidden(!((KoboldEntity)var1).isRenderEgg);
          } else {
             var4.getBone("crown").setHidden(true);
             var4.getBone("egg").setHidden(true);

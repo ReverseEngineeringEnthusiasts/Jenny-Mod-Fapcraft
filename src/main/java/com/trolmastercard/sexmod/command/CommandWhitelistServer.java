@@ -17,7 +17,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.IClientCommand;
 
 public class CommandWhitelistServer extends CommandBase implements IClientCommand {
-   public static final CommandWhitelistServer a = new CommandWhitelistServer();
+   public static final CommandWhitelistServer WHITELIST_SERVER_COMMAND = new CommandWhitelistServer();
 
    public String getName() {
       return "whitelistserver";

@@ -26,13 +26,13 @@ public enum SkinColor {
 
    /** @return the ordinal index of the given skin color within this enum */
    public static int indexOf(SkinColor color) {
-      int i = 0;
+      int colorIndex = 0;
       for (SkinColor value : values()) {
          if (color == value) {
-            return i;
+            return colorIndex;
          }
-         i++;
+         colorIndex++;
       }
-      return i;
+      return colorIndex;
    }
 }

@@ -29,9 +29,9 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 public class HornyPotion extends Potion {
-   public static final Potion b = new HornyPotion("horny potion", false, 16736968, 0, 0);
-   public static final PotionType a = (PotionType)new PotionType(
-         "horny_potion", new PotionEffect[]{new PotionEffect(b, 3600), new PotionEffect(MobEffects.NAUSEA, 200, 1)}
+   public static final Potion HORNY_POTION = new HornyPotion("horny potion", false, 16736968, 0, 0);
+   public static final PotionType POTION_TYPE = (PotionType)new PotionType(
+         "horny_potion", new PotionEffect[]{new PotionEffect(HORNY_POTION, 3600), new PotionEffect(MobEffects.NAUSEA, 200, 1)}
       )
       .setRegistryName("horny_potion");
 
@@ -47,20 +47,20 @@ public class HornyPotion extends Potion {
    }
 
    public static void register() {
-      ForgeRegistries.POTIONS.register(b);
-      ForgeRegistries.POTION_TYPES.register(a);
-      PotionHelper.addMix(PotionTypes.MUNDANE, Item.getItemFromBlock(Blocks.RED_FLOWER), a);
+      ForgeRegistries.POTIONS.register(HORNY_POTION);
+      ForgeRegistries.POTION_TYPES.register(POTION_TYPE);
+      PotionHelper.addMix(PotionTypes.MUNDANE, Item.getItemFromBlock(Blocks.RED_FLOWER), POTION_TYPE);
    }
 
    @SubscribeEvent
    public void a(PlayerTickEvent var1) {
       EntityPlayer var2 = var1.player;
-      PotionEffect var3 = var2.getActivePotionEffect(b);
+      PotionEffect var3 = var2.getActivePotionEffect(HORNY_POTION);
       if (!var2.world.isRemote) {
          if (var3 != null) {
             if (var3.getDuration() <= 3500) {
-               var2.removePotionEffect(b);
-               PacketHandler.b.sendTo(new GirlDataPacket(var2), (EntityPlayerMP)var2);
+               var2.removePotionEffect(HORNY_POTION);
+               PacketHandler.networkWrapper.sendTo(new GirlDataPacket(var2), (EntityPlayerMP)var2);
             }
          }
       }
@@ -70,22 +70,22 @@ public class HornyPotion extends Potion {
    public void a(LivingUpdateEvent var1) {
       if (var1.getEntity() instanceof EntityVillager) {
          EntityVillager var2 = (EntityVillager)var1.getEntity();
-         if (var2.isPotionActive(b)) {
+         if (var2.isPotionActive(HORNY_POTION)) {
             var2.tasks.addTask(2, new GirlAiBase(var2));
-            var2.removePotionEffect(b);
+            var2.removePotionEffect(HORNY_POTION);
          }
       }
 
       if (var1.getEntity() instanceof EntityAnimal) {
          EntityAnimal var3 = (EntityAnimal)var1.getEntity();
-         if (var3.isPotionActive(b)) {
+         if (var3.isPotionActive(HORNY_POTION)) {
             if (var3.getGrowingAge() >= 0) {
                var3.setGrowingAge(0);
                var3.resetInLove();
                var3.setInLove(var3.world.getClosestPlayerToEntity(var3, 30.0));
             }
 
-            var3.removePotionEffect(b);
+            var3.removePotionEffect(HORNY_POTION);
          }
       }
    }

@@ -9,38 +9,38 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class TrailSegment {
-   public static final float a = 9.81F;
-   public static final float g = 0.05F;
-   public static final float b = 0.05F;
-   public static final float c = 0.03F;
-   World h;
-   Vec3d d;
-   Vec3d f;
-   Vec3d e;
+   public static final float GRAVITY = 9.81F;
+   public static final float TIME_DELTA = 0.05F;
+   public static final float AIR_RESISTANCE = 0.05F;
+   public static final float COLLISION_OFFSET = 0.03F;
+   World world;
+   Vec3d offset;
+   Vec3d velocity;
+   Vec3d position;
 
    public TrailSegment(World var1, Vec3d var2, Vec3d var3) {
-      this.h = var1;
-      this.f = var2;
-      this.d = var2;
-      this.e = var3;
+      this.world = var1;
+      this.velocity = var2;
+      this.offset = var2;
+      this.position = var3;
    }
 
    public void onUpdate() {
-      if (Vec3d.ZERO.equals(this.e)) {
-         this.d = this.f;
+      if (Vec3d.ZERO.equals(this.position)) {
+         this.offset = this.velocity;
       } else {
-         this.e = new Vec3d(this.e.x * 0.95F, (this.e.y - 0.49050003F) * 0.95F, this.e.z * 0.95F);
-         this.d = this.f;
-         this.f = new Vec3d(
-            this.f.x + this.e.x * 0.05F,
-            this.f.y + this.e.y * 0.05F,
-            this.f.z + this.e.z * 0.05F
+         this.position = new Vec3d(this.position.x * 0.95F, (this.position.y - 0.49050003F) * 0.95F, this.position.z * 0.95F);
+         this.offset = this.velocity;
+         this.velocity = new Vec3d(
+            this.velocity.x + this.position.x * 0.05F,
+            this.velocity.y + this.position.y * 0.05F,
+            this.velocity.z + this.position.z * 0.05F
          );
-         BlockPos var1 = new BlockPos(this.d);
+         BlockPos var1 = new BlockPos(this.offset);
          BlockPos var2 = null;
 
-         for (BlockPos var4 : a(new BlockPos(this.d), new BlockPos(this.f))) {
-            if (this.h.getBlockState(var4).getBlock() != Blocks.AIR) {
+         for (BlockPos var4 : a(new BlockPos(this.offset), new BlockPos(this.velocity))) {
+            if (this.world.getBlockState(var4).getBlock() != Blocks.AIR) {
                var2 = var4;
                break;
             }
@@ -53,40 +53,40 @@ public class TrailSegment {
             int var24 = var1.getX();
             if (var23 - var24 != 0) {
                double var25 = Math.max(var23, var24);
-               double var27 = (this.d.y - this.f.y) / (this.d.x - this.f.x);
-               double var29 = this.f.y - var27 * this.f.x;
+               double var27 = (this.offset.y - this.velocity.y) / (this.offset.x - this.velocity.x);
+               double var29 = this.velocity.y - var27 * this.velocity.x;
                double var31 = var27 * var25 + var29;
-               double var33 = (this.d.z - this.f.z) / (this.d.x - this.f.x);
-               double var35 = this.f.z - var33 * this.f.x;
+               double var33 = (this.offset.z - this.velocity.z) / (this.offset.x - this.velocity.x);
+               double var35 = this.velocity.z - var33 * this.velocity.x;
                double var37 = var33 * var25 + var35;
-               this.f = new Vec3d(var25 + 0.03F * (var23 > var24 ? -1 : 1), var31, var37);
-               this.e = new Vec3d(0.0, 0.0, 0.0);
+               this.velocity = new Vec3d(var25 + 0.03F * (var23 > var24 ? -1 : 1), var31, var37);
+               this.position = new Vec3d(0.0, 0.0, 0.0);
             } else {
                int var5 = var2.getY();
                int var6 = var1.getY();
                if (var5 - var6 != 0) {
                   double var26 = Math.max(var5, var6);
-                  double var28 = (this.d.x - this.f.x) / (this.d.y - this.f.y);
-                  double var30 = this.f.x - var28 * this.f.y;
+                  double var28 = (this.offset.x - this.velocity.x) / (this.offset.y - this.velocity.y);
+                  double var30 = this.velocity.x - var28 * this.velocity.y;
                   double var32 = var28 * var26 + var30;
-                  double var34 = (this.d.z - this.f.z) / (this.d.y - this.f.y);
-                  double var36 = this.f.z - var34 * this.f.y;
+                  double var34 = (this.offset.z - this.velocity.z) / (this.offset.y - this.velocity.y);
+                  double var36 = this.velocity.z - var34 * this.velocity.y;
                   double var38 = var34 * var26 + var36;
-                  this.f = new Vec3d(var32, var26 + 0.03F * (var5 > var6 ? -1 : 1), var38);
-                  this.e = new Vec3d(0.0, 0.0, 0.0);
+                  this.velocity = new Vec3d(var32, var26 + 0.03F * (var5 > var6 ? -1 : 1), var38);
+                  this.position = new Vec3d(0.0, 0.0, 0.0);
                } else {
                   int var7 = var2.getZ();
                   int var8 = var1.getZ();
                   if (var7 - var8 != 0) {
                      double var9 = Math.max(var7, var8);
-                     double var11 = (this.d.y - this.f.y) / (this.d.z - this.f.z);
-                     double var13 = this.f.y - var11 * this.f.z;
+                     double var11 = (this.offset.y - this.velocity.y) / (this.offset.z - this.velocity.z);
+                     double var13 = this.velocity.y - var11 * this.velocity.z;
                      double var15 = var11 * var9 + var13;
-                     double var17 = (this.d.x - this.f.x) / (this.d.z - this.f.z);
-                     double var19 = this.f.x - var17 * this.f.z;
+                     double var17 = (this.offset.x - this.velocity.x) / (this.offset.z - this.velocity.z);
+                     double var19 = this.velocity.x - var17 * this.velocity.z;
                      double var21 = var17 * var9 + var19;
-                     this.f = new Vec3d(var21, var15, var9 + 0.03F * (var7 > var8 ? -1 : 1));
-                     this.e = new Vec3d(0.0, 0.0, 0.0);
+                     this.velocity = new Vec3d(var21, var15, var9 + 0.03F * (var7 > var8 ? -1 : 1));
+                     this.position = new Vec3d(0.0, 0.0, 0.0);
                   }
                }
             }

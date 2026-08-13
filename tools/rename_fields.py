@@ -1,130 +1,93 @@
 #!/usr/bin/env python3
-"""Rename confirmed obfuscated BaseGirlEntity fields to meaningful names.
+"""rename_fields.py — class-scoped field rename, method-call-safe.
 
-Scoped:
-  * BaseGirlEntity.java       - declarations, `this.X`, bare static refs
-  * descendant entity files   - `this.X` accesses of inherited fields
-  * everywhere                - `BaseGirlEntity.X` static refs
+Renames a field: declaration + references. Distinguishes FIELD refs from
+METHOD calls: a reference `this.X` is a field only when the char after X is
+NOT '(' (method call) — it must be one of . = ; [ , ) ] space < > + - * / etc.
 
-Method calls `this.X(...)` are excluded via negative lookahead.
-Use: python3 tools/rename_fields.py
+Usage:
+  python3 rename_fields.py <java-file> <oldName> <newName> <inherited-from-class?>
+    - 4th arg optional: if given (e.g. AbstractGirlNpcEntity), also updates
+      `this.X` refs in ALL files that extend that class, skipping files that
+      declare their own X (shadowing). Static ClassName.X refs are always
+      updated tree-wide.
+
+  # renames S->nextAttack in AbstractGirlNpcEntity and propagates to subclasses
+  python3 rename_fields.py entity/AbstractGirlNpcEntity.java S nextAttack AbstractGirlNpcEntity
 """
-import os
-import re
+import os, re, sys
 
-ROOT = os.path.join(os.path.dirname(__file__), "..", "src", "main", "java")
+def find_decl(text, old):
+    return re.search(
+        r"^(\s*(?:(?:public|protected|private|static|final|@\w+)\s+)*)"
+        r"([A-Za-z0-9_<>.]+)\s+"
+        + re.escape(old) + r"(\s*[=;])", text, re.M)
 
-INSTANCE = {
-    "t": "TICK_RATE", "g": "animationFactory", "z": "wanderGoal",
-    "o": "watchClosestGirlGoal", "k": "GLOBAL_GIRL_CACHE", "B": "cameraOriginPos",
-    "r": "cameraYaw", "m": "entityDataManager", "f": "pathNavigator",
-    "l": "homePos", "q": "activeEnderPearl", "n": "scaleFactor", "F": "isSpecialState",
-    "i": "isLocallyRegistered", "x": "boneOffsetCache", "C": "actionController",
-    "E": "movementController", "s": "eyesController", "A": "animationVariantMap",
-    "H": "cachedAnimationProcessor", "p": "boneTrackingList", "d": "customPartsData",
-    "I": "TEMPTATION_ITEMS",
-}
-STATIC = {
-    "v": "MASTER", "G": "IS_ANCHORED", "e": "TARGET_POS", "w": "YAW_ROTATION",
-    "u": "GIRL_ID", "D": "OUTFIT_INDEX", "J": "CUR_ACTION", "h": "GIRL_HAND_STATES",
-    "y": "INTERACTION_PARTNER_UUID", "a": "WALK_SPEED", "b": "CUSTOM_MODEL_KEY",
-    "c": "CUSTOM_NAME",
-}
-CLASS = "BaseGirlEntity"
-
-# direct subclasses of BaseGirlEntity (this.X = inherited field there)
-HIERARCHY = [
-    "AbstractGirlNpcEntity.java", "AbstractNpcOnlyEntity.java",
-    "AbstractPlayerGirlEntity.java", "AbstractKoboldPlayerEntity.java",
-    "BeeEntityBase.java", "AllieEntity.java", "BeeEntity.java", "BiaEntity.java",
-    "EllieEntity.java", "GalathEntity.java", "GoblinEntity.java", "JennyEntity.java",
-    "KoboldEntity.java", "LunaEntity.java", "ManglelieEntity.java", "SlimeEntity.java",
-    "AlliePlayerEntity.java", "BeePlayerEntity.java", "BiaPlayerEntity.java",
-    "ElliePlayerEntity.java", "GalathPlayerEntity.java", "GoblinPlayerEntity.java",
-    "JennyPlayerEntity.java", "KoboldPlayerEntity.java", "LunaPlayerEntity.java",
-    "SlimePlayerEntity.java",
-]
-BASE_FILE = "BaseGirlEntity.java"
-
-def is_base(path):
-    return path.endswith("/entity/" + BASE_FILE)
-
-def is_hierarchy(path):
-    name = os.path.basename(path)
-    return name in HIERARCHY
-
-def field_decl_re(letter, new):
-    # declaration/assignment of field:  `TYPE X;` or `TYPE X = ...;` or `static ... X;`
-    # match the bare identifier as a declared field (preceded by whitespace/type, followed by = ; , )
-    return re.compile(r"(?<=[a-zA-Z0-9_])\s+\b%s\s*[=;,]" % re.escape(letter)), None
+def rename_field_refs(text, old, new):
+    """this.X / bare X field refs (NOT method calls this.X())."""
+    # this.X followed by non-( -> field
+    text = re.sub(r"\bthis\." + re.escape(old) + r"(?!\s*\()", "this." + new, text)
+    # bare X (not after dot, not a decl, not method call) followed by field-ish
+    text = re.sub(r"(?<![.\w])" + re.escape(old) + r"(?=[\s]*[=;,.)\]\[<>+\-*/%&|^!?:])", new, text)
+    return text
 
 def main():
-    base_path = None
-    for dirpath, _dirs, files in os.walk(ROOT):
-        for name in files:
-            if name.endswith(".java"):
-                p = os.path.join(dirpath, name)
-                if is_base(p):
-                    base_path = p
-
-    def sub_this(text, mapping):
-        for letter, new in mapping.items():
-            text = re.sub(r"\bthis\.%s\b(?!\s*\()" % re.escape(letter), "this." + new, text)
-        return text
-
-    # 1) BaseGirlEntity.java: declarations, this.X, static-class refs
-    with open(base_path, encoding="utf-8") as fh:
-        btext = fh.read()
-
-    # rename field declarations: match ` <letter>[ ;=]` on lines that are field decls
-    decl_map = {**INSTANCE, **STATIC}
-    for letter, new in decl_map.items():
-        btext = re.sub(
-            r"^(\s*(?:public|protected|private|static|final|@\w+[\w.]*\([^)]*\)\s*)*[\w<>,?\[\].]+?)\s+(%s)\s*(=|[;,])" % re.escape(letter),
-            lambda m, _new=new: m.group(1) + " " + _new + " " + m.group(3),
-            btext, flags=re.M)
-    btext = sub_this(btext, decl_map)
-    # bare static DataParameter refs (u, D, J, h, y, G, w, e, v, a, b, c, I, k, t)
-    for letter, new in STATIC.items():
-        btext = re.sub(r"(?<![.\w])%s\b(?!\s*\()" % re.escape(letter), new, btext)
-    for letter, new in {"I": "TEMPTATION_ITEMS", "k": "GLOBAL_GIRL_CACHE", "t": "TICK_RATE"}.items():
-        btext = re.sub(r"(?<![.\w])%s\b(?!\s*\()" % re.escape(letter), new, btext)
-
-    with open(base_path, "w", encoding="utf-8") as fh:
-        fh.write(btext)
-    print("updated", base_path)
-
-    # 2) descendant files: this.X
-    for dirpath, _dirs, files in os.walk(ROOT):
-        for name in files:
-            if not name.endswith(".java"):
+    path, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
+    inherit_from = sys.argv[4] if len(sys.argv) > 4 else None
+    t = open(path, encoding="utf-8").read()
+    orig = t
+    # 1. declaration
+    m = find_decl(t, old)
+    if not m:
+        print(f"ERROR: declaration of {old} not found in {path}")
+        sys.exit(1)
+    t = t[:m.start()] + m.group(1) + m.group(2) + " " + new + m.group(3) + t[m.end():]
+    # 2. refs in declaring file
+    t = rename_field_refs(t, old, new)
+    open(path, "w", encoding="utf-8").write(t)
+    print(f"renamed {old} -> {new} in {os.path.basename(path)}")
+    # 3. static ClassName.X refs tree-wide
+    cls = os.path.basename(path).replace(".java", "")
+    n = 0
+    for dp, _, fs in os.walk("src/main/java"):
+        for fn in fs:
+            if not fn.endswith(".java"):
                 continue
-            p = os.path.join(dirpath, name)
-            if not is_hierarchy(p):
+            p = os.path.join(dp, fn)
+            if os.path.abspath(p) == os.path.abspath(path):
                 continue
-            with open(p, encoding="utf-8") as fh:
-                text = fh.read()
-            new_text = sub_this(text, decl_map)
-            if new_text != text:
-                with open(p, "w", encoding="utf-8") as fh:
-                    fh.write(new_text)
-                print("updated", p)
-
-    # 3) everywhere: BaseGirlEntity.X static refs
-    for dirpath, _dirs, files in os.walk(ROOT):
-        for name in files:
-            if not name.endswith(".java"):
-                continue
-            p = os.path.join(dirpath, name)
-            with open(p, encoding="utf-8") as fh:
-                text = fh.read()
-            new_text = text
-            for letter, new in STATIC.items():
-                new_text = re.sub(r"\b%s\.%s\b" % (CLASS, re.escape(letter)), CLASS + "." + new, new_text)
-            if new_text != text:
-                with open(p, "w", encoding="utf-8") as fh:
-                    fh.write(new_text)
-                print("updated", p)
+            tt = open(p, encoding="utf-8").read()
+            tt2 = re.sub(r"\b" + re.escape(cls) + r"\." + re.escape(old) + r"\b",
+                         cls + "." + new, tt)
+            if tt2 != tt:
+                open(p, "w", encoding="utf-8").write(tt2)
+                n += 1
+    if n:
+        print(f"  static {cls}.{old} refs updated in {n} files")
+    # 4. inherited this.X in subclasses (skip files declaring their own X)
+    if inherit_from:
+        sub_pat = re.compile(r"\bextends\s+" + re.escape(inherit_from) + r"\b|\bextends\s+\w+.*" + re.escape(inherit_from))
+        # simple: any entity file that (transitively) extends inherit_from
+        n2 = 0
+        for dp, _, fs in os.walk("src/main/java"):
+            for fn in fs:
+                if not fn.endswith(".java"):
+                    continue
+                p = os.path.join(dp, fn)
+                if os.path.abspath(p) == os.path.abspath(path):
+                    continue
+                tt = open(p, encoding="utf-8").read()
+                if not re.search(r"\bthis\." + re.escape(old) + r"\b", tt):
+                    continue
+                if find_decl(tt, old):
+                    print(f"  SKIP {fn} (declares its own {old})")
+                    continue
+                tt2 = rename_field_refs(tt, old, new)
+                if tt2 != tt:
+                    open(p, "w", encoding="utf-8").write(tt2)
+                    n2 += 1
+        if n2:
+            print(f"  inherited this.{old} refs updated in {n2} files")
 
 if __name__ == "__main__":
     main()

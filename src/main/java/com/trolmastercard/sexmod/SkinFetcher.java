@@ -15,7 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SkinFetcher {
-   public static final int a = 3;
+   public static final int maxCacheSize = 3;
 
    @SideOnly(Side.CLIENT)
    public static BufferedImage a_clash864(UUID var0) {

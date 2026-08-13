@@ -20,39 +20,39 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class UpdateEquipmentPacket implements IMessage {
-   boolean a;
-   UUID c;
-   NBTTagCompound b;
+   boolean isValid;
+   UUID girlUUID;
+   NBTTagCompound equipmentNbt;
 
    public UpdateEquipmentPacket() {
    }
 
    public UpdateEquipmentPacket(UUID var1, NBTTagCompound var2) {
-      this.c = var1;
-      this.b = var2;
+      this.girlUUID = var1;
+      this.equipmentNbt = var2;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.c = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.b = ByteBufUtils.readTag(var1);
-      this.a = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.equipmentNbt = ByteBufUtils.readTag(var1);
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.c.toString());
-      ByteBufUtils.writeTag(var1, this.b);
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      ByteBufUtils.writeTag(var1, this.equipmentNbt);
    }
 
    public static class Handler implements IMessageHandler<UpdateEquipmentPacket, IMessage> {
       public IMessage onMessage(UpdateEquipmentPacket var1, MessageContext var2) {
-         if (!var1.a) {
+         if (!var1.isValid) {
             System.out.println("received an invalid message @UpdateEquipment :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.c)) {
+               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
                   if (var3 instanceof AbstractGirlNpcEntity) {
-                     ((AbstractGirlNpcEntity)var3).Q.deserializeNBT(var1.b);
+                     ((AbstractGirlNpcEntity)var3).inventory.deserializeNBT(var1.equipmentNbt);
                   }
                }
             });

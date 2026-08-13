@@ -30,11 +30,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class GirlCameraHelper {
-   public static final float c = 1.2345679F;
-   Vec3d b = null;
-   Vec3d d = null;
-   AbstractPlayerGirlEntity a = null;
-   boolean e = false;
+   public static final float CAMERA_SCALE = 1.2345679F;
+   Vec3d playerPos = null;
+   Vec3d playerLastPos = null;
+   AbstractPlayerGirlEntity currentGirl = null;
+   boolean isSmoothing = false;
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
@@ -79,7 +79,7 @@ public class GirlCameraHelper {
          double var15 = (Math.PI / 180.0) * var1.rotationYaw;
          var0.ao = new Vector2f((float)(var11 * Math.cos(var15) + var13 * Math.sin(var15)), (float)(var11 * Math.sin(var15) + var13 * Math.cos(var15)));
          float var17 = var0.z_clash454() ? a(var0, var1) : 0.0F;
-         GirlPlayerRenderer.v = true;
+         GirlPlayerRenderer.isFirstPerson = true;
          var10.renderEntity(var0, var2, var4 + var17, var6, 90.0F, var8, false);
       }
    }
@@ -116,23 +116,23 @@ public class GirlCameraHelper {
       Minecraft var2 = Minecraft.getMinecraft();
       if (var2.player != null) {
          if (var1.phase == Phase.END) {
-            if (this.b != null) {
-               var2.player.setPosition(this.b.x, this.b.y, this.b.z);
-               var2.player.lastTickPosX = this.d.x;
-               var2.player.lastTickPosY = this.d.y;
-               var2.player.lastTickPosZ = this.d.z;
-               this.b = null;
-               this.d = null;
+            if (this.playerPos != null) {
+               var2.player.setPosition(this.playerPos.x, this.playerPos.y, this.playerPos.z);
+               var2.player.lastTickPosX = this.playerLastPos.x;
+               var2.player.lastTickPosY = this.playerLastPos.y;
+               var2.player.lastTickPosZ = this.playerLastPos.z;
+               this.playerPos = null;
+               this.playerLastPos = null;
             }
          } else if (var2.gameSettings.thirdPersonView == 0) {
             AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
             if (var3 != null) {
                if (var3.o_clash456()) {
-                  this.b = var2.player.getPositionVector();
-                  this.d = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
+                  this.playerPos = var2.player.getPositionVector();
+                  this.playerLastPos = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
                   Vec3d var4 = var3.getCachedBoneOffset("girlCam");
                   var4 = var3.b(var4, var1.renderTickTime);
-                  var4 = var4.add(RotationHelper.a(this.d, this.b, var1.renderTickTime));
+                  var4 = var4.add(RotationHelper.a(this.playerLastPos, this.playerPos, var1.renderTickTime));
                   var2.player.posX = var4.x;
                   var2.player.posY = var4.y - var2.player.getEyeHeight();
                   var2.player.posZ = var4.z;
@@ -194,12 +194,12 @@ public class GirlCameraHelper {
    @SubscribeEvent
    public void a(RenderWorldLastEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
-      if (this.b != null) {
+      if (this.playerPos != null) {
          if (var2.gameSettings.thirdPersonView == 0) {
             AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
             if (var3 != null) {
                Vec3d var4 = var2.player.getPositionVector();
-               Vec3d var5 = RotationHelper.a(this.d, this.b, var1.getPartialTicks());
+               Vec3d var5 = RotationHelper.a(this.playerLastPos, this.playerPos, var1.getPartialTicks());
                Vec3d var6 = var5.subtract(var4);
                a(var3, var2.player, var6.x, var6.y, var6.z, var1.getPartialTicks());
                GlStateManager.enableLighting();
@@ -218,23 +218,23 @@ public class GirlCameraHelper {
          if (var1.phase != Phase.END) {
             AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
             if (var3 == null) {
-               if (this.e) {
-                  this.e = false;
+               if (this.isSmoothing) {
+                  this.isSmoothing = false;
                   var2.player.eyeHeight = var2.player.getDefaultEyeHeight();
                }
             } else if (var3.isAnchored()) {
-               if (this.e) {
-                  this.e = false;
+               if (this.isSmoothing) {
+                  this.isSmoothing = false;
                   var2.player.eyeHeight = var2.player.getDefaultEyeHeight();
                }
             } else {
-               if (this.a != var3) {
+               if (this.currentGirl != var3) {
                   a(var3, var2.player, 0.0, 500.0, 0.0, var1.renderTickTime);
-                  this.a = var3;
+                  this.currentGirl = var3;
                }
 
                var2.player.eyeHeight = var3.getCameraBoneHeight();
-               this.e = true;
+               this.isSmoothing = true;
             }
          }
       }

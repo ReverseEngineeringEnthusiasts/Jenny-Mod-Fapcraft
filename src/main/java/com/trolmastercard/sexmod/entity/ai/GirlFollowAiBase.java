@@ -20,19 +20,19 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public abstract class GirlFollowAiBase extends EntityAIBase {
-   public BaseGirlEntity d;
-   public EntityPlayer a;
-   public PathNavigate c;
-   public EntityDataManager e;
-   public GirlFollowAiBase.GirlFollowAiBaseState f = GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
-   public static final double g = 0.5;
-   public static final double h = 0.7;
-   public static final int b = 60;
+   public BaseGirlEntity girl;
+   public EntityPlayer master;
+   public PathNavigate navigator;
+   public EntityDataManager dataManager;
+   public GirlFollowAiBase.GirlFollowAiBaseState state = GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
+   public static final double followDistance = 0.5;
+   public static final double attackDistance = 0.7;
+   public static final int updateTicks = 60;
 
    public GirlFollowAiBase(BaseGirlEntity var1) {
-      this.d = var1;
-      this.c = var1.getNavigator();
-      this.e = var1.getDataManager();
+      this.girl = var1;
+      this.navigator = var1.getNavigator();
+      this.dataManager = var1.getDataManager();
    }
 
    protected void c_clash805() {
@@ -40,23 +40,23 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
 
       BlockPos var1;
       do {
-         var1 = this.a.getPosition().add(Reference.f.nextInt(10), 0, Reference.f.nextInt(10));
-      } while (++var2 < 20 && !this.d.attemptTeleport(var1.getX(), var1.getY(), var1.getZ()));
+         var1 = this.master.getPosition().add(Reference.RANDOM.nextInt(10), 0, Reference.RANDOM.nextInt(10));
+      } while (++var2 < 20 && !this.girl.attemptTeleport(var1.getX(), var1.getY(), var1.getZ()));
 
       if (var2 >= 20) {
-         this.d.setPosition(this.a.posX, this.a.posY, this.a.posZ);
+         this.girl.setPosition(this.master.posX, this.master.posY, this.master.posZ);
       }
 
-      this.d.motionX = 0.0;
-      this.d.motionY = 0.0;
-      this.d.motionZ = 0.0;
+      this.girl.motionX = 0.0;
+      this.girl.motionY = 0.0;
+      this.girl.motionZ = 0.0;
    }
 
    protected double b_clash806() {
-      float var1 = this.d.getDistance(this.a);
+      float var1 = this.girl.getDistance(this.master);
       double var2;
       BaseGirlEntity.BaseGirlEntityState var4;
-      if (this.a.isSprinting()) {
+      if (this.master.isSprinting()) {
          var2 = 0.7;
          var4 = BaseGirlEntity.BaseGirlEntityState.RUN;
       } else {
@@ -66,48 +66,48 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
 
       double var5 = Math.floor(var1 / 5.0F) * 0.2;
       var2 += var5;
-      if (this.d.isInWater()) {
+      if (this.girl.isInWater()) {
          var2 *= 60.0;
          var4 = BaseGirlEntity.BaseGirlEntityState.WALK;
       }
 
-      this.c.setSpeed(var2);
-      this.d.setWalkSpeed(var4);
+      this.navigator.setSpeed(var2);
+      this.girl.setWalkSpeed(var4);
       return var2;
    }
 
    public void resetTask() {
-      this.c.clearPath();
-      this.f = GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
-      this.d.setCurrentAction(Action.NULL);
-      this.e.set(BaseGirlEntity.MASTER, "");
-      this.c = null;
-      this.e = null;
-      this.a = null;
+      this.navigator.clearPath();
+      this.state = GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
+      this.girl.setCurrentAction(Action.NULL);
+      this.dataManager.set(BaseGirlEntity.MASTER, "");
+      this.navigator = null;
+      this.dataManager = null;
+      this.master = null;
    }
 
    public boolean shouldExecute() {
-      return !((String)this.d.getDataManager().get(BaseGirlEntity.MASTER)).equals("");
+      return !((String)this.girl.getDataManager().get(BaseGirlEntity.MASTER)).equals("");
    }
 
    public boolean shouldContinueExecuting() {
-      String var1 = (String)this.e.get(BaseGirlEntity.MASTER);
-      return !var1.equals("") && this.d.world.getPlayerEntityByUUID(UUID.fromString(var1)) != null;
+      String var1 = (String)this.dataManager.get(BaseGirlEntity.MASTER);
+      return !var1.equals("") && this.girl.world.getPlayerEntityByUUID(UUID.fromString(var1)) != null;
    }
 
    public void startExecuting() {
-      this.c = this.d.getNavigator();
-      this.e = this.d.getDataManager();
-      this.a = this.d.world.getPlayerEntityByUUID(UUID.fromString((String)this.e.get(BaseGirlEntity.MASTER)));
+      this.navigator = this.girl.getNavigator();
+      this.dataManager = this.girl.getDataManager();
+      this.master = this.girl.world.getPlayerEntityByUUID(UUID.fromString((String)this.dataManager.get(BaseGirlEntity.MASTER)));
    }
 
    public void updateTask() {
-      this.f = this.a_clash807();
-      if (this.d.watchClosestGirlGoal != null) {
-         this.d.watchClosestGirlGoal.a = this.f == GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
+      this.state = this.a_clash807();
+      if (this.girl.watchClosestGirlGoal != null) {
+         this.girl.watchClosestGirlGoal.isWatching = this.state == GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
       }
 
-      this.a(this.f);
+      this.a(this.state);
    }
 
    protected abstract GirlFollowAiBase.GirlFollowAiBaseState a_clash807();

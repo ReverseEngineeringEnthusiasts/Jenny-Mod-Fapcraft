@@ -29,9 +29,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
 public class GirlScreenBase extends GuiScreen {
-   List<EntityLivingBase> a = new ArrayList<>();
-   int b = 0;
-   static float c = 0.0F;
+   List<EntityLivingBase> nearbyEntities = new ArrayList<>();
+   int renderIndex = 0;
+   static float progress = 0.0F;
 
    public GirlScreenBase(HashMap<NpcType, String> var1) {
       this.mc = Minecraft.getMinecraft();
@@ -42,7 +42,7 @@ public class GirlScreenBase extends GuiScreen {
                Constructor var6 = var5.npcClass.getConstructor(World.class);
                BaseGirlEntity var7 = (BaseGirlEntity)var6.newInstance(this.mc.world);
                var7.setLocallyRegistered(true);
-               this.a.add(var7);
+               this.nearbyEntities.add(var7);
                String var8 = (String)var1.get(var5);
                if (var8 != null) {
                   var7.setCustomPartList(BaseGirlEntity.decodePartIdList(var8));
@@ -53,29 +53,29 @@ public class GirlScreenBase extends GuiScreen {
          }
       }
 
-      this.a.add(this.mc.player);
+      this.nearbyEntities.add(this.mc.player);
    }
 
    public void drawScreen(int var1, int var2, float var3) {
       super.drawScreen(var1, var2, var3);
       this.buttonList.clear();
-      a(this.width / 2, this.height / 2 + 20, 30, this.a.get(this.b));
+      a(this.width / 2, this.height / 2 + 20, 30, this.nearbyEntities.get(this.renderIndex));
       this.buttonList.add(new GuiButton(1, this.width / 2 + 30, this.height / 2 - 10, 20, 20, ">"));
       this.buttonList.add(new GuiButton(2, this.width / 2 - 50, this.height / 2 - 10, 20, 20, "<"));
       this.buttonList.add(new GuiButton(0, this.width / 2 - 30, this.height / 2 + 30, 60, 20, "pick"));
    }
 
    protected void actionPerformed(GuiButton var1) {
-      if (">".equals(var1.displayString) && ++this.b >= this.a.size()) {
-         this.b = 0;
+      if (">".equals(var1.displayString) && ++this.renderIndex >= this.nearbyEntities.size()) {
+         this.renderIndex = 0;
       }
 
-      if ("<".equals(var1.displayString) && --this.b < 0) {
-         this.b = this.a.size() - 1;
+      if ("<".equals(var1.displayString) && --this.renderIndex < 0) {
+         this.renderIndex = this.nearbyEntities.size() - 1;
       }
 
       if (var1.id == 0) {
-         PacketHandler.b.sendToServer(new UpdatePlayerModelPacket(NpcType.getNpcType((Entity)this.a.get(this.b))));
+         PacketHandler.networkWrapper.sendToServer(new UpdatePlayerModelPacket(NpcType.getNpcType((Entity)this.nearbyEntities.get(this.renderIndex))));
          EntityPlayerSP var2 = Minecraft.getMinecraft().player;
          var2.closeScreen();
          var2.eyeHeight = var2.getDefaultEyeHeight();
@@ -111,7 +111,7 @@ public class GirlScreenBase extends GuiScreen {
          var9 = 0.1F;
       }
 
-      c += 60.0F / var9;
+      progress += 60.0F / var9;
       GlStateManager.enableColorMaterial();
       GlStateManager.pushMatrix();
       GlStateManager.translate(var0, var1, 50.0F);
@@ -120,7 +120,7 @@ public class GirlScreenBase extends GuiScreen {
       GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
       RenderHelper.enableStandardItemLighting();
       GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
-      GlStateManager.rotate(c, 0.0F, 1.0F, 0.0F);
+      GlStateManager.rotate(progress, 0.0F, 1.0F, 0.0F);
       GlStateManager.translate(0.0F, 0.0F, 0.0F);
       RenderManager var10 = Minecraft.getMinecraft().getRenderManager();
       var10.setPlayerViewY(180.0F);

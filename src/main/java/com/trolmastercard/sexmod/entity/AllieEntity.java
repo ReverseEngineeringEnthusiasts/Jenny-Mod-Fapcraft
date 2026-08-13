@@ -38,28 +38,28 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
 public class AllieEntity extends BaseGirlEntity {
-   public static final int Q = 300;
-   public static final int K = 8;
-   public static final Vec3d O = new Vec3d(0.5, 1.0, 0.0);
-   public float U = 1.0F;
-   public boolean P = false;
-   public static final DataParameter<ItemStack> N = EntityDataManager.createKey(AllieEntity.class, DataSerializers.ITEM_STACK)
+   public static final int LAMP_RANGE = 300;
+   public static final int LAMP_SLOTS = 8;
+   public static final Vec3d LAMP_OFFSET = new Vec3d(0.5, 1.0, 0.0);
+   public float LAMP_SCALE = 1.0F;
+   public boolean isLampActive = false;
+   public static final DataParameter<ItemStack> LAMP_ITEM = EntityDataManager.createKey(AllieEntity.class, DataSerializers.ITEM_STACK)
       .getSerializer()
       .createKey(111);
-   boolean S = true;
-   int T = 1;
-   int L = 1;
-   boolean M = false;
-   boolean R = false;
+   boolean isDefaultState = true;
+   int stateIndex = 1;
+   int stateCount = 1;
+   boolean stateFlag = false;
+   boolean stateFlag2 = false;
 
    public AllieEntity(World var1) {
       super(var1);
-      this.setSize((float)O.x, (float)O.y);
+      this.setSize((float)LAMP_OFFSET.x, (float)LAMP_OFFSET.y);
    }
 
    public AllieEntity(World var1, ItemStack var2) {
       this(var1);
-      this.entityDataManager.set(N, var2);
+      this.entityDataManager.set(LAMP_ITEM, var2);
    }
 
    @Override
@@ -75,11 +75,11 @@ public class AllieEntity extends BaseGirlEntity {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.entityDataManager.register(N, ItemStack.EMPTY);
+      this.entityDataManager.register(LAMP_ITEM, ItemStack.EMPTY);
    }
 
    public boolean f_clash697() {
-      NBTTagCompound var1 = ((ItemStack)this.entityDataManager.get(N)).getTagCompound();
+      NBTTagCompound var1 = ((ItemStack)this.entityDataManager.get(LAMP_ITEM)).getTagCompound();
       return var1 == null ? true : var1.getInteger("sexmodUses") == 1;
    }
 
@@ -102,29 +102,29 @@ public class AllieEntity extends BaseGirlEntity {
    @SideOnly(Side.CLIENT)
    @Override
    public void ac() {
-      if (!this.R) {
-         this.P = true;
+      if (!this.stateFlag2) {
+         this.isLampActive = true;
       }
    }
 
    @Override
    public void onUpdate() {
       super.onUpdate();
-      if (this.U != 1.0F && this.U != -69.0F && this.U <= 0.0F) {
+      if (this.LAMP_SCALE != 1.0F && this.LAMP_SCALE != -69.0F && this.LAMP_SCALE <= 0.0F) {
          if (this.isControlledByLocalPlayer()) {
-            PacketHandler.b.sendToServer(new UploadInventoryToServerPacket2(this.getGirlId()));
+            PacketHandler.networkWrapper.sendToServer(new UploadInventoryToServerPacket2(this.getGirlId()));
             HandlePlayerMovement.setMovementLock(true);
          }
 
-         this.U = -69.0F;
+         this.LAMP_SCALE = -69.0F;
       }
 
       if (this.world.isRemote) {
-         if (this.P) {
+         if (this.isLampActive) {
             this.c_clash700();
          }
 
-         if (this.S) {
+         if (this.isDefaultState) {
             this.d_clash699();
          }
 
@@ -152,19 +152,19 @@ public class AllieEntity extends BaseGirlEntity {
 
    @SideOnly(Side.CLIENT)
    void d_clash699() {
-      this.S = false;
+      this.isDefaultState = false;
       WorldUtils.a(this.world, EnumParticleTypes.PORTAL, this.getPositionVector(), 300, 0.75, 1.5);
    }
 
    @SideOnly(Side.CLIENT)
    void c_clash700() {
       this.openInteractionMenu(Minecraft.getMinecraft().player);
-      this.P = false;
+      this.isLampActive = false;
    }
 
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
-      this.R = false;
+      this.stateFlag2 = false;
       String[] var2 = new String[]{"action.names.makemerichallie", "action.names.deepthroat", "Reverse cowgirl"};
       openInventoryGui(var1, this, var2, false);
       return true;
@@ -272,10 +272,10 @@ public class AllieEntity extends BaseGirlEntity {
                   this.createAnimation("animation.allie.reverse_cowgirl_start", true, var1);
                   break;
                case REVERSE_COWGIRL_SLOW:
-                  this.createAnimation("animation.allie.reverse_cowgirl_slow" + this.T, true, var1);
+                  this.createAnimation("animation.allie.reverse_cowgirl_slow" + this.stateIndex, true, var1);
                   break;
                case REVERSE_COWGIRL_FAST_CONTINUES:
-                  this.createAnimation("animation.allie.reverse_cowgirl_fastc" + this.L, true, var1);
+                  this.createAnimation("animation.allie.reverse_cowgirl_fastc" + this.stateCount, true, var1);
                   break;
                case REVERSE_COWGIRL_FAST_START:
                   this.createAnimation("animation.allie.reverse_cowgirl_fasts", true, var1);
@@ -356,7 +356,7 @@ public class AllieEntity extends BaseGirlEntity {
                      this.setCurrentAction(Action.REVERSE_COWGIRL_START);
                   } else {
                      this.setCurrentAction(Action.DEEPTHROAT_START);
-                     PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
+                     PacketHandler.networkWrapper.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
                      this.cameraYaw = this.rotationYaw + 180.0F;
                      this.positionPlayerRelative(0.0, 0.0, 1.35F, 0.0F, 30.0F);
                      HornyMeterHud.resetHornyMeter();
@@ -364,7 +364,7 @@ public class AllieEntity extends BaseGirlEntity {
                }
                break;
             case "deepthroat_fastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.DEEPTHROAT_SLOW);
                }
                break;
@@ -399,7 +399,7 @@ public class AllieEntity extends BaseGirlEntity {
             case "deepthroat_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   this.resetCameraAndPhysics();
-                  PacketHandler.b.sendToServer(new UploadInventoryToServerPacket2(this.getGirlId()));
+                  PacketHandler.networkWrapper.sendToServer(new UploadInventoryToServerPacket2(this.getGirlId()));
                }
                break;
             case "summon_normalMSG1":
@@ -410,7 +410,7 @@ public class AllieEntity extends BaseGirlEntity {
                this.sendChatMessage(I18n.format("allie.dialogue.youhave", new Object[0]));
                break;
             case "summon_normalMSG3":
-               if (((ItemStack)this.entityDataManager.get(N)).getTagCompound().getInteger("sexmodUses") == 2) {
+               if (((ItemStack)this.entityDataManager.get(LAMP_ITEM)).getTagCompound().getInteger("sexmodUses") == 2) {
                   this.sendChatMessage(I18n.format("allie.dialogue.2wishes", new Object[0]));
                } else {
                   this.sendChatMessage(I18n.format("allie.dialogue.1wish", new Object[0]));
@@ -439,11 +439,11 @@ public class AllieEntity extends BaseGirlEntity {
                this.sendChatMessage(I18n.format("allie.dialogue.wishgranted", new Object[0]));
                this.playSound(SoundHandler.randomSound(SoundHandler.MISC_PLOB));
                if (this.isControlledByLocalPlayer()) {
-                  PacketHandler.b.sendToServer(new MakeRichWishPacket(this.getPositionVector()));
+                  PacketHandler.networkWrapper.sendToServer(new MakeRichWishPacket(this.getPositionVector()));
                }
                break;
             case "disappear":
-               this.U = 0.99F;
+               this.LAMP_SCALE = 0.99F;
                break;
             case "summon_sandMSG1":
                this.sendChatMessage(I18n.format("allie.dialogue.nooo", new Object[0]));
@@ -479,11 +479,11 @@ public class AllieEntity extends BaseGirlEntity {
                }
                break;
             case "cowgirlSlowDone":
-               int var6 = this.T;
+               int var6 = this.stateIndex;
 
                do {
-                  this.T = this.getRNG().nextInt(3) + 1;
-               } while (this.T == var6);
+                  this.stateIndex = this.getRNG().nextInt(3) + 1;
+               } while (this.stateIndex == var6);
 
                return;
             case "fastMoan":
@@ -491,25 +491,25 @@ public class AllieEntity extends BaseGirlEntity {
                   HornyMeterHud.addToHornyMeter(0.04F);
                }
 
-               if (!this.M) {
+               if (!this.stateFlag) {
                   this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_MOAN));
-                  this.M = true;
+                  this.stateFlag = true;
                } else {
-                  this.M = false;
+                  this.stateFlag = false;
                }
                break;
             case "fastSwitch":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   Action var5 = this.getCurrentAction();
                   if (var5 == Action.REVERSE_COWGIRL_FAST_START) {
                      this.setCurrentAction(Action.REVERSE_COWGIRL_FAST_CONTINUES);
                   } else {
                      this.resetAnimationControllerOffset();
-                     int var4 = this.L;
+                     int var4 = this.stateCount;
 
                      do {
-                        this.L = this.getRNG().nextInt(3) + 1;
-                     } while (this.L == var4);
+                        this.stateCount = this.getRNG().nextInt(3) + 1;
+                     } while (this.stateCount == var4);
                   }
                }
                break;
@@ -533,7 +533,7 @@ public class AllieEntity extends BaseGirlEntity {
 
    @Override
    public void doAction(String var1, UUID var2) {
-      this.R = true;
+      this.stateFlag2 = true;
       if ("action.names.makemerichallie".equals(var1)) {
          this.setCurrentAction(this.f_clash697() ? Action.RICH_FIRST_TIME : Action.RICH_NORMAL);
       } else {

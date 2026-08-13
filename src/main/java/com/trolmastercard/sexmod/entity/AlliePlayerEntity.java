@@ -197,8 +197,8 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackDone":
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "deepthroat_prepareMSG1":
@@ -217,7 +217,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
             case "deepthroat_prepareDone":
                this.setCurrentAction(Action.DEEPTHROAT_START);
                if (this.isControlledByLocalPlayer()) {
-                  PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
+                  PacketHandler.networkWrapper.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
                   this.cameraYaw = this.rotationYaw + 180.0F;
                   this.positionPlayerRelative(0.0, 0.0, 1.35F, 0.0F, 30.0F);
                   HornyMeterHud.resetHornyMeter();
@@ -231,7 +231,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "deepthroat_fastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.DEEPTHROAT_SLOW);
                }
                break;
@@ -304,7 +304,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "fastSwitch":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   Action var5 = this.getCurrentAction();
                   if (var5 == Action.REVERSE_COWGIRL_FAST_START) {
                      this.setCurrentAction(Action.REVERSE_COWGIRL_FAST_CONTINUES);
@@ -405,7 +405,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.allie.summon_sand", false, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.allie.attack" + this.S, false, var1);
+                  this.createAnimation("animation.allie.attack" + this.nextAttack, false, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.allie.bowcharge", false, var1);

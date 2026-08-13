@@ -6,12 +6,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
 public class DebugWindow extends JFrame {
-   public boolean a = false;
+   public boolean isVisible = false;
 
    @SubscribeEvent
    public void a(ClientTickEvent var1) {
-      if (!this.a) {
-         this.a = true;
+      if (!this.isVisible) {
+         this.isVisible = true;
          DebugWindow2.a_clash451();
       }
    }

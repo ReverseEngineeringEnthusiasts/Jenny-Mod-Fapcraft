@@ -126,7 +126,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
             this.cameraOriginPos = null;
             this.setCurrentAction(Action.DOGGYSTART);
-            PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
+            PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
          }
       }
    }
@@ -263,7 +263,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.jenny.doggycum", false, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.jenny.attack" + this.S, false, var1);
+                  this.createAnimation("animation.jenny.attack" + this.nextAttack, false, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.jenny.bowcharge", false, var1);
@@ -303,8 +303,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackDone":
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "stripMSG1":
@@ -404,7 +404,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "bjiMSG12":
-               if (Reference.f.nextInt(5) == 0) {
+               if (Reference.RANDOM.nextInt(5) == 0) {
                   this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_BJMOAN));
                }
 
@@ -430,14 +430,14 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.setCurrentAction(Action.SUCKBLOWJOB);
                break;
             case "doggyfastReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                   this.ar = true;
                }
                break;
             case "bjtReady":
             case "paizuriReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -494,7 +494,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.playSoundAtVolume(SoundHandler.MISC_SLAP[0], 0.75F);
                break;
             case "doggyGoOnBedDone":
-               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
+               PacketHandler.networkWrapper.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
                this.setCurrentAction(Action.WAITDOGGY);
                break;
             case "doggystartMSG1":
@@ -526,9 +526,9 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             case "doggyslowMSG1":
                this.ar = false;
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
-               int var5 = Reference.f.nextInt(4);
+               int var5 = Reference.RANDOM.nextInt(4);
                if (var5 == 0) {
-                  var5 = Reference.f.nextInt(2);
+                  var5 = Reference.RANDOM.nextInt(2);
                   if (var5 == 0) {
                      this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MMM));
                   } else {
@@ -553,7 +553,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
 
                this.aq++;
                if (this.aq % 2 == 0) {
-                  int var9 = Reference.f.nextInt(2);
+                  int var9 = Reference.RANDOM.nextInt(2);
                   if (var9 == 0) {
                      this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                   } else {
@@ -585,7 +585,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.playSound(SoundHandler.GIRLS_JENNY_HEAVYBREATHING[7]);
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "boobjob_camera":
                if (this.isControlledByLocalPlayer() && !this.as) {

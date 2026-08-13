@@ -23,38 +23,38 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class KoboldStatePacket implements IMessage {
-   boolean c;
-   UUID a;
-   boolean b;
-   boolean d;
-   UUID e = null;
+   boolean isValid;
+   UUID tribeId;
+   boolean isSneaking;
+   boolean followMode;
+   UUID girlId = null;
 
    public KoboldStatePacket() {
-      this.c = false;
+      this.isValid = false;
    }
 
    public KoboldStatePacket(UUID var1, UUID var2, boolean var3, boolean var4) {
-      this.a = var1;
-      this.b = var3;
-      this.e = var2;
-      this.d = var4;
-      this.c = true;
+      this.tribeId = var1;
+      this.isSneaking = var3;
+      this.girlId = var2;
+      this.followMode = var4;
+      this.isValid = true;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.a = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.b = var1.readBoolean();
-      this.d = var1.readBoolean();
+      this.tribeId = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.isSneaking = var1.readBoolean();
+      this.followMode = var1.readBoolean();
       String var2 = ByteBufUtils.readUTF8String(var1);
-      this.e = var2.equals("null") ? null : UUID.fromString(var2);
-      this.c = true;
+      this.girlId = var2.equals("null") ? null : UUID.fromString(var2);
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.a.toString());
-      var1.writeBoolean(this.b);
-      var1.writeBoolean(this.d);
-      ByteBufUtils.writeUTF8String(var1, this.e == null ? "null" : this.e.toString());
+      ByteBufUtils.writeUTF8String(var1, this.tribeId.toString());
+      var1.writeBoolean(this.isSneaking);
+      var1.writeBoolean(this.followMode);
+      ByteBufUtils.writeUTF8String(var1, this.girlId == null ? "null" : this.girlId.toString());
    }
 
 
@@ -98,8 +98,8 @@ public class KoboldStatePacket implements IMessage {
       }
 
       public IMessage onMessage(KoboldStatePacket var1, MessageContext var2) {
-         if (var1.c && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> a(var1.a, var1.e, var1.b, var1.d));
+         if (var1.isValid && var2.side == Side.SERVER) {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> a(var1.tribeId, var1.girlId, var1.isSneaking, var1.followMode));
          }
 
          return null;

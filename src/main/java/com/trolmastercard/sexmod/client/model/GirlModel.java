@@ -32,7 +32,7 @@ import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.model.provider.data.EntityModelData;
 
 public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<T> implements IGirlModelInfo {
-   public static final List<String> b = Arrays.asList(
+   public static final List<String> BRA_STRING_BONES = Arrays.asList(
       "braStringMidStartR",
       "braStringMidMid1R",
       "braStringMidMid2R",
@@ -52,10 +52,10 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       "braStringMidStartL",
       "braStringRightR"
    );
-   public static final List<String> e = Arrays.asList("boyCam", "girlCam");
-   public static boolean d = true;
-   protected ResourceLocation[] c = this.getModelLocations();
-   protected Minecraft a = Minecraft.getMinecraft();
+   public static final List<String> CAMERA_PLACEMENTS = Arrays.asList("boyCam", "girlCam");
+   public static boolean enableModelCache = true;
+   protected ResourceLocation[] modelLocations = this.getModelLocations();
+   protected Minecraft mc = Minecraft.getMinecraft();
 
    protected GirlModel() {
    }
@@ -87,12 +87,12 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
 
    public ResourceLocation a_clash34(BaseGirlEntity var1) {
       if (var1.world instanceof SexWorldClient) {
-         return this.c[0];
-      } else if ((Integer)var1.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) > this.c.length) {
+         return this.modelLocations[0];
+      } else if ((Integer)var1.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) > this.modelLocations.length) {
          System.out.println("Girl doesn't have an outfit Nr." + var1.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) + " so im just making her nude lol");
-         return this.c[0];
+         return this.modelLocations[0];
       } else {
-         return this.c[var1.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX)];
+         return this.modelLocations[var1.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX)];
       }
    }
 
@@ -127,10 +127,10 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
          if (var1 instanceof AbstractGirlNpcEntity && !var1.isLocallyRegistered() && var1.getOutfitIndex() != 0) {
             this.a(
                var4,
-               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.X),
-               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.T),
-               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.U),
-               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.W)
+               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.HELMET_SLOT),
+               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.CHEST_SLOT),
+               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.LEGS_SLOT),
+               (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.BOOTS_SLOT)
             );
          } else {
             this.a(var4);
@@ -293,13 +293,13 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
 
    public ItemStack a_clash348(BaseGirlEntity var1, String var2) {
       if (Arrays.asList(this.c()).contains(var2)) {
-         return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.X);
+         return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.HELMET_SLOT);
       } else if (Arrays.asList(this.f()).contains(var2)) {
-         return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.T);
+         return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.CHEST_SLOT);
       } else if (Arrays.asList(this.h()).contains(var2)) {
-         return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.U);
+         return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.LEGS_SLOT);
       } else {
-         return Arrays.asList(this.b()).contains(var2) ? (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.W) : ItemStack.EMPTY;
+         return Arrays.asList(this.b()).contains(var2) ? (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.BOOTS_SLOT) : ItemStack.EMPTY;
       }
    }
 

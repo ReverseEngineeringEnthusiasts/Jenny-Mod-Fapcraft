@@ -18,10 +18,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class GalathBackOffRapePacket implements IMessage {
-   boolean a = false;
+   boolean isValid = false;
 
    public void fromBytes(ByteBuf var1) {
-      this.a = true;
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
@@ -29,7 +29,7 @@ public class GalathBackOffRapePacket implements IMessage {
 
    public static class Handler implements IMessageHandler<GalathBackOffRapePacket, IMessage> {
       public IMessage onMessage(GalathBackOffRapePacket var1, MessageContext var2) {
-         if (var1.a && var2.side.equals(Side.SERVER)) {
+         if (var1.isValid && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                BaseGirlEntity var1x = BaseGirlEntity.getGirlByUUID(var2.getServerHandler().player.getPersistentID(), Boolean.valueOf(true));
                if (var1x instanceof GalathEntity) {

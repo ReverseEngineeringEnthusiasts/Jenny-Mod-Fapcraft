@@ -21,10 +21,10 @@ import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 
 public class BodyParts {
-   public static final Vec3d c = new Vec3d(0.95, 0.65, 0.85);
-   public static final Vec3d e = new Vec3d(0.0, 0.2, 0.3);
-   public static final float f = 0.1F;
-   public static final HashSet<String> a = new HashSet<String>() {
+   public static final Vec3d SKIN_COLOR = new Vec3d(0.95, 0.65, 0.85);
+   public static final Vec3d SKIN_COLOR_ALT = new Vec3d(0.0, 0.2, 0.3);
+   public static final float ALPHA = 0.1F;
+   public static final HashSet<String> CUSTOM_PART_BONES = new HashSet<String>() {
       {
          this.add("boobs");
          this.add("booty");
@@ -33,7 +33,7 @@ public class BodyParts {
       }
    };
    protected static HashMap<IGirlRenderer, HashMap<String, Boolean>> d = new HashMap<>();
-   public static Vec3d b;
+   public static Vec3d OFFSET_VEC;
 
    static boolean a(IGirlRenderer var0, GeoBone var1) {
       HashMap var2 = d.get(var0);
@@ -57,18 +57,18 @@ public class BodyParts {
    }
 
    public static Vec3d a(IGirlRenderer var0, GeoBone var1, Vec3d var2, Vector3f var3) {
-      return !a(var0, var1) ? var2 : a(var2, var3, b);
+      return !a(var0, var1) ? var2 : a(var2, var3, OFFSET_VEC);
    }
 
    public static Vec3d a(Vec3d var0, Vector3f var1, Vec3d var2) {
       double var3 = VectorMath.a(var1, var2);
       double var5 = RotationHelper.e(Math.abs(var3));
       var5 *= 0.1F;
-      return RotationHelper.a(var0, var3 > 0.0 ? c : e, var5);
+      return RotationHelper.a(var0, var3 > 0.0 ? SKIN_COLOR : SKIN_COLOR_ALT, var5);
    }
 
    public static void a_clash795(EntityLivingBase var0, float var1) {
-      b = WorldUtils.a_clash301(var0, var1);
+      OFFSET_VEC = WorldUtils.a_clash301(var0, var1);
    }
 
    public static void a(List<IBone> var0, HashSet<String> var1, IGirlRenderer var2) {

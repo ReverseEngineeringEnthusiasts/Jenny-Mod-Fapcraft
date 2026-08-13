@@ -24,7 +24,7 @@ import software.bernie.geckolib3.geo.render.built.GeoVertex;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
 public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
-   static final Vec3d a = new Vec3d(0.0, 1.0, 0.0);
+   static final Vec3d offsetVec = new Vec3d(0.0, 1.0, 0.0);
 
    public SummonItemRenderer() {
       super(new SummonItemModel());
@@ -66,7 +66,7 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
                var11.z *= -1.0F;
             }
 
-            Vec3d var12 = DebugMode.b[0] == 0.0F ? BodyParts.a(new Vec3d(var3, var4, var5), var11, a) : new Vec3d(var3, var4, var5);
+            Vec3d var12 = DebugMode.b[0] == 0.0F ? BodyParts.a(new Vec3d(var3, var4, var5), var11, offsetVec) : new Vec3d(var3, var4, var5);
 
             for (GeoVertex var16 : var10.vertices) {
                Vector4f var17 = new Vector4f(var16.position.getX(), var16.position.getY(), var16.position.getZ(), 1.0F);

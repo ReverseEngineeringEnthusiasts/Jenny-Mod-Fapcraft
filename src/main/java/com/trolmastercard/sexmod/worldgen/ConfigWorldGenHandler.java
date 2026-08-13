@@ -37,23 +37,23 @@ import net.minecraftforge.fml.common.IWorldGenerator;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGenerator {
-   static final String j = "sexmod:generation";
-   static final int h = 156;
-   static final int a = 62;
-   static final int b = 6;
-   final double f = 0.004F;
-   public static boolean i = true;
-   final List<ConfigWorldGenHandler.b> e = new ArrayList<>();
-   final List<ConfigWorldGenHandler.a> d = new ArrayList<>();
-   private static ConfigWorldGenHandler g = null;
-   static boolean c = true;
+   static final String DATA_NAME = "sexmod:generation";
+   static final int ELLIE_MIN_DISTANCE = 156;
+   static final int DEFAULT_MIN_DISTANCE = 62;
+   static final int spacing = 6;
+   final double KOBOBLIN_SPAWN_CHANCE = 0.004F;
+   public static boolean GENERATION_ENABLED = true;
+   final List<ConfigWorldGenHandler.b> girlHouseConfigs = new ArrayList<>();
+   final List<ConfigWorldGenHandler.a> generatedPositions = new ArrayList<>();
+   private static ConfigWorldGenHandler INSTANCE = null;
+   static boolean IS_GENERATING = true;
 
    public static ConfigWorldGenHandler getInstance() {
-      if (g == null) {
-         g = new ConfigWorldGenHandler();
+      if (INSTANCE == null) {
+         INSTANCE = new ConfigWorldGenHandler();
       }
 
-      return g;
+      return INSTANCE;
    }
 
    public ConfigWorldGenHandler(String var1) {
@@ -62,8 +62,8 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
 
    private ConfigWorldGenHandler() {
       super("sexmod:generation");
-      g = this;
-      this.e
+      INSTANCE = this;
+      this.girlHouseConfigs
          .add(
             new ConfigWorldGenHandler.b(
                "ellie",
@@ -73,8 +73,8 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
                true
             )
          );
-      this.e.add(new ConfigWorldGenHandler.b("jenny", new HashSet<>(Arrays.asList(Biomes.PLAINS, Biomes.FOREST)), new Vec3i(9, 4, 9), 1, true));
-      this.e
+      this.girlHouseConfigs.add(new ConfigWorldGenHandler.b("jenny", new HashSet<>(Arrays.asList(Biomes.PLAINS, Biomes.FOREST)), new Vec3i(9, 4, 9), 1, true));
+      this.girlHouseConfigs
          .add(
             new ConfigWorldGenHandler.b(
                "ellie",
@@ -84,12 +84,12 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
                true
             )
          );
-      this.e.add(new ConfigWorldGenHandler.b("bia", new HashSet<>(Arrays.asList(Biomes.MUTATED_BIRCH_FOREST, Biomes.BIRCH_FOREST)), new Vec3i(11, 9, 15), 2, true));
-      this.e.add(new ConfigWorldGenHandler.b("luna", new HashSet<>(Arrays.asList(Biomes.OCEAN, Biomes.DEEP_OCEAN)), new Vec3i(3, 7, 10), 0, false));
+      this.girlHouseConfigs.add(new ConfigWorldGenHandler.b("bia", new HashSet<>(Arrays.asList(Biomes.MUTATED_BIRCH_FOREST, Biomes.BIRCH_FOREST)), new Vec3i(11, 9, 15), 2, true));
+      this.girlHouseConfigs.add(new ConfigWorldGenHandler.b("luna", new HashSet<>(Arrays.asList(Biomes.OCEAN, Biomes.DEEP_OCEAN)), new Vec3i(3, 7, 10), 0, false));
    }
 
    public void clear() {
-      this.d.clear();
+      this.generatedPositions.clear();
    }
 
    @SubscribeEvent
@@ -117,7 +117,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
             return;
          }
 
-         this.d.add(new ConfigWorldGenHandler.a(a_clash471(var5), var4));
+         this.generatedPositions.add(new ConfigWorldGenHandler.a(a_clash471(var5), var4));
          var3++;
       }
    }
@@ -127,9 +127,9 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       NBTTagCompound var2 = new NBTTagCompound();
       int var3 = 0;
 
-      for (ConfigWorldGenHandler.a var5 : this.d) {
-         var2.setString("sexmod:name" + var3, var5.a);
-         var2.setString("sexmod:pos" + var3++, a(var5.b));
+      for (ConfigWorldGenHandler.a var5 : this.generatedPositions) {
+         var2.setString("sexmod:name" + var3, var5.girlName);
+         var2.setString("sexmod:pos" + var3++, a(var5.pos));
       }
 
       var1.setTag("sexmod:generation", var2);
@@ -137,7 +137,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
    }
 
    static String a(Point2D var0) {
-      return var0.c + "|" + var0.b;
+      return var0.x + "|" + var0.y;
    }
 
    static Point2D a_clash471(String var0) {
@@ -146,7 +146,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
    }
 
    public void generate(Random var1, int var2, int var3, World var4, IChunkGenerator var5, IChunkProvider var6) {
-      if (i) {
+      if (GENERATION_ENABLED) {
          if (var4.getWorldType() != WorldType.FLAT) {
             this.b(var4, var1, var2, var3);
             this.a(var4, var1, var2, var3);
@@ -156,38 +156,38 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
    }
 
    void a(Random var1, int var2, int var3, World var4) {
-      if (c) {
-         c = false;
+      if (IS_GENERATING) {
+         IS_GENERATING = false;
 
-         for (ConfigWorldGenHandler.b var6 : this.e) {
+         for (ConfigWorldGenHandler.b var6 : this.girlHouseConfigs) {
             this.a(var6, var1, var2, var3, var4);
          }
 
-         c = true;
+         IS_GENERATING = true;
       }
    }
 
    void a(ConfigWorldGenHandler.b var1, Random var2, int var3, int var4, World var5) {
-      for (ConfigWorldGenHandler.a var7 : this.d) {
-         int var8 = var7.a.equals(var1.f) ? 156 : 62;
-         if (var7.b.a_clash298(var3, var4) < var8) {
+      for (ConfigWorldGenHandler.a var7 : this.generatedPositions) {
+         int var8 = var7.girlName.equals(var1.girlName) ? 156 : 62;
+         if (var7.pos.a_clash298(var3, var4) < var8) {
             return;
          }
       }
 
-      int var21 = var1.c.getX();
-      int var22 = var1.c.getZ();
+      int var21 = var1.size.getX();
+      int var22 = var1.size.getZ();
       int var23 = var3 * 16 + (16 - var21) / 2;
       int var9 = var4 * 16 + (16 - var22) / 2;
       Biome var10 = var5.provider.getBiomeForCoords(new BlockPos(var23, 80, var9));
-      if (var1.e.contains(var10)) {
+      if (var1.biomes.contains(var10)) {
          int var11 = Integer.MIN_VALUE;
          int var12 = Integer.MAX_VALUE;
 
          for (int var13 = var23; var13 < var23 + var21; var13++) {
             for (int var14 = var9; var14 < var9 + var22; var14++) {
                int var15 = WorldUtils.a(var5, var13, var14);
-               if (var1.d && var5.getBlockState(new BlockPos(var13, var15, var14)).getBlock() == Blocks.WATER) {
+               if (var1.flattenGround && var5.getBlockState(new BlockPos(var13, var15, var14)).getBlock() == Blocks.WATER) {
                   return;
                }
 
@@ -201,11 +201,11 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
             }
          }
 
-         if (var11 - var12 <= var1.a) {
+         if (var11 - var12 <= var1.maxHeightDiff) {
             int var24 = var11;
-            this.d.add(new ConfigWorldGenHandler.a(new Point2D(var3, var4), var1.f));
-            var1.b.generate(var5, var2, new BlockPos(var23, var24, var9));
-            if (var1.d) {
+            this.generatedPositions.add(new ConfigWorldGenHandler.a(new Point2D(var3, var4), var1.girlName));
+            var1.generator.generate(var5, var2, new BlockPos(var23, var24, var9));
+            if (var1.flattenGround) {
                boolean var25 = true;
 
                for (int var26 = var24 - 1; var25; var26--) {
@@ -304,12 +304,12 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
                var24 = new Vec3i(GoblinEntity.ah.getX() - 1, 0, GoblinEntity.ah.getZ() - 1);
             } else {
                var18 = Rotation.COUNTERCLOCKWISE_90;
-               var20 = GoblinEntity.U;
+               var20 = GoblinEntity.THROW_OFFSET_U;
                var24 = new Vec3i(0, 0, GoblinEntity.ah.getZ() - 1);
                var26 = 90.0F;
             }
 
-            new GirlHouseGenerator("goblin").a(var1, var8.add(0, -1, 0).add(var24), var18);
+            new GirlHouseGenerator("goblin").generateStructureRotated(var1, var8.add(0, -1, 0).add(var24), var18);
             var20.add(var24.getX(), var24.getY(), var24.getZ());
             var20 = new Vec3d(
                var8.getX() + var20.x + 0.5, var8.getY() + var20.y, var8.getZ() + var20.z + 0.5
@@ -324,30 +324,30 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
 
 
    static class a {
-      Point2D b;
-      String a;
+      Point2D pos;
+      String girlName;
 
       public a(Point2D var1, String var2) {
-         this.b = var1;
-         this.a = var2;
+         this.pos = var1;
+         this.girlName = var2;
       }
    }
 
    static class b {
-      public final String f;
-      public final GirlHouseGenerator b;
-      public final HashSet<Biome> e;
-      public final Vec3i c;
-      public final boolean d;
-      public final int a;
+      public final String girlName;
+      public final GirlHouseGenerator generator;
+      public final HashSet<Biome> biomes;
+      public final Vec3i size;
+      public final boolean flattenGround;
+      public final int maxHeightDiff;
 
       public b(String var1, HashSet<Biome> var2, Vec3i var3, int var4, boolean var5) {
-         this.f = var1;
-         this.e = var2;
-         this.c = var3;
-         this.d = var5;
-         this.a = var4;
-         this.b = new GirlHouseGenerator(var1);
+         this.girlName = var1;
+         this.biomes = var2;
+         this.size = var3;
+         this.flattenGround = var5;
+         this.maxHeightDiff = var4;
+         this.generator = new GirlHouseGenerator(var1);
       }
    }
 }

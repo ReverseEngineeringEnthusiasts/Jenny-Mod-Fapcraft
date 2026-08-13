@@ -11,17 +11,17 @@ import software.bernie.geckolib3.util.MatrixStack;
 
 public class MatrixHelper {
    public static final float[] b = new float[16];
-   public static final FloatBuffer c = BufferUtils.createFloatBuffer(16);
-   private static final Matrix4f a = new Matrix4f();
+   public static final FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(16);
+   private static final Matrix4f matrix = new Matrix4f();
 
    public static void a(MatrixStack var0, GeoBone var1) {
-      a.set(var0.getModelMatrix());
-      a.transpose();
-      a(b, a);
-      ((Buffer)c).clear();
-      c.put(b);
-      ((Buffer)c).flip();
-      GlStateManager.multMatrix(c);
+      matrix.set(var0.getModelMatrix());
+      matrix.transpose();
+      a(b, matrix);
+      ((Buffer)floatBuffer).clear();
+      floatBuffer.put(b);
+      ((Buffer)floatBuffer).flip();
+      GlStateManager.multMatrix(floatBuffer);
       GlStateManager.translate(var1.rotationPointX / 16.0F, var1.rotationPointY / 16.0F, var1.rotationPointZ / 16.0F);
    }
 

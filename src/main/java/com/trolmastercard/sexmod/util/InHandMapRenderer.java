@@ -32,14 +32,14 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class InHandMapRenderer {
-   Minecraft f;
-   float g = 2.0F;
-   boolean c = false;
-   private static final ResourceLocation e = new ResourceLocation("textures/map/map_background.png");
-   IVanillaModel d;
-   ResourceLocation h;
-   Vec3i b;
-   float a = 0.0F;
+   Minecraft mc;
+   float PROGRESS_SCALE = 2.0F;
+   boolean isRendering = false;
+   private static final ResourceLocation MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
+   IVanillaModel handModel;
+   ResourceLocation handTexture;
+   Vec3i handColor;
+   float ANIM_OFFSET = 0.0F;
 
    @SubscribeEvent
    public void a(RenderSpecificHandEvent var1) {
@@ -47,18 +47,18 @@ public class InHandMapRenderer {
       AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
       if (var2 != null) {
          int var3 = var2.getOutfitIndex();
-         this.d = var2.getHandModel(var3);
-         this.h = new ResourceLocation("sexmod", var2.getHandTexture(var3));
-         this.b = var2.getHandColor(var3);
-         if (this.d == null) {
+         this.handModel = var2.getHandModel(var3);
+         this.handTexture = new ResourceLocation("sexmod", var2.getHandTexture(var3));
+         this.handColor = var2.getHandColor(var3);
+         if (this.handModel == null) {
             System.out.println("HAND IS NULL uwu did you forget to assign this girl a hand owo?");
          } else {
-            this.f = Minecraft.getMinecraft();
+            this.mc = Minecraft.getMinecraft();
             float var4 = 0.0F;
             float var5 = 0.0F;
 
             try {
-               ItemRenderer var6 = this.f.getItemRenderer();
+               ItemRenderer var6 = this.mc.getItemRenderer();
                if (DebugMode.a_clash64()) {
                   var4 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "prevEquippedProgressMainHand");
                   var5 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "equippedProgressMainHand");
@@ -67,7 +67,7 @@ public class InHandMapRenderer {
                   var5 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "equippedProgressMainHand");
                }
 
-               this.g = 2.0F - (var4 + (var5 - var4) * var1.getPartialTicks());
+               this.PROGRESS_SCALE = 2.0F - (var4 + (var5 - var4) * var1.getPartialTicks());
             } catch (Exception var9) {
                System.out.println("couldnt do the reflection thingy");
                StringWriter var7 = new StringWriter();
@@ -75,26 +75,26 @@ public class InHandMapRenderer {
                Minecraft.getMinecraft().player.sendChatMessage(var7.toString());
             }
 
-            EntityPlayerSP var10 = this.f.player;
+            EntityPlayerSP var10 = this.mc.player;
             float var11 = var10.getSwingProgress(var1.getPartialTicks());
-            ItemStack var8 = this.f.player.getHeldItemMainhand();
-            GlStateManager.color(this.b.getX() / 255.0F, this.b.getY() / 255.0F, this.b.getZ() / 255.0F);
+            ItemStack var8 = this.mc.player.getHeldItemMainhand();
+            GlStateManager.color(this.handColor.getX() / 255.0F, this.handColor.getY() / 255.0F, this.handColor.getZ() / 255.0F);
             if (var1.getHand() == EnumHand.MAIN_HAND) {
                if (var8.isEmpty() || var8.getItem() instanceof ItemMap) {
                   var1.setCanceled(true);
-                  this.a(var8, var1.getPartialTicks(), var10, this.g, var11);
-                  this.c = true;
+                  this.a(var8, var1.getPartialTicks(), var10, this.PROGRESS_SCALE, var11);
+                  this.isRendering = true;
                } else if (var5 < var4) {
-                  if (this.c) {
+                  if (this.isRendering) {
                      var1.setCanceled(true);
-                     this.a(var8, var1.getPartialTicks(), var10, this.g, var11);
+                     this.a(var8, var1.getPartialTicks(), var10, this.PROGRESS_SCALE, var11);
                   }
                } else {
-                  this.c = false;
+                  this.isRendering = false;
                }
-            } else if (this.f.player.getHeldItemOffhand().getItem() instanceof ItemMap) {
+            } else if (this.mc.player.getHeldItemOffhand().getItem() instanceof ItemMap) {
                var1.setCanceled(true);
-               this.a(EnumHandSide.LEFT, this.g - 1.0F, var11, this.f.player.getHeldItemOffhand());
+               this.a(EnumHandSide.LEFT, this.PROGRESS_SCALE - 1.0F, var11, this.mc.player.getHeldItemOffhand());
             }
 
             GlStateManager.resetColor();
@@ -117,7 +117,7 @@ public class InHandMapRenderer {
    void a(EnumHandSide var1, float var2, float var3, ItemStack var4) {
       float var5 = var1 == EnumHandSide.RIGHT ? 1.0F : -1.0F;
       GlStateManager.translate(var5 * 0.125F, -0.125F, 0.0F);
-      if (!this.f.player.isInvisible()) {
+      if (!this.mc.player.isInvisible()) {
          GlStateManager.pushMatrix();
          GlStateManager.rotate(var5 * 10.0F, 0.0F, 0.0F, 1.0F);
          this.a(var2, var3, var1);
@@ -128,8 +128,8 @@ public class InHandMapRenderer {
             GlStateManager.translate(0.44F, 1.3F, 1.0F);
          }
 
-         Minecraft.getMinecraft().getTextureManager().bindTexture(this.h);
-         this.d.getModel().render(0.175F);
+         Minecraft.getMinecraft().getTextureManager().bindTexture(this.handTexture);
+         this.handModel.getModel().render(0.175F);
          GlStateManager.popMatrix();
       }
 
@@ -154,7 +154,7 @@ public class InHandMapRenderer {
       float var8 = -0.4F * MathHelper.sin(var6 * (float) Math.PI);
       GlStateManager.translate(0.0F, -var7 / 2.0F, var8);
       float var9 = this.a_clash296(var5);
-      GlStateManager.translate(0.0F, 0.04F + (this.g - 1.0F) * -1.2F + var9 * -0.5F, -0.72F);
+      GlStateManager.translate(0.0F, 0.04F + (this.PROGRESS_SCALE - 1.0F) * -1.2F + var9 * -0.5F, -0.72F);
       GlStateManager.rotate(var9 * -85.0F, 1.0F, 0.0F, 0.0F);
       GlStateManager.disableCull();
       GlStateManager.pushMatrix();
@@ -176,7 +176,7 @@ public class InHandMapRenderer {
       GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
       GlStateManager.scale(0.38F, 0.38F, 0.38F);
       GlStateManager.disableLighting();
-      this.f.getTextureManager().bindTexture(e);
+      this.mc.getTextureManager().bindTexture(MAP_BACKGROUND);
       Tessellator var2 = Tessellator.getInstance();
       BufferBuilder var3 = var2.getBuffer();
       GlStateManager.translate(-0.5F, -0.5F, 0.0F);
@@ -187,12 +187,12 @@ public class InHandMapRenderer {
       var3.pos(135.0, -7.0, 0.0).tex(1.0, 0.0).endVertex();
       var3.pos(-7.0, -7.0, 0.0).tex(0.0, 0.0).endVertex();
       var2.draw();
-      MapData var4 = ((ItemMap)var1.getItem()).getMapData(var1, this.f.world);
+      MapData var4 = ((ItemMap)var1.getItem()).getMapData(var1, this.mc.world);
       if (var4 != null) {
-         this.f.entityRenderer.getMapItemRenderer().renderMap(var4, false);
+         this.mc.entityRenderer.getMapItemRenderer().renderMap(var4, false);
       }
 
-      GlStateManager.color(this.b.getX() / 255.0F, this.b.getY() / 255.0F, this.b.getZ() / 255.0F);
+      GlStateManager.color(this.handColor.getX() / 255.0F, this.handColor.getY() / 255.0F, this.handColor.getZ() / 255.0F);
    }
 
    private void a(EnumHandSide var1) {
@@ -208,8 +208,8 @@ public class InHandMapRenderer {
          GlStateManager.translate(1.6F, 0.35F, 0.0F);
       }
 
-      Minecraft.getMinecraft().getTextureManager().bindTexture(this.h);
-      this.d.getModel().render(0.175F);
+      Minecraft.getMinecraft().getTextureManager().bindTexture(this.handTexture);
+      this.handModel.getModel().render(0.175F);
       GlStateManager.popMatrix();
    }
 
@@ -222,9 +222,9 @@ public class InHandMapRenderer {
    void a_clash297(float var1, float var2) {
       GlStateManager.disableCull();
       GlStateManager.pushMatrix();
-      this.a(this.g, var1, EnumHandSide.RIGHT);
-      Minecraft.getMinecraft().getTextureManager().bindTexture(this.h);
-      this.d.getModel().render(0.175F);
+      this.a(this.PROGRESS_SCALE, var1, EnumHandSide.RIGHT);
+      Minecraft.getMinecraft().getTextureManager().bindTexture(this.handTexture);
+      this.handModel.getModel().render(0.175F);
       GlStateManager.disableBlend();
       GlStateManager.enableCull();
       GlStateManager.popMatrix();

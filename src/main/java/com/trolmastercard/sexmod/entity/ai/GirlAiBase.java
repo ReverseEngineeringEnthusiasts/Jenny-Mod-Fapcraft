@@ -10,34 +10,34 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 
 public class GirlAiBase extends EntityAIBase {
-   private final EntityVillager c;
-   private EntityVillager d;
-   private final World a;
-   private int b;
+   private final EntityVillager targetVillager;
+   private EntityVillager homeVillager;
+   private final World world;
+   private int tickInterval;
 
    public GirlAiBase(EntityVillager var1) {
-      this.c = var1;
-      this.a = var1.world;
+      this.targetVillager = var1;
+      this.world = var1.world;
       this.setMutexBits(3);
    }
 
    public boolean shouldExecute() {
-      if (this.b != 0) {
+      if (this.tickInterval != 0) {
          return false;
       }
 
-      Entity var1 = this.a.findNearestEntityWithinAABB(EntityVillager.class, this.c.getEntityBoundingBox().grow(8.0, 3.0, 8.0), this.c);
+      Entity var1 = this.world.findNearestEntityWithinAABB(EntityVillager.class, this.targetVillager.getEntityBoundingBox().grow(8.0, 3.0, 8.0), this.targetVillager);
       if (var1 == null) {
          return false;
       }
 
-      this.d = (EntityVillager)var1;
+      this.homeVillager = (EntityVillager)var1;
       return true;
    }
 
    public void startExecuting() {
-      this.b = 300;
-      this.c.setMating(true);
+      this.tickInterval = 300;
+      this.targetVillager.setMating(true);
    }
 
    public void resetTask() {
@@ -48,35 +48,35 @@ public class GirlAiBase extends EntityAIBase {
    }
 
    public void updateTask() {
-      this.b--;
-      this.c.getLookHelper().setLookPositionWithEntity(this.d, 10.0F, 30.0F);
-      if (this.c.getDistanceSq(this.d) > 2.25) {
-         this.c.getNavigator().tryMoveToEntityLiving(this.d, 0.25);
+      this.tickInterval--;
+      this.targetVillager.getLookHelper().setLookPositionWithEntity(this.homeVillager, 10.0F, 30.0F);
+      if (this.targetVillager.getDistanceSq(this.homeVillager) > 2.25) {
+         this.targetVillager.getNavigator().tryMoveToEntityLiving(this.homeVillager, 0.25);
       }
 
-      if (this.b <= 0) {
+      if (this.tickInterval <= 0) {
          this.a_clash349();
-         this.c.tasks.removeTask(this);
+         this.targetVillager.tasks.removeTask(this);
       }
 
-      if (this.c.getRNG().nextInt(35) == 0) {
-         this.a.setEntityState(this.c, (byte)12);
+      if (this.targetVillager.getRNG().nextInt(35) == 0) {
+         this.world.setEntityState(this.targetVillager, (byte)12);
       }
    }
 
    private void a_clash349() {
-      EntityVillager var1 = this.c.createChild(this.d);
-      this.d.setGrowingAge(6000);
-      this.c.setGrowingAge(6000);
-      this.d.setIsWillingToMate(false);
-      this.c.setIsWillingToMate(false);
-      BabyEntitySpawnEvent var2 = new BabyEntitySpawnEvent(this.c, this.d, var1);
+      EntityVillager var1 = this.targetVillager.createChild(this.homeVillager);
+      this.homeVillager.setGrowingAge(6000);
+      this.targetVillager.setGrowingAge(6000);
+      this.homeVillager.setIsWillingToMate(false);
+      this.targetVillager.setIsWillingToMate(false);
+      BabyEntitySpawnEvent var2 = new BabyEntitySpawnEvent(this.targetVillager, this.homeVillager, var1);
       if (!MinecraftForge.EVENT_BUS.post(var2) && var2.getChild() != null) {
          EntityAgeable var3 = var2.getChild();
          var3.setGrowingAge(-24000);
-         var3.setLocationAndAngles(this.c.posX, this.c.posY, this.c.posZ, 0.0F, 0.0F);
-         this.a.spawnEntity(var3);
-         this.a.setEntityState(var3, (byte)12);
+         var3.setLocationAndAngles(this.targetVillager.posX, this.targetVillager.posY, this.targetVillager.posZ, 0.0F, 0.0F);
+         this.world.spawnEntity(var3);
+         this.world.setEntityState(var3, (byte)12);
       }
    }
 

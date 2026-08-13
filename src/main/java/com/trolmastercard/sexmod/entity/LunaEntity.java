@@ -82,8 +82,8 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
 public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddableSexGirl {
-   public ItemStack ao = new ItemStack(LunaRodItem.a);
-   public static final DataParameter<Float> Y = EntityDataManager.createKey(LunaEntity.class, DataSerializers.FLOAT)
+   public ItemStack ao = new ItemStack(LunaRodItem.LUNA_ROD);
+   public static final DataParameter<Float> yFlag = EntityDataManager.createKey(LunaEntity.class, DataSerializers.FLOAT)
       .getSerializer()
       .createKey(121);
    public static final DataParameter<ItemStack> az = EntityDataManager.createKey(LunaEntity.class, DataSerializers.ITEM_STACK)
@@ -100,7 +100,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    @Nullable
    public SexEntity av;
    public float aa = 1.0F;
-   public float Z = 0.0F;
+   public float zFlag = 0.0F;
    int aj = 8000;
    public boolean ac = false;
    int aw = 0;
@@ -121,16 +121,16 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
    public LunaEntity(World var1) {
       super(var1);
-      this.P = 230;
-      this.O = 150;
-      this.K = 320;
-      this.V = new Vec3d(0.0, -0.05999999718368053, 0.10000001192092894);
-      if (this.Q.getStackInSlot(0) == ItemStack.EMPTY) {
-         this.Q.setStackInSlot(0, new ItemStack(Items.IRON_AXE));
+      this.slashSwordRot = 230;
+      this.stabSwordRot = 150;
+      this.holdBowRot = 320;
+      this.swordOffsetStab = new Vec3d(0.0, -0.05999999718368053, 0.10000001192092894);
+      if (this.inventory.getStackInSlot(0) == ItemStack.EMPTY) {
+         this.inventory.setStackInSlot(0, new ItemStack(Items.IRON_AXE));
       }
 
-      if (this.Q.getStackInSlot(6) == ItemStack.EMPTY) {
-         this.Q.setStackInSlot(6, new ItemStack(Items.FISHING_ROD));
+      if (this.inventory.getStackInSlot(6) == ItemStack.EMPTY) {
+         this.inventory.setStackInSlot(6, new ItemStack(Items.FISHING_ROD));
       }
    }
 
@@ -147,7 +147,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.entityDataManager.register(Y, 0.0F);
+      this.entityDataManager.register(yFlag, 0.0F);
       this.entityDataManager.register(az, ItemStack.EMPTY);
       this.entityDataManager.register(af, false);
       this.entityDataManager.register(ag, ItemStack.EMPTY);
@@ -276,7 +276,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       }
 
       this.d_clash384();
-      this.entityDataManager.set(az, this.Q.getStackInSlot(6));
+      this.entityDataManager.set(az, this.inventory.getStackInSlot(6));
    }
 
    void d_clash384() {
@@ -349,7 +349,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       BlockPos var1 = this.getNearestBed(this.getPosition());
       if (var1 == null) {
          this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
-         PacketHandler.b
+         PacketHandler.networkWrapper
             .sendToAllAround(
                new SendChatMessagePacket(
                   "<" + this.getDisplayNameText() + "> Heh.. there is no bed nearby.. but I already ate the fish so nya~ hehe", this.dimension, this.getGirlId()
@@ -455,7 +455,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    void i_clash389() {
       if (!this.hasMaster() && this.getInteractionPlayerUUID() == null && !this.ar) {
          if (!(++this.aj < 1200.0F)) {
-            if (this.av != null && this.av.d == 15) {
+            if (this.av != null && this.av.lureTimer == 15) {
                ((LunaRodItem)this.ao.getItem()).a(this.world, this, EnumHand.MAIN_HAND);
                this.al = this.world.getTotalWorldTime() + 20L;
                ItemStack var1 = (ItemStack)this.entityDataManager.get(ag);
@@ -623,7 +623,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
             ThreadNames.roundToInt(this.posX), ThreadNames.roundToInt(this.posY), ThreadNames.roundToInt(this.posZ)
          );
          if (var2 != null) {
-            this.entityDataManager.set(Y, var2.distanceTo(var3));
+            this.entityDataManager.set(yFlag, var2.distanceTo(var3));
          }
       }
    }
@@ -687,8 +687,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
             if (this.getCurrentAction() != Action.PAYMENT) {
                this.setCurrentAction(Action.PAYMENT);
             } else {
-               PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
-               PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new ResetGirlPacket(this.getGirlId()));
             }
 
             return;
@@ -743,7 +743,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                this.createAnimation("animation.cat.sit", true, var1);
             } else if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
                if (this.onGround && Math.abs(Math.abs(this.prevPosY) - Math.abs(this.posY)) < 0.1F) {
-                  this.createAnimation(this.entityDataManager.get(Y) < 3.0F ? "animation.cat.walk" : "animation.cat.run", true, var1);
+                  this.createAnimation(this.entityDataManager.get(yFlag) < 3.0F ? "animation.cat.walk" : "animation.cat.run", true, var1);
                } else {
                   this.createAnimation("animation.cat.fly", true, var1);
                }
@@ -759,7 +759,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                   this.createAnimation("animation.cat.null", true, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.cat.attack" + this.S, false, var1);
+                  this.createAnimation("animation.cat.attack" + this.nextAttack, false, var1);
                   break;
                case RIDE:
                case SIT:
@@ -837,8 +837,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                break;
             case "attackDone":
                this.setCurrentAction(Action.NULL);
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "idleDone":
@@ -848,7 +848,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                this.ad = false;
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "start_fishingDone":
                if (this.isLocalPlayerNearby()) {
@@ -857,7 +857,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                break;
             case "rod_shoot":
                if (this.isLocalPlayerNearby()) {
-                  PacketHandler.b.sendToServer(new CatActivateFishingPacket(this.getGirlId()));
+                  PacketHandler.networkWrapper.sendToServer(new CatActivateFishingPacket(this.getGirlId()));
                }
                break;
             case "eat":
@@ -881,23 +881,23 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                break;
             case "eatingDone":
                if (this.isLocalPlayerNearby()) {
-                  PacketHandler.b.sendToServer(new CatEatingDonePacket(this.getGirlId()));
+                  PacketHandler.networkWrapper.sendToServer(new CatEatingDonePacket(this.getGirlId()));
                   this.setCurrentAction(Action.NULL);
                }
 
                this.aa = 1.0F;
-               this.Z = 0.0F;
+               this.zFlag = 0.0F;
                break;
             case "throw_away":
                if (this.isLocalPlayerNearby()) {
-                  PacketHandler.b.sendToServer(new CatThrowAwayItemPacket(this.getGirlId()));
+                  PacketHandler.networkWrapper.sendToServer(new CatThrowAwayItemPacket(this.getGirlId()));
                }
 
                this.aa = 1.0F;
-               this.Z = 0.0F;
+               this.zFlag = 0.0F;
                break;
             case "renderItem":
-               this.Z = 1.0F;
+               this.zFlag = 1.0F;
                break;
             case "paymentMSG1":
                this.sendChatMessageToPlayer(this.getInteractionPlayerUUID(), "Here, I know u like fish and yea.. these are for you");
@@ -998,7 +998,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                }
                break;
             case "fastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.TOUCH_BOOBS_SLOW);
                }
                break;
@@ -1077,7 +1077,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                }
                break;
             case "sitting_fastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.COWGIRL_SITTING_SLOW);
                   Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
                   Vec3d var9 = VectorMath.rotateByYaw(var8, this.getYawRotation() + 180.0F);

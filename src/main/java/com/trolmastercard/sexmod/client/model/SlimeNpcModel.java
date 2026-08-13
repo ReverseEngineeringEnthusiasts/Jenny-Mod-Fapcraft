@@ -21,7 +21,7 @@ import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
 
 public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
-   Action[] f = new Action[]{Action.STARTDOGGY, Action.DOGGYCUM, Action.DOGGYSLOW, Action.DOGGYFAST, Action.DOGGYCUM, Action.DOGGYSTART, Action.WAITDOGGY};
+   Action[] bedSlimeActions = new Action[]{Action.STARTDOGGY, Action.DOGGYCUM, Action.DOGGYSLOW, Action.DOGGYFAST, Action.DOGGYCUM, Action.DOGGYSTART, Action.WAITDOGGY};
 
    @Override
    protected ResourceLocation[] getModelLocations() {
@@ -47,8 +47,8 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
       super.setLivingAnimations(var1, var2, var3);
       AnimationProcessor var4 = this.getAnimationProcessor();
       if (!(var1.world instanceof SexWorldClient) && var4.getBone("bedSlime") != null && var4.getBone("bedSlimeLayer") != null) {
-         var4.getBone("bedSlime").setHidden(!Arrays.asList(this.f).contains(var1.getCurrentAction()));
-         var4.getBone("bedSlimeLayer").setHidden(!Arrays.asList(this.f).contains(var1.getCurrentAction()));
+         var4.getBone("bedSlime").setHidden(!Arrays.asList(this.bedSlimeActions).contains(var1.getCurrentAction()));
+         var4.getBone("bedSlimeLayer").setHidden(!Arrays.asList(this.bedSlimeActions).contains(var1.getCurrentAction()));
       }
 
       if (!(var1 instanceof AbstractPlayerGirlEntity)) {

@@ -197,7 +197,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                   var2.setNoGravity(true);
                   var2.noClip = true;
                   if (!this.world.isRemote) {
-                     PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
+                     PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
                   }
                }
             }
@@ -516,7 +516,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
          this.setOwnerUUID(null);
          EntityPlayer var1 = this.k_clash584();
          if (var1 != null) {
-            PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)var1);
+            PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)var1);
          }
       }
    }
@@ -770,7 +770,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                   this.createAnimation("animation.goblin.strip", false, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.goblin.attack" + this.S, false, var1);
+                  this.createAnimation("animation.goblin.attack" + this.nextAttack, false, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.goblin.bowcharge", false, var1);
@@ -820,8 +820,8 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackDone":
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "catchEh":
@@ -892,13 +892,13 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                this.setCurrentAction(Action.PAIZURI_SLOW);
                break;
             case "paizuriFastReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.PAIZURI_FAST_CONTINUES);
                }
                break;
             case "paizuriFastContinuesReady":
             case "neslon_fastBackSwitch":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -970,7 +970,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                   this.aB = !this.aB;
                }
 
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.BREEDING_FAST_0);
                   this.aH = false;
                }
@@ -982,7 +982,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
                break;
             case "breeding_fast1Ready":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.aH = true;
                   this.resetAnimationControllerOffset();
                   this.actionController.tickOffset = 0.0;
@@ -1000,7 +1000,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
                break;
             case "breeding_fast_3Done":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.BREEDING_SLOW_2);
                }
                break;
@@ -1034,7 +1034,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                   return;
                }
 
-               if (HandlePlayerMovement.d) {
+               if (HandlePlayerMovement.isJumping) {
                   this.aF = true;
                }
                break;

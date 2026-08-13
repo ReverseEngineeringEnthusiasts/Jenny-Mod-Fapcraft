@@ -29,22 +29,22 @@ public class PlayerKoboldRenderer extends AbstractPlayerKoblinGoboldRenderer {
 
    @Override
    protected Vec3i resolveBoneColor(String var1) {
-      EntityDataManager var2 = this.j.getDataManager();
-      EyeAndKoboldColor var3 = EyeAndKoboldColor.valueOf((String)var2.get(KoboldEntity.N));
-      BlockPos var4 = (BlockPos)var2.get(KoboldEntity.K);
-      if (KoboldRenderer.t.contains(var1)) {
+      EntityDataManager var2 = this.renderEntity.getDataManager();
+      EyeAndKoboldColor var3 = EyeAndKoboldColor.valueOf((String)var2.get(KoboldEntity.CURRENT_ACTION));
+      BlockPos var4 = (BlockPos)var2.get(KoboldEntity.ACTION_TARGET_POS);
+      if (KoboldRenderer.hideBones.contains(var1)) {
          return var3.getMainColor();
-      } else if (KoboldRenderer.u.contains(var1)) {
+      } else if (KoboldRenderer.showBones.contains(var1)) {
          return var3.getSecondaryColor();
       } else {
-         return (Vec3i)(!"irisR".equals(var1) && !"irisL".equals(var1) ? z : var4);
+         return (Vec3i)(!"irisR".equals(var1) && !"irisL".equals(var1) ? tintColor : var4);
       }
    }
 
    @Override
    protected Vector4f calculateBoneArmorColor(String var1, float var2, float var3, float var4) {
       if ("mouth".equals(var1)) {
-         String[] var5 = AbstractNpcOnlyEntity.getModelCodeParts(this.j);
+         String[] var5 = AbstractNpcOnlyEntity.getModelCodeParts(this.renderEntity);
          int var6 = Integer.parseInt(var5[7]);
          if (var6 == 1) {
             return new Vector4f(var2, var3, var4, -0.078125F);
@@ -56,13 +56,13 @@ public class PlayerKoboldRenderer extends AbstractPlayerKoblinGoboldRenderer {
 
    @Override
    protected void d_clash331() {
-      float var1 = 0.25F - (Float)this.j.getDataManager().get(KoboldPlayerEntity.aA);
+      float var1 = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
       GlStateManager.scale(1.0F - var1, 1.0F - var1, 1.0F - var1);
    }
 
    @Override
    protected void b_clash332() {
-      float var1 = 0.25F - (Float)this.j.getDataManager().get(KoboldPlayerEntity.aA);
+      float var1 = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
       double var2 = 1.0 / (1.0 - var1);
       GlStateManager.scale(var2, var2, var2);
    }

@@ -145,7 +145,7 @@ public class WorldUtils {
          var12 *= var4;
          var14 *= var4;
          var0.spawnParticle(
-            var1, var2.x + var12, var2.y, var2.z + var14, 0.0, Reference.f.nextFloat() * var6, 0.0, new int[0]
+            var1, var2.x + var12, var2.y, var2.z + var14, 0.0, Reference.RANDOM.nextFloat() * var6, 0.0, new int[0]
          );
       }
    }

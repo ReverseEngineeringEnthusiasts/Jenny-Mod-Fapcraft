@@ -21,47 +21,47 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class HandlePlayerMovement {
-   private static boolean c = true;
-   public static boolean d = false;
-   public static boolean a = false;
-   public static MovementInput b;
+   private static boolean isSneaking = true;
+   public static boolean isJumping = false;
+   public static boolean isInAction = false;
+   public static MovementInput input;
 
    @SubscribeEvent
    public void a(InputUpdateEvent var1) {
-      b = var1.getMovementInput();
-      d = b.sneak;
-      a = b.jump;
-      if (!c) {
-         if (b.jump) {
+      input = var1.getMovementInput();
+      isJumping = input.sneak;
+      isInAction = input.jump;
+      if (!isSneaking) {
+         if (input.jump) {
             AbstractPlayerGirlEntity.i_clash572();
          }
 
-         if (b.sneak) {
+         if (input.sneak) {
             BaseGirlEntity.triggerFastSexAction(Minecraft.getMinecraft().player.getPersistentID());
          }
 
-         if (b.jump && HornyMeterHud.c >= 1.0) {
+         if (input.jump && HornyMeterHud.meterValue >= 1.0) {
             BaseGirlEntity.triggerCumAction(Minecraft.getMinecraft().player.getPersistentID());
          }
 
-         b.backKeyDown = false;
-         b.forwardKeyDown = false;
-         b.leftKeyDown = false;
-         b.rightKeyDown = false;
-         b.sneak = false;
-         b.jump = false;
-         b.moveForward = 0.0F;
-         b.moveStrafe = 0.0F;
+         input.backKeyDown = false;
+         input.forwardKeyDown = false;
+         input.leftKeyDown = false;
+         input.rightKeyDown = false;
+         input.sneak = false;
+         input.jump = false;
+         input.moveForward = 0.0F;
+         input.moveStrafe = 0.0F;
          Minecraft.getMinecraft().player.setVelocity(0.0, 0.0, 0.0);
       }
    }
 
    public static boolean b_clash121() {
-      return c;
+      return isSneaking;
    }
 
    public static void setMovementLock(boolean var0) {
-      c = var0;
+      isSneaking = var0;
       if (!var0) {
          a_clash123();
       }
@@ -77,7 +77,7 @@ public class HandlePlayerMovement {
 
    @SubscribeEvent
    public void a(MouseEvent var1) {
-      if (!c && var1.isButtonstate()) {
+      if (!isSneaking && var1.isButtonstate()) {
          var1.setCanceled(true);
       }
    }

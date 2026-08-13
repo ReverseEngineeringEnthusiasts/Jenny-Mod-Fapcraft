@@ -20,7 +20,7 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class PlayerLunaRenderer extends GirlPlayerRenderer {
-   float z = 0.0F;
+   float rotationZ = 0.0F;
 
    public PlayerLunaRenderer(RenderManager var1, AnimatedGeoModel var2) {
       super(var1, var2);
@@ -34,11 +34,11 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
 
    @Override
    protected ItemStack resolveHeldItemStack(@Nullable ItemStack var1) {
-      switch (this.j.getCurrentAction()) {
+      switch (this.renderEntity.getCurrentAction()) {
          case FISHING_IDLE:
          case FISHING_START:
-            ItemStack var2 = ((LunaEntity)this.j).ao;
-            this.j.setHeldItem(EnumHand.MAIN_HAND, var2);
+            ItemStack var2 = ((LunaEntity)this.renderEntity).ao;
+            this.renderEntity.setHeldItem(EnumHand.MAIN_HAND, var2);
             return var2;
          default:
             return var1;
@@ -46,7 +46,7 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
    }
 
    boolean b_clash370() {
-      return (Boolean)this.j.getDataManager().get(BaseGirlEntity.IS_ANCHORED);
+      return (Boolean)this.renderEntity.getDataManager().get(BaseGirlEntity.IS_ANCHORED);
    }
 
    @Override
@@ -54,21 +54,21 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
       if (!Minecraft.getMinecraft().isGamePaused()) {
          switch (var1) {
             case "head":
-               this.z = var2.getRotationX();
+               this.rotationZ = var2.getRotationX();
                break;
             case "backHair":
-               if (!this.b_clash370() && this.z > 0.0F) {
-                  double var5 = this.z / TrigMath.wrapDegrees(45.0F);
+               if (!this.b_clash370() && this.rotationZ > 0.0F) {
+                  double var5 = this.rotationZ / TrigMath.wrapDegrees(45.0F);
                   float var7 = (float)RotationHelper.b(0.0, 0.75, var5);
                   var2.setPositionZ(var7);
                   var2.setPositionY(var7);
-                  var2.setRotationX(-this.z);
+                  var2.setRotationX(-this.rotationZ);
                }
                break;
             case "frontHairL":
             case "frontHairR":
                if (!this.b_clash370()) {
-                  var2.setRotationX(-this.z);
+                  var2.setRotationX(-this.rotationZ);
                }
          }
       }

@@ -20,9 +20,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class GuiHandler implements IGuiHandler {
-   File b;
-   File c;
-   boolean a = false;
+   File configFile;
+   File dataFile;
+   boolean isInitialized = false;
 
    public GuiHandler() {
    }

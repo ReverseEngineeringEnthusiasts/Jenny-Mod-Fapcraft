@@ -325,7 +325,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                   this.createAnimation("animation.kobold.strip", false, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.kobold.attack" + this.S, false, var1);
+                  this.createAnimation("animation.kobold.attack" + this.nextAttack, false, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.kobold.bowcharge", false, var1);
@@ -414,8 +414,8 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackDone":
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "paymentMSG1":
@@ -439,7 +439,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var11 = Minecraft.getMinecraft().player;
                   Vec3d var13 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.625 - var11.getEyeHeight(), -1.0), this.getYawRotation() + 180.0F);
-                  PacketHandler.b
+                  PacketHandler.networkWrapper
                      .sendToServer(
                         new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var13), this.getYawRotation() + 180.0F, 0.0F)
                      );
@@ -449,7 +449,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var10 = Minecraft.getMinecraft().player;
                   Vec3d var12 = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5 - var10.getEyeHeight(), -0.6875), this.getYawRotation() + 180.0F);
-                  PacketHandler.b
+                  PacketHandler.networkWrapper
                      .sendToServer(
                         new TeleportPlayerPacket(
                            this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var12), this.getYawRotation() + 180.0F - 40.0F, 0.0F
@@ -487,7 +487,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.actionController.clearAnimationCache();
                break;
             case "blowjobFastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.SUCKBLOWJOB_BLINK);
                }
                break;
@@ -514,7 +514,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var9 = Minecraft.getMinecraft().player;
                   Vec3d var5 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.5625 - var9.getEyeHeight(), 0.5625), this.getYawRotation() + 180.0F);
-                  PacketHandler.b
+                  PacketHandler.networkWrapper
                      .sendToServer(new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var5), this.getYawRotation(), 0.0F));
                }
                break;
@@ -522,7 +522,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "analFastRapid":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   if (this.getCurrentAction() == Action.KOBOLD_ANAL_FAST) {
                      this.resetAnimationControllerOffset();
                   } else {
@@ -596,7 +596,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                   Vec3d var16 = new Vec3d(0.0, 0.4375 - var8.eyeHeight, -0.6875);
                   var16 = VectorMath.rotateByYaw(var16, this.getYawRotation() + 180.0F);
                   var16 = var16.add(this.getTargetPosition());
-                  PacketHandler.b.sendToServer(new TeleportPlayerPacket(var8.getPersistentID().toString(), var16, this.getYawRotation() + 180.0F, 10.0F));
+                  PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(var8.getPersistentID().toString(), var16, this.getYawRotation() + 180.0F, 10.0F));
                }
                break;
             case "mating_press_startDone":
@@ -613,7 +613,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                   HornyMeterHud.addToHornyMeter(0.04F);
                }
 
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.MATING_PRESS_HARD);
                }
                break;
@@ -622,7 +622,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                   HornyMeterHud.addToHornyMeter(0.04F);
                }
 
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -632,7 +632,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                   Vec3d var7 = new Vec3d(0.0, 1.1875 - var4.eyeHeight, 0.125);
                   var7 = VectorMath.rotateByYaw(var7, this.getYawRotation() + 180.0F);
                   var7 = var7.add(this.getTargetPosition());
-                  PacketHandler.b.sendToServer(new TeleportPlayerPacket(var4.getPersistentID().toString(), var7, this.getYawRotation() + 180.0F, 70.0F));
+                  PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(var4.getPersistentID().toString(), var7, this.getYawRotation() + 180.0F, 70.0F));
                }
                break;
             case "cumMsg":

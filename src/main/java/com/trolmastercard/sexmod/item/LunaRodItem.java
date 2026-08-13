@@ -35,7 +35,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LunaRodItem extends ItemFishingRod {
-   public static final LunaRodItem a = new LunaRodItem();
+   public static final LunaRodItem LUNA_ROD = new LunaRodItem();
 
    public LunaRodItem() {
       this.setMaxDamage(64);
@@ -55,20 +55,20 @@ public class LunaRodItem extends ItemFishingRod {
    }
 
    public static void register() {
-      a.setRegistryName(new ResourceLocation("sexmod", "luna_rod"));
-      a.setTranslationKey("luna_rod");
+      LUNA_ROD.setRegistryName(new ResourceLocation("sexmod", "luna_rod"));
+      LUNA_ROD.setTranslationKey("luna_rod");
       MinecraftForge.EVENT_BUS.register(LunaRodItem.class);
    }
 
    @SubscribeEvent
    public static void a(Register<Item> var0) {
-      var0.getRegistry().register(a);
+      var0.getRegistry().register(LUNA_ROD);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public static void a(ModelRegistryEvent var0) {
-      ModelLoader.setCustomModelResourceLocation(a, 0, new ModelResourceLocation("fishing_rod"));
+      ModelLoader.setCustomModelResourceLocation(LUNA_ROD, 0, new ModelResourceLocation("fishing_rod"));
    }
 
    public ActionResult<ItemStack> a(World var1, LunaEntity var2, EnumHand var3) {
@@ -99,7 +99,7 @@ public class LunaRodItem extends ItemFishingRod {
             0.4F / (itemRand.nextFloat() * 0.4F + 0.8F)
          );
          if (!var1.isRemote) {
-            SexEntity.b = var2;
+            SexEntity.ownerLuna = var2;
             double var10 = var2.getPositionVector().distanceTo(new Vec3d(var2.ai.getX(), var2.ai.getY(), var2.ai.getZ()));
             SexEntity var7 = new SexEntity(var1, var2, var10 * 0.01);
             int var8 = EnchantmentHelper.getFishingSpeedBonus(var4);

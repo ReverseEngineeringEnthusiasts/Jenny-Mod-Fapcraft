@@ -18,7 +18,7 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
 public class KoboldEggItemRenderer extends GeoItemRenderer<KoboldEggItem> {
-   ItemStack a = null;
+   ItemStack eggStack = null;
 
    public KoboldEggItemRenderer() {
       super(new KoboldEggItemModel());
@@ -30,7 +30,7 @@ public class KoboldEggItemRenderer extends GeoItemRenderer<KoboldEggItem> {
    }
 
    public void a(KoboldEggItem var1, ItemStack var2) {
-      this.a = var2;
+      this.eggStack = var2;
       super.render(var1, var2);
    }
 
@@ -38,13 +38,13 @@ public class KoboldEggItemRenderer extends GeoItemRenderer<KoboldEggItem> {
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
       String var7 = var2.getName();
       if ("shell".equals(var7)) {
-         var3 = KoboldEggRenderer.b.getRed() / 255.0F;
-         var4 = KoboldEggRenderer.b.getGreen() / 255.0F;
-         var5 = KoboldEggRenderer.b.getBlue() / 255.0F;
+         var3 = KoboldEggRenderer.eggColor.getRed() / 255.0F;
+         var4 = KoboldEggRenderer.eggColor.getGreen() / 255.0F;
+         var5 = KoboldEggRenderer.eggColor.getBlue() / 255.0F;
       }
 
       if ("colorSpots".equals(var7)) {
-         Vec3i var8 = this.a_clash797(this.a).getMainColor();
+         Vec3i var8 = this.a_clash797(this.eggStack).getMainColor();
          var3 = var8.getX() / 255.0F;
          var4 = var8.getY() / 255.0F;
          var5 = var8.getZ() / 255.0F;

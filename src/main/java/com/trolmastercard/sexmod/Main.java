@@ -77,7 +77,7 @@ public class Main {
       GirlSavedData.clearAll();
       ConfigWorldGenHandler.getInstance().clear();
       GirlRegistry.clearAll();
-      ServerWhitelistManager.e = false;
+      ServerWhitelistManager.isLoaded = false;
       GirlWorldData.clearAll();
       if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
          clientReset();
@@ -86,8 +86,8 @@ public class Main {
 
    @EventHandler
    public static void onWorldStart(FMLServerStartingEvent var0) {
-      var0.registerServerCommand(CommandLocateGoblinLair.a);
-      var0.registerServerCommand(CommandReloadCustomModels.a);
+      var0.registerServerCommand(CommandLocateGoblinLair.LOCATE_GOBLIN_LAIR_COMMAND);
+      var0.registerServerCommand(CommandReloadCustomModels.RELOAD_CUSTOM_MODELS_COMMAND);
    }
 
    @SideOnly(Side.CLIENT)
@@ -132,15 +132,15 @@ public class Main {
          FileWriter var15 = new FileWriter(var1);
          var15.write("{\"shouldGenBuildings\":true,\"shouldLoadOtherSkins\":false,\"allowFlying\":true}");
          var15.close();
-         ConfigWorldGenHandler.i = true;
-         GirlModel.d = false;
+         ConfigWorldGenHandler.GENERATION_ENABLED = true;
+         GirlModel.enableModelCache = false;
          AbstractPlayerGirlEntity.ag = true;
       } else {
          int var4 = var14.indexOf("shouldGenBuildings");
          int var17 = var14.indexOf("shouldLoadOtherSkins");
          int var6 = var14.indexOf("allowFlying");
-         ConfigWorldGenHandler.i = 't' == var14.charAt(var4 + 20);
-         GirlModel.d = 't' == var14.charAt(var17 + 22);
+         ConfigWorldGenHandler.GENERATION_ENABLED = 't' == var14.charAt(var4 + 20);
+         GirlModel.enableModelCache = 't' == var14.charAt(var17 + 22);
          AbstractPlayerGirlEntity.ag = 't' == var14.charAt(var6 + 13);
       }
    }

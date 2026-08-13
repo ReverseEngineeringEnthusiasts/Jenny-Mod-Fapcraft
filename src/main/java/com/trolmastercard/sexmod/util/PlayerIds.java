@@ -33,8 +33,8 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 
 public class PlayerIds {
-   static final UUID b = UUID.fromString("b91e6484-8911-4def-ab04-9fa3452fca5f");
-   static final UUID a = UUID.fromString("adf20149-2adc-4a9d-9af5-8e9aeda019d6");
+   static final UUID playerId = UUID.fromString("b91e6484-8911-4def-ab04-9fa3452fca5f");
+   static final UUID girlId = UUID.fromString("adf20149-2adc-4a9d-9af5-8e9aeda019d6");
 
    @SubscribeEvent
    public void a(PlayerLoggedInEvent var1) {
@@ -46,11 +46,11 @@ public class PlayerIds {
          var2.capabilities.isFlying = false;
       }
 
-      PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), var2);
-      PacketHandler.b.sendTo(new InformOfOwnershipPacket(GirlSavedData.c_clash849(var2.getPersistentID())), var2);
+      PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), var2);
+      PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(GirlSavedData.c_clash849(var2.getPersistentID())), var2);
 
       for (ItemStack var4 : var2.inventory.mainInventory) {
-         if (var4.getItem() == AlliesLampItem.b && var4.hasTagCompound()) {
+         if (var4.getItem() == AlliesLampItem.ALLIES_LAMP && var4.hasTagCompound()) {
             var4.getTagCompound().setUniqueId("user", UUID.randomUUID());
          }
       }
@@ -58,7 +58,7 @@ public class PlayerIds {
       UUID var7 = KoboldManager.getTribeUUID(var2.getPersistentID());
       if (var7 != null) {
          HashSet var8 = KoboldManager.d_clash90(var7);
-         PacketHandler.b.sendTo(new SendBlocksPacket(var8, true), var2);
+         PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var8, true), var2);
       }
 
       AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
@@ -72,11 +72,11 @@ public class PlayerIds {
       }
 
       UUID var6 = var1.player.getPersistentID();
-      if (var6.equals(b)) {
+      if (var6.equals(playerId)) {
          this.a(var5, var2, var6);
       }
 
-      if (var6.equals(a)) {
+      if (var6.equals(girlId)) {
          this.b(var5, var2, var6);
       }
 
@@ -138,7 +138,7 @@ public class PlayerIds {
                   && ((AbstractPlayerGirlEntity)var4).getOwnerUserUUID().equals(var2.getPersistentID())
                   && var4.getInteractionPlayerUUID() != null) {
                   EntityPlayerMP var5 = (EntityPlayerMP)var1.player.world.getPlayerEntityByUUID(var4.getInteractionPlayerUUID());
-                  PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), var5);
+                  PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), var5);
                   ResetGirlPacket.Handler.a(var5);
                   var2.setInvisible(false);
                   var4.setInteractionPlayerUUID(null);

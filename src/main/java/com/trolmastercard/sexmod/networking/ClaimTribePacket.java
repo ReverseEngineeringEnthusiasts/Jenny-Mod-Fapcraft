@@ -28,49 +28,49 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class ClaimTribePacket implements IMessage {
-   boolean c = false;
-   UUID d;
-   UUID a;
-   String b;
+   boolean isValid = false;
+   UUID girlUUID;
+   UUID playerUUID;
+   String tribeName;
 
    public ClaimTribePacket() {
    }
 
    public ClaimTribePacket(UUID var1, UUID var2, String var3) {
-      this.d = var1;
-      this.a = var2;
-      this.b = var3;
+      this.girlUUID = var1;
+      this.playerUUID = var2;
+      this.tribeName = var3;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.d = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.a = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.b = ByteBufUtils.readUTF8String(var1);
-      this.c = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.tribeName = ByteBufUtils.readUTF8String(var1);
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.d.toString());
-      ByteBufUtils.writeUTF8String(var1, this.a.toString());
-      ByteBufUtils.writeUTF8String(var1, this.b);
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
+      ByteBufUtils.writeUTF8String(var1, this.tribeName);
    }
 
    public static class Handler implements IMessageHandler<ClaimTribePacket, IMessage> {
       public IMessage onMessage(ClaimTribePacket var1, MessageContext var2) {
-         if (var1.c && var2.side == Side.SERVER) {
+         if (var1.isValid && var2.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     List var2x = KoboldManager.n_clash82(var1.d);
+                     List var2x = KoboldManager.n_clash82(var1.girlUUID);
                      EyeAndKoboldColor var3 = null;
 
                      for (KoboldEntity var5 : (java.util.Collection<KoboldEntity>) (var2x) ) {
                         if (!var5.hasMaster()) {
                            EntityDataManager var6 = var5.getDataManager();
-                           var6.set(BaseGirlEntity.MASTER, var1.a.toString());
-                           var6.set(KoboldEntity.aU, var1.b);
-                           var3 = EyeAndKoboldColor.valueOf((String)var6.get(KoboldEntity.N));
+                           var6.set(BaseGirlEntity.MASTER, var1.playerUUID.toString());
+                           var6.set(KoboldEntity.aU, var1.tribeName);
+                           var3 = EyeAndKoboldColor.valueOf((String)var6.get(KoboldEntity.CURRENT_ACTION));
                         }
                      }
 
@@ -81,13 +81,13 @@ public class ClaimTribePacket implements IMessage {
                         for (EntityPlayer var7 : var8.getPlayers()) {
                            var7.sendMessage(
                               new TextComponentString(
-                                 String.format("%s formed the " + var3.getTextColor() + "%s " + TextFormatting.WHITE + "Tribe", var9, var1.b)
+                                 String.format("%s formed the " + var3.getTextColor() + "%s " + TextFormatting.WHITE + "Tribe", var9, var1.tribeName)
                               )
                            );
                         }
 
-                        KoboldManager.setTribeFollowMode(var1.d, true);
-                        KoboldManager.a(var1.d, var2.getServerHandler().player.getPersistentID());
+                        KoboldManager.setTribeFollowMode(var1.girlUUID, true);
+                        KoboldManager.a(var1.girlUUID, var2.getServerHandler().player.getPersistentID());
                      }
                   }
                );

@@ -5,16 +5,16 @@ import java.util.Random;
 import net.minecraft.util.math.Vec3d;
 
 public class Reference {
-   public static final String l = "sexmod";
-   public static final String g = "Fapcraft";
-   public static final String h = "1.1.0";
-   public static final String d = "com.trolmastercard.sexmod.ClientProxy";
-   public static final String c = "com.trolmastercard.sexmod.CommonProxy";
-   public static final Random f = new Random();
-   public static int b = 0;
-   public static int i = 0;
-   public static final int a = 4674237;
-   public static final int e = 6281823;
-   public static Vec3d j = Vec3d.ZERO;
-   public static Vec3d k = Vec3d.ZERO;
+   public static final String MOD_ID = "sexmod";
+   public static final String MOD_NAME = "Fapcraft";
+   public static final String MOD_VERSION = "1.1.0";
+   public static final String CLIENT_PROXY = "com.trolmastercard.sexmod.ClientProxy";
+   public static final String COMMON_PROXY = "com.trolmastercard.sexmod.CommonProxy";
+   public static final Random RANDOM = new Random();
+   public static int EDITOR_ID_COUNTER = 0;
+   public static int BUTTON_ID_COUNTER = 0;
+   public static final int KOBOLD_EGG_ENTITY_ID = 4674237;
+   public static final int CUSTOM_MODEL_ENTITY_ID = 6281823;
+   public static Vec3d cameraPosCurrent = Vec3d.ZERO;
+   public static Vec3d cameraPosPrevious = Vec3d.ZERO;
 }

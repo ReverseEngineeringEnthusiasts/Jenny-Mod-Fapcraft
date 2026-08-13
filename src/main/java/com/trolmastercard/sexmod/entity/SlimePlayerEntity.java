@@ -119,7 +119,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
          EntityPlayer var1 = this.j_clash575();
          if (var1 != null) {
             if (!(var1.getPositionVector().distanceTo(this.w_clash576()) > 1.0)) {
-               PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
+               PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.rotationYaw = this.getYawRotation();
                this.cameraYaw = this.getYawRotation();
@@ -216,7 +216,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                      this.createAnimation("animation.slime.doggycum", false, var1);
                      break;
                   case ATTACK:
-                     this.createAnimation("animation.slime.attack" + this.S, false, var1);
+                     this.createAnimation("animation.slime.attack" + this.nextAttack, false, var1);
                      break;
                   case BOW:
                      this.createAnimation("animation.slime.bowcharge", false, var1);
@@ -243,8 +243,8 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
          String var2x = var1x.sound;
          switch (var2x) {
             case "attackDone":
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "undress":
@@ -277,7 +277,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "bjiMSG12":
-               if (Reference.f.nextInt(5) == 0) {
+               if (Reference.RANDOM.nextInt(5) == 0) {
                   this.playSoundAtVolume(SoundEvents.ENTITY_SLIME_JUMP, 0.5F);
                }
 
@@ -303,12 +303,12 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                this.setCurrentAction(Action.SUCKBLOWJOB);
                break;
             case "doggyfastReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
                break;
             case "bjtReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -341,7 +341,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                this.cameraYaw = this.rotationYaw;
                break;
             case "doggyGoOnBedDone":
-               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
+               PacketHandler.networkWrapper.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
                this.setCurrentAction(Action.WAITDOGGY);
                break;
             case "doggystartMSG1":
@@ -371,9 +371,9 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "doggyslowMSG1":
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
-               int var5 = Reference.f.nextInt(4);
+               int var5 = Reference.RANDOM.nextInt(4);
                if (var5 == 0) {
-                  var5 = Reference.f.nextInt(2);
+                  var5 = Reference.RANDOM.nextInt(2);
                   if (var5 == 0) {
                      this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                   } else {
@@ -395,7 +395,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
 
                this.aq++;
                if (this.aq % 2 == 0) {
-                  int var6 = Reference.f.nextInt(2);
+                  int var6 = Reference.RANDOM.nextInt(2);
                   if (var6 == 0) {
                      this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                   } else {

@@ -25,15 +25,15 @@ import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
 public class DragonRenderer extends Render<DragonEntity> {
-   public static DragonRenderer a;
-   static final UnknownScreen e = new UnknownScreen(0, 255, 251, 255);
-   static final UnknownScreen b = new UnknownScreen(255, 0, 236, 255);
-   static final UnknownScreen d = new UnknownScreen(255, 255, 255, 0);
-   Minecraft c = Minecraft.getMinecraft();
+   public static DragonRenderer instance;
+   static final UnknownScreen COLOR_CYAN = new UnknownScreen(0, 255, 251, 255);
+   static final UnknownScreen COLOR_MAGENTA = new UnknownScreen(255, 0, 236, 255);
+   static final UnknownScreen COLOR_WHITE_ALPHA = new UnknownScreen(255, 255, 255, 0);
+   Minecraft mc = Minecraft.getMinecraft();
 
    public DragonRenderer(RenderManager var1) {
       super(var1);
-      a = this;
+      instance = this;
    }
 
    @Nullable
@@ -47,7 +47,7 @@ public class DragonRenderer extends Render<DragonEntity> {
       GlStateManager.enableAlpha();
       GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
-      EntityPlayerSP var10 = this.c.player;
+      EntityPlayerSP var10 = this.mc.player;
       Vec3d var11 = RotationHelper.a(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var9);
       Vec3d var12 = RotationHelper.a(new Vec3d(var10.lastTickPosX, var10.lastTickPosY, var10.lastTickPosZ), var10.getPositionVector(), var9);
       Vec3d var13 = var11.subtract(var12);
@@ -55,20 +55,20 @@ public class DragonRenderer extends Render<DragonEntity> {
       GlStateManager.translate(var13.x, var13.y, var13.z);
       GlStateManager.rotate(180.0F - this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
       GlStateManager.rotate((this.renderManager.options.thirdPersonView == 2 ? -1 : 1) * -this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
-      GlStateManager.scale(var1.g, var1.g, var1.g);
+      GlStateManager.scale(var1.SCALE_1_0, var1.SCALE_1_0, var1.SCALE_1_0);
       Tessellator var14 = Tessellator.getInstance();
       BufferBuilder var15 = var14.getBuffer();
-      this.c.renderEngine.bindTexture(this.getEntityTexture(var1));
+      this.mc.renderEngine.bindTexture(this.getEntityTexture(var1));
       UnknownScreen var16;
       UnknownScreen var17;
-      if (var1.g == 1.0) {
-         float var18 = (float)this.c.world.getTotalWorldTime() + this.c.getRenderPartialTicks();
+      if (var1.SCALE_1_0 == 1.0) {
+         float var18 = (float)this.mc.world.getTotalWorldTime() + this.mc.getRenderPartialTicks();
          double var19 = 0.5 * Math.sin(var18 * 0.5) + 0.5;
-         var16 = RotationHelper.a(e, b, var19);
-         var17 = RotationHelper.a(b, e, var19);
+         var16 = RotationHelper.a(COLOR_CYAN, COLOR_MAGENTA, var19);
+         var17 = RotationHelper.a(COLOR_MAGENTA, COLOR_CYAN, var19);
       } else {
-         var16 = RotationHelper.a(d, e, var1.g);
-         var17 = RotationHelper.a(d, e, var1.g);
+         var16 = RotationHelper.a(COLOR_WHITE_ALPHA, COLOR_CYAN, var1.SCALE_1_0);
+         var17 = RotationHelper.a(COLOR_WHITE_ALPHA, COLOR_CYAN, var1.SCALE_1_0);
       }
 
       var15.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
@@ -86,10 +86,10 @@ public class DragonRenderer extends Render<DragonEntity> {
    }
 
    void a(BufferBuilder var1, UnknownScreen var2, float var3) {
-      var1.pos(-0.25, 0.0, var3).tex(0.0, 0.0).color(var2.a, var2.d, var2.c, var2.b).endVertex();
-      var1.pos(0.25, 0.0, var3).tex(1.0, 0.0).color(var2.a, var2.d, var2.c, var2.b).endVertex();
-      var1.pos(0.25, 0.5, var3).tex(1.0, 1.0).color(var2.a, var2.d, var2.c, var2.b).endVertex();
-      var1.pos(-0.25, 0.5, var3).tex(0.0, 1.0).color(var2.a, var2.d, var2.c, var2.b).endVertex();
+      var1.pos(-0.25, 0.0, var3).tex(0.0, 0.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
+      var1.pos(0.25, 0.0, var3).tex(1.0, 0.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
+      var1.pos(0.25, 0.5, var3).tex(1.0, 1.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
+      var1.pos(-0.25, 0.5, var3).tex(0.0, 1.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
    }
 
 }

@@ -26,8 +26,8 @@ import software.bernie.geckolib3.renderers.geo.GeoLayerRenderer;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
 public class GirlLayerRenderer extends GeoLayerRenderer {
-   private static final ResourceLocation b = new ResourceLocation("textures/entity/elytra.png");
-   private final ModelElytra a = new ModelElytra();
+   private static final ResourceLocation elytraTexture = new ResourceLocation("textures/entity/elytra.png");
+   private final ModelElytra elytraModel = new ModelElytra();
 
    public GirlLayerRenderer(IGeoRenderer var1) {
       super(var1);
@@ -37,7 +37,7 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
    public void render(EntityLivingBase var1, float var2, float var3, float var4, float var5, float var6, float var7, Color var8) {
       if (var1 instanceof AbstractGirlNpcEntity) {
          AbstractGirlNpcEntity var9 = (AbstractGirlNpcEntity)var1;
-         ItemStack var10 = (ItemStack)var9.getDataManager().get(AbstractGirlNpcEntity.T);
+         ItemStack var10 = (ItemStack)var9.getDataManager().get(AbstractGirlNpcEntity.CHEST_SLOT);
          EntityPlayer var11 = null;
          if (var9 instanceof AbstractPlayerGirlEntity) {
             UUID var12 = ((AbstractPlayerGirlEntity)var9).getOwnerUserUUID();
@@ -50,7 +50,7 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(SourceFactor.ONE, DestFactor.ZERO);
-            Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(b);
+            Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(elytraTexture);
             GlStateManager.pushMatrix();
             GlStateManager.translate(0.0F, 0.0F, 0.125F);
             float var21 = this.a_clash198();
@@ -60,7 +60,7 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
             float var16 = var5;
             float var15 = var3;
             float var14 = var2;
-            ModelElytra var13 = this.a;
+            ModelElytra var13 = this.elytraModel;
             ModelElytra var10000;
             float var10001;
             float var10002;
@@ -90,7 +90,7 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
             }
 
             var10000.setRotationAngles(var10001, var10002, var10003, var10004, var10005, var10006, (Entity)var10007);
-            ModelElytra var20 = this.a;
+            ModelElytra var20 = this.elytraModel;
             Object var23;
             if (var11 == null) {
                var10000 = var20;

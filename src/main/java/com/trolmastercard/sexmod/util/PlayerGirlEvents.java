@@ -47,7 +47,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class PlayerGirlEvents {
-   static final int a = 284453;
+   static final int eventCooldown = 284453;
 
    @SubscribeEvent
    public void a(PlayerSleepInBedEvent var1) {

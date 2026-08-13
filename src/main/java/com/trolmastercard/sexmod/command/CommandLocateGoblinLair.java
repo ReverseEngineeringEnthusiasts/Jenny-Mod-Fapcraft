@@ -19,7 +19,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
 public class CommandLocateGoblinLair extends CommandBase {
-   public static final CommandLocateGoblinLair a = new CommandLocateGoblinLair();
+   public static final CommandLocateGoblinLair LOCATE_GOBLIN_LAIR_COMMAND = new CommandLocateGoblinLair();
 
    public String getName() {
       return "locatenearestgoblinlair";

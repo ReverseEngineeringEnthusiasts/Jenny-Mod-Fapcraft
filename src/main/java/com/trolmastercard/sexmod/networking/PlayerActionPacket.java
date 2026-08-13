@@ -19,40 +19,40 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class PlayerActionPacket implements IMessage {
-   boolean c;
-   UUID a;
-   UUID b;
+   boolean isValid;
+   UUID girlUUID;
+   UUID playerUUID;
 
    public PlayerActionPacket() {
    }
 
    public PlayerActionPacket(UUID var1, UUID var2) {
-      this.a = var1;
-      this.b = var2;
-      this.c = true;
+      this.girlUUID = var1;
+      this.playerUUID = var2;
+      this.isValid = true;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.a = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.b = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.c = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.a.toString());
-      ByteBufUtils.writeUTF8String(var1, this.b.toString());
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<PlayerActionPacket, IMessage> {
       public IMessage onMessage(PlayerActionPacket var1, MessageContext var2) {
-         if (var1.c && var2.side == Side.SERVER) {
+         if (var1.isValid && var2.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
                      for (BaseGirlEntity var2x : BaseGirlEntity.getGirlEntityList()) {
-                        if (!var2x.world.isRemote && var2x.getGirlId().equals(var1.a)) {
-                           ((EntityPlayerMP)var2x.world.getPlayerEntityByUUID(var1.b))
+                        if (!var2x.world.isRemote && var2x.getGirlId().equals(var1.girlUUID)) {
+                           ((EntityPlayerMP)var2x.world.getPlayerEntityByUUID(var1.playerUUID))
                               .openGui(
                                  null,
                                  0,

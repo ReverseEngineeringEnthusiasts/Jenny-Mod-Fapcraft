@@ -33,7 +33,7 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class PlayerGalathRenderer extends GirlPlayerRenderer {
-   static final HashSet<String> z = new HashSet<>(
+   static final HashSet<String> blacklistBones = new HashSet<>(
       Arrays.asList(
          "kneeL",
          "kneeR",
@@ -62,14 +62,14 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
       if (var1.world instanceof SexWorldClient) {
          return null;
       } else {
-         return ((IGalath)var1).c_clash21() ? null : GalathRenderer.y;
+         return ((IGalath)var1).c_clash21() ? null : GalathRenderer.ZERO_OFFSET;
       }
    }
 
    @Override
    public HashSet<String> a() {
-      GalathRenderer.E.addAll(BodyParts.a);
-      return GalathRenderer.E;
+      GalathRenderer.BLACKLISTED_BONES.addAll(BodyParts.CUSTOM_PART_BONES);
+      return GalathRenderer.BLACKLISTED_BONES;
    }
 
    @Override
@@ -80,7 +80,7 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
    @Override
    public void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       super.a(var1, var2, var4, var6, var8, var9);
-      if (i.gameSettings.thirdPersonView != 0 || !i.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var1).getOwnerUserUUID()) || var1.isAnchored()) {
+      if (mc.gameSettings.thirdPersonView != 0 || !mc.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var1).getOwnerUserUUID()) || var1.isAnchored()) {
          GalathRenderer.a_clash324(var1, var9);
       }
    }
@@ -115,7 +115,7 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
 
    @Override
    protected Vector4f calculateBoneArmorColor(String var1, float var2, float var3, float var4) {
-      if (!z.contains(var1)) {
+      if (!blacklistBones.contains(var1)) {
          return this.createOverlayColor(var2, var3, var4);
       }
 
@@ -129,12 +129,12 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
          case "braBoobR":
          case "armorNippleR":
          case "armorNippleL":
-            var5 = (ItemStack)this.j.getDataManager().get(AbstractGirlNpcEntity.T);
+            var5 = (ItemStack)this.renderEntity.getDataManager().get(AbstractGirlNpcEntity.CHEST_SLOT);
             break;
          case "turnable":
          case "static":
          case "slip":
-            var5 = (ItemStack)this.j.getDataManager().get(AbstractGirlNpcEntity.U);
+            var5 = (ItemStack)this.renderEntity.getDataManager().get(AbstractGirlNpcEntity.LEGS_SLOT);
             break;
          case "shinL":
          case "shinR":
@@ -142,7 +142,7 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
          case "sockR":
          case "kneeL":
          case "kneeR":
-            var5 = (ItemStack)this.j.getDataManager().get(AbstractGirlNpcEntity.W);
+            var5 = (ItemStack)this.renderEntity.getDataManager().get(AbstractGirlNpcEntity.BOOTS_SLOT);
       }
 
       if (!(var5.getItem() instanceof ItemArmor)) {
@@ -196,9 +196,9 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
       Tessellator.getInstance().draw();
       var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
-      Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.j));
+      Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.renderEntity));
 
-      this.renderRecursively(var2, var11, var4, var5, var6, this.j.getRenderScaleFactor());
+      this.renderRecursively(var2, var11, var4, var5, var6, this.renderEntity.getRenderScaleFactor());
       Tessellator.getInstance().draw();
       MATRIX_STACK.pop();
    }

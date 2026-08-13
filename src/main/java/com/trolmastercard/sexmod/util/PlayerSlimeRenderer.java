@@ -17,13 +17,13 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class PlayerSlimeRenderer extends GirlPlayerRenderer {
-   Vector3f A = new Vector3f(0.0F, 0.0F, 0.0F);
-   Vector3f D = new Vector3f(0.0F, 0.0F, 0.0F);
-   Vector3f F = new Vector3f(0.0F, 0.0F, 0.0F);
-   Vector3f E = new Vector3f(0.0F, 0.0F, 0.0F);
-   Vector3f z = new Vector3f(0.0F, 0.0F, 0.0F);
-   Vector3f B = new Vector3f(0.0F, 0.0F, 0.0F);
-   Vector3f C = new Vector3f(0.0F, 0.0F, 0.0F);
+   Vector3f scaleSnapshot = new Vector3f(0.0F, 0.0F, 0.0F);
+   Vector3f positionSnapshot = new Vector3f(0.0F, 0.0F, 0.0F);
+   Vector3f rotationSnapshot = new Vector3f(0.0F, 0.0F, 0.0F);
+   Vector3f rotationSnapshot3 = new Vector3f(0.0F, 0.0F, 0.0F);
+   Vector3f currentRotation = new Vector3f(0.0F, 0.0F, 0.0F);
+   Vector3f rotationSnapshot2 = new Vector3f(0.0F, 0.0F, 0.0F);
+   Vector3f rotationSnapshot4 = new Vector3f(0.0F, 0.0F, 0.0F);
 
    public PlayerSlimeRenderer(RenderManager var1, AnimatedGeoModel var2) {
       super(var1, var2);
@@ -38,55 +38,55 @@ public class PlayerSlimeRenderer extends GirlPlayerRenderer {
    @Override
    protected void onBoneRenderStart(String var1, GeoBone var2) {
       if ("slime".equals(var1)) {
-         this.F = new Vector3f(var2.getRotationX(), var2.getRotationY(), var2.getRotationZ());
-         this.A = new Vector3f(var2.getScaleX(), var2.getScaleY(), var2.getScaleZ());
-         this.D = new Vector3f(var2.getPositionX(), var2.getPositionY(), var2.getPositionZ());
+         this.rotationSnapshot = new Vector3f(var2.getRotationX(), var2.getRotationY(), var2.getRotationZ());
+         this.scaleSnapshot = new Vector3f(var2.getScaleX(), var2.getScaleY(), var2.getScaleZ());
+         this.positionSnapshot = new Vector3f(var2.getPositionX(), var2.getPositionY(), var2.getPositionZ());
       }
 
       if ("upperBody".equals(var1)) {
-         this.B = new Vector3f(var2.getRotationX(), var2.getRotationY(), var2.getRotationZ());
+         this.rotationSnapshot2 = new Vector3f(var2.getRotationX(), var2.getRotationY(), var2.getRotationZ());
       }
 
       if ("torso".equals(var1)) {
-         this.E = new Vector3f(var2.getRotationX(), var2.getRotationY(), var2.getRotationZ());
+         this.rotationSnapshot3 = new Vector3f(var2.getRotationX(), var2.getRotationY(), var2.getRotationZ());
       }
 
       if ("head".equals(var1)) {
-         this.C = new Vector3f(var2.getRotationX(), var2.getRotationY(), var2.getRotationZ());
+         this.rotationSnapshot4 = new Vector3f(var2.getRotationX(), var2.getRotationY(), var2.getRotationZ());
       }
 
       if ("boobs".equals(var1)) {
-         this.z = new Vector3f(var2.getRotationX(), var2.getRotationY(), var2.getRotationZ());
+         this.currentRotation = new Vector3f(var2.getRotationX(), var2.getRotationY(), var2.getRotationZ());
       }
 
       if ("figure".equals(var1)) {
-         var2.setRotationX(this.F.x);
-         var2.setRotationY(this.F.y);
-         var2.setRotationZ(this.F.z);
-         var2.setScaleX(this.A.x);
-         var2.setScaleY(this.A.y);
-         var2.setScaleZ(this.A.z);
-         var2.setPositionX(this.D.x);
-         var2.setPositionY(this.D.y);
-         var2.setPositionZ(this.D.z);
+         var2.setRotationX(this.rotationSnapshot.x);
+         var2.setRotationY(this.rotationSnapshot.y);
+         var2.setRotationZ(this.rotationSnapshot.z);
+         var2.setScaleX(this.scaleSnapshot.x);
+         var2.setScaleY(this.scaleSnapshot.y);
+         var2.setScaleZ(this.scaleSnapshot.z);
+         var2.setPositionX(this.positionSnapshot.x);
+         var2.setPositionY(this.positionSnapshot.y);
+         var2.setPositionZ(this.positionSnapshot.z);
       }
 
       if ("dress".equals(var1)) {
-         var2.setRotationX(this.B.x);
-         var2.setRotationY(this.B.y);
-         var2.setRotationZ(this.B.z);
+         var2.setRotationX(this.rotationSnapshot2.x);
+         var2.setRotationY(this.rotationSnapshot2.y);
+         var2.setRotationZ(this.rotationSnapshot2.z);
       }
 
       if ("hat".equals(var1)) {
-         var2.setRotationX(this.C.x);
-         var2.setRotationY(this.C.y);
-         var2.setRotationZ(this.C.z);
+         var2.setRotationX(this.rotationSnapshot4.x);
+         var2.setRotationY(this.rotationSnapshot4.y);
+         var2.setRotationZ(this.rotationSnapshot4.z);
       }
 
       if ("boobsSlime".equals(var1)) {
-         var2.setRotationX(this.z.x);
-         var2.setRotationY(this.z.y);
-         var2.setRotationZ(this.z.z);
+         var2.setRotationX(this.currentRotation.x);
+         var2.setRotationY(this.currentRotation.y);
+         var2.setRotationZ(this.currentRotation.z);
       }
    }
 

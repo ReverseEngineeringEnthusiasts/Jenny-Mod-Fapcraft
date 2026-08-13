@@ -49,7 +49,7 @@ public class DamageCalculation {
    public void a(LivingDamageEvent var1) {
       if (var1.getEntity() instanceof AbstractGirlNpcEntity) {
          AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntity();
-         ItemStack[] var3 = new ItemStack[]{var2.Q.getStackInSlot(2), var2.Q.getStackInSlot(3), var2.Q.getStackInSlot(4), var2.Q.getStackInSlot(5)};
+         ItemStack[] var3 = new ItemStack[]{var2.inventory.getStackInSlot(2), var2.inventory.getStackInSlot(3), var2.inventory.getStackInSlot(4), var2.inventory.getStackInSlot(5)};
          ArrayList var4 = new ArrayList();
          ArrayList var5 = new ArrayList();
 
@@ -79,7 +79,7 @@ public class DamageCalculation {
                int var14 = EnchantmentHelper.getEnchantmentLevel(Enchantments.PROTECTION, var13);
                var21 -= var14 * 0.04F * var21;
                int var15 = EnchantmentHelper.getEnchantmentLevel(Enchantments.THORNS, var13);
-               var23 += Reference.f.nextFloat() < 0.15F * var15 ? Reference.f.nextFloat() * 4.0F + 1.0F : 0.0F;
+               var23 += Reference.RANDOM.nextFloat() < 0.15F * var15 ? Reference.RANDOM.nextFloat() * 4.0F + 1.0F : 0.0F;
                var23 = Math.min(4.0F, var23);
                if (var17.isFireDamage()) {
                   int var16 = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_PROTECTION, var13);

@@ -37,13 +37,13 @@ public enum EyeColor {
 
    /** @return the ordinal index of the given eye color within this enum */
    public static int indexOf(EyeColor color) {
-      int i = 0;
+      int colorIndex = 0;
       for (EyeColor value : values()) {
          if (color == value) {
-            return i;
+            return colorIndex;
          }
-         i++;
+         colorIndex++;
       }
-      return i;
+      return colorIndex;
    }
 }

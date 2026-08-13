@@ -38,56 +38,56 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
 public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
-   public int S = 1;
-   public int P;
-   public int O = 0;
-   public int K;
-   public Vec3d V = Vec3d.ZERO;
-   public boolean N;
-   public ItemStackHandler Q = new ItemStackHandler(7);
-   public static final DataParameter<ItemStack> L = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
+   public int nextAttack = 1;
+   public int slashSwordRot;
+   public int stabSwordRot = 0;
+   public int holdBowRot;
+   public Vec3d swordOffsetStab = Vec3d.ZERO;
+   public boolean downed;
+   public ItemStackHandler inventory = new ItemStackHandler(7);
+   public static final DataParameter<ItemStack> WEAPON = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
       .getSerializer()
       .createKey(117);
-   public static final DataParameter<ItemStack> R = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
+   public static final DataParameter<ItemStack> BOW = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
       .getSerializer()
       .createKey(116);
-   public static final DataParameter<ItemStack> X = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
+   public static final DataParameter<ItemStack> HELMET_SLOT = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
       .getSerializer()
       .createKey(115);
-   public static final DataParameter<ItemStack> T = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
+   public static final DataParameter<ItemStack> CHEST_SLOT = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
       .getSerializer()
       .createKey(114);
-   public static final DataParameter<ItemStack> U = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
+   public static final DataParameter<ItemStack> LEGS_SLOT = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
       .getSerializer()
       .createKey(113);
-   public static final DataParameter<ItemStack> W = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
+   public static final DataParameter<ItemStack> BOOTS_SLOT = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.ITEM_STACK)
       .getSerializer()
       .createKey(112);
-   public static final DataParameter<Integer> M = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.VARINT)
+   public static final DataParameter<Integer> ATTACK_MODE = EntityDataManager.createKey(AbstractGirlNpcEntity.class, DataSerializers.VARINT)
       .getSerializer()
       .createKey(111);
 
    protected AbstractGirlNpcEntity(World var1) {
       super(var1);
-      if (this.Q.getStackInSlot(0) == ItemStack.EMPTY) {
-         this.Q.setStackInSlot(0, new ItemStack(Items.IRON_SWORD));
+      if (this.inventory.getStackInSlot(0) == ItemStack.EMPTY) {
+         this.inventory.setStackInSlot(0, new ItemStack(Items.IRON_SWORD));
       }
 
-      if (this.Q.getStackInSlot(1) == ItemStack.EMPTY) {
-         this.Q.setStackInSlot(1, new ItemStack(Items.BOW));
+      if (this.inventory.getStackInSlot(1) == ItemStack.EMPTY) {
+         this.inventory.setStackInSlot(1, new ItemStack(Items.BOW));
       }
    }
 
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.entityDataManager.register(M, 0);
-      this.entityDataManager.register(L, ItemStack.EMPTY);
-      this.entityDataManager.register(R, ItemStack.EMPTY);
-      this.entityDataManager.register(X, ItemStack.EMPTY);
-      this.entityDataManager.register(T, ItemStack.EMPTY);
-      this.entityDataManager.register(U, ItemStack.EMPTY);
-      this.entityDataManager.register(W, ItemStack.EMPTY);
+      this.entityDataManager.register(ATTACK_MODE, 0);
+      this.entityDataManager.register(WEAPON, ItemStack.EMPTY);
+      this.entityDataManager.register(BOW, ItemStack.EMPTY);
+      this.entityDataManager.register(HELMET_SLOT, ItemStack.EMPTY);
+      this.entityDataManager.register(CHEST_SLOT, ItemStack.EMPTY);
+      this.entityDataManager.register(LEGS_SLOT, ItemStack.EMPTY);
+      this.entityDataManager.register(BOOTS_SLOT, ItemStack.EMPTY);
    }
 
    @Override
@@ -121,29 +121,29 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
                   EnumParticleTypes.HEART,
                   false,
                   this.posX,
-                  this.posY + 1.0 + Reference.f.nextDouble(),
+                  this.posY + 1.0 + Reference.RANDOM.nextDouble(),
                   this.posZ,
                   var2,
                   1.0,
                   1.0,
                   1.0,
-                  Reference.f.nextGaussian(),
+                  Reference.RANDOM.nextGaussian(),
                   new int[0]
                );
          }
       }
 
-      if (this.N && !this.hasMaster()) {
-         this.N = false;
+      if (this.downed && !this.hasMaster()) {
+         this.downed = false;
       }
 
       this.entityDataManager.set(HAND_STATES, Byte.valueOf("1"));
-      this.entityDataManager.set(L, this.Q.getStackInSlot(0));
-      this.entityDataManager.set(R, this.Q.getStackInSlot(1));
-      this.entityDataManager.set(X, this.Q.getStackInSlot(2));
-      this.entityDataManager.set(T, this.Q.getStackInSlot(3));
-      this.entityDataManager.set(U, this.Q.getStackInSlot(4));
-      this.entityDataManager.set(W, this.Q.getStackInSlot(5));
+      this.entityDataManager.set(WEAPON, this.inventory.getStackInSlot(0));
+      this.entityDataManager.set(BOW, this.inventory.getStackInSlot(1));
+      this.entityDataManager.set(HELMET_SLOT, this.inventory.getStackInSlot(2));
+      this.entityDataManager.set(CHEST_SLOT, this.inventory.getStackInSlot(3));
+      this.entityDataManager.set(LEGS_SLOT, this.inventory.getStackInSlot(4));
+      this.entityDataManager.set(BOOTS_SLOT, this.inventory.getStackInSlot(5));
    }
 
    @SideOnly(Side.CLIENT)
@@ -155,26 +155,26 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
          this.goHome();
       } else if ("action.names.equipment".equals(var1)) {
          EntityPlayerSP var3 = Minecraft.getMinecraft().player;
-         PacketHandler.b.sendToServer(new PlayerActionPacket(this.getGirlId(), var3.getPersistentID()));
+         PacketHandler.networkWrapper.sendToServer(new PlayerActionPacket(this.getGirlId(), var3.getPersistentID()));
       } else if ("action.names.gohome".equals(var1)) {
          this.goHome();
-         PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+         PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
       } else if ("action.names.setnewhome".equals(var1)) {
          this.c_clash237();
-         PacketHandler.b.sendToServer(new SetNewHomePacket(this.getGirlId(), new Vec3d(this.getPosition())));
+         PacketHandler.networkWrapper.sendToServer(new SetNewHomePacket(this.getGirlId(), new Vec3d(this.getPosition())));
       }
    }
 
    @Override
    public void writeEntityToNBT(NBTTagCompound var1) {
-      var1.setTag("inventory", this.Q.serializeNBT());
+      var1.setTag("inventory", this.inventory.serializeNBT());
       super.writeEntityToNBT(var1);
    }
 
    @Override
    public void readEntityFromNBT(NBTTagCompound var1) {
       super.readEntityFromNBT(var1);
-      this.Q.deserializeNBT(var1.getCompoundTag("inventory"));
+      this.inventory.deserializeNBT(var1.getCompoundTag("inventory"));
    }
 
    public boolean hasCapability(Capability var1, EnumFacing var2) {
@@ -182,7 +182,7 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
    }
 
    public Object getCapability(Capability var1, EnumFacing var2) {
-      return var1 == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ? this.Q : super.getCapability(var1, var2);
+      return var1 == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ? this.inventory : super.getCapability(var1, var2);
    }
 
 }

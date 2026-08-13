@@ -26,30 +26,30 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class FallTreePacket implements IMessage {
-   Boolean b = false;
-   BlockPos a;
+   Boolean isValid = false;
+   BlockPos treePos;
 
    public FallTreePacket() {
    }
 
    public FallTreePacket(BlockPos var1) {
-      this.a = var1;
+      this.treePos = var1;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.a = new BlockPos(var1.readInt(), var1.readInt(), var1.readInt());
-      this.b = true;
+      this.treePos = new BlockPos(var1.readInt(), var1.readInt(), var1.readInt());
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeInt(this.a.getX());
-      var1.writeInt(this.a.getY());
-      var1.writeInt(this.a.getZ());
+      var1.writeInt(this.treePos.getX());
+      var1.writeInt(this.treePos.getY());
+      var1.writeInt(this.treePos.getZ());
    }
 
    public static class Handler implements IMessageHandler<FallTreePacket, IMessage> {
       public IMessage onMessage(FallTreePacket var1, MessageContext var2) {
-         if (var1.b && var2.side.equals(Side.SERVER)) {
+         if (var1.isValid && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
@@ -75,9 +75,9 @@ public class FallTreePacket implements IMessage {
                            var3.sendMessage(new TextComponentString(String.format("%s%d/%d Beds", TextFormatting.YELLOW, var6, var5)));
                         } else {
                            World var7 = var3.world;
-                           BlockPos var8 = this.a_clash16(var7, var1.a);
+                           BlockPos var8 = this.a_clash16(var7, var1.treePos);
                            HashSet var9 = KoboldTask.a(var7, var8, var4);
-                           PacketHandler.b.sendTo(new SendBlocksPacket(var9, true), var2.getServerHandler().player);
+                           PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var9, true), var2.getServerHandler().player);
                         }
                      }
                   }

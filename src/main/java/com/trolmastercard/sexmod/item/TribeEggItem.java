@@ -31,7 +31,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TribeEggItem extends Item {
-   public static final TribeEggItem a = new TribeEggItem();
+   public static final TribeEggItem TRIBE_EGG = new TribeEggItem();
 
    public TribeEggItem() {
       this.setCreativeTab(CreativeTabs.MISC);
@@ -64,20 +64,20 @@ public class TribeEggItem extends Item {
    }
 
    public static void register() {
-      a.setRegistryName(new ResourceLocation("sexmod", "tribe_egg"));
-      a.setTranslationKey("tribe_egg");
+      TRIBE_EGG.setRegistryName(new ResourceLocation("sexmod", "tribe_egg"));
+      TRIBE_EGG.setTranslationKey("tribe_egg");
       MinecraftForge.EVENT_BUS.register(TribeEggItem.class);
    }
 
    @SubscribeEvent
    public static void a(Register<Item> var0) {
-      var0.getRegistry().register(a);
+      var0.getRegistry().register(TRIBE_EGG);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public static void a(ModelRegistryEvent var0) {
-      ModelLoader.setCustomModelResourceLocation(a, 0, new ModelResourceLocation("sexmod:tribe_egg"));
+      ModelLoader.setCustomModelResourceLocation(TRIBE_EGG, 0, new ModelResourceLocation("sexmod:tribe_egg"));
    }
 
 }

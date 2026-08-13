@@ -53,30 +53,30 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ClothingScreen extends GuiScreen {
-   public static final ResourceLocation k = new ResourceLocation("sexmod", "textures/gui/clothing_icons.png");
-   static final int r = 20;
-   static final float j = 0.25F;
-   int n = 0;
-   int l = 0;
-   float o = 0.0F;
-   public static float b = 0.0F;
-   protected static List<Integer> a = new ArrayList<>();
-   protected static int s = 0;
-   protected static int h = 0;
-   BaseGirlEntity c;
-   boolean p = false;
-   CustomModelList q;
+   public static final ResourceLocation GUI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/clothing_icons.png");
+   static final int SCROLLBAR_SIZE = 20;
+   static final float SCROLL_SPEED = 0.25F;
+   int guiX = 0;
+   int guiY = 0;
+   float modelRotation = 0.0F;
+   public static float currentModelYaw = 0.0F;
+   protected static List<Integer> selectedPartIds = new ArrayList<>();
+   protected static int scrollOffset = 0;
+   protected static int targetScrollOffset = 0;
+   BaseGirlEntity previewGirl;
+   boolean isRendering = false;
+   CustomModelList modelList;
    public static List<Entry<BoneType, Entry<List<String>, Integer>>> m = new ArrayList<>();
-   final UUID g;
-   int i;
-   int t;
-   public boolean f = false;
-   int d = 0;
-   int e = 1;
+   final UUID girlId;
+   int partsCount;
+   int lastMouseX;
+   public boolean isEditing = false;
+   int scrollVelocity = 0;
+   int scrollDirection = 1;
 
    public ClothingScreen(@Nonnull BaseGirlEntity var1) {
       this.mc = Minecraft.getMinecraft();
-      this.g = var1.getGirlId();
+      this.girlId = var1.getGirlId();
       NpcType var2 = NpcType.getNpcType(var1);
       if (var2 == null) {
          var2 = NpcType.JENNY;
@@ -84,18 +84,18 @@ public class ClothingScreen extends GuiScreen {
 
       try {
          Constructor var3 = var2.npcClass.getConstructor(World.class);
-         this.c = (BaseGirlEntity)var3.newInstance(this.mc.world);
-         this.c.setLocallyRegistered(true);
+         this.previewGirl = (BaseGirlEntity)var3.newInstance(this.mc.world);
+         this.previewGirl.setLocallyRegistered(true);
       } catch (Exception var11) {
          var11.printStackTrace();
       }
 
       this.e_clash817();
       String var12 = var1.getCustomModelCode();
-      this.c.getDataManager().set(BaseGirlEntity.CUSTOM_MODEL_KEY, var12);
+      this.previewGirl.getDataManager().set(BaseGirlEntity.CUSTOM_MODEL_KEY, var12);
       int var4 = 0;
 
-      for (String var6 : this.c.getCustomPartsSet()) {
+      for (String var6 : this.previewGirl.getCustomPartsSet()) {
          BoneType var7 = ServerWhitelistManager.e_clash138(var6);
          if (BoneType.CUSTOM_BONE.equals(var7)) {
             var4++;
@@ -103,7 +103,7 @@ public class ClothingScreen extends GuiScreen {
 
          Entry var8 = null;
          if (BoneType.CUSTOM_BONE.equals(var7) && var4 > 1) {
-            var8 = b_clash816(this.c);
+            var8 = b_clash816(this.previewGirl);
          } else {
             for (Entry var10 : m) {
                if (((BoneType)var10.getKey()).equals(var7)) {
@@ -127,7 +127,7 @@ public class ClothingScreen extends GuiScreen {
 
    public void handleMouseInput() {
       super.handleMouseInput();
-      this.q.handleMouseInput();
+      this.modelList.handleMouseInput();
    }
 
    public static HashSet<String> b_clash815() {
@@ -154,8 +154,8 @@ public class ClothingScreen extends GuiScreen {
 
    void e_clash817() {
       m.clear();
-      List var1 = this.c.buildCustomPartsData(this.g);
-      this.i = var1.size();
+      List var1 = this.previewGirl.buildCustomPartsData(this.girlId);
+      this.partsCount = var1.size();
       m.addAll(var1);
 
       for (BoneType var5 : BoneType.values()) {
@@ -166,7 +166,7 @@ public class ClothingScreen extends GuiScreen {
          }
       }
 
-      for (Entry var8 : ServerWhitelistManager.a_clash143(this.c).entrySet()) {
+      for (Entry var8 : ServerWhitelistManager.a_clash143(this.previewGirl).entrySet()) {
          Entry var9 = null;
 
          for (Entry var12 : m) {
@@ -185,14 +185,14 @@ public class ClothingScreen extends GuiScreen {
    }
 
    public void initGui() {
-      this.q = new CustomModelList(this.mc, this);
+      this.modelList = new CustomModelList(this.mc, this);
    }
 
    public void setWorldAndResolution(Minecraft var1, int var2, int var3) {
       super.setWorldAndResolution(var1, var2, var3);
-      this.n = this.a_clash821(76.0F);
-      this.l = this.b_clash822(89.0F);
-      this.o = 90.0F;
+      this.guiX = this.a_clash821(76.0F);
+      this.guiY = this.b_clash822(89.0F);
+      this.modelRotation = 90.0F;
    }
 
    boolean a_clash818(int var1, int var2, int var3, int var4, int var5, int var6) {
@@ -207,26 +207,26 @@ public class ClothingScreen extends GuiScreen {
 
    public void drawScreen(int var1, int var2, float var3) {
       super.drawScreen(var1, var2, var3);
-      if (this.p) {
-         b = b + RotationHelper.lerp(h, s, var3);
+      if (this.isRendering) {
+         currentModelYaw = currentModelYaw + RotationHelper.lerp(targetScrollOffset, scrollOffset, var3);
       }
 
       this.a_clash824();
-      this.mc.renderEngine.bindTexture(k);
-      int var4 = this.n - this.a_clash821(15.0F);
-      int var5 = this.l - 20;
+      this.mc.renderEngine.bindTexture(GUI_TEXTURE);
+      int var4 = this.guiX - this.a_clash821(15.0F);
+      int var5 = this.guiY - 20;
       this.drawTexturedModalRect(var4, var5, 100, this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20) ? 40 : 20, 20, 20);
       if (ServerWhitelistManager.g_clash134() == null) {
          this.b(var4, var1, var2);
       }
 
-      this.a(this.n, this.l, this.o, this.c, 1.2345679F);
-      this.c.onUpdate();
-      this.q.drawScreen(var1, var2, var3);
+      this.a(this.guiX, this.guiY, this.modelRotation, this.previewGirl, 1.2345679F);
+      this.previewGirl.onUpdate();
+      this.modelList.drawScreen(var1, var2, var3);
    }
 
    void b(int var1, int var2, int var3) {
-      int var4 = this.l - 40;
+      int var4 = this.guiY - 40;
       this.drawTexturedModalRect(var1, var4, 120, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 40 : 20, 20, 20);
       var4 -= 20;
       this.drawTexturedModalRect(var1, var4, 20, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
@@ -256,7 +256,7 @@ public class ClothingScreen extends GuiScreen {
          }
       }
 
-      PacketHandler.b.sendToServer(new UploadModelStringPacket(BaseGirlEntity.encodeCustomParts(var1), this.g, var2));
+      PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(BaseGirlEntity.encodeCustomParts(var1), this.girlId, var2));
       this.mc.player.closeScreen();
    }
 
@@ -283,10 +283,10 @@ public class ClothingScreen extends GuiScreen {
             var16 = (Integer)var5.get(0);
          } else {
             int var9;
-            if (this.i != 0 && var3 <= this.i - 1 + BoneType.a_clash759()) {
+            if (this.partsCount != 0 && var3 <= this.partsCount - 1 + BoneType.a_clash759()) {
                var9 = var3;
             } else {
-               var9 = var3 - (this.i + BoneType.a_clash759());
+               var9 = var3 - (this.partsCount + BoneType.a_clash759());
             }
 
             var15 = (Entry)var4.get(var9);
@@ -314,7 +314,7 @@ public class ClothingScreen extends GuiScreen {
                }
             }
 
-            this.c.setCustomPartsData(var12);
+            this.previewGirl.setCustomPartsData(var12);
          }
       }
    }
@@ -324,7 +324,7 @@ public class ClothingScreen extends GuiScreen {
    }
 
    public void a_clash820(SexSceneEntity var1) {
-      this.a(this.n, this.l, this.o, var1, 2.876945F, var1.f ? 1 : 0);
+      this.a(this.guiX, this.guiY, this.modelRotation, var1, 2.876945F, var1.isItemModel ? 1 : 0);
    }
 
    public void a(String var1, int var2, int var3) {
@@ -335,36 +335,36 @@ public class ClothingScreen extends GuiScreen {
       super.mouseClickMove(var1, var2, var3, var4);
       if (var3 == 0) {
          if (var1 >= this.width / 2) {
-            int var6 = var1 - this.t;
-            a.add(var6);
-            this.t = var1;
+            int var6 = var1 - this.lastMouseX;
+            selectedPartIds.add(var6);
+            this.lastMouseX = var1;
          }
       }
    }
 
    protected void mouseClicked(int var1, int var2, int var3) {
       super.mouseClicked(var1, var2, var3);
-      this.q.mouseClicked(var1, var2, var3);
+      this.modelList.mouseClicked(var1, var2, var3);
       if (var3 == 0) {
-         this.f = true;
-         this.p = true;
-         this.t = var1;
-         int var4 = this.n - this.a_clash821(15.0F);
-         int var5 = this.l - 20;
+         this.isEditing = true;
+         this.isRendering = true;
+         this.lastMouseX = var1;
+         int var4 = this.guiX - this.a_clash821(15.0F);
+         int var5 = this.guiY - 20;
          if (this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
             this.c_clash819();
          }
 
          if (ServerWhitelistManager.g_clash134() == null) {
-            var5 = this.l - 40;
+            var5 = this.guiY - 40;
             if (this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
                this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                this.mc.player.closeScreen();
                int var6 = ServerWhitelistManager.b_clash126(true);
                if (var6 != 0) {
-                  ServerWhitelistManager.d = true;
+                  ServerWhitelistManager.isGlobalRenderingDisabled = true;
                } else {
-                  BaseGirlEntity var7 = BaseGirlEntity.getClientGirlEntity(this.g);
+                  BaseGirlEntity var7 = BaseGirlEntity.getClientGirlEntity(this.girlId);
                   if (var7 != null) {
                      a_clash825(var7);
                   }
@@ -393,11 +393,11 @@ public class ClothingScreen extends GuiScreen {
    protected void mouseReleased(int var1, int var2, int var3) {
       super.mouseReleased(var1, var2, var3);
       if (var3 == 0) {
-         this.p = false;
-         this.f = false;
+         this.isRendering = false;
+         this.isEditing = false;
       }
 
-      this.d = h;
+      this.scrollVelocity = targetScrollOffset;
    }
 
    int a_clash821(float var1) {
@@ -410,17 +410,17 @@ public class ClothingScreen extends GuiScreen {
 
    public void onGuiClosed() {
       super.onGuiClosed();
-      this.c.world.removeEntityDangerously(this.c);
-      a.clear();
+      this.previewGirl.world.removeEntityDangerously(this.previewGirl);
+      selectedPartIds.clear();
       m.clear();
    }
 
    public BaseGirlEntity d_clash823() {
-      return this.c;
+      return this.previewGirl;
    }
 
    public void a(int var1, int var2, int var3, int var4) {
-      this.mc.renderEngine.bindTexture(k);
+      this.mc.renderEngine.bindTexture(GUI_TEXTURE);
       this.drawTexturedModalRect(var1, var2, var3, var4, 20, 20);
    }
 
@@ -429,7 +429,7 @@ public class ClothingScreen extends GuiScreen {
    }
 
    public void a(int var1, int var2, Point2D var3) {
-      this.a(var1, var2, var3.c, var3.b);
+      this.a(var1, var2, var3.x, var3.y);
    }
 
    void a(int var1, int var2, float var3, EntityLivingBase var4, float var5) {
@@ -456,7 +456,7 @@ public class ClothingScreen extends GuiScreen {
       RenderHelper.enableStandardItemLighting();
       GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
       GlStateManager.translate(0.0F, 0.0F, var6);
-      GlStateManager.rotate(b, 0.0F, 1.0F, 0.0F);
+      GlStateManager.rotate(currentModelYaw, 0.0F, 1.0F, 0.0F);
       GlStateManager.rotate(0.25F, 1.0F, 0.0F, 0.0F);
       GlStateManager.translate(0.0F, 0.0F, 0.0F);
       RenderManager var12 = Minecraft.getMinecraft().getRenderManager();
@@ -478,20 +478,20 @@ public class ClothingScreen extends GuiScreen {
    }
 
    void a_clash824() {
-      if (!this.p) {
+      if (!this.isRendering) {
          float var1 = Minecraft.getDebugFPS();
          if (var1 == 0.0F) {
             var1 = 0.1F;
          }
 
-         if (this.d == 0) {
-            b = b + this.e * 10 / var1;
+         if (this.scrollVelocity == 0) {
+            currentModelYaw = currentModelYaw + this.scrollDirection * 10 / var1;
          } else {
-            b = b + this.d / var1;
-            this.d = (int)(this.d * (1.0F - 0.25F / var1));
-            if (Math.abs(this.d) <= 10) {
-               this.e = this.d > 0 ? 1 : -1;
-               this.d = 0;
+            currentModelYaw = currentModelYaw + this.scrollVelocity / var1;
+            this.scrollVelocity = (int)(this.scrollVelocity * (1.0F - 0.25F / var1));
+            if (Math.abs(this.scrollVelocity) <= 10) {
+               this.scrollDirection = this.scrollVelocity > 0 ? 1 : -1;
+               this.scrollVelocity = 0;
             }
          }
       }
@@ -519,9 +519,9 @@ public class ClothingScreen extends GuiScreen {
       @SideOnly(Side.CLIENT)
       public void a(KeyInputEvent var1) {
          if (ClientProxy.keyBindings[1].isPressed()) {
-            if (ServerWhitelistManager.d) {
-               ServerWhitelistManager.d = 0 != ServerWhitelistManager.b_clash126(true);
-               if (ServerWhitelistManager.d) {
+            if (ServerWhitelistManager.isGlobalRenderingDisabled) {
+               ServerWhitelistManager.isGlobalRenderingDisabled = 0 != ServerWhitelistManager.b_clash126(true);
+               if (ServerWhitelistManager.isGlobalRenderingDisabled) {
                   return;
                }
             }
@@ -539,14 +539,14 @@ public class ClothingScreen extends GuiScreen {
       @SubscribeEvent
       @SideOnly(Side.CLIENT)
       public void a(ClientTickEvent var1) {
-         ClothingScreen.h = ClothingScreen.s;
-         ClothingScreen.s = 0;
+         ClothingScreen.targetScrollOffset = ClothingScreen.scrollOffset;
+         ClothingScreen.scrollOffset = 0;
 
-         for (Integer var3 : ClothingScreen.a) {
-            ClothingScreen.s = ClothingScreen.s + var3;
+         for (Integer var3 : ClothingScreen.selectedPartIds) {
+            ClothingScreen.scrollOffset = ClothingScreen.scrollOffset + var3;
          }
 
-         ClothingScreen.a.clear();
+         ClothingScreen.selectedPartIds.clear();
       }
 
    }
