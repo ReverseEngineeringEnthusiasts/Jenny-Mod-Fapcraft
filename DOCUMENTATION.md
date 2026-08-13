@@ -266,6 +266,12 @@ Explains ALL reported symptoms across every character. Removed the branch; `l_cl
 matches the jar. Base + remap build.
 **This is the fix to test. Rebuild + redeploy the jar to the mods folder before judging.**
 
+### 2q. Cleanup pass (2026-08-13) — dead-code removal + meaningful renames
+- Removed 232 dead exception pass-and-return wrappers (`private static RuntimeException a(RuntimeException v){return v;}` etc.) from 209 files — leftover obfuscation boilerplate with zero call sites.
+- Renamed ~70 obfuscated methods to meaningful names across ~120 files (harvested from jennymodre-clean naming + jar semantics): `getCurrentAction`, `setInteractionPlayerUUID`, `getTargetPosition`/`setTargetPosition`, `isAnchored`/`setAnchored`, `getGirlId`, `getOutfitIndex`, `getDisplayNameText`, `isControlledByLocalPlayer`, `isLocalPlayerNearby`, `openInteractionMenu`, `sendChatMessage`, `getOwnerUserUUID`, `getPlayerGirlByUUID`, `getYawRotation`/`setYawRotation`, `getVectorTowardPlayer`, `getCachedBoneOffset`, `tickFollowUpTransitions`, `lerp`, `rotateByYaw`, `wrapDegrees`, `setMovementLock`, `randomSound`, `nextPacketId`, `showHornyMeter`/`hideHornyMeter`, `isBoneAllowedForRender`, `playRandomSound`, `setCustomModelCode`, etc.
+- Renames are token-safe (unique `a_clashNNN` identifiers); all verified with `mvn clean package` (0 errors) after each pass. Committed (`67372b4`, `06bc780`).
+- Remaining: ~765 lower-frequency obfuscated method names across entity/renderer/model/GUI classes still need per-method semantic renaming (not safe to automate blindly).
+
 ---
 
 ## 3. Key architecture findings (verified against original bytecode)
