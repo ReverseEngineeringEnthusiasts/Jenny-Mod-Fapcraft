@@ -13,9 +13,9 @@ import javax.annotation.Nullable;
 
 public interface IGoblin {
    @Nullable
-   UUID e_clash54();
+   UUID getOwnerUUID();
 
-   void a_clash55(UUID var1);
+   void setOwnerUUID(UUID var1);
 
    int c_clash56();
 

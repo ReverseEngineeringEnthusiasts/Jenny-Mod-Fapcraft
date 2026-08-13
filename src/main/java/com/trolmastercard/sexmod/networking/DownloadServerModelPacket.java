@@ -103,9 +103,6 @@ public class DownloadServerModelPacket implements IMessage {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<DownloadServerModelPacket, IMessage> {
       static int a = 0;
@@ -247,9 +244,6 @@ public class DownloadServerModelPacket implements IMessage {
          return null;
       }
 
-      private static Throwable a(Throwable var0) {
-         return var0;
-      }
    }
 
    public enum DownloadServerModelPacketType {

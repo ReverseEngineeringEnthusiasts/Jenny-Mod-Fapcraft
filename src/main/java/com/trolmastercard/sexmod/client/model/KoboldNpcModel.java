@@ -28,7 +28,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    static final float f = 1.0F;
 
    @Override
-   protected ResourceLocation[] a_clash33() {
+   protected ResourceLocation[] getModelLocations() {
       return new ResourceLocation[]{
          new ResourceLocation("sexmod", "geo/kobold/kobold.geo.json"), new ResourceLocation("sexmod", "geo/kobold/armored.geo.json")
       };
@@ -49,7 +49,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       super.setLivingAnimations(var1, var2, var3);
       if (!(var1.field_70170_p instanceof SexWorldClient)) {
          AnimationProcessor var4 = this.getAnimationProcessor();
-         if (!var1.h_clash508() && var1 instanceof KoboldEntity) {
+         if (!var1.isLocallyRegistered() && var1 instanceof KoboldEntity) {
             var4.getBone("crown").setHidden(!(Boolean)var1.func_184212_Q().func_187225_a(KoboldEntity.aZ));
             var4.getBone("egg").setHidden(!((KoboldEntity)var1).Q);
          } else {
@@ -66,7 +66,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
          this.a(var4, var5[4]);
          this.d(var4, var5[5]);
          this.a(var1, var4, var5[6]);
-         switch (var1.y_clash492()) {
+         switch (var1.getCurrentAction()) {
             case STARTBLOWJOB:
             case SUCKBLOWJOB_BLINK:
             case THRUSTBLOWJOB:
@@ -85,7 +85,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       if (var1.C.getAnimationState() == AnimationState.Transitioning) {
          float var3 = (Float)var1.func_184212_Q().func_187225_a(KoboldEntity.aE);
          var3 = 0.25F - var3;
-         switch (var1.y_clash492()) {
+         switch (var1.getCurrentAction()) {
             case SUCKBLOWJOB_BLINK:
             case THRUSTBLOWJOB:
             case CUMBLOWJOB:
@@ -136,7 +136,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
             var6.setHidden(true);
       }
 
-      if (var1.y_clash492() == fp.PAYMENT) {
+      if (var1.getCurrentAction() == fp.PAYMENT) {
          var5.setHidden(false);
       }
    }
@@ -236,7 +236,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    @Override
    protected void a(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
       if (!(var1.field_70170_p instanceof SexWorldClient)) {
-         switch (var1.y_clash492()) {
+         switch (var1.getCurrentAction()) {
             case NULL:
                if (Math.abs(var1.field_70169_q - var1.field_70165_t) + Math.abs(var1.field_70166_s - var1.field_70161_v) < 0.0
                   || var1.field_70122_E && Math.abs(Math.abs(var1.field_70167_r) - Math.abs(var1.field_70163_u)) > 0.1F
@@ -299,7 +299,4 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       return new String[]{"toesR", "toesL"};
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

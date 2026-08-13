@@ -84,7 +84,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public String c_clash241() {
+   public String getDisplayNameText() {
       return "Jenny";
    }
 
@@ -101,7 +101,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    public void c_clash237() {
-      this.a_clash541("Alright, this is my new Home~");
+      this.sendChatMessage("Alright, this is my new Home~");
       this.a(SoundHandler.GIRLS_JENNY_HAPPYOH[1]);
    }
 
@@ -110,7 +110,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    protected SoundEvent func_184615_bR() {
-      return SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_SIGH);
+      return SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_SIGH);
    }
 
    protected SoundEvent func_184601_bQ(DamageSource var1) {
@@ -124,23 +124,23 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       if (this.af && var1 != null && var1.func_174791_d().func_72438_d(this.func_174791_d()) < 0.5) {
          this.af = false;
          this.m.func_187227_b(BaseGirlEntity.y, this.field_70170_p.func_72890_a(this, 15.0).getPersistentID().toString());
-         EntityPlayerMP var2 = this.func_184102_h().func_184103_al().func_177451_a(this.ae_clash498());
+         EntityPlayerMP var2 = this.func_184102_h().func_184103_al().func_177451_a(this.getInteractionPlayerUUID());
          this.m.func_187227_b(BaseGirlEntity.y, var2.getPersistentID().toString());
          var2.func_70634_a(this.func_174791_d().field_72450_a, this.func_174791_d().field_72448_b, this.func_174791_d().field_72449_c);
          this.a(var2, false);
          var2.func_191958_b(0.0F, 0.0F, 0.0F, 0.0F);
-         this.a_clash536(0.0, 0.0, 0.4, 0.0F, 60.0F);
+         this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
          this.B = null;
          this.b(fp.DOGGYSTART);
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var2);
       }
 
       if (this.Z) {
-         if (!(this.func_174791_d().func_72438_d(this.o_clash501()) < 0.6) && this.ad <= 200) {
+         if (!(this.func_174791_d().func_72438_d(this.getTargetPosition()) < 0.6) && this.ad <= 200) {
             this.ad++;
             if (this.ad == 60 || this.ad == 120) {
                this.func_70661_as().func_75499_g();
-               this.func_70661_as().func_75492_a(this.o_clash501().field_72450_a, this.o_clash501().field_72448_b, this.o_clash501().field_72449_c, 0.35);
+               this.func_70661_as().func_75492_a(this.getTargetPosition().field_72450_a, this.getTargetPosition().field_72448_b, this.getTargetPosition().field_72449_c, 0.35);
             }
          } else {
             this.Z = false;
@@ -158,15 +158,15 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       if (this.ab) {
          this.ac++;
          if (!this.func_174791_d().equals(BaseGirlEntity.e) && this.ac <= 40) {
-            this.field_70177_z = this.I_clash415();
-            this.c_clash502(this.aa_clash545());
+            this.field_70177_z = this.getYawRotation();
+            this.setTargetPosition(this.aa_clash545());
             this.func_189654_d(false);
-            Vec3d var3 = RotationHelper.a(this.func_174791_d(), this.o_clash501(), 40 - this.ac);
+            Vec3d var3 = RotationHelper.a(this.func_174791_d(), this.getTargetPosition(), 40 - this.ac);
             this.func_70107_b(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
          } else {
             this.ab = false;
             this.ac = 0;
-            this.b_clash431(this.field_70170_p.func_73046_m().func_184103_al().func_177451_a(this.ae_clash498()).field_70177_z + 180.0F);
+            this.setYawRotation(this.field_70170_p.func_73046_m().func_184103_al().func_177451_a(this.getInteractionPlayerUUID()).field_70177_z + 180.0F);
             this.m.func_187227_b(BaseGirlEntity.G, true);
             this.func_70661_as().func_75499_g();
             if ((Boolean)this.m.func_187225_a(Y)) {
@@ -184,8 +184,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          return true;
       }
 
-      if (this.field_70170_p.field_72995_K && !this.b_clash230(var1)) {
-         this.a_clash541(I18n.func_135052_a("jenny.dialogue.busy", new Object[0]));
+      if (this.field_70170_p.field_72995_K && !this.openInteractionMenu(var1)) {
+         this.sendChatMessage(I18n.func_135052_a("jenny.dialogue.busy", new Object[0]));
       }
 
       return true;
@@ -200,8 +200,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
-      if (this.ae_clash498() == null
+   public boolean openInteractionMenu(EntityPlayer var1) {
+      if (this.getInteractionPlayerUUID() == null
          && (!this.J_clash526() || ((String)this.m.func_187225_a(BaseGirlEntity.v)).equals(Minecraft.func_71410_x().field_71439_g.getPersistentID().toString()))
          )
        {
@@ -238,16 +238,16 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    public void a(String var1, UUID var2) {
       super.a(var1, var2);
       if ("action.names.blowjob".equals(var1)) {
-         this.a_clash490("animationFollowUp", "blowjob");
+         this.changeDataParameterFromClient("animationFollowUp", "blowjob");
          this.a(true, var2);
       } else if ("action.names.boobjob".equals(var1)) {
-         this.a_clash490("animationFollowUp", "boobjob");
+         this.changeDataParameterFromClient("animationFollowUp", "boobjob");
          this.a(true, var2);
       } else if ("action.names.doggy".equals(var1)) {
-         this.a_clash490("animationFollowUp", "doggy");
+         this.changeDataParameterFromClient("animationFollowUp", "doggy");
          this.a(true, var2);
       } else if ("action.names.strip".equals(var1)) {
-         this.a_clash490("animationFollowUp", "strip");
+         this.changeDataParameterFromClient("animationFollowUp", "strip");
          this.a(true, var2);
       } else if ("action.names.dressup".equals(var1)) {
          this.b(fp.STRIP);
@@ -256,7 +256,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    protected void a(boolean var1, UUID var2) {
       super.a(var1, true, var2);
-      d3.a_clash122(false);
+      d3.setMovementLock(false);
    }
 
    @Override
@@ -264,7 +264,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       BlockPos var1 = this.a_clash525(this.func_180425_c());
       if (var1 == null) {
          this.a(SoundHandler.GIRLS_JENNY_HMPH[2]);
-         this.a_clash541(I18n.func_135052_a("jenny.dialogue.nobedinsight", new Object[0]));
+         this.sendChatMessage(I18n.func_135052_a("jenny.dialogue.nobedinsight", new Object[0]));
       } else {
          this.field_70714_bg.func_85156_a(this.z);
          this.field_70714_bg.func_85156_a(this.o);
@@ -306,15 +306,15 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
          if (var5 == -1) {
             this.a(SoundHandler.GIRLS_JENNY_HMPH[2]);
-            this.a_clash541(I18n.func_135052_a("jenny.dialogue.bedobscured", new Object[0]));
+            this.sendChatMessage(I18n.func_135052_a("jenny.dialogue.bedobscured", new Object[0]));
             return;
          }
 
          Vec3d var12 = var2.func_178787_e(var4[var5][0]);
-         this.a_clash504(false);
-         this.b_clash431(var3[var5]);
-         this.c_clash502(new Vec3d(var12.field_72450_a, var12.field_72448_b, var12.field_72449_c));
-         this.r = this.I_clash415();
+         this.setAnchored(false);
+         this.setYawRotation(var3[var5]);
+         this.setTargetPosition(new Vec3d(var12.field_72450_a, var12.field_72448_b, var12.field_72449_c));
+         this.r = this.getYawRotation();
          this.func_70661_as().func_75499_g();
          this.func_70661_as().func_75492_a(var12.field_72450_a, var12.field_72448_b, var12.field_72449_c, 0.35);
          this.Z = true;
@@ -324,17 +324,17 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    public void b(fp var1) {
-      fp var2 = this.y_clash492();
+      fp var2 = this.getCurrentAction();
       if (var2 != fp.DOGGYCUM || var1 != fp.DOGGYSLOW && var1 != fp.DOGGYFAST) {
          if (var2 != fp.CUMBLOWJOB || var1 != fp.THRUSTBLOWJOB && var1 != fp.SUCKBLOWJOB) {
             if (var2 != fp.PAIZURI_CUM || var1 != fp.PAIZURI_SLOW && var1 != fp.PAIZURI_FAST) {
                super.b(var1);
                if (var2 == fp.STARTBLOWJOB || var2 == fp.PAIZURI_START) {
-                  UUID var3 = this.ae_clash498();
+                  UUID var3 = this.getInteractionPlayerUUID();
                   if (var3 != null) {
                      EntityPlayer var4 = this.field_70170_p.func_152378_a(var3);
                      if (var4 != null) {
-                        Vec3d var5 = ck.a_clash306(new Vec3d(0.0, 0.0, 0.2), this.I_clash415() + 180.0F);
+                        Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 0.2), this.getYawRotation() + 180.0F);
                         var4.func_70634_a(var4.field_70165_t + var5.field_72450_a, var4.field_70163_u, var4.field_70161_v + var5.field_72449_c);
                      }
                   }
@@ -345,9 +345,9 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       if (var1 == fp.SUCKBLOWJOB || var1 == fp.THRUSTBLOWJOB) {
-         this.a_clash536(0.0, 0.0, 0.0, 0.0F, 70.0F);
+         this.positionPlayerRelative(0.0, 0.0, 0.0, 0.0F, 70.0F);
          return fp.CUMBLOWJOB;
       } else if (var1 == fp.DOGGYSLOW || var1 == fp.DOGGYFAST) {
          return fp.DOGGYCUM;
@@ -357,7 +357,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       switch (var1) {
          case SUCKBLOWJOB:
             return fp.THRUSTBLOWJOB;
@@ -366,7 +366,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          case PAIZURI_SLOW:
             if (this.ae) {
                this.ae = false;
-               this.a_clash536(0.0, 0.0, 0.2F, 0.0F, 70.0F);
+               this.positionPlayerRelative(0.0, 0.0, 0.2F, 0.0F, 70.0F);
             }
 
             return fp.PAIZURI_FAST;
@@ -381,7 +381,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public void g_clash238() {
+   public void reinitTasks() {
       this.z = new EntityAIWanderAvoidWater(this, 0.35);
       this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
       this.field_70714_bg.func_75776_a(5, this.o);
@@ -415,7 +415,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
             this.r_clash533();
             if (this.field_70170_p.field_72995_K) {
-               PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.f_clash491()));
+               PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
             } else {
                this.s();
                this.a_clash292();
@@ -423,7 +423,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       }
 
       if (this.field_70170_p.field_72995_K) {
-         this.a_clash490("animationFollowUp", "");
+         this.changeDataParameterFromClient("animationFollowUp", "");
       } else {
          this.m.func_187227_b(BaseGirlEntity.h, "");
       }
@@ -437,14 +437,14 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.y_clash492() == fp.NULL && this.y_clash492().autoBlink) {
+            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
                this.a("animation.jenny.fhappy", true, var1);
             } else {
                this.a("animation.jenny.null", true, var1);
             }
             break;
          case "movement":
-            if (this.y_clash492() != fp.NULL && this.y_clash492() != null) {
+            if (this.getCurrentAction() != fp.NULL && this.getCurrentAction() != null) {
                this.a("animation.jenny.null", true, var1);
             } else if (this.func_184218_aH()) {
                this.a("animation.jenny.sit", true, var1);
@@ -466,7 +466,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             }
             break;
          case "action":
-            switch (this.y_clash492()) {
+            switch (this.getCurrentAction()) {
                case SUCKBLOWJOB:
                   this.a("animation.jenny.blowjobsuck", true, var1);
                   break;
@@ -566,8 +566,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "becomeNude":
-               if (this.e_clash544()) {
-                  this.a_clash490("currentModel", this.m.func_187225_a(BaseGirlEntity.D) == 1 ? "0" : "1");
+               if (this.isLocalPlayerNearby()) {
+                  this.changeDataParameterFromClient("currentModel", this.m.func_187225_a(BaseGirlEntity.D) == 1 ? "0" : "1");
                }
                break;
             case "stripDone":
@@ -579,7 +579,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "stripMSG1":
                this.h(I18n.func_135052_a("jenny.dialogue.hihi", new Object[0]));
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_GIGGLE));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_GIGGLE));
                break;
             case "paymentMSG1":
                this.h(I18n.func_135052_a("jenny.dialogue.huh", new Object[0]));
@@ -607,11 +607,11 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
             case "paymentMSG3":
                this.h(I18n.func_135052_a("jenny.dialogue.hehe", new Object[0]));
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_GIGGLE));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_GIGGLE));
                break;
             case "sexUiOn":
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "paymentMSG4":
@@ -624,8 +624,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.h(I18n.func_135052_a("jenny.dialogue.blowjobtext1", new Object[0]));
                this.a(SoundHandler.GIRLS_JENNY_MMM[8]);
                this.r = this.field_70177_z + 180.0F;
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "bjiMSG2":
@@ -642,8 +642,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "bjiMSG5":
                this.h(I18n.func_135052_a("jenny.dialogue.blowjobtext4", new Object[0]));
                this.a(SoundHandler.GIRLS_JENNY_HMPH[1], 0.5F);
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "bjiMSG6":
@@ -665,55 +665,55 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a(SoundHandler.GIRLS_JENNY_GIGGLE[2]);
                break;
             case "bjiMSG10":
-               if (this.n_clash537()) {
-                  this.a_clash536(-0.65, -0.8, -0.25, 60.0F, -3.0F);
+               if (this.isControlledByLocalPlayer()) {
+                  this.positionPlayerRelative(-0.65, -0.8, -0.25, 60.0F, -3.0F);
                }
                break;
             case "bjiMSG11":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                }
 
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_LIPSOUND));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIPSOUND));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "bjiMSG12":
                if (Reference.f.nextInt(5) == 0) {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_BJMOAN));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_BJMOAN));
                }
 
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_LIPSOUND));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIPSOUND));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "bjtMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MMM));
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_LIPSOUND));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MMM));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIPSOUND));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "bjiDone":
                this.b(fp.SUCKBLOWJOB);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "bjtDone":
                this.b(fp.SUCKBLOWJOB);
                break;
             case "doggyfastReady":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                   this.aa = true;
                }
                break;
             case "bjtReady":
             case "paizuriReady":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                }
                break;
@@ -722,8 +722,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "bjcMSG2":
                this.a(SoundHandler.GIRLS_JENNY_BJMOAN[7]);
-               if (this.n_clash537()) {
-                  HornyMeterHud.c_clash360();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.hideHornyMeter();
                }
                break;
             case "bjcMSG3":
@@ -742,15 +742,15 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a(SoundHandler.GIRLS_JENNY_LIGHTBREATHING[3]);
                break;
             case "bjcBlackScreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "bjcDone":
             case "paizuri_cumDone":
             case "doggyCumDone":
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                   this.r_clash533();
                }
                break;
@@ -759,18 +759,18 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.r = this.field_70177_z;
                break;
             case "doggyGoOnBedMSG2":
-               this.a_clash541(I18n.func_135052_a("jenny.dialogue.doggytext1", new Object[0]));
+               this.sendChatMessage(I18n.func_135052_a("jenny.dialogue.doggytext1", new Object[0]));
                this.a(SoundHandler.GIRLS_JENNY_LIGHTBREATHING[9]);
                break;
             case "doggyGoOnBedMSG3":
-               this.a_clash541(I18n.func_135052_a("jenny.dialogue.doggytext2", new Object[0]));
+               this.sendChatMessage(I18n.func_135052_a("jenny.dialogue.doggytext2", new Object[0]));
                this.a(SoundHandler.GIRLS_JENNY_GIGGLE[0]);
                break;
             case "doggyGoOnBedMSG4":
                this.a(SoundHandler.MISC_SLAP[0], 0.75F);
                break;
             case "doggyGoOnBedDone":
-               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.f_clash491(), Minecraft.func_71410_x().field_71439_g.getPersistentID()));
+               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.func_71410_x().field_71439_g.getPersistentID()));
                this.b(fp.WAITDOGGY);
                break;
             case "doggystartMSG1":
@@ -783,60 +783,60 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a(SoundHandler.MISC_BEDRUSTLE[1], 0.5F);
                break;
             case "doggystartMSG4":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_SMALLINSERTS));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_SMALLINSERTS));
                this.a(SoundHandler.GIRLS_JENNY_MMM[1]);
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "doggystartMSG5":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.33F);
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MOAN));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                break;
             case "doggystartDone":
                this.b(fp.DOGGYSLOW);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "doggyslowMSG1":
                this.aa = false;
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.33F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
                int var5 = Reference.f.nextInt(4);
                if (var5 == 0) {
                   var5 = Reference.f.nextInt(2);
                   if (var5 == 0) {
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MMM));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MMM));
                   } else {
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MOAN));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                   }
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_HEAVYBREATHING));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_HEAVYBREATHING));
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.00666);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.00666);
                }
                break;
             case "doggyslowMSG2":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_LIGHTBREATHING), 0.5F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIGHTBREATHING), 0.5F);
                break;
             case "doggyfastMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.75F);
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
 
                this.ag++;
                if (this.ag % 2 == 0) {
                   int var10 = Reference.f.nextInt(2);
                   if (var10 == 0) {
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MOAN));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                   } else {
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_HEAVYBREATHING));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_HEAVYBREATHING));
                   }
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_AHH));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_AHH));
                }
                break;
             case "doggyfastDone":
@@ -845,8 +845,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "doggycumMSG1":
                this.a(SoundHandler.MISC_CUMINFLATION[0], 2.0F);
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 2.0F);
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MOAN));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 2.0F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                break;
             case "doggycumMSG2":
                this.a(SoundHandler.GIRLS_JENNY_HEAVYBREATHING[4]);
@@ -861,50 +861,50 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a(SoundHandler.GIRLS_JENNY_HEAVYBREATHING[7]);
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.f_clash491()));
+               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "boobjob_camera":
                UUID var6 = Minecraft.func_71410_x().field_71439_g.getPersistentID();
                if (var6.equals(this.field_70170_p.func_72890_a(this.af_clash520(), 2.0).getPersistentID())) {
                   this.r = this.field_70170_p.func_152378_a(var6).field_70177_z;
-                  this.e_clash499(var6);
+                  this.setInteractionPlayerUUID(var6);
                   if (!this.ae) {
                      this.ae = true;
-                     this.a_clash536(-0.7, -0.6, 0.2, 60.0F, -3.0F);
+                     this.positionPlayerRelative(-0.7, -0.6, 0.2, 60.0F, -3.0F);
                   }
                }
                break;
             case "paizuri_startDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.b(fp.PAIZURI_SLOW);
-                  HornyMeterHud.b_clash363();
-                  HornyMeterHud.d_clash358();
+                  HornyMeterHud.resetHornyMeter();
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "paizuriFastMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                if (this.func_70681_au().nextBoolean()) {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MMM));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MMM));
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_AHH));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_AHH));
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "paizuriSlowMSG1":
             case "paizuriStartMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "paizuri_fastDone":
                this.b(fp.PAIZURI_SLOW);
-               if (this.n_clash537() && !this.ae) {
+               if (this.isControlledByLocalPlayer() && !this.ae) {
                   this.ae = true;
-                  this.a_clash536(-0.7, -0.6, 0.2, 60.0F, -3.0F);
+                  this.positionPlayerRelative(-0.7, -0.6, 0.2, 60.0F, -3.0F);
                }
                break;
             case "paizuri_startStep":
@@ -912,8 +912,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a(var7.func_177230_c().getSoundType(var7, this.field_70170_p, this.func_180425_c(), this).func_185844_d());
                break;
             case "paizuri_cumStart":
-               if (this.n_clash537() && !this.ae) {
-                  this.a_clash536(-0.7, -0.6, 0.2, 60.0F, -3.0F);
+               if (this.isControlledByLocalPlayer() && !this.ae) {
+                  this.positionPlayerRelative(-0.7, -0.6, 0.2, 60.0F, -3.0F);
                }
          }
       };
@@ -923,7 +923,4 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       var1.addAnimationController(this.s);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

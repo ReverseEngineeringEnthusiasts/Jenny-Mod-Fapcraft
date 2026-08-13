@@ -85,7 +85,4 @@ public abstract class BeeEntityBase extends BaseGirlEntity implements IInventory
    public void func_174888_l() {
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

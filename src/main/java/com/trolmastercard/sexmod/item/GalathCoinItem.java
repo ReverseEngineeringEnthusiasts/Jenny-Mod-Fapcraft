@@ -169,7 +169,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
             GalathEntity var6 = null;
 
             try {
-               for (BaseGirlEntity var8 : BaseGirlEntity.ad_clash509()) {
+               for (BaseGirlEntity var8 : BaseGirlEntity.getGirlEntityList()) {
                   if (!var8.field_70128_L && var8.field_70170_p.field_72995_K && var8 instanceof GalathEntity && var1.equals(var8.z_clash528())) {
                      var6 = (GalathEntity)var8;
                      break;
@@ -179,7 +179,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
             }
 
             if (var6 != null) {
-               Vec3d var13 = var6.o_clash501().func_72441_c(0.0, 1.5, 0.0);
+               Vec3d var13 = var6.getTargetPosition().func_72441_c(0.0, 1.5, 0.0);
                Vec3d var14 = var1.func_174791_d().func_72441_c(0.0, var1.func_70047_e(), 0.0);
                Vec3d var9 = var14.func_178787_e(
                   ck.a((var1.func_184614_ca().func_77973_b().equals(r) ? 1 : -1) * 0.1F, -0.01F + var1.field_70125_A * 0.0015F, 0.0, var1.field_70761_aq)
@@ -220,7 +220,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
       EntityPlayer var2 = var1.player;
       if (!var2.field_70170_p.field_72995_K) {
          UUID var3 = GirlSavedData.b_clash853(var2);
-         BaseGirlEntity var4 = BaseGirlEntity.a_clash523(var3);
+         BaseGirlEntity var4 = BaseGirlEntity.getServerGirlEntity(var3);
          if (var4 != null) {
             GirlSavedData.a_clash848((GalathEntity)var4);
             PacketHandler.b.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var2);
@@ -276,7 +276,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
 
    void c_clash184(EntityPlayer var1) {
       UUID var2 = GirlSavedData.b_clash853(var1);
-      BaseGirlEntity var3 = BaseGirlEntity.a_clash523(var2);
+      BaseGirlEntity var3 = BaseGirlEntity.getServerGirlEntity(var2);
       if (var3 instanceof GalathEntity) {
          a_clash185((GalathEntity)var3);
       }
@@ -285,9 +285,9 @@ public class GalathCoinItem extends Item implements IAnimatable {
    public static void a_clash185(GalathEntity var0) {
       var0.b(fp.GALATH_DE_SUMMON);
       var0.aC();
-      var0.a_clash504(true);
-      var0.c_clash502(var0.func_174791_d());
-      var0.b_clash431(var0.field_70177_z);
+      var0.setAnchored(true);
+      var0.setTargetPosition(var0.func_174791_d());
+      var0.setYawRotation(var0.field_70177_z);
    }
 
    @SideOnly(Side.CLIENT)
@@ -295,7 +295,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
       GalathEntity var2 = null;
 
       try {
-         for (BaseGirlEntity var4 : BaseGirlEntity.ad_clash509()) {
+         for (BaseGirlEntity var4 : BaseGirlEntity.getGirlEntityList()) {
             if (!var4.field_70128_L && var4.field_70170_p.field_72995_K && var4 instanceof GalathEntity && var1.equals(var4.z_clash528())) {
                var2 = (GalathEntity)var4;
                break;
@@ -312,7 +312,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
    @SideOnly(Side.CLIENT)
    public static void a(UUID var0, GalathEntity var1) {
       World var2 = var1.field_70170_p;
-      Vec3d var3 = var1.Q_clash505() ? var1.o_clash501() : var1.func_174791_d();
+      Vec3d var3 = var1.isAnchored() ? var1.getTargetPosition() : var1.func_174791_d();
       Vec3d var4 = var3.func_72441_c(0.0, 1.5, 0.0);
       Random var5 = var1.func_70681_au();
 
@@ -354,7 +354,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
          if (!var9.field_72995_K) {
             if (var3 - var5 > 3000L) {
                UUID var11 = GirlSavedData.b_clash853(var1);
-               BaseGirlEntity var12 = BaseGirlEntity.a_clash523(var11);
+               BaseGirlEntity var12 = BaseGirlEntity.getServerGirlEntity(var11);
                if (var12 instanceof GalathEntity) {
                   GirlSavedData.a_clash848((GalathEntity)var12);
                }
@@ -386,7 +386,4 @@ public class GalathCoinItem extends Item implements IAnimatable {
       return this.i;
    }
 
-   private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-      return var0;
-   }
 }

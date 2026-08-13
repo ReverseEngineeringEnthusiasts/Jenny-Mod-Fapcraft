@@ -40,7 +40,4 @@ public class WildSlimeFaceLayer implements LayerRenderer<WildSlimeEntity> {
       return true;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

@@ -53,7 +53,7 @@ public class BeeOpenChestPacket implements IMessage {
                .getMinecraftServerInstance()
                .func_152344_a(
                   () -> {
-                     for (BaseGirlEntity var3 : BaseGirlEntity.g_clash524(var1.a)) {
+                     for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.a)) {
                         if (!var3.field_70170_p.field_72995_K && var3 instanceof BeeEntity) {
                            BeeEntity var4 = (BeeEntity)var3;
                            if ((Boolean)var4.func_184212_Q().func_187225_a(BeeEntity.M)) {
@@ -78,8 +78,5 @@ public class BeeOpenChestPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

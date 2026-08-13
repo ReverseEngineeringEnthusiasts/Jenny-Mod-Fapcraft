@@ -92,7 +92,4 @@ public class DragonRenderer extends Render<DragonEntity> {
       var1.func_181662_b(-0.25, 0.5, var3).func_187315_a(0.0, 1.0).func_181669_b(var2.a, var2.d, var2.c, var2.b).func_181675_d();
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

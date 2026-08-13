@@ -150,18 +150,18 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
    @Override
    public void a(String var1, UUID var2) {
       if ("action.names.followme".equals(var1)) {
-         this.a_clash490("master", var2.toString());
+         this.changeDataParameterFromClient("master", var2.toString());
       } else if ("action.names.stopfollowme".equals(var1)) {
          this.x_clash475();
       } else if ("action.names.equipment".equals(var1)) {
          EntityPlayerSP var3 = Minecraft.func_71410_x().field_71439_g;
-         PacketHandler.b.sendToServer(new PlayerActionPacket(this.f_clash491(), var3.getPersistentID()));
+         PacketHandler.b.sendToServer(new PlayerActionPacket(this.getGirlId(), var3.getPersistentID()));
       } else if ("action.names.gohome".equals(var1)) {
          this.x_clash475();
-         PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.f_clash491()));
+         PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
       } else if ("action.names.setnewhome".equals(var1)) {
          this.c_clash237();
-         PacketHandler.b.sendToServer(new SetNewHomePacket(this.f_clash491(), new Vec3d(this.func_180425_c())));
+         PacketHandler.b.sendToServer(new SetNewHomePacket(this.getGirlId(), new Vec3d(this.func_180425_c())));
       }
    }
 
@@ -185,7 +185,4 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
       return var1 == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ? this.Q : super.getCapability(var1, var2);
    }
 
-   private static RuntimeException b(RuntimeException var0) {
-      return var0;
-   }
 }

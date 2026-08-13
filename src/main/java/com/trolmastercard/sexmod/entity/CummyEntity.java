@@ -73,7 +73,7 @@ public class CummyEntity {
       ArrayList var1 = new ArrayList();
 
       for (ep var3 : a) {
-         if (var3.e.f_clash491().equals(var0.f_clash491())) {
+         if (var3.e.getGirlId().equals(var0.getGirlId())) {
             var1.add(var3);
          }
       }
@@ -81,7 +81,4 @@ public class CummyEntity {
       a.removeAll(var1);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

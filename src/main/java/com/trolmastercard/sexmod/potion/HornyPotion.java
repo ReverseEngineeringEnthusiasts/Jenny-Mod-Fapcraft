@@ -90,7 +90,4 @@ public class HornyPotion extends Potion {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

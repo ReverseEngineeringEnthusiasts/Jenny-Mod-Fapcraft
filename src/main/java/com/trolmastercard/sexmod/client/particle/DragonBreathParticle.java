@@ -80,7 +80,4 @@ public class DragonBreathParticle extends ParticleDragonBreath {
          .func_181675_d();
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

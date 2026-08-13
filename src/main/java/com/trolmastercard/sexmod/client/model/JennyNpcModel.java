@@ -12,7 +12,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class JennyNpcModel extends GirlModel<BaseGirlEntity> {
    @Override
-   protected ResourceLocation[] a_clash33() {
+   protected ResourceLocation[] getModelLocations() {
       return new ResourceLocation[]{
          new ResourceLocation("sexmod", "geo/jenny/jennynude.geo.json"), new ResourceLocation("sexmod", "geo/jenny/jennydressed.geo.json")
       };

@@ -42,10 +42,10 @@ public class SummonAlliePacket implements IMessage {
                      Vec3d var2x = var1x.func_174791_d()
                         .func_72441_c(-Math.sin(var1x.field_70759_as * (Math.PI / 180.0)) * 2.0, 0.0, Math.cos(var1x.field_70759_as * (Math.PI / 180.0)) * 2.0);
                      AllieEntity var3 = new AllieEntity(var1x.field_70170_p, var1x.func_184614_ca());
-                     var3.e_clash499(var1x.getPersistentID());
+                     var3.setInteractionPlayerUUID(var1x.getPersistentID());
                      var3.func_70080_a(var2x.field_72450_a, var2x.field_72448_b, var2x.field_72449_c, var1x.field_70759_as + 180.0F, var1x.field_70125_A);
-                     var3.c_clash502(var3.func_174791_d());
-                     var3.b_clash431(var1x.field_70759_as + 180.0F);
+                     var3.setTargetPosition(var3.func_174791_d());
+                     var3.setYawRotation(var1x.field_70759_as + 180.0F);
                      var3.func_189654_d(true);
                      var3.field_70145_X = true;
                      var1x.field_70170_p.func_72838_d(var3);
@@ -64,8 +64,5 @@ public class SummonAlliePacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

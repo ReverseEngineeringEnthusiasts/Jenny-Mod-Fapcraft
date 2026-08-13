@@ -25,7 +25,7 @@ public class RotationHelper {
       return var0 + (var2 - var0) * var4;
    }
 
-   public static float a_clash25(float var0, float var1, float var2) {
+   public static float lerp(float var0, float var1, float var2) {
       return var0 + (var1 - var0) * var2;
    }
 
@@ -114,7 +114,4 @@ public class RotationHelper {
       return var0 * (1.0 - var6) + var2 * var6;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

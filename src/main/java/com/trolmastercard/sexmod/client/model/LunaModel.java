@@ -35,7 +35,7 @@ public class LunaModel extends ModelBase implements IVanillaModel {
    }
 
    @Override
-   public ModelRenderer a_clash17() {
+   public ModelRenderer getModel() {
       return this.a;
    }
 }

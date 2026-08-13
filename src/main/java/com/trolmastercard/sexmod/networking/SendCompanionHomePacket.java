@@ -50,16 +50,16 @@ public class SendCompanionHomePacket implements IMessage {
                .getMinecraftServerInstance()
                .func_152344_a(
                   () -> {
-                     for (BaseGirlEntity var3 : BaseGirlEntity.g_clash524(var1.a)) {
+                     for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.a)) {
                         if (!var3.field_70170_p.field_72995_K) {
-                           if (var3.y_clash492() != fp.THROW_PEARL) {
+                           if (var3.getCurrentAction() != fp.THROW_PEARL) {
                               var3.b(fp.THROW_PEARL);
-                              var3.b_clash431(
+                              var3.setYawRotation(
                                  (float)Math.atan2(var3.field_70161_v - var3.l.field_72449_c, var3.field_70165_t - var3.l.field_72450_a)
                                        * (float) (180.0 / Math.PI)
                                     + 90.0F
                               );
-                              var3.c_clash502(var3.func_174791_d());
+                              var3.setTargetPosition(var3.func_174791_d());
                               var3.func_184212_Q().func_187227_b(BaseGirlEntity.G, true);
                               var3.q = null;
                            } else if (var3.q == null) {
@@ -110,8 +110,5 @@ public class SendCompanionHomePacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

@@ -110,7 +110,4 @@ public class de extends d9 {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

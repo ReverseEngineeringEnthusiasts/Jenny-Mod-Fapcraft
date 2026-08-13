@@ -87,7 +87,4 @@ public enum EyeAndKoboldColor {
       return this.textColor;
    }
 
-   private static IllegalArgumentException a(IllegalArgumentException var0) {
-      return var0;
-   }
 }

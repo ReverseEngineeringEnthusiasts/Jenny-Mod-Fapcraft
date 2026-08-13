@@ -124,9 +124,6 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
       }
    }
 
-   private static RuntimeException b(RuntimeException var0) {
-      return var0;
-   }
 
    public enum GirlFollowAiBaseState {
       ATTACK,

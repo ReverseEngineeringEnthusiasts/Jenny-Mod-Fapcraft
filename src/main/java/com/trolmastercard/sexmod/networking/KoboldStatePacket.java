@@ -57,14 +57,11 @@ public class KoboldStatePacket implements IMessage {
       ByteBufUtils.writeUTF8String(var1, this.e == null ? "null" : this.e.toString());
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<KoboldStatePacket, IMessage> {
       public static void a(UUID var0, UUID var1, boolean var2, boolean var3) {
          try {
-            for (BaseGirlEntity var5 : BaseGirlEntity.g_clash524(var0)) {
+            for (BaseGirlEntity var5 : BaseGirlEntity.girlList(var0)) {
                if (!var5.field_70170_p.field_72995_K) {
                   if (var5 instanceof JennyEntity || var5 instanceof EllieEntity || var5 instanceof LunaEntity) {
                      var5.field_70714_bg.func_85156_a(var5.o);
@@ -75,15 +72,15 @@ public class KoboldStatePacket implements IMessage {
                   var5.field_70159_w = 0.0;
                   var5.field_70181_x = 0.0;
                   var5.field_70179_y = 0.0;
-                  if (var5.ae_clash498() == null) {
-                     var5.e_clash499(var1);
+                  if (var5.getInteractionPlayerUUID() == null) {
+                     var5.setInteractionPlayerUUID(var1);
                   }
 
                   if (var3) {
-                     var5.c_clash502(var5.aa_clash545());
+                     var5.setTargetPosition(var5.aa_clash545());
                   }
 
-                  var5.j_clash521(var5.ae_clash498());
+                  var5.j_clash521(var5.getInteractionPlayerUUID());
                   if (!var2) {
                      return;
                   }

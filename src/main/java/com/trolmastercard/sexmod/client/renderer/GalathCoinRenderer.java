@@ -109,7 +109,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       if (var6 < 1000.0F) {
          return 120.0F;
       } else {
-         return var6 <= 3000.0F ? RotationHelper.a_clash25(120.0F, 240.0F, (var6 - 1000.0F) / 2000.0F) : 240.0F;
+         return var6 <= 3000.0F ? RotationHelper.lerp(120.0F, 240.0F, (var6 - 1000.0F) / 2000.0F) : 240.0F;
       }
    }
 
@@ -118,7 +118,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       if (var6 < 1000.0F) {
          return 240.0F;
       } else {
-         return var6 <= 3000.0F ? RotationHelper.a_clash25(240.0F, 120.0F, (var6 - 1000.0F) / 2000.0F) : 120.0F;
+         return var6 <= 3000.0F ? RotationHelper.lerp(240.0F, 120.0F, (var6 - 1000.0F) / 2000.0F) : 120.0F;
       }
    }
 
@@ -215,7 +215,4 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

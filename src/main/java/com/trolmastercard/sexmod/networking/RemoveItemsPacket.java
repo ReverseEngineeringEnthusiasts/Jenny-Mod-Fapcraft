@@ -64,8 +64,5 @@ public class RemoveItemsPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

@@ -119,9 +119,9 @@ public class GirlInventoryScreen extends GuiScreen {
          this.n = Math.min(1.0F, this.n + this.field_146297_k.func_193989_ak() / 5.0F);
       }
 
-      int var7 = (int)RotationHelper.a_clash25(115.0F, 161.0F, this.n);
-      int var8 = (int)RotationHelper.a_clash25(91.0F, 137.0F, this.n);
-      int var9 = (int)RotationHelper.a_clash25(-30.0F, 120.0F, this.m);
+      int var7 = (int)RotationHelper.lerp(115.0F, 161.0F, this.n);
+      int var8 = (int)RotationHelper.lerp(91.0F, 137.0F, this.n);
+      int var9 = (int)RotationHelper.lerp(-30.0F, 120.0F, this.m);
       byte var10 = 70;
       byte var11 = 52;
       byte var12 = 68;
@@ -148,7 +148,7 @@ public class GirlInventoryScreen extends GuiScreen {
    }
 
    void a_clash826(int var1, int var2) {
-      int var3 = (int)RotationHelper.a_clash25(-30.0F, 120.0F, this.m);
+      int var3 = (int)RotationHelper.lerp(-30.0F, 120.0F, this.m);
       this.field_146296_j.func_175042_a((ItemStack)this.l.func_187225_a(AbstractGirlNpcEntity.L), var3 - 105, 68);
       this.field_146296_j.func_175042_a((ItemStack)this.l.func_187225_a(AbstractGirlNpcEntity.R), var3 - 105, 87);
       this.field_146296_j.func_175042_a((ItemStack)this.l.func_187225_a(AbstractGirlNpcEntity.X), var3 - 105, 109);
@@ -179,7 +179,7 @@ public class GirlInventoryScreen extends GuiScreen {
                }
 
                this.field_146297_k.field_71446_o.func_110577_a(c);
-               this.func_73729_b(this.d[var12] + var10 - 18 + (int)RotationHelper.a_clash25(0.0F, 23.0F, this.n), var11 + 2, this.j[var12], 0, 16, 16);
+               this.func_73729_b(this.d[var12] + var10 - 18 + (int)RotationHelper.lerp(0.0F, 23.0F, this.n), var11 + 2, this.j[var12], 0, 16, 16);
                this.field_146292_n.add(new GuiButton(var12, 36, var11, 100, 20, var13.toString()));
                var11 += 30;
             }
@@ -211,7 +211,7 @@ public class GirlInventoryScreen extends GuiScreen {
                }
 
                this.field_146297_k.field_71446_o.func_110577_a(c);
-               this.func_73729_b(this.d[var7] + var5 - 18 + (int)RotationHelper.a_clash25(0.0F, 23.0F, this.n), var6 + 2, this.j[var7], 0, 16, 16);
+               this.func_73729_b(this.d[var7] + var5 - 18 + (int)RotationHelper.lerp(0.0F, 23.0F, this.n), var6 + 2, this.j[var7], 0, 16, 16);
                this.field_146292_n.add(new GuiButton(var7, 36, var6, 100, 20, var8.toString()));
                var6 += 30;
             }
@@ -275,7 +275,4 @@ public class GirlInventoryScreen extends GuiScreen {
       GlStateManager.func_179091_B();
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

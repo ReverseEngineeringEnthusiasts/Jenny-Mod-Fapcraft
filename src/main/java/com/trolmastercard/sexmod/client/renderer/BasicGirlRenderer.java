@@ -141,7 +141,4 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       return 1.0F - var5;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

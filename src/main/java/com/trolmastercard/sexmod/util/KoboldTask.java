@@ -96,7 +96,7 @@ public class KoboldTask {
 
    public void a_clash210() {
       for (KoboldEntity var2 : this.f) {
-         if (var2.ae_clash498() == null) {
+         if (var2.getInteractionPlayerUUID() == null) {
             var2.func_189654_d(false);
             var2.field_70145_X = false;
             var2.b(fp.NULL);
@@ -262,9 +262,6 @@ public class KoboldTask {
       return var2;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public enum TaskType {
       FALL_TREE(1),

@@ -33,8 +33,8 @@ public class af {
    }
 
    static Vec3d[] b(BaseGirlEntity var0, float var1, String var2, String var3, f7 var4, f7 var5) {
-      Vec3d var6 = var0.b_clash547(var2);
-      Vec3d var7 = var0.b_clash547(var3);
+      Vec3d var6 = var0.getCachedBoneOffset(var2);
+      Vec3d var7 = var0.getCachedBoneOffset(var3);
       Vec3d[] var8 = new Vec3d[8];
       if (var4.a == 0.0F && var5.a == 0.0F) {
          var8[0] = new Vec3d(0.0, var4.c, var4.b);
@@ -57,7 +57,7 @@ public class af {
       }
 
       for (int var9 = 0; var9 < var8.length; var9++) {
-         var8[var9] = ck.a_clash306(var8[var9], var1);
+         var8[var9] = ck.rotateByYaw(var8[var9], var1);
       }
 
       for (int var10 = 0; var10 < 4; var10++) {
@@ -101,7 +101,7 @@ public class af {
    }
 
    static Vec3d[] b(BaseGirlEntity var0, float var1, String var2, String var3, String var4, float var5, float var6, float var7, float var8, String var9) {
-      IBone var10 = var0.b_clash552().getBone(var9);
+      IBone var10 = var0.getAnimationProcessor().getBone(var9);
       if (var10 == null) {
          Vec3d[] var18 = new Vec3d[12];
          Arrays.fill(var18, Vec3d.field_186680_a);
@@ -110,9 +110,9 @@ public class af {
 
       float var11 = gc.d_clash746(var10.getRotationY());
       float var12 = gc.d_clash746(var10.getRotationZ());
-      Vec3d var13 = var0.b_clash547(var2);
-      Vec3d var14 = var0.b_clash547(var3);
-      Vec3d var15 = var0.b_clash547(var4);
+      Vec3d var13 = var0.getCachedBoneOffset(var2);
+      Vec3d var14 = var0.getCachedBoneOffset(var3);
+      Vec3d var15 = var0.getCachedBoneOffset(var4);
       Vec3d[] var16 = new Vec3d[]{
          new Vec3d(var5, 0.0, -var6),
          new Vec3d(-var5, 0.0, -var6),
@@ -129,7 +129,7 @@ public class af {
       };
 
       for (int var17 = 0; var17 < var16.length; var17++) {
-         var16[var17] = ck.a_clash306(var16[var17], var1);
+         var16[var17] = ck.rotateByYaw(var16[var17], var1);
       }
 
       for (int var19 = 0; var19 < 4; var19++) {
@@ -212,8 +212,8 @@ public class af {
       if (var3 != null) {
          GlStateManager.func_179137_b(0.0, 0.01, 0.0);
          Entity var4 = ((GirlRenderer)var0.func_175598_ae().func_78713_a(var1)).c_clash336(var1);
-         Vec3d var5 = var1.Q_clash505()
-            ? var1.o_clash501()
+         Vec3d var5 = var1.isAnchored()
+            ? var1.getTargetPosition()
             : RotationHelper.a(new Vec3d(var4.field_70142_S, var4.field_70137_T, var4.field_70136_U), var4.func_174791_d(), var2);
          Vec3d var6 = RotationHelper.a(new Vec3d(var3.field_70142_S, var3.field_70137_T, var3.field_70136_U), var3.func_174791_d(), var2);
          Vec3d var7 = var5.func_178788_d(var6);
@@ -222,7 +222,4 @@ public class af {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

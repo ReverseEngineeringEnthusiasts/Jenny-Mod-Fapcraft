@@ -83,17 +83,17 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       if ("action.names.headpat".equals(var1)) {
          this.b_clash577(var2);
          this.b(fp.HEAD_PAT);
-         this.a(this.ah_clash493(), fp.HEAD_PAT);
+         this.a(this.getOutfitIndex(), fp.HEAD_PAT);
       }
    }
 
    @Override
-   public IVanillaModel a_clash228(int var1) {
+   public IVanillaModel getHandModel(int var1) {
       return new JennyModel();
    }
 
    @Override
-   public String c_clash229(int var1) {
+   public String getHandTexture(int var1) {
       return "textures/entity/bia/hand.png";
    }
 
@@ -113,22 +113,22 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       BaseGirlEntity.a(var1, this, new String[]{"action.names.headpat"}, false);
       return true;
    }
 
    @Override
    public void b(fp var1) {
-      if (this.y_clash492() != fp.ANAL_CUM || var1 != fp.ANAL_FAST && var1 != fp.ANAL_SLOW) {
-         if (this.y_clash492() != fp.PRONE_DOGGY_CUM || var1 != fp.PRONE_DOGGY_HARD && var1 != fp.PRONE_DOGGY_SOFT) {
+      if (this.getCurrentAction() != fp.ANAL_CUM || var1 != fp.ANAL_FAST && var1 != fp.ANAL_SLOW) {
+         if (this.getCurrentAction() != fp.PRONE_DOGGY_CUM || var1 != fp.PRONE_DOGGY_HARD && var1 != fp.PRONE_DOGGY_SOFT) {
             super.b(var1);
          }
       }
    }
 
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       if (var1 == fp.ANAL_SLOW) {
          return fp.ANAL_FAST;
       } else {
@@ -137,7 +137,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       if (var1 == fp.ANAL_SLOW || var1 == fp.ANAL_FAST) {
          return fp.ANAL_CUM;
       } else {
@@ -163,7 +163,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    void a_clash590() {
-      fp var1 = this.y_clash492();
+      fp var1 = this.getCurrentAction();
       if (var1 == fp.ANAL_WAIT || var1 == fp.SITDOWNIDLE) {
          EntityPlayer var2 = this.j_clash575();
          if (var2 != null) {
@@ -172,9 +172,9 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                   if (this.ar == -1) {
                      if (this.field_70170_p.field_72995_K) {
                         BeeScreen.b_clash732();
-                        d3.a_clash122(false);
+                        d3.setMovementLock(false);
                      } else {
-                        this.e_clash499(var2.getPersistentID());
+                        this.setInteractionPlayerUUID(var2.getPersistentID());
                      }
 
                      this.ar = 22;
@@ -185,21 +185,21 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                      if (var1 == fp.ANAL_WAIT) {
                         if (!this.field_70170_p.field_72995_K) {
                            this.b(fp.ANAL_START);
-                           Vec3d var8 = this.o_clash501().func_178787_e(ck.a(-0.3, -1.0, -0.5, this.I_clash415()));
+                           Vec3d var8 = this.getTargetPosition().func_178787_e(ck.a(-0.3, -1.0, -0.5, this.getYawRotation()));
                            var2.func_70634_a(var8.field_72450_a, var8.field_72448_b, var8.field_72449_c);
-                        } else if (this.n_clash537()) {
-                           HornyMeterHud.d_clash358();
+                        } else if (this.isControlledByLocalPlayer()) {
+                           HornyMeterHud.showHornyMeter();
                         }
                      } else {
-                        float var3 = this.I_clash415();
+                        float var3 = this.getYawRotation();
                         var2.field_70177_z = var3;
                         var2.field_70125_A = 60.0F;
                         if (!this.field_70170_p.field_72995_K) {
                            this.f(0);
                            this.b(fp.PRONE_DOGGY_INTRO);
-                           Vec3d var4 = this.o_clash501();
+                           Vec3d var4 = this.getTargetPosition();
                            Vec3d var5 = var4.func_178787_e(ck.a(0.0, 0.0, 1.0, var3));
-                           this.c_clash502(var5);
+                           this.setTargetPosition(var5);
                            EntityPlayer var6 = this.k_clash584();
                            if (var6 != null) {
                               var6.func_70634_a(var5.field_72450_a, var5.field_72448_b, var5.field_72449_c);
@@ -207,7 +207,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
 
                            Vec3d var7 = var4.func_178787_e(ck.a(0.0, 1.1875 - var2.func_70047_e(), 0.5, var3));
                            var2.func_70634_a(var7.field_72450_a, var7.field_72448_b, var7.field_72449_c);
-                           this.a_clash504(true);
+                           this.setAnchored(true);
                         }
                      }
                   }
@@ -221,7 +221,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void ag() {
       super.ag();
-      if (this.y_clash492() == fp.PRONE_DOGGY_HARD) {
+      if (this.getCurrentAction() == fp.PRONE_DOGGY_HARD) {
          int var1 = this.aq;
 
          do {
@@ -234,14 +234,14 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.y_clash492() == fp.NULL && this.y_clash492().autoBlink) {
+            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
                this.a("animation.bia.fhappy", true, var1);
             } else {
                this.a("animation.bia.null", true, var1);
             }
             break;
          case "movement":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.bia.null", true, var1);
             } else if (this.ak) {
                this.a("animation.bia.sit", true, var1);
@@ -269,7 +269,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
             }
             break;
          case "action":
-            switch (this.y_clash492()) {
+            switch (this.getCurrentAction()) {
                case NULL:
                   this.a("animation.bia.null", true, var1);
                   break;
@@ -366,42 +366,42 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "stripMSG1":
                this.h("Hihi~");
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_BIA_GIGGLE));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_GIGGLE));
                break;
             case "sexUiOn":
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.f_clash491()));
+               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "talk_hornyMSG1":
-               this.a_clash541("Heyaaa~");
+               this.sendChatMessage("Heyaaa~");
                this.a(SoundHandler.GIRLS_BIA_HEY[3]);
                break;
             case "talk_hornyMSG2":
-               this.a_clash541("I am Hornyyyyy~");
+               this.sendChatMessage("I am Hornyyyyy~");
                this.a(SoundHandler.GIRLS_BIA_GIGGLE[2]);
                break;
             case "talk_hornyMSG3":
-               this.a_clash541("So...");
+               this.sendChatMessage("So...");
                this.a(SoundHandler.GIRLS_BIA_BREATH[0]);
                break;
             case "talk_hornyMSG4":
-               this.a_clash541("Are we gonna have some fun nyaa?");
+               this.sendChatMessage("Are we gonna have some fun nyaa?");
                this.a(SoundHandler.GIRLS_BIA_HUH[0]);
                break;
             case "talk_responseMSG1":
-               this.a_clash541("Huh?!...");
+               this.sendChatMessage("Huh?!...");
                this.a(SoundHandler.GIRLS_BIA_HUH[2]);
                break;
             case "talk_responseMSG2":
-               this.a_clash541("I... uhm...");
+               this.sendChatMessage("I... uhm...");
                this.a(SoundHandler.GIRLS_BIA_BREATH[1]);
                break;
             case "talk_responseMSG3":
-               this.a_clash541("yes~");
+               this.sendChatMessage("yes~");
                this.a(SoundHandler.GIRLS_BIA_GIGGLE[0]);
                break;
             case "talk_responseDone":
@@ -420,8 +420,8 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "anal_prepareDone":
                this.b(fp.ANAL_WAIT);
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "anal_startMSG1":
@@ -429,84 +429,84 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.MISC_POUNDING[34]);
                break;
             case "anal_fastMSG1":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
 
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.5F);
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_BIA_AHH));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.5F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
                break;
             case "anal_slowMSG1":
             case "anal_startMSG2":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
 
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.5F);
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_BIA_AHH));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.5F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
                break;
             case "anal_fastDone":
-               if (!this.n_clash537() || d3.d) {
+               if (!this.isControlledByLocalPlayer() || d3.d) {
                   return;
                }
             case "anal_startDone":
                this.b(fp.ANAL_SLOW);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "anal_cumMSG2":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_BIA_AHH));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
                break;
             case "anal_cumBlackScreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "doggy_cumDone":
             case "anal_cumDone":
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
 
                this.r_clash533();
                break;
             case "headpatMSG1":
-               this.a_clash541("Ooh headpats!");
+               this.sendChatMessage("Ooh headpats!");
                this.a(SoundHandler.GIRLS_BIA_BREATH[0]);
                break;
             case "headpatMSG2":
-               this.a_clash541("Hmmm.... :D");
+               this.sendChatMessage("Hmmm.... :D");
                this.a(SoundHandler.GIRLS_BIA_MMM[0]);
                break;
             case "headpatMSG3":
-               this.a_clash541("huh...?");
+               this.sendChatMessage("huh...?");
                this.a(SoundHandler.GIRLS_BIA_HUH[0]);
                break;
             case "headpatMSG4":
-               this.a_clash541("Tanku hehe");
+               this.sendChatMessage("Tanku hehe");
                this.a(SoundHandler.GIRLS_BIA_GIGGLE[1]);
                break;
             case "headpatDone":
-               if (this.e_clash544()) {
+               if (this.isLocalPlayerNearby()) {
                   this.r_clash533();
                }
                break;
             case "sitdownMSG1":
-               this.a_clash541("come here big boy~");
+               this.sendChatMessage("come here big boy~");
                this.a_clash588(SoundHandler.GIRLS_BIA_BREATH);
                break;
             case "sitdownDone":
                this.b(fp.SITDOWNIDLE);
                break;
             case "slide":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_SLIDE));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.005);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_SLIDE));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.005);
                }
                break;
             case "pound":
@@ -514,17 +514,17 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "doggyMoan":
                this.a_clash588(this.func_70681_au().nextBoolean() ? SoundHandler.GIRLS_BIA_AHH : SoundHandler.GIRLS_BIA_MMM);
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "doggySwitch":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.b(fp.PRONE_DOGGY_HARD);
                }
                break;
             case "doggyReset":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                }
                break;
@@ -538,8 +538,8 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.GIRLS_BIA_MMM[7]);
                break;
             case "openSexUI":
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
          }
       };
@@ -549,7 +549,4 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       var1.addAnimationController(this.C);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

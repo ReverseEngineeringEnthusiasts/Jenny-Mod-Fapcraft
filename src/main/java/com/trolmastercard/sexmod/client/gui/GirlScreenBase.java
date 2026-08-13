@@ -41,7 +41,7 @@ public class GirlScreenBase extends GuiScreen {
             try {
                Constructor var6 = var5.npcClass.getConstructor(World.class);
                BaseGirlEntity var7 = (BaseGirlEntity)var6.newInstance(this.field_146297_k.field_71441_e);
-               var7.b_clash507(true);
+               var7.setLocallyRegistered(true);
                this.a.add(var7);
                String var8 = (String)var1.get(var5);
                if (var8 != null) {
@@ -75,7 +75,7 @@ public class GirlScreenBase extends GuiScreen {
       }
 
       if (var1.field_146127_k == 0) {
-         PacketHandler.b.sendToServer(new UpdatePlayerModelPacket(NpcType.a_clash751((Entity)this.a.get(this.b))));
+         PacketHandler.b.sendToServer(new UpdatePlayerModelPacket(NpcType.getNpcType((Entity)this.a.get(this.b))));
          EntityPlayerSP var2 = Minecraft.func_71410_x().field_71439_g;
          var2.func_71053_j();
          var2.eyeHeight = var2.getDefaultEyeHeight();
@@ -140,7 +140,4 @@ public class GirlScreenBase extends GuiScreen {
       var3.field_70759_as = var8;
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

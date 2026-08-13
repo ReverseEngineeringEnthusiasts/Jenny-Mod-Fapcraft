@@ -40,7 +40,7 @@ public class ak {
       }
 
       BaseGirlEntity var2 = (BaseGirlEntity)var0;
-      return !var2.Q_clash505() ? b(var0, var1) : var2.o_clash501();
+      return !var2.isAnchored() ? b(var0, var1) : var2.getTargetPosition();
    }
 
    static Vec3d b(Entity var0, float var1) {
@@ -51,7 +51,4 @@ public class ak {
       OpenGlHelper.func_77475_a(OpenGlHelper.field_77476_b, 240.0F, 240.0F);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

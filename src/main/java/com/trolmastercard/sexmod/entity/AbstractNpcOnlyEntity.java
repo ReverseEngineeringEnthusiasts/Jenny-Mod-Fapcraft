@@ -118,7 +118,4 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
       return ((String)var0.func_184212_Q().func_187225_a(M)).split("-");
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

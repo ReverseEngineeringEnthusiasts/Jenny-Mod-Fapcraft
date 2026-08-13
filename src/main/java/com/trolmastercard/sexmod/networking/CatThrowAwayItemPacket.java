@@ -43,7 +43,7 @@ public class CatThrowAwayItemPacket implements IMessage {
       public IMessage onMessage(CatThrowAwayItemPacket var1, MessageContext var2) {
          if (var1.a && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.g_clash524(var1.b)) {
+               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.b)) {
                   if (!var3.field_70170_p.field_72995_K && var3 instanceof LunaEntity) {
                      LunaEntity var4 = (LunaEntity)var3;
                      var4.j_clash386();
@@ -57,8 +57,5 @@ public class CatThrowAwayItemPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

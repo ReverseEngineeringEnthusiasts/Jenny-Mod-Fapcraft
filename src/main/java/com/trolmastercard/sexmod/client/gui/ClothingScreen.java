@@ -76,8 +76,8 @@ public class ClothingScreen extends GuiScreen {
 
    public ClothingScreen(@Nonnull BaseGirlEntity var1) {
       this.field_146297_k = Minecraft.func_71410_x();
-      this.g = var1.f_clash491();
-      NpcType var2 = NpcType.a_clash751(var1);
+      this.g = var1.getGirlId();
+      NpcType var2 = NpcType.getNpcType(var1);
       if (var2 == null) {
          var2 = NpcType.JENNY;
       }
@@ -85,17 +85,17 @@ public class ClothingScreen extends GuiScreen {
       try {
          Constructor var3 = var2.npcClass.getConstructor(World.class);
          this.c = (BaseGirlEntity)var3.newInstance(this.field_146297_k.field_71441_e);
-         this.c.b_clash507(true);
+         this.c.setLocallyRegistered(true);
       } catch (Exception var11) {
          var11.printStackTrace();
       }
 
       this.e_clash817();
-      String var12 = var1.C_clash559();
+      String var12 = var1.getCustomModelCode();
       this.c.func_184212_Q().func_187227_b(BaseGirlEntity.b, var12);
       int var4 = 0;
 
-      for (String var6 : this.c.Y_clash561()) {
+      for (String var6 : this.c.getCustomPartsSet()) {
          BoneType var7 = ServerWhitelistManager.e_clash138(var6);
          if (BoneType.CUSTOM_BONE.equals(var7)) {
             var4++;
@@ -208,7 +208,7 @@ public class ClothingScreen extends GuiScreen {
    public void func_73863_a(int var1, int var2, float var3) {
       super.func_73863_a(var1, var2, var3);
       if (this.p) {
-         b = b + RotationHelper.a_clash25(h, s, var3);
+         b = b + RotationHelper.lerp(h, s, var3);
       }
 
       this.a_clash824();
@@ -256,7 +256,7 @@ public class ClothingScreen extends GuiScreen {
          }
       }
 
-      PacketHandler.b.sendToServer(new UploadModelStringPacket(BaseGirlEntity.a_clash560(var1), this.g, var2));
+      PacketHandler.b.sendToServer(new UploadModelStringPacket(BaseGirlEntity.encodeCustomParts(var1), this.g, var2));
       this.field_146297_k.field_71439_g.func_71053_j();
    }
 
@@ -364,7 +364,7 @@ public class ClothingScreen extends GuiScreen {
                if (var6 != 0) {
                   ServerWhitelistManager.d = true;
                } else {
-                  BaseGirlEntity var7 = BaseGirlEntity.b_clash522(this.g);
+                  BaseGirlEntity var7 = BaseGirlEntity.getClientGirlEntity(this.g);
                   if (var7 != null) {
                      a_clash825(var7);
                   }
@@ -527,7 +527,7 @@ public class ClothingScreen extends GuiScreen {
             }
 
             Minecraft var2 = Minecraft.func_71410_x();
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.d_clash567(var2.field_71439_g.getPersistentID());
+            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.field_71439_g.getPersistentID());
             if (var3 == null) {
                var2.field_71439_g.func_146105_b(new TextComponentString("You have to turn into the girl you want to customize"), true);
             } else {
@@ -549,8 +549,5 @@ public class ClothingScreen extends GuiScreen {
          ClothingScreen.a.clear();
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

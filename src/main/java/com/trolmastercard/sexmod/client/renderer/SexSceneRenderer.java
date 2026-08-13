@@ -90,8 +90,8 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       this.f.put("customLowerArmL", "lowerArmL");
       this.f.put("customArmR", "armR");
       this.f.put("customLowerArmR", "lowerArmR");
-      this.g.put("lowerArmR", var0 -> gc.c_clash744(var0.ai_clash294()));
-      this.g.put("lowerArmL", var0 -> gc.c_clash744(var0.T_clash293()));
+      this.g.put("lowerArmR", var0 -> gc.wrapDegrees(var0.ai_clash294()));
+      this.g.put("lowerArmL", var0 -> gc.wrapDegrees(var0.T_clash293()));
    }
 
    boolean d(SexSceneEntity var1) {
@@ -109,14 +109,14 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
 
       UUID var3 = var1.b_clash342();
-      BaseGirlEntity var4 = BaseGirlEntity.b_clash522(var3);
+      BaseGirlEntity var4 = BaseGirlEntity.getClientGirlEntity(var3);
       if (var4 == null) {
          return true;
       }
 
-      HashSet var5 = var4.Y_clash561();
+      HashSet var5 = var4.getCustomPartsSet();
       var5.remove(var2);
-      String var6 = BaseGirlEntity.a_clash560(var5);
+      String var6 = BaseGirlEntity.encodeCustomParts(var5);
       PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var1.b_clash342()));
       return true;
    }
@@ -128,8 +128,8 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
             if (var0.H_clash562()) {
                RenderManager var2 = Minecraft.func_71410_x().func_175598_ae();
 
-               for (String var4 : var0.Y_clash561()) {
-                  SexSceneEntity var5 = new SexSceneEntity(var0.field_70170_p, var0.f_clash491(), var4);
+               for (String var4 : var0.getCustomPartsSet()) {
+                  SexSceneEntity var5 = new SexSceneEntity(var0.field_70170_p, var0.getGirlId(), var4);
                   k = true;
                   var2.func_188391_a(var5, 0.0, 0.0, 0.0, 0.0F, var1, false);
                }
@@ -181,14 +181,14 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                if (var9 != 1.876945F && var9 != 2.876945F) {
                   UUID var11 = var1.b_clash342();
                   if (var11 != null) {
-                     BaseGirlEntity var13 = BaseGirlEntity.b_clash522(var11);
+                     BaseGirlEntity var13 = BaseGirlEntity.getClientGirlEntity(var11);
                      if (var13 != null) {
-                        if (var10 == null || var10.a_clash900() || var13.ah_clash493() != 0) {
+                        if (var10 == null || var10.a_clash900() || var13.getOutfitIndex() != 0) {
                            Object var12;
                            if (!(var13 instanceof AbstractPlayerGirlEntity)) {
                               var12 = var13;
                            } else {
-                              UUID var14 = ((AbstractPlayerGirlEntity)var13).m_clash583();
+                              UUID var14 = ((AbstractPlayerGirlEntity)var13).getOwnerUserUUID();
                               if (var14 == null) {
                                  return;
                               }
@@ -209,8 +209,8 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                            this.d = new Vec3d(var17.field_72450_a * var18, var17.field_72448_b * var18, var17.field_72449_c * var18);
                            GlStateManager.func_179094_E();
                            GlStateManager.func_179137_b(var19.field_72450_a, var19.field_72448_b, var19.field_72449_c);
-                           if (var13.Q_clash505()) {
-                              GlStateManager.func_179114_b(var13.I_clash415(), 0.0F, 1.0F, 0.0F);
+                           if (var13.isAnchored()) {
+                              GlStateManager.func_179114_b(var13.getYawRotation(), 0.0F, 1.0F, 0.0F);
                            }
 
                            super.doRender(var1, 0.0, 0.0, 0.0, var8, var9);
@@ -231,9 +231,9 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
    public static Vec3d a(Minecraft var0, SexSceneEntity var1, EntityLivingBase var2, BaseGirlEntity var3, float var4) {
       Vec3d var5;
-      if (var3.Q_clash505()) {
-         Vec3d var6 = var3.o_clash501();
-         float var7 = var3.I_clash415();
+      if (var3.isAnchored()) {
+         Vec3d var6 = var3.getTargetPosition();
+         float var7 = var3.getYawRotation();
          var1.field_70169_q = var6.field_72450_a;
          var1.field_70167_r = var6.field_72448_b;
          var1.field_70166_s = var6.field_72449_c;
@@ -309,7 +309,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       if (!(var3 instanceof AbstractPlayerGirlEntity)) {
          var2 = var3;
       } else {
-         EntityPlayer var4 = var1.field_70170_p.func_152378_a(((AbstractPlayerGirlEntity)var3).m_clash583());
+         EntityPlayer var4 = var1.field_70170_p.func_152378_a(((AbstractPlayerGirlEntity)var3).getOwnerUserUUID());
          var2 = var4 == null ? var3 : var4;
       }
 
@@ -319,7 +319,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    BaseGirlEntity b_clash813(SexSceneEntity var1) {
       UUID var2 = var1.b_clash342();
       BaseGirlEntity var3 = fs.a_clash713(var2);
-      return var3 != null ? var3 : BaseGirlEntity.b_clash522(var2);
+      return var3 != null ? var3 : BaseGirlEntity.getClientGirlEntity(var2);
    }
 
    void a(SexSceneEntity var1, GeoBone var2, float var3) {
@@ -421,7 +421,4 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
-   private static IllegalStateException a(IllegalStateException var0) {
-      return var0;
-   }
 }

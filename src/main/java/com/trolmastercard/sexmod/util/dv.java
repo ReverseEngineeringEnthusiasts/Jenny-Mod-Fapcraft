@@ -98,12 +98,12 @@ public class dv extends GirlPlayerRenderer {
             this.a_clash408(var2);
          }
 
-         if (this.w.y_clash492() != fp.BOW) {
+         if (this.w.getCurrentAction() != fp.BOW) {
             if ("armL".equals(var1)) {
                this.a(var2, 0.0F, (float) (-Math.PI / 9), 0.15F);
             }
 
-            if (this.w.y_clash492() != fp.ATTACK) {
+            if (this.w.getCurrentAction() != fp.ATTACK) {
                if ("armR".equals(var1)) {
                   this.a(var2, 0.0F, (float) (Math.PI / 9), 0.15F);
                }
@@ -121,8 +121,8 @@ public class dv extends GirlPlayerRenderer {
       this.I = var11.field_189982_i * 8.0F;
       this.G = ThreadNames.b(this.G, -1.68F, 1.68F);
       this.I = ThreadNames.b(this.I, -1.68F, 1.68F);
-      this.G = RotationHelper.a_clash25(this.F, this.G, this.y);
-      this.I = RotationHelper.a_clash25(this.B, this.I, this.y);
+      this.G = RotationHelper.lerp(this.F, this.G, this.y);
+      this.I = RotationHelper.lerp(this.B, this.I, this.y);
       var1.setRotationX(var2 + this.G * var4);
       var1.setRotationZ(var3 + this.I * var4);
    }
@@ -143,8 +143,8 @@ public class dv extends GirlPlayerRenderer {
          this.F = this.G;
          this.B = this.I;
          this.H = this.L;
-         if (this.w.m_clash583() != null) {
-            EntityPlayer var1 = this.j.field_70170_p.func_152378_a(this.w.m_clash583());
+         if (this.w.getOwnerUserUUID() != null) {
+            EntityPlayer var1 = this.j.field_70170_p.func_152378_a(this.w.getOwnerUserUUID());
             if (var1 != null) {
                this.A = this.C;
                this.D = this.z;
@@ -155,9 +155,6 @@ public class dv extends GirlPlayerRenderer {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class a {
       @SubscribeEvent

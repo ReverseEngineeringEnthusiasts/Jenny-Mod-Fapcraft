@@ -50,9 +50,6 @@ public class ChangeDataParameterPacket implements IMessage {
       ByteBufUtils.writeUTF8String(var1, this.c == null ? "null" : this.c);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<ChangeDataParameterPacket, IMessage> {
       public IMessage onMessage(ChangeDataParameterPacket var1, MessageContext var2) {
@@ -61,7 +58,7 @@ public class ChangeDataParameterPacket implements IMessage {
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               BaseGirlEntity var1x = BaseGirlEntity.a_clash523(var1.d);
+               BaseGirlEntity var1x = BaseGirlEntity.getServerGirlEntity(var1.d);
                if (var1x != null) {
                   switch (var1.a) {
                      case "pregnant":
@@ -71,7 +68,7 @@ public class ChangeDataParameterPacket implements IMessage {
                         var1x.func_184212_Q().func_187227_b(BaseGirlEntity.D, Integer.valueOf(var1.c));
                         break;
                      case "currentAction":
-                        if (fp.valueOf(var1.c) != fp.ATTACK || var1x.y_clash492() == fp.NULL) {
+                        if (fp.valueOf(var1.c) != fp.ATTACK || var1x.getCurrentAction() == fp.NULL) {
                            var1x.b(fp.valueOf(var1.c));
                         }
                         break;
@@ -80,15 +77,15 @@ public class ChangeDataParameterPacket implements IMessage {
                         break;
                      case "playerSheHasSexWith":
                         if (var1.c.equals("null")) {
-                           var1x.e_clash499(null);
+                           var1x.setInteractionPlayerUUID(null);
                         } else {
-                           var1x.e_clash499(UUID.fromString(var1.c));
+                           var1x.setInteractionPlayerUUID(UUID.fromString(var1.c));
                         }
                         break;
                      case "targetPos":
                         String[] var4 = var1.c.split("f");
                         Vec3d var5 = new Vec3d(Double.parseDouble(var4[0]), Double.parseDouble(var4[1]), Double.parseDouble(var4[2]));
-                        var1x.c_clash502(var5);
+                        var1x.setTargetPosition(var5);
                         break;
                      case "master":
                         var1x.func_184212_Q().func_187227_b(BaseGirlEntity.v, var1.c);
@@ -105,8 +102,5 @@ public class ChangeDataParameterPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

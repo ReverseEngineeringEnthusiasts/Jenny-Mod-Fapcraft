@@ -46,7 +46,4 @@ public class f4 {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

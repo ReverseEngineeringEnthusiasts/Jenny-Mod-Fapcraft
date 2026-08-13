@@ -80,7 +80,7 @@ public class dx extends GirlPlayerRenderer {
    @Override
    public void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       super.a(var1, var2, var4, var6, var8, var9);
-      if (i.field_71474_y.field_74320_O != 0 || !i.field_71439_g.getPersistentID().equals(((AbstractPlayerGirlEntity)var1).m_clash583()) || var1.Q_clash505()) {
+      if (i.field_71474_y.field_74320_O != 0 || !i.field_71439_g.getPersistentID().equals(((AbstractPlayerGirlEntity)var1).getOwnerUserUUID()) || var1.isAnchored()) {
          GalathRenderer.a_clash324(var1, var9);
       }
    }
@@ -203,7 +203,4 @@ public class dx extends GirlPlayerRenderer {
       MATRIX_STACK.pop();
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

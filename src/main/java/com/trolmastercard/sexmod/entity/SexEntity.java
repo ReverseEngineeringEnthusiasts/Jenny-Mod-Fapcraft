@@ -69,7 +69,7 @@ public class SexEntity extends Entity {
 
    protected void func_70088_a() {
       this.func_184212_Q().func_187214_a(g, 0);
-      this.func_184212_Q().func_187214_a(f, Optional.of(b.f_clash491()));
+      this.func_184212_Q().func_187214_a(f, Optional.of(b.getGirlId()));
    }
 
    public AxisAlignedBB func_184177_bl() {
@@ -81,7 +81,7 @@ public class SexEntity extends Entity {
       if (!var1.isPresent()) {
          return null;
       } else {
-         BaseGirlEntity var2 = BaseGirlEntity.a_clash523((UUID)var1.get());
+         BaseGirlEntity var2 = BaseGirlEntity.getServerGirlEntity((UUID)var1.get());
          if (var2 == null) {
             return null;
          } else {
@@ -96,7 +96,7 @@ public class SexEntity extends Entity {
          return null;
       }
 
-      BaseGirlEntity var2 = BaseGirlEntity.b_clash522((UUID)var1.get());
+      BaseGirlEntity var2 = BaseGirlEntity.getClientGirlEntity((UUID)var1.get());
       return !(var2 instanceof LunaEntity) ? null : (LunaEntity)var2;
    }
 
@@ -123,7 +123,7 @@ public class SexEntity extends Entity {
          BlockPos var4 = var3.ai;
          float var5 = (float)Math.sqrt(var3.func_174791_d().func_186679_c(var4.func_177958_n(), var4.func_177956_o(), var4.func_177952_p()));
          float var6 = -22.5F + 45.0F * (var5 / 7.0F);
-         float var7 = var3.I_clash415();
+         float var7 = var3.getYawRotation();
          float var8 = MathHelper.func_76134_b(-var7 * (float) (Math.PI / 180.0) - (float) Math.PI);
          float var9 = MathHelper.func_76126_a(-var7 * (float) (Math.PI / 180.0) - (float) Math.PI);
          float var10 = -MathHelper.func_76134_b(-var6 * (float) (Math.PI / 180.0));
@@ -507,9 +507,6 @@ public class SexEntity extends Entity {
       return null;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    enum SexEntityState {
       FLYING,

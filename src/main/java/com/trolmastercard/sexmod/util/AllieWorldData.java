@@ -105,7 +105,4 @@ public class AllieWorldData extends WorldSavedData {
       return var2;
    }
 
-   private static IllegalArgumentException a(IllegalArgumentException var0) {
-      return var0;
-   }
 }

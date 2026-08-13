@@ -105,9 +105,6 @@ public class GenderSwapScreen {
       PacketHandler.b.sendToServer(new StartStandingSexAnimationPacket(var2, var3, var1));
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class a {
       public String a;

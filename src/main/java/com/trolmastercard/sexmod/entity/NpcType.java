@@ -71,7 +71,7 @@ public enum NpcType {
       return JENNY;
    }
 
-   public static NpcType a_clash751(Entity var0) {
+   public static NpcType getNpcType(Entity var0) {
       if (!(var0 instanceof BaseGirlEntity)) {
          return null;
       }
@@ -92,7 +92,4 @@ public enum NpcType {
       return null;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

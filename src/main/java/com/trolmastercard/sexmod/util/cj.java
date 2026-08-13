@@ -83,8 +83,8 @@ public class cj {
          var10 = new Vec3d(0.2, 0.8, 0.0);
       } else {
          var10 = new Vec3d(var10.field_72450_a, var10.field_72448_b, -var10.field_72449_c);
-         float var14 = -RotationHelper.a_clash25(var0.field_70760_ar, var0.field_70761_aq, var1);
-         var10 = ck.a_clash306(var10, var14);
+         float var14 = -RotationHelper.lerp(var0.field_70760_ar, var0.field_70761_aq, var1);
+         var10 = ck.rotateByYaw(var10, var14);
       }
 
       return var10.func_72432_b();
@@ -224,7 +224,4 @@ public class cj {
          : FMLCommonHandler.instance().getMinecraftServerInstance().func_71218_a(var0.field_71093_bK).func_73039_n().getTrackingPlayers(var0);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

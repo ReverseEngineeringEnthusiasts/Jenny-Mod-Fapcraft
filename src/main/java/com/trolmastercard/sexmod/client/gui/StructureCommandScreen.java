@@ -285,7 +285,4 @@ public class StructureCommandScreen extends GuiScreen {
       return false;
    }
 
-   private static NullPointerException a(NullPointerException var0) {
-      return var0;
-   }
 }

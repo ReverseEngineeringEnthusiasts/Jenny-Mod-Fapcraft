@@ -66,15 +66,12 @@ public class UploadModelStringPacket implements IMessage {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<UploadModelStringPacket, IMessage> {
       public IMessage onMessage(UploadModelStringPacket var1, MessageContext var2) {
          if (var1.a && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               BaseGirlEntity var3 = BaseGirlEntity.a_clash523(var1.b);
+               BaseGirlEntity var3 = BaseGirlEntity.getServerGirlEntity(var1.b);
                if (var1.d.size() > 0) {
                   boolean var5 = this.a(var3, var1.d);
                   if (var5) {
@@ -82,13 +79,13 @@ public class UploadModelStringPacket implements IMessage {
                   }
 
                   if (!(var3 instanceof AbstractPlayerGirlEntity)) {
-                     var3.f_clash439(var1.c);
+                     var3.setCustomModelCode(var1.c);
                   } else {
                      EntityPlayerMP var10 = var2.getServerHandler().field_147369_b;
                      NBTTagCompound var11 = var10.getEntityData();
                      AbstractPlayerGirlEntity var12 = AbstractPlayerGirlEntity.g(var10);
                      if (var12 != null) {
-                        NpcType var13 = NpcType.a_clash751(var12);
+                        NpcType var13 = NpcType.getNpcType(var12);
                         var11.func_74778_a("sexmod:CustomModel" + var13.toString(), var1.c);
                         if (var5) {
                            var11.func_74778_a("sexmod:GirlSpecific" + var13.toString(), BaseGirlEntity.c(var1.d));
@@ -96,13 +93,13 @@ public class UploadModelStringPacket implements IMessage {
                      }
                   }
                } else if (!(var3 instanceof AbstractPlayerGirlEntity)) {
-                  var3.f_clash439(var1.c);
+                  var3.setCustomModelCode(var1.c);
                } else {
                   EntityPlayerMP var6 = var2.getServerHandler().field_147369_b;
                   NBTTagCompound var7 = var6.getEntityData();
                   AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.g(var6);
                   if (var8 != null) {
-                     NpcType var9 = NpcType.a_clash751(var8);
+                     NpcType var9 = NpcType.getNpcType(var8);
                      var7.func_74778_a("sexmod:CustomModel" + var9.toString(), var1.c);
                   }
                }
@@ -130,8 +127,5 @@ public class UploadModelStringPacket implements IMessage {
          }
       }
 
-      private static IndexOutOfBoundsException a(IndexOutOfBoundsException var0) {
-         return var0;
-      }
    }
 }

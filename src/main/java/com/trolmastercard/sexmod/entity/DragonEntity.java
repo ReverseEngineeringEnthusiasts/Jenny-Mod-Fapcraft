@@ -173,7 +173,7 @@ public class DragonEntity extends EntityLiving {
    @SideOnly(Side.CLIENT)
    public static void a_clash118(Vec3d var0) {
       WorldClient var1 = Minecraft.func_71410_x().field_71441_e;
-      float var2 = gc.c_clash744(1.8F);
+      float var2 = gc.wrapDegrees(1.8F);
       Random var3 = Reference.f;
 
       for (float var4 = 0.0F; var4 < Math.PI * 2; var4 += var2) {
@@ -245,7 +245,4 @@ public class DragonEntity extends EntityLiving {
       this.field_70170_p.func_72900_e(this);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

@@ -135,8 +135,8 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    protected void b_clash320(GalathEntity var1) {
-      if (var1.y_clash492() == fp.MASTERBATE) {
-         float var2 = var1.I_clash415();
+      if (var1.getCurrentAction() == fp.MASTERBATE) {
+         float var2 = var1.getYawRotation();
          var1.field_70177_z = var2;
          var1.field_70760_ar = var2;
          var1.field_70761_aq = var2;
@@ -148,7 +148,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    public void a(GalathEntity var1, double var2, double var4, double var6, float var8, float var9) {
       Vec3d var10 = a_clash323(var1, var9);
       if (var10 != null) {
-         var1.a_clash503(var10);
+         var1.setTargetPositionDirect(var10);
       }
 
       var1.aG = var10;
@@ -163,8 +163,8 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    void c_clash321(GalathEntity var1) {
-      if (var1.y_clash492() == fp.RAPE_CHARGE) {
-         var1.field_70761_aq = var1.I_clash415();
+      if (var1.getCurrentAction() == fp.RAPE_CHARGE) {
+         var1.field_70761_aq = var1.getYawRotation();
          var1.field_70760_ar = var1.field_70761_aq;
       }
    }
@@ -207,13 +207,13 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
 
       if (ThreadNames.a_clash164(var2, 24.0, 32.0)) {
-         Vec3d var9 = ck.a_clash306(new Vec3d(0.0, 0.0, 3.0), var0.I_clash415() + 180.0F);
+         Vec3d var9 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 3.0), var0.getYawRotation() + 180.0F);
          Vec3d var6 = var0.B_clash642();
          Vec3d var7 = var4.func_72441_c(0.0, var3.func_70047_e(), 0.0).func_178787_e(var9);
          float var8 = ((float)i.field_71441_e.func_82737_E() + var1 - (float)var0.af) / (float)(var0.aH - var0.af);
          return RotationHelper.a(var6, var7, var8);
       } else if (ThreadNames.a_clash164(var2, 32.0, 54.0)) {
-         Vec3d var5 = ck.a_clash306(new Vec3d(0.0, 0.0, 1.5), var0.I_clash415() + 180.0F);
+         Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 1.5), var0.getYawRotation() + 180.0F);
          return var4.func_178787_e(var5);
       } else {
          return null;
@@ -230,7 +230,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          i.func_110434_K().func_110577_a(e);
          GlStateManager.func_179129_p();
          GlStateManager.func_179140_f();
-         a(var0, var4, var3, RotationHelper.a_clash25(var0.field_70760_ar, var0.field_70761_aq, var1));
+         a(var0, var4, var3, RotationHelper.lerp(var0.field_70760_ar, var0.field_70761_aq, var1));
          b(var0, var4, var3, var1);
          a(var0, var4, var3);
          GlStateManager.func_179121_F();
@@ -244,7 +244,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          if ((Boolean)var0.func_184212_Q().func_187225_a(GalathEntity.bP)) {
             if (!(Boolean)var0.func_184212_Q().func_187225_a(GalathEntity.L)) {
                GlStateManager.func_179094_E();
-               Vec3d var4 = var0.b_clash547("stars");
+               Vec3d var4 = var0.getCachedBoneOffset("stars");
                GlStateManager.func_179137_b(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c);
                float var5 = (float)i.field_71441_e.func_82737_E() + var3;
                float var6 = (float)(Math.sin(var5 * 0.2) * 5.0);
@@ -287,7 +287,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    static void a(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
-      if (var0.y_clash492() != fp.GIVE_COIN || fp.GIVE_COIN.ticksPlaying[1] <= 100) {
+      if (var0.getCurrentAction() != fp.GIVE_COIN || fp.GIVE_COIN.ticksPlaying[1] <= 100) {
          var1.func_181668_a(7, DefaultVertexFormats.field_181709_i);
          Vec3d[][] var4 = af.a(var0, var3, "hairStrandStartR", "hairStrandMidR", "hairStrandEndR", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
          Vec3d[][] var5 = af.a(var0, var3, "hairStrandStartL", "hairStrandMidL", "hairStrandEndL", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
@@ -304,8 +304,8 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          Vec3d[] var4 = new Vec3d[14];
 
          for (int var5 = 0; var5 < 14; var5++) {
-            var3[var5] = var0.b_clash547("wingRV" + var5);
-            var4[var5] = var0.b_clash547("wingLV" + var5);
+            var3[var5] = var0.getCachedBoneOffset("wingRV" + var5);
+            var4[var5] = var0.getCachedBoneOffset("wingLV" + var5);
          }
 
          a(var1, var2, var3);
@@ -429,13 +429,13 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       switch (var2) {
          case "hairBack":
             if (!i.func_147113_T()) {
-               IBone var18 = this.j.b_clash552().getBone("head");
+               IBone var18 = this.j.getAnimationProcessor().getBone("head");
                float var19 = gc.d_clash746(var18.getRotationX());
                if (var19 < 0.0F) {
-                  var3.setRotationX(gc.c_clash744(-var19));
+                  var3.setRotationX(gc.wrapDegrees(-var19));
                } else {
                   float var21 = Math.min(1.0F, var19 / 45.0F);
-                  var3.setRotationX(gc.c_clash744(-var19));
+                  var3.setRotationX(gc.wrapDegrees(-var19));
                   var3.setPositionY(var3.getPositionY() + var21 * 1.5F);
                }
             }
@@ -443,20 +443,20 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          case "hairDownSideL":
          case "hairDownSideR":
             if (!i.func_147113_T()) {
-               IBone var6 = this.j.b_clash552().getBone("head");
+               IBone var6 = this.j.getAnimationProcessor().getBone("head");
                float var7 = gc.d_clash746(var6.getRotationX());
                if (var7 < 0.0F) {
-                  var3.setRotationX(gc.c_clash744(-var7 / 2.0F));
+                  var3.setRotationX(gc.wrapDegrees(-var7 / 2.0F));
                } else {
                   float var20 = Math.min(1.0F, var7 / 45.0F);
-                  var3.setRotationX(gc.c_clash744(-var7));
+                  var3.setRotationX(gc.wrapDegrees(-var7));
                   var3.setPositionY(var3.getPositionY() + var20);
                }
             }
             break;
          case "head":
             this.c(var3);
-            fp var8 = this.j.y_clash492();
+            fp var8 = this.j.getCurrentAction();
             if (var8 == fp.FLY || var8 == fp.ATTACK_SWORD) {
                EntityLivingBase var22 = this.j.M_clash691();
                if (var22 != null) {
@@ -464,7 +464,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
                   Vec3d var11 = RotationHelper.a(new Vec3d(this.j.field_70142_S, this.j.field_70137_T, this.j.field_70136_U), this.j.func_174791_d(), var10);
                   Vec3d var12 = RotationHelper.a(new Vec3d(var22.field_70142_S, var22.field_70137_T, var22.field_70136_U), this.j.func_174791_d(), var10);
                   Vec3d var24 = var11.func_178788_d(var12);
-                  float var14 = (float)ck.a_clash306(var24, this.j.field_70761_aq).field_72449_c;
+                  float var14 = (float)ck.rotateByYaw(var24, this.j.field_70761_aq).field_72449_c;
                   float var10000 = (float)Math.atan2(var24.field_72448_b, var14);
                }
             }
@@ -504,12 +504,12 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
             break;
          case "armL":
          case "armR":
-            if (this.j.y_clash492() == fp.RAPE_CHARGE) {
+            if (this.j.getCurrentAction() == fp.RAPE_CHARGE) {
                EntityLivingBase var9 = this.j.M_clash691();
                if (var9 != null) {
                   float var15 = this.j.field_70761_aq;
                   Vec3d var13 = var9.func_174791_d().func_178788_d(this.j.func_174791_d());
-                  var13 = ck.a_clash306(var13, var15);
+                  var13 = ck.rotateByYaw(var13, var15);
                   double var16 = -ThreadNames.b(var13.field_72450_a, -1.0, 1.0);
                   var3.setRotationZ(var3.getRotationZ() + gc.c_clash745(45.0 * var16));
                }
@@ -632,8 +632,8 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          this.a(var1, var2, t);
       } else {
          ef.b var4 = G.a_clash906();
-         var4.g = RotationHelper.a_clash25(G.g, 0.0F, var3);
-         var4.e = RotationHelper.a_clash25(G.e, 0.0F, var3);
+         var4.g = RotationHelper.lerp(G.g, 0.0F, var3);
+         var4.e = RotationHelper.lerp(G.e, 0.0F, var3);
          this.a(var1, var2, var4);
       }
    }
@@ -652,7 +652,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    void a(BufferBuilder var1, GeoBone var2, GalathEntity var3, float var4) {
-      if (var3.y_clash492() == fp.GIVE_COIN) {
+      if (var3.getCurrentAction() == fp.GIVE_COIN) {
          n = var1;
          var1.func_181668_a(7, DefaultVertexFormats.field_181712_l);
          MATRIX_STACK.push();
@@ -678,7 +678,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          GL11.glDisable(2896);
          float var15 = ThreadNames.b(fp.GIVE_COIN.ticksPlaying[1] + var4, 105.0F, 125.0F);
          float var7 = (var15 - 105.0F) / 20.0F;
-         float var8 = RotationHelper.a_clash25(120.0F, 240.0F, var7);
+         float var8 = RotationHelper.lerp(120.0F, 240.0F, var7);
          f7 var9 = RotationHelper.a(GalathCoinRenderer.f, GalathCoinRenderer.e, var7);
          float var10 = OpenGlHelper.lastBrightnessX;
          float var11 = OpenGlHelper.lastBrightnessY;
@@ -709,8 +709,8 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    protected Vec3d a(GalathEntity var1, float var2, Vec3d var3) {
-      if (var1.y_clash492() == fp.RUN) {
-         float var4 = var1.I_clash415();
+      if (var1.getCurrentAction() == fp.RUN) {
+         float var4 = var1.getYawRotation();
          var1.field_70177_z = var4;
          var1.field_70760_ar = var4;
          var1.field_70761_aq = var4;
@@ -721,7 +721,4 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       return var3;
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

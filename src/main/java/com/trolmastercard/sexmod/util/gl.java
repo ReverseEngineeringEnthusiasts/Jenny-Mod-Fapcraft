@@ -52,7 +52,4 @@ public class gl<K, V> {
       this.b.clear();
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

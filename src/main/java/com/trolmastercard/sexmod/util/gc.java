@@ -30,7 +30,7 @@ public class gc {
       return (var2 = var0 % 360.0) >= 0.0 ? var2 : var2 + 360.0;
    }
 
-   public static float c_clash744(float var0) {
+   public static float wrapDegrees(float var0) {
       return (float)((Math.PI * 2) / (360.0 / var0));
    }
 
@@ -46,7 +46,4 @@ public class gc {
       return (180.0 / Math.PI) * var0;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

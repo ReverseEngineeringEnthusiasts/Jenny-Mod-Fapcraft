@@ -31,7 +31,4 @@ public class SexSceneModel extends AnimatedGeoModel<SexSceneEntity> {
    public void setLivingAnimations(SexSceneEntity var1, Integer var2, @Nullable AnimationEvent var3) {
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

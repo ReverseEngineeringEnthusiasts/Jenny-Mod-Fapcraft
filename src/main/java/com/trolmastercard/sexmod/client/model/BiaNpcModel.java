@@ -12,11 +12,11 @@ import net.minecraft.util.ResourceLocation;
 
 public class BiaNpcModel extends GirlModel<BaseGirlEntity> {
    public BiaNpcModel() {
-      this.c = this.a_clash33();
+      this.c = this.getModelLocations();
    }
 
    @Override
-   protected ResourceLocation[] a_clash33() {
+   protected ResourceLocation[] getModelLocations() {
       return new ResourceLocation[]{new ResourceLocation("sexmod", "geo/bia/bianude.geo.json"), new ResourceLocation("sexmod", "geo/bia/biadressed.geo.json")};
    }
 

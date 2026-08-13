@@ -296,7 +296,7 @@ public enum fp {
    }
 
    public static boolean a(BaseGirlEntity var0, fp... var1) {
-      return a(var0.y_clash492(), var1);
+      return a(var0.getCurrentAction(), var1);
    }
 
    public static double a(AnimationController var0) {
@@ -334,7 +334,4 @@ public enum fp {
       return d(var0, var1) == 1.0F;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

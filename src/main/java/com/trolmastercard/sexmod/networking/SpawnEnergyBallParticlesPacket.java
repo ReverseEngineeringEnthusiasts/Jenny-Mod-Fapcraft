@@ -53,14 +53,11 @@ public class SpawnEnergyBallParticlesPacket implements IMessage {
       ByteBufUtils.writeUTF8String(var1, this.b == null ? "trol was here" : this.b.toString());
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<SpawnEnergyBallParticlesPacket, IMessage> {
       public IMessage onMessage(SpawnEnergyBallParticlesPacket var1, MessageContext var2) {
          if (var1.c && var2.side.equals(Side.CLIENT)) {
-            BaseGirlEntity var3 = BaseGirlEntity.b_clash522(var1.a);
+            BaseGirlEntity var3 = BaseGirlEntity.getClientGirlEntity(var1.a);
             if (!(var3 instanceof GalathEntity)) {
                System.out.println("doesnt exit");
                return null;
@@ -74,8 +71,5 @@ public class SpawnEnergyBallParticlesPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

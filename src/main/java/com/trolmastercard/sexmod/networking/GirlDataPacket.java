@@ -61,9 +61,6 @@ public class GirlDataPacket implements IMessage {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<GirlDataPacket, IMessage> {
       public IMessage onMessage(GirlDataPacket var1, MessageContext var2) {
@@ -81,8 +78,5 @@ public class GirlDataPacket implements IMessage {
          var2.func_152344_a(() -> var2.func_147108_a(new GirlScreenBase(var1)));
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

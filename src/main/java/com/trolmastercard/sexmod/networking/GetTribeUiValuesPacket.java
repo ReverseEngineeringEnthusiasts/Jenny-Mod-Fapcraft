@@ -70,9 +70,6 @@ public class GetTribeUiValuesPacket implements IMessage {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<GetTribeUiValuesPacket, IMessage> {
       public IMessage onMessage(GetTribeUiValuesPacket var1, MessageContext var2) {
@@ -99,7 +96,7 @@ public class GetTribeUiValuesPacket implements IMessage {
 
                   for (KoboldEntity var10 : (java.util.Collection<KoboldEntity>) (var5) ) {
                      if (!var10.field_70128_L) {
-                        UUID var11 = var10.f_clash491();
+                        UUID var11 = var10.getGirlId();
                         if (!var8.contains(var11)) {
                            if (var10.aA) {
                               var7 = EyeAndKoboldColor.safeValueOf((String)var10.func_184212_Q().func_187225_a(AbstractNpcOnlyEntity.N)).getWoolMeta();
@@ -125,8 +122,5 @@ public class GetTribeUiValuesPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

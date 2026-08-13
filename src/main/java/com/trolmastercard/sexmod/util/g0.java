@@ -32,7 +32,4 @@ public class g0 {
       return var2;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

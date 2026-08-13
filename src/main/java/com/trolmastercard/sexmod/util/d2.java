@@ -54,7 +54,4 @@ public class d2 extends GirlPlayerRenderer {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

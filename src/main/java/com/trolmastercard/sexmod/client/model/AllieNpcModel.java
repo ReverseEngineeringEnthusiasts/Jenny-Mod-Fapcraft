@@ -15,7 +15,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class AllieNpcModel extends GirlModel<BaseGirlEntity> {
    @Override
-   protected ResourceLocation[] a_clash33() {
+   protected ResourceLocation[] getModelLocations() {
       return new ResourceLocation[]{
          new ResourceLocation("sexmod", "geo/allie/allie.geo.json"),
          new ResourceLocation("sexmod", "geo/allie/armored.geo.json"),
@@ -48,7 +48,4 @@ public class AllieNpcModel extends GirlModel<BaseGirlEntity> {
       return new String[]{"boobsFlesh", "clothes", "clothesR", "clothesL"};
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

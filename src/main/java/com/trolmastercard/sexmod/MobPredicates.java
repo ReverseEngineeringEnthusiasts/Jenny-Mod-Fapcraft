@@ -27,7 +27,4 @@ public class MobPredicates {
       return var3 == null ? true : var3.field_72313_a != Type.BLOCK;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

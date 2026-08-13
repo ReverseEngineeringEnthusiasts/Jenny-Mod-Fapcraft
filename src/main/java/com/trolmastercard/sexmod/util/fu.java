@@ -66,7 +66,7 @@ public class fu {
 
    @SubscribeEvent
    public void a(RightClickBlock var1) {
-      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.d_clash567(var1.getEntityPlayer().getPersistentID());
+      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getEntityPlayer().getPersistentID());
       BlockPos var3 = var1.getPos();
       World var4 = var1.getEntityPlayer().field_70170_p;
       EntityPlayer var5 = var1.getEntityPlayer();
@@ -133,11 +133,11 @@ public class fu {
                      }
 
                      if (var1.getWorld().field_72995_K) {
-                        d3.a_clash122(false);
+                        d3.setMovementLock(false);
                         var2.H_clash570();
                      } else {
-                        var2.c_clash502(new Vec3d(var7.func_177958_n() + 0.5, var7.func_177956_o() + 0.0F, var7.func_177952_p() + 0.5));
-                        var2.b_clash431(var5.field_70177_z);
+                        var2.setTargetPosition(new Vec3d(var7.func_177958_n() + 0.5, var7.func_177956_o() + 0.0F, var7.func_177952_p() + 0.5));
+                        var2.setYawRotation(var5.field_70177_z);
                         var2.func_184212_Q().func_187227_b(BaseGirlEntity.G, true);
                         var2.u_clash377();
                      }
@@ -177,7 +177,7 @@ public class fu {
          if (!var1.getEntityPlayer().func_70093_af()) {
             if (var1.getEntityPlayer().getPersistentID().equals(Minecraft.func_71410_x().field_71439_g.getPersistentID())) {
                EntityPlayerSP var2 = Minecraft.func_71410_x().field_71439_g;
-               AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.d_clash567(var2.getPersistentID());
+               AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.getPersistentID());
                EntityPlayer var4 = (EntityPlayer)var1.getTarget();
                AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.g(var4);
                if (var5 != null) {
@@ -185,7 +185,7 @@ public class fu {
                      var2.func_146105_b(new TextComponentString("no lesbo yet owo"), true);
                   } else if (var5.l_clash467()) {
                      if (var5.p_clash379()) {
-                        var5.b_clash230(Minecraft.func_71410_x().field_71439_g);
+                        var5.openInteractionMenu(Minecraft.func_71410_x().field_71439_g);
                      }
                   }
                }
@@ -200,16 +200,16 @@ public class fu {
       if (var1.getTarget() instanceof EntityPlayer) {
          if (var1.getEntityPlayer().getPersistentID().equals(Minecraft.func_71410_x().field_71439_g.getPersistentID())) {
             EntityPlayerSP var2 = Minecraft.func_71410_x().field_71439_g;
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.d_clash567(var2.getPersistentID());
+            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.getPersistentID());
             if (var3 != null) {
                EntityPlayer var4 = (EntityPlayer)var1.getTarget();
-               AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.d_clash567(var4.getPersistentID());
+               AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var4.getPersistentID());
                if (var5 != null) {
                   var4.func_146105_b(new TextComponentString("no lesbo yet owo"), true);
                } else {
                   if (var3.p_clash379()) {
                      var3.ab = false;
-                     var3.b_clash230(var4);
+                     var3.openInteractionMenu(var4);
                   }
                }
             }
@@ -232,13 +232,13 @@ public class fu {
                            Vec3d var5 = new Vec3d(var4.field_72450_a, Math.floor(var4.field_72448_b) + 0.0, var4.field_72449_c);
                            if (!(var4.func_72438_d(var2.func_174791_d()) > 3.0)) {
                               var2.func_70107_b(var5.field_72450_a, Math.floor(var4.field_72448_b), var5.field_72449_c);
-                              var3.c_clash502(var5);
-                              var3.b_clash431(var2.field_70177_z);
+                              var3.setTargetPosition(var5);
+                              var3.setYawRotation(var2.field_70177_z);
                               var3.func_184212_Q().func_187227_b(BaseGirlEntity.G, true);
                               var3.func_184212_Q().func_187227_b(BaseGirlEntity.D, 0);
                               var3.b(fp.STARTDOGGY);
                               if (var1.getWorld().field_72995_K && Minecraft.func_71410_x().field_71439_g.getPersistentID().equals(var2.getPersistentID())) {
-                                 d3.a_clash122(false);
+                                 d3.setMovementLock(false);
                               }
                            }
                         }
@@ -276,7 +276,7 @@ public class fu {
             if (var4 != null) {
                if (!var4.A_clash381()) {
                   List var5 = var1.getButtonList();
-                  String var6 = I18n.func_135052_a(var4.ah_clash493() == 0 ? "action.names.dressup" : "action.names.strip", new Object[0]);
+                  String var6 = I18n.func_135052_a(var4.getOutfitIndex() == 0 ? "action.names.dressup" : "action.names.strip", new Object[0]);
                   var5.add(new GuiButton(284453, (int)(var2.field_146294_l * 0.5 - 35.0), (int)(var2.field_146295_m * 0.87), 70, 20, var6));
                   var1.setButtonList(var5);
                }
@@ -292,15 +292,15 @@ public class fu {
       if (var2 instanceof GuiInventory || var2 instanceof GuiContainerCreative) {
          if (var1.getButton().field_146127_k == 284453) {
             Minecraft var3 = Minecraft.func_71410_x();
-            AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.d_clash567(var3.field_71439_g.getPersistentID());
+            AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3.field_71439_g.getPersistentID());
             if (var4 != null) {
                if (!var4.A_clash381()) {
-                  if (var4.ae_clash498() == null) {
-                     if (var4.y_clash492() == fp.NULL) {
+                  if (var4.getInteractionPlayerUUID() == null) {
+                     if (var4.getCurrentAction() == fp.NULL) {
                         var3.field_71474_y.field_74320_O = 2;
                         var3.field_71460_t.func_175066_a(null);
                         var4.b(fp.STRIP);
-                        d3.a_clash122(false);
+                        d3.setMovementLock(false);
                         var3.field_71439_g.func_71053_j();
                      }
                   }
@@ -315,7 +315,7 @@ public class fu {
       if (var1.getSource() == DamageSource.field_76379_h) {
          EntityLivingBase var2 = var1.getEntityLiving();
          if (var2 instanceof EntityPlayer) {
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.d_clash567(var2.getPersistentID());
+            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.getPersistentID());
             if (var3 != null) {
                if (var3 instanceof SlimePlayerEntity) {
                   var1.setResult(Result.DENY);
@@ -327,7 +327,4 @@ public class fu {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

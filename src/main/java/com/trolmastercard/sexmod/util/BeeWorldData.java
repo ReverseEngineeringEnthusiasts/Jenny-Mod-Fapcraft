@@ -79,7 +79,4 @@ public class BeeWorldData extends WorldSavedData {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

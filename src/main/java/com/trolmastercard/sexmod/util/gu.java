@@ -114,9 +114,6 @@ public class gu {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    static class a {
       public static HashMap<String, Integer[]> a = new HashMap<>();

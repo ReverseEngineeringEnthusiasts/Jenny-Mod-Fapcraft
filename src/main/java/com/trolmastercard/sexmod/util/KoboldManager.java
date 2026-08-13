@@ -208,7 +208,7 @@ public class KoboldManager {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
          var2.b_clash883(var1);
-         var2.b_clash874(var1.f_clash491());
+         var2.b_clash874(var1.getGirlId());
          if (var2.g != null && var2.g.func_145782_y() == var1.func_145782_y()) {
             KoboldEntity var3 = var2.b_clash884();
             if (var3 != null) {
@@ -392,7 +392,7 @@ public class KoboldManager {
          }
 
          if (var3 == null) {
-            System.out.println("task of worker " + var1.f_clash491() + " not found uwu");
+            System.out.println("task of worker " + var1.getGirlId() + " not found uwu");
          } else {
             var2.b(var3);
          }
@@ -505,7 +505,7 @@ public class KoboldManager {
       }
 
       for (KoboldEntity var3 : var1.a) {
-         if (var3.ae_clash498() != null) {
+         if (var3.getInteractionPlayerUUID() != null) {
             return true;
          }
       }
@@ -606,7 +606,7 @@ public class KoboldManager {
             boolean var11 = false;
 
             for (KoboldEntity var13 : (java.util.Collection<KoboldEntity>) (var10) ) {
-               if (var8.equals(var13.f_clash491())) {
+               if (var8.equals(var13.getGirlId())) {
                   var11 = true;
                   break;
                }
@@ -631,9 +631,6 @@ public class KoboldManager {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class a {
       UUID m;
@@ -718,7 +715,7 @@ public class KoboldManager {
          HashSet var1 = new HashSet();
 
          for (KoboldEntity var3 : this.a) {
-            var1.add(var3.f_clash491());
+            var1.add(var3.getGirlId());
          }
 
          for (Entry var5 : this.k.entrySet()) {
@@ -750,17 +747,17 @@ public class KoboldManager {
 
       public void a_clash882(KoboldEntity var1) {
          if (!this.a.contains(var1)) {
-            UUID var2 = var1.f_clash491();
+            UUID var2 = var1.getGirlId();
             ArrayList var3 = new ArrayList();
 
             for (KoboldEntity var5 : this.a) {
-               if (var5.f_clash491().equals(var2)) {
+               if (var5.getGirlId().equals(var2)) {
                   var3.add(var5);
                }
             }
 
             for (KoboldEntity var7 : (java.util.Collection<KoboldEntity>) (var3) ) {
-               Main.LOGGER.warn(String.format("Removed old entry of kobold called %s with UUID %s owned by %s", var7.c_clash241(), var7.f_clash491(), this.e));
+               Main.LOGGER.warn(String.format("Removed old entry of kobold called %s with UUID %s owned by %s", var7.getDisplayNameText(), var7.getGirlId(), this.e));
                this.b_clash883(var7);
             }
 
@@ -792,9 +789,6 @@ public class KoboldManager {
          return var1;
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 
    public static class b extends WorldSavedData {
@@ -1060,7 +1054,7 @@ public class KoboldManager {
             for (KoboldEntity var11 : var5.a) {
                if (!var11.field_70128_L) {
                   BlockPos var12 = var11.func_180425_c();
-                  UUID var13 = var11.f_clash491();
+                  UUID var13 = var11.getGirlId();
                   var1.func_74778_a(
                      var6.toString() + "member" + var8 + "pos", var12.func_177958_n() + "|" + var12.func_177956_o() + "|" + var12.func_177952_p()
                   );
@@ -1121,8 +1115,5 @@ public class KoboldManager {
          return var1;
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

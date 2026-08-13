@@ -38,7 +38,7 @@ public class GuiHandler implements IGuiHandler {
    public Object getServerGuiElement(int var1, EntityPlayer var2, World var3, int var4, int var5, int var6) {
       if (var1 == 0) {
          try {
-            for (BaseGirlEntity var8 : BaseGirlEntity.ad_clash509()) {
+            for (BaseGirlEntity var8 : BaseGirlEntity.getGirlEntityList()) {
                if (!var8.field_70170_p.field_72995_K
                   && var8.func_180425_c().func_177958_n() == var4
                   && var8.func_180425_c().func_177956_o() == var5
@@ -56,7 +56,7 @@ public class GuiHandler implements IGuiHandler {
 
       if (var1 == 1) {
          try {
-            for (BaseGirlEntity var13 : BaseGirlEntity.ad_clash509()) {
+            for (BaseGirlEntity var13 : BaseGirlEntity.getGirlEntityList()) {
                if (!var13.field_70170_p.field_72995_K
                   && var13 instanceof IInventory
                   && var13.func_180425_c().func_177958_n() == var4
@@ -76,7 +76,7 @@ public class GuiHandler implements IGuiHandler {
    public Object getClientGuiElement(int var1, EntityPlayer var2, World var3, int var4, int var5, int var6) {
       if (var1 == 0) {
          try {
-            for (BaseGirlEntity var8 : BaseGirlEntity.ad_clash509()) {
+            for (BaseGirlEntity var8 : BaseGirlEntity.getGirlEntityList()) {
                if (var8.field_70170_p.field_72995_K
                   && var8.func_180425_c().func_177958_n() == var4
                   && var8.func_180425_c().func_177956_o() == var5
@@ -94,7 +94,7 @@ public class GuiHandler implements IGuiHandler {
 
       if (var1 == 1) {
          try {
-            for (BaseGirlEntity var12 : BaseGirlEntity.ad_clash509()) {
+            for (BaseGirlEntity var12 : BaseGirlEntity.getGirlEntityList()) {
                if (var12.field_70170_p.field_72995_K
                   && var12 instanceof IInventory
                   && var12.func_180425_c().func_177958_n() == var4
@@ -110,7 +110,4 @@ public class GuiHandler implements IGuiHandler {
       return null;
    }
 
-   private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-      return var0;
-   }
 }

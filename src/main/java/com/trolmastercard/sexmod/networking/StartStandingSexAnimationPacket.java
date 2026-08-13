@@ -51,14 +51,14 @@ public class StartStandingSexAnimationPacket implements IMessage {
       public IMessage onMessage(StartStandingSexAnimationPacket var1, MessageContext var2) {
          if (var1.c && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               AbstractPlayerGirlEntity var1x = AbstractPlayerGirlEntity.d_clash567(var1.a);
+               AbstractPlayerGirlEntity var1x = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.a);
                if (var1x != null) {
                   if (!FMLCommonHandler.instance().getMinecraftServerInstance().func_71262_S()) {
                      try {
-                        for (BaseGirlEntity var3 : BaseGirlEntity.ad_clash509()) {
+                        for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
                            if (var3 instanceof AbstractPlayerGirlEntity) {
                               var1x = (AbstractPlayerGirlEntity)var3;
-                              if (!var1x.field_70170_p.field_72995_K && var1x.m_clash583().equals(var1.a)) {
+                              if (!var1x.field_70170_p.field_72995_K && var1x.getOwnerUserUUID().equals(var1.a)) {
                                  break;
                               }
                            }
@@ -77,8 +77,5 @@ public class StartStandingSexAnimationPacket implements IMessage {
          }
       }
 
-      private static Exception a(Exception var0) {
-         return var0;
-      }
    }
 }

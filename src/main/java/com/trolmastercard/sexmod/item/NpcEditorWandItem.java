@@ -113,10 +113,10 @@ public class NpcEditorWandItem extends Item {
                   var1.setCanceled(true);
                   if (var3.field_70170_p.field_72995_K) {
                      BaseGirlEntity var5 = (BaseGirlEntity)var2;
-                     String var6 = var5.C_clash559();
-                     String var7 = BaseGirlEntity.c(BaseGirlEntity.h_clash555(var5.f_clash491()));
+                     String var6 = var5.getCustomModelCode();
+                     String var7 = BaseGirlEntity.c(BaseGirlEntity.h_clash555(var5.getGirlId()));
                      var3.func_145747_a(
-                        new TextComponentString(String.format("%s's model-code: %s%s$%s", var5.c_clash241(), TextFormatting.YELLOW, var6, var7))
+                        new TextComponentString(String.format("%s's model-code: %s%s$%s", var5.getDisplayNameText(), TextFormatting.YELLOW, var6, var7))
                      );
                      var3.func_145747_a(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
                      ThreadNames.a_clash162(String.format("%s$%s", var6, var7));
@@ -154,16 +154,16 @@ public class NpcEditorWandItem extends Item {
       } else if (!var2.field_72995_K) {
          return true;
       } else {
-         AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.d_clash567(var1.getPersistentID());
+         AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getPersistentID());
          if (var4 == null) {
             var1.func_146105_b(new TextComponentString("you gotta turn into the girl, you want to copy the model-code off"), true);
             return true;
          } else {
-            String var5 = var4.C_clash559();
-            String var6 = BaseGirlEntity.c(BaseGirlEntity.h_clash555(var4.f_clash491()));
+            String var5 = var4.getCustomModelCode();
+            String var6 = BaseGirlEntity.c(BaseGirlEntity.h_clash555(var4.getGirlId()));
             var1.func_145747_a(
                new TextComponentString(
-                  String.format("%s's model-code: %s%s$%s", ThreadNames.b_clash163(NpcType.a_clash751(var4).toString()), TextFormatting.YELLOW, var5, var6)
+                  String.format("%s's model-code: %s%s$%s", ThreadNames.b_clash163(NpcType.getNpcType(var4).toString()), TextFormatting.YELLOW, var5, var6)
                )
             );
             var1.func_145747_a(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
@@ -191,7 +191,4 @@ public class NpcEditorWandItem extends Item {
       ModelLoader.setCustomModelResourceLocation(a, 1, new ModelResourceLocation("sexmod:npc_editor_wand_active"));
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

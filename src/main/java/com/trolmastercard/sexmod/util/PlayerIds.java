@@ -61,12 +61,12 @@ public class PlayerIds {
          PacketHandler.b.sendTo(new SendBlocksPacket(var8, true), var2);
       }
 
-      AbstractPlayerGirlEntity.C_clash585();
-      AbstractPlayerGirlEntity var9 = AbstractPlayerGirlEntity.d_clash567(var1.player.getPersistentID());
+      AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
+      AbstractPlayerGirlEntity var9 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.player.getPersistentID());
       World var5 = FMLCommonHandler.instance().getMinecraftServerInstance().func_130014_f_();
       this.a(var5, var2, var9);
       if (var9 != null) {
-         var9.a_clash504(false);
+         var9.setAnchored(false);
          var9.b(fp.NULL);
          ResetGirlPacket.Handler.a_clash10(var9);
       }
@@ -111,7 +111,7 @@ public class PlayerIds {
       Predicate var4 = var0 -> true;
 
       for (AbstractPlayerGirlEntity var7 : var1.func_175644_a(AbstractPlayerGirlEntity.class, var4::test)) {
-         if (var7.m_clash583().equals(var2.getPersistentID()) && (var3 == null || var7.func_145782_y() != var3.func_145782_y())) {
+         if (var7.getOwnerUserUUID().equals(var2.getPersistentID()) && (var3 == null || var7.func_145782_y() != var3.func_145782_y())) {
             var1.func_72900_e(var7);
          }
       }
@@ -122,26 +122,26 @@ public class PlayerIds {
       EntityPlayer var2 = var1.player;
 
       try {
-         for (BaseGirlEntity var4 : BaseGirlEntity.ad_clash509()) {
+         for (BaseGirlEntity var4 : BaseGirlEntity.getGirlEntityList()) {
             if (var4 instanceof AbstractPlayerGirlEntity) {
                ((AbstractPlayerGirlEntity)var4).b_clash468(var2);
             }
 
-            if (var4.ae_clash498() != null) {
-               if (var4.ae_clash498().equals(var2.getPersistentID()) || var4.ae_clash498().equals(var2.func_110124_au())) {
+            if (var4.getInteractionPlayerUUID() != null) {
+               if (var4.getInteractionPlayerUUID().equals(var2.getPersistentID()) || var4.getInteractionPlayerUUID().equals(var2.func_110124_au())) {
                   ResetGirlPacket.Handler.a_clash10(var4);
-                  var4.a_clash504(false);
+                  var4.setAnchored(false);
                   var4.b(fp.NULL);
                }
 
                if (var4 instanceof AbstractPlayerGirlEntity
-                  && ((AbstractPlayerGirlEntity)var4).m_clash583().equals(var2.getPersistentID())
-                  && var4.ae_clash498() != null) {
-                  EntityPlayerMP var5 = (EntityPlayerMP)var1.player.field_70170_p.func_152378_a(var4.ae_clash498());
+                  && ((AbstractPlayerGirlEntity)var4).getOwnerUserUUID().equals(var2.getPersistentID())
+                  && var4.getInteractionPlayerUUID() != null) {
+                  EntityPlayerMP var5 = (EntityPlayerMP)var1.player.field_70170_p.func_152378_a(var4.getInteractionPlayerUUID());
                   PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), var5);
                   ResetGirlPacket.Handler.a(var5);
                   var2.func_82142_c(false);
-                  var4.e_clash499(null);
+                  var4.setInteractionPlayerUUID(null);
                }
             }
          }
@@ -149,7 +149,4 @@ public class PlayerIds {
       }
    }
 
-   private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-      return var0;
-   }
 }

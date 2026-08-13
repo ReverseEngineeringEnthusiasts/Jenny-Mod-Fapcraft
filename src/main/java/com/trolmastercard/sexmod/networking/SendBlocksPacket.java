@@ -65,9 +65,6 @@ public class SendBlocksPacket implements IMessage {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<SendBlocksPacket, IMessage> {
       public IMessage onMessage(SendBlocksPacket var1, MessageContext var2) {
@@ -161,8 +158,5 @@ public class SendBlocksPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

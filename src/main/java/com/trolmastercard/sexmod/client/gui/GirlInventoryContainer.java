@@ -78,7 +78,4 @@ public class GirlInventoryContainer extends Container {
       return this.a;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

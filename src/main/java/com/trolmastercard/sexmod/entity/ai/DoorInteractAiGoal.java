@@ -102,7 +102,4 @@ public class DoorInteractAiGoal extends EntityAIBase {
       return var3 instanceof BlockDoor && var2.func_185904_a() == Material.field_151575_d ? (BlockDoor)var3 : null;
    }
 
-   private static IllegalArgumentException a(IllegalArgumentException var0) {
-      return var0;
-   }
 }

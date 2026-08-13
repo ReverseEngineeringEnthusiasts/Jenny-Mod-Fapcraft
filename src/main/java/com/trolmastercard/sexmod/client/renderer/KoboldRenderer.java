@@ -116,7 +116,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    }
 
    @Override
-   protected Vec3i a_clash216(String var1) {
+   protected Vec3i getBoneColor(String var1) {
       EntityDataManager var2 = this.j.func_184212_Q();
       EyeAndKoboldColor var3 = EyeAndKoboldColor.valueOf((String)var2.func_187225_a(KoboldEntity.N));
       BlockPos var4 = (BlockPos)var2.func_187225_a(KoboldEntity.K);
@@ -131,7 +131,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
 
    @Override
    protected ItemStack a_clash341(@Nullable ItemStack var1) {
-      switch (this.j.y_clash492()) {
+      switch (this.j.getCurrentAction()) {
          case MINE:
             if ((Boolean)this.j.func_184212_Q().func_187225_a(KoboldEntity.at)) {
                return new ItemStack(Items.field_151036_c);
@@ -199,7 +199,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       }
 
       if (!var1.as.equals(var10)) {
-         c_clash214();
+         clearBoneColors();
          var1.as = var10;
       }
 
@@ -220,7 +220,4 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

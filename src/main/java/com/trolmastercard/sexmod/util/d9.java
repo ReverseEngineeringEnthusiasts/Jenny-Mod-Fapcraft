@@ -162,9 +162,9 @@ public abstract class d9 extends GirlPlayerRenderer {
       MATRIX_STACK.rotate(var2);
       MATRIX_STACK.scale(var2);
       MATRIX_STACK.moveBackFromPivot(var2);
-      if ("Head2".equals(var7) && !this.c_clash339()) {
+      if ("Head2".equals(var7) && !this.shouldRenderHead2()) {
          MATRIX_STACK.pop();
-      } else if (("neck".equals(var7) || "head".equals(var7)) && !this.a_clash367()) {
+      } else if (("neck".equals(var7) || "head".equals(var7)) && !this.shouldRenderFirstPersonHead()) {
          MATRIX_STACK.pop();
       } else {
          if (!var2.isHidden) {
@@ -247,7 +247,4 @@ public abstract class d9 extends GirlPlayerRenderer {
       return var1.startsWith("armor");
    }
 
-   private static IllegalStateException a(IllegalStateException var0) {
-      return var0;
-   }
 }

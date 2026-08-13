@@ -55,7 +55,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
    }
 
    boolean a_clash365(BaseGirlEntity var1) {
-      if (var1.h_clash508()) {
+      if (var1.isLocallyRegistered()) {
          return true;
       }
 
@@ -68,8 +68,8 @@ public class GirlPlayerRenderer extends GirlRenderer {
    public void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       if (this.a_clash365(var1)) {
          AbstractPlayerGirlEntity var10 = (AbstractPlayerGirlEntity)var1;
-         if (var10.m_clash583() != null) {
-            EntityPlayer var11 = Minecraft.func_71410_x().field_71439_g.field_70170_p.func_152378_a(var10.m_clash583());
+         if (var10.getOwnerUserUUID() != null) {
+            EntityPlayer var11 = Minecraft.func_71410_x().field_71439_g.field_70170_p.func_152378_a(var10.getOwnerUserUUID());
             if (var11 != null) {
                this.s = var11.func_184614_ca();
                this.x = var11.func_184592_cb();
@@ -104,7 +104,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
          return false;
       }
 
-      fp var3 = var2.y_clash492();
+      fp var3 = var2.getCurrentAction();
       return var3 == null ? true : !var3.hideNameTag;
    }
 
@@ -173,9 +173,9 @@ public class GirlPlayerRenderer extends GirlRenderer {
       MATRIX_STACK.rotate(var2);
       MATRIX_STACK.scale(var2);
       MATRIX_STACK.moveBackFromPivot(var2);
-      if ("Head2".equals(var7) && !this.c_clash339()) {
+      if ("Head2".equals(var7) && !this.shouldRenderHead2()) {
          MATRIX_STACK.pop();
-      } else if (("neck".equals(var7) || "head".equals(var7)) && !this.a_clash367()) {
+      } else if (("neck".equals(var7) || "head".equals(var7)) && !this.shouldRenderFirstPersonHead()) {
          MATRIX_STACK.pop();
       } else {
          if (!var2.isHidden) {
@@ -211,7 +211,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
       }
    }
 
-   public boolean a_clash367() {
+   public boolean shouldRenderFirstPersonHead() {
       if (!((AbstractPlayerGirlEntity)this.j).f_clash579()) {
          return true;
       } else {
@@ -303,7 +303,4 @@ public class GirlPlayerRenderer extends GirlRenderer {
       }
    }
 
-   private static IllegalStateException b(IllegalStateException var0) {
-      return var0;
-   }
 }

@@ -50,7 +50,7 @@ public class UpdateEquipmentPacket implements IMessage {
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.g_clash524(var1.c)) {
+               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.c)) {
                   if (var3 instanceof AbstractGirlNpcEntity) {
                      ((AbstractGirlNpcEntity)var3).Q.deserializeNBT(var1.b);
                   }
@@ -60,8 +60,5 @@ public class UpdateEquipmentPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

@@ -23,7 +23,7 @@ public class ah {
             if (var2 instanceof AbstractPlayerGirlEntity) {
                var1.setCanceled(true);
             } else {
-               var1.setCanceled(var2.ae_clash498() != null);
+               var1.setCanceled(var2.getInteractionPlayerUUID() != null);
             }
          }
       }
@@ -45,7 +45,4 @@ public class ah {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

@@ -67,7 +67,7 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    @Override
-   public String c_clash241() {
+   public String getDisplayNameText() {
       return "Bee";
    }
 
@@ -118,13 +118,13 @@ public class BeeEntity extends BeeEntityBase {
    @Override
    public void func_70619_bc() {
       super.func_70619_bc();
-      if (this.func_70644_a(HornyPotion.b) && this.N < 4800.0F && this.ae_clash498() == null) {
+      if (this.func_70644_a(HornyPotion.b) && this.N < 4800.0F && this.getInteractionPlayerUUID() == null) {
          this.func_184589_d(HornyPotion.b);
          this.N = 6.9420184E7F;
       }
 
       this.c_clash752();
-      if (this.y_clash492().equals(fp.CITIZEN_CUM)) {
+      if (this.getCurrentAction().equals(fp.CITIZEN_CUM)) {
          this.P = Math.max(1, this.P);
       }
 
@@ -134,13 +134,13 @@ public class BeeEntity extends BeeEntityBase {
 
    @Override
    public void b(fp var1) {
-      if (this.y_clash492() != fp.CITIZEN_CUM || var1 != fp.CITIZEN_FAST && var1 != fp.COWGIRLSLOW) {
+      if (this.getCurrentAction() != fp.CITIZEN_CUM || var1 != fp.CITIZEN_FAST && var1 != fp.COWGIRLSLOW) {
          super.b(var1);
       }
    }
 
    void c_clash752() {
-      if (this.ae_clash498() == null) {
+      if (this.getInteractionPlayerUUID() == null) {
          if (!this.J_clash526()) {
             this.N++;
             if (!(this.N < 4800.0F)) {
@@ -150,14 +150,14 @@ public class BeeEntity extends BeeEntityBase {
                      if (!AbstractPlayerGirlEntity.e(var1)) {
                         if (var1.func_70032_d(this) < 1.5F) {
                            this.N = 0.0F;
-                           this.e_clash499(var1.getPersistentID());
+                           this.setInteractionPlayerUUID(var1.getPersistentID());
                            this.m.func_187227_b(G, true);
-                           this.c_clash502(this.aa_clash545());
-                           this.b_clash431(var1.field_70177_z - 180.0F);
+                           this.setTargetPosition(this.aa_clash545());
+                           this.setYawRotation(var1.field_70177_z - 180.0F);
                            this.f.func_75499_g();
                            PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
                            this.b(fp.CITIZEN_START);
-                           Vec3d var2 = this.a_clash546(0.2);
+                           Vec3d var2 = this.getVectorTowardPlayer(0.2);
                            var1.func_70634_a(var2.field_72450_a, var2.field_72448_b, var2.field_72449_c);
                         } else {
                            this.f.func_75499_g();
@@ -318,7 +318,7 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       return false;
    }
 
@@ -327,12 +327,12 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       return var1 == fp.CITIZEN_SLOW ? fp.CITIZEN_FAST : null;
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       return var1 != fp.CITIZEN_FAST && var1 != fp.CITIZEN_SLOW ? null : fp.CITIZEN_CUM;
    }
 
@@ -367,14 +367,14 @@ public class BeeEntity extends BeeEntityBase {
 
       switch (var1.getController().getName()) {
          case "movement":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.bee.null", true, var1);
             } else {
                this.a("animation.bee." + (this.m.func_187225_a(K) ? "idle_has_chest" : "idle"), true, var1);
             }
             break;
          case "action":
-            switch (this.y_clash492()) {
+            switch (this.getCurrentAction()) {
                case CITIZEN_START:
                   this.a("animation.bee.sex_start", false, var1);
                   break;
@@ -404,54 +404,54 @@ public class BeeEntity extends BeeEntityBase {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "pearl":
-               if (this.e_clash544() && this.y_clash492() == fp.THROW_PEARL) {
-                  PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.f_clash491()));
+               if (this.isLocalPlayerNearby() && this.getCurrentAction() == fp.THROW_PEARL) {
+                  PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                }
                break;
             case "resetCumPercentage":
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "sex_fastMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
                break;
             case "sex_startMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02F);
                }
                break;
             case "sex_fastDone":
-               if (!this.n_clash537() || d3.d) {
+               if (!this.isControlledByLocalPlayer() || d3.d) {
                   return;
                }
             case "sex_startDone":
                this.b(fp.CITIZEN_SLOW);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "sex_cumMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_CUMINFLATION), 2.0F);
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_CUMINFLATION), 2.0F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                break;
             case "blackscreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "sex_cumDone":
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                   this.r_clash533();
                }
                break;
             case "sex_fastReady":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                }
          }
@@ -462,7 +462,4 @@ public class BeeEntity extends BeeEntityBase {
       var1.addAnimationController(this.s);
    }
 
-   private static RuntimeException b(RuntimeException var0) {
-      return var0;
-   }
 }
