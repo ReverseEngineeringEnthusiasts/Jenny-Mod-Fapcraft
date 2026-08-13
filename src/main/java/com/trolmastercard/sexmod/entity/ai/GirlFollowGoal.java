@@ -62,7 +62,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       super.func_75246_d();
       this.l = this.q.func_70032_d(this.a);
       this.i = this.a.func_174791_d();
-      if (this.q.y_clash492() == fp.BOW) {
+      if (this.q.getCurrentAction() == fp.BOW) {
          this.q.b(fp.NULL);
       }
    }
@@ -171,7 +171,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    @Override
    protected GirlFollowAiBase.GirlFollowAiBaseState a_clash807() {
       this.n--;
-      if (!this.q.N && this.q.ae_clash498() == null) {
+      if (!this.q.N && this.q.getInteractionPlayerUUID() == null) {
          if (this.a.func_184218_aH()) {
             Entity var1 = this.a.func_184187_bx();
             if (this.q.func_184218_aH() || this.q.func_184220_m(var1) || var1 instanceof EntityHorse && ((EntityHorse)var1).func_110257_ck()) {
@@ -371,15 +371,12 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    void a_clash831() {
       if (!this.q.field_70122_E && !this.q.func_70090_H() && this.q.field_70159_w + this.q.field_70179_y == 0.0 && !(this.q.field_70181_x <= 0.0)) {
          Vec3d var1 = new Vec3d(0.0, 0.0, 0.1F);
-         var1 = ck.a_clash306(var1, this.q.field_70177_z);
+         var1 = ck.rotateByYaw(var1, this.q.field_70177_z);
          this.q.field_70159_w = var1.field_72450_a;
          this.q.field_70179_y = var1.field_72449_c;
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class a {
       @SubscribeEvent
@@ -425,8 +422,5 @@ public class GirlFollowGoal extends GirlFollowAiBase {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

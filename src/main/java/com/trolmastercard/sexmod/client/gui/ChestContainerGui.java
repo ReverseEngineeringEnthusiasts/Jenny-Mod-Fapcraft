@@ -47,7 +47,7 @@ public class ChestContainerGui extends GuiContainer {
    }
 
    protected void func_146979_b(int var1, int var2) {
-      this.field_146289_q.func_78276_b(this.b.c_clash241(), 8, 6, 4210752);
+      this.field_146289_q.func_78276_b(this.b.getDisplayNameText(), 8, 6, 4210752);
       this.field_146289_q.func_78276_b(this.e.func_145748_c_().func_150260_c(), 8, this.field_147000_g - 96 + 2, 4210752);
    }
 
@@ -72,12 +72,9 @@ public class ChestContainerGui extends GuiContainer {
                var3[var4 + 36] = var2.func_75139_a(var4).func_75211_c();
             }
 
-            PacketHandler.b.sendToServer(new UploadInventoryToServerPacket(this.b.f_clash491(), this.a, var3));
+            PacketHandler.b.sendToServer(new UploadInventoryToServerPacket(this.b.getGirlId(), this.a, var3));
          }
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

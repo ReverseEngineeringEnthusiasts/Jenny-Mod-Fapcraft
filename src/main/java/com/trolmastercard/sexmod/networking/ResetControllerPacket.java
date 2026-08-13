@@ -50,13 +50,13 @@ public class ResetControllerPacket implements IMessage {
          }
 
          if (var2.side.isServer()) {
-            BaseGirlEntity var7 = BaseGirlEntity.a_clash523(var1.a);
+            BaseGirlEntity var7 = BaseGirlEntity.getServerGirlEntity(var1.a);
             if (var7 == null) {
                return null;
             }
 
             UUID var4 = var2.getServerHandler().field_147369_b.getPersistentID();
-            var7.y_clash492().ticksPlaying = new int[]{0, 0};
+            var7.getCurrentAction().ticksPlaying = new int[]{0, 0};
 
             for (EntityPlayerMP var6 : FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al().func_181057_v()) {
                if (!var4.equals(var6.getPersistentID()) && var6.func_70032_d(var7) < 100.0F) {
@@ -66,7 +66,7 @@ public class ResetControllerPacket implements IMessage {
 
             return null;
          } else {
-            BaseGirlEntity var3 = BaseGirlEntity.b_clash522(var1.a);
+            BaseGirlEntity var3 = BaseGirlEntity.getClientGirlEntity(var1.a);
             if (var3 != null) {
                var3.ag();
             }
@@ -75,8 +75,5 @@ public class ResetControllerPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

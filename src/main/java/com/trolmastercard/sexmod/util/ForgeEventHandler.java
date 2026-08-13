@@ -113,7 +113,4 @@ public class ForgeEventHandler {
       return !var0.exists();
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

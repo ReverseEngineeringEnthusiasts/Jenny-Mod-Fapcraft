@@ -63,12 +63,12 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public IVanillaModel a_clash228(int var1) {
+   public IVanillaModel getHandModel(int var1) {
       return new BiaModel();
    }
 
    @Override
-   public String c_clash229(int var1) {
+   public String getHandTexture(int var1) {
       return "textures/entity/allie/hand.png";
    }
 
@@ -76,7 +76,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    public void b(String var1, UUID var2) {
       if ("action.names.deepthroat".equals(var1)) {
          this.b(fp.DEEPTHROAT_START);
-         this.a(this.ah_clash493(), fp.DEEPTHROAT_START);
+         this.a(this.getOutfitIndex(), fp.DEEPTHROAT_START);
          this.b_clash577(var2);
       }
 
@@ -88,15 +88,15 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       a(var1, this, new String[]{"action.names.deepthroat", "Reverse cowgirl"}, false);
       return true;
    }
 
    @Override
    public void b(fp var1) {
-      if (this.y_clash492() != fp.DEEPTHROAT_CUM || var1 != fp.DEEPTHROAT_FAST && var1 != fp.DEEPTHROAT_SLOW) {
-         if (this.y_clash492() != fp.REVERSE_COWGIRL_CUM
+      if (this.getCurrentAction() != fp.DEEPTHROAT_CUM || var1 != fp.DEEPTHROAT_FAST && var1 != fp.DEEPTHROAT_SLOW) {
+         if (this.getCurrentAction() != fp.REVERSE_COWGIRL_CUM
             || var1 != fp.REVERSE_COWGIRL_SLOW && var1 != fp.REVERSE_COWGIRL_FAST_START && var1 != fp.REVERSE_COWGIRL_FAST_CONTINUES) {
             super.b(var1);
          }
@@ -105,7 +105,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public boolean F_clash231() {
-      switch (this.y_clash492()) {
+      switch (this.getCurrentAction()) {
          case ALLIE_PREPARE_NORMAL:
          case DEEPTHROAT_START:
          case DEEPTHROAT_CUM:
@@ -121,8 +121,8 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void func_70619_bc() {
       super.func_70619_bc();
-      if (this.m_clash583() != null) {
-         EntityPlayer var1 = this.field_70170_p.func_152378_a(this.m_clash583());
+      if (this.getOwnerUserUUID() != null) {
+         EntityPlayer var1 = this.field_70170_p.func_152378_a(this.getOwnerUserUUID());
          if (var1 != null && this.as == null) {
             this.c_clash573(true);
          }
@@ -143,7 +143,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    void a_clash232() {
       if (this.field_70173_aa % 10 == 0) {
          int var1 = this.func_70681_au().nextInt(8);
-         Vec3d var2 = this.b_clash547("tail" + var1).func_178787_e(this.func_174791_d());
+         Vec3d var2 = this.getCachedBoneOffset("tail" + var1).func_178787_e(this.func_174791_d());
          this.field_70170_p
             .func_175688_a(
                EnumParticleTypes.PORTAL,
@@ -169,7 +169,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       if (var1 == fp.DEEPTHROAT_SLOW) {
          return fp.DEEPTHROAT_FAST;
       } else {
@@ -178,7 +178,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       if (var1 == fp.DEEPTHROAT_FAST || var1 == fp.DEEPTHROAT_SLOW) {
          return fp.DEEPTHROAT_CUM;
       } else {
@@ -202,36 +202,36 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "deepthroat_prepareMSG1":
-               this.a_clash541(I18n.func_135052_a("allie.dialogue.hihi", new Object[0]));
+               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.hihi", new Object[0]));
                this.a(SoundHandler.MISC_PLOB[0]);
                break;
             case "deepthroat_prepareMSG2":
-               this.a_clash541(I18n.func_135052_a("allie.dialogue.boys", new Object[0]));
+               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.boys", new Object[0]));
                this.a(SoundHandler.MISC_PLOB[0]);
                break;
             case "blackscreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "deepthroat_prepareDone":
                this.b(fp.DEEPTHROAT_START);
-               if (this.n_clash537()) {
-                  PacketHandler.b.sendToServer(new KoboldStatePacket(this.f_clash491(), this.ae_clash498(), false, true));
+               if (this.isControlledByLocalPlayer()) {
+                  PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
                   this.r = this.field_70177_z + 180.0F;
-                  this.a_clash536(0.0, 0.0, 1.35F, 0.0F, 30.0F);
-                  HornyMeterHud.b_clash363();
+                  this.positionPlayerRelative(0.0, 0.0, 1.35F, 0.0F, 30.0F);
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "deepthroat_fastMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_ALLIE_BJMOAN));
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
-                  HornyMeterHud.a_clash362(0.04F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_BJMOAN));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
                break;
             case "deepthroat_fastDone":
-               if (this.n_clash537() && !d3.d) {
+               if (this.isControlledByLocalPlayer() && !d3.d) {
                   this.b(fp.DEEPTHROAT_SLOW);
                }
                break;
@@ -239,25 +239,25 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                this.b(fp.DEEPTHROAT_SLOW);
                break;
             case "deepthroat_slowMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_ALLIE_LIPSOUND));
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
-                  HornyMeterHud.a_clash362(0.02F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
+                  HornyMeterHud.addToHornyMeter(0.02F);
                }
                break;
             case "deepthroat_cumMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_ALLIE_LIPSOUND));
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_CUMINFLATION), 1.5F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_CUMINFLATION), 1.5F);
                break;
             case "cowgirl_cumDone":
             case "deepthroat_cumDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.r_clash533();
                }
                break;
             case "deepthroat_normal_prepareMSG1":
-               this.a_clash541(I18n.func_135052_a("allie.dialogue.alright", new Object[0]));
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_PLOB));
+               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.alright", new Object[0]));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_PLOB));
                break;
             case "giggle":
                this.a_clash588(SoundHandler.GIRLS_ALLIE_GIGGLE);
@@ -269,18 +269,18 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                this.a_clash588(SoundHandler.GIRLS_ALLIE_MOAN);
                break;
             case "mmm":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_ALLIE_MMM));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_MMM));
                break;
             case "slide":
                this.a(SoundHandler.MISC_SLIDE, 0, 1, 4, 6);
                break;
             case "slowMoan":
                if (this.func_70681_au().nextBoolean()) {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_ALLIE_AHH));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_AHH));
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02F);
                }
                break;
             case "cowgirlSlowDone":
@@ -292,20 +292,20 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
 
                return;
             case "fastMoan":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
 
                if (!this.ap) {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_ALLIE_MOAN));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_MOAN));
                   this.ap = true;
                } else {
                   this.ap = false;
                }
                break;
             case "fastSwitch":
-               if (this.n_clash537() && d3.d) {
-                  fp var5 = this.y_clash492();
+               if (this.isControlledByLocalPlayer() && d3.d) {
+                  fp var5 = this.getCurrentAction();
                   if (var5 == fp.REVERSE_COWGIRL_FAST_START) {
                      this.b(fp.REVERSE_COWGIRL_FAST_CONTINUES);
                   } else {
@@ -319,8 +319,8 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "openSexUi":
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "cum":
@@ -343,7 +343,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
 
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.y_clash492() == fp.NULL && this.y_clash492().autoBlink) {
+            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
                this.a("animation.bia.blink", true, var1);
             } else {
                this.a("animation.allie.null", true, var1);
@@ -361,7 +361,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
             this.a("animation.allie.tail", true, var1);
             break;
          case "action":
-            switch (this.y_clash492()) {
+            switch (this.getCurrentAction()) {
                case ALLIE_PREPARE_NORMAL:
                   this.a("animation.allie.deepthroat_normal_prepare", false, var1);
                   break;
@@ -430,7 +430,4 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
       return PlayState.CONTINUE;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

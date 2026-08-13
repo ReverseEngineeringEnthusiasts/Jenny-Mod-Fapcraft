@@ -43,7 +43,7 @@ public class SetPlayerMovementPacket implements IMessage {
    public static class Handler implements IMessageHandler<SetPlayerMovementPacket, IMessage> {
       public IMessage onMessage(SetPlayerMovementPacket var1, MessageContext var2) {
          if (var1.a && var2.side == Side.CLIENT) {
-            d3.a_clash122(var1.b);
+            d3.setMovementLock(var1.b);
 
             try {
                Minecraft.func_71410_x().field_71439_g.func_70016_h(0.0, 0.0, 0.0);
@@ -51,7 +51,7 @@ public class SetPlayerMovementPacket implements IMessage {
             }
 
             if (var1.b) {
-               HornyMeterHud.c_clash360();
+               HornyMeterHud.hideHornyMeter();
             }
 
             return null;
@@ -61,8 +61,5 @@ public class SetPlayerMovementPacket implements IMessage {
          }
       }
 
-      private static Exception a(Exception var0) {
-         return var0;
-      }
    }
 }

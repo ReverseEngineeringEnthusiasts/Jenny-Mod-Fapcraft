@@ -80,7 +80,4 @@ public class TribeEggItem extends Item {
       ModelLoader.setCustomModelResourceLocation(a, 0, new ModelResourceLocation("sexmod:tribe_egg"));
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

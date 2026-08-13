@@ -162,14 +162,14 @@ public class dg extends d9 {
    public void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       this.D = v;
       this.B = (GoblinPlayerEntity)var1;
-      this.C = -420.69F == var8 && var1.y_clash492() == fp.SHOULDER_IDLE;
-      this.E = -420.69F == var8 && var1.y_clash492() == fp.PICK_UP;
+      this.C = -420.69F == var8 && var1.getCurrentAction() == fp.SHOULDER_IDLE;
+      this.E = -420.69F == var8 && var1.getCurrentAction() == fp.PICK_UP;
       this.y = var9;
       GoblinRenderer.B = var8;
-      fp var10 = var1.y_clash492();
-      UUID var11 = this.B.e_clash54();
+      fp var10 = var1.getCurrentAction();
+      UUID var11 = this.B.getOwnerUUID();
       if (var11 != null) {
-         if (var1.h_clash508()) {
+         if (var1.isLocallyRegistered()) {
             Vec3d var19 = GoblinRenderer.a(var1.field_70170_p, var1, var11, var2, var4, var6);
             var2 = var19.field_72450_a;
             var4 = var19.field_72448_b;
@@ -177,12 +177,12 @@ public class dg extends d9 {
          }
 
          if (var10 == fp.THROWN || var10 == fp.START_THROWING) {
-            if (i.field_71474_y.field_74320_O == 0 && var8 == -420.69F && !var1.h_clash508()) {
+            if (i.field_71474_y.field_74320_O == 0 && var8 == -420.69F && !var1.isLocallyRegistered()) {
                return;
             }
 
-            if (!var1.h_clash508()) {
-               float var20 = var1.I_clash415();
+            if (!var1.isLocallyRegistered()) {
+               float var20 = var1.getYawRotation();
                var1.field_70760_ar = var20;
                var1.field_70761_aq = var20;
             }
@@ -204,8 +204,8 @@ public class dg extends d9 {
                var2 = 0.0;
                var4 = 0.0;
                var6 = 0.0;
-            } else if (!this.B.m_clash583().equals(i.field_71439_g.getPersistentID())) {
-               if (!var1.h_clash508() || i.field_71439_g.getPersistentID().equals(var11)) {
+            } else if (!this.B.getOwnerUserUUID().equals(i.field_71439_g.getPersistentID())) {
+               if (!var1.isLocallyRegistered() || i.field_71439_g.getPersistentID().equals(var11)) {
                   if (!i.field_71439_g.getPersistentID().equals(var11)) {
                      EntityPlayer var22 = var1.field_70170_p.func_152378_a(var11);
                      if (var22 != null) {
@@ -218,14 +218,14 @@ public class dg extends d9 {
                   }
                }
 
-               Vec3d var23 = GoblinRenderer.a(var1, this.B.e_clash54(), var9);
+               Vec3d var23 = GoblinRenderer.a(var1, this.B.getOwnerUUID(), var9);
                var2 = var23.field_72450_a;
                var4 = var23.field_72448_b;
                var6 = var23.field_72449_c;
             }
          } else if (this.C) {
             GoblinRenderer.a_clash399(var9);
-            Vec3d var24 = new Vec3d(RotationHelper.a_clash25(-0.1F, 0.2F, i.field_71474_y.field_74334_X / 110.0F), 0.0, 0.0);
+            Vec3d var24 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, i.field_71474_y.field_74334_X / 110.0F), 0.0, 0.0);
             var24 = GoblinEntity.b(var24, i.field_71439_g.field_70177_z);
             var2 = var24.field_72450_a;
             var4 = var24.field_72448_b;
@@ -266,7 +266,7 @@ public class dg extends d9 {
             GlStateManager.func_179121_F();
          }
       } else {
-         if (var1.h_clash508()) {
+         if (var1.isLocallyRegistered()) {
             Vec3d var12 = GoblinRenderer.a(var1.field_70170_p, var1, var11, var2, var4, var6);
             var2 = var12.field_72450_a;
             var4 = var12.field_72448_b;
@@ -274,12 +274,12 @@ public class dg extends d9 {
          }
 
          if (var10 == fp.THROWN || var10 == fp.START_THROWING) {
-            if (i.field_71474_y.field_74320_O == 0 && var8 == -420.69F && !var1.h_clash508()) {
+            if (i.field_71474_y.field_74320_O == 0 && var8 == -420.69F && !var1.isLocallyRegistered()) {
                return;
             }
 
-            if (!var1.h_clash508()) {
-               float var14 = var1.I_clash415();
+            if (!var1.isLocallyRegistered()) {
+               float var14 = var1.getYawRotation();
                var1.field_70760_ar = var14;
                var1.field_70761_aq = var14;
             }
@@ -301,20 +301,20 @@ public class dg extends d9 {
                var2 = 0.0;
                var4 = 0.0;
                var6 = 0.0;
-            } else if (!this.B.m_clash583().equals(i.field_71439_g.getPersistentID())) {
-               if (var1.h_clash508()) {
+            } else if (!this.B.getOwnerUserUUID().equals(i.field_71439_g.getPersistentID())) {
+               if (var1.isLocallyRegistered()) {
                }
 
                var1.field_70761_aq = i.field_71439_g.field_70177_z;
                var1.field_70760_ar = i.field_71439_g.field_70177_z;
-               Vec3d var16 = GoblinRenderer.a(var1, this.B.e_clash54(), var9);
+               Vec3d var16 = GoblinRenderer.a(var1, this.B.getOwnerUUID(), var9);
                var2 = var16.field_72450_a;
                var4 = var16.field_72448_b;
                var6 = var16.field_72449_c;
             }
          } else if (this.C) {
             GoblinRenderer.a_clash399(var9);
-            Vec3d var17 = new Vec3d(RotationHelper.a_clash25(-0.1F, 0.2F, i.field_71474_y.field_74334_X / 110.0F), 0.0, 0.0);
+            Vec3d var17 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, i.field_71474_y.field_74334_X / 110.0F), 0.0, 0.0);
             var17 = GoblinEntity.b(var17, i.field_71439_g.field_70177_z);
             var2 = var17.field_72450_a;
             var4 = var17.field_72448_b;
@@ -357,7 +357,7 @@ public class dg extends d9 {
       }
 
       GoblinPlayerEntity var2 = (GoblinPlayerEntity)var1;
-      UUID var3 = var2.m_clash583();
+      UUID var3 = var2.getOwnerUserUUID();
       EntityPlayerSP var4 = i.field_71439_g;
       if (var3 != null && (i.field_71474_y.field_74320_O != 0 || !var4.getPersistentID().equals(var3))) {
          EntityPlayer var5 = var2.k_clash584();
@@ -445,7 +445,4 @@ public class dg extends d9 {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

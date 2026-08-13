@@ -43,11 +43,11 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       super(var1, var2, var3);
    }
 
-   public static void c_clash214() {
+   public static void clearBoneColors() {
       s.clear();
    }
 
-   protected Vec3i a_clash215(GeoBone var1) {
+   protected Vec3i getCachedBoneColor(GeoBone var1) {
       String var2 = var1.getName();
       int var3 = var2.hashCode() + this.j.getPersistentID().hashCode();
       Vec3i var4 = s.get(var3);
@@ -55,12 +55,12 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
          return var4;
       }
 
-      var4 = this.a_clash216(var2);
+      var4 = this.getBoneColor(var2);
       s.put(var3, var4);
       return var4;
    }
 
-   protected abstract Vec3i a_clash216(String var1);
+   protected abstract Vec3i getBoneColor(String var1);
 
    protected static void b(GeoBone var0, int var1) {
       List var2 = var0.childBones;
@@ -135,7 +135,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
             this.a(var1, var2);
          }
 
-         if (var9.equals("itemRenderer") && this.j.y_clash492() == fp.PAYMENT) {
+         if (var9.equals("itemRenderer") && this.j.getCurrentAction() == fp.PAYMENT) {
             this.b(var1, var2);
          }
 
@@ -191,7 +191,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
                var14.z *= -1.0F;
             }
 
-            Vec3i var15 = this.a_clash215(var3);
+            Vec3i var15 = this.getCachedBoneColor(var3);
             var15 = this.a_clash219(var15);
             Vec3d var16 = BodyParts.a(
                this, var3, new Vec3d(var15.func_177958_n() / 255.0F, var15.func_177956_o() / 255.0F, var15.func_177952_p() / 255.0F), var14
@@ -210,7 +210,4 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       }
    }
 
-   private static RuntimeException c(RuntimeException var0) {
-      return var0;
-   }
 }

@@ -55,12 +55,12 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public IVanillaModel a_clash228(int var1) {
+   public IVanillaModel getHandModel(int var1) {
       return new LunaModel();
    }
 
    @Override
-   public String c_clash229(int var1) {
+   public String getHandTexture(int var1) {
       return "textures/entity/cat/hand.png";
    }
 
@@ -90,15 +90,15 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       a(var1, this, new String[]{"action.names.touchboobs", "action.names.headpat"}, false);
       return true;
    }
 
    @Override
    public void b(fp var1) {
-      if (this.y_clash492() != fp.COWGIRL_SITTING_CUM || var1 != fp.COWGIRL_SITTING_SLOW && var1 != fp.COWGIRL_SITTING_FAST) {
-         if (this.y_clash492() != fp.TOUCH_BOOBS_CUM || var1 != fp.TOUCH_BOOBS_FAST && var1 != fp.TOUCH_BOOBS_SLOW) {
+      if (this.getCurrentAction() != fp.COWGIRL_SITTING_CUM || var1 != fp.COWGIRL_SITTING_SLOW && var1 != fp.COWGIRL_SITTING_FAST) {
+         if (this.getCurrentAction() != fp.TOUCH_BOOBS_CUM || var1 != fp.TOUCH_BOOBS_FAST && var1 != fp.TOUCH_BOOBS_SLOW) {
             super.b(var1);
          }
       }
@@ -107,7 +107,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void func_70071_h_() {
       super.func_70071_h_();
-      if (fp.WAIT_CAT.equals(this.y_clash492())) {
+      if (fp.WAIT_CAT.equals(this.getCurrentAction())) {
          this.a_clash378();
       } else {
          this.ar = 0;
@@ -121,15 +121,15 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
             if (this.field_70170_p.field_72995_K) {
                this.a(var1, this.ar);
             } else if (this.ar == 25) {
-               this.e_clash499(var1.getPersistentID());
+               this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.func_191958_b(0.0F, 0.0F, 0.0F, 0.0F);
                var1.func_70634_a(this.func_174791_d().field_72450_a, this.w_clash576().field_72448_b, this.func_174791_d().field_72449_c);
                this.b(fp.COWGIRL_SITTING_INTRO);
-               var1.func_70034_d(this.I_clash415() + 180.0F);
-               var1.field_70177_z = this.I_clash415() + 180.0F;
-               var1.field_70126_B = this.I_clash415() + 180.0F;
-               this.r = this.I_clash415() + 180.0F;
-               this.a_clash536(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
+               var1.func_70034_d(this.getYawRotation() + 180.0F);
+               var1.field_70177_z = this.getYawRotation() + 180.0F;
+               var1.field_70126_B = this.getYawRotation() + 180.0F;
+               this.r = this.getYawRotation() + 180.0F;
+               this.positionPlayerRelative(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
                this.m.func_187227_b(D, 0);
             }
 
@@ -145,7 +145,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
          if (var3.getPersistentID().equals(var1.getPersistentID())) {
             BeeScreen.b_clash732();
             var3.func_70016_h(0.0, 0.0, 0.0);
-            d3.a_clash122(false);
+            d3.setMovementLock(false);
          }
       }
 
@@ -158,7 +158,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       if (var1 == fp.TOUCH_BOOBS_SLOW) {
          return fp.TOUCH_BOOBS_FAST;
       } else {
@@ -167,7 +167,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       if (var1 == fp.TOUCH_BOOBS_SLOW || var1 == fp.TOUCH_BOOBS_FAST) {
          return fp.TOUCH_BOOBS_CUM;
       } else {
@@ -179,14 +179,14 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.y_clash492() == fp.NULL && this.y_clash492().autoBlink) {
+            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
                this.a("animation.cat.blink", true, var1);
             } else {
                this.a("animation.cat.null", true, var1);
             }
             break;
          case "movement":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.cat.null", true, var1);
             } else if (this.ak) {
                this.a("animation.cat.sit", true, var1);
@@ -214,7 +214,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
             }
             break;
          case "action":
-            switch (this.y_clash492()) {
+            switch (this.getCurrentAction()) {
                case NULL:
                   this.a("animation.cat.null", true, var1);
                   break;
@@ -304,28 +304,28 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.as = false;
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.f_clash491()));
+               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "paymentMSG1":
-               this.a(this.ae_clash498(), "Here, I know u like fish and yea.. these are for you");
+               this.a(this.getInteractionPlayerUUID(), "Here, I know u like fish and yea.. these are for you");
                this.a(SoundHandler.MISC_PLOB[0]);
                break;
             case "paymentMSG2":
-               this.a_clash541("huh~?");
+               this.sendChatMessage("huh~?");
                this.a_clash588(SoundHandler.GIRLS_LUNA_HUH);
                break;
             case "paymentMSG3":
-               this.a_clash541("nyyyaaaa~ :D");
+               this.sendChatMessage("nyyyaaaa~ :D");
                int[] var4 = new int[]{1, 7, 10, 11};
                int var5 = var4[this.func_70681_au().nextInt(var4.length)];
                this.a(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
                break;
             case "paymentMSG4":
-               this.a_clash541("tankuuuu owowowo");
+               this.sendChatMessage("tankuuuu owowowo");
                this.a_clash588(SoundHandler.GIRLS_LUNA_OWO);
                break;
             case "paymentDone":
-               if (this.e_clash544()) {
+               if (this.isLocalPlayerNearby()) {
                   this.U();
                }
 
@@ -358,7 +358,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.a_clash588(SoundHandler.GIRLS_LUNA_SINGING);
                break;
             case "touch_boobsMSG1":
-               this.a_clash541("comon~ touch me hihi~");
+               this.sendChatMessage("comon~ touch me hihi~");
                this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
                break;
             case "touch":
@@ -377,14 +377,14 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.MISC_CUMINFLATION[0], 5.0F);
                break;
             case "moan":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                break;
             case "touch_boobs_introDone":
                this.b(fp.TOUCH_BOOBS_SLOW);
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
-                  HornyMeterHud.d_clash358();
-                  d3.a_clash122(false);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
+                  HornyMeterHud.showHornyMeter();
+                  d3.setMovementLock(false);
                }
                break;
             case "touch_boobs_slowDone":
@@ -395,40 +395,40 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "addCumSlow":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02F);
                }
                break;
             case "addCumFast":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
                break;
             case "fastDone":
-               if (this.n_clash537() && !d3.d) {
+               if (this.isControlledByLocalPlayer() && !d3.d) {
                   this.b(fp.TOUCH_BOOBS_SLOW);
                }
                break;
             case "moanOrNya":
                if (Math.random() > 0.5) {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_HORNINYA));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                }
                break;
             case "blackScreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "touch_boobs_cumDone":
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                   this.r_clash533();
                }
                break;
             case "resetGirl":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.r_clash533();
                }
                break;
@@ -440,85 +440,85 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "call_playerMSG1":
                this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
-               this.a_clash541("come here - big guy hehe~");
+               this.sendChatMessage("come here - big guy hehe~");
                break;
             case "pounding":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                break;
             case "sitting_introMSG1":
                this.a_clash588(SoundHandler.GIRLS_LUNA_GIGGLE);
-               this.a_clash541("hehe~");
+               this.sendChatMessage("hehe~");
                break;
             case "sitting_introDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.b(fp.COWGIRL_SITTING_SLOW);
-                  HornyMeterHud.b_clash363();
-                  HornyMeterHud.d_clash358();
+                  HornyMeterHud.resetHornyMeter();
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "sitting_slowMSG1":
                if (this.func_70681_au().nextBoolean()) {
                   if (this.func_70681_au().nextBoolean()) {
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_HORNINYA));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                      break;
                   }
 
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_LIGHTBREATHING));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_LIGHTBREATHING));
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "sitting_fastMSG1":
                if (this.func_70681_au().nextBoolean()) {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_HORNINYA));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "sitting_fastDone":
-               if (this.n_clash537() && !d3.d) {
+               if (this.isControlledByLocalPlayer() && !d3.d) {
                   this.b(fp.COWGIRL_SITTING_SLOW);
                   Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
-                  Vec3d var9 = ck.a_clash306(var8, this.I_clash415() + 180.0F);
+                  Vec3d var9 = ck.rotateByYaw(var8, this.getYawRotation() + 180.0F);
                   Minecraft.func_71410_x()
                      .field_71439_g
                      .func_70107_b(
-                        this.o_clash501().field_72450_a + var9.field_72450_a,
-                        this.o_clash501().field_72448_b - 0.0 + var9.field_72448_b,
-                        this.o_clash501().field_72449_c + var9.field_72449_c
+                        this.getTargetPosition().field_72450_a + var9.field_72450_a,
+                        this.getTargetPosition().field_72448_b - 0.0 + var9.field_72448_b,
+                        this.getTargetPosition().field_72449_c + var9.field_72449_c
                      );
                }
                break;
             case "sitting_fastTp":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   Vec3d var6 = new Vec3d(0.0, -0.160625, -0.9925);
-                  Vec3d var7 = ck.a_clash306(var6, this.I_clash415() + 180.0F);
+                  Vec3d var7 = ck.rotateByYaw(var6, this.getYawRotation() + 180.0F);
                   Minecraft.func_71410_x()
                      .field_71439_g
                      .func_70107_b(
-                        this.o_clash501().field_72450_a + var7.field_72450_a,
-                        this.o_clash501().field_72448_b - 0.0 + var7.field_72448_b,
-                        this.o_clash501().field_72449_c + var7.field_72449_c
+                        this.getTargetPosition().field_72450_a + var7.field_72450_a,
+                        this.getTargetPosition().field_72448_b - 0.0 + var7.field_72448_b,
+                        this.getTargetPosition().field_72449_c + var7.field_72449_c
                      );
                }
                break;
             case "headpatMSG1":
-               this.a_clash541("huh?~");
+               this.sendChatMessage("huh?~");
                this.a_clash588(SoundHandler.GIRLS_LUNA_HUH);
                break;
             case "headpatMSG2":
                this.a_clash588(SoundHandler.GIRLS_LUNA_MMM);
                break;
             case "headpatMSG3":
-               this.a_clash541("nya~");
+               this.sendChatMessage("nya~");
                this.a(SoundHandler.GIRLS_LUNA_HORNINYA[0]);
          }
       };
@@ -529,7 +529,4 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       var1.addAnimationController(this.s);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

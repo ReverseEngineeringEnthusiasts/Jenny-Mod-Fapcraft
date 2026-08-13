@@ -28,25 +28,22 @@ public class SexSceneKeyHandler {
          UUID var3 = var2.field_71439_g.getPersistentID();
 
          try {
-            for (BaseGirlEntity var5 : BaseGirlEntity.ad_clash509()) {
-               if (var5.field_70170_p.field_72995_K && !var5.field_70128_L && var5.ae_clash498() != null) {
-                  UUID var6 = var5.ae_clash498();
+            for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {
+               if (var5.field_70170_p.field_72995_K && !var5.field_70128_L && var5.getInteractionPlayerUUID() != null) {
+                  UUID var6 = var5.getInteractionPlayerUUID();
                   if (var3.equals(var6) || var2.field_71439_g.func_110124_au().equals(var6)) {
-                     PacketHandler.b.sendToServer(new ResetGirlPacket(var5.f_clash491(), true));
+                     PacketHandler.b.sendToServer(new ResetGirlPacket(var5.getGirlId(), true));
                   }
                }
             }
          } catch (ConcurrentModificationException var7) {
          }
 
-         AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.d_clash567(var3);
-         if (var8 != null && var8.y_clash492() != fp.NULL) {
-            PacketHandler.b.sendToServer(new ResetGirlPacket(var8.f_clash491(), true));
+         AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3);
+         if (var8 != null && var8.getCurrentAction() != fp.NULL) {
+            PacketHandler.b.sendToServer(new ResetGirlPacket(var8.getGirlId(), true));
          }
       }
    }
 
-   private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-      return var0;
-   }
 }

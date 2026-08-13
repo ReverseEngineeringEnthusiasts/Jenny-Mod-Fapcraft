@@ -34,14 +34,14 @@ public class RequestRidingPacket implements IMessage {
          if (var1.a && var2.side.equals(Side.SERVER)) {
             EntityPlayerMP var3 = var2.getServerHandler().field_147369_b;
             UUID var4 = GirlSavedData.b_clash853(var3);
-            BaseGirlEntity var5 = BaseGirlEntity.a_clash523(var4);
+            BaseGirlEntity var5 = BaseGirlEntity.getServerGirlEntity(var4);
             if (var5 == null) {
                return null;
             }
 
             var3.func_184205_a(var5, true);
             var5.b(fp.CONTROLLED_FLIGHT);
-            var5.a_clash500(var3);
+            var5.setInteractionPlayer(var3);
             var5.field_70181_x = 0.25;
             var3.field_70170_p.func_175726_f(var5.func_180425_c()).func_76622_b(var5);
             return null;
@@ -51,8 +51,5 @@ public class RequestRidingPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

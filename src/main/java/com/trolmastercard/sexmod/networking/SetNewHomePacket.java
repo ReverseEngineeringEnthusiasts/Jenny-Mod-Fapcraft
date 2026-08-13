@@ -52,7 +52,7 @@ public class SetNewHomePacket implements IMessage {
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               ArrayList var1x = BaseGirlEntity.g_clash524(var1.c);
+               ArrayList var1x = BaseGirlEntity.girlList(var1.c);
                if (!var1x.isEmpty()) {
                   for (BaseGirlEntity var3 : (java.util.Collection<BaseGirlEntity>) (var1x) ) {
                      var3.l = new Vec3d(var1.a.field_72450_a, Math.floor(var1.a.field_72448_b), var1.a.field_72449_c);
@@ -63,8 +63,5 @@ public class SetNewHomePacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

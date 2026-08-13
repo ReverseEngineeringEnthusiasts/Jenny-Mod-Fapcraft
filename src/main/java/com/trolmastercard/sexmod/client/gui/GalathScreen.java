@@ -66,7 +66,7 @@ public class GalathScreen extends GuiScreen {
    }
 
    void c_clash396() {
-      if (this.f.ae_clash498() == null) {
+      if (this.f.getInteractionPlayerUUID() == null) {
          this.f.b(fp.START_THROWING);
       }
    }
@@ -146,7 +146,4 @@ public class GalathScreen extends GuiScreen {
       return false;
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

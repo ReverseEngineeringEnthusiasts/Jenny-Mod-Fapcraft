@@ -18,7 +18,4 @@ public class WatchClosestGirlGoal extends EntityAIWatchClosest2 {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

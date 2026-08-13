@@ -61,25 +61,25 @@ public class ResetGirlPacket implements IMessage {
 
    public static class Handler implements IMessageHandler<ResetGirlPacket, IMessage> {
       public static void a_clash10(BaseGirlEntity var0) {
-         var0.g_clash238();
-         if (var0 instanceof AbstractPlayerGirlEntity && var0.field_70170_p.func_152378_a(((AbstractPlayerGirlEntity)var0).m_clash583()) != null) {
+         var0.reinitTasks();
+         if (var0 instanceof AbstractPlayerGirlEntity && var0.field_70170_p.func_152378_a(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID()) != null) {
             PacketHandler.b
                .sendTo(
                   new SetPlayerMovementPacket(true),
                   (EntityPlayerMP)FMLCommonHandler.instance()
                      .getMinecraftServerInstance()
                      .func_71218_a(var0.field_71093_bK)
-                     .func_152378_a(((AbstractPlayerGirlEntity)var0).m_clash583())
+                     .func_152378_a(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID())
                );
             var0.func_184212_Q().func_187227_b(BaseGirlEntity.D, 1);
-            EntityPlayer var1 = var0.field_70170_p.func_152378_a(((AbstractPlayerGirlEntity)var0).m_clash583());
+            EntityPlayer var1 = var0.field_70170_p.func_152378_a(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID());
             var1.field_71075_bZ.field_75100_b = false;
             var1.func_189654_d(false);
             var1.field_70145_X = false;
-            var0.a_clash504(false);
+            var0.setAnchored(false);
             var0.b(fp.NULL);
-            if (var0.ae_clash498() != null) {
-               EntityPlayer var2 = var0.field_70170_p.func_152378_a(var0.ae_clash498());
+            if (var0.getInteractionPlayerUUID() != null) {
+               EntityPlayer var2 = var0.field_70170_p.func_152378_a(var0.getInteractionPlayerUUID());
                if (var2 != null) {
                   var2.field_71075_bZ.field_75100_b = false;
                   var2.func_189654_d(false);
@@ -88,8 +88,8 @@ public class ResetGirlPacket implements IMessage {
             }
          }
 
-         var0.a_clash504(false);
-         var0.e_clash499(null);
+         var0.setAnchored(false);
+         var0.setInteractionPlayerUUID(null);
          var0.B = null;
          var0.func_189654_d(false);
          var0.field_70145_X = false;
@@ -124,10 +124,10 @@ public class ResetGirlPacket implements IMessage {
       public IMessage onMessage(ResetGirlPacket var1, MessageContext var2) {
          if (var1.b && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.g_clash524(var1.c)) {
+               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.c)) {
                   if (!var3.field_70170_p.field_72995_K) {
-                     if (var3.ae_clash498() != null) {
-                        a(FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al().func_177451_a(var3.ae_clash498()));
+                     if (var3.getInteractionPlayerUUID() != null) {
+                        a(FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al().func_177451_a(var3.getInteractionPlayerUUID()));
                      }
 
                      if (var1.a) {
@@ -143,8 +143,5 @@ public class ResetGirlPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

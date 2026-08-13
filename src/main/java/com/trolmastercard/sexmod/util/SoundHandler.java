@@ -159,7 +159,7 @@ public class SoundHandler {
       return var2;
    }
 
-   public static SoundEvent a_clash804(SoundEvent[] var0) {
+   public static SoundEvent randomSound(SoundEvent[] var0) {
       lastRandomSound.putIfAbsent(var0[0], -69);
       int var2 = 0;
 
@@ -172,7 +172,4 @@ public class SoundHandler {
       return var0[var1];
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

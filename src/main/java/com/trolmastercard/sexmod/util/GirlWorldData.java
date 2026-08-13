@@ -41,7 +41,7 @@ public class GirlWorldData extends WorldSavedData {
 
    private static String b_clash152(BaseGirlEntity var0) {
       if (var0 instanceof GalathEntity) {
-         UUID var3 = var0.f_clash491();
+         UUID var3 = var0.getGirlId();
          UUID var2 = GirlSavedData.f_clash850(var3);
          if (var2 == null) {
             var2 = var3;
@@ -50,7 +50,7 @@ public class GirlWorldData extends WorldSavedData {
          return c.get(var2);
       } else if (var0 instanceof ManglelieEntity) {
          UUID var1 = GirlSavedData.f_clash850(((ManglelieEntity)var0).v_clash412());
-         return b.get(var1 == null ? var0.f_clash491() : var1);
+         return b.get(var1 == null ? var0.getGirlId() : var1);
       } else {
          return null;
       }
@@ -58,17 +58,17 @@ public class GirlWorldData extends WorldSavedData {
 
    public static void a_clash153(BaseGirlEntity var0) {
       if (var0 instanceof GalathEntity) {
-         UUID var3 = var0.f_clash491();
+         UUID var3 = var0.getGirlId();
          UUID var2 = GirlSavedData.f_clash850(var3);
          if (var2 == null) {
             var2 = var3;
          }
 
-         c.put(var2, var0.C_clash559());
+         c.put(var2, var0.getCustomModelCode());
       } else {
          if (var0 instanceof ManglelieEntity) {
             UUID var1 = GirlSavedData.f_clash850(((ManglelieEntity)var0).v_clash412());
-            b.put(var1 == null ? var0.f_clash491() : var1, var0.C_clash559());
+            b.put(var1 == null ? var0.getGirlId() : var1, var0.getCustomModelCode());
          }
       }
    }
@@ -133,7 +133,4 @@ public class GirlWorldData extends WorldSavedData {
       b.clear();
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

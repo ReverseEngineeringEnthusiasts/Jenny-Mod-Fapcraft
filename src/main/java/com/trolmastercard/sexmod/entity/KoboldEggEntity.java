@@ -145,7 +145,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
                String.format(
                   "%s%s %shas become a %snew tribe member%s!",
                   var4.getTextColor(),
-                  var1.c_clash241(),
+                  var1.getDisplayNameText(),
                   TextFormatting.WHITE,
                   TextFormatting.RED,
                   TextFormatting.WHITE
@@ -237,7 +237,4 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
       return EnumHandSide.LEFT;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

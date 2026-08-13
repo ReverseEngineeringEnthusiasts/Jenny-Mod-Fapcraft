@@ -272,7 +272,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    public static final double b0 = 0.2;
    public static final float bS = 5.0F;
    public static final int a1 = 60;
-   BossInfoServer aO = new BossInfoServer(new TextComponentString(this.c_clash241()), Color.RED, Overlay.PROGRESS);
+   BossInfoServer aO = new BossInfoServer(new TextComponentString(this.getDisplayNameText()), Color.RED, Overlay.PROGRESS);
    SexEntityPart b2 = new SexEntityPart(this, "energyBallHitBox", 0.75F, 0.75F);
    SexEntityPart V = new SexEntityPart(this, "energyBallHitBox", 0.75F, 0.75F);
    public GalathFlightData bZ = null;
@@ -342,16 +342,16 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             this.b(fp.GALATH_SUMMON);
          } else {
             this.b(fp.MASTERBATE);
-            this.b_clash431(180.0F - (float)gc.b(Math.atan2(var3.field_72450_a - var2.field_70165_t, var3.field_72449_c - var2.field_70161_v)));
+            this.setYawRotation(180.0F - (float)gc.b(Math.atan2(var3.field_72450_a - var2.field_70165_t, var3.field_72449_c - var2.field_70161_v)));
             ThreadNames.a(8000, () -> {
                EntityPlayer var1x = this.z_clash528();
                if (var1x != null) {
                   if (!var1x.field_70128_L) {
-                     this.c_clash502(var1x.func_174791_d());
-                     this.b_clash431(var1x.field_70177_z + 180.0F);
+                     this.setTargetPosition(var1x.func_174791_d());
+                     this.setYawRotation(var1x.field_70177_z + 180.0F);
                      this.b(fp.RAPE_INTRO);
-                     this.e_clash499(var1x.getPersistentID());
-                     this.a_clash504(true);
+                     this.setInteractionPlayerUUID(var1x.getPersistentID());
+                     this.setAnchored(true);
                   }
                }
             });
@@ -364,13 +364,13 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    @Override
-   public void f_clash439(String var1) {
-      super.f_clash439(var1);
+   public void setCustomModelCode(String var1) {
+      super.setCustomModelCode(var1);
       GirlWorldData.a_clash153(this);
    }
 
    @Override
-   public String c_clash241() {
+   public String getDisplayNameText() {
       return "Galath";
    }
 
@@ -460,8 +460,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    @Override
-   public Vec3d o_clash501() {
-      return this.field_70170_p.field_72995_K && this.aG != null ? this.aG : super.o_clash501();
+   public Vec3d getTargetPosition() {
+      return this.field_70170_p.field_72995_K && this.aG != null ? this.aG : super.getTargetPosition();
    }
 
    @Nullable
@@ -485,7 +485,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          return null;
       }
 
-      BaseGirlEntity var3 = var1 ? a_clash523(var2) : b_clash522(var2);
+      BaseGirlEntity var3 = var1 ? getServerGirlEntity(var2) : getClientGirlEntity(var2);
       return var3 instanceof ManglelieEntity ? (ManglelieEntity)var3 : null;
    }
 
@@ -507,14 +507,14 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public void w_clash641() {
-      fp var1 = this.y_clash492();
+      fp var1 = this.getCurrentAction();
       if (var1 == fp.RAPE_ON_GOING) {
          this.bZ = GalathFlightData.CHANGE_POSITION;
          this.bZ.b_clash706(this);
-         this.a_clash504(false);
+         this.setAnchored(false);
          this.b(fp.FLY);
          EntityPlayer var2 = this.S_clash495();
-         this.e_clash499(null);
+         this.setInteractionPlayerUUID(null);
          if (var2 != null) {
             PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)var2);
          }
@@ -546,7 +546,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @Override
    public boolean b_clash23() {
-      switch (this.y_clash492()) {
+      switch (this.getCurrentAction()) {
          case HUG_MANG:
          case MORNING_BLOWJOB_SLOW:
          case MORNING_BLOWJOB_FAST:
@@ -593,7 +593,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @SideOnly(Side.CLIENT)
    void X_clash645() {
-      if (this.y_clash492() == fp.GIVE_COIN) {
+      if (this.getCurrentAction() == fp.GIVE_COIN) {
          int var1 = fp.GIVE_COIN.ticksPlaying[1];
          if (var1 == 95) {
             GalathCoinItem.a(Minecraft.func_71410_x().field_71439_g, this);
@@ -601,8 +601,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
          if (var1 > 25 && var1 < 38) {
             Vec3d var2 = this.func_174791_d();
-            Vec3d var3 = this.b_clash547("weapon").func_178787_e(var2);
-            Vec3d var4 = this.b_clash547("offhand").func_178787_e(var2);
+            Vec3d var3 = this.getCachedBoneOffset("weapon").func_178787_e(var2);
+            Vec3d var4 = this.getCachedBoneOffset("offhand").func_178787_e(var2);
             DragonBreathParticle.b = 0.5F;
 
             for (float var5 = 0.0F; var5 < 1.0F; var5 += 0.2F) {
@@ -618,7 +618,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void au() {
-      if (!this.func_70090_H() && !this.func_189652_ae() && this.field_70181_x < 0.0 && this.y_clash492() != fp.MASTERBATE) {
+      if (!this.func_70090_H() && !this.func_189652_ae() && this.field_70181_x < 0.0 && this.getCurrentAction() != fp.MASTERBATE) {
          this.field_70181_x *= 0.4F;
       }
 
@@ -636,12 +636,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    void o_clash647() {
       if (!this.field_70170_p.field_72995_K) {
-         if (this.y_clash492() == fp.RAPE_CUM) {
+         if (this.getCurrentAction() == fp.RAPE_CUM) {
             if (fp.RAPE_CUM.ticksPlaying[0] >= 28) {
-               this.a_clash504(false);
+               this.setAnchored(false);
                this.b(fp.NULL);
                EntityPlayer var1 = this.S_clash495();
-               this.e_clash499(null);
+               this.setInteractionPlayerUUID(null);
                if (var1 != null) {
                   var1.func_70634_a(var1.field_70165_t, Math.ceil(var1.field_70163_u) + 1.0, var1.field_70161_v);
                   PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)var1);
@@ -653,12 +653,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    void Y_clash648() {
       if (!this.field_70170_p.field_72995_K) {
-         if (this.y_clash492() == fp.CORRUPT_CUM) {
+         if (this.getCurrentAction() == fp.CORRUPT_CUM) {
             if (fp.CORRUPT_CUM.ticksPlaying[0] >= 30) {
-               this.a_clash504(false);
+               this.setAnchored(false);
                this.b(fp.NULL);
                EntityPlayer var1 = this.S_clash495();
-               this.e_clash499(null);
+               this.setInteractionPlayerUUID(null);
                if (var1 != null) {
                   var1.func_70634_a(var1.field_70165_t, Math.ceil(var1.field_70163_u) + 1.0, var1.field_70161_v);
                   PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)var1);
@@ -676,7 +676,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
 
       try {
-         for (BaseGirlEntity var8 : BaseGirlEntity.ad_clash509()) {
+         for (BaseGirlEntity var8 : BaseGirlEntity.getGirlEntityList()) {
             if (!var8.field_70170_p.field_72995_K && var8 instanceof GalathEntity && !var8.field_70128_L && var8.func_174818_b(var0) < 1000000.0) {
                return false;
             }
@@ -701,7 +701,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    void aw() {
       EntityPlayer var1 = this.ab_clash671();
-      fp var2 = this.y_clash492();
+      fp var2 = this.getCurrentAction();
       if (var1 != null) {
          if (var2 == fp.BOOST) {
             int var3 = g0.a_clash472() ? 0 : 1;
@@ -742,7 +742,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    void u_clash651() {
       if (!this.field_70170_p.field_72995_K) {
-         if (this.y_clash492() == fp.CORRUPT_CUM) {
+         if (this.getCurrentAction() == fp.CORRUPT_CUM) {
             if (fp.CORRUPT_CUM.ticksPlaying[0] >= 30) {
                this.b(fp.GIVE_COIN);
             }
@@ -754,7 +754,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       if ((Boolean)this.m.func_187225_a(L)) {
          this.bb = true;
       } else {
-         switch (this.y_clash492()) {
+         switch (this.getCurrentAction()) {
             case RAPE_INTRO:
             case RAPE_ON_GOING:
             case RAPE_CUM:
@@ -775,12 +775,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @Override
    public boolean m_clash494() {
-      return this.y_clash492() != fp.CORRUPT_INTRO ? false : this.U;
+      return this.getCurrentAction() != fp.CORRUPT_INTRO ? false : this.U;
    }
 
    void F_clash653() {
       if (this.field_70170_p.field_72995_K) {
-         if (this.y_clash492() != fp.KNOCK_OUT_STAND_UP) {
+         if (this.getCurrentAction() != fp.KNOCK_OUT_STAND_UP) {
             this.aL = true;
          }
       }
@@ -797,7 +797,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void L_clash656() {
-      if (this.y_clash492() != fp.ATTACK_SWORD) {
+      if (this.getCurrentAction() != fp.ATTACK_SWORD) {
          this.ap = false;
          this.bu = false;
       }
@@ -813,8 +813,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       if (this.field_70170_p.field_72995_K) {
          if (this.bu) {
             Vec3d var1 = this.func_174791_d();
-            Vec3d var2 = this.b_clash547("weaponStart").func_178787_e(var1);
-            Vec3d var3 = this.b_clash547("weaponEnd").func_178787_e(var1);
+            Vec3d var2 = this.getCachedBoneOffset("weaponStart").func_178787_e(var1);
+            Vec3d var3 = this.getCachedBoneOffset("weaponEnd").func_178787_e(var1);
             float var4 = 0.1F;
             Random var5 = this.func_70681_au();
 
@@ -856,7 +856,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    @SideOnly(Side.CLIENT)
    @Override
    public void ag() {
-      if (this.y_clash492() != fp.GALATH_DE_SUMMON) {
+      if (this.getCurrentAction() != fp.GALATH_DE_SUMMON) {
          this.C.tickOffset = 0.0;
       }
    }
@@ -886,7 +886,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                var10001 = bz;
             }
 
-            Vec3d var2 = var10000.func_178787_e(ck.a_clash306(var10001, 180.0F + this.field_70761_aq));
+            Vec3d var2 = var10000.func_178787_e(ck.rotateByYaw(var10001, 180.0F + this.field_70761_aq));
             Vec3d var5 = this.func_174791_d();
             if (var1) {
                var10000 = var5;
@@ -896,7 +896,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                var10001 = bC;
             }
 
-            Vec3d var3 = var10000.func_178787_e(ck.a_clash306(var10001, 180.0F + this.field_70761_aq));
+            Vec3d var3 = var10000.func_178787_e(ck.rotateByYaw(var10001, 180.0F + this.field_70761_aq));
             this.b2.func_70012_b(var2.field_72450_a, var2.field_72448_b, var2.field_72449_c, this.field_70761_aq, 0.0F);
             this.V.func_70012_b(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c, this.field_70761_aq, 0.0F);
             this.b2.func_70071_h_();
@@ -906,7 +906,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void ah_clash659() {
-      if (this.y_clash492() != fp.SUMMON_SKELETON) {
+      if (this.getCurrentAction() != fp.SUMMON_SKELETON) {
          this.ad = 0;
       } else {
          if (this.ad++ > 45) {
@@ -924,7 +924,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.b4 = this.a9;
       this.a_ = this.bg;
       Vec3d var1 = this.W.func_178788_d(this.bD);
-      Vec3d var2 = ck.a_clash306(var1, this.field_70761_aq + 180.0F);
+      Vec3d var2 = ck.rotateByYaw(var1, this.field_70761_aq + 180.0F);
       this.a9 = gc.c_clash745(ThreadNames.b(var2.field_72449_c * 40.0, -50.0, 50.0));
       this.bg = gc.c_clash745(ThreadNames.b(var2.field_72450_a * 40.0, -50.0, 50.0));
    }
@@ -977,13 +977,13 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    void P_clash661() {
       if (!this.bK) {
-         this.f_clash439(GirlWorldData.c_clash151(this));
+         this.setCustomModelCode(GirlWorldData.c_clash151(this));
          this.bK = true;
       }
    }
 
    boolean x_clash662() {
-      return this.y_clash492() != fp.NULL ? false : !(Math.abs(this.field_70159_w) + Math.abs(this.field_70179_y) > 0.01);
+      return this.getCurrentAction() != fp.NULL ? false : !(Math.abs(this.field_70159_w) + Math.abs(this.field_70179_y) > 0.01);
    }
 
    void aq() {
@@ -998,7 +998,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void d_clash663(EntityPlayer var1) {
-      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.d_clash567(var1.getPersistentID());
+      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getPersistentID());
       Vec3d var3 = new Vec3d(var1.field_70165_t, var1.field_70163_u + (var2 == null ? var1.eyeHeight : var2.func_70047_e()), var1.field_70161_v);
       Vec3d var4 = new Vec3d(this.field_70165_t, this.field_70163_u + this.func_70047_e(), this.field_70161_v);
       double var5 = var4.func_72438_d(var3);
@@ -1153,8 +1153,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    void at() {
       if (this.field_70122_E) {
          if (this.aF() == null) {
-            if (this.y_clash492() != fp.HUG_MANG) {
-               if (!GirlSavedData.b_clash846(GirlSavedData.f_clash850(this.f_clash491()))) {
+            if (this.getCurrentAction() != fp.HUG_MANG) {
+               if (!GirlSavedData.b_clash846(GirlSavedData.f_clash850(this.getGirlId()))) {
                   BlockPos var1 = this.func_180425_c();
                   BlockPos var2 = var1.func_177963_a(-15.0, -15.0, -15.0);
                   BlockPos var3 = var1.func_177963_a(15.0, 15.0, 15.0);
@@ -1170,7 +1170,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                   }
 
                   if (var6 == null) {
-                     if (this.y_clash492() == fp.RUN) {
+                     if (this.getCurrentAction() == fp.RUN) {
                         this.b((fp)null);
                         this.func_70661_as().func_75499_g();
                      }
@@ -1182,18 +1182,18 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                         this.field_70159_w = 0.0;
                         this.field_70181_x = 0.0;
                         this.field_70179_y = 0.0;
-                        this.c_clash502(this.func_174791_d());
-                        this.a_clash504(true);
-                        this.a_clash640(var6.f_clash491());
-                        var6.a_clash414(this.f_clash491());
+                        this.setTargetPosition(this.func_174791_d());
+                        this.setAnchored(true);
+                        this.a_clash640(var6.getGirlId());
+                        var6.a_clash414(this.getGirlId());
                         var6.b(fp.RIDE_MOMMY_HEAD);
-                        GirlSavedData.e_clash845(this.f_clash491());
+                        GirlSavedData.e_clash845(this.getGirlId());
                      } else {
                         Vec3d var11 = this.func_174791_d();
                         Vec3d var12 = var6.func_174791_d();
                         Vec3d var9 = var12.func_178788_d(var11);
                         float var10 = (float)gc.b(Math.atan2(var9.field_72449_c, var9.field_72450_a)) - 90.0F;
-                        this.b_clash431(var10);
+                        this.setYawRotation(var10);
                         this.f.func_75499_g();
                         this.f.func_75497_a(var6, 0.65F);
                         this.b(fp.RUN);
@@ -1206,10 +1206,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void ay() {
-      fp var1 = this.y_clash492();
+      fp var1 = this.getCurrentAction();
       if (var1 != fp.RUN) {
          if (var1 != fp.HUG_MANG) {
-            if (!this.Q_clash505() && var1 != fp.MASTERBATE) {
+            if (!this.isAnchored() && var1 != fp.MASTERBATE) {
                EntityPlayer var2 = this.field_70170_p.func_72890_a(this, 15.0);
                if (this.J_clash526() && var2 != null && var2.func_70032_d(this) < 2.0F && var2.getPersistentID().equals(this.O_clash527())) {
                   this.func_70661_as().func_75499_g();
@@ -1228,7 +1228,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
                   if (Math.sqrt(this.bG.func_177951_i(this.func_180425_c())) > 2.0) {
                      this.func_70661_as().func_75492_a(this.bG.func_177958_n(), this.bG.func_177956_o(), this.bG.func_177952_p(), 0.35F);
-                     this.k_clash515();
+                     this.tickPathVelocity();
                   } else {
                      this.aC++;
                   }
@@ -1286,7 +1286,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public void t_clash672() {
-      this.e_clash499(null);
+      this.setInteractionPlayerUUID(null);
       this.b((fp)null);
    }
 
@@ -1306,7 +1306,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    void ao() {
       if (!fp.a(this, fp.MASTERBATE, fp.HUG_MANG)) {
-         if (this.ae_clash498() == null) {
+         if (this.getInteractionPlayerUUID() == null) {
             this.Q_clash673();
             this.I_clash687();
             this.D_clash685();
@@ -1354,13 +1354,13 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @Override
    public void b(fp var1) {
-      fp var2 = this.y_clash492();
+      fp var2 = this.getCurrentAction();
       if (var2 != fp.GALATH_DE_SUMMON) {
          if (var2 != fp.CORRUPT_CUM || var1 != fp.CORRUPT_FAST && var1 != fp.CORRUPT_SLOW) {
             if (var2 != fp.RAPE_CUM || var1 != fp.RAPE_ON_GOING) {
                if (var2 != fp.MORNING_BLOWJOB_CUM || var1 != fp.MORNING_BLOWJOB_SLOW && var1 != fp.MORNING_BLOWJOB_FAST) {
                   if (!this.field_70170_p.field_72995_K && fp.a(var2, fp.CORRUPT_CUM, fp.RAPE_CUM, fp.MORNING_BLOWJOB_CUM)) {
-                     GirlSavedData.a(this.ae_clash498(), this.field_70170_p.func_82737_E());
+                     GirlSavedData.a(this.getInteractionPlayerUUID(), this.field_70170_p.func_82737_E());
                   }
 
                   if (var1 == fp.CORRUPT_SLOW) {
@@ -1403,7 +1403,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void al() {
-      this.a_clash504(false);
+      this.setAnchored(false);
       ManglelieEntity var1 = this.a_clash638(true);
       if (var1 != null) {
          var1.c_clash410(true);
@@ -1420,7 +1420,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          }
 
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)var1);
-         this.e_clash499(null);
+         this.setInteractionPlayerUUID(null);
          this.a_clash689(null);
          var1.func_145747_a(
             new TextComponentString(
@@ -1435,13 +1435,13 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @SideOnly(Side.CLIENT)
    void H_clash674() {
-      fp var1 = this.y_clash492();
+      fp var1 = this.getCurrentAction();
       if (this.ab != fp.CORRUPT_INTRO && var1 == fp.CORRUPT_INTRO) {
          EntityPlayerSP var2 = Minecraft.func_71410_x().field_71439_g;
-         if (!var2.getPersistentID().equals(this.ae_clash498())) {
+         if (!var2.getPersistentID().equals(this.getInteractionPlayerUUID())) {
             this.ab = var1;
          } else {
-            float var3 = this.k_clash637() ? 0.0F : this.I_clash415() + 180.0F;
+            float var3 = this.k_clash637() ? 0.0F : this.getYawRotation() + 180.0F;
             var2.field_70177_z = var3;
             var2.field_70126_B = var3;
             var2.field_70125_A = 80.0F;
@@ -1458,9 +1458,9 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       if (var2 != null) {
          Vec3d var3;
          if (var1) {
-            var3 = new Vec3d(-0.5, 0.5F - var2.func_70047_e(), 0.4F).func_178787_e(this.o_clash501());
+            var3 = new Vec3d(-0.5, 0.5F - var2.func_70047_e(), 0.4F).func_178787_e(this.getTargetPosition());
          } else {
-            var3 = ck.a_clash306(new Vec3d(0.5, 0.5F - var2.func_70047_e(), 0.4F), this.I_clash415()).func_178787_e(this.o_clash501());
+            var3 = ck.rotateByYaw(new Vec3d(0.5, 0.5F - var2.func_70047_e(), 0.4F), this.getYawRotation()).func_178787_e(this.getTargetPosition());
          }
 
          var2.func_70634_a(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
@@ -1475,7 +1475,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          return 1.0F;
       }
 
-      switch (this.y_clash492()) {
+      switch (this.getCurrentAction()) {
          case CORRUPT_SLOW:
          case CORRUPT_FAST:
          case CORRUPT_CUM:
@@ -1504,8 +1504,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
 
       ManglelieEntity var1 = new ManglelieEntity(this.field_70170_p);
-      this.a_clash640(var1.f_clash491());
-      var1.a_clash414(this.f_clash491());
+      this.a_clash640(var1.getGirlId());
+      var1.a_clash414(this.getGirlId());
       var1.c_clash410(true);
       var1.b(fp.RIDE_MOMMY_HEAD);
       var1.func_70634_a(this.field_70165_t, this.field_70163_u, this.field_70161_v);
@@ -1515,7 +1515,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    void Z_clash676() {
       if (!this.k_clash637()) {
-         fp var1 = this.y_clash492();
+         fp var1 = this.getCurrentAction();
          if (var1 != fp.RAPE_CUM) {
             this.at = 0;
          } else {
@@ -1557,10 +1557,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public static void c_clash678(EntityPlayer var0) {
-      BaseGirlEntity var1 = BaseGirlEntity.a_clash523(GirlSavedData.b_clash853(var0));
+      BaseGirlEntity var1 = BaseGirlEntity.getServerGirlEntity(GirlSavedData.b_clash853(var0));
       if (var1 != null) {
          if (var1.equals(var0.func_184187_bx())) {
-            var1.e_clash499(var0.getPersistentID());
+            var1.setInteractionPlayerUUID(var0.getPersistentID());
             var1.b(fp.CONTROLLED_FLIGHT);
          }
       }
@@ -1607,7 +1607,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void ad_clash679() {
-      if (this.y_clash492() == fp.KNOCK_OUT_STAND_UP) {
+      if (this.getCurrentAction() == fp.KNOCK_OUT_STAND_UP) {
          this.bY++;
          if (this.bY == 39.0) {
             this.func_189654_d(true);
@@ -1636,7 +1636,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          }
 
          if (!(this.bY < 58.0)) {
-            this.b_clash512(Vec3d.field_186680_a);
+            this.setVelocity(Vec3d.field_186680_a);
             this.m.func_187227_b(bP, false);
             this.bY = 0;
          }
@@ -1644,7 +1644,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void b_clash680() {
-      if (this.y_clash492() == fp.KNOCK_OUT_GROUND) {
+      if (this.getCurrentAction() == fp.KNOCK_OUT_GROUND) {
          if (!(Boolean)this.m.func_187225_a(L)) {
             if (!(++this.b3 < 50.0)) {
                this.b(fp.KNOCK_OUT_STAND_UP);
@@ -1656,7 +1656,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void S_clash681() {
-      fp var1 = this.y_clash492();
+      fp var1 = this.getCurrentAction();
       if (var1 == fp.KNOCK_OUT_GROUND || var1 == fp.KNOCK_OUT_STAND_UP) {
          this.field_70159_w = 0.0;
          this.field_70179_y = 0.0;
@@ -1667,7 +1667,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void T_clash682() {
-      if (this.y_clash492() == fp.KNOCK_OUT_FLY) {
+      if (this.getCurrentAction() == fp.KNOCK_OUT_FLY) {
          BlockPos var1 = this.func_180425_c();
          if (!(this.field_70170_p.func_180495_p(var1).func_177230_c() instanceof BlockLiquid)) {
             if (this.field_70122_E) {
@@ -1688,7 +1688,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
             var2 = var2.func_177984_a();
             this.func_70634_a(var2.func_177958_n(), var2.func_177956_o(), var2.func_177952_p());
-            this.c_clash502(new Vec3d(var2));
+            this.setTargetPosition(new Vec3d(var2));
             PacketHandler.b.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(new Vec3d(var2), true), this);
 
             for (EntityPlayer var7 : (java.util.Collection<EntityPlayer>) ((WorldServer)this.field_70170_p).func_73039_n().getTrackingPlayers(this)) {
@@ -1737,7 +1737,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    void z_clash686() {
       if (!(Boolean)this.m.func_187225_a(bP)) {
          GalathFlightData var1 = this.bZ;
-         if (this.ae_clash498() != null) {
+         if (this.getInteractionPlayerUUID() != null) {
             if (var1 != null) {
                var1.e(this);
             }
@@ -1775,7 +1775,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    void I_clash687() {
       if (!this.f_clash688()) {
-         if (this.ae_clash498() == null) {
+         if (this.getInteractionPlayerUUID() == null) {
             boolean var1 = this.k_clash637();
             float var2 = var1 ? 7.0F : 20.0F;
             Vec3d var3 = new Vec3d(var2, var2, var2);
@@ -1933,25 +1933,25 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          PacketHandler.b.sendToServer(new RequestRidingPacket());
       } else if ("anal".equals(var1)) {
          BeeScreen.b_clash732();
-         d3.a_clash122(false);
+         d3.setMovementLock(false);
          ThreadNames.a(1200, () -> {
             EntityPlayerSP var1x = Minecraft.func_71410_x().field_71439_g;
-            this.c_clash502(var1x.func_174791_d());
-            this.b_clash431(0.0F);
-            this.e_clash499(var1x.getPersistentID());
-            this.a_clash504(true);
+            this.setTargetPosition(var1x.func_174791_d());
+            this.setYawRotation(0.0F);
+            this.setInteractionPlayerUUID(var1x.getPersistentID());
+            this.setAnchored(true);
             this.b(fp.CORRUPT_SLOW);
          });
       } else if ("cowgirl".equals(var1)) {
          BeeScreen.b_clash732();
-         d3.a_clash122(false);
+         d3.setMovementLock(false);
          ThreadNames.a(1200, () -> {
             EntityPlayerSP var1x = Minecraft.func_71410_x().field_71439_g;
-            this.c_clash502(var1x.func_174791_d());
-            this.b_clash431(var1x.field_70177_z + 180.0F);
+            this.setTargetPosition(var1x.func_174791_d());
+            this.setYawRotation(var1x.field_70177_z + 180.0F);
             this.b(fp.RAPE_INTRO);
-            this.e_clash499(var1x.getPersistentID());
-            this.a_clash504(true);
+            this.setInteractionPlayerUUID(var1x.getPersistentID());
+            this.setAnchored(true);
          });
       } else {
          if ("threesome".equals(var1)) {
@@ -1961,21 +1961,21 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             }
 
             BeeScreen.b_clash732();
-            d3.a_clash122(false);
+            d3.setMovementLock(false);
             ThreadNames.a(1200, () -> {
                Minecraft var2x = Minecraft.func_71410_x();
                EntityPlayerSP var3x = var2x.field_71439_g;
                var2x.field_71474_y.field_74320_O = 1;
-               var3.c_clash502(var3x.func_174791_d());
-               this.c_clash502(var3x.func_174791_d());
-               var3.b_clash431(var3x.field_70177_z + 180.0F);
-               this.b_clash431(var3x.field_70177_z);
+               var3.setTargetPosition(var3x.func_174791_d());
+               this.setTargetPosition(var3x.func_174791_d());
+               var3.setYawRotation(var3x.field_70177_z + 180.0F);
+               this.setYawRotation(var3x.field_70177_z);
                var3.b(fp.THREESOME_SLOW);
                this.b(fp.PUSSY_LICKING);
-               var3.e_clash499(var3x.getPersistentID());
-               this.e_clash499(var3x.getPersistentID());
-               var3.a_clash504(true);
-               this.a_clash504(true);
+               var3.setInteractionPlayerUUID(var3x.getPersistentID());
+               this.setInteractionPlayerUUID(var3x.getPersistentID());
+               var3.setAnchored(true);
+               this.setAnchored(true);
             });
          }
       }
@@ -1984,7 +1984,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    boolean b(EntityPlayer var1, EnumHand var2) {
       if (!(Boolean)this.m.func_187225_a(bP)) {
          return super.func_184645_a(var1, var2);
-      } else if (this.y_clash492() != fp.KNOCK_OUT_GROUND) {
+      } else if (this.getCurrentAction() != fp.KNOCK_OUT_GROUND) {
          return super.func_184645_a(var1, var2);
       } else if (this.field_70170_p.field_72995_K) {
          var1.field_70177_z -= -128.0F;
@@ -1992,10 +1992,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          return true;
       } else {
          this.b(fp.CORRUPT_INTRO);
-         this.e_clash499(var1.getPersistentID());
-         this.a_clash504(true);
-         this.c_clash502(this.func_174791_d());
-         this.b_clash431(var1.field_70177_z);
+         this.setInteractionPlayerUUID(var1.getPersistentID());
+         this.setAnchored(true);
+         this.setTargetPosition(this.func_174791_d());
+         this.setYawRotation(var1.field_70177_z);
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
          var1.func_70634_a(this.field_70165_t, this.field_70163_u, this.field_70161_v);
          return true;
@@ -2029,7 +2029,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public static Float a_clash692(GalathEntity var0, float var1) {
-      fp var2 = var0.y_clash492();
+      fp var2 = var0.getCurrentAction();
       if (var2 != fp.FLY && var2 != fp.SUMMON_SKELETON && var2 != fp.RAPE_PREPARE) {
          return null;
       }
@@ -2108,7 +2108,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    @Override
-   public void g_clash238() {
+   public void reinitTasks() {
       this.a_clash689(null);
       this.aH();
    }
@@ -2125,12 +2125,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @Nullable
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       return null;
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       if (var1 == fp.CORRUPT_FAST || var1 == fp.CORRUPT_SLOW) {
          return fp.CORRUPT_CUM;
       }
@@ -2153,7 +2153,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @Override
    public boolean a_clash22() {
-      switch (this.y_clash492()) {
+      switch (this.getCurrentAction()) {
          case CORRUPT_SLOW:
          case CORRUPT_FAST:
          case CORRUPT_CUM:
@@ -2168,7 +2168,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public void c_clash694(boolean var1) {
-      fp var2 = this.y_clash492();
+      fp var2 = this.getCurrentAction();
       if (var2 == fp.RAPE_ON_GOING || var2 == fp.RAPE_INTRO) {
          EntityPlayer var3 = this.S_clash495();
          if (var3 != null) {
@@ -2211,7 +2211,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public void ak() {
-      if (this.y_clash492() != fp.MASTERBATE_SITTING) {
+      if (this.getCurrentAction() != fp.MASTERBATE_SITTING) {
          this.bx = true;
          this.b(fp.MASTERBATE_SITTING);
       }
@@ -2274,7 +2274,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public float b_clash696(float var1) {
-      fp var2 = this.y_clash492();
+      fp var2 = this.getCurrentAction();
       if (var2 == fp.PUSSY_LICKING && !this.a5) {
          return 0.0F;
       }
@@ -2289,12 +2289,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.h_clash508()) {
+      if (this.isLocallyRegistered()) {
          this.a("animation.galath.idle", true, var1);
          return PlayState.CONTINUE;
       }
 
-      fp var2 = this.y_clash492();
+      fp var2 = this.getCurrentAction();
       AnimationController var3 = var1.getController();
       var3.setAnimationSpeed(1.0);
       if (var3.equals(this.s)) {
@@ -2322,7 +2322,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             }
          }
       } else {
-         switch (this.y_clash492()) {
+         switch (this.getCurrentAction()) {
             case HUG_MANG:
                this.a("animation.galath.hug_mang", true, var1);
                break;
@@ -2440,7 +2440,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                switch (var1x.sound) {
                   case "goodTiming":
                      this.a(SoundHandler.GIRLS_GALATH_DIALOG[4]);
-                     this.a_clash541("Good timing boy~");
+                     this.sendChatMessage("Good timing boy~");
                      break;
                   case "huh":
                      this.a(SoundHandler.GIRLS_GALATH_HUH);
@@ -2452,7 +2452,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                            var20.field_72450_a,
                            var20.field_72448_b,
                            var20.field_72449_c,
-                           SoundHandler.a_clash804(SoundHandler.GIRLS_GALATH_GIGGLE),
+                           SoundHandler.randomSound(SoundHandler.GIRLS_GALATH_GIGGLE),
                            SoundCategory.HOSTILE,
                            1.0F,
                            1.0F,
@@ -2487,7 +2487,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                            var19.field_72450_a,
                            var19.field_72448_b,
                            var19.field_72449_c,
-                           SoundHandler.a_clash804(SoundHandler.GIRLS_GALATH_LIGHTCHARGE),
+                           SoundHandler.randomSound(SoundHandler.GIRLS_GALATH_LIGHTCHARGE),
                            SoundCategory.HOSTILE,
                            1.0F,
                            1.0F,
@@ -2519,7 +2519,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                            var4.field_72450_a,
                            var4.field_72448_b,
                            var4.field_72449_c,
-                           SoundHandler.a_clash804(SoundHandler.MISC_FLAP),
+                           SoundHandler.randomSound(SoundHandler.MISC_FLAP),
                            SoundCategory.HOSTILE,
                            1.0F,
                            1.0F,
@@ -2543,9 +2543,9 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                   case "setNude":
                      this.bb = true;
                      Vec3d var5 = this.func_174791_d();
-                     Vec3d var6 = this.b_clash547("slipR").func_178787_e(var5);
-                     Vec3d var7 = this.b_clash547("slipL").func_178787_e(var5);
-                     Vec3d var8 = this.b_clash547("turnable").func_178787_e(var5);
+                     Vec3d var6 = this.getCachedBoneOffset("slipR").func_178787_e(var5);
+                     Vec3d var7 = this.getCachedBoneOffset("slipL").func_178787_e(var5);
+                     Vec3d var8 = this.getCachedBoneOffset("turnable").func_178787_e(var5);
                      this.field_70170_p
                         .func_175688_a(EnumParticleTypes.DRAGON_BREATH, var6.field_72450_a, var6.field_72448_b, var6.field_72449_c, 0.0, 0.0, 0.0, new int[0]);
                      this.field_70170_p
@@ -2554,7 +2554,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                         .func_175688_a(EnumParticleTypes.DRAGON_BREATH, var8.field_72450_a, var8.field_72448_b, var8.field_72449_c, 0.0, 0.0, 0.0, new int[0]);
                      break;
                   case "rapeIntroDone":
-                     if (this.n_clash537()) {
+                     if (this.isControlledByLocalPlayer()) {
                         this.b(fp.RAPE_ON_GOING);
                      }
                      break;
@@ -2566,7 +2566,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                         this.b1 = var9.nextInt(3);
                      } while (this.b1 == var10);
 
-                     if (!this.k_clash637() && this.n_clash537()) {
+                     if (!this.k_clash637() && this.isControlledByLocalPlayer()) {
                         EntityPlayerSP var22 = Minecraft.func_71410_x().field_71439_g;
                         if (0.0F >= var22.func_110143_aJ() - 1.0F) {
                            this.b(fp.RAPE_CUM);
@@ -2575,21 +2575,21 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      break;
                   case "poundRape":
                      this.a(SoundHandler.MISC_POUNDING);
-                     if (this.n_clash537()) {
+                     if (this.isControlledByLocalPlayer()) {
                         if (this.k_clash637()) {
-                           HornyMeterHud.a_clash362(0.03F);
+                           HornyMeterHud.addToHornyMeter(0.03F);
                         } else {
                            PacketHandler.b.sendToServer(new GalathRapePouncePacket(true));
                         }
                      }
                      break;
                   case "rapeHurt":
-                     if (!this.k_clash637() && this.n_clash537()) {
+                     if (!this.k_clash637() && this.isControlledByLocalPlayer()) {
                         PacketHandler.b.sendToServer(new GalathRapePouncePacket(false));
                      }
                      break;
                   case "enableRapeUI":
-                     if (this.n_clash537()) {
+                     if (this.isControlledByLocalPlayer()) {
                         if (this.k_clash637()) {
                            HornyMeterHud.a_clash359(false);
                         } else {
@@ -2598,12 +2598,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      }
                      break;
                   case "removeUI":
-                     if (this.n_clash537() && !this.k_clash637()) {
+                     if (this.isControlledByLocalPlayer() && !this.k_clash637()) {
                         EscapeMinigameHud.d_clash739();
                      }
                      break;
                   case "reloadRenderer":
-                     if (!this.n_clash537()) {
+                     if (!this.isControlledByLocalPlayer()) {
                         return;
                      }
 
@@ -2613,12 +2613,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      }
                      break;
                   case "corruptSwitch":
-                     if (this.n_clash537() && d3.d) {
+                     if (this.isControlledByLocalPlayer() && d3.d) {
                         this.b(fp.CORRUPT_FAST);
                      }
                      break;
                   case "corrupt_hard":
-                     if (this.n_clash537() && d3.d) {
+                     if (this.isControlledByLocalPlayer() && d3.d) {
                         this.aT = true;
                         this.N();
                      }
@@ -2628,25 +2628,25 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      this.aT = false;
                      break;
                   case "addCum":
-                     HornyMeterHud.a_clash362(0.03);
+                     HornyMeterHud.addToHornyMeter(0.03);
                      break;
                   case "clearcum":
                      CummyEntity.a_clash747(this);
                      break;
                   case "setCamCorrupt":
-                     if (!this.n_clash537()) {
+                     if (!this.isControlledByLocalPlayer()) {
                         return;
                      }
 
                      this.U = true;
                      EntityPlayerSP var21 = Minecraft.func_71410_x().field_71439_g;
-                     float var24 = this.I_clash415() + 220.0F;
-                     Vec3d var14 = ck.a_clash306(new Vec3d(0.5, 0.5F - var21.func_70047_e(), 0.4F), this.I_clash415()).func_178787_e(this.o_clash501());
+                     float var24 = this.getYawRotation() + 220.0F;
+                     Vec3d var14 = ck.rotateByYaw(new Vec3d(0.5, 0.5F - var21.func_70047_e(), 0.4F), this.getYawRotation()).func_178787_e(this.getTargetPosition());
                      PacketHandler.b.sendToServer(new TeleportPlayerPacket(var21.getPersistentID().toString(), var14, var24, 15.0F));
-                     HornyMeterHud.d_clash358();
+                     HornyMeterHud.showHornyMeter();
                      break;
                   case "enableBoyCam":
-                     if (this.n_clash537()) {
+                     if (this.isControlledByLocalPlayer()) {
                         this.U = false;
                      }
                      break;
@@ -2656,15 +2656,15 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                            Vec3d var1xx = var0.d_clash548("futaCockTip");
                            Vec3d var2 = var0.d_clash548("futaCockTipDirHelp");
                            return var1xx.func_178788_d(var2).func_72432_b();
-                        }, var0 -> var0.b_clash547("futaCockTip").func_178787_e(var0.o_clash501()), this, 0.3F, 0.3F));
+                        }, var0 -> var0.getCachedBoneOffset("futaCockTip").func_178787_e(var0.getTargetPosition()), this, 0.3F, 0.3F));
                      }
                      break;
                   case "creampie":
                      CummyEntity.a(
                         new ep(
                            100,
-                           var1xx -> ck.a_clash306(new Vec3d(0.0, 0.0, 0.6F), this.I_clash415()),
-                           var0 -> var0.b_clash547("creampiePos").func_178787_e(var0.o_clash501()),
+                           var1xx -> ck.rotateByYaw(new Vec3d(0.0, 0.0, 0.6F), this.getYawRotation()),
+                           var0 -> var0.getCachedBoneOffset("creampiePos").func_178787_e(var0.getTargetPosition()),
                            this,
                            0.6F,
                            0.5F
@@ -2676,28 +2676,28 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                            Vec3d var1xx = var0.d_clash548("futaCockTip");
                            Vec3d var2 = var0.d_clash548("futaCockTipDirHelp");
                            return var1xx.func_178788_d(var2).func_72432_b();
-                        }, var0 -> var0.b_clash547("futaCockTip").func_178787_e(var0.o_clash501()), this, 0.3F, 0.3F));
+                        }, var0 -> var0.getCachedBoneOffset("futaCockTip").func_178787_e(var0.getTargetPosition()), this, 0.3F, 0.3F));
                      }
 
-                     this.a(SoundHandler.a_clash804(SoundHandler.MISC_SMALLINSERTS), 3.0F);
+                     this.a(SoundHandler.randomSound(SoundHandler.MISC_SMALLINSERTS), 3.0F);
                      break;
                   case "blackScreenTamed":
                      if (this.k_clash637()) {
                         return;
                      }
                   case "blackScreen":
-                     if (this.n_clash537()) {
+                     if (this.isControlledByLocalPlayer()) {
                         BeeScreen.b_clash732();
                      }
                      break;
                   case "blackScreenMaster":
                      if (Minecraft.func_71410_x().field_71439_g.getPersistentID().equals(this.O_clash527())) {
                         BeeScreen.b_clash732();
-                        d3.a_clash122(false);
+                        d3.setMovementLock(false);
                      }
                      break;
                   case "flapControlled":
-                     if (this.n_clash537()) {
+                     if (this.isControlledByLocalPlayer()) {
                         GalathFlightHud.f_clash791();
                         this.a(SoundHandler.MISC_FLAP);
                         Minecraft var12 = Minecraft.func_71410_x();
@@ -2707,10 +2707,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                         if (var17.field_189982_i != 0.0F || var17.field_189983_j != 0.0F) {
                            Vec3d var18 = ck.a(
                               new Vec3d(-var17.field_189982_i, 0.0, var17.field_189983_j),
-                              RotationHelper.a_clash25(var15.field_70127_C, var15.field_70125_A, var12.func_184121_ak()),
-                              RotationHelper.a_clash25(var15.field_70758_at, var15.field_70759_as, var12.func_184121_ak())
+                              RotationHelper.lerp(var15.field_70127_C, var15.field_70125_A, var12.func_184121_ak()),
+                              RotationHelper.lerp(var15.field_70758_at, var15.field_70759_as, var12.func_184121_ak())
                            );
-                           PacketHandler.b.sendToServer(new UpdateVelocityPacket(var18, this.f_clash491()));
+                           PacketHandler.b.sendToServer(new UpdateVelocityPacket(var18, this.getGirlId()));
                         }
                      }
                      break;
@@ -2727,12 +2727,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      this.a(SoundHandler.MISC_WEOWEO[2]);
                      break;
                   case "lick":
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_ALLIE_LIPSOUND));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
                      break;
                   case "setCoinLook":
-                     if (this.n_clash537()) {
+                     if (this.isControlledByLocalPlayer()) {
                         EntityPlayerSP var11 = Minecraft.func_71410_x().field_71439_g;
-                        float var13 = this.I_clash415() + 180.0F;
+                        float var13 = this.getYawRotation() + 180.0F;
                         var11.field_70177_z = var13;
                         var11.field_70126_B = var13;
                         var11.field_70125_A = 0.0F;
@@ -2740,13 +2740,13 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      }
                      break;
                   case "sexui":
-                     if (this.n_clash537()) {
-                        HornyMeterHud.d_clash358();
+                     if (this.isControlledByLocalPlayer()) {
+                        HornyMeterHud.showHornyMeter();
                      }
                      break;
                   case "boostSound":
-                     Minecraft.func_71410_x().field_71439_g.func_184185_a(SoundHandler.a_clash804(SoundHandler.GIRLS_GALATH_LIGHTCHARGE), 1.0F, 1.0F);
-                     Minecraft.func_71410_x().field_71439_g.func_184185_a(SoundHandler.a_clash804(SoundHandler.MISC_FLAP), 1.0F, 1.0F);
+                     Minecraft.func_71410_x().field_71439_g.func_184185_a(SoundHandler.randomSound(SoundHandler.GIRLS_GALATH_LIGHTCHARGE), 1.0F, 1.0F);
+                     Minecraft.func_71410_x().field_71439_g.func_184185_a(SoundHandler.randomSound(SoundHandler.MISC_FLAP), 1.0F, 1.0F);
                }
             }
          );
@@ -2788,7 +2788,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          if (var2.field_71474_y.field_74314_A.func_151470_d()) {
             if (GalathFlightHud.d_clash788()) {
                try {
-                  for (BaseGirlEntity var4 : BaseGirlEntity.ad_clash509()) {
+                  for (BaseGirlEntity var4 : BaseGirlEntity.getGirlEntityList()) {
                      if (var4.field_70170_p.field_72995_K
                         && var4 instanceof GalathEntity
                         && var2.field_71439_g.getPersistentID().equals(((GalathEntity)var4).ax())) {
@@ -2829,7 +2829,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                         var3.a_clash660(var3.func_110142_aN().func_180135_h());
                      } else {
                         GalathCoinItem.a_clash185(var3);
-                        PacketHandler.b.sendToAllTracking(new SpawnEnergyBallParticlesPacket(var3.f_clash491(), GirlSavedData.b_clash851(var3)), var3);
+                        PacketHandler.b.sendToAllTracking(new SpawnEnergyBallParticlesPacket(var3.getGirlId(), GirlSavedData.b_clash851(var3)), var3);
                         ThreadNames.a(900, () -> GirlSavedData.a_clash848(var3));
                         var3.bU = true;
                      }
@@ -2867,14 +2867,14 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          float var4 = var2.func_184121_ak();
 
          try {
-            for (BaseGirlEntity var6 : BaseGirlEntity.ad_clash509()) {
-               if (var6 instanceof GalathEntity && var6.field_70170_p.field_72995_K && var6.y_clash492() == fp.SUMMON_SKELETON) {
+            for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
+               if (var6 instanceof GalathEntity && var6.field_70170_p.field_72995_K && var6.getCurrentAction() == fp.SUMMON_SKELETON) {
                   double var7 = ((GalathEntity)var6).ad;
                   if (!(var7 < 9.0) && !(var7 > 30.0)) {
                      Vec3d var9 = RotationHelper.a(new Vec3d(var6.field_70142_S, var6.field_70137_T, var6.field_70136_U), var6.func_174791_d(), var4);
                      double var10 = (var7 - 9.0) / 21.0;
                      if ((Boolean)var6.func_184212_Q().func_187225_a(GalathEntity.bN)) {
-                        Vec3d var12 = var6.b_clash547("energyBallR");
+                        Vec3d var12 = var6.getCachedBoneOffset("energyBallR");
                         Vec3d var13 = var9.func_178787_e(var12);
                         DragonEntity var14 = new DragonEntity(var6.field_70170_p, (GalathEntity)var6);
                         var14.g = var10;
@@ -2885,7 +2885,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      }
 
                      if ((Boolean)var6.func_184212_Q().func_187225_a(GalathEntity.b7)) {
-                        Vec3d var16 = var6.b_clash547("energyBallL");
+                        Vec3d var16 = var6.getCachedBoneOffset("energyBallL");
                         Vec3d var17 = var9.func_178787_e(var16);
                         DragonEntity var18 = new DragonEntity(var6.field_70170_p, (GalathEntity)var6);
                         var18.func_70634_a(var17.field_72450_a, var17.field_72448_b, var17.field_72449_c);
@@ -3002,7 +3002,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                   Vec3d var7 = new Vec3d(var5.func_177958_n() + 0.5, var5.func_177956_o(), var5.func_177952_p() + 0.5);
                   UUID var8 = GirlSavedData.b_clash853(var2);
                   if (var8 != null) {
-                     GirlSavedData.a_clash848((GalathEntity)BaseGirlEntity.a_clash523(var8));
+                     GirlSavedData.a_clash848((GalathEntity)BaseGirlEntity.getServerGirlEntity(var8));
                   }
 
                   GalathEntity var9 = new GalathEntity(var2.field_70170_p, var2, var4, true);
@@ -3010,10 +3010,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                   var2.field_70170_p.func_72838_d(var9);
                   GirlSavedData.a(var2, var9);
                   var9.v_clash675();
-                  var9.c_clash502(var7);
-                  var9.b_clash431(var3);
-                  var9.a_clash504(true);
-                  var9.e_clash499(var2.getPersistentID());
+                  var9.setTargetPosition(var7);
+                  var9.setYawRotation(var3);
+                  var9.setAnchored(true);
+                  var9.setInteractionPlayerUUID(var2.getPersistentID());
                   var9.b(fp.MORNING_BLOWJOB_SLOW);
                   PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
                   ThreadNames.a(500, () -> {
@@ -3025,8 +3025,5 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          }
       }
 
-      private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-         return var0;
-      }
    }
 }

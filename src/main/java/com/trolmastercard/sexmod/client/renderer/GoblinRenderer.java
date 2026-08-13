@@ -111,9 +111,9 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    protected ResourceLocation a(GoblinEntity var1) {
-      UUID var3 = var1.ae_clash498();
+      UUID var3 = var1.getInteractionPlayerUUID();
       if (var3 == null) {
-         var3 = var1.e_clash54();
+         var3 = var1.getOwnerUUID();
       }
 
       ResourceLocation var2;
@@ -160,7 +160,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
          super.func_76979_b(var1, var2, var4, var6, var8, var9);
       } else {
          GoblinEntity var10 = (GoblinEntity)var1;
-         if (var10.y_clash492() != fp.PICK_UP && var10.y_clash492() != fp.SHOULDER_IDLE) {
+         if (var10.getCurrentAction() != fp.PICK_UP && var10.getCurrentAction() != fp.SHOULDER_IDLE) {
             super.func_76979_b(var1, var2, var4, var6, var8, var9);
          }
       }
@@ -194,15 +194,15 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
    public void a(GoblinEntity var1, double var2, double var4, double var6, float var8, float var9) {
       this.j = var1;
-      this.u = -420.69F == var8 && var1.y_clash492() == fp.SHOULDER_IDLE;
-      this.F = -420.69F == var8 && var1.y_clash492() == fp.PICK_UP;
+      this.u = -420.69F == var8 && var1.getCurrentAction() == fp.SHOULDER_IDLE;
+      this.F = -420.69F == var8 && var1.getCurrentAction() == fp.PICK_UP;
       this.z = var1.field_70170_p.func_175721_c(var1.func_180425_c(), true);
       this.v = var9;
       B = var8;
-      fp var10 = var1.y_clash492();
-      UUID var11 = var1.e_clash54();
+      fp var10 = var1.getCurrentAction();
+      UUID var11 = var1.getOwnerUUID();
       if (var11 != null) {
-         if (var1.h_clash508()) {
+         if (var1.isLocallyRegistered()) {
             Vec3d var19 = a(var1.field_70170_p, var1, var11, var2, var4, var6);
             var2 = var19.field_72450_a;
             var4 = var19.field_72448_b;
@@ -210,12 +210,12 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
          }
 
          if (var10 == fp.THROWN || var10 == fp.START_THROWING) {
-            if (y.field_71474_y.field_74320_O == 0 && var8 == -420.69F && !var1.h_clash508()) {
+            if (y.field_71474_y.field_74320_O == 0 && var8 == -420.69F && !var1.isLocallyRegistered()) {
                return;
             }
 
-            if (!var1.h_clash508()) {
-               float var20 = var1.I_clash415();
+            if (!var1.isLocallyRegistered()) {
+               float var20 = var1.getYawRotation();
                var1.field_70760_ar = var20;
                var1.field_70761_aq = var20;
             }
@@ -238,7 +238,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
                var4 = 0.0;
                var6 = 0.0;
             } else {
-               if (!var1.h_clash508() || y.field_71439_g.getPersistentID().equals(var11)) {
+               if (!var1.isLocallyRegistered() || y.field_71439_g.getPersistentID().equals(var11)) {
                   if (!y.field_71439_g.getPersistentID().equals(var11)) {
                      EntityPlayer var22 = var1.field_70170_p.func_152378_a(var11);
                      if (var22 != null) {
@@ -251,14 +251,14 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
                   }
                }
 
-               Vec3d var23 = a(var1, var1.e_clash54(), var9);
+               Vec3d var23 = a(var1, var1.getOwnerUUID(), var9);
                var2 = var23.field_72450_a;
                var4 = var23.field_72448_b;
                var6 = var23.field_72449_c;
             }
          } else if (this.u) {
             a_clash399(var9);
-            Vec3d var24 = new Vec3d(RotationHelper.a_clash25(-0.1F, 0.2F, y.field_71474_y.field_74334_X / 110.0F), 0.0, 0.0);
+            Vec3d var24 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, y.field_71474_y.field_74334_X / 110.0F), 0.0, 0.0);
             var24 = GoblinEntity.b(var24, y.field_71439_g.field_70177_z);
             var2 = var24.field_72450_a;
             var4 = var24.field_72448_b;
@@ -299,7 +299,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
             GlStateManager.func_179121_F();
          }
       } else {
-         if (var1.h_clash508()) {
+         if (var1.isLocallyRegistered()) {
             Vec3d var12 = a(var1.field_70170_p, var1, var11, var2, var4, var6);
             var2 = var12.field_72450_a;
             var4 = var12.field_72448_b;
@@ -307,12 +307,12 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
          }
 
          if (var10 == fp.THROWN || var10 == fp.START_THROWING) {
-            if (y.field_71474_y.field_74320_O == 0 && var8 == -420.69F && !var1.h_clash508()) {
+            if (y.field_71474_y.field_74320_O == 0 && var8 == -420.69F && !var1.isLocallyRegistered()) {
                return;
             }
 
-            if (!var1.h_clash508()) {
-               float var14 = var1.I_clash415();
+            if (!var1.isLocallyRegistered()) {
+               float var14 = var1.getYawRotation();
                var1.field_70760_ar = var14;
                var1.field_70761_aq = var14;
             }
@@ -335,19 +335,19 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
                var4 = 0.0;
                var6 = 0.0;
             } else {
-               if (var1.h_clash508()) {
+               if (var1.isLocallyRegistered()) {
                }
 
                var1.field_70761_aq = y.field_71439_g.field_70177_z;
                var1.field_70760_ar = y.field_71439_g.field_70177_z;
-               Vec3d var16 = a(var1, var1.e_clash54(), var9);
+               Vec3d var16 = a(var1, var1.getOwnerUUID(), var9);
                var2 = var16.field_72450_a;
                var4 = var16.field_72448_b;
                var6 = var16.field_72449_c;
             }
          } else if (this.u) {
             a_clash399(var9);
-            Vec3d var17 = new Vec3d(RotationHelper.a_clash25(-0.1F, 0.2F, y.field_71474_y.field_74334_X / 110.0F), 0.0, 0.0);
+            Vec3d var17 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, y.field_71474_y.field_74334_X / 110.0F), 0.0, 0.0);
             var17 = GoblinEntity.b(var17, y.field_71439_g.field_70177_z);
             var2 = var17.field_72450_a;
             var4 = var17.field_72448_b;
@@ -374,7 +374,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    public static boolean a(BaseGirlEntity var0, fp var1) {
-      if (var1 == fp.START_THROWING && !var0.h_clash508()) {
+      if (var1 == fp.START_THROWING && !var0.isLocallyRegistered()) {
          return false;
       }
 
@@ -413,7 +413,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
    public static Vector4f a_clash400(EntityPlayer var0, float var1) {
       EntityPlayerSP var2 = y.field_71439_g;
-      float var3 = RotationHelper.a_clash25(var0.field_70760_ar, var0.field_70761_aq, var1);
+      float var3 = RotationHelper.lerp(var0.field_70760_ar, var0.field_70761_aq, var1);
       Vec3d var4 = RotationHelper.a(new Vec3d(var0.field_70142_S, var0.field_70137_T, var0.field_70136_U), var0.func_174791_d(), var1);
       Vec3d var5 = RotationHelper.a(new Vec3d(var2.field_70142_S, var2.field_70137_T, var2.field_70136_U), var2.func_174791_d(), var1);
       Vec3d var6 = var4.func_178788_d(var5);
@@ -421,7 +421,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    @Override
-   protected Vec3i a_clash216(String var1) {
+   protected Vec3i getBoneColor(String var1) {
       String[] var2 = AbstractNpcOnlyEntity.a_clash225(this.j);
       if (var2.length < 8) {
          return r;
@@ -492,7 +492,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    public static void a(BaseGirlEntity var0, GeoBone var1, String var2) {
-      if (var0.h_clash508()) {
+      if (var0.isLocallyRegistered()) {
          var1.setHidden(true);
       } else if (var0 instanceof GoblinEntity) {
          int var3 = Integer.parseInt(var2);
@@ -505,18 +505,18 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    public static void a(boolean var0, GeoBone var1, float var2, float var3) {
       if (!y.func_147113_T()) {
          if (var0) {
-            var1.setRotationX(var1.getRotationX() + gc.c_clash744(ThreadNames.b(x, -var2, var2)));
-            var1.setRotationZ(var1.getRotationZ() + gc.c_clash744(ThreadNames.b(N, -var3, var3)));
+            var1.setRotationX(var1.getRotationX() + gc.wrapDegrees(ThreadNames.b(x, -var2, var2)));
+            var1.setRotationZ(var1.getRotationZ() + gc.wrapDegrees(ThreadNames.b(N, -var3, var3)));
          }
       }
    }
 
    public static void a(BaseGirlEntity var0, GeoBone var1) {
-      if (B == -420.69F && var0.y_clash492() == fp.SHOULDER_IDLE) {
+      if (B == -420.69F && var0.getCurrentAction() == fp.SHOULDER_IDLE) {
          float var2 = -y.func_175598_ae().field_78732_j;
          var1.setPivotY(8.0F);
          if (!y.func_147113_T()) {
-            var1.setRotationX(var1.getRotationX() + gc.c_clash744(var2));
+            var1.setRotationX(var1.getRotationX() + gc.wrapDegrees(var2));
          }
       }
    }
@@ -596,7 +596,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
    @Override
    protected ItemStack a_clash341(@Nullable ItemStack var1) {
-      fp var2 = this.j.y_clash492();
+      fp var2 = this.j.getCurrentAction();
       return var2 != fp.RUN && var2 != fp.CATCH ? var1 : (ItemStack)this.j.func_184212_Q().func_187225_a(GoblinEntity.a0);
    }
 
@@ -619,7 +619,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
    @Override
    protected float a_clash217() {
-      return this.j.y_clash492() == fp.CATCH ? 0.5F : 1.0F;
+      return this.j.getCurrentAction() == fp.CATCH ? 0.5F : 1.0F;
    }
 
    @Override
@@ -641,7 +641,4 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

@@ -65,7 +65,7 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
          } else {
             EntityPlayer var1 = this.k_clash584();
             if (var1 != null) {
-               String var2 = var1.getEntityData().func_74779_i("sexmod:GirlSpecific" + NpcType.a_clash751(this));
+               String var2 = var1.getEntityData().func_74779_i("sexmod:GirlSpecific" + NpcType.getNpcType(this));
                this.ar = false;
                if (!"".equals(var2)) {
                   this.a_clash245(c_clash554(var2));
@@ -98,7 +98,4 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
 
    protected abstract void a_clash354();
 
-   private static RuntimeException d(RuntimeException var0) {
-      return var0;
-   }
 }

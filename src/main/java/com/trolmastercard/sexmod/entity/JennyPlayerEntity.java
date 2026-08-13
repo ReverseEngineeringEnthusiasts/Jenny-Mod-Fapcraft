@@ -81,12 +81,12 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public IVanillaModel a_clash228(int var1) {
+   public IVanillaModel getHandModel(int var1) {
       return new SlimeModel();
    }
 
    @Override
-   public String c_clash229(int var1) {
+   public String getHandTexture(int var1) {
       return var1 == 0 ? "textures/entity/jenny/hand_nude.png" : "textures/entity/jenny/hand.png";
    }
 
@@ -101,7 +101,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
 
       if ("action.names.blowjob".equals(var1)) {
          this.b(fp.STARTBLOWJOB);
-         this.a(this.ah_clash493(), fp.PAIZURI_START);
+         this.a(this.getOutfitIndex(), fp.PAIZURI_START);
          this.b_clash577(var2);
       }
    }
@@ -109,7 +109,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void func_70619_bc() {
       super.func_70619_bc();
-      if (this.y_clash492() == fp.WAITDOGGY) {
+      if (this.getCurrentAction() == fp.WAITDOGGY) {
          EntityPlayer var1 = this.j_clash575();
          if (var1 != null && var1.func_70011_f(this.w_clash576().field_72450_a, this.w_clash576().field_72448_b, this.w_clash576().field_72449_c) < 1.0) {
             if (this.c_clash587(var1.getPersistentID())) {
@@ -117,13 +117,13 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                return;
             }
 
-            this.e_clash499(var1.getPersistentID());
+            this.setInteractionPlayerUUID(var1.getPersistentID());
             var1.func_70634_a(this.func_174791_d().field_72450_a, this.w_clash576().field_72448_b, this.func_174791_d().field_72449_c);
             this.a((EntityPlayerMP)var1, false);
             var1.func_191958_b(0.0F, 0.0F, 0.0F, 0.0F);
             var1.field_71075_bZ.field_75100_b = true;
-            this.field_70170_p.func_152378_a(this.m_clash583()).field_71075_bZ.field_75100_b = true;
-            this.a_clash536(0.0, 0.0, 0.4, 0.0F, 60.0F);
+            this.field_70170_p.func_152378_a(this.getOwnerUserUUID()).field_71075_bZ.field_75100_b = true;
+            this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
             this.B = null;
             this.b(fp.DOGGYSTART);
             PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
@@ -132,13 +132,13 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       BaseGirlEntity.a(var1, this, new String[]{"action.names.blowjob", "action.names.boobjob"}, false);
       return true;
    }
 
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       switch (var1) {
          case SUCKBLOWJOB:
             return fp.THRUSTBLOWJOB;
@@ -147,7 +147,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
          case PAIZURI_SLOW:
             if (this.as) {
                this.as = false;
-               this.a_clash536(0.0, 0.0, 0.0, 0.0F, 70.0F);
+               this.positionPlayerRelative(0.0, 0.0, 0.0, 0.0F, 70.0F);
             }
 
             return fp.PAIZURI_FAST;
@@ -157,9 +157,9 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       if (var1 == fp.SUCKBLOWJOB || var1 == fp.THRUSTBLOWJOB) {
-         this.a_clash536(0.0, 0.0, 0.0, 0.0F, 70.0F);
+         this.positionPlayerRelative(0.0, 0.0, 0.0, 0.0F, 70.0F);
          return fp.CUMBLOWJOB;
       } else if (var1 == fp.DOGGYSLOW || var1 == fp.DOGGYFAST) {
          return fp.DOGGYCUM;
@@ -170,7 +170,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void b(fp var1) {
-      fp var2 = this.y_clash492();
+      fp var2 = this.getCurrentAction();
       if (var2 != fp.DOGGYCUM || var1 != fp.DOGGYSLOW && var1 != fp.DOGGYFAST) {
          if (var2 != fp.CUMBLOWJOB || var1 != fp.THRUSTBLOWJOB && var1 != fp.SUCKBLOWJOB) {
             if (var2 != fp.PAIZURI_CUM || var1 != fp.PAIZURI_SLOW && var1 != fp.PAIZURI_FAST) {
@@ -184,14 +184,14 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.y_clash492() == fp.NULL && this.y_clash492().autoBlink) {
+            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
                this.a("animation.jenny.fhappy", true, var1);
             } else {
                this.a("animation.jenny.null", true, var1);
             }
             break;
          case "movement":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.jenny.null", true, var1);
             } else if (this.ak) {
                this.a("animation.jenny.sit", true, var1);
@@ -219,7 +219,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             }
             break;
          case "action":
-            switch (this.y_clash492()) {
+            switch (this.getCurrentAction()) {
                case SUCKBLOWJOB:
                   this.a("animation.jenny.blowjobsuck", true, var1);
                   break;
@@ -309,7 +309,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "stripMSG1":
                this.h("Hihi~");
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_GIGGLE));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_GIGGLE));
                break;
             case "paymentMSG1":
                this.h("Huh?");
@@ -337,11 +337,11 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                }
             case "paymentMSG3":
                this.h("Hehe~");
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_GIGGLE));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_GIGGLE));
                break;
             case "sexUiOn":
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "paymentMSG4":
@@ -354,8 +354,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.h("What are you...");
                this.a(SoundHandler.GIRLS_JENNY_MMM[8]);
                this.r = 180.0F;
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "bjiMSG2":
@@ -372,8 +372,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             case "bjiMSG5":
                this.h("Was this really necessary?!");
                this.a(SoundHandler.GIRLS_JENNY_HMPH[1], 0.5F);
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "bjiMSG6":
@@ -393,51 +393,51 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.GIRLS_JENNY_GIGGLE[2]);
                break;
             case "bjiMSG10":
-               if (this.n_clash537()) {
-                  this.a_clash536(-0.4, -0.8, -0.2, 60.0F, -3.0F);
+               if (this.isControlledByLocalPlayer()) {
+                  this.positionPlayerRelative(-0.4, -0.8, -0.2, 60.0F, -3.0F);
                }
                break;
             case "bjiMSG11":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_LIPSOUND));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIPSOUND));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "bjiMSG12":
                if (Reference.f.nextInt(5) == 0) {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_BJMOAN));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_BJMOAN));
                }
 
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_LIPSOUND));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIPSOUND));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "bjtMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MMM));
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_LIPSOUND));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MMM));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIPSOUND));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "bjiDone":
                this.b(fp.SUCKBLOWJOB);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "bjtDone":
                this.b(fp.SUCKBLOWJOB);
                break;
             case "doggyfastReady":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                   this.ar = true;
                }
                break;
             case "bjtReady":
             case "paizuriReady":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                }
                break;
@@ -446,8 +446,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "bjcMSG2":
                this.a(SoundHandler.GIRLS_JENNY_BJMOAN[7]);
-               if (this.n_clash537()) {
-                  HornyMeterHud.c_clash360();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.hideHornyMeter();
                }
                break;
             case "bjcMSG3":
@@ -466,15 +466,15 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.GIRLS_JENNY_LIGHTBREATHING[3]);
                break;
             case "bjcBlackScreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "bjcDone":
             case "paizuri_cumDone":
             case "doggyCumDone":
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                   this.r_clash533();
                }
                break;
@@ -483,18 +483,18 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.r = this.field_70177_z;
                break;
             case "doggyGoOnBedMSG2":
-               this.a_clash541("what are you waiting for?~");
+               this.sendChatMessage("what are you waiting for?~");
                this.a(SoundHandler.GIRLS_JENNY_LIGHTBREATHING[9]);
                break;
             case "doggyGoOnBedMSG3":
-               this.a_clash541("this ass ain't gonna fuck itself...");
+               this.sendChatMessage("this ass ain't gonna fuck itself...");
                this.a(SoundHandler.GIRLS_JENNY_GIGGLE[0]);
                break;
             case "doggyGoOnBedMSG4":
                this.a(SoundHandler.MISC_SLAP[0], 0.75F);
                break;
             case "doggyGoOnBedDone":
-               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.f_clash491(), Minecraft.func_71410_x().field_71439_g.getPersistentID()));
+               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.func_71410_x().field_71439_g.getPersistentID()));
                this.b(fp.WAITDOGGY);
                break;
             case "doggystartMSG1":
@@ -507,60 +507,60 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.MISC_BEDRUSTLE[1], 0.5F);
                break;
             case "doggystartMSG4":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_SMALLINSERTS));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_SMALLINSERTS));
                this.a(SoundHandler.GIRLS_JENNY_MMM[1]);
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "doggystartMSG5":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.33F);
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MOAN));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                break;
             case "doggystartDone":
                this.b(fp.DOGGYSLOW);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "doggyslowMSG1":
                this.ar = false;
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.33F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
                int var5 = Reference.f.nextInt(4);
                if (var5 == 0) {
                   var5 = Reference.f.nextInt(2);
                   if (var5 == 0) {
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MMM));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MMM));
                   } else {
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MOAN));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                   }
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_HEAVYBREATHING));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_HEAVYBREATHING));
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.00666);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.00666);
                }
                break;
             case "doggyslowMSG2":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_LIGHTBREATHING), 0.5F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIGHTBREATHING), 0.5F);
                break;
             case "doggyfastMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.75F);
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
 
                this.aq++;
                if (this.aq % 2 == 0) {
                   int var9 = Reference.f.nextInt(2);
                   if (var9 == 0) {
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MOAN));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                   } else {
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_HEAVYBREATHING));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_HEAVYBREATHING));
                   }
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_AHH));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_AHH));
                }
                break;
             case "doggyfastDone":
@@ -569,8 +569,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "doggycumMSG1":
                this.a(SoundHandler.MISC_CUMINFLATION[0], 2.0F);
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 2.0F);
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MOAN));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 2.0F);
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                break;
             case "doggycumMSG2":
                this.a(SoundHandler.GIRLS_JENNY_HEAVYBREATHING[4]);
@@ -585,46 +585,46 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.GIRLS_JENNY_HEAVYBREATHING[7]);
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.f_clash491()));
+               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "boobjob_camera":
-               if (this.n_clash537() && !this.as) {
+               if (this.isControlledByLocalPlayer() && !this.as) {
                   this.as = true;
                   this.r = 180.0F;
-                  this.a_clash536(-0.7, -0.6, -0.2, 60.0F, -3.0F);
+                  this.positionPlayerRelative(-0.7, -0.6, -0.2, 60.0F, -3.0F);
                }
                break;
             case "paizuri_startDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.b(fp.PAIZURI_SLOW);
-                  HornyMeterHud.b_clash363();
-                  HornyMeterHud.d_clash358();
+                  HornyMeterHud.resetHornyMeter();
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "paizuriFastMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                if (this.func_70681_au().nextBoolean()) {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_MMM));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MMM));
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_JENNY_AHH));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_AHH));
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "paizuriSlowMSG1":
             case "paizuriStartMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "paizuri_fastDone":
                this.b(fp.PAIZURI_SLOW);
-               if (this.n_clash537() && !this.as) {
+               if (this.isControlledByLocalPlayer() && !this.as) {
                   this.as = true;
-                  this.a_clash536(-0.7, -0.6, -0.2, 60.0F, -3.0F);
+                  this.positionPlayerRelative(-0.7, -0.6, -0.2, 60.0F, -3.0F);
                }
                break;
             case "paizuri_startStep":
@@ -632,8 +632,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(var6.func_177230_c().getSoundType(var6, this.field_70170_p, this.func_180425_c(), this).func_185844_d());
                break;
             case "paizuri_cumStart":
-               if (this.n_clash537() && !this.as) {
-                  this.a_clash536(-0.7, -0.6, -0.2, 60.0F, -3.0F);
+               if (this.isControlledByLocalPlayer() && !this.as) {
+                  this.positionPlayerRelative(-0.7, -0.6, -0.2, 60.0F, -3.0F);
                }
          }
       };
@@ -643,7 +643,4 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       var1.addAnimationController(this.s);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

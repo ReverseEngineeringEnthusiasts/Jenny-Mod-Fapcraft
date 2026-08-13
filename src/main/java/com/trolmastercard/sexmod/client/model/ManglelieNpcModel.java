@@ -32,15 +32,15 @@ import software.bernie.geckolib3.core.processor.IBone;
 public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
    public static final float h = 7.0F;
    public static final float k = 0.75F;
-   static final float l = gc.c_clash744(140.0F);
-   static final float m = gc.c_clash744(35.0F);
+   static final float l = gc.wrapDegrees(140.0F);
+   static final float m = gc.wrapDegrees(35.0F);
    static final float i = 90.0F;
-   static final float g = gc.c_clash744(45.0F);
-   static final float f = gc.c_clash744(-45.0F);
+   static final float g = gc.wrapDegrees(45.0F);
+   static final float f = gc.wrapDegrees(-45.0F);
    public static final ResourceLocation j = new ResourceLocation("sexmod", "textures/entity/manglelie/manglelie.png");
 
    @Override
-   protected ResourceLocation[] a_clash33() {
+   protected ResourceLocation[] getModelLocations() {
       return new ResourceLocation[]{
          new ResourceLocation("sexmod", "geo/manglelie/manglelie.geo.json"),
          new ResourceLocation("sexmod", "geo/manglelie/manglelie.geo.json"),
@@ -77,7 +77,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
          if (!c_clash313(var1)) {
             GalathEntity var2 = ManglelieEntity.a_clash419(var1, false);
             if (var2 != null) {
-               if (fp.a(var2.y_clash492(), fp.CORRUPT_CUM, fp.CARRY_FAST, fp.CORRUPT_INTRO, fp.CORRUPT_SLOW)) {
+               if (fp.a(var2.getCurrentAction(), fp.CORRUPT_CUM, fp.CARRY_FAST, fp.CORRUPT_INTRO, fp.CORRUPT_SLOW)) {
                   AnimationProcessor var3 = this.getAnimationProcessor();
                   IBone var4 = var3.getBone("legR");
                   var4.setRotationY(var4.getRotationY() + f);
@@ -232,13 +232,13 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       float var7 = var2.aE + var5.getBone("upperBody").getRotationX();
       float var8 = this.a.func_184121_ak();
       Vec3d var9 = ManglelieRenderer.a_clash376(var2, var8);
-      Vec3d var10 = var1.b_clash547("armR").func_178787_e(var9);
-      Vec3d var11 = var1.b_clash547("armL").func_178787_e(var9);
+      Vec3d var10 = var1.getCachedBoneOffset("armR").func_178787_e(var9);
+      Vec3d var11 = var1.getCachedBoneOffset("armL").func_178787_e(var9);
       bm var12 = ThreadNames.a_clash161(var10, var1.R);
       bm var13 = ThreadNames.a_clash161(var11, var1.R);
       Float var14 = GalathEntity.a_clash692(var2, var8);
       float var15 = var14 == null ? RotationHelper.b(var2.field_70758_at, var2.field_70759_as, var8) : var14;
-      float var16 = gc.c_clash744(var15);
+      float var16 = gc.wrapDegrees(var15);
       float var17 = var1.b_clash423(var8);
       float var18 = (float)RotationHelper.e(Math.min(1.0F, var17));
       float var19;
@@ -250,33 +250,33 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
 
       float var20 = (float)RotationHelper.h(var19);
-      float var21 = gc.c_clash744(RotationHelper.a_clash25(0.0F, 90.0F, var18));
+      float var21 = gc.wrapDegrees(RotationHelper.lerp(0.0F, 90.0F, var18));
       boolean var22 = var1.a_clash435(var1.R, var8);
       if (var22) {
-         var6.c = new f7(-var7 + var12.a + gc.c_clash744(90.0F), var12.c, 0.0F);
+         var6.c = new f7(-var7 + var12.a + gc.wrapDegrees(90.0F), var12.c, 0.0F);
          var6.g = new f7(
-            -var7 + var13.a + gc.c_clash744(90.0F),
-            (float)(var13.c + gc.c_clash744(-20.0F) * Math.cos(var12.c + var16 * 1.0F) + RotationHelper.a_clash25(var21 / 2.0F, 0.0F, var20)),
+            -var7 + var13.a + gc.wrapDegrees(90.0F),
+            (float)(var13.c + gc.wrapDegrees(-20.0F) * Math.cos(var12.c + var16 * 1.0F) + RotationHelper.lerp(var21 / 2.0F, 0.0F, var20)),
             0.0F
          );
          var6.a = 1.0F + Math.abs(Math.abs(var12.c) - Math.abs(var16)) * 0.1909F;
-         var6.e = gc.c_clash744(90.0F);
-         var6.b.b = RotationHelper.a_clash25(var21, 0.0F, var20);
+         var6.e = gc.wrapDegrees(90.0F);
+         var6.b.b = RotationHelper.lerp(var21, 0.0F, var20);
          if (var19 > 0.5) {
             var6.b.a = m + (float)RotationHelper.b(g, 0.0, RotationHelper.h((var19 - 0.5F) * 2.0F));
          } else if (var19 != 0.0F && var19 < 0.5) {
             var6.b.a = m + (float)RotationHelper.b(0.0, g, RotationHelper.h(var19 * 2.0F));
          }
       } else {
-         var6.g = new f7(-var7 + var13.a + gc.c_clash744(90.0F), var13.c, 0.0F);
+         var6.g = new f7(-var7 + var13.a + gc.wrapDegrees(90.0F), var13.c, 0.0F);
          var6.c = new f7(
-            -var7 + var12.a + gc.c_clash744(90.0F),
-            (float)(var12.c + gc.c_clash744(20.0F) * Math.cos(var13.c + var16 * 1.0F)) - RotationHelper.a_clash25(var21 / 2.0F, 0.0F, var20),
+            -var7 + var12.a + gc.wrapDegrees(90.0F),
+            (float)(var12.c + gc.wrapDegrees(20.0F) * Math.cos(var13.c + var16 * 1.0F)) - RotationHelper.lerp(var21 / 2.0F, 0.0F, var20),
             0.0F
          );
          var6.f = 1.0F + Math.abs(Math.abs(var13.c) - Math.abs(var16)) * 0.1909F;
-         var6.d = gc.c_clash744(90.0F);
-         var6.h.b = -RotationHelper.a_clash25(var21, 0.0F, var20);
+         var6.d = gc.wrapDegrees(90.0F);
+         var6.h.b = -RotationHelper.lerp(var21, 0.0F, var20);
          if (var19 > 0.5) {
             var6.h.a = l + (float)RotationHelper.b(g, 0.0, RotationHelper.h((var19 - 0.5F) * 2.0F));
          } else if (var19 != 0.0F && var19 < 0.5) {
@@ -403,9 +403,6 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       var10000.setHidden(var10001);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    private static class RotationData {
       private f7 c;
@@ -426,10 +423,10 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
          var3.g = RotationHelper.a(var0.g, var1.g, var2);
          var3.h = RotationHelper.a(var0.h, var1.h, var2);
          var3.b = RotationHelper.a(var0.b, var1.b, var2);
-         var3.f = RotationHelper.a_clash25(var0.f, var1.f, var2);
-         var3.a = RotationHelper.a_clash25(var0.a, var1.a, var2);
-         var3.e = RotationHelper.a_clash25(var0.e, var1.e, var2);
-         var3.d = RotationHelper.a_clash25(var0.d, var1.d, var2);
+         var3.f = RotationHelper.lerp(var0.f, var1.f, var2);
+         var3.a = RotationHelper.lerp(var0.a, var1.a, var2);
+         var3.e = RotationHelper.lerp(var0.e, var1.e, var2);
+         var3.d = RotationHelper.lerp(var0.d, var1.d, var2);
          return var3;
       }
    }

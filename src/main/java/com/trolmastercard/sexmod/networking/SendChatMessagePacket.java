@@ -64,9 +64,6 @@ public class SendChatMessagePacket implements IMessage {
       ByteBufUtils.writeUTF8String(var1, this.c.toString());
    }
 
-   private static IndexOutOfBoundsException a(IndexOutOfBoundsException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<SendChatMessagePacket, IMessage> {
       public IMessage onMessage(SendChatMessagePacket var1, MessageContext var2) {
@@ -82,7 +79,7 @@ public class SendChatMessagePacket implements IMessage {
                .getMinecraftServerInstance()
                .func_152344_a(
                   () -> {
-                     Vec3d var1x = BaseGirlEntity.g_clash524(var1.c).get(0).M_clash518();
+                     Vec3d var1x = BaseGirlEntity.girlList(var1.c).get(0).M_clash518();
                      PacketHandler.b
                         .sendToAllAround(
                            new SendChatMessagePacket(var1.a, var1.d, var1.c),
@@ -95,8 +92,5 @@ public class SendChatMessagePacket implements IMessage {
          return null;
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

@@ -31,9 +31,9 @@ public class HornyMeterHud extends Gui {
    static boolean i = false;
    static boolean h = true;
 
-   public static void d_clash358() {
+   public static void showHornyMeter() {
       if (!d) {
-         b_clash363();
+         resetHornyMeter();
          d = true;
          h = true;
       }
@@ -41,14 +41,14 @@ public class HornyMeterHud extends Gui {
 
    public static void a_clash359(boolean var0) {
       if (!d) {
-         b_clash363();
+         resetHornyMeter();
          d = true;
          h = var0;
       }
    }
 
-   public static void c_clash360() {
-      b_clash363();
+   public static void hideHornyMeter() {
+      resetHornyMeter();
       d = false;
       h = true;
    }
@@ -81,13 +81,13 @@ public class HornyMeterHud extends Gui {
 
          if (h && !i) {
             int var7 = d3.d ? 54 : 0;
-            this.func_73729_b((int)RotationHelper.a_clash25(-200.0F, 98.0F, f), 405, 0, var7, 158, 54);
+            this.func_73729_b((int)RotationHelper.lerp(-200.0F, 98.0F, f), 405, 0, var7, 158, 54);
          }
 
          GL11.glScalef(2.857143F, 2.857143F, 2.857143F);
          var2.field_71446_o.func_110577_a(b);
          GL11.glScalef(0.75F, 0.75F, 0.75F);
-         this.func_73729_b(10, (int)RotationHelper.a_clash25(-200.0F, 10.0F, f), 0, 0, 146, 175);
+         this.func_73729_b(10, (int)RotationHelper.lerp(-200.0F, 10.0F, f), 0, 0, 146, 175);
          a = RotationHelper.b(a, c, var2.func_193989_ak());
          int var8 = (int)RotationHelper.b(0.0, 160.0, a);
          int var4 = (int)RotationHelper.b(167.0, 8.0, a);
@@ -112,24 +112,21 @@ public class HornyMeterHud extends Gui {
             );
          } else {
             g = g + var2.func_193989_ak() / 15.0F;
-            this.func_73729_b(67, (int)RotationHelper.a_clash25(18.0F, -300.0F, g), 159, 8, 32, 160);
+            this.func_73729_b(67, (int)RotationHelper.lerp(18.0F, -300.0F, g), 159, 8, 32, 160);
          }
 
          GL11.glPopMatrix();
       }
    }
 
-   public static void a_clash362(double var0) {
+   public static void addToHornyMeter(double var0) {
       c += var0;
       c = c > 1.0 ? 1.0 : c;
    }
 
-   public static void b_clash363() {
+   public static void resetHornyMeter() {
       c = 0.0;
       i = false;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

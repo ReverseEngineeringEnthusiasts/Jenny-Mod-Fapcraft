@@ -140,7 +140,4 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
       }
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

@@ -159,7 +159,4 @@ public class GalathFlightHud extends Gui {
       this.func_73729_b(var2, var3, var1.a, var1.d, var1.c, var1.b);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

@@ -24,7 +24,7 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
    fp[] f = new fp[]{fp.STARTDOGGY, fp.DOGGYCUM, fp.DOGGYSLOW, fp.DOGGYFAST, fp.DOGGYCUM, fp.DOGGYSTART, fp.WAITDOGGY};
 
    @Override
-   protected ResourceLocation[] a_clash33() {
+   protected ResourceLocation[] getModelLocations() {
       return new ResourceLocation[]{
          new ResourceLocation("sexmod", "geo/slime/nude.geo.json"),
          new ResourceLocation("sexmod", "geo/slime/armored.geo.json"),
@@ -47,8 +47,8 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
       super.setLivingAnimations(var1, var2, var3);
       AnimationProcessor var4 = this.getAnimationProcessor();
       if (!(var1.field_70170_p instanceof SexWorldClient) && var4.getBone("bedSlime") != null && var4.getBone("bedSlimeLayer") != null) {
-         var4.getBone("bedSlime").setHidden(!Arrays.asList(this.f).contains(var1.y_clash492()));
-         var4.getBone("bedSlimeLayer").setHidden(!Arrays.asList(this.f).contains(var1.y_clash492()));
+         var4.getBone("bedSlime").setHidden(!Arrays.asList(this.f).contains(var1.getCurrentAction()));
+         var4.getBone("bedSlimeLayer").setHidden(!Arrays.asList(this.f).contains(var1.getCurrentAction()));
       }
 
       if (!(var1 instanceof AbstractPlayerGirlEntity)) {
@@ -117,7 +117,4 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
       return new String[]{"armorShoesL", "armorShoesR"};
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

@@ -59,7 +59,4 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
       super.func_75251_c();
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

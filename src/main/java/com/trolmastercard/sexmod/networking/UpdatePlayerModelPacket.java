@@ -55,9 +55,6 @@ public class UpdatePlayerModelPacket implements IMessage {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<UpdatePlayerModelPacket, IMessage> {
       public IMessage onMessage(UpdatePlayerModelPacket var1, MessageContext var2) {
@@ -66,11 +63,11 @@ public class UpdatePlayerModelPacket implements IMessage {
                EntityPlayerMP var2x = var2.getServerHandler().field_147369_b;
                World var3 = var2x.field_70170_p;
                UUID var4 = var2.getServerHandler().field_147369_b.getPersistentID();
-               AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.d_clash567(var4);
+               AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var4);
                if (var5 != null) {
                   try {
-                     for (BaseGirlEntity var7 : BaseGirlEntity.ad_clash509()) {
-                        if (!var7.field_70170_p.field_72995_K && var7.f_clash491().equals(var5.f_clash491())) {
+                     for (BaseGirlEntity var7 : BaseGirlEntity.getGirlEntityList()) {
+                        if (!var7.field_70170_p.field_72995_K && var7.getGirlId().equals(var5.getGirlId())) {
                            var3.func_72900_e(var7);
                         }
                      }
@@ -79,7 +76,7 @@ public class UpdatePlayerModelPacket implements IMessage {
 
                   var5.y_clash234();
                   AbstractPlayerGirlEntity.al.remove(var4);
-                  BaseGirlEntity.ad_clash509().remove(var5);
+                  BaseGirlEntity.getGirlEntityList().remove(var5);
                   var5.a(Optional.absent());
                }
 
@@ -111,8 +108,5 @@ public class UpdatePlayerModelPacket implements IMessage {
          }
       }
 
-      private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-         return var0;
-      }
    }
 }

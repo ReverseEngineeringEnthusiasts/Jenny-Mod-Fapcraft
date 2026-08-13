@@ -50,9 +50,6 @@ public class GirlInventorySlot extends SlotItemHandler {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public enum b {
       WEAPON(0),
@@ -90,8 +87,5 @@ public class GirlInventorySlot extends SlotItemHandler {
          this.id = var3;
       }
 
-      private static NullPointerException a(NullPointerException var0) {
-         return var0;
-      }
    }
 }

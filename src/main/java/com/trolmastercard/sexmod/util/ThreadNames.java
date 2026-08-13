@@ -116,7 +116,4 @@ public class ThreadNames {
       }, (g0.a_clash472() ? "server sexmod thread " : "client sexmod thread ") + var2).start();
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

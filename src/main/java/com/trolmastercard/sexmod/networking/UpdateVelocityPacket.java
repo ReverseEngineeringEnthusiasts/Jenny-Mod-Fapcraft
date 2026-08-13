@@ -50,7 +50,7 @@ public class UpdateVelocityPacket implements IMessage {
       public IMessage onMessage(UpdateVelocityPacket var1, MessageContext var2) {
          if (var1.c && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               BaseGirlEntity var2x = BaseGirlEntity.a_clash523(var1.a);
+               BaseGirlEntity var2x = BaseGirlEntity.getServerGirlEntity(var1.a);
                if (var2x instanceof GalathEntity) {
                   GalathEntity var3 = (GalathEntity)var2x;
                   if (var2.getServerHandler().field_147369_b.equals(var3.ab_clash671())) {
@@ -65,8 +65,5 @@ public class UpdateVelocityPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

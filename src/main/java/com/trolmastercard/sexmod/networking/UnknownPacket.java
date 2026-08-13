@@ -62,9 +62,6 @@ public class UnknownPacket implements IMessage {
       }
    }
 
-   private static IndexOutOfBoundsException a(IndexOutOfBoundsException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<UnknownPacket, IMessage> {
       public IMessage onMessage(UnknownPacket var1, MessageContext var2) {
@@ -102,8 +99,5 @@ public class UnknownPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

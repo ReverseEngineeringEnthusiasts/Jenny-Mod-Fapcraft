@@ -62,15 +62,12 @@ public class UploadInventoryToServerPacket implements IMessage {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class Handler implements IMessageHandler<UploadInventoryToServerPacket, IMessage> {
       public IMessage onMessage(UploadInventoryToServerPacket var1, MessageContext var2) {
          if (var1.b && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.g_clash524(var1.a)) {
+               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.a)) {
                   if (!var3.field_70170_p.field_72995_K) {
                      EntityPlayer var4 = var3.field_70170_p.func_152378_a(var1.c);
                      if (var4 == null) {
@@ -119,8 +116,5 @@ public class UploadInventoryToServerPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

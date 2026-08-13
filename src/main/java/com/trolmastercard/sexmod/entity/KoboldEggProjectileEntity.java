@@ -104,9 +104,6 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class a {
       @SubscribeEvent

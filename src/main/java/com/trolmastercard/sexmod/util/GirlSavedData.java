@@ -67,7 +67,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static boolean c_clash847(GalathEntity var0) {
-      UUID var1 = h.b(var0.f_clash491());
+      UUID var1 = h.b(var0.getGirlId());
       if (var1 == null) {
          return false;
       } else {
@@ -82,7 +82,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static boolean b(EntityPlayer var0, GalathEntity var1) {
-      return var1.f_clash491().equals(h.c(var0.getPersistentID()));
+      return var1.getGirlId().equals(h.c(var0.getPersistentID()));
    }
 
    public static void a_clash848(GalathEntity var0) {
@@ -91,7 +91,7 @@ public class GirlSavedData extends WorldSavedData {
          var0.field_70170_p.func_72900_e(var1);
       }
 
-      UUID var2 = h.b(var0.f_clash491());
+      UUID var2 = h.b(var0.getGirlId());
       if (var2 == null) {
          var0.field_70170_p.func_72900_e(var0);
       } else {
@@ -114,7 +114,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static UUID b_clash851(GalathEntity var0) {
-      return var0 == null ? null : f_clash850(var0.f_clash491());
+      return var0 == null ? null : f_clash850(var0.getGirlId());
    }
 
    public static UUID a_clash852(UUID var0) {
@@ -132,7 +132,7 @@ public class GirlSavedData extends WorldSavedData {
    public static void a(EntityPlayer var0, GalathEntity var1) {
       if (var0 != null) {
          if (var1 != null) {
-            a(var0.getPersistentID(), var1.f_clash491());
+            a(var0.getPersistentID(), var1.getGirlId());
          }
       }
    }
@@ -174,7 +174,7 @@ public class GirlSavedData extends WorldSavedData {
             UUID var6 = (UUID)var5.getKey();
             UUID var7 = (UUID)var5.getValue();
             EntityPlayer var8 = var2.func_152378_a(var6);
-            if (var8 != null && BaseGirlEntity.a_clash523(var7) == null) {
+            if (var8 != null && BaseGirlEntity.getServerGirlEntity(var7) == null) {
                var3.add(var8);
             }
          }
@@ -256,7 +256,4 @@ public class GirlSavedData extends WorldSavedData {
       return var1;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

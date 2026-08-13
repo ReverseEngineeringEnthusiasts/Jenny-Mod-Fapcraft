@@ -29,11 +29,11 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
    };
 
    public EllieNpcModel() {
-      this.c = this.a_clash33();
+      this.c = this.getModelLocations();
    }
 
    @Override
-   protected ResourceLocation[] a_clash33() {
+   protected ResourceLocation[] getModelLocations() {
       return new ResourceLocation[]{new ResourceLocation("sexmod", "geo/ellie/nude.geo.json"), new ResourceLocation("sexmod", "geo/ellie/dressed.geo.json")};
    }
 
@@ -52,12 +52,12 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
       super.setLivingAnimations(var1, var2, var3);
       if (!(var1.field_70170_p instanceof SexWorldClient)) {
          if (!(var1 instanceof AbstractPlayerGirlEntity)) {
-            if (var1.y_clash492() == fp.SITDOWNIDLE) {
+            if (var1.getCurrentAction() == fp.SITDOWNIDLE) {
                EntityPlayer var4 = var1.field_70170_p.func_72890_a(var1, 15.0);
                if (var4 != null) {
                   IBone var5 = this.getAnimationProcessor().getBone("head");
                   Vec3d var6 = var1.func_174791_d().func_178788_d(var4.func_174791_d());
-                  int var7 = Math.round(var1.I_clash415());
+                  int var7 = Math.round(var1.getYawRotation());
                   float var12;
                   if (var7 == 180) {
                      var12 = (float)Math.atan2(var6.field_72450_a, var6.field_72449_c) * 1.2F;
@@ -75,7 +75,7 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
                   } else {
                      float var9 = this.f.get(var7)[1];
                      float var10 = this.f.get(var7)[2];
-                     var12 = ((float)(Math.atan2(var6.field_72450_a, var6.field_72449_c) + this.f.get(var7)[0]) + var1.I_clash415()) * 0.8F;
+                     var12 = ((float)(Math.atan2(var6.field_72450_a, var6.field_72449_c) + this.f.get(var7)[0]) + var1.getYawRotation()) * 0.8F;
                      var12 = ThreadNames.b(var12, var9, var10);
                      if (var12 == var9 || var12 == var10) {
                         var12 = 0.0F;
@@ -126,7 +126,4 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
       return new String[]{"armorShoesL", "armorShoesR"};
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

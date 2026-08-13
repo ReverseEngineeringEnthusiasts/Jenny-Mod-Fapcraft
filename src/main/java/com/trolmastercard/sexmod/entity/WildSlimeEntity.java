@@ -86,7 +86,7 @@ public class WildSlimeEntity extends EntityLiving {
       this.field_70728_aV = var1;
    }
 
-   public int h_clash92() {
+   public int getSquishFactor() {
       return (Integer)this.field_70180_af.func_187225_a(c);
    }
 
@@ -96,7 +96,7 @@ public class WildSlimeEntity extends EntityLiving {
 
    public void func_70014_b(NBTTagCompound var1) {
       super.func_70014_b(var1);
-      var1.func_74768_a("Size", this.h_clash92() - 1);
+      var1.func_74768_a("Size", this.getSquishFactor() - 1);
       var1.func_74757_a("wasOnGround", this.f);
       var1.func_74768_a("ageInTicks", (Integer)this.field_70180_af.func_187225_a(d));
    }
@@ -114,7 +114,7 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    public boolean j_clash93() {
-      return this.h_clash92() <= 1;
+      return this.getSquishFactor() <= 1;
    }
 
    protected EnumParticleTypes g_clash94() {
@@ -192,7 +192,7 @@ public class WildSlimeEntity extends EntityLiving {
       this.h = this.e;
       super.func_70071_h_();
       if (this.field_70122_E && !this.f) {
-         int var13 = this.h_clash92();
+         int var13 = this.getSquishFactor();
          if (this.k_clash104()) {
             var13 = 0;
          }
@@ -233,7 +233,7 @@ public class WildSlimeEntity extends EntityLiving {
 
    public void func_184206_a(DataParameter<?> var1) {
       if (c.equals(var1)) {
-         int var2 = this.h_clash92();
+         int var2 = this.getSquishFactor();
          this.func_70105_a(0.51000005F * var2, 0.51000005F * var2);
          this.field_70177_z = this.field_70759_as;
          this.field_70761_aq = this.field_70759_as;
@@ -246,7 +246,7 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    public void func_70106_y() {
-      int var1 = this.h_clash92();
+      int var1 = this.getSquishFactor();
       if (!this.field_70170_p.field_72995_K && var1 > 1 && this.func_110143_aJ() <= 0.0F) {
          int var2 = 2 + this.field_70146_Z.nextInt(3);
 
@@ -288,16 +288,16 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    protected Item func_146068_u() {
-      return this.h_clash92() == 1 ? Items.field_151123_aH : null;
+      return this.getSquishFactor() == 1 ? Items.field_151123_aH : null;
    }
 
    @Nullable
    protected ResourceLocation func_184647_J() {
-      return this.h_clash92() == 1 ? LootTableList.field_186378_ac : LootTableList.field_186419_a;
+      return this.getSquishFactor() == 1 ? LootTableList.field_186378_ac : LootTableList.field_186419_a;
    }
 
    protected float func_70599_aP() {
-      return 0.4F * this.h_clash92();
+      return 0.4F * this.getSquishFactor();
    }
 
    public int func_70646_bf() {
@@ -305,7 +305,7 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    protected boolean i_clash102() {
-      return this.h_clash92() > 0;
+      return this.getSquishFactor() > 0;
    }
 
    protected void func_70664_aZ() {
@@ -327,9 +327,6 @@ public class WildSlimeEntity extends EntityLiving {
       return false;
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 
    static class a extends EntityAIBase {
       private final WildSlimeEntity b;
@@ -355,9 +352,6 @@ public class WildSlimeEntity extends EntityLiving {
          ((WildSlimeEntity.b)this.b.func_70605_aq()).a_clash0(this.a, false);
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 
    static class b extends EntityMoveHelper {
@@ -422,9 +416,6 @@ public class WildSlimeEntity extends EntityLiving {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 
    static class c extends EntityAIBase {
@@ -465,8 +456,5 @@ public class WildSlimeEntity extends EntityLiving {
          ((WildSlimeEntity.b)this.a.func_70605_aq()).a_clash1(1.2);
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

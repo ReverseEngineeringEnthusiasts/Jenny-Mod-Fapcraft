@@ -61,12 +61,12 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public IVanillaModel a_clash228(int var1) {
+   public IVanillaModel getHandModel(int var1) {
       return new KoboldModel();
    }
 
    @Override
-   public String c_clash229(int var1) {
+   public String getHandTexture(int var1) {
       return "textures/entity/slime/hand.png";
    }
 
@@ -80,22 +80,22 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       a(var1, this, new String[]{"action.names.blowjob"}, false);
       return true;
    }
 
    @Override
    public void b(fp var1) {
-      if (this.y_clash492() != fp.CUMBLOWJOB || var1 != fp.THRUSTBLOWJOB && var1 != fp.SUCKBLOWJOB) {
-         if (this.y_clash492() != fp.DOGGYCUM || var1 != fp.DOGGYFAST && var1 != fp.DOGGYSLOW) {
+      if (this.getCurrentAction() != fp.CUMBLOWJOB || var1 != fp.THRUSTBLOWJOB && var1 != fp.SUCKBLOWJOB) {
+         if (this.getCurrentAction() != fp.DOGGYCUM || var1 != fp.DOGGYFAST && var1 != fp.DOGGYSLOW) {
             super.b(var1);
          }
       }
    }
 
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       if (var1 == fp.SUCKBLOWJOB) {
          return fp.THRUSTBLOWJOB;
       } else {
@@ -104,7 +104,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       if (var1 == fp.SUCKBLOWJOB || var1 == fp.THRUSTBLOWJOB) {
          return fp.CUMBLOWJOB;
       } else {
@@ -115,21 +115,21 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void func_70619_bc() {
       super.func_70619_bc();
-      if (this.y_clash492() == fp.WAITDOGGY) {
+      if (this.getCurrentAction() == fp.WAITDOGGY) {
          EntityPlayer var1 = this.j_clash575();
          if (var1 != null) {
             if (!(var1.func_174791_d().func_72438_d(this.w_clash576()) > 1.0)) {
                PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
-               this.e_clash499(var1.getPersistentID());
-               var1.field_70177_z = this.I_clash415();
-               this.r = this.I_clash415();
+               this.setInteractionPlayerUUID(var1.getPersistentID());
+               var1.field_70177_z = this.getYawRotation();
+               this.r = this.getYawRotation();
                var1.func_70107_b(this.w_clash576().field_72450_a, this.w_clash576().field_72448_b, this.w_clash576().field_72449_c);
                var1.func_191958_b(0.0F, 0.0F, 0.0F, 0.0F);
-               this.a_clash536(0.0, 0.0, 0.4, 0.0F, 60.0F);
+               this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
                this.b(fp.DOGGYSTART);
                var1.func_189654_d(true);
                var1.field_70145_X = true;
-               EntityPlayer var2 = this.field_70170_p.func_152378_a(this.m_clash583());
+               EntityPlayer var2 = this.field_70170_p.func_152378_a(this.getOwnerUserUUID());
                var2.func_189654_d(true);
                var1.field_70145_X = true;
                var1.field_71075_bZ.field_75100_b = true;
@@ -143,14 +143,14 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.y_clash492() != fp.NULL && this.y_clash492().autoBlink) {
+            if (this.getCurrentAction() != fp.NULL && this.getCurrentAction().autoBlink) {
                this.a("animation.slime.fhappy", true, var1);
             } else {
                this.a("animation.slime.null", true, var1);
             }
             break;
          case "movement":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.slime.null", true, var1);
             } else if (this.ak) {
                this.a("animation.slime.sit", true, var1);
@@ -175,10 +175,10 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
             }
             break;
          case "action":
-            if (this.y_clash492() == fp.NULL) {
+            if (this.getCurrentAction() == fp.NULL) {
                this.a("animation.slime.null", true, var1);
             } else {
-               switch (this.y_clash492()) {
+               switch (this.getCurrentAction()) {
                   case UNDRESS:
                      this.a("animation.slime.undress", false, var1);
                      break;
@@ -248,32 +248,32 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "undress":
-               if (this.e_clash544()) {
+               if (this.isLocalPlayerNearby()) {
                   this.m.func_187227_b(D, 0);
                   this.r_clash533();
                }
                break;
             case "dress":
-               if (this.e_clash544()) {
+               if (this.isLocalPlayerNearby()) {
                   this.m.func_187227_b(D, 1);
                   this.b((fp) null);
                   this.r_clash533();
                }
                break;
             case "sexUiOn":
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "bjiMSG10":
-               if (this.n_clash537()) {
-                  this.a_clash536(-0.4, -0.8, -0.2, 60.0F, -3.0F);
+               if (this.isControlledByLocalPlayer()) {
+                  this.positionPlayerRelative(-0.4, -0.8, -0.2, 60.0F, -3.0F);
                }
                break;
             case "bjiMSG11":
                this.a(SoundEvents.field_187886_fs, 0.5F);
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "bjiMSG12":
@@ -282,33 +282,33 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                }
 
                this.a(SoundEvents.field_187886_fs, 0.5F);
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "bjtMSG1":
                this.a(SoundEvents.field_187878_fo);
                this.a(SoundEvents.field_187874_fm);
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "bjiDone":
                this.b(fp.SUCKBLOWJOB);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "bjtDone":
                this.b(fp.SUCKBLOWJOB);
                break;
             case "doggyfastReady":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                }
                break;
             case "bjtReady":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                }
                break;
@@ -317,22 +317,22 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "bjcMSG2":
                this.a(SoundEvents.field_187882_fq);
-               if (this.n_clash537()) {
-                  HornyMeterHud.c_clash360();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.hideHornyMeter();
                }
                break;
             case "doggyslowMSG2":
                this.a(SoundEvents.field_187878_fo);
                break;
             case "bjcBlackScreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "bjcDone":
             case "doggyCumDone":
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                   this.r_clash533();
                }
                break;
@@ -341,7 +341,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                this.r = this.field_70177_z;
                break;
             case "doggyGoOnBedDone":
-               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.f_clash491(), Minecraft.func_71410_x().field_71439_g.getPersistentID()));
+               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.func_71410_x().field_71439_g.getPersistentID()));
                this.b(fp.WAITDOGGY);
                break;
             case "doggystartMSG1":
@@ -354,23 +354,23 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundEvents.field_187886_fs, 0.25F);
                break;
             case "doggystartMSG4":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_SMALLINSERTS), 1.5F);
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_SMALLINSERTS), 1.5F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "doggystartMSG5":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.33F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
                this.a(SoundEvents.field_187878_fo);
                break;
             case "doggystartDone":
                this.b(fp.DOGGYSLOW);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "doggyslowMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.33F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
                int var5 = Reference.f.nextInt(4);
                if (var5 == 0) {
                   var5 = Reference.f.nextInt(2);
@@ -383,14 +383,14 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                   this.a(SoundEvents.field_187878_fo);
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.00666);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.00666);
                }
                break;
             case "doggyfastMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 0.75F);
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
 
                this.aq++;
@@ -410,7 +410,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "doggycumMSG1":
                this.a(SoundHandler.MISC_CUMINFLATION[0], 4.0F);
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING), 2.0F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 2.0F);
                this.a(SoundEvents.field_187874_fm);
          }
       };
@@ -420,7 +420,4 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
       var1.addAnimationController(this.E);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

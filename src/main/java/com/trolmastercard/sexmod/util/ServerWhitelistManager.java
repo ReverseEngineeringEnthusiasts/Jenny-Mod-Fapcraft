@@ -512,7 +512,7 @@ public class ServerWhitelistManager {
          ServerWhitelistManager.b var11 = (ServerWhitelistManager.b)var9.getValue();
          BoneType var6 = var11.d;
          List var7 = (List)var1.get(var6);
-         if (var11.g.isEmpty() || var11.g.contains(NpcType.a_clash751(var0))) {
+         if (var11.g.isEmpty() || var11.g.contains(NpcType.getNpcType(var0))) {
             var7.add(var10);
             var1.put(var6, var7);
          }
@@ -531,9 +531,6 @@ public class ServerWhitelistManager {
       return var0;
    }
 
-   private static Throwable a(Throwable var0) {
-      return var0;
-   }
 
    @SideOnly(Side.CLIENT)
    public static class a {
@@ -557,7 +554,7 @@ public class ServerWhitelistManager {
             }
 
             if (var5 != null) {
-               var3.func_146105_b(new TextComponentString(var5.f_clash491().toString()), false);
+               var3.func_146105_b(new TextComponentString(var5.getGirlId().toString()), false);
                var1.setCanceled(true);
             }
          }
@@ -591,9 +588,6 @@ public class ServerWhitelistManager {
          this.a = false;
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 
    public static class b {

@@ -176,11 +176,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @SideOnly(Side.CLIENT)
-   protected void a_clash490(String var1, String var2) {
-      PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.f_clash491(), var1, var2));
+   protected void changeDataParameterFromClient(String var1, String var2) {
+      PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.getGirlId(), var1, var2));
    }
 
-   public UUID f_clash491() {
+   public UUID getGirlId() {
       try {
          return UUID.fromString((String)this.m.func_187225_a(u));
       } catch (Exception var3) {
@@ -190,17 +190,17 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   public fp y_clash492() {
+   public fp getCurrentAction() {
       return fp.valueOf((String)this.m.func_187225_a(J));
    }
 
    public void b(fp var1) {
-      fp var2 = this.y_clash492();
+      fp var2 = this.getCurrentAction();
       if (var2 != var1) {
          if (var1 != fp.ATTACK || var2 == fp.NULL) {
             var1 = var1 == null ? fp.NULL : var1;
             if (this.field_70170_p.field_72995_K) {
-               this.a_clash490("currentAction", var1.toString());
+               this.changeDataParameterFromClient("currentAction", var1.toString());
             } else {
                var2.ticksPlaying = new int[]{0, 0};
                this.m.func_187227_b(J, var1.toString());
@@ -209,13 +209,13 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   public int ah_clash493() {
+   public int getOutfitIndex() {
       return (Integer)this.m.func_187225_a(D);
    }
 
    public void f(int var1) {
       if (this.field_70170_p.field_72995_K) {
-         this.a_clash490("currentModel", "0");
+         this.changeDataParameterFromClient("currentModel", "0");
       } else {
          this.m.func_187227_b(D, var1);
       }
@@ -227,7 +227,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @Nullable
    public EntityPlayer S_clash495() {
-      UUID var1 = this.ae_clash498();
+      UUID var1 = this.getInteractionPlayerUUID();
       return var1 == null ? null : this.field_70170_p.func_152378_a(var1);
    }
 
@@ -261,11 +261,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    public static void a(BaseGirlEntity var0, SoundEvent[] var1) {
-      a(var0, SoundHandler.a_clash804(var1));
+      a(var0, SoundHandler.randomSound(var1));
    }
 
    public static void a(BaseGirlEntity var0, SoundEvent[] var1, boolean var2) {
-      a(var0, SoundHandler.a_clash804(var1), var2);
+      a(var0, SoundHandler.randomSound(var1), var2);
    }
 
    @SideOnly(Side.CLIENT)
@@ -277,17 +277,17 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @Nullable
-   public UUID ae_clash498() {
+   public UUID getInteractionPlayerUUID() {
       String var1 = (String)this.m.func_187225_a(y);
       return var1.equals("null") ? null : UUID.fromString(var1);
    }
 
-   public void e_clash499(UUID var1) {
+   public void setInteractionPlayerUUID(UUID var1) {
       if (this.field_70170_p.field_72995_K) {
          if (var1 == null) {
-            this.a_clash490("playerSheHasSexWith", null);
+            this.changeDataParameterFromClient("playerSheHasSexWith", null);
          } else {
-            this.a_clash490("playerSheHasSexWith", var1.toString());
+            this.changeDataParameterFromClient("playerSheHasSexWith", var1.toString());
          }
       } else {
          if (var1 == null) {
@@ -298,45 +298,45 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   public void a_clash500(@Nonnull EntityPlayer var1) {
-      this.e_clash499(var1.getPersistentID());
+   public void setInteractionPlayer(@Nonnull EntityPlayer var1) {
+      this.setInteractionPlayerUUID(var1.getPersistentID());
    }
 
-   public Vec3d o_clash501() {
+   public Vec3d getTargetPosition() {
       String[] var1 = ((String)this.m.func_187225_a(e)).split("\\|");
       return new Vec3d(Double.parseDouble(var1[0]), Double.parseDouble(var1[1]), Double.parseDouble(var1[2]));
    }
 
-   public void c_clash502(Vec3d var1) {
+   public void setTargetPosition(Vec3d var1) {
       if (this.field_70170_p.field_72995_K) {
          String var2 = var1.field_72450_a + "f" + var1.field_72448_b + "f" + var1.field_72449_c + "f";
-         this.a_clash490("targetPos", var2);
+         this.changeDataParameterFromClient("targetPos", var2);
       } else {
          this.m.func_187227_b(e, var1.field_72450_a + "|" + var1.field_72448_b + "|" + var1.field_72449_c);
       }
    }
 
-   public void a_clash503(Vec3d var1) {
+   public void setTargetPositionDirect(Vec3d var1) {
       this.m.func_187227_b(e, var1.field_72450_a + "|" + var1.field_72448_b + "|" + var1.field_72449_c);
    }
 
-   public Float I_clash415() {
+   public Float getYawRotation() {
       return (Float)this.m.func_187225_a(w);
    }
 
-   public void b_clash431(float var1) {
+   public void setYawRotation(float var1) {
       this.m.func_187227_b(w, var1);
    }
 
-   public void a_clash504(boolean var1) {
+   public void setAnchored(boolean var1) {
       if (this.field_70170_p.field_72995_K) {
-         this.a_clash490("shouldbeattargetpos", String.valueOf(var1));
+         this.changeDataParameterFromClient("shouldbeattargetpos", String.valueOf(var1));
       } else {
          this.m.func_187227_b(G, var1);
       }
    }
 
-   public boolean Q_clash505() {
+   public boolean isAnchored() {
       return (Boolean)this.m.func_187225_a(G);
    }
 
@@ -383,7 +383,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       this.m.func_187214_a(c, "");
    }
 
-   public void b_clash507(boolean var1) {
+   public void setLocallyRegistered(boolean var1) {
       this.i = var1;
       if (var1) {
          fs.b_clash710(this);
@@ -392,11 +392,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   public boolean h_clash508() {
+   public boolean isLocallyRegistered() {
       return this.i;
    }
 
-   public static List<BaseGirlEntity> ad_clash509() {
+   public static List<BaseGirlEntity> getGirlEntityList() {
       if (!g0.a_clash472()) {
          return Z_clash510();
       }
@@ -453,7 +453,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
 
       if (this.X_clash438()) {
-         var1.func_74778_a("sexmod:customModel", this.C_clash559());
+         var1.func_74778_a("sexmod:customModel", this.getCustomModelCode());
       }
 
       super.func_70014_b(var1);
@@ -476,7 +476,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
          UUID var4 = UUID.fromString(var3);
          boolean var5 = false;
 
-         for (BaseGirlEntity var7 : g_clash524(var4)) {
+         for (BaseGirlEntity var7 : girlList(var4)) {
             if (!var7.field_70170_p.field_72995_K && var7 != this && !var7.field_70128_L && var7.isAddedToWorld()) {
                var5 = true;
                break;
@@ -484,12 +484,12 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
          }
 
          if (var5) {
-            Main.LOGGER.log(Level.WARN, String.format("got a duped %s with id '%s'. Deleted her", this.c_clash241(), var4));
+            Main.LOGGER.log(Level.WARN, String.format("got a duped %s with id '%s'. Deleted her", this.getDisplayNameText(), var4));
             this.field_70170_p.func_72900_e(this);
          } else {
             this.m.func_187227_b(u, var4.toString());
             if (this.X_clash438()) {
-               this.f_clash439(var1.func_74779_i("sexmod:customModel"));
+               this.setCustomModelCode(var1.func_74779_i("sexmod:customModel"));
             }
          }
       }
@@ -505,21 +505,21 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       this.field_70179_y = var5;
    }
 
-   public void b_clash512(Vec3d var1) {
+   public void setVelocity(Vec3d var1) {
       this.field_70159_w = var1.field_72450_a;
       this.field_70181_x = var1.field_72448_b;
       this.field_70179_y = var1.field_72449_c;
    }
 
-   public Vec3d j_clash513() {
+   public Vec3d getLastTickPosVector() {
       return new Vec3d(this.field_70142_S, this.field_70137_T, this.field_70136_U);
    }
 
    public void func_70619_bc() {
       if ((Boolean)this.m.func_187225_a(G)) {
-         this.func_70034_d(this.I_clash415());
-         this.func_70080_a(this.o_clash501().field_72450_a, this.o_clash501().field_72448_b, this.o_clash501().field_72449_c, this.I_clash415(), 0.0F);
-         this.func_70101_b(this.I_clash415(), this.field_70125_A);
+         this.func_70034_d(this.getYawRotation());
+         this.func_70080_a(this.getTargetPosition().field_72450_a, this.getTargetPosition().field_72448_b, this.getTargetPosition().field_72449_c, this.getYawRotation(), 0.0F);
+         this.func_70101_b(this.getYawRotation(), this.field_70125_A);
       }
 
       if (this.l.equals(Vec3d.field_186680_a)) {
@@ -531,13 +531,13 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    public void func_70071_h_() {
       super.func_70071_h_();
-      this.l_clash514();
+      this.tickFollowUpTransitions();
    }
 
    protected void G() {
       if (ServerWhitelistManager.e) {
-         HashSet var1 = this.Y_clash561();
-         NpcType var2 = NpcType.a_clash751(this);
+         HashSet var1 = this.getCustomPartsSet();
+         NpcType var2 = NpcType.getNpcType(this);
          HashSet var3 = new HashSet();
          String var4 = ServerWhitelistManager.h_clash132();
 
@@ -556,13 +556,13 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
          if (!var3.isEmpty()) {
             var1.removeAll(var3);
-            this.f_clash439(a_clash560(var1));
+            this.setCustomModelCode(encodeCustomParts(var1));
          }
       }
    }
 
-   protected void l_clash514() {
-      fp var1 = this.y_clash492();
+   protected void tickFollowUpTransitions() {
+      fp var1 = this.getCurrentAction();
       if (++var1.ticksPlaying[this.field_70170_p.field_72995_K ? 1 : 0] >= var1.length) {
          if (var1.followUp != null && !this.field_70170_p.field_72995_K) {
             this.b(var1.followUp);
@@ -570,7 +570,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   protected void k_clash515() {
+   protected void tickPathVelocity() {
       Path var1 = this.func_70661_as().func_75505_d();
       if (var1 != null) {
          if (!this.field_70122_E && !this.func_70090_H()) {
@@ -587,11 +587,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   public void g_clash238() {
+   public void reinitTasks() {
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       return false;
    }
 
@@ -632,8 +632,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    public void x_clash475() {
       if (this.field_70170_p.field_72995_K) {
-         this.a_clash490("master", "");
-         this.a_clash490("walk speed", BaseGirlEntity.BaseGirlEntityState.WALK.toString());
+         this.changeDataParameterFromClient("master", "");
+         this.changeDataParameterFromClient("walk speed", BaseGirlEntity.BaseGirlEntityState.WALK.toString());
       } else {
          this.m.func_187227_b(v, "");
          this.m.func_187227_b(a, BaseGirlEntity.BaseGirlEntityState.WALK.toString());
@@ -645,7 +645,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       var1.field_70181_x = 0.0;
       var1.field_70179_y = 0.0;
       if (var2) {
-         Vec3d var3 = this.a_clash546(0.35);
+         Vec3d var3 = this.getVectorTowardPlayer(0.35);
          var1.func_70634_a(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
       }
    }
@@ -655,25 +655,25 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       var2.field_70159_w = 0.0;
       var2.field_70181_x = 0.0;
       var2.field_70179_y = 0.0;
-      Vec3d var3 = this.a_clash546(0.35);
+      Vec3d var3 = this.getVectorTowardPlayer(0.35);
       var2.func_70634_a(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
-      this.b_clash431(var2.field_70759_as + 180.0F);
+      this.setYawRotation(var2.field_70759_as + 180.0F);
    }
 
    protected void a(boolean var1, boolean var2, UUID var3) {
       if (this.field_70170_p.field_72995_K) {
-         PacketHandler.b.sendToServer(new KoboldStatePacket(this.f_clash491(), var3, var1, var2));
+         PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), var3, var1, var2));
       } else {
-         KoboldStatePacket.Handler.a(this.f_clash491(), var3, var1, var2);
+         KoboldStatePacket.Handler.a(this.getGirlId(), var3, var1, var2);
       }
    }
 
-   public static BaseGirlEntity b_clash522(UUID var0) {
+   public static BaseGirlEntity getClientGirlEntity(UUID var0) {
       if (var0 == null) {
          return null;
       }
 
-      for (BaseGirlEntity var2 : g_clash524(var0)) {
+      for (BaseGirlEntity var2 : girlList(var0)) {
          if (var2.field_70170_p.field_72995_K) {
             return var2;
          }
@@ -682,12 +682,12 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return null;
    }
 
-   public static BaseGirlEntity a_clash523(UUID var0) {
+   public static BaseGirlEntity getServerGirlEntity(UUID var0) {
       if (var0 == null) {
          return null;
       }
 
-      for (BaseGirlEntity var2 : g_clash524(var0)) {
+      for (BaseGirlEntity var2 : girlList(var0)) {
          if (!var2.field_70170_p.field_72995_K) {
             return var2;
          }
@@ -696,12 +696,12 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return null;
    }
 
-   public static ArrayList<BaseGirlEntity> g_clash524(UUID var0) {
+   public static ArrayList<BaseGirlEntity> girlList(UUID var0) {
       ArrayList var1 = new ArrayList();
 
       try {
-         for (BaseGirlEntity var3 : ad_clash509()) {
-            if (var3 != null && var3.f_clash491().equals(var0)) {
+         for (BaseGirlEntity var3 : getGirlEntityList()) {
+            if (var3 != null && var3.getGirlId().equals(var0)) {
                var1.add(var3);
             }
          }
@@ -853,7 +853,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    protected void a(String var1, boolean var2, AnimationEvent var3, boolean var4) {
-      if (var4 || !fp.b_clash719(this, var3.getPartialTick()) || !this.a(this.y_clash492(), var1, d3.d, var3)) {
+      if (var4 || !fp.b_clash719(this, var3.getPartialTick()) || !this.a(this.getCurrentAction(), var1, d3.d, var3)) {
          ILoopType.EDefaultLoopTypes var5 = var2 ? ILoopType.EDefaultLoopTypes.LOOP : ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME;
          var3.getController().setAnimation(new AnimationBuilder().addAnimation(var1, var5));
          var3.getController().transitionLengthTicks = 0.0;
@@ -867,7 +867,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    protected void a(String var1, int var2, float var3, AnimationEvent var4, boolean var5) {
-      if (var5 || !fp.b_clash719(this, var4.getPartialTick()) || !this.a(this.y_clash492(), var1, d3.d, var4)) {
+      if (var5 || !fp.b_clash719(this, var4.getPartialTick()) || !this.a(this.getCurrentAction(), var1, d3.d, var4)) {
          AnimationController var6 = var4.getController();
          Pair var7 = this.A.get(var1);
          if (var7 == null) {
@@ -951,11 +951,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    public abstract void registerControllers(AnimationData var1);
 
    protected void s() {
-      if (this.field_70170_p.field_72995_K && this.n_clash537()) {
+      if (this.field_70170_p.field_72995_K && this.isControlledByLocalPlayer()) {
          this.B = null;
-         PacketHandler.b.sendToServer(new ResetGirlPacket(this.f_clash491(), true));
+         PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId(), true));
       } else if (!this.field_70170_p.field_72995_K) {
-         ResetGirlPacket.Handler.a((EntityPlayerMP)this.field_70170_p.func_152378_a(this.ae_clash498()));
+         ResetGirlPacket.Handler.a((EntityPlayerMP)this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID()));
       }
    }
 
@@ -974,8 +974,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    public static BaseGirlEntity a(@Nonnull UUID var0, Boolean var1) {
       try {
-         for (BaseGirlEntity var3 : ad_clash509()) {
-            if (!var3.field_70128_L && var0.equals(var3.ae_clash498())) {
+         for (BaseGirlEntity var3 : getGirlEntityList()) {
+            if (!var3.field_70128_L && var0.equals(var3.getInteractionPlayerUUID())) {
                if (var1 == null) {
                   return var3;
                }
@@ -1001,10 +1001,10 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       boolean var1 = FMLCommonHandler.instance().getMinecraftServerInstance() == null;
 
       try {
-         for (BaseGirlEntity var3 : ad_clash509()) {
+         for (BaseGirlEntity var3 : getGirlEntityList()) {
             if (!var3.field_70128_L) {
                boolean var4 = var3.field_70170_p.field_72995_K;
-               if (var4 == var1 && var0.equals(var3.ae_clash498())) {
+               if (var4 == var1 && var0.equals(var3.getInteractionPlayerUUID())) {
                   return var3;
                }
             }
@@ -1034,20 +1034,20 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    protected void V() {
-      if (this.n_clash537()) {
-         d3.a_clash122(true);
+      if (this.isControlledByLocalPlayer()) {
+         d3.setMovementLock(true);
          Minecraft.func_71410_x().field_71439_g.func_82142_c(false);
-         PacketHandler.b.sendToServer(new ResetGirlPacket(this.f_clash491()));
+         PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
       }
    }
 
    @SideOnly(Side.CLIENT)
    public static void k(UUID var0) {
       try {
-         for (BaseGirlEntity var2 : ad_clash509()) {
-            UUID var3 = var2.ae_clash498();
+         for (BaseGirlEntity var2 : getGirlEntityList()) {
+            UUID var3 = var2.getInteractionPlayerUUID();
             if (var3 != null && var3.equals(var0)) {
-               fp var4 = var2.c_clash235(var2.y_clash492());
+               fp var4 = var2.getNextAction(var2.getCurrentAction());
                if (var4 == null) {
                   return;
                }
@@ -1063,11 +1063,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    @SideOnly(Side.CLIENT)
    public static void f_clash534(UUID var0) {
       try {
-         for (BaseGirlEntity var2 : ad_clash509()) {
+         for (BaseGirlEntity var2 : getGirlEntityList()) {
             if (!var2.field_70128_L && var2.field_70170_p.field_72995_K) {
-               UUID var3 = var2.ae_clash498();
+               UUID var3 = var2.getInteractionPlayerUUID();
                if (var3 != null && var3.equals(var0)) {
-                  fp var4 = var2.a_clash236(var2.y_clash492());
+                  fp var4 = var2.getCumAction(var2.getCurrentAction());
                   if (var4 != null) {
                      var2.b(var4);
                   }
@@ -1080,7 +1080,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    public void N() {
       this.ag();
-      PacketHandler.b.sendToServer(new ResetControllerPacket(this.f_clash491()));
+      PacketHandler.b.sendToServer(new ResetControllerPacket(this.getGirlId()));
    }
 
    @SideOnly(Side.CLIENT)
@@ -1090,20 +1090,20 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    @Nullable
-   protected abstract fp c_clash235(fp var1);
+   protected abstract fp getNextAction(fp var1);
 
    @SideOnly(Side.CLIENT)
-   protected abstract fp a_clash236(fp var1);
+   protected abstract fp getCumAction(fp var1);
 
-   public TargetPoint P_clash535() {
+   public TargetPoint getTargetNetworkPoint() {
       return new TargetPoint(this.field_71093_bK, this.field_70165_t, this.field_70163_u, this.field_70161_v, 50.0);
    }
 
-   protected void a_clash536(double var1, double var3, double var5, float var7, float var8) {
-      if (this.ae_clash498() == null) {
+   protected void positionPlayerRelative(double var1, double var3, double var5, float var7, float var8) {
+      if (this.getInteractionPlayerUUID() == null) {
          System.out.println("couldnt move camera because the player isn't set");
       } else {
-         EntityPlayer var9 = this.field_70170_p.func_152378_a(this.ae_clash498());
+         EntityPlayer var9 = this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID());
          if (this.B == null) {
             this.B = var9.func_174791_d();
          }
@@ -1125,13 +1125,13 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean n_clash537() {
+   public boolean isControlledByLocalPlayer() {
       if (!this.field_70170_p.field_72995_K) {
          return false;
       }
 
       EntityPlayerSP var1 = Minecraft.func_71410_x().field_71439_g;
-      return var1.getPersistentID().equals(this.ae_clash498()) || var1.func_110124_au().equals(this.ae_clash498());
+      return var1.getPersistentID().equals(this.getInteractionPlayerUUID()) || var1.func_110124_au().equals(this.getInteractionPlayerUUID());
    }
 
    protected void U() {
@@ -1145,11 +1145,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return (String)this.m.func_187225_a(c);
    }
 
-   public abstract String c_clash241();
+   public abstract String getDisplayNameText();
 
    public String ab_clash540() {
       String var1 = (String)this.m.func_187225_a(c);
-      return !"".equals(var1) ? var1 : this.c_clash241();
+      return !"".equals(var1) ? var1 : this.getDisplayNameText();
    }
 
    public abstract float i_clash226();
@@ -1163,11 +1163,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       if (!this.field_70170_p.field_72995_K) {
          PacketHandler.b
             .sendToAllAround(
-               new SendChatMessagePacket(String.format("<%s> %s", this.ab_clash540(), var1), this.field_71093_bK, this.f_clash491()),
+               new SendChatMessagePacket(String.format("<%s> %s", this.ab_clash540(), var1), this.field_71093_bK, this.getGirlId()),
                new TargetPoint(this.field_71093_bK, this.field_70165_t, this.field_70163_u, this.field_70161_v, 40.0)
             );
-      } else if (this.n_clash537()) {
-         PacketHandler.b.sendToServer(new SendChatMessagePacket(String.format("<%s> %s", this.ab_clash540(), var1), this.field_71093_bK, this.f_clash491()));
+      } else if (this.isControlledByLocalPlayer()) {
+         PacketHandler.b.sendToServer(new SendChatMessagePacket(String.format("<%s> %s", this.ab_clash540(), var1), this.field_71093_bK, this.getGirlId()));
       }
    }
 
@@ -1179,17 +1179,17 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       if (!this.field_70170_p.field_72995_K) {
          PacketHandler.b
             .sendToAllAround(
-               new SendChatMessagePacket(var1, this.field_71093_bK, this.f_clash491()),
+               new SendChatMessagePacket(var1, this.field_71093_bK, this.getGirlId()),
                new TargetPoint(this.field_71093_bK, this.field_70165_t, this.field_70163_u, this.field_70161_v, 40.0)
             );
       } else {
-         if (this.n_clash537()) {
-            PacketHandler.b.sendToServer(new SendChatMessagePacket(var1, this.field_71093_bK, this.f_clash491()));
+         if (this.isControlledByLocalPlayer()) {
+            PacketHandler.b.sendToServer(new SendChatMessagePacket(var1, this.field_71093_bK, this.getGirlId()));
          }
       }
    }
 
-   protected void a_clash541(String var1) {
+   protected void sendChatMessage(String var1) {
       if (this.field_70170_p.field_72995_K) {
          Minecraft.func_71410_x().field_71439_g.func_145747_a(new TextComponentString(String.format("<%s> %s", this.ab_clash540(), var1)));
       }
@@ -1254,17 +1254,17 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean e_clash544() {
+   public boolean isLocalPlayerNearby() {
       EntityPlayer var1 = this.field_70170_p.func_72890_a(this, 50.0);
       return var1 == null ? false : var1.getPersistentID().equals(Minecraft.func_71410_x().field_71439_g.getPersistentID());
    }
 
    public Vec3d aa_clash545() {
-      return this.a_clash546(1.0);
+      return this.getVectorTowardPlayer(1.0);
    }
 
-   public Vec3d a_clash546(double var1) {
-      EntityPlayer var3 = this.field_70170_p.func_152378_a(this.ae_clash498());
+   public Vec3d getVectorTowardPlayer(double var1) {
+      EntityPlayer var3 = this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID());
       float var4 = var3.field_70177_z;
       return var3.func_174791_d().func_72441_c(-Math.sin(var4 * (Math.PI / 180.0)) * var1, 0.0, Math.cos(var4 * (Math.PI / 180.0)) * var1);
    }
@@ -1309,10 +1309,10 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    protected SoundEvent func_184639_G() {
       if (this.func_70681_au().nextInt(10000) == 0) {
          if (this.field_70170_p.field_72995_K && Minecraft.func_71410_x().field_71439_g.func_174791_d().func_72438_d(this.func_174791_d()) < 10.0) {
-            this.a_clash541("whopa");
+            this.sendChatMessage("whopa");
          }
 
-         return SoundHandler.a_clash804(SoundHandler.MISC_FART);
+         return SoundHandler.randomSound(SoundHandler.MISC_FART);
       } else {
          return null;
       }
@@ -1329,13 +1329,13 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    @SideOnly(Side.CLIENT)
    public MatrixStack a(String var1, boolean var2) {
       if (this.H == null) {
-         this.H = this.b_clash552();
+         this.H = this.getAnimationProcessor();
       }
 
       IBone var3 = this.H.getBone(var1);
       if (var3 == null) {
          if (!GirlModel.e.contains(var1)) {
-            Main.LOGGER.log(Level.WARN, String.format("The bone '%s' does not exist on %s. Bone model matrix couldn't be calculated", var1, this.c_clash241()));
+            Main.LOGGER.log(Level.WARN, String.format("The bone '%s' does not exist on %s. Bone model matrix couldn't be calculated", var1, this.getDisplayNameText()));
             this.p.remove(var1);
          }
 
@@ -1353,11 +1353,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
          Collections.reverse(var5);
          MatrixStack var9 = new MatrixStack();
-         if (this.Q_clash505()) {
-            var9.rotateY((float)(-Math.toRadians(this.I_clash415().floatValue())));
+         if (this.isAnchored()) {
+            var9.rotateY((float)(-Math.toRadians(this.getYawRotation().floatValue())));
          } else if (var2) {
             var9.rotateY(
-               (float)(-Math.toRadians(RotationHelper.a_clash25(this.field_70760_ar, this.field_70761_aq, Minecraft.func_71410_x().func_184121_ak())))
+               (float)(-Math.toRadians(RotationHelper.lerp(this.field_70760_ar, this.field_70761_aq, Minecraft.func_71410_x().func_184121_ak())))
             );
          }
 
@@ -1382,7 +1382,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @SideOnly(Side.CLIENT)
-   public Vec3d b_clash547(String var1) {
+   public Vec3d getCachedBoneOffset(String var1) {
       Vec3d var2 = this.x.get(var1);
       if (var2 != null) {
          return var2;
@@ -1397,7 +1397,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    public Vec3d d_clash548(String var1) {
-      return this.b_clash547(var1).func_178787_e(this.func_174791_d());
+      return this.getCachedBoneOffset(var1).func_178787_e(this.func_174791_d());
    }
 
    public void a(String var1, Vec3d var2) {
@@ -1405,8 +1405,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @SideOnly(Side.CLIENT)
-   public float R_clash549() {
-      AnimationProcessor var1 = this.b_clash552();
+   public float getCameraBoneHeight() {
+      AnimationProcessor var1 = this.getAnimationProcessor();
       IBone var2 = var1.getBone("girlCam");
       if (var2 == null) {
          return 0.0F;
@@ -1444,7 +1444,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   public AnimationProcessor<?> b_clash552() {
+   public AnimationProcessor<?> getAnimationProcessor() {
       return this.a_clash551().getAnimationProcessor();
    }
 
@@ -1498,7 +1498,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    public static List<Integer> h_clash555(UUID var0) {
-      BaseGirlEntity var1 = null instanceof ClientProxy ? b_clash522(var0) : a_clash523(var0);
+      BaseGirlEntity var1 = null instanceof ClientProxy ? getClientGirlEntity(var0) : getServerGirlEntity(var0);
       ArrayList var2 = new ArrayList<>(var1.L_clash353());
       if (var1 instanceof AbstractNpcOnlyEntity || var1 instanceof AbstractKoboldPlayerEntity) {
          var2.addAll(c_clash554((String)var1.func_184212_Q().func_187225_a(AbstractNpcOnlyEntity.M)));
@@ -1571,15 +1571,15 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return new ArrayList<>();
    }
 
-   public void f_clash439(String var1) {
+   public void setCustomModelCode(String var1) {
       this.m.func_187227_b(b, var1);
    }
 
-   public String C_clash559() {
+   public String getCustomModelCode() {
       return (String)this.m.func_187225_a(b);
    }
 
-   public static String a_clash560(HashSet<String> var0) {
+   public static String encodeCustomParts(HashSet<String> var0) {
       if (var0 == null) {
          return "";
       }
@@ -1598,8 +1598,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return var1.toString();
    }
 
-   public HashSet<String> Y_clash561() {
-      String var1 = this.C_clash559();
+   public HashSet<String> getCustomPartsSet() {
+      String var1 = this.getCustomModelCode();
       String[] var2 = var1.split("#");
       HashSet var3 = new HashSet();
 

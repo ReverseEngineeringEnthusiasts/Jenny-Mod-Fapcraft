@@ -47,7 +47,4 @@ public class ShaderHelper {
       }
    }
 
-   private static IOException a(IOException var0) {
-      return var0;
-   }
 }

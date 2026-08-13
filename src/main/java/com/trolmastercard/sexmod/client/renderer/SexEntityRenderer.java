@@ -108,14 +108,14 @@ public class SexEntityRenderer extends Render<SexEntity> {
             var47 = -var47;
          }
 
-         var10.field_70177_z = var10.I_clash415();
-         var10.field_70761_aq = var10.I_clash415();
-         var10.field_70165_t = var10.o_clash501().field_72450_a;
-         var10.field_70163_u = var10.o_clash501().field_72448_b;
-         var10.field_70161_v = var10.o_clash501().field_72449_c;
-         var10.field_70169_q = var10.o_clash501().field_72450_a;
-         var10.field_70167_r = var10.o_clash501().field_72448_b;
-         var10.field_70166_s = var10.o_clash501().field_72449_c;
+         var10.field_70177_z = var10.getYawRotation();
+         var10.field_70761_aq = var10.getYawRotation();
+         var10.field_70165_t = var10.getTargetPosition().field_72450_a;
+         var10.field_70163_u = var10.getTargetPosition().field_72448_b;
+         var10.field_70161_v = var10.getTargetPosition().field_72449_c;
+         var10.field_70169_q = var10.getTargetPosition().field_72450_a;
+         var10.field_70167_r = var10.getTargetPosition().field_72448_b;
+         var10.field_70166_s = var10.getTargetPosition().field_72449_c;
          float var51 = (var10.field_70760_ar + (var10.field_70761_aq - var10.field_70760_ar) * var9) * (float) (Math.PI / 180.0);
          double var17 = MathHelper.func_76126_a(var51);
          double var19 = MathHelper.func_76134_b(var51);
@@ -126,13 +126,13 @@ public class SexEntityRenderer extends Render<SexEntity> {
          double var29 = var10.func_70093_af() ? -0.1875 : 0.0;
          double var31 = var1.field_70169_q
             + (var1.field_70165_t - var1.field_70169_q) * var9
-            - Math.sin((var10.I_clash415() + 90.0F) * (Math.PI / 180.0)) * 0.1896224320030116
-            - Math.sin(var10.I_clash415().floatValue() * (Math.PI / 180.0)) * 0.08742380916962415;
+            - Math.sin((var10.getYawRotation() + 90.0F) * (Math.PI / 180.0)) * 0.1896224320030116
+            - Math.sin(var10.getYawRotation().floatValue() * (Math.PI / 180.0)) * 0.08742380916962415;
          double var33 = var1.field_70167_r + (var1.field_70163_u - var1.field_70167_r) * var9 + 0.25 + -0.5;
          double var35 = var1.field_70166_s
             + (var1.field_70161_v - var1.field_70166_s) * var9
-            + Math.cos((var10.I_clash415() + 90.0F) * (Math.PI / 180.0)) * 0.1896224320030116
-            + Math.cos(var10.I_clash415().floatValue() * (Math.PI / 180.0)) * 0.08742380916962415;
+            + Math.cos((var10.getYawRotation() + 90.0F) * (Math.PI / 180.0)) * 0.1896224320030116
+            + Math.cos(var10.getYawRotation().floatValue() * (Math.PI / 180.0)) * 0.08742380916962415;
          double var37 = (float)(var23 - var31);
          double var39 = (float)(var25 - var33) + var29;
          double var41 = (float)(var27 - var35);
@@ -162,7 +162,4 @@ public class SexEntityRenderer extends Render<SexEntity> {
       return a;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

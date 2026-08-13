@@ -53,7 +53,4 @@ public class SkinFetcher {
       }
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

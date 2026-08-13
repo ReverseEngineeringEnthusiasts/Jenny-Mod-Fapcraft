@@ -167,8 +167,8 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
 
    void a(List<Integer> var1, List<Vec3d> var2) {
       for (int var3 = 0; var3 < var1.size(); var3++) {
-         float var4 = RotationHelper.a_clash25(this.k.field_70758_at, this.k.field_70759_as, this.e.func_184121_ak());
-         float var5 = RotationHelper.a_clash25(this.k.field_70127_C, this.k.field_70125_A, this.e.func_184121_ak());
+         float var4 = RotationHelper.lerp(this.k.field_70758_at, this.k.field_70759_as, this.e.func_184121_ak());
+         float var5 = RotationHelper.lerp(this.k.field_70127_C, this.k.field_70125_A, this.e.func_184121_ak());
          Vec3d var6 = RotationHelper.a(
             new Vec3d(this.k.field_70169_q, this.k.field_70167_r + this.k.func_70047_e(), this.k.field_70166_s),
             this.k.func_174791_d().func_72441_c(0.0, this.k.func_70047_e(), 0.0),
@@ -235,7 +235,4 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       GlStateManager.func_179121_F();
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

@@ -54,13 +54,13 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    );
    public static final List<String> e = Arrays.asList("boyCam", "girlCam");
    public static boolean d = true;
-   protected ResourceLocation[] c = this.a_clash33();
+   protected ResourceLocation[] c = this.getModelLocations();
    protected Minecraft a = Minecraft.func_71410_x();
 
    protected GirlModel() {
    }
 
-   protected abstract ResourceLocation[] a_clash33();
+   protected abstract ResourceLocation[] getModelLocations();
 
    public ResourceLocation getTextureLocation() { return this.getTextureLocation((BaseGirlEntity) null); }
 
@@ -115,16 +115,16 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       if (!(var1.field_70170_p instanceof SexWorldClient)) {
          if ((Boolean)var1.func_184212_Q().func_187225_a(BaseGirlEntity.G)) {
             var1.func_180426_a(
-               var1.o_clash501().field_72450_a, var1.o_clash501().field_72448_b, var1.o_clash501().field_72449_c, var1.I_clash415(), 0.0F, 3, true
+               var1.getTargetPosition().field_72450_a, var1.getTargetPosition().field_72448_b, var1.getTargetPosition().field_72449_c, var1.getYawRotation(), 0.0F, 3, true
             );
          }
 
          if (var1.C != null) {
-            var1.C.transitionLengthTicks = !(var1.field_70170_p instanceof SexWorldClient) && var1.y_clash492() != null ? var1.y_clash492().transitionTick : 5.0;
+            var1.C.transitionLengthTicks = !(var1.field_70170_p instanceof SexWorldClient) && var1.getCurrentAction() != null ? var1.getCurrentAction().transitionTick : 5.0;
          }
 
          this.a((T)var1, var4, var3);
-         if (var1 instanceof AbstractGirlNpcEntity && !var1.h_clash508() && var1.ah_clash493() != 0) {
+         if (var1 instanceof AbstractGirlNpcEntity && !var1.isLocallyRegistered() && var1.getOutfitIndex() != 0) {
             this.a(
                var4,
                (ItemStack)var1.m.func_187225_a(AbstractGirlNpcEntity.X),
@@ -171,7 +171,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
          var15 = 8.0F;
       }
 
-      return new Vec3d(gc.c_clash744(var13), var14, var15);
+      return new Vec3d(gc.wrapDegrees(var13), var14, var15);
    }
 
    void a(AnimationProcessor<T> var1, ItemStack var2, ItemStack var3, ItemStack var4, ItemStack var5) {
@@ -221,7 +221,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    }
 
    protected boolean f_clash312(T var1) {
-      UUID var2 = var1.ae_clash498();
+      UUID var2 = var1.getInteractionPlayerUUID();
       if (var2 == null) {
          return true;
       }
@@ -248,7 +248,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
          var13.setHidden(false);
          IBone var9 = var2.getBone("steve");
          if (var9 != null) {
-            var9.setHidden(!var1.y_clash492().hasPlayer);
+            var9.setHidden(!var1.getCurrentAction().hasPlayer);
          }
       } else {
          var2.getBone("rightArmAlex").setHidden(var3);
@@ -265,7 +265,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
          var8.setHidden(true);
          IBone var4 = var2.getBone("steve");
          if (var4 != null) {
-            var4.setHidden(!var1.y_clash492().hasPlayer);
+            var4.setHidden(!var1.getCurrentAction().hasPlayer);
          }
       }
    }
@@ -277,7 +277,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    protected void a(T var1, AnimationProcessor<T> var2, AnimationEvent var3) {
       if (!(var1.field_70170_p instanceof SexWorldClient)) {
          if (this.e_clash170(var1)) {
-            if (var1.y_clash492() == fp.NULL || var1.y_clash492() == fp.ATTACK || var1.y_clash492() == fp.BOW) {
+            if (var1.getCurrentAction() == fp.NULL || var1.getCurrentAction() == fp.ATTACK || var1.getCurrentAction() == fp.BOW) {
                EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
                IBone var5 = var2.getBone("neck");
                var5.setRotationY(var4.netHeadYaw * 0.5F * (float) (Math.PI / 180.0));
@@ -303,7 +303,4 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       }
    }
 
-   private static RuntimeException b(RuntimeException var0) {
-      return var0;
-   }
 }

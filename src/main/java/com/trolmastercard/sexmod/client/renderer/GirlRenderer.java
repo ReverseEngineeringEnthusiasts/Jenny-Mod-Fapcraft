@@ -129,10 +129,10 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
    protected ResourceLocation getSkinTexture(T var1) {
       ResourceLocation var2;
-      if (!(var1.field_70170_p instanceof SexWorldClient) && var1.ae_clash498() != null) {
-         var2 = l.get(var1.ae_clash498());
+      if (!(var1.field_70170_p instanceof SexWorldClient) && var1.getInteractionPlayerUUID() != null) {
+         var2 = l.get(var1.getInteractionPlayerUUID());
          if (var2 == null) {
-            return this.a_clash329(var1.ae_clash498(), var1.field_70170_p);
+            return this.a_clash329(var1.getInteractionPlayerUUID(), var1.field_70170_p);
          }
       } else {
          var2 = l.get(i.func_110432_I().func_148256_e().getId());
@@ -170,7 +170,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    }
 
    protected static float a_clash330(BaseGirlEntity var0, float var1) {
-      return var0.Q_clash505() ? var0.I_clash415() : RotationHelper.a_clash25(var0.field_70760_ar, var0.field_70761_aq, var1);
+      return var0.isAnchored() ? var0.getYawRotation() : RotationHelper.lerp(var0.field_70760_ar, var0.field_70761_aq, var1);
    }
 
    protected void d_clash331() {
@@ -265,7 +265,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       if (var1) {
          var3 = ClothingScreen.b_clash815();
       } else {
-         var3 = this.j.Y_clash561();
+         var3 = this.j.getCustomPartsSet();
       }
 
       HashSet var4 = new HashSet();
@@ -281,7 +281,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    }
 
    public void a(GeoModel var1, T var2, float var3, float var4, float var5, float var6, float var7) {
-      if (i.field_71439_g == null || var2.h_clash508() || !var2.d_clash453() || this.a(var2, i.field_71439_g)) {
+      if (i.field_71439_g == null || var2.isLocallyRegistered() || !var2.d_clash453() || this.a(var2, i.field_71439_g)) {
          GlStateManager.func_179091_B();
          this.a((T)var2, var3, var4, var5, var6, var7);
          this.renderLate((T)var2, var3, var4, var5, var6, var7);
@@ -289,9 +289,9 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          var8.func_181668_a(7, DefaultVertexFormats.field_181712_l);
          this.func_110776_a(Objects.requireNonNull(this.getEntityTexture(this.j)));
          this.p.clear();
-         this.p = this.a(var2.h_clash508(), var2.ah_clash493() == 0);
+         this.p = this.a(var2.isLocallyRegistered(), var2.getOutfitIndex() == 0);
          this.getSkinTexture((T) this.j);
-         BodyParts.a(var2.b_clash552().getModelRendererList(), this.a(), this);
+         BodyParts.a(var2.getAnimationProcessor().getModelRendererList(), this.a(), this);
          BodyParts.a_clash795(var2, var3);
          this.a(var1, var8, (T)var2, var4, var5, var6, var7, var3);
          this.renderAfter((T)var2, var3, var4, var5, var6, var7);
@@ -344,8 +344,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    }
 
    protected void a_clash199(double var1, double var3, double var5) {
-      if (!this.j.h_clash508()) {
-         if (!this.j.y_clash492().hideNameTag) {
+      if (!this.j.isLocallyRegistered()) {
+         if (!this.j.getCurrentAction().hideNameTag) {
             if (i.func_175598_ae().field_78734_h != null) {
                this.func_147906_a(this.j, this.j.ab_clash540(), var1, var3 + this.j.i_clash226(), var5, 300);
             }
@@ -383,7 +383,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          return this.a_clash334(var10, var2);
       }
 
-      if (!var1.Q_clash505()) {
+      if (!var1.isAnchored()) {
          return var9;
       }
 
@@ -391,10 +391,10 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          Vec3d var11 = RotationHelper.a(
             new Vec3d(i.field_71439_g.field_70142_S, i.field_71439_g.field_70137_T, i.field_71439_g.field_70136_U), i.field_71439_g.func_174791_d(), var2
          );
-         var9 = var1.o_clash501().func_178788_d(var11);
+         var9 = var1.getTargetPosition().func_178788_d(var11);
       }
 
-      float var12 = var1.I_clash415();
+      float var12 = var1.getYawRotation();
       var1.field_70177_z = var12;
       var1.field_70760_ar = var12;
       var1.field_70761_aq = var12;
@@ -571,7 +571,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       var2.addAll(var1.p);
 
       for (String var4 : (java.util.Collection<String>) (var2) ) {
-         MatrixStack var5 = var1.a(var4, !var1.h_clash508());
+         MatrixStack var5 = var1.a(var4, !var1.isLocallyRegistered());
          Matrix4f var6 = var5.getModelMatrix();
          Vec3d var7 = new Vec3d(-var6.m03, var6.m13, -var6.m23);
          var1.a(var4, var7);
@@ -595,8 +595,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       GlStateManager.func_179094_E();
       GlStateManager.func_179137_b(0.0, 0.01, 0.0);
       Entity var7 = this.c_clash336(var1);
-      Vec3d var8 = var1.Q_clash505()
-         ? var1.o_clash501()
+      Vec3d var8 = var1.isAnchored()
+         ? var1.getTargetPosition()
          : RotationHelper.a(new Vec3d(var7.field_70142_S, var7.field_70137_T, var7.field_70136_U), var7.func_174791_d(), var2);
       Vec3d var9 = RotationHelper.a(new Vec3d(var4.field_70142_S, var4.field_70137_T, var4.field_70136_U), var4.func_174791_d(), var2);
       Vec3d var10 = var8.func_178788_d(var9);
@@ -610,14 +610,14 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected static float a(BaseGirlEntity var0, float var1, float var2, float var3) {
       EntityPlayerSP var4 = i.field_71439_g;
       Entity var5 = ((GirlRenderer)i.func_175598_ae().func_78713_a(var0)).c_clash336(var0);
-      Vec3d var6 = var0.Q_clash505()
-         ? var0.o_clash501()
+      Vec3d var6 = var0.isAnchored()
+         ? var0.getTargetPosition()
          : RotationHelper.a(new Vec3d(var5.field_70142_S, var5.field_70137_T, var5.field_70136_U), var5.func_174791_d(), var1);
       Vec3d var7 = RotationHelper.a(new Vec3d(var4.field_70142_S, var4.field_70137_T, var4.field_70136_U), var4.func_174791_d(), var1);
       Vec3d var8 = ActiveRenderInfo.getCameraPosition().func_178787_e(var7);
       float var9 = (float)var8.func_72438_d(var6);
       float var10 = Math.abs(var9) / 5.0F;
-      return RotationHelper.a_clash25(var3, var2, ThreadNames.b(var10, 0.0F, 1.0F));
+      return RotationHelper.lerp(var3, var2, ThreadNames.b(var10, 0.0F, 1.0F));
    }
 
    protected void b(Tessellator var1, BufferBuilder var2, BaseGirlEntity var3, f7 var4, float var5) {
@@ -626,8 +626,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected static void a(BufferBuilder var0, Tessellator var1, BaseGirlEntity var2, String var3, String var4, float var5, float var6, float var7, float var8) {
       var0.func_181668_a(1, DefaultVertexFormats.field_181709_i);
       GlStateManager.func_187441_d(var8);
-      Vec3d var9 = var2.b_clash547(var3);
-      Vec3d var10 = var2.b_clash547(var4);
+      Vec3d var9 = var2.getCachedBoneOffset(var3);
+      Vec3d var10 = var2.getCachedBoneOffset(var4);
       var0.func_181662_b(var9.field_72450_a, var9.field_72448_b, var9.field_72449_c)
          .func_187315_a(0.0, 0.0)
          .func_181666_a(var5, var6, var7, 1.0F)
@@ -660,7 +660,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected void b(T var1, float var2, float var3, float var4) {
       super.applyRotations((T)var1, var2, var3, var4);
       if (var1 instanceof AbstractPlayerGirlEntity) {
-         UUID var5 = ((AbstractPlayerGirlEntity)var1).m_clash583();
+         UUID var5 = ((AbstractPlayerGirlEntity)var1).getOwnerUserUUID();
          if (var5 != null) {
             EntityPlayer var6 = var1.field_70170_p.func_152378_a(var5);
             if (var6 != null) {
@@ -690,8 +690,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       var4 -= (1.6 - var1.field_70131_O) * 0.5;
       Tessellator var10 = Tessellator.func_178181_a();
       BufferBuilder var11 = var10.func_178180_c();
-      double var12 = RotationHelper.a_clash25(var9.field_70126_B, var9.field_70177_z, var8 * 0.5F) * (float) (Math.PI / 180.0);
-      double var14 = RotationHelper.a_clash25(var9.field_70127_C, var9.field_70125_A, var8 * 0.5F) * (float) (Math.PI / 180.0);
+      double var12 = RotationHelper.lerp(var9.field_70126_B, var9.field_70177_z, var8 * 0.5F) * (float) (Math.PI / 180.0);
+      double var14 = RotationHelper.lerp(var9.field_70127_C, var9.field_70125_A, var8 * 0.5F) * (float) (Math.PI / 180.0);
       double var16 = Math.cos(var12);
       double var18 = Math.sin(var12);
       double var20 = Math.sin(var14);
@@ -707,7 +707,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          - var20 * 0.5
          - 0.25;
       double var28 = RotationHelper.b(var9.field_70166_s, var9.field_70161_v, var8) - var18 * 0.7 + var16 * 0.5 * var22;
-      double var30 = RotationHelper.a_clash25(var1.field_70760_ar, var1.field_70761_aq, var8) * (float) (Math.PI / 180.0) + (Math.PI / 2);
+      double var30 = RotationHelper.lerp(var1.field_70760_ar, var1.field_70761_aq, var8) * (float) (Math.PI / 180.0) + (Math.PI / 2);
       var16 = Math.cos(var30) * var1.field_70130_N * 0.4;
       var18 = Math.sin(var30) * var1.field_70130_N * 0.4;
       double var32 = RotationHelper.b(var1.field_70169_q, var1.field_70165_t, var8) + var16;
@@ -786,7 +786,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
             this.a(var1, var2);
          }
 
-         if (var7.equals("itemRenderer") && this.j.y_clash492() == fp.PAYMENT) {
+         if (var7.equals("itemRenderer") && this.j.getCurrentAction() == fp.PAYMENT) {
             this.b(var1, var2);
          }
 
@@ -802,9 +802,9 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          MATRIX_STACK.rotate(var2);
          MATRIX_STACK.scale(var2);
          MATRIX_STACK.moveBackFromPivot(var2);
-         if ("Head2".equals(var7) && !this.c_clash339()) {
+         if ("Head2".equals(var7) && !this.shouldRenderHead2()) {
             MATRIX_STACK.pop();
-         } else if (!this.b_clash338(var7)) {
+         } else if (!this.isBoneAllowedForRender(var7)) {
             MATRIX_STACK.pop();
          } else {
             if (!var2.isHidden) {
@@ -843,7 +843,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return new Vector4f(var1, var2, var3, 0.0F);
    }
 
-   boolean b_clash338(String var1) {
+   boolean isBoneAllowedForRender(String var1) {
       return !var1.startsWith("armor") ? true : this.j instanceof AbstractGirlNpcEntity;
    }
 
@@ -939,8 +939,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
-   protected boolean c_clash339() {
-      return !this.j.n_clash537() ? true : i.field_71474_y.field_74320_O != 0;
+   protected boolean shouldRenderHead2() {
+      return !this.j.isControlledByLocalPlayer() ? true : i.field_71474_y.field_74320_O != 0;
    }
 
    public void a(BufferBuilder var1, GeoCube var2, float var3, float var4, float var5, float var6, double var7) {
@@ -1041,7 +1041,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
             EntityDataManager var3 = this.j.func_184212_Q();
             AbstractGirlNpcEntity var4 = (AbstractGirlNpcEntity)this.j;
             int var5 = (Integer)var3.func_187225_a(AbstractGirlNpcEntity.M);
-            if (var4.y_clash492() != fp.BOW) {
+            if (var4.getCurrentAction() != fp.BOW) {
                this.a = 0.0F;
             }
 
@@ -1054,7 +1054,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
             var6 = this.a_clash341(var6);
             if (var6 != null) {
-               if (var6.func_77973_b().equals(Items.field_151031_f) && var4.y_clash492() == fp.BOW) {
+               if (var6.func_77973_b().equals(Items.field_151031_f) && var4.getCurrentAction() == fp.BOW) {
                   this.a += 0.015F;
                   var4.d(Math.round(-this.a * 20.0F + var6.func_77988_m()));
                   var4.a_clash517(var6);
@@ -1066,7 +1066,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
                GL11.glEnable(2896);
                if (var6.func_77973_b() instanceof ItemBow) {
                   GL11.glRotatef(var4.K, 1.0F, 0.0F, 0.0F);
-               } else if (var4.y_clash492() == fp.ATTACK && var4.S == 0) {
+               } else if (var4.getCurrentAction() == fp.ATTACK && var4.S == 0) {
                   GlStateManager.func_179137_b(var4.V.field_72450_a, var4.V.field_72448_b, var4.V.field_72449_c);
                   GL11.glRotatef(var4.O, 1.0F, 0.0F, 0.0F);
                } else {
@@ -1201,7 +1201,4 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
-   private static Exception b(Exception var0) {
-      return var0;
-   }
 }

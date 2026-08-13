@@ -81,7 +81,4 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

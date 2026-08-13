@@ -126,7 +126,7 @@ public enum GalathFlightData {
          var0.bL = null;
          var0.b_clash690(0);
          var0.b(fp.FLY);
-         PacketHandler.b.sendToAllTracking(new ResetControllerPacket(var0.f_clash491()), var0);
+         PacketHandler.b.sendToAllTracking(new ResetControllerPacket(var0.getGirlId()), var0);
       },
       var0 -> {
          Vec3d var1 = var0.func_174791_d();
@@ -146,7 +146,7 @@ public enum GalathFlightData {
       },
       var0 -> var0.ar() > 23,
       var0 -> {
-         var0.b_clash512(Vec3d.field_186680_a);
+         var0.setVelocity(Vec3d.field_186680_a);
          var0.b_clash690(0);
          var0.bL = null;
       },
@@ -165,7 +165,7 @@ public enum GalathFlightData {
          BaseGirlEntity.a(var0, SoundHandler.GIRLS_GALATH_STRONGCHARGE, true);
       },
       var0 -> {
-         var0.b_clash512(Vec3d.field_186680_a);
+         var0.setVelocity(Vec3d.field_186680_a);
          if (var0.ad == 30.0F) {
             GalathEntity.a_clash692(var0, 0.0F);
             Vec3d var1 = var0.func_174791_d();
@@ -174,7 +174,7 @@ public enum GalathFlightData {
             if ((Boolean)var0.func_184212_Q().func_187225_a(GalathEntity.ay)) {
                if ((Boolean)var0.func_184212_Q().func_187225_a(GalathEntity.bN)) {
                   Vec3d var31 = var1;
-                  Vec3d var12 = var31.func_178787_e(ck.a_clash306(ck.c_clash308(GalathEntity.bz), 180.0F + var0.field_70761_aq));
+                  Vec3d var12 = var31.func_178787_e(ck.rotateByYaw(ck.c_clash308(GalathEntity.bz), 180.0F + var0.field_70761_aq));
                   Vec3d var19 = var2.func_178788_d(var12).func_72432_b();
                   var19 = new Vec3d(
                      var19.field_72450_a + var3.nextDouble() * 0.3F,
@@ -190,7 +190,7 @@ public enum GalathFlightData {
 
                if ((Boolean)var0.func_184212_Q().func_187225_a(GalathEntity.b7)) {
                   Vec3d var32 = var1;
-                  Vec3d var13 = var32.func_178787_e(ck.a_clash306(ck.c_clash308(GalathEntity.bC), 180.0F + var0.field_70761_aq));
+                  Vec3d var13 = var32.func_178787_e(ck.rotateByYaw(ck.c_clash308(GalathEntity.bC), 180.0F + var0.field_70761_aq));
                   Vec3d var22 = var2.func_178788_d(var13).func_72432_b();
                   var22 = new Vec3d(
                      var22.field_72450_a + var3.nextDouble() * 0.3F,
@@ -206,7 +206,7 @@ public enum GalathFlightData {
             } else {
                if ((Boolean)var0.func_184212_Q().func_187225_a(GalathEntity.bN)) {
                   Vec3d var9 = var1;
-                  Vec3d var5 = var9.func_178787_e(ck.a_clash306(GalathEntity.bz, 180.0F + var0.field_70761_aq));
+                  Vec3d var5 = var9.func_178787_e(ck.rotateByYaw(GalathEntity.bz, 180.0F + var0.field_70761_aq));
                   Vec3d var6 = var2.func_178788_d(var5).func_72432_b();
                   var6 = new Vec3d(
                      var6.field_72450_a + var3.nextDouble() * 0.3F,
@@ -222,7 +222,7 @@ public enum GalathFlightData {
 
                if ((Boolean)var0.func_184212_Q().func_187225_a(GalathEntity.b7)) {
                   Vec3d var10 = var1;
-                  Vec3d var11 = var10.func_178787_e(ck.a_clash306(GalathEntity.bC, 180.0F + var0.field_70761_aq));
+                  Vec3d var11 = var10.func_178787_e(ck.rotateByYaw(GalathEntity.bC, 180.0F + var0.field_70761_aq));
                   Vec3d var16 = var2.func_178788_d(var11).func_72432_b();
                   var16 = new Vec3d(
                      var16.field_72450_a + var3.nextDouble() * 0.3F,
@@ -247,15 +247,15 @@ public enum GalathFlightData {
    ATTACK_SWORD(var0 -> {
       var0.a_clash643(0);
       var0.b(fp.ATTACK_SWORD);
-      var0.b_clash512(Vec3d.field_186680_a);
+      var0.setVelocity(Vec3d.field_186680_a);
       Vec3d var1 = var0.func_174791_d();
       var0.e(var1);
       Vec3d var2 = var0.M_clash691().func_174791_d();
       g8 var3 = new g8(var2.field_72450_a - var1.field_72450_a, var2.field_72449_c - var1.field_72449_c);
       double var4 = gc.b(Math.atan2(var3.a, var3.b)) - 90.0;
-      var0.a_clash504(true);
-      var0.c_clash502(var1);
-      var0.b_clash431((float)var4);
+      var0.setAnchored(true);
+      var0.setTargetPosition(var1);
+      var0.setYawRotation((float)var4);
       BaseGirlEntity.a(var0, SoundHandler.GIRLS_GALATH_STRONGCHARGE, true);
    }, var0 -> {
       EntityLivingBase var1 = var0.M_clash691();
@@ -265,17 +265,17 @@ public enum GalathFlightData {
          Vec3d var3 = var1.func_174791_d().func_72441_c(0.0, var1.func_70047_e(), 0.0);
          g8 var4 = new g8(var3.field_72450_a - var0.field_70165_t, var3.field_72449_c - var0.field_70161_v);
          double var5 = gc.b(Math.atan2(var4.a, var4.b)) - 90.0;
-         var0.b_clash431((float)var5);
-         Vec3d var7 = ck.a_clash306(new Vec3d(0.0, 0.0, 3.0), (float)(var5 + 180.0));
+         var0.setYawRotation((float)var5);
+         Vec3d var7 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 3.0), (float)(var5 + 180.0));
          Vec3d var8 = var0.B_clash642();
          Vec3d var9 = var3.func_178787_e(var7);
          float var10 = (var2 - 24) / 8.0F;
          Vec3d var11 = RotationHelper.a(var8, var9, var10);
-         var0.c_clash502(var11);
+         var0.setTargetPosition(var11);
       } else if (ThreadNames.a_clash164(var2, 32.0, 54.0)) {
-         Vec3d var12 = ck.a_clash306(new Vec3d(0.0, 0.0, 1.5), var0.I_clash415() + 180.0F);
+         Vec3d var12 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 1.5), var0.getYawRotation() + 180.0F);
          Vec3d var14 = var1.func_174791_d().func_178787_e(var12);
-         var0.c_clash502(var14);
+         var0.setTargetPosition(var14);
          GalathDamageSource var15 = new GalathDamageSource(var0);
          var1.field_70737_aN = 0;
          var1.field_70172_ad = 0;
@@ -287,7 +287,7 @@ public enum GalathFlightData {
             var1.func_70097_a(var15, 5.0F);
          }
       } else if (var2 == 54) {
-         var0.a_clash504(false);
+         var0.setAnchored(false);
          var0.b(fp.FLY);
          Vec3d var13 = var0.B_clash642().func_178788_d(var0.func_174791_d()).func_72432_b();
          var0.field_70159_w = var13.field_72450_a * 0.6F;
@@ -299,9 +299,9 @@ public enum GalathFlightData {
       }
    }, var0 -> var0.ar() > 23, var0 -> {
       var0.b_clash690(0);
-      var0.b_clash512(Vec3d.field_186680_a);
+      var0.setVelocity(Vec3d.field_186680_a);
       var0.a_clash643(-1);
-      var0.a_clash504(false);
+      var0.setAnchored(false);
    }, true, var0 -> true, false),
    RAPE(
       var0 -> {
@@ -319,7 +319,7 @@ public enum GalathFlightData {
                var0.O = var1.func_174791_d().func_72441_c(0.0, var1.func_70047_e() / 2.0F, 0.0);
                var0.bd = var0.func_174791_d();
                Vec3d var2 = var1.func_174791_d().func_178788_d(var0.func_174791_d()).func_72432_b();
-               var0.b_clash431((float)(gc.b(Math.atan2(var2.field_72449_c, var2.field_72450_a)) - 90.0));
+               var0.setYawRotation((float)(gc.b(Math.atan2(var2.field_72449_c, var2.field_72450_a)) - 90.0));
             }
 
             Vec3d var20 = var0.func_174791_d();
@@ -333,7 +333,7 @@ public enum GalathFlightData {
                if (!var8.field_70128_L && var8.field_70122_E && BaseGirlEntity.a(var8.getPersistentID(), Boolean.valueOf(true)) == null) {
                   Vec3d var9 = var8.func_174791_d();
                   Vec3d var10 = var20.func_178788_d(var9);
-                  Vec3d var11 = ck.a_clash306(var10, var0.I_clash415());
+                  Vec3d var11 = ck.rotateByYaw(var10, var0.getYawRotation());
                   double var12 = Math.abs(var11.field_72450_a);
                   if (!(var12 > 0.65F)) {
                      for (EntityWitherSkeleton var15 : var0.bI) {
@@ -348,11 +348,11 @@ public enum GalathFlightData {
 
                      var0.bI.clear();
                      EntityPlayerMP var30 = (EntityPlayerMP)var8;
-                     var0.c_clash502(var8.func_174791_d());
-                     var0.e_clash499(var8.getPersistentID());
-                     var0.a_clash504(true);
+                     var0.setTargetPosition(var8.func_174791_d());
+                     var0.setInteractionPlayerUUID(var8.getPersistentID());
+                     var0.setAnchored(true);
                      var0.b(fp.RAPE_INTRO);
-                     byte var32 = (byte)MathHelper.func_76141_d((var0.I_clash415() + 180.0F) * 256.0F / 360.0F);
+                     byte var32 = (byte)MathHelper.func_76141_d((var0.getYawRotation() + 180.0F) * 256.0F / 360.0F);
                      PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var30);
                      var30.field_71135_a.func_147359_a(new SPacketEntityVelocity(var30.func_145782_y(), 0.0, 0.0, 0.0));
                      var30.field_71135_a.func_147359_a(new S16PacketEntityLook(var30.func_145782_y(), var32, (byte)-14, true));
@@ -406,7 +406,7 @@ public enum GalathFlightData {
          }
       },
       var0 -> {
-         if (var0.y_clash492() == fp.RAPE_INTRO) {
+         if (var0.getCurrentAction() == fp.RAPE_INTRO) {
             return true;
          }
 
@@ -470,7 +470,4 @@ public enum GalathFlightData {
       return this.d.a_clash473(var1);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

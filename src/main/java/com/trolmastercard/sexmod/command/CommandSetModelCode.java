@@ -62,18 +62,18 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
       if (var9 == null) {
          var5.func_146105_b(new TextComponentString("You gotta transform into the girl you want to apply the model-code to"), true);
       } else if ("".equals(var7)) {
-         PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.f_clash491()));
+         PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId()));
          var5.func_146105_b(new TextComponentString(this.a_clash756(var9)), true);
       } else {
-         PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.f_clash491(), BaseGirlEntity.c_clash554(var7)));
+         PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId(), BaseGirlEntity.c_clash554(var7)));
          var5.func_146105_b(new TextComponentString(this.a_clash756(var9)), true);
       }
    }
 
    String a_clash756(BaseGirlEntity var1) {
       return var1 instanceof AbstractPlayerGirlEntity
-         ? TextFormatting.YELLOW + "applied model code to your player-" + ThreadNames.b_clash163(NpcType.a_clash751(var1).toString())
-         : TextFormatting.YELLOW + "applied model code to this " + var1.c_clash241();
+         ? TextFormatting.YELLOW + "applied model code to your player-" + ThreadNames.b_clash163(NpcType.getNpcType(var1).toString())
+         : TextFormatting.YELLOW + "applied model code to this " + var1.getDisplayNameText();
    }
 
    @SideOnly(Side.CLIENT)
@@ -87,7 +87,4 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
       }
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

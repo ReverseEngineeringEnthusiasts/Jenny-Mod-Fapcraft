@@ -255,9 +255,9 @@ public class CustomModelList extends GuiListExtended {
          BaseGirlEntity var5 = CustomModelList.this.d.d_clash823();
          SexSceneEntity var6;
          if (this.f == 0) {
-            var6 = SexSceneEntity.a(CustomModelList.this.field_148161_k.field_71441_e, var5.f_clash491(), this.d);
+            var6 = SexSceneEntity.a(CustomModelList.this.field_148161_k.field_71441_e, var5.getGirlId(), this.d);
          } else {
-            var6 = new SexSceneEntity(var5.field_70170_p, var5.f_clash491(), this.b.get(this.f));
+            var6 = new SexSceneEntity(var5.field_70170_p, var5.getGirlId(), this.b.get(this.f));
          }
 
          ServerWhitelistManager.b var7 = ServerWhitelistManager.b_clash142(var6.a_clash343());
@@ -347,7 +347,7 @@ public class CustomModelList extends GuiListExtended {
          int var6 = var1;
          int var7 = var1 + 71 - 4;
          float var8 = this.a_clash868(var2, var6, var7, var3, var4, var5);
-         int var9 = (int)RotationHelper.a_clash25(var6, var7, var8);
+         int var9 = (int)RotationHelper.lerp(var6, var7, var8);
          CustomModelList.this.d.func_73729_b(var9, var2, this.b(var3, var4, var9, var2, var9 + 4, var2 + 20) ? 223 : 219, 20, 4, 20);
          CustomModelList.this.d.c.a_clash557(var5, (int)(var8 * 100.0F));
       }

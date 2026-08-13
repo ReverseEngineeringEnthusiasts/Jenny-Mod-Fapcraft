@@ -185,7 +185,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
                   var7.func_74757_a("sexmodAllieInUse", false);
                   var7.func_74768_a("sexmodAllieInUseTicks", 0);
                   if (var2.field_72995_K) {
-                     d3.a_clash122(false);
+                     d3.setMovementLock(false);
                   } else {
                      NBTTagCompound var15 = var1.func_77978_p();
                      if (var15 == null) {
@@ -194,12 +194,12 @@ public class AlliesLampItem extends Item implements IAnimatable {
 
                      var15.func_74768_a("sexmodUses", var15.func_74762_e("sexmodUses") + 1);
                      AllieEntity var11 = new AllieEntity(var6.field_70170_p, var6.func_184614_ca());
-                     var11.e_clash499(var6.getPersistentID());
+                     var11.setInteractionPlayerUUID(var6.getPersistentID());
                      Vec3d var16 = this.a_clash32(var6);
                      var11.func_70080_a(var16.field_72450_a, var16.field_72448_b, var16.field_72449_c, var6.field_70177_z + 180.0F, var6.field_70125_A);
-                     var11.c_clash502(var11.func_174791_d());
-                     var11.b_clash431(var6.field_70177_z + 180.0F);
-                     var11.a_clash504(true);
+                     var11.setTargetPosition(var11.func_174791_d());
+                     var11.setYawRotation(var6.field_70177_z + 180.0F);
+                     var11.setAnchored(true);
                      var11.func_189654_d(true);
                      var11.field_70145_X = true;
                      var6.field_70170_p.func_72838_d(var11);
@@ -219,7 +219,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
    }
 
    Vec3d a_clash32(EntityPlayer var1) {
-      return var1.func_174791_d().func_178787_e(ck.a_clash306(new Vec3d(0.0, 0.0, 2.0), var1.field_70759_as));
+      return var1.func_174791_d().func_178787_e(ck.rotateByYaw(new Vec3d(0.0, 0.0, 2.0), var1.field_70759_as));
    }
 
    @Override
@@ -227,9 +227,6 @@ public class AlliesLampItem extends Item implements IAnimatable {
       return this.i;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class a {
       @SubscribeEvent
@@ -246,7 +243,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
             if (!var2.field_70170_p.field_72995_K || d3.b_clash121()) {
                if (!var2.field_70170_p.field_72995_K) {
                   try {
-                     for (BaseGirlEntity var6 : BaseGirlEntity.ad_clash509()) {
+                     for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
                         if (!var6.field_70128_L && var6 instanceof AllieEntity) {
                            AllieEntity var7 = (AllieEntity)var6;
                            ItemStack var8 = (ItemStack)var7.func_184212_Q().func_187225_a(AllieEntity.N);
@@ -274,8 +271,5 @@ public class AlliesLampItem extends Item implements IAnimatable {
          }
       }
 
-      private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-         return var0;
-      }
    }
 }

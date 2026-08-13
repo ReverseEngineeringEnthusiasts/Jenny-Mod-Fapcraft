@@ -135,7 +135,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public String c_clash241() {
+   public String getDisplayNameText() {
       return "Luna";
    }
 
@@ -155,14 +155,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    public void c_clash237() {
-      this.a_clash541("Love it here owo");
+      this.sendChatMessage("Love it here owo");
       this.a(SoundHandler.GIRLS_LUNA_OWO);
    }
 
    @Override
    public void b(fp var1) {
-      if (this.y_clash492() != fp.COWGIRL_SITTING_CUM || var1 != fp.COWGIRL_SITTING_SLOW && var1 != fp.COWGIRL_SITTING_FAST) {
-         if (this.y_clash492() != fp.TOUCH_BOOBS_CUM || var1 != fp.TOUCH_BOOBS_FAST && var1 != fp.TOUCH_BOOBS_SLOW) {
+      if (this.getCurrentAction() != fp.COWGIRL_SITTING_CUM || var1 != fp.COWGIRL_SITTING_SLOW && var1 != fp.COWGIRL_SITTING_FAST) {
+         if (this.getCurrentAction() != fp.TOUCH_BOOBS_CUM || var1 != fp.TOUCH_BOOBS_FAST && var1 != fp.TOUCH_BOOBS_SLOW) {
             super.b(var1);
          }
       }
@@ -189,15 +189,15 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          return true;
       }
 
-      if (this.field_70170_p.field_72995_K && !this.b_clash230(var1)) {
-         this.a_clash541(I18n.func_135052_a("bia.dialogue.busy", new Object[0]));
+      if (this.field_70170_p.field_72995_K && !this.openInteractionMenu(var1)) {
+         this.sendChatMessage(I18n.func_135052_a("bia.dialogue.busy", new Object[0]));
       }
 
       return true;
    }
 
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       String[] var2 = new String[]{"action.names.sex", "action.names.touchboobs", "action.names.headpat"};
       ItemStack[] var3 = new ItemStack[]{new ItemStack(Items.field_151115_aP, 3, 0), new ItemStack(Items.field_151115_aP, 2, 1), null};
       a(var1, this, var2, var3);
@@ -214,7 +214,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public void g_clash238() {
+   public void reinitTasks() {
       this.z = new EntityAIWanderAvoidWater(this, 0.35);
       this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
       this.field_70714_bg.func_75776_a(5, this.o);
@@ -239,11 +239,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       }
 
       if (this.ay) {
-         double var1 = this.o_clash501().func_72438_d(this.func_174791_d());
+         double var1 = this.getTargetPosition().func_72438_d(this.func_174791_d());
          if (!(var1 < 0.5) && this.ak <= 200) {
             if (++this.ak == 60 || this.ak == 120) {
                this.func_70661_as().func_75499_g();
-               this.func_70661_as().func_75492_a(this.o_clash501().field_72450_a, this.o_clash501().field_72448_b, this.o_clash501().field_72449_c, 0.2);
+               this.func_70661_as().func_75492_a(this.getTargetPosition().field_72450_a, this.getTargetPosition().field_72448_b, this.getTargetPosition().field_72449_c, 0.2);
             }
          } else {
             this.ay = false;
@@ -260,15 +260,15 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
       if (this.ac) {
          this.aw++;
-         if (!this.func_174791_d().equals(this.o_clash501()) && this.aw <= 40) {
-            this.field_70177_z = this.I_clash415();
+         if (!this.func_174791_d().equals(this.getTargetPosition()) && this.aw <= 40) {
+            this.field_70177_z = this.getYawRotation();
             this.func_189654_d(false);
-            Vec3d var3 = RotationHelper.a(this.func_174791_d(), this.o_clash501(), 40 - this.aw);
+            Vec3d var3 = RotationHelper.a(this.func_174791_d(), this.getTargetPosition(), 40 - this.aw);
             this.func_70107_b(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
          } else {
             this.ac = false;
             this.aw = 0;
-            this.b_clash431(this.field_70170_p.func_73046_m().func_184103_al().func_177451_a(this.ae_clash498()).field_70177_z + 180.0F);
+            this.setYawRotation(this.field_70170_p.func_73046_m().func_184103_al().func_177451_a(this.getInteractionPlayerUUID()).field_70177_z + 180.0F);
             this.m.func_187227_b(G, true);
             this.func_70661_as().func_75499_g();
             this.U();
@@ -291,7 +291,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @Override
    public void func_70071_h_() {
       super.func_70071_h_();
-      if (fp.WAIT_CAT.equals(this.y_clash492())) {
+      if (fp.WAIT_CAT.equals(this.getCurrentAction())) {
          this.f_clash385();
       } else {
          this.ab = 0;
@@ -305,15 +305,15 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             if (this.field_70170_p.field_72995_K) {
                this.a(var1, this.ab);
             } else if (this.ab == 25) {
-               this.e_clash499(var1.getPersistentID());
+               this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.func_191958_b(0.0F, 0.0F, 0.0F, 0.0F);
                var1.func_70634_a(this.func_174791_d().field_72450_a, this.func_174791_d().field_72448_b, this.func_174791_d().field_72449_c);
                this.b(fp.COWGIRL_SITTING_INTRO);
-               var1.func_70034_d(this.I_clash415() + 180.0F);
-               var1.field_70177_z = this.I_clash415() + 180.0F;
-               var1.field_70126_B = this.I_clash415() + 180.0F;
-               this.r = this.I_clash415() + 180.0F;
-               this.a_clash536(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
+               var1.func_70034_d(this.getYawRotation() + 180.0F);
+               var1.field_70177_z = this.getYawRotation() + 180.0F;
+               var1.field_70126_B = this.getYawRotation() + 180.0F;
+               this.r = this.getYawRotation() + 180.0F;
+               this.positionPlayerRelative(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
                this.m.func_187227_b(D, 0);
             }
 
@@ -329,7 +329,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          if (var3.getPersistentID().equals(var1.getPersistentID())) {
             BeeScreen.b_clash732();
             var3.func_70016_h(0.0, 0.0, 0.0);
-            d3.a_clash122(false);
+            d3.setMovementLock(false);
          }
       }
 
@@ -352,9 +352,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          PacketHandler.b
             .sendToAllAround(
                new SendChatMessagePacket(
-                  "<" + this.c_clash241() + "> Heh.. there is no bed nearby.. but I already ate the fish so nya~ hehe", this.field_71093_bK, this.f_clash491()
+                  "<" + this.getDisplayNameText() + "> Heh.. there is no bed nearby.. but I already ate the fish so nya~ hehe", this.field_71093_bK, this.getGirlId()
                ),
-               this.P_clash535()
+               this.getTargetNetworkPoint()
             );
       } else {
          Vec3d var2 = new Vec3d(var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p());
@@ -395,14 +395,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
          if (var5 == -1) {
             this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
-            this.a_clash541("Heh.. the bed is obscured.. but I already ate the fish so nya~ hehe");
+            this.sendChatMessage("Heh.. the bed is obscured.. but I already ate the fish so nya~ hehe");
             return;
          }
 
          Vec3d var12 = var2.func_178787_e(var4[var5][0]);
-         this.b_clash431(var3[var5]);
-         this.c_clash502(new Vec3d(var12.field_72450_a, var12.field_72448_b, var12.field_72449_c));
-         this.r = this.I_clash415();
+         this.setYawRotation(var3[var5]);
+         this.setTargetPosition(new Vec3d(var12.field_72450_a, var12.field_72448_b, var12.field_72449_c));
+         this.r = this.getYawRotation();
          this.func_70661_as().func_75499_g();
          this.func_70661_as().func_75492_a(var12.field_72450_a, var12.field_72448_b, var12.field_72449_c, 0.2);
          this.ay = true;
@@ -412,7 +412,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    public void j_clash386() {
       EntityItem var1 = new EntityItem(this.field_70170_p, this.field_70165_t, this.field_70163_u, this.field_70161_v, (ItemStack)this.m.func_187225_a(ag));
-      Vec3d var2 = ck.a_clash306(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.field_70177_z);
+      Vec3d var2 = ck.rotateByYaw(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.field_70177_z);
       var1.field_70159_w = var2.field_72450_a;
       var1.field_70181_x = var2.field_72448_b;
       var1.field_70179_y = var2.field_72449_c;
@@ -434,7 +434,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          this.av = null;
       }
 
-      if (this.ae_clash498() == null) {
+      if (this.getInteractionPlayerUUID() == null) {
          this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
          this.field_70714_bg.func_75776_a(5, this.o);
          if (!this.J_clash526()) {
@@ -453,7 +453,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    void i_clash389() {
-      if (!this.J_clash526() && this.ae_clash498() == null && !this.ar) {
+      if (!this.J_clash526() && this.getInteractionPlayerUUID() == null && !this.ar) {
          if (!(++this.aj < 1200.0F)) {
             if (this.av != null && this.av.d == 15) {
                ((LunaRodItem)this.ao.func_77973_b()).a(this.field_70170_p, this, EnumHand.MAIN_HAND);
@@ -468,7 +468,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
             }
 
-            if (!this.y_clash492().toString().toLowerCase().contains("fishing")) {
+            if (!this.getCurrentAction().toString().toLowerCase().contains("fishing")) {
                this.n_clash392();
                this.e_clash391();
             }
@@ -491,11 +491,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                   this.o = null;
                }
 
-               if (this.y_clash492() == fp.NULL) {
+               if (this.getCurrentAction() == fp.NULL) {
                   this.b(fp.FISHING_START);
-                  this.c_clash502(this.func_174791_d());
+                  this.setTargetPosition(this.func_174791_d());
                   this.m.func_187227_b(G, true);
-                  this.b_clash431(
+                  this.setYawRotation(
                      (float)Math.atan2(this.field_70161_v - this.ai.func_177952_p(), this.field_70165_t - this.ai.func_177958_n()) * (float) (180.0 / Math.PI)
                         + 90.0F
                   );
@@ -632,30 +632,30 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    public void a(String var1, UUID var2) {
       super.a(var1, var2);
       if ("action.names.touchboobs".equals(var1)) {
-         this.e_clash499(var2);
+         this.setInteractionPlayerUUID(var2);
          this.a(true, true, var2);
-         this.a_clash490("animationFollowUp", "touch_boobs");
-         this.a_clash490("currentModel", "0");
-         d3.a_clash122(false);
+         this.changeDataParameterFromClient("animationFollowUp", "touch_boobs");
+         this.changeDataParameterFromClient("currentModel", "0");
+         d3.setMovementLock(false);
       }
 
       if ("action.names.sex".equals(var1)) {
-         this.e_clash499(var2);
+         this.setInteractionPlayerUUID(var2);
          this.a(true, true, var2);
-         this.a_clash490("animationFollowUp", "sex");
-         d3.a_clash122(false);
+         this.changeDataParameterFromClient("animationFollowUp", "sex");
+         d3.setMovementLock(false);
       }
 
       if ("action.names.headpat".equals(var1)) {
-         this.e_clash499(var2);
+         this.setInteractionPlayerUUID(var2);
          this.a(true, true, var2);
-         d3.a_clash122(false);
-         this.a_clash490("animationFollowUp", "headpat");
+         d3.setMovementLock(false);
+         this.changeDataParameterFromClient("animationFollowUp", "headpat");
       }
    }
 
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       if (var1 == fp.TOUCH_BOOBS_SLOW) {
          return fp.TOUCH_BOOBS_FAST;
       } else {
@@ -664,7 +664,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       if (var1 == fp.TOUCH_BOOBS_SLOW || var1 == fp.TOUCH_BOOBS_FAST) {
          return fp.TOUCH_BOOBS_CUM;
       } else {
@@ -676,7 +676,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    protected void U() {
       switch ((String)this.m.func_187225_a(h)) {
          case "touch_boobs":
-            if (this.y_clash492() != fp.PAYMENT) {
+            if (this.getCurrentAction() != fp.PAYMENT) {
                this.b(fp.PAYMENT);
                return;
             }
@@ -684,11 +684,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             this.b(fp.TOUCH_BOOBS_INTRO);
             break;
          case "sex":
-            if (this.y_clash492() != fp.PAYMENT) {
+            if (this.getCurrentAction() != fp.PAYMENT) {
                this.b(fp.PAYMENT);
             } else {
-               PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.f_clash491()));
-               PacketHandler.b.sendToServer(new ResetGirlPacket(this.f_clash491()));
+               PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
+               PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
             }
 
             return;
@@ -697,7 +697,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       }
 
       if (this.field_70170_p.field_72995_K) {
-         this.a_clash490("animationFollowUp", "");
+         this.changeDataParameterFromClient("animationFollowUp", "");
       } else {
          this.m.func_187227_b(h, "");
       }
@@ -730,14 +730,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.cat.null", true, var1);
             } else {
                this.a("animation.cat.blink", true, var1);
             }
             break;
          case "movement":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.cat.null", true, var1);
             } else if (this.func_184218_aH()) {
                this.a("animation.cat.sit", true, var1);
@@ -754,7 +754,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             }
             break;
          case "action":
-            switch (this.y_clash492()) {
+            switch (this.getCurrentAction()) {
                case NULL:
                   this.a("animation.cat.null", true, var1);
                   break;
@@ -848,21 +848,21 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.ad = false;
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.f_clash491()));
+               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "start_fishingDone":
-               if (this.e_clash544()) {
+               if (this.isLocalPlayerNearby()) {
                   this.b(fp.FISHING_IDLE);
                }
                break;
             case "rod_shoot":
-               if (this.e_clash544()) {
-                  PacketHandler.b.sendToServer(new CatActivateFishingPacket(this.f_clash491()));
+               if (this.isLocalPlayerNearby()) {
+                  PacketHandler.b.sendToServer(new CatActivateFishingPacket(this.getGirlId()));
                }
                break;
             case "eat":
                this.a(
-                  SoundHandler.a_clash804(SoundHandler.MISC_EAT),
+                  SoundHandler.randomSound(SoundHandler.MISC_EAT),
                   0.5F + 0.5F * this.field_70146_Z.nextInt(2),
                   (this.field_70146_Z.nextFloat() - this.field_70146_Z.nextFloat()) * 0.2F + 1.0F
                );
@@ -870,7 +870,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "eatPay":
                this.a(
-                  SoundHandler.a_clash804(SoundHandler.MISC_EAT),
+                  SoundHandler.randomSound(SoundHandler.MISC_EAT),
                   0.5F + 0.5F * this.field_70146_Z.nextInt(2),
                   (this.field_70146_Z.nextFloat() - this.field_70146_Z.nextFloat()) * 0.2F + 1.0F
                );
@@ -880,8 +880,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a(SoundEvents.field_187739_dZ, 0.5F, this.field_70146_Z.nextFloat() * 0.1F + 0.9F);
                break;
             case "eatingDone":
-               if (this.e_clash544()) {
-                  PacketHandler.b.sendToServer(new CatEatingDonePacket(this.f_clash491()));
+               if (this.isLocalPlayerNearby()) {
+                  PacketHandler.b.sendToServer(new CatEatingDonePacket(this.getGirlId()));
                   this.b(fp.NULL);
                }
 
@@ -889,8 +889,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.Z = 0.0F;
                break;
             case "throw_away":
-               if (this.e_clash544()) {
-                  PacketHandler.b.sendToServer(new CatThrowAwayItemPacket(this.f_clash491()));
+               if (this.isLocalPlayerNearby()) {
+                  PacketHandler.b.sendToServer(new CatThrowAwayItemPacket(this.getGirlId()));
                }
 
                this.aa = 1.0F;
@@ -900,25 +900,25 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.Z = 1.0F;
                break;
             case "paymentMSG1":
-               this.a(this.ae_clash498(), "Here, I know u like fish and yea.. these are for you");
+               this.a(this.getInteractionPlayerUUID(), "Here, I know u like fish and yea.. these are for you");
                this.a(SoundHandler.MISC_PLOB[0]);
                break;
             case "paymentMSG2":
-               this.a_clash541("huh~?");
+               this.sendChatMessage("huh~?");
                this.a(SoundHandler.GIRLS_LUNA_HUH);
                break;
             case "paymentMSG3":
-               this.a_clash541("nyyyaaaa~ :D");
+               this.sendChatMessage("nyyyaaaa~ :D");
                int[] var4 = new int[]{1, 7, 10, 11};
                int var5 = var4[this.func_70681_au().nextInt(var4.length)];
                this.a(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
                break;
             case "paymentMSG4":
-               this.a_clash541("tankuuuu owowowo");
+               this.sendChatMessage("tankuuuu owowowo");
                this.a(SoundHandler.GIRLS_LUNA_OWO);
                break;
             case "paymentDone":
-               if (this.e_clash544()) {
+               if (this.isLocalPlayerNearby()) {
                   this.U();
                }
 
@@ -951,7 +951,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a(SoundHandler.GIRLS_LUNA_SINGING);
                break;
             case "touch_boobsMSG1":
-               this.a_clash541("comon~ touch me hihi~");
+               this.sendChatMessage("comon~ touch me hihi~");
                this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
                break;
             case "touch":
@@ -970,14 +970,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a(SoundHandler.MISC_CUMINFLATION[0], 5.0F);
                break;
             case "moan":
-               this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                break;
             case "touch_boobs_introDone":
                this.b(fp.TOUCH_BOOBS_SLOW);
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
-                  HornyMeterHud.d_clash358();
-                  d3.a_clash122(false);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
+                  HornyMeterHud.showHornyMeter();
+                  d3.setMovementLock(false);
                }
                break;
             case "touch_boobs_slowDone":
@@ -988,40 +988,40 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "addCumSlow":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02F);
                }
                break;
             case "addCumFast":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
                break;
             case "fastDone":
-               if (this.n_clash537() && !d3.d) {
+               if (this.isControlledByLocalPlayer() && !d3.d) {
                   this.b(fp.TOUCH_BOOBS_SLOW);
                }
                break;
             case "moanOrNya":
                if (Math.random() > 0.5) {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_HORNINYA));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                }
                break;
             case "blackScreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "touch_boobs_cumDone":
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                   this.r_clash533();
                }
                break;
             case "resetGirl":
-               if (this.e_clash544()) {
+               if (this.isLocalPlayerNearby()) {
                   this.r_clash533();
                }
                break;
@@ -1033,85 +1033,85 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "call_playerMSG1":
                this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
-               this.a_clash541("come here - big guy hehe~");
+               this.sendChatMessage("come here - big guy hehe~");
                break;
             case "pounding":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                break;
             case "sitting_introMSG1":
                this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
-               this.a_clash541("hehe~");
+               this.sendChatMessage("hehe~");
                break;
             case "sitting_introDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.b(fp.COWGIRL_SITTING_SLOW);
-                  HornyMeterHud.b_clash363();
-                  HornyMeterHud.d_clash358();
+                  HornyMeterHud.resetHornyMeter();
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "sitting_slowMSG1":
                if (this.func_70681_au().nextBoolean()) {
                   if (this.func_70681_au().nextBoolean()) {
-                     this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_HORNINYA));
+                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                      break;
                   }
 
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_LIGHTBREATHING));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_LIGHTBREATHING));
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "sitting_fastMSG1":
                if (this.func_70681_au().nextBoolean()) {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_HORNINYA));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                } else {
-                  this.a(SoundHandler.a_clash804(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                }
 
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "sitting_fastDone":
-               if (this.n_clash537() && !d3.d) {
+               if (this.isControlledByLocalPlayer() && !d3.d) {
                   this.b(fp.COWGIRL_SITTING_SLOW);
                   Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
-                  Vec3d var9 = ck.a_clash306(var8, this.I_clash415() + 180.0F);
+                  Vec3d var9 = ck.rotateByYaw(var8, this.getYawRotation() + 180.0F);
                   Minecraft.func_71410_x()
                      .field_71439_g
                      .func_70107_b(
-                        this.o_clash501().field_72450_a + var9.field_72450_a,
-                        this.o_clash501().field_72448_b + var9.field_72448_b,
-                        this.o_clash501().field_72449_c + var9.field_72449_c
+                        this.getTargetPosition().field_72450_a + var9.field_72450_a,
+                        this.getTargetPosition().field_72448_b + var9.field_72448_b,
+                        this.getTargetPosition().field_72449_c + var9.field_72449_c
                      );
                }
                break;
             case "sitting_fastTp":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   Vec3d var6 = new Vec3d(0.0, -0.160625, -0.9925);
-                  Vec3d var7 = ck.a_clash306(var6, this.I_clash415() + 180.0F);
+                  Vec3d var7 = ck.rotateByYaw(var6, this.getYawRotation() + 180.0F);
                   Minecraft.func_71410_x()
                      .field_71439_g
                      .func_70107_b(
-                        this.o_clash501().field_72450_a + var7.field_72450_a,
-                        this.o_clash501().field_72448_b + var7.field_72448_b,
-                        this.o_clash501().field_72449_c + var7.field_72449_c
+                        this.getTargetPosition().field_72450_a + var7.field_72450_a,
+                        this.getTargetPosition().field_72448_b + var7.field_72448_b,
+                        this.getTargetPosition().field_72449_c + var7.field_72449_c
                      );
                }
                break;
             case "headpatMSG1":
-               this.a_clash541("huh?~");
+               this.sendChatMessage("huh?~");
                this.a(SoundHandler.GIRLS_LUNA_HUH);
                break;
             case "headpatMSG2":
                this.a(SoundHandler.GIRLS_LUNA_MMM);
                break;
             case "headpatMSG3":
-               this.a_clash541("nya~");
+               this.sendChatMessage("nya~");
                this.a(SoundHandler.GIRLS_LUNA_HORNINYA[0]);
          }
       };
@@ -1128,9 +1128,6 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       this.func_189654_d(false);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    public static class a {
       @SubscribeEvent

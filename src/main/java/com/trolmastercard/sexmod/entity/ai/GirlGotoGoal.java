@@ -26,7 +26,7 @@ public class GirlGotoGoal extends GirlFollowAiBase {
    protected GirlFollowAiBase.GirlFollowAiBaseState a_clash807() {
       float var1 = this.d.func_70032_d(this.a);
       boolean var2 = var1 > 5.0F;
-      if (this.d.ae_clash498() == null && !var2 && this.f == GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
+      if (this.d.getInteractionPlayerUUID() == null && !var2 && this.f == GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
          if (++this.j > 60) {
             var2 = false;
             this.j = 0;
@@ -67,7 +67,4 @@ public class GirlGotoGoal extends GirlFollowAiBase {
       return var2;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

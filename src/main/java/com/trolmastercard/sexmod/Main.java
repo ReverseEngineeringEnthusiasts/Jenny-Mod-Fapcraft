@@ -71,7 +71,7 @@ public class Main {
 
    @EventHandler
    public static void onWorldClosed(FMLServerStoppedEvent var0) {
-      BaseGirlEntity.ad_clash509().clear();
+      BaseGirlEntity.getGirlEntityList().clear();
       KoboldManager.a_clash69();
       KoboldEntity.aY.clear();
       GirlSavedData.a_clash844();
@@ -93,7 +93,7 @@ public class Main {
    @SideOnly(Side.CLIENT)
    static void clientReset() {
       gm.a_clash770();
-      GirlRendererBase.c_clash214();
+      GirlRendererBase.clearBoneColors();
    }
 
    @SideOnly(Side.CLIENT)

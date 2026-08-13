@@ -55,7 +55,7 @@ public class SpawnParticlePacket implements IMessage {
    public static class Handler implements IMessageHandler<SpawnParticlePacket, IMessage> {
       public IMessage onMessage(SpawnParticlePacket var1, MessageContext var2) {
          if (var1.d && var2.side.equals(Side.CLIENT)) {
-            for (BaseGirlEntity var5 : BaseGirlEntity.g_clash524(var1.c)) {
+            for (BaseGirlEntity var5 : BaseGirlEntity.girlList(var1.c)) {
                if (var5.field_70170_p.field_72995_K) {
                   for (int var6 = 0; var6 < var1.a; var6++) {
                      BaseGirlEntity.a(EnumParticleTypes.func_186831_a(var1.b), var5);
@@ -71,8 +71,5 @@ public class SpawnParticlePacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

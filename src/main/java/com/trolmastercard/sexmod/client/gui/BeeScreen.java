@@ -83,7 +83,7 @@ public class BeeScreen extends GuiScreen {
             this.func_175174_a(var3 + 200.0F, 256.0F, 0, 0, 400, 256);
             this.func_175174_a(var3 + 200.0F, 512.0F, 0, 0, 400, 256);
             if (e > 30.0) {
-               HornyMeterHud.c_clash360();
+               HornyMeterHud.hideHornyMeter();
             }
 
             if (e > 69.0) {
@@ -96,7 +96,4 @@ public class BeeScreen extends GuiScreen {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

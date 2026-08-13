@@ -48,9 +48,9 @@ public class ad {
    public void a(ClientChatEvent var1) {
       if (a_clash64()) {
          if ("resetcolor".equalsIgnoreCase(var1.getMessage())) {
-            KoboldRenderer.c_clash214();
+            KoboldRenderer.clearBoneColors();
             de.e_clash190();
-            GoblinRenderer.c_clash214();
+            GoblinRenderer.clearBoneColors();
             dg.e_clash190();
          }
       }
@@ -128,7 +128,7 @@ public class ad {
                this.a_clash65("workers involved: ");
 
                for (KoboldEntity var10 : var8.c_clash209()) {
-                  this.a_clash65(var10.c_clash241() + " " + var10.f_clash491());
+                  this.a_clash65(var10.getDisplayNameText() + " " + var10.getGirlId());
                }
             }
 
@@ -137,7 +137,7 @@ public class ad {
             boolean var11 = false;
 
             for (KoboldEntity var14 : KoboldManager.n_clash82(var5)) {
-               if (var14.f_clash491().equals(var4.f_clash491())) {
+               if (var14.getGirlId().equals(var4.getGirlId())) {
                   var11 = true;
                }
             }
@@ -145,7 +145,7 @@ public class ad {
             boolean var13 = false;
 
             for (Entry var16 : KoboldManager.a_clash91(var5, var2.field_70170_p).entrySet()) {
-               if (((UUID)var16.getKey()).equals(var4.f_clash491())) {
+               if (((UUID)var16.getKey()).equals(var4.getGirlId())) {
                   var13 = true;
                }
             }
@@ -183,11 +183,11 @@ public class ad {
                this.a_clash65(
                   String.format(
                      "alive member %s at %s world.isremote? %s isdead %s girlID %s entityID %s",
-                     var8.c_clash241(),
+                     var8.getDisplayNameText(),
                      var8.func_180425_c(),
                      var8.field_70170_p.field_72995_K,
                      var8.field_70128_L,
-                     var8.f_clash491(),
+                     var8.getGirlId(),
                      var8.func_145782_y()
                   )
                );
@@ -230,7 +230,4 @@ public class ad {
       Minecraft.func_71410_x().field_71439_g.func_145747_a(new TextComponentString(var1));
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

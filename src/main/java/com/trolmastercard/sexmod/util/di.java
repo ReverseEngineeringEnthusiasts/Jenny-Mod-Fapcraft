@@ -34,7 +34,7 @@ public class di extends GirlPlayerRenderer {
 
    @Override
    protected ItemStack a_clash341(@Nullable ItemStack var1) {
-      switch (this.j.y_clash492()) {
+      switch (this.j.getCurrentAction()) {
          case FISHING_IDLE:
          case FISHING_START:
             ItemStack var2 = ((LunaEntity)this.j).ao;
@@ -58,7 +58,7 @@ public class di extends GirlPlayerRenderer {
                break;
             case "backHair":
                if (!this.b_clash370() && this.z > 0.0F) {
-                  double var5 = this.z / gc.c_clash744(45.0F);
+                  double var5 = this.z / gc.wrapDegrees(45.0F);
                   float var7 = (float)RotationHelper.b(0.0, 0.75, var5);
                   var2.setPositionZ(var7);
                   var2.setPositionY(var7);
@@ -107,7 +107,4 @@ public class di extends GirlPlayerRenderer {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

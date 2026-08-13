@@ -322,9 +322,6 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 
    static class a {
       e1 b;

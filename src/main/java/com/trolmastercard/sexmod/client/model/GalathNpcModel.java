@@ -40,11 +40,11 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    long i = -1L;
 
    public GalathNpcModel() {
-      this.c = this.a_clash33();
+      this.c = this.getModelLocations();
    }
 
    @Override
-   protected ResourceLocation[] a_clash33() {
+   protected ResourceLocation[] getModelLocations() {
       return new ResourceLocation[]{
          new ResourceLocation("sexmod", "geo/galath/galath.geo.json"),
          new ResourceLocation("sexmod", "geo/galath/galath.geo.json"),
@@ -107,10 +107,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
                var3.setRotationX(var3.getRotationX() + var5.a);
                var3.setRotationY(var3.getRotationY() + var5.c);
                var3.setRotationZ(var3.getRotationZ() + var5.b);
-               if (var1.y_clash492() == fp.PUSSY_LICKING && !((GalathEntity)var1).a5) {
+               if (var1.getCurrentAction() == fp.PUSSY_LICKING && !((GalathEntity)var1).a5) {
                   float var6 = (float)(Math.sin(var4 * 0.3F) * 10.0);
                   if (var6 > 0.0F && this.g < 0.0F || var6 < 0.0F && this.g > 0.0F) {
-                     var1.a(SoundHandler.a_clash804(SoundHandler.GIRLS_ALLIE_LIPSOUND));
+                     var1.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
                   }
 
                   this.g = var6;
@@ -126,9 +126,9 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
 
    f7 a_clash172(float var1) {
       return new f7(
-         (float)Math.sin(var1 * 0.3F) * gc.c_clash744(10.0F),
-         (float)Math.sin(var1 * 0.15F) * gc.c_clash744(7.0F),
-         (float)Math.sin(var1 * -0.15) * gc.c_clash744(7.0F)
+         (float)Math.sin(var1 * 0.3F) * gc.wrapDegrees(10.0F),
+         (float)Math.sin(var1 * 0.15F) * gc.wrapDegrees(7.0F),
+         (float)Math.sin(var1 * -0.15) * gc.wrapDegrees(7.0F)
       );
    }
 
@@ -145,7 +145,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    void d_clash174(BaseGirlEntity var1) {
       if (var1.C.getAnimationState() == AnimationState.Transitioning) {
          AnimationProcessor var2 = this.getAnimationProcessor();
-         fp var3 = var1.y_clash492();
+         fp var3 = var1.getCurrentAction();
          if (var3 == fp.HUG_MANG) {
             IBone var4 = var2.getBone("body2");
             if (var4 == null) {
@@ -161,15 +161,15 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
 
    void k(BaseGirlEntity var1) {
       if (!ClientProxy.IS_PRELOADING) {
-         if (var1.y_clash492() == fp.MASTERBATE) {
+         if (var1.getCurrentAction() == fp.MASTERBATE) {
             Object var2 = var1.z_clash528();
             if (var2 == null) {
                var2 = this.a.field_71439_g;
             }
 
             MolangParser var3 = GeckoLibCache.getInstance().parser;
-            Vec3d var4 = ak.b(var1, (EntityPlayer)var2, this.a.func_184121_ak()).func_178787_e(var1.b_clash547("head"));
-            float var5 = (float)gc.b(Math.atan2(var4.field_72449_c, var4.field_72450_a)) - var1.I_clash415();
+            Vec3d var4 = ak.b(var1, (EntityPlayer)var2, this.a.func_184121_ak()).func_178787_e(var1.getCachedBoneOffset("head"));
+            float var5 = (float)gc.b(Math.atan2(var4.field_72449_c, var4.field_72450_a)) - var1.getYawRotation();
             float var6 = (float)gc.b(
                Math.atan2(var4.field_72448_b, Math.sqrt(var4.field_72450_a * var4.field_72450_a + var4.field_72449_c * var4.field_72449_c))
             );
@@ -244,13 +244,13 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    void b_clash178(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
          if ((Boolean)var1.func_184212_Q().func_187225_a(GalathEntity.bP)) {
-            if (var1.y_clash492() == fp.KNOCK_OUT_FLY) {
+            if (var1.getCurrentAction() == fp.KNOCK_OUT_FLY) {
                IBone var2 = this.getAnimationProcessor().getBone("body");
                Vec3d var3 = new Vec3d(var1.field_70142_S, var1.field_70137_T, var1.field_70136_U);
                Vec3d var4 = var1.func_174791_d().func_178788_d(var3);
                boolean var5 = Math.abs(var4.field_72450_a) + Math.abs(var4.field_72449_c) < 0.01F;
                if (var5) {
-                  var2.setRotationX(gc.c_clash744(-90.0F));
+                  var2.setRotationX(gc.wrapDegrees(-90.0F));
                   var2.setPositionY(0.0F);
                   var2.setPositionZ(0.0F);
                } else {
@@ -266,7 +266,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
 
    void h(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
-         if (var1.y_clash492() == fp.RAPE_CHARGE) {
+         if (var1.getCurrentAction() == fp.RAPE_CHARGE) {
             Vec3d var2 = d_clash346(var1);
             IBone var3 = this.getAnimationProcessor().getBone("body");
             IBone var4 = this.getAnimationProcessor().getBone("rotationTool");
@@ -274,7 +274,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
             var3.setPositionY((float)var2.field_72448_b);
             var3.setPositionZ((float)var2.field_72449_c);
             float var5 = (Float)var1.func_184212_Q().func_187225_a(GalathEntity.bO);
-            var3.setRotationY(gc.c_clash744(var5 * 180.0F));
+            var3.setRotationY(gc.wrapDegrees(var5 * 180.0F));
          }
       }
    }
@@ -282,7 +282,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    void f_clash179(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
          GalathEntity var2 = (GalathEntity)var1;
-         if (var2.y_clash492() != fp.ATTACK_SWORD) {
+         if (var2.getCurrentAction() != fp.ATTACK_SWORD) {
             this.f = -1L;
             this.i = -1L;
          } else {
@@ -307,7 +307,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
 
    void a_clash180(BaseGirlEntity var1) {
       float var2 = 0.0F;
-      switch (var1.y_clash492()) {
+      switch (var1.getCurrentAction()) {
          case BOOST:
             if (fp.BOOST.ticksPlaying[1] > 13 && fp.BOOST.ticksPlaying[1] < 40) {
                var2 = 45.0F;
@@ -328,7 +328,4 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       return new String[]{"armorHelmet"};
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

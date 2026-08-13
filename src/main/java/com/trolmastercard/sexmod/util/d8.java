@@ -24,7 +24,7 @@ public class d8 extends GirlRenderer {
    @Override
    public void a(GeoModel var1, BaseGirlEntity var2, float var3, float var4, float var5, float var6, float var7) {
       AllieEntity var8 = (AllieEntity)var2;
-      if (var2.y_clash492() != fp.NULL || var2.h_clash508()) {
+      if (var2.getCurrentAction() != fp.NULL || var2.isLocallyRegistered()) {
          var8.U = var8.U == 1.0F ? var8.U : var8.U - 0.01F;
          var7 = var8.U;
          GlStateManager.func_179152_a(var7, var7, var7);
@@ -35,9 +35,9 @@ public class d8 extends GirlRenderer {
 
    @Override
    protected void a_clash199(double var1, double var3, double var5) {
-      if (this.j.y_clash492() != fp.NULL) {
-         if (!this.j.h_clash508()) {
-            if (!this.j.y_clash492().hideNameTag) {
+      if (this.j.getCurrentAction() != fp.NULL) {
+         if (!this.j.isLocallyRegistered()) {
+            if (!this.j.getCurrentAction().hideNameTag) {
                if (i.func_175598_ae().field_78734_h != null) {
                   this.func_147906_a(this.j, this.j.ab_clash540(), var1, var3 + this.j.i_clash226(), var5, 300);
                }
@@ -46,7 +46,4 @@ public class d8 extends GirlRenderer {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

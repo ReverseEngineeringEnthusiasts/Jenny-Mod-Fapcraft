@@ -129,8 +129,5 @@ public class MinePacket implements IMessage {
          return new BlockPos(var2.func_177952_p(), var2.func_177956_o(), -var2.func_177958_n());
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

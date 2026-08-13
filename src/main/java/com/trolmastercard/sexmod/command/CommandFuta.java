@@ -84,9 +84,9 @@ public class CommandFuta extends CommandBase implements IClientCommand {
          }
 
          try {
-            for (BaseGirlEntity var6 : BaseGirlEntity.ad_clash509()) {
+            for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
                if (!var6.field_70128_L && var6.field_70170_p.field_72995_K && var6 instanceof GalathEntity) {
-                  Vec3d var7 = var6.b_clash547("cockParticles").func_178787_e(var6.func_174791_d());
+                  Vec3d var7 = var6.getCachedBoneOffset("cockParticles").func_178787_e(var6.func_174791_d());
                   Random var8 = var6.func_70681_au();
 
                   for (int var9 = 0; var9 < 10; var9++) {
@@ -123,7 +123,4 @@ public class CommandFuta extends CommandBase implements IClientCommand {
       return false;
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

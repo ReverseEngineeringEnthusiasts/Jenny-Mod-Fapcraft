@@ -43,13 +43,13 @@ public class cn {
 
    @SubscribeEvent
    public void a(RenderSpecificHandEvent var1) {
-      AbstractPlayerGirlEntity.C_clash585();
-      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.d_clash567(Minecraft.func_71410_x().field_71439_g.getPersistentID());
+      AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
+      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.func_71410_x().field_71439_g.getPersistentID());
       if (var2 != null) {
-         int var3 = var2.ah_clash493();
-         this.d = var2.a_clash228(var3);
-         this.h = new ResourceLocation("sexmod", var2.c_clash229(var3));
-         this.b = var2.b_clash357(var3);
+         int var3 = var2.getOutfitIndex();
+         this.d = var2.getHandModel(var3);
+         this.h = new ResourceLocation("sexmod", var2.getHandTexture(var3));
+         this.b = var2.getHandColor(var3);
          if (this.d == null) {
             System.out.println("HAND IS NULL uwu did you forget to assign this girl a hand owo?");
          } else {
@@ -129,7 +129,7 @@ public class cn {
          }
 
          Minecraft.func_71410_x().func_110434_K().func_110577_a(this.h);
-         this.d.a_clash17().func_78785_a(0.175F);
+         this.d.getModel().func_78785_a(0.175F);
          GlStateManager.func_179121_F();
       }
 
@@ -209,7 +209,7 @@ public class cn {
       }
 
       Minecraft.func_71410_x().func_110434_K().func_110577_a(this.h);
-      this.d.a_clash17().func_78785_a(0.175F);
+      this.d.getModel().func_78785_a(0.175F);
       GlStateManager.func_179121_F();
    }
 
@@ -224,7 +224,7 @@ public class cn {
       GlStateManager.func_179094_E();
       this.a(this.g, var1, EnumHandSide.RIGHT);
       Minecraft.func_71410_x().func_110434_K().func_110577_a(this.h);
-      this.d.a_clash17().func_78785_a(0.175F);
+      this.d.getModel().func_78785_a(0.175F);
       GlStateManager.func_179084_k();
       GlStateManager.func_179089_o();
       GlStateManager.func_179121_F();
@@ -251,7 +251,4 @@ public class cn {
       GlStateManager.func_179109_b(0.5F, 1.1F, 0.0F);
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

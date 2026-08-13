@@ -54,12 +54,12 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public IVanillaModel a_clash228(int var1) {
+   public IVanillaModel getHandModel(int var1) {
       return new BeeModel();
    }
 
    @Override
-   public String c_clash229(int var1) {
+   public String getHandTexture(int var1) {
       return "textures/entity/bee/hand.png";
    }
 
@@ -71,20 +71,20 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
       this.b_clash577(var2);
       EntityPlayer var3 = this.field_70170_p.func_152378_a(var2);
       if (var3 != null) {
-         Vec3d var4 = this.a_clash546(-0.2);
+         Vec3d var4 = this.getVectorTowardPlayer(-0.2);
          var3.func_70634_a(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c);
       }
    }
 
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       a(var1, this, new String[]{"action.names.sex"}, false);
       return true;
    }
 
    @Override
    public void b(fp var1) {
-      if (this.y_clash492() != fp.CITIZEN_CUM || var1 != fp.CITIZEN_FAST && var1 != fp.COWGIRLSLOW) {
+      if (this.getCurrentAction() != fp.CITIZEN_CUM || var1 != fp.CITIZEN_FAST && var1 != fp.COWGIRLSLOW) {
          super.b(var1);
       }
    }
@@ -100,18 +100,18 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       return var1 == fp.CITIZEN_SLOW ? fp.CITIZEN_FAST : null;
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       return var1 != fp.CITIZEN_FAST && var1 != fp.CITIZEN_SLOW ? null : fp.CITIZEN_CUM;
    }
 
    @Override
-   public void g_clash238() {
-      super.g_clash238();
+   public void reinitTasks() {
+      super.reinitTasks();
       this.f(1);
    }
 
@@ -119,14 +119,14 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "movement":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.bee.null", true, var1);
             } else {
                this.a("animation.bee.idle", true, var1);
             }
             break;
          case "action":
-            switch (this.y_clash492()) {
+            switch (this.getCurrentAction()) {
                case NULL:
                   this.a("animation.bee.null", false, var1);
                   break;
@@ -173,54 +173,54 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "pearl":
-               if (this.e_clash544() && this.y_clash492() == fp.THROW_PEARL) {
-                  PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.f_clash491()));
+               if (this.isLocalPlayerNearby() && this.getCurrentAction() == fp.THROW_PEARL) {
+                  PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                }
                break;
             case "resetCumPercentage":
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                }
                break;
             case "sex_fastMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
                break;
             case "sex_startMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02F);
                }
                break;
             case "sex_fastReady":
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                }
                break;
             case "sex_fastDone":
-               if (!this.n_clash537() || d3.d) {
+               if (!this.isControlledByLocalPlayer() || d3.d) {
                   return;
                }
             case "sex_startDone":
                this.b(fp.CITIZEN_SLOW);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "sex_cumMSG1":
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_CUMINFLATION), 2.0F);
-               this.a(SoundHandler.a_clash804(SoundHandler.MISC_POUNDING));
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_CUMINFLATION), 2.0F);
+               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                break;
             case "blackscreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "sex_cumDone":
-               if (this.n_clash537()) {
-                  HornyMeterHud.b_clash363();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.resetHornyMeter();
                   this.r_clash533();
                }
          }
@@ -230,7 +230,4 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
       var1.addAnimationController(this.E);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

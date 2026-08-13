@@ -68,7 +68,7 @@ public class BeeDialogueScreen extends GuiScreen {
       ScaledResolution var4 = new ScaledResolution(this.field_146297_k);
       int var5 = var4.func_78326_a();
       if ((Boolean)this.c.func_184212_Q().func_187225_a(BeeEntityBase.K) && var1 >= var5 / 2 - 20 && var1 <= var5 / 2 + 20 && var2 >= 20 && var2 <= 60) {
-         PacketHandler.b.sendToServer(new BeeOpenChestPacket(this.c.f_clash491(), this.a.getPersistentID()));
+         PacketHandler.b.sendToServer(new BeeOpenChestPacket(this.c.getGirlId(), this.a.getPersistentID()));
          this.func_146281_b();
       }
 
@@ -79,10 +79,10 @@ public class BeeDialogueScreen extends GuiScreen {
       super.func_146284_a(var1);
       if (var1.field_146127_k == 0) {
          if (this.e) {
-            PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.c.f_clash491(), "master", ""));
+            PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.c.getGirlId(), "master", ""));
             this.a.func_145747_a(new TextComponentString(I18n.func_135052_a("bee.dialogue.sad", new Object[0])));
          } else {
-            PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.c.f_clash491(), "master", this.a.getPersistentID().toString()));
+            PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.c.getGirlId(), "master", this.a.getPersistentID().toString()));
             this.a.func_145747_a(new TextComponentString(I18n.func_135052_a("bee.dialogue.exited", new Object[0])));
          }
 
@@ -91,18 +91,15 @@ public class BeeDialogueScreen extends GuiScreen {
       }
 
       if (var1.field_146127_k == 1) {
-         PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.c.f_clash491()));
+         PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.c.getGirlId()));
          this.a.func_71053_j();
       }
 
       if (var1.field_146127_k == 2) {
-         PacketHandler.b.sendToServer(new SetNewHomePacket(this.c.f_clash491(), new Vec3d(this.c.field_70165_t, this.c.field_70163_u, this.c.field_70161_v)));
+         PacketHandler.b.sendToServer(new SetNewHomePacket(this.c.getGirlId(), new Vec3d(this.c.field_70165_t, this.c.field_70163_u, this.c.field_70161_v)));
          this.a.func_71053_j();
          this.a.func_145747_a(new TextComponentString(I18n.func_135052_a("bee.dialogue.home", new Object[0])));
       }
    }
 
-   private static Exception a(Exception var0) {
-      return var0;
-   }
 }

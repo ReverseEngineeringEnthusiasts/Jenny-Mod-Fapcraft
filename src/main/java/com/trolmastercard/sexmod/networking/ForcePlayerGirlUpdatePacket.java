@@ -50,7 +50,7 @@ public class ForcePlayerGirlUpdatePacket implements IMessage {
    public static class Handler implements IMessageHandler<ForcePlayerGirlUpdatePacket, IMessage> {
       public IMessage onMessage(ForcePlayerGirlUpdatePacket var1, MessageContext var2) {
          if (var1.d && var2.side.equals(Side.CLIENT)) {
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.d_clash567(var1.c);
+            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.c);
             if (var3 == null) {
                return null;
             }
@@ -64,8 +64,5 @@ public class ForcePlayerGirlUpdatePacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

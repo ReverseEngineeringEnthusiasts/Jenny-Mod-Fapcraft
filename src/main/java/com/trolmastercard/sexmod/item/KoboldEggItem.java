@@ -89,7 +89,4 @@ public class KoboldEggItem extends Item implements IAnimatable {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

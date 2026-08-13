@@ -33,10 +33,10 @@ public class am {
          BaseGirlEntity var4 = null;
 
          try {
-            for (BaseGirlEntity var6 : BaseGirlEntity.ad_clash509()) {
+            for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
                if (var6 != null && !var6.field_70128_L && var6.field_70170_p.field_72995_K && var6 instanceof IGoblin) {
                   IGoblin var7 = (IGoblin)var6;
-                  if (var3.equals(var7.e_clash54())) {
+                  if (var3.equals(var7.getOwnerUUID())) {
                      var4 = var6;
                      break;
                   }
@@ -51,14 +51,14 @@ public class am {
                float var10 = var2.field_71439_g.field_70177_z;
                GoblinRenderer.N = (float)(var2.field_71439_g.field_71158_b.field_78902_a * GoblinRenderer.G.field_72450_a);
                GoblinRenderer.N = GoblinRenderer.N + -(var10 - GoblinRenderer.H) * 3.0F;
-               GoblinRenderer.N = RotationHelper.a_clash25(GoblinRenderer.I, GoblinRenderer.N, 0.1F);
+               GoblinRenderer.N = RotationHelper.lerp(GoblinRenderer.I, GoblinRenderer.N, 0.1F);
                float var11 = -var2.field_71439_g.field_70125_A;
                GoblinRenderer.x = (float)(
                   var2.field_71439_g.field_71158_b.field_192832_b * GoblinRenderer.G.field_72449_c
                      + (float)var2.field_71439_g.field_70181_x * GoblinRenderer.G.field_72448_b
                );
                GoblinRenderer.x = GoblinRenderer.x + -(var11 - GoblinRenderer.t) * 3.0F;
-               GoblinRenderer.x = RotationHelper.a_clash25(GoblinRenderer.E, GoblinRenderer.x, 0.1F);
+               GoblinRenderer.x = RotationHelper.lerp(GoblinRenderer.E, GoblinRenderer.x, 0.1F);
                GoblinRenderer.a_clash398(var4, var1.getPartialTicks());
                GoblinRenderer.H = var10;
                GoblinRenderer.I = GoblinRenderer.N;
@@ -80,13 +80,13 @@ public class am {
          UUID var3 = var2.field_71439_g.getPersistentID();
 
          try {
-            for (BaseGirlEntity var5 : BaseGirlEntity.ad_clash509()) {
+            for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {
                if (var5.field_70170_p.field_72995_K && !var5.field_70128_L && var5 instanceof IGoblin) {
                   IGoblin var6 = (IGoblin)var5;
-                  if (var5.y_clash492() == fp.START_THROWING) {
-                     var5.b_clash507(true);
-                     var2.func_175598_ae().func_188391_a(var5, 0.0, 0.0, 0.0, var3.equals(var6.e_clash54()) ? -420.69F : 0.0F, var2.func_184121_ak(), false);
-                     var5.b_clash507(false);
+                  if (var5.getCurrentAction() == fp.START_THROWING) {
+                     var5.setLocallyRegistered(true);
+                     var2.func_175598_ae().func_188391_a(var5, 0.0, 0.0, 0.0, var3.equals(var6.getOwnerUUID()) ? -420.69F : 0.0F, var2.func_184121_ak(), false);
+                     var5.setLocallyRegistered(false);
                      return;
                   }
                }
@@ -107,12 +107,12 @@ public class am {
       UUID var3 = var2.field_71439_g.getPersistentID();
 
       try {
-         for (BaseGirlEntity var5 : BaseGirlEntity.ad_clash509()) {
+         for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {
             if (var5 instanceof IGoblin) {
-               fp var6 = var5.y_clash492();
+               fp var6 = var5.getCurrentAction();
                if (var6 == fp.PICK_UP || var6 == fp.START_THROWING) {
                   IGoblin var7 = (IGoblin)var5;
-                  UUID var8 = var7.e_clash54();
+                  UUID var8 = var7.getOwnerUUID();
                   if (var3.equals(var8)) {
                      var1.setCanceled(true);
                      break;
@@ -130,11 +130,11 @@ public class am {
       UUID var2 = var1.getEntityPlayer().getPersistentID();
 
       try {
-         for (BaseGirlEntity var4 : BaseGirlEntity.ad_clash509()) {
+         for (BaseGirlEntity var4 : BaseGirlEntity.getGirlEntityList()) {
             if (var4 instanceof IGoblin) {
                IGoblin var5 = (IGoblin)var4;
-               fp var6 = var4.y_clash492();
-               if ((var6 == fp.PICK_UP || var6 == fp.START_THROWING) && var2.equals(var5.e_clash54())) {
+               fp var6 = var4.getCurrentAction();
+               if ((var6 == fp.PICK_UP || var6 == fp.START_THROWING) && var2.equals(var5.getOwnerUUID())) {
                   var1.setCanceled(true);
                   break;
                }
@@ -144,7 +144,4 @@ public class am {
       }
    }
 
-   private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-      return var0;
-   }
 }

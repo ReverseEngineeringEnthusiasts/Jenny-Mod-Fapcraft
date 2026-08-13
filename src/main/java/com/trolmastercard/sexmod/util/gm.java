@@ -224,7 +224,4 @@ public class gm {
       }
    }
 
-   private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-      return var0;
-   }
 }

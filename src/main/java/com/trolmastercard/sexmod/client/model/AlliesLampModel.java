@@ -61,7 +61,4 @@ public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
       return new ResourceLocation("sexmod", "animations/allie/lamp.animation.json");
    }
 
-   private static IOException a(IOException var0) {
-      return var0;
-   }
 }

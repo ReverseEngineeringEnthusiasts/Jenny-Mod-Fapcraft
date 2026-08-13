@@ -33,7 +33,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    Minecraft f = Minecraft.func_71410_x();
 
    @Override
-   protected ResourceLocation[] a_clash33() {
+   protected ResourceLocation[] getModelLocations() {
       return new ResourceLocation[]{
          new ResourceLocation("sexmod", "geo/goblin/goblin.geo.json"), new ResourceLocation("sexmod", "geo/goblin/armored.geo.json")
       };
@@ -55,9 +55,9 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
 
       GoblinEntity var2 = (GoblinEntity)var1;
-      UUID var3 = var2.ae_clash498();
+      UUID var3 = var2.getInteractionPlayerUUID();
       if (var3 == null) {
-         var3 = var2.e_clash54();
+         var3 = var2.getOwnerUUID();
       }
 
       if (var3 == null) {
@@ -79,7 +79,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             var12.setHidden(!(Boolean)var1.func_184212_Q().func_187225_a(GoblinEntity.aV));
             IBone var13 = var4.getBone("body");
             IBone var14 = var4.getBone("head");
-            fp var15 = var1.y_clash492();
+            fp var15 = var1.getCurrentAction();
             if ((var15 == fp.BREEDING_SLOW_2 || var15 == fp.BREEDING_FAST_2 || var15 == fp.BREEDING_CUM_2) && this.f.field_71474_y.field_74320_O == 0) {
                var13.setPositionY(var13.getPositionY() + 1.5F);
             }
@@ -94,7 +94,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             }
 
             if (var15 == fp.START_THROWING) {
-               if (this.f.field_71439_g.getPersistentID().equals(var16.e_clash54())) {
+               if (this.f.field_71439_g.getPersistentID().equals(var16.getOwnerUUID())) {
                   this.a(var13, var4, var1, var16);
                } else {
                   this.a(var13, var4, var1);
@@ -118,7 +118,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             var6.setHidden(!(Boolean)var1.func_184212_Q().func_187225_a(GoblinEntity.aV));
             IBone var7 = var4.getBone("body");
             IBone var8 = var4.getBone("head");
-            fp var9 = var1.y_clash492();
+            fp var9 = var1.getCurrentAction();
             if ((var9 == fp.BREEDING_SLOW_2 || var9 == fp.BREEDING_FAST_2 || var9 == fp.BREEDING_CUM_2) && this.f.field_71474_y.field_74320_O == 0) {
                var7.setPositionY(var7.getPositionY() + 1.5F);
             }
@@ -129,7 +129,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             }
 
             if (var9 == fp.START_THROWING) {
-               if (this.f.field_71439_g.getPersistentID().equals(var10.e_clash54())) {
+               if (this.f.field_71439_g.getPersistentID().equals(var10.getOwnerUUID())) {
                   this.a(var7, var4, var1, var10);
                } else {
                   this.a(var7, var4, var1);
@@ -156,8 +156,8 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    void a(AnimationProcessor var1, BaseGirlEntity var2) {
-      if (var2.y_clash492() == fp.START_THROWING) {
-         if (this.f.field_71474_y.field_74320_O == 0 && this.f.field_71439_g.getPersistentID().equals(((AbstractPlayerGirlEntity)var2).m_clash583())) {
+      if (var2.getCurrentAction() == fp.START_THROWING) {
+         if (this.f.field_71474_y.field_74320_O == 0 && this.f.field_71439_g.getPersistentID().equals(((AbstractPlayerGirlEntity)var2).getOwnerUserUUID())) {
             IBone var3 = var1.getBone("body");
             if (var3 != null) {
                var3.setHidden(true);
@@ -167,8 +167,8 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    void b(AnimationProcessor var1, BaseGirlEntity var2) {
-      if (var2.y_clash492() == fp.PICK_UP) {
-         if (this.f.field_71474_y.field_74320_O != 0 || !this.f.field_71439_g.getPersistentID().equals(((IGoblin)var2).e_clash54())) {
+      if (var2.getCurrentAction() == fp.PICK_UP) {
+         if (this.f.field_71474_y.field_74320_O != 0 || !this.f.field_71439_g.getPersistentID().equals(((IGoblin)var2).getOwnerUUID())) {
             IBone var3 = var1.getBone("body");
             if (var3 != null) {
                IBone var4 = var1.getBone("steve");
@@ -182,21 +182,21 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    void a(AnimationProcessor var1, IGoblin var2, BaseGirlEntity var3) {
-      UUID var4 = var2.e_clash54();
+      UUID var4 = var2.getOwnerUUID();
       if (var4 != null) {
          EntityPlayer var5 = var3.field_70170_p.func_152378_a(var4);
          if (var5 != null) {
-            float var6 = RotationHelper.a_clash25(var5.field_184618_aE, var5.field_70721_aZ, this.f.func_184121_ak());
+            float var6 = RotationHelper.lerp(var5.field_184618_aE, var5.field_70721_aZ, this.f.func_184121_ak());
             float var7 = var5.field_184619_aG;
             float var8 = (float)Math.sin(var7);
             IBone var9 = var1.getBone("LeftLeg");
             IBone var10 = var1.getBone("RightLeg");
-            float var11 = gc.c_clash744(60.0F * var8 * var6);
+            float var11 = gc.wrapDegrees(60.0F * var8 * var6);
             var9.setRotationX(var11);
             var10.setRotationX(-var11);
          }
       } else {
-         var3.ae_clash498();
+         var3.getInteractionPlayerUUID();
       }
    }
 
@@ -239,7 +239,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
 
             float var10 = (float)(-(MathHelper.func_181159_b(var6.field_72449_c, var6.field_72450_a) * (180.0 / Math.PI) + var9));
             float var11 = ThreadNames.b((float)(var3.func_70047_e() + var4.field_72448_b - (var1.func_70047_e() + var5.field_72448_b)), -0.75F, 0.75F);
-            var2.setRotationY(gc.c_clash744(var10));
+            var2.setRotationY(gc.wrapDegrees(var10));
             var2.setRotationX(var11);
          }
       }
@@ -253,13 +253,13 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
          Vec3d var7 = var5.func_178788_d(var6);
          float var8 = (float)(-(Math.atan2(var7.field_72449_c, var7.field_72450_a) * (180.0 / Math.PI))) + 90.0F;
          float var9 = ThreadNames.b((float)(var4.func_70047_e() + var5.field_72448_b - (var1.func_70047_e() + var6.field_72448_b)), -0.75F, 0.75F);
-         var2.setRotationY(gc.c_clash744(var8));
+         var2.setRotationY(gc.wrapDegrees(var8));
          var3.setRotationX(var9);
       }
    }
 
    void a(IBone var1, AnimationProcessor var2, BaseGirlEntity var3) {
-      if (var3.h_clash508()) {
+      if (var3.isLocallyRegistered()) {
          var1.setHidden(true);
       } else {
          var1.setHidden(false);
@@ -268,13 +268,13 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    void a(IBone var1, AnimationProcessor var2, BaseGirlEntity var3, IGoblin var4) {
-      if (var3.h_clash508()) {
+      if (var3.isLocallyRegistered()) {
          var1.setHidden(true);
       } else {
          var1.setHidden(var4.a_clash58() < 15);
       }
 
-      if (!var3.h_clash508()) {
+      if (!var3.isLocallyRegistered()) {
          var2.getBone("steve").setHidden(true);
       }
    }
@@ -314,7 +314,4 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       return new String[]{"meatFootL", "meatFootR"};
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

@@ -26,10 +26,10 @@ public class ck {
    }
 
    public static Vec3d a(double var0, double var2, double var4, float var6) {
-      return a_clash306(new Vec3d(var0, var2, var4), var6);
+      return rotateByYaw(new Vec3d(var0, var2, var4), var6);
    }
 
-   public static Vec3d a_clash306(Vec3d var0, float var1) {
+   public static Vec3d rotateByYaw(Vec3d var0, float var1) {
       return a(var0, 0.0F, var1);
    }
 
@@ -51,9 +51,9 @@ public class ck {
    }
 
    public static Vec3d a(Vec3d var0, float var1, float var2, float var3) {
-      var1 = gc.c_clash744(var1);
-      var2 = gc.c_clash744(var2);
-      var3 = gc.c_clash744(var3);
+      var1 = gc.wrapDegrees(var1);
+      var2 = gc.wrapDegrees(var2);
+      var3 = gc.wrapDegrees(var3);
       double var4 = (float)Math.sin(var1);
       double var6 = (float)Math.cos(var1);
       double var8 = (float)Math.sin(var2);

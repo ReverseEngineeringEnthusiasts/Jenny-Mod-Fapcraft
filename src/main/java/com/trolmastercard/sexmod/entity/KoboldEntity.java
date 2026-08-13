@@ -313,7 +313,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       this.m.func_187227_b(M, var2.toString());
-      KoboldRenderer.c_clash214();
+      KoboldRenderer.clearBoneColors();
    }
 
    void m_clash591() {
@@ -339,7 +339,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          }
 
          this.m.func_187227_b(M, var1.toString());
-         KoboldRenderer.c_clash214();
+         KoboldRenderer.clearBoneColors();
       }
    }
 
@@ -374,7 +374,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   public String c_clash241() {
+   public String getDisplayNameText() {
       return (String)this.m.func_187225_a(T);
    }
 
@@ -434,7 +434,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    protected boolean func_184645_a(EntityPlayer var1, EnumHand var2) {
-      if (this.ae_clash498() != null) {
+      if (this.getInteractionPlayerUUID() != null) {
          return false;
       }
 
@@ -453,7 +453,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return false;
       }
 
-      if (this.y_clash492() == fp.SLEEP) {
+      if (this.getCurrentAction() == fp.SLEEP) {
          return false;
       }
 
@@ -491,12 +491,12 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                this.a_clash630(SoundHandler.GIRLS_KOBOLD_MASTER);
             }
 
-            this.b_clash230(var1);
+            this.openInteractionMenu(var1);
          } else {
-            this.e_clash499(var1.getPersistentID());
+            this.setInteractionPlayerUUID(var1.getPersistentID());
             this.func_70661_as().func_75499_g();
-            this.b_clash431((float)(Math.atan2(this.field_70161_v - var1.field_70161_v, this.field_70165_t - var1.field_70165_t) * (180.0 / Math.PI) + 90.0));
-            this.c_clash502(new Vec3d(this.field_70165_t, Math.floor(this.field_70163_u), this.field_70161_v));
+            this.setYawRotation((float)(Math.atan2(this.field_70161_v - var1.field_70161_v, this.field_70165_t - var1.field_70165_t) * (180.0 / Math.PI) + 90.0));
+            this.setTargetPosition(new Vec3d(this.field_70165_t, Math.floor(this.field_70163_u), this.field_70161_v));
             this.m.func_187227_b(G, true);
             this.b(fp.NULL);
          }
@@ -512,7 +512,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @SideOnly(Side.CLIENT)
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       if (this.J_clash526() && var1.getPersistentID().toString().equals(this.m.func_187225_a(v))) {
          Minecraft.func_71410_x().func_147108_a(new GirlInventoryScreen(this, var1, new String[]{"anal", "oral", "mating"}, null, false));
          return true;
@@ -536,8 +536,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (this.az) {
          this.az = false;
       } else {
-         this.e_clash499(null);
-         this.a_clash490("shouldbeattargetpos", "false");
+         this.setInteractionPlayerUUID(null);
+         this.changeDataParameterFromClient("shouldbeattargetpos", "false");
       }
    }
 
@@ -549,24 +549,24 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    protected void a(boolean var1, UUID var2) {
       super.a(var1, true, var2);
-      d3.a_clash122(false);
+      d3.setMovementLock(false);
    }
 
    @Override
    public void a(String var1, UUID var2) {
       this.az = true;
       if ("oral".equals(var1)) {
-         this.a_clash490("animationFollowUp", fp.STARTBLOWJOB.toString());
+         this.changeDataParameterFromClient("animationFollowUp", fp.STARTBLOWJOB.toString());
          this.a(true, var2);
       }
 
       if ("anal".equals(var1)) {
-         this.a_clash490("animationFollowUp", fp.KOBOLD_ANAL_START.toString());
+         this.changeDataParameterFromClient("animationFollowUp", fp.KOBOLD_ANAL_START.toString());
          this.a(true, var2);
       }
 
       if ("mating".equals(var1)) {
-         this.a_clash490("animationFollowUp", fp.MATING_PRESS_START.toString());
+         this.changeDataParameterFromClient("animationFollowUp", fp.MATING_PRESS_START.toString());
          this.a(true, var2);
       }
    }
@@ -579,7 +579,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    protected void a_clash222() {
-      KoboldRenderer.c_clash214();
+      KoboldRenderer.clearBoneColors();
    }
 
    boolean g_clash594() {
@@ -593,8 +593,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (this.aD > 40) {
          this.a2 = false;
          this.aD = 0;
-         EntityPlayer var6 = this.field_70170_p.func_152378_a(this.ae_clash498());
-         this.b_clash431(var6.field_70177_z + 180.0F);
+         EntityPlayer var6 = this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID());
+         this.setYawRotation(var6.field_70177_z + 180.0F);
          this.m.func_187227_b(G, true);
          var6.field_70145_X = true;
          var6.func_189654_d(true);
@@ -605,9 +605,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return true;
       }
 
-      this.field_70177_z = this.I_clash415();
+      this.field_70177_z = this.getYawRotation();
       this.func_189654_d(false);
-      Vec3d var1 = RotationHelper.a(this.func_174791_d(), this.o_clash501(), 40 - this.aD);
+      Vec3d var1 = RotationHelper.a(this.func_174791_d(), this.getTargetPosition(), 40 - this.aD);
       this.func_70107_b(var1.field_72450_a, var1.field_72448_b, var1.field_72449_c);
       this.b(fp.NULL);
       Optional var2 = (Optional)this.m.func_187225_a(aL);
@@ -631,8 +631,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (this.V != -1) {
          if (++this.V >= 132) {
             this.V = -1;
-            if (this.y_clash492() == fp.MATING_PRESS_CUM) {
-               UUID var2 = this.ae_clash498();
+            if (this.getCurrentAction() == fp.MATING_PRESS_CUM) {
+               UUID var2 = this.getInteractionPlayerUUID();
                if (var2 != null) {
                   EntityPlayer var3 = this.field_70170_p.func_152378_a(var2);
                   if (var3 != null) {
@@ -669,12 +669,12 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       if (!this.g_clash594()) {
-         if (this.ae_clash498() == null) {
+         if (this.getInteractionPlayerUUID() == null) {
             if (!(Boolean)this.m.func_187225_a(aC)) {
                if (this.func_110143_aJ() != this.func_110138_aP() && ++this.a5 >= 100) {
                   this.func_70606_j(this.func_110143_aJ() + 2.0F);
                   this.a5 = 0;
-                  PacketHandler.b.sendToAllTracking(new SpawnParticlePacket(this.f_clash491(), EnumParticleTypes.HEART.func_179346_b()), this);
+                  PacketHandler.b.sendToAllTracking(new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.HEART.func_179346_b()), this);
                }
             } else {
                this.a5 = 0;
@@ -686,10 +686,10 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
             if (var1.isPresent()) {
                this.aP--;
-               if (this.y_clash492() == fp.ATTACK) {
+               if (this.getCurrentAction() == fp.ATTACK) {
                   this.func_70661_as().func_75499_g();
-                  this.field_70177_z = this.I_clash415();
-                  this.field_70759_as = this.I_clash415();
+                  this.field_70177_z = this.getYawRotation();
+                  this.field_70759_as = this.getYawRotation();
                   this.U++;
                   if (22 == this.U) {
                      this.u_clash601();
@@ -745,7 +745,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (this.field_70170_p.field_72995_K) {
          if (this.field_70170_p.func_82737_E() - 300L >= aV) {
             if (this.J_clash526()) {
-               if (this.y_clash492() == fp.NULL) {
+               if (this.getCurrentAction() == fp.NULL) {
                   if ("".equals(this.m.func_187225_a(h))) {
                      if (!(Boolean)this.m.func_187225_a(ak)) {
                         String var1 = (String)this.m.func_187225_a(v);
@@ -755,8 +755,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                         } else if (var2.getPersistentID().toString().equals(var1)) {
                            float var3 = this.func_70032_d(var2);
                            if (var3 < 2.0F && this.S > 2.0F) {
-                              this.b(SoundHandler.a_clash804(SoundHandler.GIRLS_KOBOLD_HEYMASTER));
-                              this.a_clash541("Hey master!");
+                              this.b(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_HEYMASTER));
+                              this.sendChatMessage("Hey master!");
                               aV = this.field_70170_p.func_82737_E();
                            }
 
@@ -772,7 +772,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    void q_clash597() {
       if (this.field_70170_p.field_72995_K) {
-         if (this.y_clash492() != fp.SLEEP) {
+         if (this.getCurrentAction() != fp.SLEEP) {
             if ((Boolean)this.m.func_187225_a(ak)) {
                if (this.J_clash526()) {
                   EntityPlayer var1 = this.field_70170_p.func_152378_a(UUID.fromString((String)this.m.func_187225_a(v)));
@@ -831,12 +831,12 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       boolean var2 = this.func_70660_b(HornyPotion.b) != null;
       boolean var3 = false;
       if (this.J_clash526()) {
-         var3 = ((String)this.m.func_187225_a(v)).equals(this.ae_clash498().toString());
+         var3 = ((String)this.m.func_187225_a(v)).equals(this.getInteractionPlayerUUID().toString());
       }
 
       if (!var2 && !var3) {
          if (var1.equals(fp.STARTBLOWJOB.toString())) {
-            if (this.y_clash492() == fp.PAYMENT) {
+            if (this.getCurrentAction() == fp.PAYMENT) {
                this.b(fp.STARTBLOWJOB);
             } else {
                this.b(fp.PAYMENT);
@@ -844,7 +844,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          }
 
          if (var1.equals(fp.KOBOLD_ANAL_START.toString())) {
-            if (this.y_clash492() == fp.PAYMENT) {
+            if (this.getCurrentAction() == fp.PAYMENT) {
                this.b(fp.KOBOLD_ANAL_START);
             } else {
                this.b(fp.PAYMENT);
@@ -871,10 +871,10 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    void v_clash599() {
       if (this.field_70170_p.field_72995_K) {
-         UUID var1 = this.ae_clash498();
+         UUID var1 = this.getInteractionPlayerUUID();
          if (var1 != null) {
             if ((Boolean)this.m.func_187225_a(G)) {
-               if (this.y_clash492() == fp.NULL) {
+               if (this.getCurrentAction() == fp.NULL) {
                   EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
                   if (var2 != null) {
                      this.b_clash600(var2);
@@ -886,7 +886,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void b_clash600(EntityPlayer var1) {
-      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.d_clash567(var1.getPersistentID());
+      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getPersistentID());
       Vec3d var3 = new Vec3d(var1.field_70165_t, var1.field_70163_u + (var2 == null ? var1.eyeHeight : var2.func_70047_e()), var1.field_70161_v);
       Vec3d var4 = new Vec3d(this.field_70165_t, this.field_70163_u + this.func_70047_e(), this.field_70161_v);
       double var5 = var4.func_72438_d(var3);
@@ -898,7 +898,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    boolean o_clash602() {
-      if (this.y_clash492() != fp.NULL) {
+      if (this.getCurrentAction() != fp.NULL) {
          return false;
       } else {
          return Math.abs(this.field_70159_w) + Math.abs(this.field_70179_y) > 0.01 ? false : !this.a_clash355();
@@ -933,7 +933,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             double var8 = this.func_174791_d().func_72438_d(var3.func_174791_d());
             if (var8 > 2.0) {
                var7.func_75497_a(var3, this.a(var3, var8));
-               this.k_clash515();
+               this.tickPathVelocity();
                if (var8 > 15.0) {
                   this.c_clash611(var3);
                }
@@ -1023,7 +1023,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (this.J_clash526()) {
          for (KoboldEntity var4 : KoboldManager.n_clash82(var1)) {
             KoboldManager.b_clash73(var4);
-            if (var4.ae_clash498() == null) {
+            if (var4.getInteractionPlayerUUID() == null) {
                var4.field_70145_X = false;
                var4.func_189654_d(false);
                var4.func_184212_Q().func_187227_b(G, false);
@@ -1056,8 +1056,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          boolean var14 = var11.func_178788_d(var12).field_72450_a == 0.0;
          Vec3d var15 = RotationHelper.a(var11, var12, 0.5);
          this.m.func_187227_b(G, true);
-         this.c_clash502(var15);
-         this.b_clash431(var14 ? 0.0F : 90.0F);
+         this.setTargetPosition(var15);
+         this.setYawRotation(var14 ? 0.0F : 90.0F);
          this.field_70145_X = true;
          this.func_189654_d(true);
       } else {
@@ -1118,7 +1118,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          }
 
          this.func_70661_as().func_75492_a(this.aF.func_177958_n(), this.aF.func_177956_o(), this.aF.func_177952_p(), 0.35F);
-         this.k_clash515();
+         this.tickPathVelocity();
       } else {
          if (KoboldManager.e(var1, this)) {
             BlockPos var3 = this.func_180425_c().func_177982_a(1, 0, 0);
@@ -1175,7 +1175,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          }
 
          this.func_70661_as().func_75492_a(this.aM.func_177958_n(), this.aM.func_177956_o(), this.aM.func_177952_p(), 0.35F);
-         this.k_clash515();
+         this.tickPathVelocity();
          if (!(Math.sqrt(this.func_180425_c().func_177951_i(var3)) > 5.0)) {
             this.ao = true;
             this.h("Time to work bitches!");
@@ -1336,14 +1336,14 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return true;
       }
 
-      if (this.y_clash492() != fp.ATTACK) {
+      if (this.getCurrentAction() != fp.ATTACK) {
          this.m.func_187227_b(G, false);
          this.b(fp.NULL);
       }
 
       BlockPos var13 = this.c_clash612(var9.func_180425_c());
       this.func_70661_as().func_75492_a(var13.func_177958_n(), var13.func_177956_o(), var13.func_177952_p(), 0.7);
-      this.k_clash515();
+      this.tickPathVelocity();
       if (this.func_70032_d(var9) > 1.5F) {
          return true;
       }
@@ -1353,7 +1353,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
 
       float var15 = (float)(Math.atan2(this.field_70161_v - var9.field_70161_v, this.field_70165_t - var9.field_70165_t) * (180.0 / Math.PI) + 90.0);
-      this.b_clash431(var15);
+      this.setYawRotation(var15);
       this.b(fp.ATTACK);
       this.aP = 84;
       return true;
@@ -1404,13 +1404,13 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             }
 
             this.func_70661_as().func_75492_a(this.aM.func_177958_n(), this.aM.func_177956_o(), this.aM.func_177952_p(), 0.35F);
-            this.k_clash515();
+            this.tickPathVelocity();
          }
       }
    }
 
    void g_clash617(UUID var1) {
-      if (this.ae_clash498() == null) {
+      if (this.getInteractionPlayerUUID() == null) {
          Collection var2 = KoboldManager.p_clash79(var1);
          if (var2 != null) {
             KoboldTask var3 = null;
@@ -1461,19 +1461,19 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    void b_clash618(BlockPos var1) {
       PacketHandler.b
          .sendToAllTracking(
-            new SpawnParticlePacket(this.f_clash491(), EnumParticleTypes.PORTAL.func_179346_b(), 30),
+            new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.PORTAL.func_179346_b(), 30),
             new TargetPoint(this.field_71093_bK, this.field_70165_t, this.field_70163_u, this.field_70161_v, 30.0)
          );
       this.func_70107_b(0.5F + var1.func_177958_n(), var1.func_177956_o(), 0.5F + var1.func_177952_p());
       PacketHandler.b
          .sendToAllTracking(
-            new SpawnParticlePacket(this.f_clash491(), EnumParticleTypes.PORTAL.func_179346_b(), 30),
+            new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.PORTAL.func_179346_b(), 30),
             new TargetPoint(this.field_71093_bK, this.field_70165_t, this.field_70163_u, this.field_70161_v, 30.0)
          );
    }
 
    void b(UUID var1, KoboldTask var2) {
-      if (this.y_clash492() != fp.MINE) {
+      if (this.getCurrentAction() != fp.MINE) {
          this.a_clash619(var1, var2);
       } else {
          this.Z--;
@@ -1535,7 +1535,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                EntityPlayer var7 = this.field_70170_p.func_152378_a(var6);
                if (var7 != null) {
                   if (!var9) {
-                     var7.func_145747_a(new TextComponentString(String.format("<%s> It's impossible to mine here...", this.c_clash241())));
+                     var7.func_145747_a(new TextComponentString(String.format("<%s> It's impossible to mine here...", this.getDisplayNameText())));
                   }
 
                   PacketHandler.b.sendTo(new SendBlocksPacket(var5, false), (EntityPlayerMP)var7);
@@ -1880,7 +1880,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
          if (Math.sqrt(this.ap.func_177951_i(this.func_180425_c())) > 2.0) {
             this.func_70661_as().func_75492_a(this.ap.func_177958_n(), this.ap.func_177956_o(), this.ap.func_177952_p(), 0.35F);
-            this.k_clash515();
+            this.tickPathVelocity();
          } else {
             this.ab++;
          }
@@ -1909,7 +1909,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             var3.func_146105_b(
                new TextComponentString(
                   var4.getTextColor()
-                     + this.c_clash241()
+                     + this.getDisplayNameText()
                      + "s "
                      + TextFormatting.WHITE
                      + "inventory is full and there are either no chests to put her items in or said chests are full as well"
@@ -2029,7 +2029,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             }
          }
 
-         if (!var9 && var8.ae_clash498() == null) {
+         if (!var9 && var8.getInteractionPlayerUUID() == null) {
             if (var5 == null) {
                var5 = var8;
             } else if (var5.func_174791_d().func_72438_d(var6) > var8.func_174791_d().func_72438_d(var6)) {
@@ -2146,7 +2146,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          this.W = 0;
          this.ad = null;
          this.b(fp.NULL);
-         this.a_clash504(false);
+         this.setAnchored(false);
          EntityPlayer var4 = this.z_clash528();
          HashSet var5 = var2.g_clash203();
          if (var4 != null && !var5.isEmpty()) {
@@ -2158,13 +2158,13 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void a(UUID var1, BlockPos var2, KoboldTask var3) {
-      if (this.y_clash492() != fp.MINE) {
+      if (this.getCurrentAction() != fp.MINE) {
          this.a(var2, var1);
       } else {
          this.W--;
          if (this.W <= 0) {
             if (this.W == 0) {
-               PacketHandler.b.sendToAllAround(new ResetControllerPacket(this.f_clash491()), this.P_clash535());
+               PacketHandler.b.sendToAllAround(new ResetControllerPacket(this.getGirlId()), this.getTargetNetworkPoint());
             }
 
             if (this.field_70170_p.func_180495_p(var2).func_177230_c() == Blocks.field_150350_a) {
@@ -2372,8 +2372,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             var11 = -90.0F;
          }
 
-         this.c_clash502(new Vec3d(var3.func_177958_n() + 0.5, var3.func_177956_o(), var3.func_177952_p() + 0.5));
-         this.b_clash431(var11);
+         this.setTargetPosition(new Vec3d(var3.func_177958_n() + 0.5, var3.func_177956_o(), var3.func_177952_p() + 0.5));
+         this.setYawRotation(var11);
          this.m.func_187227_b(G, true);
          this.m.func_187227_b(at, true);
          this.b(fp.MINE);
@@ -2383,7 +2383,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       } else {
          BlockPos var12 = this.c_clash612(var3);
          this.func_70661_as().func_75492_a(var12.func_177958_n() + 0.5, var12.func_177956_o(), var12.func_177952_p() + 0.5, 0.35);
-         this.k_clash515();
+         this.tickPathVelocity();
       }
    }
 
@@ -2398,9 +2398,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    public void b(fp var1) {
-      if (this.y_clash492() != fp.MATING_PRESS_CUM || var1 != fp.MATING_PRESS_SOFT && var1 != fp.MATING_PRESS_HARD) {
-         if (this.y_clash492() != fp.KOBOLD_ANAL_CUM || var1 != fp.KOBOLD_ANAL_SLOW && var1 != fp.KOBOLD_ANAL_FAST) {
-            if (this.y_clash492() != fp.CUMBLOWJOB || var1 != fp.SUCKBLOWJOB && var1 != fp.THRUSTBLOWJOB) {
+      if (this.getCurrentAction() != fp.MATING_PRESS_CUM || var1 != fp.MATING_PRESS_SOFT && var1 != fp.MATING_PRESS_HARD) {
+         if (this.getCurrentAction() != fp.KOBOLD_ANAL_CUM || var1 != fp.KOBOLD_ANAL_SLOW && var1 != fp.KOBOLD_ANAL_FAST) {
+            if (this.getCurrentAction() != fp.CUMBLOWJOB || var1 != fp.SUCKBLOWJOB && var1 != fp.THRUSTBLOWJOB) {
                if (var1 == fp.MATING_PRESS_CUM) {
                   this.V = 0;
                }
@@ -2423,7 +2423,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                if (var4 != null) {
                   var4.func_145747_a(
                      new TextComponentString(
-                        String.format("%s%s%s has perished %suwu", TextFormatting.RED, this.c_clash241(), TextFormatting.WHITE, TextFormatting.RED)
+                        String.format("%s%s%s has perished %suwu", TextFormatting.RED, this.getDisplayNameText(), TextFormatting.WHITE, TextFormatting.RED)
                      )
                   );
                }
@@ -2433,7 +2433,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       if (var1 == fp.SUCKBLOWJOB_BLINK) {
          return fp.THRUSTBLOWJOB;
       } else {
@@ -2442,7 +2442,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       if (var1 == fp.THRUSTBLOWJOB || var1 == fp.SUCKBLOWJOB_BLINK) {
          return fp.CUMBLOWJOB;
       } else if (var1 == fp.KOBOLD_ANAL_SLOW || var1 == fp.KOBOLD_ANAL_FAST) {
@@ -2514,7 +2514,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    public boolean a_clash355() {
-      if (this.h_clash508()) {
+      if (this.isLocallyRegistered()) {
          return false;
       }
 
@@ -2649,14 +2649,14 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       GeckoLibCache.getInstance().parser.setValue("size", var2);
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.kobold.null", true, var1);
             } else {
                this.a("animation.kobold.blink", true, var1);
             }
             break;
          case "movement":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.kobold.null", true, var1);
             } else if (this.func_184218_aH()) {
                this.a("animation.kobold.sit", true, var1);
@@ -2687,7 +2687,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             }
             break;
          case "action":
-            switch (this.y_clash492()) {
+            switch (this.getCurrentAction()) {
                case NULL:
                   this.a("animation.kobold.null", true, var1);
                   break;
@@ -2763,40 +2763,40 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                this.a(SoundEvents.field_187727_dV);
                break;
             case "paymentMSG1":
-               this.a(this.ae_clash498(), "I'd like to use ur services owo");
+               this.a(this.getInteractionPlayerUUID(), "I'd like to use ur services owo");
                this.a(SoundHandler.MISC_PLOB);
                break;
             case "plob":
                this.a(SoundHandler.MISC_PLOB);
                break;
             case "blackScreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "paymentDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.U();
                }
                break;
             case "blowjobStartMSG1":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var11 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var13 = ck.a_clash306(new Vec3d(0.0, 0.625 - var11.func_70047_e(), -1.0), this.I_clash415() + 180.0F);
+                  Vec3d var13 = ck.rotateByYaw(new Vec3d(0.0, 0.625 - var11.func_70047_e(), -1.0), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(
-                        new TeleportPlayerPacket(this.ae_clash498().toString(), this.o_clash501().func_178787_e(var13), this.I_clash415() + 180.0F, 0.0F)
+                        new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var13), this.getYawRotation() + 180.0F, 0.0F)
                      );
                }
                break;
             case "blowjobStartMSG2":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var10 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var12 = ck.a_clash306(new Vec3d(0.5, 0.5 - var10.func_70047_e(), -0.6875), this.I_clash415() + 180.0F);
+                  Vec3d var12 = ck.rotateByYaw(new Vec3d(0.5, 0.5 - var10.func_70047_e(), -0.6875), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(
                         new TeleportPlayerPacket(
-                           this.ae_clash498().toString(), this.o_clash501().func_178787_e(var12), this.I_clash415() + 180.0F - 40.0F, 0.0F
+                           this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var12), this.getYawRotation() + 180.0F - 40.0F, 0.0F
                         )
                      );
                }
@@ -2808,7 +2808,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   this.a(SoundHandler.GIRLS_JENNY_LIPSOUND, 1.5F);
                }
 
-               HornyMeterHud.a_clash362(0.02F);
+               HornyMeterHud.addToHornyMeter(0.02F);
                break;
             case "touch":
                this.a(SoundHandler.MISC_TOUCH);
@@ -2817,8 +2817,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                this.b(fp.SUCKBLOWJOB_BLINK);
                this.aT = false;
                this.WildSlimeFaceLayer = true;
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "switch":
@@ -2831,7 +2831,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                this.C.clearAnimationCache();
                break;
             case "blowjobFastDone":
-               if (this.n_clash537() && !d3.d) {
+               if (this.isControlledByLocalPlayer() && !d3.d) {
                   this.b(fp.SUCKBLOWJOB_BLINK);
                }
                break;
@@ -2843,31 +2843,31 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                break;
             case "analCumDone":
             case "blowjobCumDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.r_clash533();
-                  HornyMeterHud.c_clash360();
+                  HornyMeterHud.hideHornyMeter();
                }
                break;
             case "analStartDone":
                this.b(fp.KOBOLD_ANAL_SLOW);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "analStartCam":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var9 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var5 = ck.a_clash306(new Vec3d(0.0, 0.5625 - var9.func_70047_e(), 0.5625), this.I_clash415() + 180.0F);
+                  Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.5625 - var9.func_70047_e(), 0.5625), this.getYawRotation() + 180.0F);
                   PacketHandler.b
-                     .sendToServer(new TeleportPlayerPacket(this.ae_clash498().toString(), this.o_clash501().func_178787_e(var5), this.I_clash415(), 0.0F));
+                     .sendToServer(new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var5), this.getYawRotation(), 0.0F));
                }
                break;
             case "pounding":
                this.a(SoundHandler.MISC_POUNDING);
                break;
             case "analFastRapid":
-               if (this.n_clash537() && d3.d) {
-                  if (this.y_clash492() == fp.KOBOLD_ANAL_FAST) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
+                  if (this.getCurrentAction() == fp.KOBOLD_ANAL_FAST) {
                      this.C.tickOffset = 0.0;
                   }
 
@@ -2875,18 +2875,18 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                }
                break;
             case "analDone":
-               if (this.y_clash492() == fp.KOBOLD_ANAL_FAST) {
+               if (this.getCurrentAction() == fp.KOBOLD_ANAL_FAST) {
                   this.b(fp.KOBOLD_ANAL_SLOW);
                }
                break;
             case "analHard":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
                break;
             case "analSoft":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02F);
                }
                break;
             case "cum":
@@ -2928,59 +2928,59 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                this.a_clash630(SoundHandler.GIRLS_KOBOLD_YEP);
                break;
             case "bjmoan":
-               this.b(SoundHandler.a_clash804(SoundHandler.GIRLS_KOBOLD_BJMOAN));
+               this.b(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_BJMOAN));
                break;
             case "blowjobStartbreath":
                int var6 = this.func_70681_au().nextInt(3);
                this.b(SoundHandler.GIRLS_KOBOLD_LIGHTBREATHING[var6]);
                break;
             case "matingCam":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var8 = Minecraft.func_71410_x().field_71439_g;
                   Vec3d var16 = new Vec3d(0.0, 0.4375 - var8.eyeHeight, -0.6875);
-                  var16 = ck.a_clash306(var16, this.I_clash415() + 180.0F);
-                  var16 = var16.func_178787_e(this.o_clash501());
-                  PacketHandler.b.sendToServer(new TeleportPlayerPacket(var8.getPersistentID().toString(), var16, this.I_clash415() + 180.0F, 10.0F));
+                  var16 = ck.rotateByYaw(var16, this.getYawRotation() + 180.0F);
+                  var16 = var16.func_178787_e(this.getTargetPosition());
+                  PacketHandler.b.sendToServer(new TeleportPlayerPacket(var8.getPersistentID().toString(), var16, this.getYawRotation() + 180.0F, 10.0F));
                }
                break;
             case "mating_press_startDone":
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
             case "mating_press_hardDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.b(fp.MATING_PRESS_SOFT);
                }
                break;
             case "mating_press_softReady":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
 
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.b(fp.MATING_PRESS_HARD);
                }
                break;
             case "mating_press_hardReady":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
 
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                }
                break;
             case "mating_cum_cam":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var4 = Minecraft.func_71410_x().field_71439_g;
                   Vec3d var7 = new Vec3d(0.0, 1.1875 - var4.eyeHeight, 0.125);
-                  var7 = ck.a_clash306(var7, this.I_clash415() + 180.0F);
-                  var7 = var7.func_178787_e(this.o_clash501());
-                  PacketHandler.b.sendToServer(new TeleportPlayerPacket(var4.getPersistentID().toString(), var7, this.I_clash415() + 180.0F, 70.0F));
+                  var7 = ck.rotateByYaw(var7, this.getYawRotation() + 180.0F);
+                  var7 = var7.func_178787_e(this.getTargetPosition());
+                  PacketHandler.b.sendToServer(new TeleportPlayerPacket(var4.getPersistentID().toString(), var7, this.getYawRotation() + 180.0F, 70.0F));
                }
                break;
             case "cumMsg":
-               this.a_clash541("I.. hope I am satisfying you sir");
+               this.sendChatMessage("I.. hope I am satisfying you sir");
                this.b(SoundHandler.GIRLS_KOBOLD_SAD[this.func_70681_au().nextInt(1)]);
                break;
             case "renderEgg":
@@ -2988,7 +2988,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                this.a(SoundHandler.MISC_PLOB, 0.5F);
                break;
             case "mating_press_cumDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.r_clash533();
                }
          }
@@ -3059,9 +3059,6 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    public void func_174888_l() {
    }
 
-   private static IllegalArgumentException a(IllegalArgumentException var0) {
-      return var0;
-   }
 
    public static class c {
       int a = 0;
@@ -3122,7 +3119,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       @SubscribeEvent
       public void a(Unload var1) {
          try {
-            for (BaseGirlEntity var3 : BaseGirlEntity.ad_clash509()) {
+            for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
                if (var3 instanceof KoboldEntity) {
                   KoboldEntity var4 = (KoboldEntity)var3;
                   Optional var5 = (Optional)var4.func_184212_Q().func_187225_a(KoboldEntity.aL);
@@ -3157,8 +3154,5 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          }
       }
 
-      private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-         return var0;
-      }
    }
 }

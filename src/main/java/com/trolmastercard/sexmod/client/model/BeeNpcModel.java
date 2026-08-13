@@ -18,7 +18,7 @@ import software.bernie.geckolib3.model.provider.data.EntityModelData;
 
 public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
    @Override
-   protected ResourceLocation[] a_clash33() {
+   protected ResourceLocation[] getModelLocations() {
       return new ResourceLocation[]{new ResourceLocation("sexmod", "geo/bee/bee.geo.json"), new ResourceLocation("sexmod", "geo/bee/armored.geo.json")};
    }
 
@@ -46,7 +46,7 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
 
    @Override
    protected void a(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
-      if (!(var1.field_70170_p instanceof SexWorldClient) && (var1.y_clash492() == fp.NULL || var1.y_clash492() == fp.ATTACK || var1.y_clash492() == fp.BOW)) {
+      if (!(var1.field_70170_p instanceof SexWorldClient) && (var1.getCurrentAction() == fp.NULL || var1.getCurrentAction() == fp.ATTACK || var1.getCurrentAction() == fp.BOW)) {
          EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
          IBone var5 = var2.getBone("neck");
          var5.setRotationY(var4.netHeadYaw * 0.5F * (float) (Math.PI / 180.0));
@@ -93,7 +93,4 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
       return new String[]{"armorShoesL", "armorShoesR"};
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

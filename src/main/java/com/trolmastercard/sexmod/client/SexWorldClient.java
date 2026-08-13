@@ -80,7 +80,4 @@ public class SexWorldClient extends WorldClient {
       return 0;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

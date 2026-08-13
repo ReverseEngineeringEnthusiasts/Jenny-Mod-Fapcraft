@@ -18,7 +18,7 @@ public class eo {
    public void a(LivingDeathEvent var1) {
       if (var1.getEntity() instanceof BaseGirlEntity) {
          BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntity();
-         BaseGirlEntity.ad_clash509().remove(var2);
+         BaseGirlEntity.getGirlEntityList().remove(var2);
       } else if (var1.getEntity() instanceof EntityPlayer) {
          EntityPlayer var3 = (EntityPlayer)var1.getEntity();
          AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.a_clash568(var3.getPersistentID());

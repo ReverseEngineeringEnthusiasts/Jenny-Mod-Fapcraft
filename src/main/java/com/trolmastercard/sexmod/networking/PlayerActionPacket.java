@@ -50,8 +50,8 @@ public class PlayerActionPacket implements IMessage {
                .getMinecraftServerInstance()
                .func_152344_a(
                   () -> {
-                     for (BaseGirlEntity var2x : BaseGirlEntity.ad_clash509()) {
-                        if (!var2x.field_70170_p.field_72995_K && var2x.f_clash491().equals(var1.a)) {
+                     for (BaseGirlEntity var2x : BaseGirlEntity.getGirlEntityList()) {
+                        if (!var2x.field_70170_p.field_72995_K && var2x.getGirlId().equals(var1.a)) {
                            ((EntityPlayerMP)var2x.field_70170_p.func_152378_a(var1.b))
                               .openGui(
                                  null,
@@ -71,8 +71,5 @@ public class PlayerActionPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

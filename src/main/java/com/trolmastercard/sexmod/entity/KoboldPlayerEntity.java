@@ -160,7 +160,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    @Override
    protected void a_clash354() {
       de.e_clash190();
-      KoboldRenderer.c_clash214();
+      KoboldRenderer.clearBoneColors();
    }
 
    @Override
@@ -174,28 +174,28 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       if ("anal".equals(var1)) {
          this.b_clash577(var2);
          this.b(fp.KOBOLD_ANAL_START);
-         this.a(this.ah_clash493(), fp.KOBOLD_ANAL_START);
+         this.a(this.getOutfitIndex(), fp.KOBOLD_ANAL_START);
          this.f(0);
       }
 
       if ("oral".equals(var1)) {
          this.b_clash577(var2);
          this.b(fp.STARTBLOWJOB);
-         this.a(this.ah_clash493(), fp.STARTBLOWJOB);
+         this.a(this.getOutfitIndex(), fp.STARTBLOWJOB);
          this.f(0);
       }
 
       if ("mating".equals(var1)) {
          this.b_clash577(var2);
          this.b(fp.MATING_PRESS_START);
-         this.a(this.ah_clash493(), fp.MATING_PRESS_START);
+         this.a(this.getOutfitIndex(), fp.MATING_PRESS_START);
          this.f(0);
       }
    }
 
    @SideOnly(Side.CLIENT)
    @Override
-   public boolean b_clash230(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer var1) {
       Minecraft.func_71410_x().func_147108_a(new GirlInventoryScreen(this, var1, new String[]{"anal", "oral", "mating"}, null, false));
       return true;
    }
@@ -220,28 +220,28 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   public IVanillaModel a_clash228(int var1) {
+   public IVanillaModel getHandModel(int var1) {
       return new AllieModel();
    }
 
    @Override
-   public String c_clash229(int var1) {
+   public String getHandTexture(int var1) {
       return "textures/entity/kobold/hand.png";
    }
 
    @Override
-   public Vec3i b_clash357(int var1) {
+   public Vec3i getHandColor(int var1) {
       try {
          return EyeAndKoboldColor.valueOf((String)this.m.func_187225_a(as)).getMainColor();
       } catch (Exception var3) {
          var3.printStackTrace();
-         return super.b_clash357(var1);
+         return super.getHandColor(var1);
       }
    }
 
    @Nullable
    @Override
-   protected fp c_clash235(fp var1) {
+   protected fp getNextAction(fp var1) {
       if (var1 == fp.SUCKBLOWJOB_BLINK) {
          return fp.THRUSTBLOWJOB;
       } else {
@@ -250,7 +250,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   protected fp a_clash236(fp var1) {
+   protected fp getCumAction(fp var1) {
       if (var1 == fp.THRUSTBLOWJOB || var1 == fp.SUCKBLOWJOB_BLINK) {
          return fp.CUMBLOWJOB;
       } else if (var1 == fp.KOBOLD_ANAL_SLOW || var1 == fp.KOBOLD_ANAL_FAST) {
@@ -262,7 +262,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    @Override
    public void b(fp var1) {
-      fp var2 = this.y_clash492();
+      fp var2 = this.getCurrentAction();
       if (var2 != fp.MATING_PRESS_CUM || var1 != fp.MATING_PRESS_SOFT && var1 != fp.MATING_PRESS_HARD) {
          if (var2 != fp.KOBOLD_ANAL_CUM || var1 != fp.KOBOLD_ANAL_SLOW && var1 != fp.KOBOLD_ANAL_FAST) {
             if (var2 != fp.CUMBLOWJOB || var1 != fp.SUCKBLOWJOB && var1 != fp.THRUSTBLOWJOB) {
@@ -282,14 +282,14 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       GeckoLibCache.getInstance().parser.setValue("size", var2);
       switch (var1.getController().getName()) {
          case "eyes":
-            if (this.y_clash492() == fp.NULL && this.y_clash492().autoBlink) {
+            if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
                this.a("animation.kobold.blink", true, var1);
             } else {
                this.a("animation.kobold.null", true, var1);
             }
             break;
          case "movement":
-            if (this.y_clash492() != fp.NULL) {
+            if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.kobold.null", true, var1);
             } else if (this.ak) {
                this.a("animation.kobold.sit", true, var1);
@@ -317,7 +317,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
             }
             break;
          case "action":
-            switch (this.y_clash492()) {
+            switch (this.getCurrentAction()) {
                case NULL:
                   this.a("animation.kobold.null", true, var1);
                   break;
@@ -419,40 +419,40 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
                break;
             case "paymentMSG1":
-               this.a(this.ae_clash498(), "I'd like to use ur services owo");
+               this.a(this.getInteractionPlayerUUID(), "I'd like to use ur services owo");
                this.a_clash588(SoundHandler.MISC_PLOB);
                break;
             case "plob":
                this.a_clash588(SoundHandler.MISC_PLOB);
                break;
             case "blackScreen":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   BeeScreen.b_clash732();
                }
                break;
             case "paymentDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.U();
                }
                break;
             case "blowjobStartMSG1":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var11 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var13 = ck.a_clash306(new Vec3d(0.0, 0.625 - var11.func_70047_e(), -1.0), this.I_clash415() + 180.0F);
+                  Vec3d var13 = ck.rotateByYaw(new Vec3d(0.0, 0.625 - var11.func_70047_e(), -1.0), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(
-                        new TeleportPlayerPacket(this.ae_clash498().toString(), this.o_clash501().func_178787_e(var13), this.I_clash415() + 180.0F, 0.0F)
+                        new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var13), this.getYawRotation() + 180.0F, 0.0F)
                      );
                }
                break;
             case "blowjobStartMSG2":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var10 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var12 = ck.a_clash306(new Vec3d(0.5, 0.5 - var10.func_70047_e(), -0.6875), this.I_clash415() + 180.0F);
+                  Vec3d var12 = ck.rotateByYaw(new Vec3d(0.5, 0.5 - var10.func_70047_e(), -0.6875), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(
                         new TeleportPlayerPacket(
-                           this.ae_clash498().toString(), this.o_clash501().func_178787_e(var12), this.I_clash415() + 180.0F - 40.0F, 0.0F
+                           this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var12), this.getYawRotation() + 180.0F - 40.0F, 0.0F
                         )
                      );
                }
@@ -464,7 +464,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                   this.a(SoundHandler.GIRLS_JENNY_LIPSOUND, 1.5F);
                }
 
-               HornyMeterHud.a_clash362(0.02F);
+               HornyMeterHud.addToHornyMeter(0.02F);
                break;
             case "touch":
                this.a_clash588(SoundHandler.MISC_TOUCH);
@@ -473,8 +473,8 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.b(fp.SUCKBLOWJOB_BLINK);
                this.ay = false;
                this.az = true;
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "switch":
@@ -487,7 +487,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.C.clearAnimationCache();
                break;
             case "blowjobFastDone":
-               if (this.n_clash537() && !d3.d) {
+               if (this.isControlledByLocalPlayer() && !d3.d) {
                   this.b(fp.SUCKBLOWJOB_BLINK);
                }
                break;
@@ -499,31 +499,31 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                break;
             case "analCumDone":
             case "blowjobCumDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.r_clash533();
-                  HornyMeterHud.c_clash360();
+                  HornyMeterHud.hideHornyMeter();
                }
                break;
             case "analStartDone":
                this.b(fp.KOBOLD_ANAL_SLOW);
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
                break;
             case "analStartCam":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var9 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var5 = ck.a_clash306(new Vec3d(0.0, 0.5625 - var9.func_70047_e(), 0.5625), this.I_clash415() + 180.0F);
+                  Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.5625 - var9.func_70047_e(), 0.5625), this.getYawRotation() + 180.0F);
                   PacketHandler.b
-                     .sendToServer(new TeleportPlayerPacket(this.ae_clash498().toString(), this.o_clash501().func_178787_e(var5), this.I_clash415(), 0.0F));
+                     .sendToServer(new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var5), this.getYawRotation(), 0.0F));
                }
                break;
             case "pounding":
                this.a_clash588(SoundHandler.MISC_POUNDING);
                break;
             case "analFastRapid":
-               if (this.n_clash537() && d3.d) {
-                  if (this.y_clash492() == fp.KOBOLD_ANAL_FAST) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
+                  if (this.getCurrentAction() == fp.KOBOLD_ANAL_FAST) {
                      this.N();
                   } else {
                      this.b(fp.KOBOLD_ANAL_FAST);
@@ -531,18 +531,18 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
                break;
             case "analDone":
-               if (this.y_clash492() == fp.KOBOLD_ANAL_FAST) {
+               if (this.getCurrentAction() == fp.KOBOLD_ANAL_FAST) {
                   this.b(fp.KOBOLD_ANAL_SLOW);
                }
                break;
             case "analHard":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
                break;
             case "analSoft":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.02F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02F);
                }
                break;
             case "cum":
@@ -584,63 +584,63 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.b(SoundHandler.GIRLS_KOBOLD_YEP);
                break;
             case "bjmoan":
-               this.b(SoundHandler.a_clash804(SoundHandler.GIRLS_KOBOLD_BJMOAN));
+               this.b(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_BJMOAN));
                break;
             case "blowjobStartbreath":
                int var6 = this.func_70681_au().nextInt(3);
                this.b(SoundHandler.GIRLS_KOBOLD_LIGHTBREATHING[var6]);
                break;
             case "matingCam":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var8 = Minecraft.func_71410_x().field_71439_g;
                   Vec3d var16 = new Vec3d(0.0, 0.4375 - var8.eyeHeight, -0.6875);
-                  var16 = ck.a_clash306(var16, this.I_clash415() + 180.0F);
-                  var16 = var16.func_178787_e(this.o_clash501());
-                  PacketHandler.b.sendToServer(new TeleportPlayerPacket(var8.getPersistentID().toString(), var16, this.I_clash415() + 180.0F, 10.0F));
+                  var16 = ck.rotateByYaw(var16, this.getYawRotation() + 180.0F);
+                  var16 = var16.func_178787_e(this.getTargetPosition());
+                  PacketHandler.b.sendToServer(new TeleportPlayerPacket(var8.getPersistentID().toString(), var16, this.getYawRotation() + 180.0F, 10.0F));
                }
                break;
             case "mating_press_startDone":
-               if (this.n_clash537()) {
-                  HornyMeterHud.d_clash358();
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
                }
             case "mating_press_hardDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.b(fp.MATING_PRESS_SOFT);
                }
                break;
             case "mating_press_softReady":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
 
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.b(fp.MATING_PRESS_HARD);
                }
                break;
             case "mating_press_hardReady":
-               if (this.n_clash537()) {
-                  HornyMeterHud.a_clash362(0.04F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
                }
 
-               if (this.n_clash537() && d3.d) {
+               if (this.isControlledByLocalPlayer() && d3.d) {
                   this.N();
                }
                break;
             case "mating_cum_cam":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var4 = Minecraft.func_71410_x().field_71439_g;
                   Vec3d var7 = new Vec3d(0.0, 1.1875 - var4.eyeHeight, 0.125);
-                  var7 = ck.a_clash306(var7, this.I_clash415() + 180.0F);
-                  var7 = var7.func_178787_e(this.o_clash501());
-                  PacketHandler.b.sendToServer(new TeleportPlayerPacket(var4.getPersistentID().toString(), var7, this.I_clash415() + 180.0F, 70.0F));
+                  var7 = ck.rotateByYaw(var7, this.getYawRotation() + 180.0F);
+                  var7 = var7.func_178787_e(this.getTargetPosition());
+                  PacketHandler.b.sendToServer(new TeleportPlayerPacket(var4.getPersistentID().toString(), var7, this.getYawRotation() + 180.0F, 70.0F));
                }
                break;
             case "cumMsg":
-               this.a_clash541("I.. hope I am satisfying you sir");
+               this.sendChatMessage("I.. hope I am satisfying you sir");
                this.b(SoundHandler.GIRLS_KOBOLD_SAD[this.func_70681_au().nextInt(1)]);
                break;
             case "mating_press_cumDone":
-               if (this.n_clash537()) {
+               if (this.isControlledByLocalPlayer()) {
                   this.r_clash533();
                }
          }
@@ -652,7 +652,4 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       var1.addAnimationController(this.s);
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

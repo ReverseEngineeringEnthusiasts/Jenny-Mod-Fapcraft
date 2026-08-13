@@ -46,7 +46,7 @@ public class CatActivateFishingPacket implements IMessage {
       public IMessage onMessage(CatActivateFishingPacket var1, MessageContext var2) {
          if (var1.b && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               for (BaseGirlEntity var4 : BaseGirlEntity.g_clash524(var1.a)) {
+               for (BaseGirlEntity var4 : BaseGirlEntity.girlList(var1.a)) {
                   if (!var4.field_70170_p.field_72995_K && var4 instanceof LunaEntity) {
                      LunaEntity var5 = (LunaEntity)var4;
                      ItemStack var6 = var5.ao;
@@ -62,8 +62,5 @@ public class CatActivateFishingPacket implements IMessage {
          }
       }
 
-      private static RuntimeException a(RuntimeException var0) {
-         return var0;
-      }
    }
 }

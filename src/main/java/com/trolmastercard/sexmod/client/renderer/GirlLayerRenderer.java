@@ -40,7 +40,7 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
          ItemStack var10 = (ItemStack)var9.func_184212_Q().func_187225_a(AbstractGirlNpcEntity.T);
          EntityPlayer var11 = null;
          if (var9 instanceof AbstractPlayerGirlEntity) {
-            UUID var12 = ((AbstractPlayerGirlEntity)var9).m_clash583();
+            UUID var12 = ((AbstractPlayerGirlEntity)var9).getOwnerUserUUID();
             if (var12 != null) {
                var11 = var1.field_70170_p.func_152378_a(var12);
             }
@@ -122,7 +122,4 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
       return false;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

@@ -51,7 +51,7 @@ public class SetPlayerForGirlPacket implements IMessage {
       public IMessage onMessage(SetPlayerForGirlPacket var1, MessageContext var2) {
          if (var1.a && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.g_clash524(var1.c)) {
+               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.c)) {
                   PlayerList var4 = FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al();
 
                   try {
@@ -70,7 +70,7 @@ public class SetPlayerForGirlPacket implements IMessage {
                      ((JennyEntity)var3).af = true;
                   }
 
-                  var3.e_clash499(var1.b);
+                  var3.setInteractionPlayerUUID(var1.b);
                }
             });
             return null;
@@ -80,8 +80,5 @@ public class SetPlayerForGirlPacket implements IMessage {
          }
       }
 
-      private static NullPointerException a(NullPointerException var0) {
-         return var0;
-      }
    }
 }

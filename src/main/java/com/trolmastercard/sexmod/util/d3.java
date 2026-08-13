@@ -60,7 +60,7 @@ public class d3 {
       return c;
    }
 
-   public static void a_clash122(boolean var0) {
+   public static void setMovementLock(boolean var0) {
       c = var0;
       if (!var0) {
          a_clash123();
@@ -82,7 +82,4 @@ public class d3 {
       }
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

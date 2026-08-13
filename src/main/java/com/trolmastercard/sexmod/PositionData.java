@@ -32,10 +32,10 @@ public class PositionData {
    @SubscribeEvent
    public void a(Pre var1) {
       try {
-         for (BaseGirlEntity var3 : BaseGirlEntity.ad_clash509()) {
-            if (!var3.field_70128_L && var3.ae_clash498() != null && var3.y_clash492() != fp.NULL) {
+         for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
+            if (!var3.field_70128_L && var3.getInteractionPlayerUUID() != null && var3.getCurrentAction() != fp.NULL) {
                EntityPlayer var4 = var1.getEntityPlayer();
-               if (var3.y_clash492().hasPlayer && (var3.ae_clash498().equals(var4.getPersistentID()) || var3.ae_clash498().equals(var4.func_110124_au()))) {
+               if (var3.getCurrentAction().hasPlayer && (var3.getInteractionPlayerUUID().equals(var4.getPersistentID()) || var3.getInteractionPlayerUUID().equals(var4.func_110124_au()))) {
                   var1.setCanceled(true);
                   return;
                }
@@ -50,13 +50,13 @@ public class PositionData {
       Minecraft var2 = Minecraft.func_71410_x();
       EntityPlayerSP var3 = var2.field_71439_g;
       AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.g(var3);
-      if (var4 != null && var4.Q_clash505()) {
+      if (var4 != null && var4.isAnchored()) {
          var1.setCanceled(true);
       } else {
          try {
-            for (BaseGirlEntity var6 : BaseGirlEntity.ad_clash509()) {
-               UUID var7 = var6.ae_clash498();
-               fp var8 = var6.y_clash492();
+            for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
+               UUID var7 = var6.getInteractionPlayerUUID();
+               fp var8 = var6.getCurrentAction();
                if (!var6.field_70128_L
                   && var7 != null
                   && var8 != null
@@ -88,13 +88,13 @@ public class PositionData {
          } else if (var2.field_71474_y.field_74320_O == 0) {
             BaseGirlEntity var3 = BaseGirlEntity.a(var2.field_71439_g.getPersistentID(), Boolean.valueOf(false));
             if (var3 != null) {
-               if (var3.y_clash492().useBoyCam) {
+               if (var3.getCurrentAction().useBoyCam) {
                   if (!var3.m_clash494()) {
                      this.b = var2.field_71439_g.func_174791_d();
                      this.a = new Vec3d(var2.field_71439_g.field_70142_S, var2.field_71439_g.field_70137_T, var2.field_71439_g.field_70136_U);
-                     Vec3d var4 = var3.Q_clash505()
-                        ? var3.b_clash547("boyCam").func_178787_e(var3.o_clash501())
-                        : var3.b_clash547("boyCam")
+                     Vec3d var4 = var3.isAnchored()
+                        ? var3.getCachedBoneOffset("boyCam").func_178787_e(var3.getTargetPosition())
+                        : var3.getCachedBoneOffset("boyCam")
                            .func_178787_e(
                               RotationHelper.a(new Vec3d(var3.field_70142_S, var3.field_70137_T, var3.field_70136_U), var3.func_174791_d(), var1.renderTickTime)
                            );
@@ -111,7 +111,4 @@ public class PositionData {
       }
    }
 
-   private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-      return var0;
-   }
 }

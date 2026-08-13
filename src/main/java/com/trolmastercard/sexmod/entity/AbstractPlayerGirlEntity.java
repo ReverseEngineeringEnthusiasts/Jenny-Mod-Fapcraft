@@ -88,7 +88,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Nullable
-   public static AbstractPlayerGirlEntity d_clash567(UUID var0) {
+   public static AbstractPlayerGirlEntity getPlayerGirlByUUID(UUID var0) {
       return al.get(var0);
    }
 
@@ -100,10 +100,10 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Nullable
    public static AbstractPlayerGirlEntity a_clash568(UUID var0) {
       try {
-         for (BaseGirlEntity var2 : ad_clash509()) {
+         for (BaseGirlEntity var2 : getGirlEntityList()) {
             if (!var2.field_70170_p.field_72995_K && var2 instanceof AbstractPlayerGirlEntity) {
                AbstractPlayerGirlEntity var3 = (AbstractPlayerGirlEntity)var2;
-               if (var0.equals(var3.m_clash583())) {
+               if (var0.equals(var3.getOwnerUserUUID())) {
                   return var3;
                }
             }
@@ -115,15 +115,15 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Override
-   public TargetPoint P_clash535() {
+   public TargetPoint getTargetNetworkPoint() {
       return new TargetPoint(this.field_71093_bK, this.field_70165_t, this.field_70163_u - 0.0, this.field_70161_v, 50.0);
    }
 
    public void a(int var1, fp var2) {
-      PacketHandler.b.sendToAllTracking(new ForcePlayerGirlUpdatePacket(this.m_clash583(), var1, var2), this.P_clash535());
+      PacketHandler.b.sendToAllTracking(new ForcePlayerGirlUpdatePacket(this.getOwnerUserUUID(), var1, var2), this.getTargetNetworkPoint());
    }
 
-   public EntityPlayer c_clash452(EntityPlayer var1) {
+   public EntityPlayer resolvePlayerEntity(EntityPlayer var1) {
       return var1;
    }
 
@@ -164,7 +164,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Override
-   public String c_clash241() {
+   public String getDisplayNameText() {
       if (((Optional)this.m.func_187225_a(ai)).isPresent()) {
          EntityPlayer var1 = this.field_70170_p.func_152378_a((UUID)((Optional)this.m.func_187225_a(ai)).get());
          if (var1 != null) {
@@ -180,11 +180,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    public abstract void b(String var1, UUID var2);
 
-   public abstract IVanillaModel a_clash228(int var1);
+   public abstract IVanillaModel getHandModel(int var1);
 
-   public abstract String c_clash229(int var1);
+   public abstract String getHandTexture(int var1);
 
-   public Vec3i b_clash357(int var1) {
+   public Vec3i getHandColor(int var1) {
       return new Vec3i(255, 255, 255);
    }
 
@@ -209,7 +209,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @SideOnly(Side.CLIENT)
    public static void i_clash572() {
-      AbstractPlayerGirlEntity var0 = d_clash567(Minecraft.func_71410_x().field_71439_g.getPersistentID());
+      AbstractPlayerGirlEntity var0 = getPlayerGirlByUUID(Minecraft.func_71410_x().field_71439_g.getPersistentID());
       if (var0 != null) {
          var0.r_clash533();
       }
@@ -227,14 +227,14 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @SideOnly(Side.CLIENT)
    @Override
    protected void V() {
-      if (this.n_clash537() || this.f_clash579()) {
-         d3.a_clash122(true);
+      if (this.isControlledByLocalPlayer() || this.f_clash579()) {
+         d3.setMovementLock(true);
          EntityPlayerSP var1 = Minecraft.func_71410_x().field_71439_g;
          var1.func_82142_c(false);
          var1.func_189654_d(false);
          var1.field_70145_X = false;
          this.m.func_187227_b(G, false);
-         PacketHandler.b.sendToServer(new ResetGirlPacket(this.f_clash491()));
+         PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
       }
    }
 
@@ -247,8 +247,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    protected void c_clash573(boolean var1) {
       if (ag) {
-         if (this.m_clash583() != null) {
-            EntityPlayer var2 = this.field_70170_p.func_152378_a(this.m_clash583());
+         if (this.getOwnerUserUUID() != null) {
+            EntityPlayer var2 = this.field_70170_p.func_152378_a(this.getOwnerUserUUID());
             if (var2 != null) {
                var2.field_71075_bZ.field_75101_c = var1;
                if (!var1) {
@@ -262,7 +262,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public static boolean e_clash574(UUID var0) {
-      C_clash585();
+      rebuildPlayerGirlTable();
 
       for (Entry var2 : al.entrySet()) {
          UUID var3 = (UUID)var2.getKey();
@@ -305,7 +305,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @SideOnly(Side.CLIENT)
    @Override
-   public boolean e_clash544() {
+   public boolean isLocalPlayerNearby() {
       EntityPlayer var1 = this.j_clash575();
       return var1 == null ? false : var1.getPersistentID().equals(Minecraft.func_71410_x().field_71439_g.getPersistentID());
    }
@@ -319,7 +319,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       EntityPlayerMP var3 = (EntityPlayerMP)this.field_70170_p.func_152378_a((UUID)((Optional)this.m.func_187225_a(ai)).get());
       PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var2);
       PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var3);
-      this.e_clash499(var1);
+      this.setInteractionPlayerUUID(var1);
       this.field_70177_z = 0.0F;
       this.field_70759_as = 0.0F;
       var2.field_70177_z = 180.0F;
@@ -332,8 +332,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       var3.field_71075_bZ.field_75100_b = true;
       this.j_clash521(var1);
       this.m.func_187227_b(G, true);
-      this.c_clash502(var4);
-      this.b_clash431(0.0F);
+      this.setTargetPosition(var4);
+      this.setYawRotation(0.0F);
    }
 
    protected void func_180429_a(BlockPos var1, Block var2) {
@@ -375,30 +375,30 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    void d_clash580(EntityPlayer var1) {
       NBTTagCompound var2 = var1.getEntityData();
-      String var3 = var2.func_74779_i("sexmod:CustomModel" + NpcType.a_clash751(this));
-      this.f_clash439(var3);
+      String var3 = var2.func_74779_i("sexmod:CustomModel" + NpcType.getNpcType(this));
+      this.setCustomModelCode(var3);
    }
 
    @Override
    public void func_70619_bc() {
-      C_clash585();
-      this.l_clash514();
+      rebuildPlayerGirlTable();
+      this.tickFollowUpTransitions();
       this.G();
-      UUID var1 = this.m_clash583();
+      UUID var1 = this.getOwnerUserUUID();
       if (var1 != null) {
          EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
          if (var2 == null) {
             this.func_70634_a(this.field_70165_t, 0.0, this.field_70161_v);
          } else {
             this.d_clash580(var2);
-            if (this.Q_clash505()) {
-               Vec3d var3 = this.o_clash501();
+            if (this.isAnchored()) {
+               Vec3d var3 = this.getTargetPosition();
                this.func_70634_a(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
             } else {
                this.func_70634_a(var2.field_70165_t, var2.field_70163_u + 0.0, var2.field_70161_v);
             }
 
-            fp var4 = this.y_clash492();
+            fp var4 = this.getCurrentAction();
             if (var4 == fp.NULL && var2.field_82175_bq) {
                this.b(fp.ATTACK);
             }
@@ -414,11 +414,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       if (this.an != -1) {
          this.an++;
          if (!this.field_70170_p.field_72995_K && this.an == 65) {
-            this.f(this.ah_clash493() == 0 ? 1 : 0);
+            this.f(this.getOutfitIndex() == 0 ? 1 : 0);
          }
 
          if (this.an >= 100) {
-            if (this.y_clash492() == fp.STRIP) {
+            if (this.getCurrentAction() == fp.STRIP) {
                if (this.field_70170_p.field_72995_K) {
                   this.n_clash582();
                } else {
@@ -435,12 +435,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          Minecraft var1 = Minecraft.func_71410_x();
          var1.field_71474_y.field_74320_O = 0;
          var1.field_71460_t.func_175066_a(var1.func_175606_aa());
-         d3.a_clash122(true);
+         d3.setMovementLock(true);
       }
    }
 
    public boolean o_clash456() {
-      return this.Q_clash505();
+      return this.isAnchored();
    }
 
    public Vec3d b(Vec3d var1, float var2) {
@@ -460,7 +460,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @Override
    public void b(fp var1) {
-      if (!this.field_70170_p.field_72995_K && var1 == fp.NULL && this.Q_clash505()) {
+      if (!this.field_70170_p.field_72995_K && var1 == fp.NULL && this.isAnchored()) {
          System.out.println("prevented a potential animation break");
       } else {
          if (var1 == fp.STRIP) {
@@ -499,13 +499,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
-   public UUID m_clash583() {
+   public UUID getOwnerUserUUID() {
       return ((Optional)this.m.func_187225_a(ai)).isPresent() ? (UUID)((Optional)this.m.func_187225_a(ai)).get() : null;
    }
 
    @Nullable
    public EntityPlayer k_clash584() {
-      UUID var1 = this.m_clash583();
+      UUID var1 = this.getOwnerUserUUID();
       return var1 == null ? null : this.field_70170_p.func_152378_a(var1);
    }
 
@@ -519,13 +519,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public void B_clash233() {
    }
 
-   public static void C_clash585() {
+   public static void rebuildPlayerGirlTable() {
       ArrayList var0 = new ArrayList();
 
       try {
          for (AbstractPlayerGirlEntity var2 : Z) {
-            if (var2.m_clash583() != null) {
-               al.put(var2.m_clash583(), var2);
+            if (var2.getOwnerUserUUID() != null) {
+               al.put(var2.getOwnerUserUUID(), var2);
                var0.add(var2);
             }
          }
@@ -558,7 +558,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          return false;
       }
 
-      AbstractPlayerGirlEntity var2 = d_clash567(var1);
+      AbstractPlayerGirlEntity var2 = getPlayerGirlByUUID(var1);
       return var2 != null;
    }
 
@@ -614,7 +614,4 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    protected void U() {
    }
 
-   private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-      return var0;
-   }
 }

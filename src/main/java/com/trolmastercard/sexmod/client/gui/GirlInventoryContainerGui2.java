@@ -50,7 +50,7 @@ public class GirlInventoryContainerGui2 extends GuiContainer {
             var3[39] = var2.func_75139_a(3).func_75211_c();
             var3[40] = var2.func_75139_a(4).func_75211_c();
             var3[41] = var2.func_75139_a(5).func_75211_c();
-            PacketHandler.b.sendToServer(new UploadInventoryToServerPacket(this.b.f_clash491(), this.d, var3));
+            PacketHandler.b.sendToServer(new UploadInventoryToServerPacket(this.b.getGirlId(), this.d, var3));
          }
       }
    }

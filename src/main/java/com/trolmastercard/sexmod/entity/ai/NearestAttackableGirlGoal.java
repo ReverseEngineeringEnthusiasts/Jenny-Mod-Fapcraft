@@ -68,7 +68,4 @@ public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<K
       return true;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }

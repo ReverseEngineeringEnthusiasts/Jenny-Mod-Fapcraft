@@ -43,7 +43,7 @@ public class CommandLocateGoblinLair extends CommandBase {
          GoblinEntity var5 = null;
 
          try {
-            for (BaseGirlEntity var7 : BaseGirlEntity.ad_clash509()) {
+            for (BaseGirlEntity var7 : BaseGirlEntity.getGirlEntityList()) {
                if (var7 instanceof GoblinEntity) {
                   GoblinEntity var8 = (GoblinEntity)var7;
                   if (var8.aX) {
@@ -80,7 +80,4 @@ public class CommandLocateGoblinLair extends CommandBase {
       }
    }
 
-   private static ConcurrentModificationException a(ConcurrentModificationException var0) {
-      return var0;
-   }
 }

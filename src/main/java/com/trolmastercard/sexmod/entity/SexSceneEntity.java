@@ -134,7 +134,4 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
       return EnumHandSide.LEFT;
    }
 
-   private static RuntimeException a(RuntimeException var0) {
-      return var0;
-   }
 }
