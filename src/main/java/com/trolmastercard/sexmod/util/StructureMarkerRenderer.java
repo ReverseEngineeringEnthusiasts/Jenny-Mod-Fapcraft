@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.item.DragonStaffItem;
-
-
-
-
-
-
-
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import net.minecraft.block.Block;

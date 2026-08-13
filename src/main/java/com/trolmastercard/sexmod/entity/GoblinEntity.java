@@ -28,13 +28,6 @@ import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.Point2D;
 import com.trolmastercard.sexmod.util.EyeColor;
 import com.trolmastercard.sexmod.util.HairColor;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

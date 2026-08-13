@@ -10,13 +10,6 @@ import com.trolmastercard.sexmod.networking.KoboldStatePacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;

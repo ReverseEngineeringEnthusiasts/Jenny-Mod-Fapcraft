@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.client.renderer.GoblinRenderer;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.api.IGoblin;
 import com.trolmastercard.sexmod.entity.Action;
-
-
-
-
-
-
-
 import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;

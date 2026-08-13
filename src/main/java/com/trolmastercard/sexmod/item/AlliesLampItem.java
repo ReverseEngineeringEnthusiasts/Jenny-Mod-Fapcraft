@@ -9,15 +9,7 @@ import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
-
-
-
-
-
-
-
 import net.minecraft.util.ResourceLocation;
-
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.List;
@@ -226,7 +218,6 @@ public class AlliesLampItem extends Item implements IAnimatable {
    public AnimationFactory getFactory() {
       return this.animationFactory;
    }
-
 
    public static class a {
       @SubscribeEvent

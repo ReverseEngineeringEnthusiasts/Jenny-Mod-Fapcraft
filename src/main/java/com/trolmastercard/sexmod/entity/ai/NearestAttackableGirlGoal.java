@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.entity.ai;
 
 import com.trolmastercard.sexmod.entity.KoboldEntity;
-
-
-
-
-
-
-
 import com.google.common.base.Predicate;
 import java.util.ArrayList;
 import java.util.List;

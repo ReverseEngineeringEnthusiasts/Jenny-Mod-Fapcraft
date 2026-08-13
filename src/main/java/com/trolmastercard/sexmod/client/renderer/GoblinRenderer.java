@@ -13,13 +13,6 @@ import com.trolmastercard.sexmod.util.ThreadNames;
 import com.trolmastercard.sexmod.util.EyeColor;
 import com.trolmastercard.sexmod.util.HairColor;
 import com.trolmastercard.sexmod.util.TrigMath;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;

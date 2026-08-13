@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.util;
 
-
 import java.util.ArrayList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.pathfinding.Path;

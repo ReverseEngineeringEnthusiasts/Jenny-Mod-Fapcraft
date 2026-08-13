@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
@@ -63,7 +56,6 @@ public class SendChatMessagePacket implements IMessage {
       var1.writeInt(this.channel);
       ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
    }
-
 
    public static class Handler implements IMessageHandler<SendChatMessagePacket, IMessage> {
       public IMessage onMessage(SendChatMessagePacket var1, MessageContext var2) {

@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.entity.AbstractNpcOnlyEntity;
 import com.trolmastercard.sexmod.entity.BodyParts;
 import com.trolmastercard.sexmod.entity.Action;
-
-
-
-
-
-
-
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;

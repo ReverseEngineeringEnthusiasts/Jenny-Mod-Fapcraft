@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.SlimeEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.util.math.Vec3d;
@@ -49,7 +42,6 @@ public class ChangeDataParameterPacket implements IMessage {
       ByteBufUtils.writeUTF8String(var1, this.parameterName);
       ByteBufUtils.writeUTF8String(var1, this.value == null ? "null" : this.value);
    }
-
 
    public static class Handler implements IMessageHandler<ChangeDataParameterPacket, IMessage> {
       public IMessage onMessage(ChangeDataParameterPacket var1, MessageContext var2) {

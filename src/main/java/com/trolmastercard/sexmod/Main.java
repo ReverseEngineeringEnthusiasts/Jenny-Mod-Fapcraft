@@ -15,15 +15,7 @@ import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import com.trolmastercard.sexmod.util.GirlRegistry;
 import com.trolmastercard.sexmod.util.StructureMarkerRenderer;
 import com.trolmastercard.sexmod.worldgen.ConfigWorldGenHandler;
-
-
-
-
-
-
-
 import java.io.IOException;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

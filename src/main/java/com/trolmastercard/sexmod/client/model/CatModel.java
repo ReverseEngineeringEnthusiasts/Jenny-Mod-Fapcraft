@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.client.model;
 
 import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
-
-
-
-
-
-
-
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;

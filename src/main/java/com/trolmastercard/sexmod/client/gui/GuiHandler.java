@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.client.gui;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.LunaEntity;
-
-
-
-
-
-
-
 import java.io.File;
 import java.util.ConcurrentModificationException;
 import java.util.UUID;

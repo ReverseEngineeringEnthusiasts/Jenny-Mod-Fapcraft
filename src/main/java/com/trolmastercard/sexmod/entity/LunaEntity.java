@@ -29,13 +29,6 @@ import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.IBeddableSexGirl;
-
-
-
-
-
-
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -1127,7 +1120,6 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       super.readEntityFromNBT(var1);
       this.setNoGravity(false);
    }
-
 
    public static class a {
       @SubscribeEvent

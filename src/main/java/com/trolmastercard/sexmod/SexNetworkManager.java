@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod;
 
-
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;

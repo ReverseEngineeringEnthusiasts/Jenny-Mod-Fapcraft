@@ -10,12 +10,6 @@ import com.trolmastercard.sexmod.item.NpcEditorWandItem;
 import com.trolmastercard.sexmod.item.TribeEggItem;
 import com.trolmastercard.sexmod.potion.HornyPotion;
 
-
-
-
-
-
-
 public class ItemRegistrationHandler {
    public static void registerAll() {
       HornyPotion.register();

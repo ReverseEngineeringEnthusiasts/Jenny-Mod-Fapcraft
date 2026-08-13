@@ -6,13 +6,6 @@ import com.trolmastercard.sexmod.networking.PlayerActionPacket;
 import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
 import com.trolmastercard.sexmod.networking.SetNewHomePacket;
 import com.trolmastercard.sexmod.util.Reference;
-
-
-
-
-
-
-
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;

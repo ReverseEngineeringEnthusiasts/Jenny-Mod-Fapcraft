@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod;
 
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityEnderman;

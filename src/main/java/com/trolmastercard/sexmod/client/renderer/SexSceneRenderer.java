@@ -16,15 +16,7 @@ import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.GirlRegistry;
 import com.trolmastercard.sexmod.util.TrigMath;
 import com.trolmastercard.sexmod.util.IBoneRotationSupplier;
-
-
-
-
-
-
-
 import net.minecraft.util.ResourceLocation;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
@@ -67,8 +59,6 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    public static boolean isCustom = false;
    Vec3d colorScale = new Vec3d(1.0, 1.0, 1.0);
    Vec3d lightingPos;
-
-
 
    @Override
    public ResourceLocation getEntityTexture(SexSceneEntity var1) {

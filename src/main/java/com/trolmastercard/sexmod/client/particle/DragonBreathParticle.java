@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.client.particle;
 
-
 import net.minecraft.client.particle.ParticleDragonBreath;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.entity.Entity;

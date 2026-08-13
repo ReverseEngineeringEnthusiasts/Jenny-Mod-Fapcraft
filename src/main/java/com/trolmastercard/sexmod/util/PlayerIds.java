@@ -12,13 +12,6 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.networking.SendBlocksPacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
-
-
-
-
-
-
-
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.UUID;

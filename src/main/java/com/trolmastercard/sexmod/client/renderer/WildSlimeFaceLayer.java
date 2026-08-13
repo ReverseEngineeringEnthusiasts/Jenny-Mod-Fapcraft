@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.client.renderer;
 
 import com.trolmastercard.sexmod.entity.WildSlimeEntity;
-
-
-
-
-
-
-
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelSlime;
 import net.minecraft.client.renderer.GlStateManager;

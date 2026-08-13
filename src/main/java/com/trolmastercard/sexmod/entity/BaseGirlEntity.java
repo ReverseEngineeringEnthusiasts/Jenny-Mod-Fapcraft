@@ -26,13 +26,6 @@ import com.trolmastercard.sexmod.util.LootTableHandler;
 import com.trolmastercard.sexmod.util.Point2D;
 import com.trolmastercard.sexmod.util.GirlRegistry;
 import com.trolmastercard.sexmod.util.ClientServerCheck;
-
-
-
-
-
-
-
 import com.mojang.realmsclient.util.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,15 +1,7 @@
 package com.trolmastercard.sexmod.item;
 
 import com.trolmastercard.sexmod.util.KoboldManager;
-
-
-
-
-
-
-
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;

@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.entity.ai;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.Reference;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -123,7 +116,6 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
          }
       }
    }
-
 
    public enum GirlFollowAiBaseState {
       ATTACK,

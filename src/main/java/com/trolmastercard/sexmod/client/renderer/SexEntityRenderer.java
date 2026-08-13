@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.client.renderer;
 import com.trolmastercard.sexmod.entity.LunaEntity;
 import com.trolmastercard.sexmod.entity.SexEntity;
 import com.trolmastercard.sexmod.util.RotationHelper;
-
-
-
-
-
-
-
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;

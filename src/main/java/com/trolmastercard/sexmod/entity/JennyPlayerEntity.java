@@ -13,13 +13,6 @@ import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.EyeColor;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;

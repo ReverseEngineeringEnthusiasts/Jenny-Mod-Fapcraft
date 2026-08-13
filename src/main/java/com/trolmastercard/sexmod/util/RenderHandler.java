@@ -53,13 +53,6 @@ import com.trolmastercard.sexmod.entity.SexSceneEntity;
 import com.trolmastercard.sexmod.entity.SlimeEntity;
 import com.trolmastercard.sexmod.entity.SlimePlayerEntity;
 import com.trolmastercard.sexmod.entity.WildSlimeEntity;
-
-
-
-
-
-
-
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
 public class RenderHandler {

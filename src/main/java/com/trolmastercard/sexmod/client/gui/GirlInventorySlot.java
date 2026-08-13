@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.client.gui;
 
-
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
@@ -49,7 +48,6 @@ public class GirlInventorySlot extends SlotItemHandler {
             return false;
       }
    }
-
 
    public enum b {
       WEAPON(0),

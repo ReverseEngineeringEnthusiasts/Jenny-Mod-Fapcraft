@@ -9,13 +9,6 @@ import com.trolmastercard.sexmod.networking.SendBlocksPacket;
 import com.trolmastercard.sexmod.networking.SetTribeFollowModePacket;
 import com.trolmastercard.sexmod.util.ThreadNames;
 import com.trolmastercard.sexmod.util.StructureMarkerRenderer;
-
-
-
-
-
-
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;

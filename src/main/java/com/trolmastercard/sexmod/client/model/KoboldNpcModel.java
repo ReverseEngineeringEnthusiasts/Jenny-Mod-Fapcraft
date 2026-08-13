@@ -6,13 +6,6 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.entity.api.IKobold;
 import com.trolmastercard.sexmod.entity.Action;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;

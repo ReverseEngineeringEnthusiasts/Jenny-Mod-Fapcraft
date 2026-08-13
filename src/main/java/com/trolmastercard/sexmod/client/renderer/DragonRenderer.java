@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.client.renderer;
 import com.trolmastercard.sexmod.client.gui.UnknownScreen;
 import com.trolmastercard.sexmod.entity.DragonEntity;
 import com.trolmastercard.sexmod.util.RotationHelper;
-
-
-
-
-
-
-
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;

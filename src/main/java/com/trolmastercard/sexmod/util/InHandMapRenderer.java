@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
-
-
-
-
-
-
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import net.minecraft.client.Minecraft;

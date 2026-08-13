@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.util.Reference;
-
-
-
-
-
-
-
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;

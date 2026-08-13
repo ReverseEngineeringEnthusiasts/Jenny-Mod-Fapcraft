@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-
 import java.util.ArrayList;
 import java.util.UUID;
 import javax.annotation.Nullable;

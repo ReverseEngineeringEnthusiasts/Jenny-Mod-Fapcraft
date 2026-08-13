@@ -6,13 +6,6 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.entity.KoboldPlayerEntity;
-
-
-
-
-
-
-
 import java.util.Arrays;
 import java.util.HashSet;
 import javax.annotation.Nullable;

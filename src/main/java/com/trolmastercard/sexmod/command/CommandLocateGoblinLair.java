@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.command;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GoblinEntity;
-
-
-
-
-
-
-
 import java.util.ConcurrentModificationException;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;

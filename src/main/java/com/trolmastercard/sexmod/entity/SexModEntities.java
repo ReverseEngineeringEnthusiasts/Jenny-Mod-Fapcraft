@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Biomes;

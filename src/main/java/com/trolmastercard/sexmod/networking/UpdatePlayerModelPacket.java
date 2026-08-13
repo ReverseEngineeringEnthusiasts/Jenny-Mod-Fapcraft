@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.NpcType;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import com.google.common.base.Optional;
 import io.netty.buffer.ByteBuf;
 import java.lang.reflect.Constructor;
@@ -54,7 +47,6 @@ public class UpdatePlayerModelPacket implements IMessage {
          ByteBufUtils.writeUTF8String(var1, this.npcType.toString());
       }
    }
-
 
    public static class Handler implements IMessageHandler<UpdatePlayerModelPacket, IMessage> {
       public IMessage onMessage(UpdatePlayerModelPacket var1, MessageContext var2) {

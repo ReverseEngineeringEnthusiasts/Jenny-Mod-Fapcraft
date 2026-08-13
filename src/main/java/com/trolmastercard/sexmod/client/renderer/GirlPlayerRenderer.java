@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.client.renderer;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
-
-
-
-
-
-
-
 import java.util.Objects;
 import javax.vecmath.Vector4f;
 import net.minecraft.client.Minecraft;

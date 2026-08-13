@@ -27,13 +27,6 @@ import com.trolmastercard.sexmod.item.NpcEditorWandItem;
 import com.trolmastercard.sexmod.item.WinchesterItem;
 import com.trolmastercard.sexmod.potion.HornyPotion;
 import com.trolmastercard.sexmod.worldgen.ConfigWorldGenHandler;
-
-
-
-
-
-
-
 import java.io.File;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;

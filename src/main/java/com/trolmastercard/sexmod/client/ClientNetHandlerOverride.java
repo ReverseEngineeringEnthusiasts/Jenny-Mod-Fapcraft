@@ -1,8 +1,6 @@
 package com.trolmastercard.sexmod.client;
 
 import com.trolmastercard.sexmod.SexNetworkManager;
-
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.network.EnumPacketDirection;

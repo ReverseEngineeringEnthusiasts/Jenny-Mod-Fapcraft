@@ -19,13 +19,6 @@ import com.trolmastercard.sexmod.util.GalathGeometryRender;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.IBeddableSexGirl;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;

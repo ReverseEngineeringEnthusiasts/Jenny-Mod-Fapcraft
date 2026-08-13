@@ -13,13 +13,6 @@ import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
 import com.trolmastercard.sexmod.util.Vector2f;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
 import com.trolmastercard.sexmod.util.TrigMath;
-
-
-
-
-
-
-
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -402,7 +395,6 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
 
       var10000.setHidden(var10001);
    }
-
 
    private static class RotationData {
       private Vector3fSexmodSpecial armRRotation;

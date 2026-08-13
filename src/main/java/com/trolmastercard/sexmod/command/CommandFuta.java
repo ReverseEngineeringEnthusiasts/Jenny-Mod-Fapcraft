@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.command;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import com.trolmastercard.sexmod.util.ThreadNames;
-
-
-
-
-
-
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;

@@ -1,6 +1,4 @@
 package com.trolmastercard.sexmod.util;
-
-
 public class Point2D {
    public static final Point2D ZERO = new Point2D(0, 0);
    public int x;

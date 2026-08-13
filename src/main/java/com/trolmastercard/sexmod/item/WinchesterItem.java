@@ -1,8 +1,6 @@
 package com.trolmastercard.sexmod.item;
 
-
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import software.bernie.geckolib3.core.IAnimatable;

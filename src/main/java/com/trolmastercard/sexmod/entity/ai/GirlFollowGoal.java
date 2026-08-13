@@ -5,13 +5,6 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.VectorMath;
-
-
-
-
-
-
-
 import com.google.common.collect.Multimap;
 import java.util.List;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -376,7 +369,6 @@ public class GirlFollowGoal extends GirlFollowAiBase {
          this.girl.motionZ = var1.z;
       }
    }
-
 
    public static class a {
       @SubscribeEvent

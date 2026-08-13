@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-
 import net.minecraft.entity.IEntityMultiPart;
 import net.minecraft.entity.MultiPartEntityPart;
 import net.minecraft.world.World;

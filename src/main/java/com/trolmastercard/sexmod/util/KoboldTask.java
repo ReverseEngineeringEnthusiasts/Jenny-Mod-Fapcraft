@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.util;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
 import com.trolmastercard.sexmod.entity.Action;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -261,7 +254,6 @@ public class KoboldTask {
 
       return var2;
    }
-
 
    public enum TaskType {
       FALL_TREE(1),

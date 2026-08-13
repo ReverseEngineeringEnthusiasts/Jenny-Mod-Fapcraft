@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.SexWorldClient;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.datasync.DataParameter;

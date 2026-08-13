@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.client.renderer;
 
 import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelElytra;

@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.client.model;
 
 import com.trolmastercard.sexmod.entity.SexSceneEntity;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-
-
-
-
-
-
-
 import javax.annotation.Nullable;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;

@@ -13,13 +13,6 @@ import com.trolmastercard.sexmod.util.GalathGeometryRender;
 import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
 import com.trolmastercard.sexmod.util.TrigMath;
-
-
-
-
-
-
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Objects;

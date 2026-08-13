@@ -20,13 +20,6 @@ import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.LootTableHandler;
-
-
-
-
-
-
-
 import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;

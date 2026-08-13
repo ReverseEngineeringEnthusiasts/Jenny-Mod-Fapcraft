@@ -4,13 +4,6 @@ import com.trolmastercard.sexmod.client.renderer.GirlPlayerRenderer;
 import com.trolmastercard.sexmod.entity.AlliePlayerEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.Collection;
 import net.minecraft.client.renderer.GlStateManager;
@@ -154,7 +147,6 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
          }
       }
    }
-
 
    public static class a {
       @SubscribeEvent

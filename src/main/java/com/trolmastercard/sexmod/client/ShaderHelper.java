@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.client;
 
 import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-
-
-
-
-
-
-
 import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import net.minecraft.client.Minecraft;

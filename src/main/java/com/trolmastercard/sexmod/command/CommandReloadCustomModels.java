@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.command;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.UnknownPacket;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-
-
-
-
-
-
-
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;

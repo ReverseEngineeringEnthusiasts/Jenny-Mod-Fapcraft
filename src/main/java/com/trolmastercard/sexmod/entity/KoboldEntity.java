@@ -41,13 +41,6 @@ import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.Point2D;
 import com.trolmastercard.sexmod.util.TribeState;
-
-
-
-
-
-
-
 import com.google.common.base.Optional;
 import com.google.common.collect.UnmodifiableIterator;
 import java.util.ArrayList;
@@ -3058,7 +3051,6 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    public void clear() {
    }
-
 
    public static class c {
       int tickCounter = 0;

@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.client.gui.GirlScreenBase;
 import com.trolmastercard.sexmod.entity.NpcType;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -60,7 +53,6 @@ public class GirlDataPacket implements IMessage {
          ByteBufUtils.writeUTF8String(var1, (String)var8.getValue());
       }
    }
-
 
    public static class Handler implements IMessageHandler<GirlDataPacket, IMessage> {
       public IMessage onMessage(GirlDataPacket var1, MessageContext var2) {

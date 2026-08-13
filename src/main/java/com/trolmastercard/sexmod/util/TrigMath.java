@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.util;
 
-
 import net.minecraft.util.math.Vec3d;
 
 public class TrigMath {

@@ -1,13 +1,6 @@
 package com.trolmastercard.sexmod.client.model;
 
 import com.trolmastercard.sexmod.item.GalathCoinItem;
-
-
-
-
-
-
-
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 

@@ -1,6 +1,4 @@
 package com.trolmastercard.sexmod.util;
-
-
 public class Vector3fSexmodSpecial {
    public static final Vector3fSexmodSpecial ZERO = new Vector3fSexmodSpecial(0.0F, 0.0F, 0.0F);
    public float x;

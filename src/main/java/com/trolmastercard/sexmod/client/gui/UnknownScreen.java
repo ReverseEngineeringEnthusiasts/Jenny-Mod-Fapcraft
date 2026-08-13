@@ -1,6 +1,4 @@
 package com.trolmastercard.sexmod.client.gui;
-
-
 public class UnknownScreen {
    public int red;
    public int green;

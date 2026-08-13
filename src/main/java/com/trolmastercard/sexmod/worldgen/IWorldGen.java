@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.worldgen;
 
-
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.world.WorldServer;

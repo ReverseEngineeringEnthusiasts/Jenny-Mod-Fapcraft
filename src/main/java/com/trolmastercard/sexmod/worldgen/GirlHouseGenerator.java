@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.worldgen;
 
-
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.server.MinecraftServer;

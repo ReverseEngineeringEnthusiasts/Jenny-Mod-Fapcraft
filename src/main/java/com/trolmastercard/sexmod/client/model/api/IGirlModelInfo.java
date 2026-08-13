@@ -1,6 +1,4 @@
 package com.trolmastercard.sexmod.client.model.api;
-
-
 public interface IGirlModelInfo {
    default String[] c() {
       return new String[0];

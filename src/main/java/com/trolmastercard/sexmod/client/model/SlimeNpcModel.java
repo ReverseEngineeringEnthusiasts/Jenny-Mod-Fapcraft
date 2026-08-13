@@ -6,13 +6,6 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.SlimePlayerEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import java.util.Arrays;
 import javax.vecmath.Vector3f;
 import net.minecraft.util.ResourceLocation;

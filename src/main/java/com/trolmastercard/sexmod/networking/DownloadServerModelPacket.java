@@ -3,13 +3,6 @@ package com.trolmastercard.sexmod.networking;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -102,7 +95,6 @@ public class DownloadServerModelPacket implements IMessage {
          }
       }
    }
-
 
    public static class Handler implements IMessageHandler<DownloadServerModelPacket, IMessage> {
       static int packetCounter = 0;

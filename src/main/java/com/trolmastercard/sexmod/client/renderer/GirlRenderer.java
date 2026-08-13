@@ -16,13 +16,6 @@ import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import com.trolmastercard.sexmod.util.ThreadNames;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
-
-
-
-
-
-
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;

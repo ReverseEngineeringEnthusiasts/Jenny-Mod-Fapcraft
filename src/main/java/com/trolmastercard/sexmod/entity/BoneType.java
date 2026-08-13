@@ -2,12 +2,6 @@ package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.util.Reference;
 
-
-
-
-
-
-
 public enum BoneType {
    GIRL_SPECIFIC,
    HEAD(0, "customHead"),

@@ -2,13 +2,6 @@ package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.util.KoboldManager;
 import com.trolmastercard.sexmod.util.Reference;
-
-
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

@@ -5,13 +5,6 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.BeeEntityBase;
 import com.trolmastercard.sexmod.entity.LunaEntity;
 import com.trolmastercard.sexmod.util.TrailSegment;
-
-
-
-
-
-
-
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
@@ -61,7 +54,6 @@ public class UploadInventoryToServerPacket implements IMessage {
          ByteBufUtils.writeItemStack(var1, var5);
       }
    }
-
 
    public static class Handler implements IMessageHandler<UploadInventoryToServerPacket, IMessage> {
       public IMessage onMessage(UploadInventoryToServerPacket var1, MessageContext var2) {

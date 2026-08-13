@@ -5,13 +5,6 @@ import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.RotationHelper;
-
-
-
-
-
-
-
 import javax.vecmath.Vector2f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
