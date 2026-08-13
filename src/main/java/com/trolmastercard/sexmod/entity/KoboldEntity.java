@@ -498,7 +498,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             this.setYawRotation((float)(Math.atan2(this.posZ - var1.posZ, this.posX - var1.posX) * (180.0 / Math.PI) + 90.0));
             this.setTargetPosition(new Vec3d(this.posX, Math.floor(this.posY), this.posZ));
             this.entityDataManager.set(IS_ANCHORED, true);
-            this.b(fp.NULL);
+            this.setCurrentAction(fp.NULL);
          }
 
          return true;
@@ -548,12 +548,12 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    protected void a(boolean var1, UUID var2) {
-      super.a(var1, true, var2);
+      super.triggerActionSync(var1, true, var2);
       d3.setMovementLock(false);
    }
 
    @Override
-   public void a(String var1, UUID var2) {
+   public void doAction(String var1, UUID var2) {
       this.az = true;
       if ("oral".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", fp.STARTBLOWJOB.toString());
@@ -609,7 +609,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       this.setNoGravity(false);
       Vec3d var1 = RotationHelper.a(this.getPositionVector(), this.getTargetPosition(), 40 - this.aD);
       this.setPosition(var1.x, var1.y, var1.z);
-      this.b(fp.NULL);
+      this.setCurrentAction(fp.NULL);
       Optional var2 = (Optional)this.entityDataManager.get(aL);
       if (!var2.isPresent()) {
          return true;
@@ -661,7 +661,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       Optional var1 = (Optional)this.entityDataManager.get(aL);
       if (var1.isPresent()) {
          this.o_clash595((UUID)var1.get());
-         KoboldManager.k((UUID)var1.get());
+         KoboldManager.triggerFastSexAction((UUID)var1.get());
          EntityPlayer var2 = this.getMasterPlayer();
          if (var2 != null) {
             KoboldManager.a((UUID)var1.get(), var2.getPersistentID());
@@ -714,7 +714,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   }
 
                   if (84 <= this.U) {
-                     this.b(fp.NULL);
+                     this.setCurrentAction(fp.NULL);
                      this.entityDataManager.set(IS_ANCHORED, false);
                      this.U = 0;
                   }
@@ -837,34 +837,34 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (!var2 && !var3) {
          if (var1.equals(fp.STARTBLOWJOB.toString())) {
             if (this.getCurrentAction() == fp.PAYMENT) {
-               this.b(fp.STARTBLOWJOB);
+               this.setCurrentAction(fp.STARTBLOWJOB);
             } else {
-               this.b(fp.PAYMENT);
+               this.setCurrentAction(fp.PAYMENT);
             }
          }
 
          if (var1.equals(fp.KOBOLD_ANAL_START.toString())) {
             if (this.getCurrentAction() == fp.PAYMENT) {
-               this.b(fp.KOBOLD_ANAL_START);
+               this.setCurrentAction(fp.KOBOLD_ANAL_START);
             } else {
-               this.b(fp.PAYMENT);
+               this.setCurrentAction(fp.PAYMENT);
             }
          }
 
          if (var1.equals(fp.MATING_PRESS_START.toString())) {
-            this.b(fp.MATING_PRESS_START);
+            this.setCurrentAction(fp.MATING_PRESS_START);
          }
       } else {
          if (var1.equals(fp.STARTBLOWJOB.toString())) {
-            this.b(fp.STARTBLOWJOB);
+            this.setCurrentAction(fp.STARTBLOWJOB);
          }
 
          if (var1.equals(fp.KOBOLD_ANAL_START.toString())) {
-            this.b(fp.KOBOLD_ANAL_START);
+            this.setCurrentAction(fp.KOBOLD_ANAL_START);
          }
 
          if (var1.equals(fp.MATING_PRESS_START.toString())) {
-            this.b(fp.MATING_PRESS_START);
+            this.setCurrentAction(fp.MATING_PRESS_START);
          }
       }
    }
@@ -922,7 +922,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             for (KoboldTask var5 : KoboldManager.p_clash79(var2)) {
                if (var5.b_clash212(this)) {
                   var5.c(this);
-                  this.b(fp.NULL);
+                  this.setCurrentAction(fp.NULL);
                   this.entityDataManager.set(IS_ANCHORED, false);
                }
             }
@@ -990,7 +990,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   case REST:
                      this.p_clash605(var1);
                      KoboldManager.b(var1, (BlockPos)null);
-                     this.h("okay resting time owo");
+                     this.sendGirlChatMessage("okay resting time owo");
                      break;
                   case ACTIVE:
                      this.s(var1);
@@ -1027,7 +1027,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                var4.noClip = false;
                var4.setNoGravity(false);
                var4.getDataManager().set(IS_ANCHORED, false);
-               var4.b(fp.NULL);
+               var4.setCurrentAction(fp.NULL);
             }
          }
       }
@@ -1099,7 +1099,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   }
                } else {
                   KoboldManager.a(this, var4);
-                  this.b(fp.SLEEP);
+                  this.setCurrentAction(fp.SLEEP);
                }
             }
          }
@@ -1152,7 +1152,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (var2.isEmpty()) {
          this.ao = false;
          this.r(var1);
-         this.h("Lets go somewhere else");
+         this.sendGirlChatMessage("Lets go somewhere else");
       }
    }
 
@@ -1178,7 +1178,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          this.tickPathVelocity();
          if (!(Math.sqrt(this.getPosition().distanceSq(var3)) > 5.0)) {
             this.ao = true;
-            this.h("Time to work bitches!");
+            this.sendGirlChatMessage("Time to work bitches!");
             int var4 = KoboldManager.h_clash81(var1);
 
             for (int var5 = 1; var5 < var4; var5++) {
@@ -1247,7 +1247,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void c(UUID var1, Collection<KoboldTask> var2) {
-      List var3 = this.a(this.getPosition(), BlockLog.class, 30, 4, null);
+      List var3 = this.findBlocksInRadius(this.getPosition(), BlockLog.class, 30, 4, null);
       BlockPos var4 = null;
 
       for (BlockPos var6 : (java.util.Collection<BlockPos>) (var3) ) {
@@ -1271,7 +1271,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       if (var4 != null) {
          KoboldTask.a(this.world, var4, var1);
-         this.h("Someone, go fall this tree!");
+         this.sendGirlChatMessage("Someone, go fall this tree!");
       }
    }
 
@@ -1338,7 +1338,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       if (this.getCurrentAction() != fp.ATTACK) {
          this.entityDataManager.set(IS_ANCHORED, false);
-         this.b(fp.NULL);
+         this.setCurrentAction(fp.NULL);
       }
 
       BlockPos var13 = this.c_clash612(var9.getPosition());
@@ -1354,7 +1354,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       float var15 = (float)(Math.atan2(this.posZ - var9.posZ, this.posX - var9.posX) * (180.0 / Math.PI) + 90.0);
       this.setYawRotation(var15);
-      this.b(fp.ATTACK);
+      this.setCurrentAction(fp.ATTACK);
       this.aP = 84;
       return true;
    }
@@ -1431,9 +1431,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                         var3 = var7;
                         this.aI = null;
                         if (var7.d_clash202() == KoboldTask.TaskType.FALL_TREE) {
-                           this.h("Ima fall this tree owo");
+                           this.sendGirlChatMessage("Ima fall this tree owo");
                         } else {
-                           this.h("Ima go mine uwu");
+                           this.sendGirlChatMessage("Ima go mine uwu");
                            this.b_clash618(var7.b_clash201());
                            this.world.setBlockState(var7.b_clash201(), Blocks.AIR.getDefaultState());
                         }
@@ -1496,7 +1496,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          if (this.Z <= 0) {
             this.Z = 100;
             this.ai = 24;
-            this.b(fp.NULL);
+            this.setCurrentAction(fp.NULL);
          }
       }
    }
@@ -1515,7 +1515,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             && ++this.aK >= 10) {
             var3.clearPath();
             this.aK = 0;
-            this.b(fp.MINE);
+            this.setCurrentAction(fp.MINE);
             this.rotationYawHead = (float)(
                Math.atan2(this.posZ - this.aI.getZ(), this.posX - this.aI.getX()) * (180.0 / Math.PI) + 90.0
             );
@@ -2045,7 +2045,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (this.ad == null) {
          this.aR = 24;
          this.W = 0;
-         this.b(fp.NULL);
+         this.setCurrentAction(fp.NULL);
          this.entityDataManager.set(IS_ANCHORED, false);
          EntityPlayer var6 = this.getMasterPlayer();
          HashSet var7 = var2.g_clash203();
@@ -2145,7 +2145,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          this.aR = 24;
          this.W = 0;
          this.ad = null;
-         this.b(fp.NULL);
+         this.setCurrentAction(fp.NULL);
          this.setAnchored(false);
          EntityPlayer var4 = this.getMasterPlayer();
          HashSet var5 = var2.g_clash203();
@@ -2376,7 +2376,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          this.setYawRotation(var11);
          this.entityDataManager.set(IS_ANCHORED, true);
          this.entityDataManager.set(at, true);
-         this.b(fp.MINE);
+         this.setCurrentAction(fp.MINE);
          this.world.destroyBlock(var3.up(), false);
       } else if (Math.abs(this.getPosition().getY() - var3.getY()) > 4) {
          this.b_clash618(var3);
@@ -2397,15 +2397,15 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   public void b(fp var1) {
-      if (this.getCurrentAction() != fp.MATING_PRESS_CUM || var1 != fp.MATING_PRESS_SOFT && var1 != fp.MATING_PRESS_HARD) {
-         if (this.getCurrentAction() != fp.KOBOLD_ANAL_CUM || var1 != fp.KOBOLD_ANAL_SLOW && var1 != fp.KOBOLD_ANAL_FAST) {
-            if (this.getCurrentAction() != fp.CUMBLOWJOB || var1 != fp.SUCKBLOWJOB && var1 != fp.THRUSTBLOWJOB) {
-               if (var1 == fp.MATING_PRESS_CUM) {
+   public void setCurrentAction(fp action) {
+      if (this.getCurrentAction() != fp.MATING_PRESS_CUM || action != fp.MATING_PRESS_SOFT && action != fp.MATING_PRESS_HARD) {
+         if (this.getCurrentAction() != fp.KOBOLD_ANAL_CUM || action != fp.KOBOLD_ANAL_SLOW && action != fp.KOBOLD_ANAL_FAST) {
+            if (this.getCurrentAction() != fp.CUMBLOWJOB || action != fp.SUCKBLOWJOB && action != fp.THRUSTBLOWJOB) {
+               if (action == fp.MATING_PRESS_CUM) {
                   this.V = 0;
                }
 
-               super.b(var1);
+               super.setCurrentAction(action);
             }
          }
       }
@@ -2620,7 +2620,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       float var3 = 0.25F - (Float)this.entityDataManager.get(aE);
       double var4 = var3 / 0.25F;
       float var6 = (float)RotationHelper.b(0.9F, 1.1F, var4);
-      this.a(var1, var2, var6);
+      this.playSoundAtPosition(var1, var2, var6);
    }
 
    void b(SoundEvent var1) {
@@ -2636,7 +2636,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
@@ -2650,16 +2650,16 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       switch (var1.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.kobold.null", true, var1);
+               this.createAnimation("animation.kobold.null", true, var1);
             } else {
-               this.a("animation.kobold.blink", true, var1);
+               this.createAnimation("animation.kobold.blink", true, var1);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.kobold.null", true, var1);
+               this.createAnimation("animation.kobold.null", true, var1);
             } else if (this.isRiding()) {
-               this.a("animation.kobold.sit", true, var1);
+               this.createAnimation("animation.kobold.sit", true, var1);
             } else {
                double var5 = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
                if (!(Boolean)this.entityDataManager.get(IS_ANCHORED) && var5 > 0.0) {
@@ -2668,82 +2668,82 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                      double var9 = 1.0 + var2 * 2.0F;
                      this.movementController.setAnimationSpeed(var9);
                      if (this.a_clash355()) {
-                        this.a("animation.kobold.crouch_walk", true, var1);
+                        this.createAnimation("animation.kobold.crouch_walk", true, var1);
                      } else if ((Boolean)this.entityDataManager.get(aC)) {
-                        this.a("animation.kobold.run_armed", true, var1);
+                        this.createAnimation("animation.kobold.run_armed", true, var1);
                      } else if (var5 > 0.2F) {
-                        this.a("animation.kobold.run", true, var1);
+                        this.createAnimation("animation.kobold.run", true, var1);
                      } else {
-                        this.a("animation.kobold.walk", true, var1);
+                        this.createAnimation("animation.kobold.walk", true, var1);
                      }
                   } else {
-                     this.a("animation.kobold.fly", true, var1);
+                     this.createAnimation("animation.kobold.fly", true, var1);
                   }
                } else if (this.a_clash355()) {
-                  this.a("animation.kobold.crouch_idle", true, var1);
+                  this.createAnimation("animation.kobold.crouch_idle", true, var1);
                } else {
-                  this.a(this.entityDataManager.get(aC) ? "animation.kobold.idle_armed" : "animation.kobold.idle", true, var1);
+                  this.createAnimation(this.entityDataManager.get(aC) ? "animation.kobold.idle_armed" : "animation.kobold.idle", true, var1);
                }
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.a("animation.kobold.null", true, var1);
+                  this.createAnimation("animation.kobold.null", true, var1);
                   break;
                case ATTACK:
-                  this.a("animation.kobold.attack", false, var1);
+                  this.createAnimation("animation.kobold.attack", false, var1);
                   break;
                case RIDE:
                case SIT:
-                  this.a("animation.kobold.sit", true, var1);
+                  this.createAnimation("animation.kobold.sit", true, var1);
                   break;
                case MINE:
-                  this.a("animation.kobold.fall_tree", true, var1);
+                  this.createAnimation("animation.kobold.fall_tree", true, var1);
                   break;
                case PAYMENT:
-                  this.a("animation.kobold.paymentBackpack", true, var1);
+                  this.createAnimation("animation.kobold.paymentBackpack", true, var1);
                   break;
                case STARTBLOWJOB:
-                  this.a("animation.kobold.blowjobStart", false, var1);
+                  this.createAnimation("animation.kobold.blowjobStart", false, var1);
                   break;
                case SUCKBLOWJOB_BLINK:
                   String var7 = this.WildSlimeFaceLayer ? "R" : "L";
                   String var8 = this.aT ? "Switch" : "";
-                  this.a("animation.kobold.blowjobSlow" + var7 + var8, true, var1);
+                  this.createAnimation("animation.kobold.blowjobSlow" + var7 + var8, true, var1);
                   break;
                case THRUSTBLOWJOB:
-                  this.a("animation.kobold.blowjobFast", true, var1);
+                  this.createAnimation("animation.kobold.blowjobFast", true, var1);
                   break;
                case CUMBLOWJOB:
-                  this.a("animation.kobold.blowjobCum", false, var1);
+                  this.createAnimation("animation.kobold.blowjobCum", false, var1);
                   break;
                case KOBOLD_ANAL_START:
-                  this.a("animation.kobold.analStart", false, var1);
+                  this.createAnimation("animation.kobold.analStart", false, var1);
                   break;
                case KOBOLD_ANAL_SLOW:
-                  this.a("animation.kobold.analSoft", true, var1);
+                  this.createAnimation("animation.kobold.analSoft", true, var1);
                   break;
                case KOBOLD_ANAL_FAST:
-                  this.a("animation.kobold.analHard", true, var1);
+                  this.createAnimation("animation.kobold.analHard", true, var1);
                   break;
                case KOBOLD_ANAL_CUM:
-                  this.a("animation.kobold.analCum", true, var1);
+                  this.createAnimation("animation.kobold.analCum", true, var1);
                   break;
                case SLEEP:
-                  this.a("animation.kobold.sleep", true, var1);
+                  this.createAnimation("animation.kobold.sleep", true, var1);
                   break;
                case MATING_PRESS_START:
-                  this.a("animation.kobold.mating_press_start", false, var1);
+                  this.createAnimation("animation.kobold.mating_press_start", false, var1);
                   break;
                case MATING_PRESS_SOFT:
-                  this.a("animation.kobold.mating_press_soft", true, var1);
+                  this.createAnimation("animation.kobold.mating_press_soft", true, var1);
                   break;
                case MATING_PRESS_HARD:
-                  this.a("animation.kobold.mating_press_hard", true, var1);
+                  this.createAnimation("animation.kobold.mating_press_hard", true, var1);
                   break;
                case MATING_PRESS_CUM:
-                  this.a("animation.kobold.mating_press_cum", true, var1);
+                  this.createAnimation("animation.kobold.mating_press_cum", true, var1);
             }
       }
 
@@ -2760,14 +2760,14 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackSound":
-               this.a(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
+               this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
                break;
             case "paymentMSG1":
-               this.a(this.getInteractionPlayerUUID(), "I'd like to use ur services owo");
-               this.a(SoundHandler.MISC_PLOB);
+               this.sendChatMessageToPlayer(this.getInteractionPlayerUUID(), "I'd like to use ur services owo");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "plob":
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "blackScreen":
                if (this.isControlledByLocalPlayer()) {
@@ -2803,18 +2803,18 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                break;
             case "lipsound":
                if (this.getRNG().nextBoolean()) {
-                  this.a(SoundHandler.GIRLS_ALLIE_LIPSOUND, 1.5F);
+                  this.playRandomSoundAtVolume(SoundHandler.GIRLS_ALLIE_LIPSOUND, 1.5F);
                } else {
-                  this.a(SoundHandler.GIRLS_JENNY_LIPSOUND, 1.5F);
+                  this.playRandomSoundAtVolume(SoundHandler.GIRLS_JENNY_LIPSOUND, 1.5F);
                }
 
                HornyMeterHud.addToHornyMeter(0.02F);
                break;
             case "touch":
-               this.a(SoundHandler.MISC_TOUCH);
+               this.playRandomSound(SoundHandler.MISC_TOUCH);
                break;
             case "blowjobStartDone":
-               this.b(fp.SUCKBLOWJOB_BLINK);
+               this.setCurrentAction(fp.SUCKBLOWJOB_BLINK);
                this.aT = false;
                this.WildSlimeFaceLayer = true;
                if (this.isControlledByLocalPlayer()) {
@@ -2832,14 +2832,14 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                break;
             case "blowjobFastDone":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.SUCKBLOWJOB_BLINK);
+                  this.setCurrentAction(fp.SUCKBLOWJOB_BLINK);
                }
                break;
             case "cumLoud":
-               this.a(SoundHandler.MISC_SMALLINSERTS, 3.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "cumQuiet":
-               this.a(SoundHandler.MISC_SMALLINSERTS, 1.5F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "analCumDone":
             case "blowjobCumDone":
@@ -2849,7 +2849,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                }
                break;
             case "analStartDone":
-               this.b(fp.KOBOLD_ANAL_SLOW);
+               this.setCurrentAction(fp.KOBOLD_ANAL_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -2863,7 +2863,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                }
                break;
             case "pounding":
-               this.a(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "analFastRapid":
                if (this.isControlledByLocalPlayer() && d3.d) {
@@ -2871,12 +2871,12 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                      this.actionController.tickOffset = 0.0;
                   }
 
-                  this.b(fp.KOBOLD_ANAL_FAST);
+                  this.setCurrentAction(fp.KOBOLD_ANAL_FAST);
                }
                break;
             case "analDone":
                if (this.getCurrentAction() == fp.KOBOLD_ANAL_FAST) {
-                  this.b(fp.KOBOLD_ANAL_SLOW);
+                  this.setCurrentAction(fp.KOBOLD_ANAL_SLOW);
                }
                break;
             case "analHard":
@@ -2890,7 +2890,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                }
                break;
             case "cum":
-               this.a(SoundHandler.MISC_SMALLINSERTS, 2.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "giggle":
                this.a_clash630(SoundHandler.GIRLS_KOBOLD_GIGGLE);
@@ -2949,7 +2949,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                }
             case "mating_press_hardDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.b(fp.MATING_PRESS_SOFT);
+                  this.setCurrentAction(fp.MATING_PRESS_SOFT);
                }
                break;
             case "mating_press_softReady":
@@ -2958,7 +2958,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                }
 
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.b(fp.MATING_PRESS_HARD);
+                  this.setCurrentAction(fp.MATING_PRESS_HARD);
                }
                break;
             case "mating_press_hardReady":
@@ -2967,7 +2967,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                }
 
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.N();
+                  this.resetAnimationControllerOffset();
                }
                break;
             case "mating_cum_cam":
@@ -2985,7 +2985,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                break;
             case "renderEgg":
                this.Q = true;
-               this.a(SoundHandler.MISC_PLOB, 0.5F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_PLOB, 0.5F);
                break;
             case "mating_press_cumDone":
                if (this.isControlledByLocalPlayer()) {

@@ -124,16 +124,16 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    public void b(String var1, UUID var2) {
       if ("anal".equals(var1)) {
          this.b_clash577(var2);
-         this.b(fp.NELSON_INTRO);
+         this.setCurrentAction(fp.NELSON_INTRO);
          this.a(this.getOutfitIndex(), fp.NELSON_INTRO);
-         this.f(0);
+         this.setOutfitIndex(0);
       }
 
       if ("paizuri".equals(var1)) {
          this.b_clash577(var2);
-         this.b(fp.PAIZURI_START);
+         this.setCurrentAction(fp.PAIZURI_START);
          this.a(this.getOutfitIndex(), fp.PAIZURI_START);
-         this.f(0);
+         this.setOutfitIndex(0);
       }
    }
 
@@ -190,7 +190,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                var1.sendStatusMessage(new TextComponentString("you are already carrying a Goblin"), true);
             } else {
                this.setOwnerUUID(var1.getPersistentID());
-               this.b(fp.PICK_UP);
+               this.setCurrentAction(fp.PICK_UP);
                this.b_clash63(45);
                EntityPlayer var2 = this.k_clash584();
                if (var2 != null) {
@@ -397,7 +397,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
             var3.setNoGravity(false);
             if (var2 == 39) {
                this.c_clash57(-1);
-               this.b(fp.THROWN);
+               this.setCurrentAction(fp.THROWN);
                this.setInteractionPlayerUUID(null);
                this.setOwnerUUID(null);
             }
@@ -417,7 +417,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       if (this.getCurrentAction() == fp.STAND_UP) {
          if (++this.aJ >= 37) {
             this.aJ = 0;
-            this.b(fp.NULL);
+            this.setCurrentAction(fp.NULL);
          }
       }
    }
@@ -431,7 +431,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                this.a_clash59(var2);
                if (var2 >= 30) {
                   this.a_clash59(0);
-                  this.b(fp.STAND_UP);
+                  this.setCurrentAction(fp.STAND_UP);
                }
             }
          }
@@ -575,28 +575,28 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @Override
-   public void b(fp var1) {
+   public void setCurrentAction(fp action) {
       fp var2 = this.getCurrentAction();
-      if (var2 != fp.PAIZURI_CUM || var1 != fp.PAIZURI_SLOW && var1 != fp.PAIZURI_FAST) {
-         if (var2 != fp.NELSON_CUM || var1 != fp.NELSON_SLOW && var1 != fp.NELSON_FAST) {
-            if (var2 != fp.BREEDING_CUM_0 || var1 != fp.BREEDING_SLOW_0 && var1 != fp.BREEDING_FAST_0) {
-               if (var1 == fp.PAIZURI_START && !this.world.isRemote) {
+      if (var2 != fp.PAIZURI_CUM || action != fp.PAIZURI_SLOW && action != fp.PAIZURI_FAST) {
+         if (var2 != fp.NELSON_CUM || action != fp.NELSON_SLOW && action != fp.NELSON_FAST) {
+            if (var2 != fp.BREEDING_CUM_0 || action != fp.BREEDING_SLOW_0 && action != fp.BREEDING_FAST_0) {
+               if (action == fp.PAIZURI_START && !this.world.isRemote) {
                   this.m_clash466();
                }
 
-               if (var1 == fp.NELSON_INTRO && !this.world.isRemote) {
+               if (action == fp.NELSON_INTRO && !this.world.isRemote) {
                   this.q_clash465();
                }
 
-               if (var1 == fp.NELSON_CUM) {
+               if (action == fp.NELSON_CUM) {
                   this.entityDataManager.set(aA, true);
                }
 
-               if (var2 == fp.NELSON_CUM && var1 != fp.NELSON_CUM) {
+               if (var2 == fp.NELSON_CUM && action != fp.NELSON_CUM) {
                   this.entityDataManager.set(aA, false);
                }
 
-               super.b(var1);
+               super.setCurrentAction(action);
             }
          }
       }
@@ -638,7 +638,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       if (var1.getPersistentID().equals(this.getOwnerUUID())) {
          ResetGirlPacket.Handler.a_clash10(this);
          this.setAnchored(false);
-         this.b(fp.NULL);
+         this.setCurrentAction(fp.NULL);
          this.setOwnerUUID(null);
       }
    }
@@ -667,7 +667,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
@@ -675,36 +675,36 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       switch (var1.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
-               this.a("animation.goblin.blink", true, var1);
+               this.createAnimation("animation.goblin.blink", true, var1);
             } else {
-               this.a("animation.goblin.null", true, var1);
+               this.createAnimation("animation.goblin.null", true, var1);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.goblin.null", true, var1);
+               this.createAnimation("animation.goblin.null", true, var1);
             } else if (this.ak) {
-               this.a("animation.goblin.sit", true, var1);
+               this.createAnimation("animation.goblin.sit", true, var1);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.aC = !this.aC;
                }
 
                if (!this.af) {
-                  this.a("animation.goblin.fly" + (this.aC ? "2" : ""), true, var1);
+                  this.createAnimation("animation.goblin.fly" + (this.aC ? "2" : ""), true, var1);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
                      this.movementController.setAnimationSpeed(1.2F);
-                     this.a("animation.goblin.running", true, var1);
+                     this.createAnimation("animation.goblin.running", true, var1);
                   } else if (this.ao.y >= -0.1F) {
                      this.movementController.setAnimationSpeed(2.0);
-                     this.a("animation.goblin.walk", true, var1);
+                     this.createAnimation("animation.goblin.walk", true, var1);
                   } else {
                      this.movementController.setAnimationSpeed(1.5);
-                     this.a("animation.goblin.backwards_walk", true, var1);
+                     this.createAnimation("animation.goblin.backwards_walk", true, var1);
                   }
                } else {
-                  this.a("animation.goblin.idle", true, var1);
+                  this.createAnimation("animation.goblin.idle", true, var1);
                }
             }
             break;
@@ -713,97 +713,97 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
             String var5 = var4.player.getPersistentID().equals(this.getOwnerUUID()) && var4.gameSettings.thirdPersonView == 0 ? "1" : "3";
             switch (this.getCurrentAction()) {
                case NELSON_CUM:
-                  this.a("animation.goblin.nelson_cum", true, var1);
+                  this.createAnimation("animation.goblin.nelson_cum", true, var1);
                   break;
                case NELSON_FAST:
-                  this.a("animation.goblin.nelson_fast" + (this.aF ? "c" : "s"), true, var1);
+                  this.createAnimation("animation.goblin.nelson_fast" + (this.aF ? "c" : "s"), true, var1);
                   break;
                case NELSON_INTRO:
-                  this.a("animation.goblin.nelson_intro", true, var1);
+                  this.createAnimation("animation.goblin.nelson_intro", true, var1);
                   break;
                case NELSON_SLOW:
-                  this.a("animation.goblin.nelson_slow" + (this.ay ? "" : "2"), true, var1);
+                  this.createAnimation("animation.goblin.nelson_slow" + (this.ay ? "" : "2"), true, var1);
                   break;
                case PAIZURI_IDLE:
-                  this.a("animation.goblin.paizuri_idle", true, var1);
+                  this.createAnimation("animation.goblin.paizuri_idle", true, var1);
                   break;
                case PAIZURI_SLOW:
-                  this.a("animation.goblin.paizuri_slow" + this.aD, true, var1);
+                  this.createAnimation("animation.goblin.paizuri_slow" + this.aD, true, var1);
                   break;
                case BREEDING_SLOW_0:
-                  this.a("animation.goblin.breeding_slow_1" + (this.aB ? "l" : "r"), true, var1);
+                  this.createAnimation("animation.goblin.breeding_slow_1" + (this.aB ? "l" : "r"), true, var1);
                   break;
                case BREEDING_SLOW_2:
-                  this.a("animation.goblin.breeding_slow_3", true, var1);
+                  this.createAnimation("animation.goblin.breeding_slow_3", true, var1);
                   break;
                case PAIZURI_FAST:
-                  this.a("animation.goblin.paizuri_fast", true, var1);
+                  this.createAnimation("animation.goblin.paizuri_fast", true, var1);
                   break;
                case PAIZURI_FAST_CONTINUES:
-                  this.a("animation.goblin.paizuri_fast_countinues", true, var1);
+                  this.createAnimation("animation.goblin.paizuri_fast_countinues", true, var1);
                   break;
                case BREEDING_1:
-                  this.a("animation.goblin.breeding_2", true, var1);
+                  this.createAnimation("animation.goblin.breeding_2", true, var1);
                   break;
                case BREEDING_FAST_2:
-                  this.a("animation.goblin.breeding_fast_3", true, var1);
+                  this.createAnimation("animation.goblin.breeding_fast_3", true, var1);
                   break;
                case SHOULDER_IDLE:
-                  this.a("animation.goblin.shoulder_idle", true, var1);
+                  this.createAnimation("animation.goblin.shoulder_idle", true, var1);
                   break;
                case PICK_UP:
-                  this.a(String.format("animation.goblin.pick_up_%sperson", var5), true, var1);
+                  this.createAnimation(String.format("animation.goblin.pick_up_%sperson", var5), true, var1);
                   break;
                case START_THROWING:
-                  this.a(String.format("animation.goblin.throw_%sperson", var5), true, var1);
+                  this.createAnimation(String.format("animation.goblin.throw_%sperson", var5), true, var1);
                   break;
                case THROWN:
-                  this.a("animation.goblin.thrown", true, var1);
+                  this.createAnimation("animation.goblin.thrown", true, var1);
                   break;
                case NULL:
-                  this.a("animation.goblin.null", true, var1);
+                  this.createAnimation("animation.goblin.null", true, var1);
                   break;
                case STAND_UP:
-                  this.a("animation.goblin.stand_up", false, var1);
+                  this.createAnimation("animation.goblin.stand_up", false, var1);
                   break;
                case STRIP:
-                  this.a("animation.goblin.strip", false, var1);
+                  this.createAnimation("animation.goblin.strip", false, var1);
                   break;
                case ATTACK:
-                  this.a("animation.goblin.attack" + this.S, false, var1);
+                  this.createAnimation("animation.goblin.attack" + this.S, false, var1);
                   break;
                case BOW:
-                  this.a("animation.goblin.bowcharge", false, var1);
+                  this.createAnimation("animation.goblin.bowcharge", false, var1);
                   break;
                case SIT:
-                  this.a("animation.goblin.sit", true, var1);
+                  this.createAnimation("animation.goblin.sit", true, var1);
                   break;
                case BREEDING_INTRO_0:
-                  this.a("animation.goblin.breeding_intro_1", true, var1);
+                  this.createAnimation("animation.goblin.breeding_intro_1", true, var1);
                   break;
                case BREEDING_INTRO_1:
-                  this.a("animation.goblin.breeding_intro_2", true, var1);
+                  this.createAnimation("animation.goblin.breeding_intro_2", true, var1);
                   break;
                case BREEDING_INTRO_2:
-                  this.a("animation.goblin.breeding_intro_3", true, var1);
+                  this.createAnimation("animation.goblin.breeding_intro_3", true, var1);
                   break;
                case BREEDING_FAST_0:
-                  this.a("animation.goblin.breeding_fast_1" + (this.aH ? "c" : "s"), true, var1);
+                  this.createAnimation("animation.goblin.breeding_fast_1" + (this.aH ? "c" : "s"), true, var1);
                   break;
                case BREEDING_CUM_0:
-                  this.a("animation.goblin.breeding_cum_1", true, var1);
+                  this.createAnimation("animation.goblin.breeding_cum_1", true, var1);
                   break;
                case BREEDING_CUM_1:
-                  this.a("animation.goblin.breeding_cum_2", true, var1);
+                  this.createAnimation("animation.goblin.breeding_cum_2", true, var1);
                   break;
                case BREEDING_CUM_2:
-                  this.a("animation.goblin.breeding_cum_3", true, var1);
+                  this.createAnimation("animation.goblin.breeding_cum_3", true, var1);
                   break;
                case PAIZURI_START:
-                  this.a("animation.goblin.paizuri_start", true, var1);
+                  this.createAnimation("animation.goblin.paizuri_start", true, var1);
                   break;
                case PAIZURI_CUM:
-                  this.a("animation.goblin.paizuri_cum", true, var1);
+                  this.createAnimation("animation.goblin.paizuri_cum", true, var1);
             }
       }
 
@@ -846,14 +846,14 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                break;
             case "catchDone":
                if ("bj".equals(this.entityDataManager.get(GIRL_HAND_STATES))) {
-                  this.b(fp.CATCH_BJ);
+                  this.setCurrentAction(fp.CATCH_BJ);
                }
                break;
             case "catchBjDone":
-               this.b(fp.CATCH_BJ_IDLE);
+               this.setCurrentAction(fp.CATCH_BJ_IDLE);
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var6 = Minecraft.getMinecraft().player;
-                  a(var6, this, new String[]{"use her", "take ur stuff back"}, null, false);
+                  openInventoryGui(var6, this, new String[]{"use her", "take ur stuff back"}, null, false);
                }
                break;
             case "paizuriChoice":
@@ -874,7 +874,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
                break;
             case "touch":
-               this.a(SoundHandler.MISC_TOUCH, 3.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_TOUCH, 3.0F);
                break;
             case "pound":
                this.playRandomSound(SoundHandler.MISC_POUNDING);
@@ -883,27 +883,27 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
                break;
             case "paizuri_startDone":
-               this.b(fp.PAIZURI_IDLE);
+               this.setCurrentAction(fp.PAIZURI_IDLE);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "paizuriFastDone":
-               this.b(fp.PAIZURI_SLOW);
+               this.setCurrentAction(fp.PAIZURI_SLOW);
                break;
             case "paizuriFastReady":
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.b(fp.PAIZURI_FAST_CONTINUES);
+                  this.setCurrentAction(fp.PAIZURI_FAST_CONTINUES);
                }
                break;
             case "paizuriFastContinuesReady":
             case "neslon_fastBackSwitch":
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.N();
+                  this.resetAnimationControllerOffset();
                }
                break;
             case "smallPound":
-               this.a(SoundHandler.MISC_POUNDING, 0.25F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_POUNDING, 0.25F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02F);
                }
@@ -921,7 +921,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
                break;
             case "cumSound":
-               this.a(SoundHandler.MISC_SMALLINSERTS, 3.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "jumpCam":
                if (this.isControlledByLocalPlayer()) {
@@ -960,7 +960,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                   var7.player.rotationPitch = -30.0F;
                }
             case "breedingIntroDone":
-               this.b(fp.BREEDING_SLOW_0);
+               this.setCurrentAction(fp.BREEDING_SLOW_0);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -971,12 +971,12 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
 
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.b(fp.BREEDING_FAST_0);
+                  this.setCurrentAction(fp.BREEDING_FAST_0);
                   this.aH = false;
                }
                break;
             case "breeding_fast1Done":
-               this.b(fp.BREEDING_SLOW_0);
+               this.setCurrentAction(fp.BREEDING_SLOW_0);
                if (this.isControlledByLocalPlayer()) {
                   this.aH = false;
                }
@@ -984,15 +984,15 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
             case "breeding_fast1Ready":
                if (this.isControlledByLocalPlayer() && d3.d) {
                   this.aH = true;
-                  this.N();
+                  this.resetAnimationControllerOffset();
                   this.actionController.tickOffset = 0.0;
                }
                break;
             case "cum":
-               this.a(SoundHandler.MISC_SMALLINSERTS, 2.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "breeding_intro_3Done":
-               this.b(fp.BREEDING_SLOW_2);
+               this.setCurrentAction(fp.BREEDING_SLOW_2);
                break;
             case "breeding_3_wiggle":
                if (this.getRNG().nextBoolean()) {
@@ -1001,11 +1001,11 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                break;
             case "breeding_fast_3Done":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.BREEDING_SLOW_2);
+                  this.setCurrentAction(fp.BREEDING_SLOW_2);
                }
                break;
             case "breeding_intro_2Done":
-               this.b(fp.BREEDING_1);
+               this.setCurrentAction(fp.BREEDING_1);
                break;
             case "breeding_cumCam":
                if (this.isControlledByLocalPlayer()) {
@@ -1018,7 +1018,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
                break;
             case "neslon_introDone":
-               this.b(fp.NELSON_SLOW);
+               this.setCurrentAction(fp.NELSON_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -1041,14 +1041,14 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
             case "nelsonFastDone":
                this.aF = false;
                if (this.isControlledByLocalPlayer()) {
-                  this.b(fp.NELSON_SLOW);
+                  this.setCurrentAction(fp.NELSON_SLOW);
                }
                break;
             case "paizuriCumDone":
             case "nelson_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   this.resetCameraAndPhysics();
-                  this.b(fp.NULL);
+                  this.setCurrentAction(fp.NULL);
                }
          }
       };

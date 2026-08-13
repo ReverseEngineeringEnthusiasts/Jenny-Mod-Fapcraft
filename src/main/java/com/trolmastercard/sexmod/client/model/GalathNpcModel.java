@@ -110,7 +110,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
                if (var1.getCurrentAction() == fp.PUSSY_LICKING && !((GalathEntity)var1).a5) {
                   float var6 = (float)(Math.sin(var4 * 0.3F) * 10.0);
                   if (var6 > 0.0F && this.g < 0.0F || var6 < 0.0F && this.g > 0.0F) {
-                     var1.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
+                     var1.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
                   }
 
                   this.g = var6;

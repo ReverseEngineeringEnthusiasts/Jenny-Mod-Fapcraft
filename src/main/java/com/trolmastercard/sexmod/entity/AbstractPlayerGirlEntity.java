@@ -220,13 +220,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       this.cameraOriginPos = null;
       this.setNoGravity(false);
       if (this.world.isRemote) {
-         this.V();
+         this.resetLocalPlayerClientState();
       }
    }
 
    @SideOnly(Side.CLIENT)
    @Override
-   protected void V() {
+   protected void resetLocalPlayerClientState() {
       if (this.isControlledByLocalPlayer() || this.f_clash579()) {
          d3.setMovementLock(true);
          EntityPlayerSP var1 = Minecraft.getMinecraft().player;
@@ -383,7 +383,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public void updateAITasks() {
       rebuildPlayerGirlTable();
       this.tickFollowUpTransitions();
-      this.G();
+      this.updateCustomModelParts();
       UUID var1 = this.getOwnerUserUUID();
       if (var1 != null) {
          EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
@@ -400,11 +400,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
             fp var4 = this.getCurrentAction();
             if (var4 == fp.NULL && var2.isSwingInProgress) {
-               this.b(fp.ATTACK);
+               this.setCurrentAction(fp.ATTACK);
             }
 
             if (var4 == fp.ATTACK && !var2.isSwingInProgress) {
-               this.b(fp.NULL);
+               this.setCurrentAction(fp.NULL);
             }
          }
       }
@@ -414,7 +414,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       if (this.an != -1) {
          this.an++;
          if (!this.world.isRemote && this.an == 65) {
-            this.f(this.getOutfitIndex() == 0 ? 1 : 0);
+            this.setOutfitIndex(this.getOutfitIndex() == 0 ? 1 : 0);
          }
 
          if (this.an >= 100) {
@@ -422,7 +422,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
                if (this.world.isRemote) {
                   this.n_clash582();
                } else {
-                  this.b(fp.NULL);
+                  this.setCurrentAction(fp.NULL);
                }
             }
          }
@@ -459,15 +459,15 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Override
-   public void b(fp var1) {
-      if (!this.world.isRemote && var1 == fp.NULL && this.isAnchored()) {
+   public void setCurrentAction(fp action) {
+      if (!this.world.isRemote && action == fp.NULL && this.isAnchored()) {
          System.out.println("prevented a potential animation break");
       } else {
-         if (var1 == fp.STRIP) {
+         if (action == fp.STRIP) {
             this.an = this.world.isRemote ? 5 : 0;
          }
 
-         super.b(var1);
+         super.setCurrentAction(action);
       }
    }
 
@@ -563,7 +563,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Override
-   public void a(String var1, UUID var2) {
+   public void doAction(String var1, UUID var2) {
       if (!this.a_clash571(var1)) {
          if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
             PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
@@ -586,7 +586,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Override
-   public void a(SoundEvent var1, float var2, float var3) {
+   public void playSoundAtPosition(SoundEvent var1, float var2, float var3) {
       Vec3d var4 = this.w_clash576();
       if (this.world.isRemote) {
          this.world.playSound(var4.x, var4.y, var4.z, var1, SoundCategory.NEUTRAL, var2, var3, false);
@@ -597,17 +597,17 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Override
-   public void a(SoundEvent var1) {
-      this.a(var1, 1.0F, 1.0F);
+   public void playSound(SoundEvent var1) {
+      this.playSoundAtPosition(var1, 1.0F, 1.0F);
    }
 
    public void playRandomSound(SoundEvent[] var1) {
-      this.a(var1[this.getRNG().nextInt(var1.length)], 1.0F, 1.0F);
+      this.playSoundAtPosition(var1[this.getRNG().nextInt(var1.length)], 1.0F, 1.0F);
    }
 
    @Override
-   public void a(SoundEvent var1, float var2) {
-      this.a(var1, var2, 1.0F);
+   public void playSoundAtVolume(SoundEvent var1, float var2) {
+      this.playSoundAtPosition(var1, var2, 1.0F);
    }
 
    @Override

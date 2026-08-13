@@ -90,27 +90,27 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    public void b(String var1, UUID var2) {
       if ("cowgirl".equals(var1)) {
          this.b_clash577(var2);
-         this.b(fp.RAPE_INTRO);
+         this.setCurrentAction(fp.RAPE_INTRO);
          this.a(this.getOutfitIndex(), fp.RAPE_INTRO);
       } else if ("mating press".equals(var1)) {
          this.b_clash577(var2);
-         this.b(fp.CORRUPT_SLOW);
+         this.setCurrentAction(fp.CORRUPT_SLOW);
          this.a(this.getOutfitIndex(), fp.CORRUPT_SLOW);
          this.a_clash442();
       }
    }
 
    @Override
-   public void b(fp var1) {
+   public void setCurrentAction(fp action) {
       fp var2 = this.getCurrentAction();
-      if (var2 != fp.CORRUPT_CUM || var1 != fp.CORRUPT_FAST && var1 != fp.CORRUPT_SLOW) {
-         if (var2 != fp.RAPE_CUM || var1 != fp.RAPE_ON_GOING) {
-            if (var2 != fp.RAPE_CUM || var1 != fp.RAPE_CUM_IDLE) {
-               if (var1 == fp.CORRUPT_SLOW) {
+      if (var2 != fp.CORRUPT_CUM || action != fp.CORRUPT_FAST && action != fp.CORRUPT_SLOW) {
+         if (var2 != fp.RAPE_CUM || action != fp.RAPE_ON_GOING) {
+            if (var2 != fp.RAPE_CUM || action != fp.RAPE_CUM_IDLE) {
+               if (action == fp.CORRUPT_SLOW) {
                   this.as = false;
                }
 
-               super.b(var1);
+               super.setCurrentAction(action);
             }
          }
       }
@@ -131,7 +131,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
 
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
-      a(var1, this, new String[]{"cowgirl", "mating press", "ride"}, false);
+      openInventoryGui(var1, this, new String[]{"cowgirl", "mating press", "ride"}, false);
       return true;
    }
 
@@ -217,82 +217,82 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
-               this.a("animation.galath.blink", true, var1);
+               this.createAnimation("animation.galath.blink", true, var1);
             } else {
-               this.a("animation.galath.null", true, var1);
+               this.createAnimation("animation.galath.null", true, var1);
             }
             break;
          case "movement":
             this.movementController.setAnimationSpeed(1.0);
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.galath.null", true, var1);
+               this.createAnimation("animation.galath.null", true, var1);
             } else if (this.ak) {
-               this.a("animation.galath.sit", true, var1);
+               this.createAnimation("animation.galath.sit", true, var1);
             } else if (!this.af) {
-               this.a("animation.galath.controlled_flight", true, var1);
+               this.createAnimation("animation.galath.controlled_flight", true, var1);
             } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) == 0.0F) {
-               this.a(this.g_clash445() ? "animation.galath.crouchidle" : "animation.galath.idle", true, var1);
+               this.createAnimation(this.g_clash445() ? "animation.galath.crouchidle" : "animation.galath.idle", true, var1);
             } else if (this.aj) {
                this.movementController.setAnimationSpeed(1.5);
-               this.a(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.run", true, var1);
+               this.createAnimation(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.run", true, var1);
             } else if (this.ao.y >= -0.1F) {
                this.movementController.setAnimationSpeed(2.0);
-               this.a(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.walk", true, var1);
+               this.createAnimation(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.walk", true, var1);
             } else {
                this.movementController.setAnimationSpeed(1.5);
-               this.a(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.backwards_walk", true, var1);
+               this.createAnimation(this.g_clash445() ? "animation.galath.crouchwalk" : "animation.galath.backwards_walk", true, var1);
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case CORRUPT_CUM:
-                  this.a("animation.galath.corrupt_cum", true, var1);
+                  this.createAnimation("animation.galath.corrupt_cum", true, var1);
                   break;
                case CORRUPT_FAST:
-                  this.a("animation.galath.corrupt_" + (this.as ? "hard" : "soft"), true, var1);
+                  this.createAnimation("animation.galath.corrupt_" + (this.as ? "hard" : "soft"), true, var1);
                   break;
                case CORRUPT_SLOW:
-                  this.a("animation.galath.corrupt_slow", true, var1);
+                  this.createAnimation("animation.galath.corrupt_slow", true, var1);
                case COWGIRLCUM:
                case RAPE_CHARGE:
                default:
                   break;
                case RAPE_INTRO:
-                  this.a("animation.galath.rape_intro", true, var1);
+                  this.createAnimation("animation.galath.rape_intro", true, var1);
                   break;
                case RAPE_ON_GOING:
-                  this.a("animation.galath.rape" + this.ar, true, var1);
+                  this.createAnimation("animation.galath.rape" + this.ar, true, var1);
                   break;
                case RAPE_CUM:
-                  this.a("animation.galath.rape_cum", true, var1);
+                  this.createAnimation("animation.galath.rape_cum", true, var1);
                   break;
                case RAPE_CUM_IDLE:
-                  this.a("animation.galath.rape_cum_idle", true, var1);
+                  this.createAnimation("animation.galath.rape_cum_idle", true, var1);
                   break;
                case NULL:
                   return PlayState.STOP;
                case STRIP:
-                  this.a("animation.galath.strip", true, var1);
+                  this.createAnimation("animation.galath.strip", true, var1);
                   break;
                case ATTACK:
-                  this.a("animation.galath.attack" + this.S, true, var1);
+                  this.createAnimation("animation.galath.attack" + this.S, true, var1);
                   break;
                case BOW:
-                  this.a("animation.galath.bowcharge", true, var1);
+                  this.createAnimation("animation.galath.bowcharge", true, var1);
                   break;
                case RIDE:
                case SIT:
-                  this.a("animation.galath.sit", true, var1);
+                  this.createAnimation("animation.galath.sit", true, var1);
                   break;
                case CORRUPT_INTRO:
-                  this.a("animation.galath.corrupt_intro", true, var1);
+                  this.createAnimation("animation.galath.corrupt_intro", true, var1);
                   break;
                case CONTROLLED_FLIGHT:
-                  this.a("animation.galath.controlled_flight", true, var1);
+                  this.createAnimation("animation.galath.controlled_flight", true, var1);
             }
       }
 
@@ -313,7 +313,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      }
                      break;
                   case "cum":
-                     this.a(SoundHandler.MISC_SMALLINSERTS, 2.0F);
+                     this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 2.0F);
                      break;
                   case "pound":
                      this.playRandomSound(SoundHandler.MISC_POUNDING);
@@ -336,7 +336,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      break;
                   case "rapeIntroDone":
                      if (this.isControlledByLocalPlayer()) {
-                        this.b(fp.RAPE_ON_GOING);
+                        this.setCurrentAction(fp.RAPE_ON_GOING);
                      }
                      break;
                   case "rape_switch":
@@ -371,17 +371,17 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      break;
                   case "corruptSwitch":
                      if (this.isControlledByLocalPlayer() && d3.d) {
-                        this.b(fp.CORRUPT_FAST);
+                        this.setCurrentAction(fp.CORRUPT_FAST);
                      }
                      break;
                   case "corrupt_hard":
                      if (this.isControlledByLocalPlayer() && d3.d) {
                         this.as = true;
-                        this.N();
+                        this.resetAnimationControllerOffset();
                      }
                      break;
                   case "corrupt_hard_end":
-                     this.b(fp.CORRUPT_SLOW);
+                     this.setCurrentAction(fp.CORRUPT_SLOW);
                      this.as = false;
                      break;
                   case "addCum":
@@ -413,8 +413,8 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      break;
                   case "creampie":
                      CummyEntity.a(new ep(130, var0 -> {
-                        Vec3d var1xx = var0.d_clash548("futaCockTip");
-                        Vec3d var2 = var0.d_clash548("futaCockTipDirHelp");
+                        Vec3d var1xx = var0.getBoneWorldPosition("futaCockTip");
+                        Vec3d var2 = var0.getBoneWorldPosition("futaCockTipDirHelp");
                         return var1xx.subtract(var2).normalize();
                      }, var0 -> var0.getCachedBoneOffset("futaCockTip").add(var0.getTargetPosition()), this, 0.3F, 0.3F));
                      CummyEntity.a(
@@ -427,7 +427,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                            0.5F
                         )
                      );
-                     this.a(SoundHandler.randomSound(SoundHandler.MISC_SMALLINSERTS), 3.0F);
+                     this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_SMALLINSERTS), 3.0F);
                      break;
                   case "blackScreenTamed":
                   case "blackScreen":
@@ -457,13 +457,13 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      this.playRandomSound(SoundHandler.MISC_CLAP);
                      break;
                   case "energysound":
-                     this.a(SoundHandler.MISC_BEEW[1]);
+                     this.playSound(SoundHandler.MISC_BEEW[1]);
                      break;
                   case "energy2":
-                     this.a(SoundHandler.MISC_BEEW[2]);
+                     this.playSound(SoundHandler.MISC_BEEW[2]);
                      break;
                   case "tpSound":
-                     this.a(SoundHandler.MISC_WEOWEO[2]);
+                     this.playSound(SoundHandler.MISC_WEOWEO[2]);
                      break;
                   case "sexui":
                      if (this.isControlledByLocalPlayer()) {

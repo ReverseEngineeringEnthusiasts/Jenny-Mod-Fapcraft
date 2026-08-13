@@ -190,7 +190,7 @@ public class KoboldManager {
       }
    }
 
-   public static void k(UUID var0) {
+   public static void triggerFastSexAction(UUID var0) {
       KoboldManager.a var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -671,7 +671,7 @@ public class KoboldManager {
       public void b(KoboldTask var1) {
          if (this.f.contains(var1)) {
             for (KoboldEntity var3 : var1.f) {
-               var3.b(fp.NULL);
+               var3.setCurrentAction(fp.NULL);
                var3.setNoGravity(false);
                var3.noClip = false;
                var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);

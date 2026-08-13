@@ -90,7 +90,7 @@ public class GirlInventoryScreen extends GuiScreen {
          }
 
          this.i.sendMessage(new TextComponentString("<" + this.g.getName() + "> you cannot afford that..."));
-         this.g.a(SoundHandler.GIRLS_JENNY_SADOH[1]);
+         this.g.playSound(SoundHandler.GIRLS_JENNY_SADOH[1]);
       } else {
          this.a(var1);
       }
@@ -104,7 +104,7 @@ public class GirlInventoryScreen extends GuiScreen {
          var2 = this.h[var1.id - 5];
       }
 
-      this.g.a(var2, this.i.getPersistentID());
+      this.g.doAction(var2, this.i.getPersistentID());
       Minecraft.getMinecraft().player.closeScreen();
    }
 

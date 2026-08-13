@@ -88,7 +88,7 @@ public class UploadModelStringPacket implements IMessage {
                         NpcType var13 = NpcType.getNpcType(var12);
                         var11.setString("sexmod:CustomModel" + var13.toString(), var1.c);
                         if (var5) {
-                           var11.setString("sexmod:GirlSpecific" + var13.toString(), BaseGirlEntity.c(var1.d));
+                           var11.setString("sexmod:GirlSpecific" + var13.toString(), BaseGirlEntity.encodePartIdList(var1.d));
                         }
                      }
                   }

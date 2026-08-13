@@ -83,7 +83,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    @Override
    public void c_clash237() {
       this.sendChatMessage("Okay, I will be residing here then..");
-      this.a(SoundHandler.GIRLS_ELLIE_HUH[0], 6.0F);
+      this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_HUH[0], 6.0F);
    }
 
    @Override
@@ -121,7 +121,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          } else {
             float var3 = var2.rotationYaw - 180.0F;
             this.setYawRotation(var3);
-            this.b(fp.CARRY_INTRO);
+            this.setCurrentAction(fp.CARRY_INTRO);
             this.setAnchored(true);
          }
       }
@@ -134,13 +134,13 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    public boolean a(EntityPlayer var1, boolean var2) {
       if (var2) {
-         a(var1, this, new String[]{"action.names.cowgirl", "action.names.missionary"}, false);
+         openInventoryGui(var1, this, new String[]{"action.names.cowgirl", "action.names.missionary"}, false);
          return true;
       } else if ((Integer)this.entityDataManager.get(OUTFIT_INDEX) == 0) {
-         a(var1, this, new String[]{"action.names.dressup"}, true);
+         openInventoryGui(var1, this, new String[]{"action.names.dressup"}, true);
          return true;
       } else {
-         a(var1, this, new String[]{"Face fuck"}, true);
+         openInventoryGui(var1, this, new String[]{"Face fuck"}, true);
          return true;
       }
    }
@@ -149,52 +149,52 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    public void goHome() {
       super.goHome();
       this.sendChatMessage("stay safe darling~");
-      this.a(SoundHandler.GIRLS_ELLIE_SIGH[1], 6.0F);
+      this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_SIGH[1], 6.0F);
    }
 
    @Override
-   public void a(String var1, UUID var2) {
-      super.a(var1, var2);
+   public void doAction(String var1, UUID var2) {
+      super.doAction(var1, var2);
       this.aq = true;
       switch (var1) {
          case "action.names.missionary":
-            this.b(fp.HUGSELECTED);
+            this.setCurrentAction(fp.HUGSELECTED);
             this.changeDataParameterFromClient("animationFollowUp", "Missionary");
             break;
          case "action.names.cowgirl":
-            this.b(fp.HUGSELECTED);
+            this.setCurrentAction(fp.HUGSELECTED);
             this.changeDataParameterFromClient("animationFollowUp", "cowgirl");
             break;
          case "action.names.dressup":
          case "action.names.strip":
-            this.b(fp.STRIP);
+            this.setCurrentAction(fp.STRIP);
             this.changeDataParameterFromClient("animationFollowUp", "");
             break;
          case "Face fuck":
-            this.a(true, true, var2);
+            this.triggerActionSync(true, true, var2);
             d3.setMovementLock(false);
       }
    }
 
    @Override
-   protected void a(EntityPlayerMP var1, boolean var2) {
+   protected void alignPlayerToGirl(EntityPlayerMP var1, boolean var2) {
    }
 
    @Override
-   public void b(fp var1) {
+   public void setCurrentAction(fp action) {
       fp var2 = this.getCurrentAction();
-      if (var1 == fp.HUGSELECTED && !this.world.isRemote) {
+      if (action == fp.HUGSELECTED && !this.world.isRemote) {
          this.ai = 79;
       }
 
-      if (var2 != fp.MISSIONARY_CUM || var1 != fp.MISSIONARY_FAST && var1 != fp.MISSIONARY_SLOW) {
-         if (var2 != fp.COWGIRLCUM || var1 != fp.COWGIRLSLOW && var1 != fp.COWGIRLFAST) {
-            if (var2 != fp.CARRY_CUM || var1 != fp.CARRY_SLOW && var1 != fp.CARRY_FAST) {
-               if (var1 == fp.CARRY_INTRO) {
+      if (var2 != fp.MISSIONARY_CUM || action != fp.MISSIONARY_FAST && action != fp.MISSIONARY_SLOW) {
+         if (var2 != fp.COWGIRLCUM || action != fp.COWGIRLSLOW && action != fp.COWGIRLFAST) {
+            if (var2 != fp.CARRY_CUM || action != fp.CARRY_SLOW && action != fp.CARRY_FAST) {
+               if (action == fp.CARRY_INTRO) {
                   this.ak = 0;
                }
 
-               super.b(var1);
+               super.setCurrentAction(action);
             }
          }
       }
@@ -279,7 +279,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       String var1 = (String)this.entityDataManager.get(GIRL_HAND_STATES);
       if ("Missionary".equals(var1)) {
          this.entityDataManager.set(OUTFIT_INDEX, 0);
-         this.b(fp.MISSIONARY_START);
+         this.setCurrentAction(fp.MISSIONARY_START);
          UUID var2 = this.getInteractionPlayerUUID();
          if (var2 == null) {
             return;
@@ -303,7 +303,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
       if ("cowgirl".equals(var1)) {
          this.entityDataManager.set(OUTFIT_INDEX, 0);
-         this.b(fp.COWGIRLSTART);
+         this.setCurrentAction(fp.COWGIRLSTART);
          UUID var6 = this.getInteractionPlayerUUID();
          if (var6 == null) {
             return;
@@ -346,13 +346,13 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    void a_clash482() {
       if (--this.Y == 0) {
-         this.b(fp.HUGIDLE);
+         this.setCurrentAction(fp.HUGIDLE);
       }
    }
 
    void j_clash483() {
       if (--this.al == 0) {
-         this.b(fp.SITDOWNIDLE);
+         this.setCurrentAction(fp.SITDOWNIDLE);
       }
    }
 
@@ -360,7 +360,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       if (--this.ai == 0 || this.ah) {
          this.ah = true;
          this.entityDataManager.set(IS_ANCHORED, false);
-         this.b(fp.NULL);
+         this.setCurrentAction(fp.NULL);
          this.noClip = false;
          this.setNoGravity(false);
          if (this.am == null) {
@@ -368,9 +368,9 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          }
 
          if (this.am == null) {
-            this.h("no bed in sight...");
+            this.sendGirlChatMessage("no bed in sight...");
             this.world.playSound(null, this.getPosition(), SoundHandler.GIRLS_ELLIE_SIGH[0], SoundCategory.NEUTRAL, 6.0F, 1.0F);
-            this.s();
+            this.resetGirlState();
             this.f_clash488();
          } else {
             EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
@@ -387,7 +387,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             } else {
                this.setTargetPosition(var2);
                this.setYawRotation(var3);
-               this.b(fp.SITDOWN);
+               this.setCurrentAction(fp.SITDOWN);
                this.entityDataManager.set(IS_ANCHORED, true);
                this.al = 109;
                this.noClip = true;
@@ -418,7 +418,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
       Vec3d var3;
       do {
-         BlockPos var6 = this.a(this.getPosition(), ++var2);
+         BlockPos var6 = this.findNearestBed(this.getPosition(), ++var2);
          if (var6 == null) {
             return null;
          }
@@ -468,7 +468,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             this.setYawRotation(var2);
             this.setTargetPosition(this.getPositionVector());
             this.entityDataManager.set(IS_ANCHORED, true);
-            this.b(fp.DASH);
+            this.setCurrentAction(fp.DASH);
             this.Z = 16;
             this.setNoGravity(true);
             this.noClip = true;
@@ -495,7 +495,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                Vec3d var4 = var3.add(var2.getPositionVector());
                this.setTargetPosition(var4);
                this.setYawRotation(var2.rotationYaw);
-               this.b(fp.HUG);
+               this.setCurrentAction(fp.HUG);
                this.Y = 150;
             }
          }
@@ -504,7 +504,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    void f_clash488() {
       this.entityDataManager.set(IS_ANCHORED, false);
-      this.b(fp.NULL);
+      this.setCurrentAction(fp.NULL);
       this.setInteractionPlayerUUID(null);
       this.noClip = false;
       this.setNoGravity(false);
@@ -554,7 +554,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       if (this.world instanceof SexWorldClient) {
          return null;
       }
@@ -562,30 +562,30 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       switch (var1.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
-               this.a("animation.ellie.eyes", true, var1);
+               this.createAnimation("animation.ellie.eyes", true, var1);
             } else {
-               this.a("animation.ellie.null", true, var1);
+               this.createAnimation("animation.ellie.null", true, var1);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.ellie.null", true, var1);
+               this.createAnimation("animation.ellie.null", true, var1);
             } else {
                double var4 = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
                if (var4 == 0.0) {
-                  this.a(this.i_clash474() ? "animation.ellie.crouchidle" : "animation.ellie.idle", true, var1);
+                  this.createAnimation(this.i_clash474() ? "animation.ellie.crouchidle" : "animation.ellie.idle", true, var1);
                } else if (this.i_clash474()) {
-                  this.a("animation.ellie.crouchwalk", true, var1);
+                  this.createAnimation("animation.ellie.crouchwalk", true, var1);
                } else {
                   switch (this.getWalkType()) {
                      case RUN:
-                        this.a("animation.ellie.run", true, var1);
+                        this.createAnimation("animation.ellie.run", true, var1);
                         return PlayState.CONTINUE;
                      case FAST_WALK:
-                        this.a("animation.ellie.fastwalk", true, var1);
+                        this.createAnimation("animation.ellie.fastwalk", true, var1);
                         return PlayState.CONTINUE;
                      case WALK:
-                        this.a("animation.ellie.walk", true, var1);
+                        this.createAnimation("animation.ellie.walk", true, var1);
                   }
                }
             }
@@ -593,82 +593,82 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.a("animation.ellie.null", true, var1);
+                  this.createAnimation("animation.ellie.null", true, var1);
                   break;
                case STRIP:
-                  this.a("animation.ellie.strip", false, var1);
+                  this.createAnimation("animation.ellie.strip", false, var1);
                   break;
                case DASH:
-                  this.a("animation.ellie.dash", false, var1);
+                  this.createAnimation("animation.ellie.dash", false, var1);
                   break;
                case HUG:
-                  this.a("animation.ellie.hug", false, var1);
+                  this.createAnimation("animation.ellie.hug", false, var1);
                   break;
                case HUGIDLE:
-                  this.a("animation.ellie.hugidle", true, var1);
+                  this.createAnimation("animation.ellie.hugidle", true, var1);
                   break;
                case HUGSELECTED:
-                  this.a("animation.ellie.hugselected", false, var1);
+                  this.createAnimation("animation.ellie.hugselected", false, var1);
                   break;
                case SITDOWN:
-                  this.a("animation.ellie.sitdown", false, var1);
+                  this.createAnimation("animation.ellie.sitdown", false, var1);
                   break;
                case SITDOWNIDLE:
-                  this.a("animation.ellie.sitdownidle", true, var1);
+                  this.createAnimation("animation.ellie.sitdownidle", true, var1);
                   break;
                case COWGIRLSTART:
-                  this.a("animation.ellie.cowgirlstart", false, var1);
+                  this.createAnimation("animation.ellie.cowgirlstart", false, var1);
                   break;
                case COWGIRLSLOW:
-                  this.a("animation.ellie.cowgirlslow2", true, var1);
+                  this.createAnimation("animation.ellie.cowgirlslow2", true, var1);
                   break;
                case COWGIRLFAST:
-                  this.a("animation.ellie.cowgirlfast", true, var1);
+                  this.createAnimation("animation.ellie.cowgirlfast", true, var1);
                   break;
                case COWGIRLCUM:
-                  this.a("animation.ellie.cowgirlcum", true, var1);
+                  this.createAnimation("animation.ellie.cowgirlcum", true, var1);
                   break;
                case ATTACK:
-                  this.a("animation.ellie.attack" + this.S, false, var1);
+                  this.createAnimation("animation.ellie.attack" + this.S, false, var1);
                   break;
                case BOW:
-                  this.a("animation.ellie.bowcharge", false, var1);
+                  this.createAnimation("animation.ellie.bowcharge", false, var1);
                   break;
                case RIDE:
-                  this.a("animation.ellie.ride", true, var1);
+                  this.createAnimation("animation.ellie.ride", true, var1);
                   break;
                case SIT:
-                  this.a("animation.ellie.sit", true, var1);
+                  this.createAnimation("animation.ellie.sit", true, var1);
                   break;
                case THROW_PEARL:
-                  this.a("animation.ellie.throwpearl", false, var1);
+                  this.createAnimation("animation.ellie.throwpearl", false, var1);
                   break;
                case DOWNED:
-                  this.a("animation.ellie.downed", true, var1);
+                  this.createAnimation("animation.ellie.downed", true, var1);
                   break;
                case MISSIONARY_START:
-                  this.a("animation.ellie.missionary_start", false, var1);
+                  this.createAnimation("animation.ellie.missionary_start", false, var1);
                   break;
                case MISSIONARY_SLOW:
-                  this.a("animation.ellie.missionary_slow", true, var1);
+                  this.createAnimation("animation.ellie.missionary_slow", true, var1);
                   break;
                case MISSIONARY_FAST:
-                  this.a("animation.ellie.missionary_fast", true, var1);
+                  this.createAnimation("animation.ellie.missionary_fast", true, var1);
                   break;
                case MISSIONARY_CUM:
-                  this.a("animation.ellie.missionary_cum", false, var1);
+                  this.createAnimation("animation.ellie.missionary_cum", false, var1);
                   break;
                case CARRY_INTRO:
-                  this.a("animation.ellie.carry_intro", false, var1);
+                  this.createAnimation("animation.ellie.carry_intro", false, var1);
                   break;
                case CARRY_SLOW:
-                  this.a("animation.ellie.carry_slow" + this.aa, true, var1);
+                  this.createAnimation("animation.ellie.carry_slow" + this.aa, true, var1);
                   break;
                case CARRY_FAST:
-                  this.a("animation.ellie.carry_fast", true, var1);
+                  this.createAnimation("animation.ellie.carry_fast", true, var1);
                   break;
                case CARRY_CUM:
-                  this.a("animation.ellie.carry_cum", true, var1);
+                  this.createAnimation("animation.ellie.carry_cum", true, var1);
             }
       }
 
@@ -690,25 +690,25 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "stripDone":
-               this.b((fp) null);
+               this.setCurrentAction((fp)null);
                this.resetCameraAndPhysics();
                this.U();
                break;
             case "hugMSG2":
-               this.h("Hmm...");
-               this.a(SoundHandler.GIRLS_ELLIE_HMPH[3], 6.0F);
+               this.sendGirlChatMessage("Hmm...");
+               this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_HMPH[3], 6.0F);
                break;
             case "hugMSG3":
-               this.h("Hey!");
-               this.a(SoundHandler.GIRLS_ELLIE_HUH[1], 1.0F);
+               this.sendGirlChatMessage("Hey!");
+               this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_HUH[1], 1.0F);
                break;
             case "hugMSG4":
-               this.h(I18n.format("ellie.dialogue.mommyhorny", new Object[0]));
-               this.a(SoundHandler.GIRLS_ELLIE_MOMMYHORNY, 0.5F);
+               this.sendGirlChatMessage(I18n.format("ellie.dialogue.mommyhorny", new Object[0]));
+               this.playRandomSoundAtVolume(SoundHandler.GIRLS_ELLIE_MOMMYHORNY, 0.5F);
                break;
             case "hugMSG5":
-               this.h(I18n.format("ellie.dialogue.whattodo", new Object[0]));
-               this.a(SoundHandler.GIRLS_ELLIE_HUH[1], 6.0F);
+               this.sendGirlChatMessage(I18n.format("ellie.dialogue.whattodo", new Object[0]));
+               this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_HUH[1], 6.0F);
                break;
             case "hugDone":
                if (this.isControlledByLocalPlayer()) {
@@ -716,24 +716,24 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "hugselectedMSG1":
-               this.h(I18n.format("ellie.dialogue.iknow", new Object[0]));
-               this.a(SoundHandler.GIRLS_ELLIE_HMPH[3], 6.0F);
+               this.sendGirlChatMessage(I18n.format("ellie.dialogue.iknow", new Object[0]));
+               this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_HMPH[3], 6.0F);
                break;
             case "hugselectedMSG2":
-               this.h(I18n.format("ellie.dialogue.followmedarling", new Object[0]));
-               this.a(SoundHandler.GIRLS_ELLIE_GIGGLE[3], 6.0F);
+               this.sendGirlChatMessage(I18n.format("ellie.dialogue.followmedarling", new Object[0]));
+               this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_GIGGLE[3], 6.0F);
                if (this.isControlledByLocalPlayer()) {
                   d3.setMovementLock(true);
                }
                break;
             case "sitdownMSG1":
-               this.a(SoundHandler.GIRLS_ELLIE_COMETOMOMMY, 0.5F);
+               this.playRandomSoundAtVolume(SoundHandler.GIRLS_ELLIE_COMETOMOMMY, 0.5F);
                if (this.isLocalPlayerNearby()) {
-                  this.h(I18n.format("ellie.dialogue.cometomommy", new Object[0]));
+                  this.sendGirlChatMessage(I18n.format("ellie.dialogue.cometomommy", new Object[0]));
                }
                break;
             case "cowgirlStartMSG0":
-               this.a(SoundHandler.GIRLS_ELLIE_GIGGLE[4], 6.0F);
+               this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_GIGGLE[4], 6.0F);
                break;
             case "cowgirlStartMSG1":
                if (this.isLocalPlayerNearby()) {
@@ -742,15 +742,15 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "cowgirlStartMSG2":
-               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "cowgirlStartDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.b(fp.COWGIRLSLOW);
+                  this.setCurrentAction(fp.COWGIRLSLOW);
                   HornyMeterHud.showHornyMeter();
                }
                break;
@@ -758,35 +758,35 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                if (this.aj) {
                   this.aj = false;
                } else {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
+                  this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
                }
 
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "cowgirlfastDone":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.COWGIRLSLOW);
+                  this.setCurrentAction(fp.COWGIRLSLOW);
                }
                break;
             case "cowgirlfastdomMSG1":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.2);
                }
                break;
             case "cowgirlcumMSG1":
-               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
                break;
             case "cowgirlcumMSG2":
-               this.a(SoundHandler.GIRLS_ELLIE_MOAN[5], 3.0F);
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
+               this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_MOAN[5], 3.0F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
                break;
             case "cowgirlcumMSG3":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
                break;
             case "cowgirlcumMSG4":
                if (this.isControlledByLocalPlayer()) {
@@ -795,7 +795,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                break;
             case "cowgirlcumMSG5":
             case "missionary_cumMSG2":
-               this.a(SoundHandler.GIRLS_ELLIE_GOODBOY, 0.5F);
+               this.playRandomSoundAtVolume(SoundHandler.GIRLS_ELLIE_GOODBOY, 0.5F);
                if (this.isControlledByLocalPlayer()) {
                   this.sendChatMessage(I18n.format("ellie.dialogue.goodboy", new Object[0]));
                }
@@ -815,10 +815,10 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "attackSound":
-               this.a(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
+               this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
                break;
             case "attackDone":
-               this.b(fp.NULL);
+               this.setCurrentAction(fp.NULL);
                if (++this.S == 3) {
                   this.S = 0;
                }
@@ -832,11 +832,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "missionary_slowMSG1":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                if (this.getRNG().nextBoolean() && this.getRNG().nextBoolean()) {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_MOAN), 6.0F);
+                  this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_MOAN), 6.0F);
                } else {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
+                  this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
                }
 
                if (this.isControlledByLocalPlayer()) {
@@ -844,11 +844,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "missionary_fastMSG1":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                if (!this.getRNG().nextBoolean() && !this.getRNG().nextBoolean()) {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
+                  this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
                } else {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_MOAN), 6.0F);
+                  this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_MOAN), 6.0F);
                }
 
                if (this.isControlledByLocalPlayer()) {
@@ -857,45 +857,45 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                break;
             case "missionary_startDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.b(fp.MISSIONARY_SLOW);
+                  this.setCurrentAction(fp.MISSIONARY_SLOW);
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "missionary_fastDone":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.MISSIONARY_SLOW);
+                  this.setCurrentAction(fp.MISSIONARY_SLOW);
                }
                break;
             case "bedRustle":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
-               this.a(SoundHandler.MISC_BEDRUSTLE[0]);
+               this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               this.playSound(SoundHandler.MISC_BEDRUSTLE[0]);
                break;
             case "bedRustle1":
-               this.a(SoundHandler.MISC_BEDRUSTLE[1]);
+               this.playSound(SoundHandler.MISC_BEDRUSTLE[1]);
                break;
             case "missionary_cumMSG1":
-               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
                break;
             case "carry_introMSG1":
                this.sendChatMessage("I'm hungry..");
-               this.a(SoundHandler.GIRLS_ELLIE_HMPH, 6.0F);
+               this.playRandomSoundAtVolume(SoundHandler.GIRLS_ELLIE_HMPH, 6.0F);
                break;
             case "carry_introMSG2":
                this.sendChatMessage("heh~");
-               this.a(SoundHandler.GIRLS_ELLIE_GIGGLE[3], 6.0F);
+               this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_GIGGLE[3], 6.0F);
                break;
             case "lipsound":
-               this.a(SoundHandler.GIRLS_ALLIE_LIPSOUND);
+               this.playRandomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "cum":
-               this.a(SoundHandler.MISC_INSERTS, 6.0F);
-               this.a(SoundHandler.MISC_POUNDING);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_INSERTS, 6.0F);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "pound":
-               this.a(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04);
                }
@@ -910,7 +910,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                return;
             case "carry_fastDone":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.CARRY_SLOW);
+                  this.setCurrentAction(fp.CARRY_SLOW);
                }
          }
       };

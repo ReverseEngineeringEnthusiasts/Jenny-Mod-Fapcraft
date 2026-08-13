@@ -263,13 +263,13 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       float var6 = this.j.b_clash423(i.getRenderPartialTicks());
       if (var6 < 1.0F) {
          float var7 = (float)RotationHelper.e(var6);
-         this.j.d((int)(11.0F * (1.0F - var7) + 71980.0F));
+         this.j.setItemUseCount((int)(11.0F * (1.0F - var7) + 71980.0F));
          this.j.setHeldItemOverride(var5);
          this.j.setActiveHand(EnumHand.MAIN_HAND);
-         this.j.W();
+         this.j.setHandActiveState();
       } else {
          this.j.setHeldItemOverride(ItemStack.EMPTY);
-         this.j.K();
+         this.j.clearHandActiveState();
       }
 
       var4.renderItem(this.j, var5, TransformType.THIRD_PERSON_RIGHT_HAND);

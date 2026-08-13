@@ -68,20 +68,20 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    public void b(String var1, UUID var2) {
       if ("action.names.touchboobs".equals(var1)) {
          this.a(0, fp.TOUCH_BOOBS_INTRO);
-         this.b(fp.TOUCH_BOOBS_INTRO);
+         this.setCurrentAction(fp.TOUCH_BOOBS_INTRO);
          this.entityDataManager.set(OUTFIT_INDEX, 0);
          this.b_clash577(var2);
       }
 
       if ("action.names.headpat".equals(var1)) {
-         this.b(fp.HEAD_PAT);
+         this.setCurrentAction(fp.HEAD_PAT);
          this.b_clash577(var2);
       }
    }
 
    @Override
    public void u_clash377() {
-      this.b(fp.WAIT_CAT);
+      this.setCurrentAction(fp.WAIT_CAT);
    }
 
    @Override
@@ -91,15 +91,15 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
-      a(var1, this, new String[]{"action.names.touchboobs", "action.names.headpat"}, false);
+      openInventoryGui(var1, this, new String[]{"action.names.touchboobs", "action.names.headpat"}, false);
       return true;
    }
 
    @Override
-   public void b(fp var1) {
-      if (this.getCurrentAction() != fp.COWGIRL_SITTING_CUM || var1 != fp.COWGIRL_SITTING_SLOW && var1 != fp.COWGIRL_SITTING_FAST) {
-         if (this.getCurrentAction() != fp.TOUCH_BOOBS_CUM || var1 != fp.TOUCH_BOOBS_FAST && var1 != fp.TOUCH_BOOBS_SLOW) {
-            super.b(var1);
+   public void setCurrentAction(fp action) {
+      if (this.getCurrentAction() != fp.COWGIRL_SITTING_CUM || action != fp.COWGIRL_SITTING_SLOW && action != fp.COWGIRL_SITTING_FAST) {
+         if (this.getCurrentAction() != fp.TOUCH_BOOBS_CUM || action != fp.TOUCH_BOOBS_FAST && action != fp.TOUCH_BOOBS_SLOW) {
+            super.setCurrentAction(action);
          }
       }
    }
@@ -124,7 +124,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
                var1.setPositionAndUpdate(this.getPositionVector().x, this.w_clash576().y, this.getPositionVector().z);
-               this.b(fp.COWGIRL_SITTING_INTRO);
+               this.setCurrentAction(fp.COWGIRL_SITTING_INTRO);
                var1.setRotationYawHead(this.getYawRotation() + 180.0F);
                var1.rotationYaw = this.getYawRotation() + 180.0F;
                var1.prevRotationYaw = this.getYawRotation() + 180.0F;
@@ -176,108 +176,108 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == fp.NULL && this.getCurrentAction().autoBlink) {
-               this.a("animation.cat.blink", true, var1);
+               this.createAnimation("animation.cat.blink", true, var1);
             } else {
-               this.a("animation.cat.null", true, var1);
+               this.createAnimation("animation.cat.null", true, var1);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.cat.null", true, var1);
+               this.createAnimation("animation.cat.null", true, var1);
             } else if (this.ak) {
-               this.a("animation.cat.sit", true, var1);
+               this.createAnimation("animation.cat.sit", true, var1);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.aq = !this.aq;
                }
 
                if (!this.af) {
-                  this.a("animation.cat.fly" + (this.aq ? "2" : ""), true, var1);
+                  this.createAnimation("animation.cat.fly" + (this.aq ? "2" : ""), true, var1);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
                      this.movementController.setAnimationSpeed(1.5);
-                     this.a("animation.cat.run", true, var1);
+                     this.createAnimation("animation.cat.run", true, var1);
                   } else if (this.ao.y >= -0.1F) {
                      this.movementController.setAnimationSpeed(2.0);
-                     this.a("animation.cat.fastwalk", true, var1);
+                     this.createAnimation("animation.cat.fastwalk", true, var1);
                   } else {
                      this.movementController.setAnimationSpeed(2.0);
-                     this.a("animation.cat.backwards_walk", true, var1);
+                     this.createAnimation("animation.cat.backwards_walk", true, var1);
                   }
                } else {
-                  this.a("animation.cat.idle", true, var1);
+                  this.createAnimation("animation.cat.idle", true, var1);
                }
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.a("animation.cat.null", true, var1);
+                  this.createAnimation("animation.cat.null", true, var1);
                   break;
                case ATTACK:
-                  this.a("animation.cat.attack" + this.S, false, var1);
+                  this.createAnimation("animation.cat.attack" + this.S, false, var1);
                   break;
                case RIDE:
                case SIT:
-                  this.a("animation.cat.sit", true, var1);
+                  this.createAnimation("animation.cat.sit", true, var1);
                   break;
                case BOW:
-                  this.a("animation.cat.bowcharge", false, var1);
+                  this.createAnimation("animation.cat.bowcharge", false, var1);
                   break;
                case THROW_PEARL:
-                  this.a("animation.cat.throwpearl", true, var1);
+                  this.createAnimation("animation.cat.throwpearl", true, var1);
                   break;
                case DOWNED:
-                  this.a("animation.cat.downed", true, var1);
+                  this.createAnimation("animation.cat.downed", true, var1);
                   break;
                case FISHING_START:
-                  this.a("animation.cat.start_fishing", false, var1);
+                  this.createAnimation("animation.cat.start_fishing", false, var1);
                   break;
                case FISHING_IDLE:
-                  this.a("animation.cat.idle_fishing", true, var1);
+                  this.createAnimation("animation.cat.idle_fishing", true, var1);
                   break;
                case FISHING_EAT:
-                  this.a("animation.cat.eat_fishing", false, var1);
+                  this.createAnimation("animation.cat.eat_fishing", false, var1);
                   break;
                case FISHING_THROW_AWAY:
-                  this.a("animation.cat.throw_away", false, var1);
+                  this.createAnimation("animation.cat.throw_away", false, var1);
                   break;
                case PAYMENT:
-                  this.a("animation.cat.payment", false, var1);
+                  this.createAnimation("animation.cat.payment", false, var1);
                   break;
                case TOUCH_BOOBS_INTRO:
-                  this.a("animation.cat.touch_boobs_intro", false, var1);
+                  this.createAnimation("animation.cat.touch_boobs_intro", false, var1);
                   break;
                case TOUCH_BOOBS_SLOW:
-                  this.a("animation.cat.touch_boobs_slow" + (this.ap ? "1" : ""), true, var1);
+                  this.createAnimation("animation.cat.touch_boobs_slow" + (this.ap ? "1" : ""), true, var1);
                   break;
                case TOUCH_BOOBS_FAST:
-                  this.a("animation.cat.touch_boobs_fast", true, var1);
+                  this.createAnimation("animation.cat.touch_boobs_fast", true, var1);
                   break;
                case TOUCH_BOOBS_CUM:
-                  this.a("animation.cat.touch_boobs_cum", false, var1);
+                  this.createAnimation("animation.cat.touch_boobs_cum", false, var1);
                   break;
                case WAIT_CAT:
-                  this.a("animation.cat.wait", false, var1);
+                  this.createAnimation("animation.cat.wait", false, var1);
                   break;
                case COWGIRL_SITTING_INTRO:
-                  this.a("animation.cat.sitting_intro", false, var1);
+                  this.createAnimation("animation.cat.sitting_intro", false, var1);
                   break;
                case COWGIRL_SITTING_SLOW:
-                  this.a("animation.cat.sitting_slow", true, var1);
+                  this.createAnimation("animation.cat.sitting_slow", true, var1);
                   break;
                case COWGIRL_SITTING_FAST:
-                  this.a("animation.cat.sitting_fast", true, var1);
+                  this.createAnimation("animation.cat.sitting_fast", true, var1);
                   break;
                case COWGIRL_SITTING_CUM:
-                  this.a("animation.cat.sitting_cum", true, var1);
+                  this.createAnimation("animation.cat.sitting_cum", true, var1);
                   break;
                case HEAD_PAT:
-                  this.a("animation.cat.head_pat", true, var1);
+                  this.createAnimation("animation.cat.head_pat", true, var1);
             }
       }
 
@@ -307,8 +307,8 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "paymentMSG1":
-               this.a(this.getInteractionPlayerUUID(), "Here, I know u like fish and yea.. these are for you");
-               this.a(SoundHandler.MISC_PLOB[0]);
+               this.sendChatMessageToPlayer(this.getInteractionPlayerUUID(), "Here, I know u like fish and yea.. these are for you");
+               this.playSound(SoundHandler.MISC_PLOB[0]);
                break;
             case "paymentMSG2":
                this.sendChatMessage("huh~?");
@@ -318,7 +318,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.sendChatMessage("nyyyaaaa~ :D");
                int[] var4 = new int[]{1, 7, 10, 11};
                int var5 = var4[this.getRNG().nextInt(var4.length)];
-               this.a(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
+               this.playSound(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
                break;
             case "paymentMSG4":
                this.sendChatMessage("tankuuuu owowowo");
@@ -339,10 +339,10 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.playRandomSound(SoundHandler.GIRLS_LUNA_HAPPYOH);
                break;
             case "cutenya3":
-               this.a(SoundHandler.GIRLS_LUNA_CUTENYA[3]);
+               this.playSound(SoundHandler.GIRLS_LUNA_CUTENYA[3]);
                break;
             case "cutenya2":
-               this.a(SoundHandler.GIRLS_LUNA_CUTENYA[2]);
+               this.playSound(SoundHandler.GIRLS_LUNA_CUTENYA[2]);
                break;
             case "huh":
                this.playRandomSound(SoundHandler.GIRLS_LUNA_HUH);
@@ -365,7 +365,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.playRandomSound(SoundHandler.MISC_TOUCH);
                break;
             case "jump":
-               this.a(SoundHandler.MISC_JUMP[0], 0.2F);
+               this.playSoundAtVolume(SoundHandler.MISC_JUMP[0], 0.2F);
                break;
             case "horninya":
                this.playRandomSound(SoundHandler.GIRLS_LUNA_HORNINYA);
@@ -373,14 +373,14 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
             case "horninya2":
             case "touch_boobs_cumMSG3":
             case "sitting_cumMSG1":
-               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[1]);
-               this.a(SoundHandler.MISC_CUMINFLATION[0], 5.0F);
+               this.playSound(SoundHandler.GIRLS_LUNA_HORNINYA[1]);
+               this.playSoundAtVolume(SoundHandler.MISC_CUMINFLATION[0], 5.0F);
                break;
             case "moan":
-               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
+               this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                break;
             case "touch_boobs_introDone":
-               this.b(fp.TOUCH_BOOBS_SLOW);
+               this.setCurrentAction(fp.TOUCH_BOOBS_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                   HornyMeterHud.showHornyMeter();
@@ -406,14 +406,14 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "fastDone":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.TOUCH_BOOBS_SLOW);
+                  this.setCurrentAction(fp.TOUCH_BOOBS_SLOW);
                }
                break;
             case "moanOrNya":
                if (Math.random() > 0.5) {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                } else {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                }
                break;
             case "blackScreen":
@@ -433,17 +433,17 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "touch_boobs_cumMSG1":
-               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[3]);
+               this.playSound(SoundHandler.GIRLS_LUNA_HORNINYA[3]);
                break;
             case "touch_boobs_cumMSG2":
-               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[9]);
+               this.playSound(SoundHandler.GIRLS_LUNA_HORNINYA[9]);
                break;
             case "call_playerMSG1":
                this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
                this.sendChatMessage("come here - big guy hehe~");
                break;
             case "pounding":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                break;
             case "sitting_introMSG1":
                this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
@@ -451,7 +451,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "sitting_introDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.b(fp.COWGIRL_SITTING_SLOW);
+                  this.setCurrentAction(fp.COWGIRL_SITTING_SLOW);
                   HornyMeterHud.resetHornyMeter();
                   HornyMeterHud.showHornyMeter();
                }
@@ -459,13 +459,13 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
             case "sitting_slowMSG1":
                if (this.getRNG().nextBoolean()) {
                   if (this.getRNG().nextBoolean()) {
-                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
+                     this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                      break;
                   }
 
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                } else {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_LIGHTBREATHING));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_LIGHTBREATHING));
                }
 
                if (this.isControlledByLocalPlayer()) {
@@ -474,9 +474,9 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "sitting_fastMSG1":
                if (this.getRNG().nextBoolean()) {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                } else {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                }
 
                if (this.isControlledByLocalPlayer()) {
@@ -485,7 +485,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "sitting_fastDone":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.COWGIRL_SITTING_SLOW);
+                  this.setCurrentAction(fp.COWGIRL_SITTING_SLOW);
                   Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
                   Vec3d var9 = ck.rotateByYaw(var8, this.getYawRotation() + 180.0F);
                   Minecraft.getMinecraft()
@@ -519,7 +519,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "headpatMSG3":
                this.sendChatMessage("nya~");
-               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[0]);
+               this.playSound(SoundHandler.GIRLS_LUNA_HORNINYA[0]);
          }
       };
       this.movementController.transitionLengthTicks = 10.0;

@@ -204,7 +204,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          this.aX = true;
          this.setTargetPosition(var4);
          this.setYawRotation(var3);
-         this.b(fp.SIT);
+         this.setCurrentAction(fp.SIT);
          this.setAnchored(true);
          this.setPosition(var4.x, var4.y, var4.z);
       }
@@ -249,9 +249,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   public void a(String var1, UUID var2) {
+   public void doAction(String var1, UUID var2) {
       if ("take ur stuff back".equals(var1)) {
-         this.b(fp.START_THROWING);
+         this.setCurrentAction(fp.START_THROWING);
       }
 
       if ("use her".equals(var1)) {
@@ -517,7 +517,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          } else {
             this.setTargetPosition(var1.getPositionVector());
             this.setYawRotation(var1.rotationYaw);
-            this.b(fp.CATCH);
+            this.setCurrentAction(fp.CATCH);
             this.entityDataManager.set(GIRL_HAND_STATES, "bj");
             this.setOwnerUUID(var1.getPersistentID());
             this.setInteractionPlayerUUID(var1.getPersistentID());
@@ -533,7 +533,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             var1.sendStatusMessage(new TextComponentString("you are already carrying a Goblin"), true);
          } else {
             this.setOwnerUUID(var1.getPersistentID());
-            this.b(fp.PICK_UP);
+            this.setCurrentAction(fp.PICK_UP);
             this.aQ = 45;
             this.setAnchored(false);
             this.entityDataManager.set(aC, true);
@@ -654,7 +654,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (this.getCurrentAction() == fp.STAND_UP) {
          if (++this.aa >= 37) {
             this.aa = 0;
-            this.b(fp.NULL);
+            this.setCurrentAction(fp.NULL);
          }
       }
    }
@@ -676,7 +676,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             this.a_clash59(var1);
             if (var1 >= 30) {
                this.a_clash59(0);
-               this.b(fp.STAND_UP);
+               this.setCurrentAction(fp.STAND_UP);
             }
          }
       }
@@ -704,11 +704,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             }
 
             if (var1) {
-               this.h("Farewell my knight. You are welcome once I am breedable again.");
+               this.sendGirlChatMessage("Farewell my knight. You are welcome once I am breedable again.");
 
                for (GoblinEntity var5 : this.ab) {
                   if (!(Boolean)var5.getDataManager().get(aC)) {
-                     var5.b(fp.VANISH);
+                     var5.setCurrentAction(fp.VANISH);
                   }
                }
 
@@ -751,8 +751,8 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      var9.setYawRotation(0.0F);
                      var8.setAnchored(true);
                      var9.setAnchored(true);
-                     var8.b(fp.AWAIT_PICK_UP);
-                     var9.b(fp.AWAIT_PICK_UP);
+                     var8.setCurrentAction(fp.AWAIT_PICK_UP);
+                     var9.setCurrentAction(fp.AWAIT_PICK_UP);
                      var8.setNoGravity(false);
                      var9.setNoGravity(false);
                      var2.setNoGravity(false);
@@ -763,7 +763,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      var2.rotationPitch = 30.0F;
                      var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
                      PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)var2);
-                     this.h(
+                     this.sendGirlChatMessage(
                         "Thanks to you, my clan is soon going to get a few new members! In return I will bear of one of my guards to serve as your personal Onahole. Choose wisely~"
                      );
                   }
@@ -835,7 +835,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                   if (var3 != null) {
                      this.setTargetPosition(var1);
                      this.setYawRotation(this.ac);
-                     this.b(fp.BREEDING_INTRO_0);
+                     this.setCurrentAction(fp.BREEDING_INTRO_0);
                      this.noClip = true;
                      this.setNoGravity(true);
                      Vec3d var4 = b(new Vec3d(0.0, 0.44375 - var3.eyeHeight, -0.7875), this.ac - 180.0F);
@@ -849,7 +849,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                         GoblinEntity var6 = (GoblinEntity)var5.get(0);
                         var6.setTargetPosition(var1);
                         var6.setYawRotation(this.ac);
-                        var6.b(fp.BREEDING_INTRO_1);
+                        var6.setCurrentAction(fp.BREEDING_INTRO_1);
                         var6.noClip = true;
                         var6.setNoGravity(true);
                      }
@@ -858,7 +858,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                         GoblinEntity var7 = (GoblinEntity)var5.get(1);
                         var7.setTargetPosition(var1);
                         var7.setYawRotation(this.ac);
-                        var7.b(fp.BREEDING_INTRO_2);
+                        var7.setCurrentAction(fp.BREEDING_INTRO_2);
                         var7.noClip = true;
                         var7.setNoGravity(true);
                      }
@@ -911,7 +911,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                         float var8 = var5.rotationYaw + 180.0F;
                         PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var5);
                         this.setInteractionPlayerUUID(var6);
-                        this.b(fp.JUMP_0);
+                        this.setCurrentAction(fp.JUMP_0);
                         this.setTargetPosition(var7);
                         this.setYawRotation(var8);
                         this.setAnchored(true);
@@ -919,14 +919,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                         if (var9.size() > 0) {
                            GoblinEntity var10 = (GoblinEntity)var9.get(0);
                            var10.setInteractionPlayerUUID(var6);
-                           var10.b(fp.JUMP_1);
+                           var10.setCurrentAction(fp.JUMP_1);
                            var10.setTargetPosition(var7);
                            var10.setYawRotation(var8);
                            var10.setAnchored(true);
                            if (var9.size() > 1) {
                               GoblinEntity var11 = (GoblinEntity)var9.get(1);
                               var11.setInteractionPlayerUUID(var6);
-                              var11.b(fp.JUMP_2);
+                              var11.setCurrentAction(fp.JUMP_2);
                               var11.setTargetPosition(var7);
                               var11.setYawRotation(var8);
                               var11.setAnchored(true);
@@ -996,7 +996,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          this.setNoGravity(false);
          if (var2 == 39) {
             this.c_clash57(-1);
-            this.b(fp.THROWN);
+            this.setCurrentAction(fp.THROWN);
             this.setInteractionPlayerUUID(null);
             this.setOwnerUUID(null);
          }
@@ -1110,7 +1110,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                                     GoblinEntity var9 = new GoblinEntity(this.world, this.getGirlId().toString(), this.k_clash270());
                                     Vec3d var10 = b(new Vec3d(0.0, 0.0, -0.2F), var1.rotationYawHead);
                                     var9.setPosition(var1.posX + var10.x, var1.posY, var1.posZ + var10.z);
-                                    var9.b(fp.RUN);
+                                    var9.setCurrentAction(fp.RUN);
                                     this.world.spawnEntity(var9);
                                     var9.entityDataManager.set(a0, var8);
                                     var1.sendMessage(
@@ -1156,7 +1156,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             this.setYawRotation(this.ac);
             this.setAnchored(true);
             this.setNoGravity(true);
-            this.b(fp.SIT);
+            this.setCurrentAction(fp.SIT);
          }
       }
    }
@@ -1235,7 +1235,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                this.ar = (float)(this.ar - 0.05);
                if (!(this.ar > 0.0F)) {
                   if (!this.world.isRemote) {
-                     this.b(fp.NULL);
+                     this.setCurrentAction(fp.NULL);
                      this.setInteractionPlayerUUID(null);
                      this.setOwnerUUID(null);
                      this.world.removeEntity(this);
@@ -1251,7 +1251,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (this.aY != -1) {
          if (++this.aY == 15) {
             this.aY = -1;
-            this.b(fp.PAIZURI_START);
+            this.setCurrentAction(fp.PAIZURI_START);
             Minecraft.getMinecraft().player.closeScreen();
          }
       }
@@ -1262,7 +1262,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (this.az != -1) {
          if (++this.az == 15) {
             this.az = -1;
-            this.b(fp.NELSON_INTRO);
+            this.setCurrentAction(fp.NELSON_INTRO);
             Minecraft var1 = Minecraft.getMinecraft();
             var1.player.closeScreen();
             var1.gameSettings.thirdPersonView = 2;
@@ -1271,47 +1271,47 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   public void b(fp var1) {
+   public void setCurrentAction(fp action) {
       fp var2 = this.getCurrentAction();
-      if (var2 != fp.PAIZURI_CUM || var1 != fp.PAIZURI_SLOW && var1 != fp.PAIZURI_FAST) {
-         if (var2 != fp.NELSON_CUM || var1 != fp.NELSON_SLOW && var1 != fp.NELSON_FAST) {
-            if (var2 != fp.BREEDING_CUM_0 || var1 != fp.BREEDING_SLOW_0 && var1 != fp.BREEDING_FAST_0) {
-               if (var1 == fp.START_THROWING && !this.world.isRemote) {
+      if (var2 != fp.PAIZURI_CUM || action != fp.PAIZURI_SLOW && action != fp.PAIZURI_FAST) {
+         if (var2 != fp.NELSON_CUM || action != fp.NELSON_SLOW && action != fp.NELSON_FAST) {
+            if (var2 != fp.BREEDING_CUM_0 || action != fp.BREEDING_SLOW_0 && action != fp.BREEDING_FAST_0) {
+               if (action == fp.START_THROWING && !this.world.isRemote) {
                   this.setInteractionPlayerUUID(this.getOwnerUUID());
                   this.L_clash281();
                }
 
-               if (var1 == fp.PAIZURI_START && !this.world.isRemote) {
+               if (action == fp.PAIZURI_START && !this.world.isRemote) {
                   this.z_clash280();
                }
 
-               if (var1 == fp.NELSON_INTRO && !this.world.isRemote) {
+               if (action == fp.NELSON_INTRO && !this.world.isRemote) {
                   this.q_clash279();
                }
 
-               if (this.getCurrentAction() == fp.PAIZURI_CUM && var1 == fp.NULL && !this.world.isRemote) {
+               if (this.getCurrentAction() == fp.PAIZURI_CUM && action == fp.NULL && !this.world.isRemote) {
                   this.D_clash278();
                }
 
-               if (var1 == fp.BREEDING_CUM_0) {
+               if (action == fp.BREEDING_CUM_0) {
                   this.entityDataManager.set(aV, true);
                   this.av = this.world.getTotalWorldTime();
                   this.ai = this.world.getTotalWorldTime();
                }
 
-               if (var1 == fp.BREEDING_CUM_0) {
+               if (action == fp.BREEDING_CUM_0) {
                   this.Z = 0;
                }
 
-               if (var1 == fp.NELSON_CUM) {
+               if (action == fp.NELSON_CUM) {
                   this.entityDataManager.set(aV, true);
                }
 
-               if (var2 == fp.NELSON_CUM && var1 != fp.NELSON_CUM) {
+               if (var2 == fp.NELSON_CUM && action != fp.NELSON_CUM) {
                   this.entityDataManager.set(aV, false);
                }
 
-               super.b(var1);
+               super.setCurrentAction(action);
             }
          }
       }
@@ -1384,25 +1384,25 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          UUID var2 = var1.getOwnerUUID();
          if (var2 == null) {
             var1.b_clash63(-1);
-            var0.b(fp.NULL);
+            var0.setCurrentAction(fp.NULL);
             var1.setOwnerUUID(null);
          } else {
             EntityPlayer var3 = var0.world.getPlayerEntityByUUID(var2);
             if (var3 == null) {
                var1.b_clash63(-1);
-               var0.b(fp.NULL);
+               var0.setCurrentAction(fp.NULL);
                var1.setOwnerUUID(null);
             } else {
                var0.setPosition(var3.posX, var3.posY, var3.posZ);
                if (var0.getPositionVector().distanceTo(var3.getPositionVector()) > 10.0) {
                   var1.b_clash63(-1);
-                  var0.b(fp.NULL);
+                  var0.setCurrentAction(fp.NULL);
                   var1.setOwnerUUID(null);
                } else {
                   int var4 = var1.c_clash56() - 1;
                   var1.b_clash63(var4);
                   if (var4 == 0) {
-                     var0.b(fp.SHOULDER_IDLE);
+                     var0.setCurrentAction(fp.SHOULDER_IDLE);
                      var0.noClip = true;
                   }
                }
@@ -1494,7 +1494,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
@@ -1506,30 +1506,30 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       switch (var1.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.goblin.null", true, var1);
+               this.createAnimation("animation.goblin.null", true, var1);
             } else {
-               this.a("animation.goblin.blink", true, var1);
+               this.createAnimation("animation.goblin.blink", true, var1);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.goblin.null", true, var1);
+               this.createAnimation("animation.goblin.null", true, var1);
             } else {
                double var4 = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
                if (!(Boolean)this.entityDataManager.get(IS_ANCHORED) && var4 > 0.0) {
                   if (this.onGround && Math.abs(Math.abs(this.prevPosY) - Math.abs(this.posY)) < 0.1F) {
                      if (var4 > 0.2F) {
-                        this.a("animation.goblin.walk", true, var1);
+                        this.createAnimation("animation.goblin.walk", true, var1);
                      } else {
-                        this.a("animation.goblin.walk", true, var1);
+                        this.createAnimation("animation.goblin.walk", true, var1);
                      }
 
                      this.rotationYaw = this.rotationYawHead;
                   } else {
-                     this.a("animation.goblin.fly", true, var1);
+                     this.createAnimation("animation.goblin.fly", true, var1);
                   }
                } else {
-                  this.a("animation.goblin.idle", true, var1);
+                  this.createAnimation("animation.goblin.idle", true, var1);
                }
             }
             break;
@@ -1538,117 +1538,117 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             String var7 = var6.player.getPersistentID().equals(this.getOwnerUUID()) && var6.gameSettings.thirdPersonView == 0 ? "1" : "3";
             switch (this.getCurrentAction()) {
                case PAIZURI_IDLE:
-                  this.a("animation.goblin.paizuri_idle", true, var1);
+                  this.createAnimation("animation.goblin.paizuri_idle", true, var1);
                   break;
                case PAIZURI_SLOW:
-                  this.a("animation.goblin.paizuri_slow" + this.aP, true, var1);
+                  this.createAnimation("animation.goblin.paizuri_slow" + this.aP, true, var1);
                   break;
                case BREEDING_SLOW_0:
-                  this.a("animation.goblin.breeding_slow_1" + (this.aD ? "l" : "r"), true, var1);
+                  this.createAnimation("animation.goblin.breeding_slow_1" + (this.aD ? "l" : "r"), true, var1);
                   break;
                case BREEDING_SLOW_2:
-                  this.a("animation.goblin.breeding_slow_3", true, var1);
+                  this.createAnimation("animation.goblin.breeding_slow_3", true, var1);
                   break;
                case NELSON_SLOW:
-                  this.a("animation.goblin.nelson_slow" + (this.aF ? "" : "2"), true, var1);
+                  this.createAnimation("animation.goblin.nelson_slow" + (this.aF ? "" : "2"), true, var1);
                   break;
                case PAIZURI_FAST:
-                  this.a("animation.goblin.paizuri_fast", true, var1);
+                  this.createAnimation("animation.goblin.paizuri_fast", true, var1);
                   break;
                case PAIZURI_FAST_CONTINUES:
-                  this.a("animation.goblin.paizuri_fast_countinues", true, var1);
+                  this.createAnimation("animation.goblin.paizuri_fast_countinues", true, var1);
                   break;
                case BREEDING_1:
-                  this.a("animation.goblin.breeding_2", true, var1);
+                  this.createAnimation("animation.goblin.breeding_2", true, var1);
                   break;
                case BREEDING_FAST_2:
-                  this.a("animation.goblin.breeding_fast_3", true, var1);
+                  this.createAnimation("animation.goblin.breeding_fast_3", true, var1);
                   break;
                case NELSON_FAST:
-                  this.a("animation.goblin.nelson_fast" + (this.X ? "c" : "s"), true, var1);
+                  this.createAnimation("animation.goblin.nelson_fast" + (this.X ? "c" : "s"), true, var1);
                   break;
                case BREEDING_FAST_0:
-                  this.a("animation.goblin.breeding_fast_1" + (this.ay ? "c" : "s"), true, var1);
+                  this.createAnimation("animation.goblin.breeding_fast_1" + (this.ay ? "c" : "s"), true, var1);
                   break;
                case NULL:
-                  this.a("animation.goblin.null", true, var1);
+                  this.createAnimation("animation.goblin.null", true, var1);
                   break;
                case SHOULDER_IDLE:
-                  this.a("animation.goblin.shoulder_idle", true, var1);
+                  this.createAnimation("animation.goblin.shoulder_idle", true, var1);
                   break;
                case PICK_UP:
-                  this.a(String.format("animation.goblin.pick_up_%sperson", var7), true, var1);
+                  this.createAnimation(String.format("animation.goblin.pick_up_%sperson", var7), true, var1);
                   break;
                case SIT:
-                  this.a("animation.goblin.sit", true, var1);
+                  this.createAnimation("animation.goblin.sit", true, var1);
                   break;
                case RUN:
                   if (this.onGround) {
-                     this.a("animation.goblin.running", true, var1);
+                     this.createAnimation("animation.goblin.running", true, var1);
                   } else {
-                     this.a("animation.goblin.fly", true, var1);
+                     this.createAnimation("animation.goblin.fly", true, var1);
                   }
                   break;
                case CATCH:
-                  this.a(String.format("animation.goblin.catch_%sperson", var7), true, var1);
+                  this.createAnimation(String.format("animation.goblin.catch_%sperson", var7), true, var1);
                   break;
                case CATCH_BJ:
-                  this.a(String.format("animation.goblin.catch_%spersonBj", var7), true, var1);
+                  this.createAnimation(String.format("animation.goblin.catch_%spersonBj", var7), true, var1);
                   break;
                case CATCH_BJ_IDLE:
-                  this.a(String.format("animation.goblin.catch_%spersonBj_idle", var7), true, var1);
+                  this.createAnimation(String.format("animation.goblin.catch_%spersonBj_idle", var7), true, var1);
                   break;
                case START_THROWING:
-                  this.a(String.format("animation.goblin.throw_%sperson", var7), true, var1);
+                  this.createAnimation(String.format("animation.goblin.throw_%sperson", var7), true, var1);
                   break;
                case THROWN:
-                  this.a("animation.goblin.thrown", true, var1);
+                  this.createAnimation("animation.goblin.thrown", true, var1);
                   break;
                case PAIZURI_START:
-                  this.a("animation.goblin.paizuri_start", true, var1);
+                  this.createAnimation("animation.goblin.paizuri_start", true, var1);
                   break;
                case PAIZURI_CUM:
-                  this.a("animation.goblin.paizuri_cum", true, var1);
+                  this.createAnimation("animation.goblin.paizuri_cum", true, var1);
                   break;
                case JUMP_0:
-                  this.a("animation.goblin.jump_1", true, var1);
+                  this.createAnimation("animation.goblin.jump_1", true, var1);
                   break;
                case JUMP_1:
-                  this.a("animation.goblin.jump_2", true, var1);
+                  this.createAnimation("animation.goblin.jump_2", true, var1);
                   break;
                case JUMP_2:
-                  this.a("animation.goblin.jump_3", true, var1);
+                  this.createAnimation("animation.goblin.jump_3", true, var1);
                   break;
                case BREEDING_INTRO_0:
-                  this.a("animation.goblin.breeding_intro_1", true, var1);
+                  this.createAnimation("animation.goblin.breeding_intro_1", true, var1);
                   break;
                case BREEDING_INTRO_1:
-                  this.a("animation.goblin.breeding_intro_2", true, var1);
+                  this.createAnimation("animation.goblin.breeding_intro_2", true, var1);
                   break;
                case BREEDING_INTRO_2:
-                  this.a("animation.goblin.breeding_intro_3", true, var1);
+                  this.createAnimation("animation.goblin.breeding_intro_3", true, var1);
                   break;
                case BREEDING_CUM_0:
-                  this.a("animation.goblin.breeding_cum_1", true, var1);
+                  this.createAnimation("animation.goblin.breeding_cum_1", true, var1);
                   break;
                case BREEDING_CUM_1:
-                  this.a("animation.goblin.breeding_cum_2", true, var1);
+                  this.createAnimation("animation.goblin.breeding_cum_2", true, var1);
                   break;
                case BREEDING_CUM_2:
-                  this.a("animation.goblin.breeding_cum_3", true, var1);
+                  this.createAnimation("animation.goblin.breeding_cum_3", true, var1);
                   break;
                case VANISH:
                case AWAIT_PICK_UP:
-                  this.a("animation.goblin.await_pick_up", true, var1);
+                  this.createAnimation("animation.goblin.await_pick_up", true, var1);
                   break;
                case STAND_UP:
-                  this.a("animation.goblin.stand_up", false, var1);
+                  this.createAnimation("animation.goblin.stand_up", false, var1);
                   break;
                case NELSON_INTRO:
-                  this.a("animation.goblin.nelson_intro", true, var1);
+                  this.createAnimation("animation.goblin.nelson_intro", true, var1);
                   break;
                case NELSON_CUM:
-                  this.a("animation.goblin.nelson_cum", true, var1);
+                  this.createAnimation("animation.goblin.nelson_cum", true, var1);
             }
       }
 
@@ -1666,47 +1666,47 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          switch (var1x.sound) {
             case "catchEh":
                this.sendChatMessage("ehh..");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "catchAkward":
                this.sendChatMessage("awkward..");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "catchWell":
                this.sendChatMessage("well...");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "catchRather":
                this.sendChatMessage("would you rather have this stupid... thing?");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "catchMe":
                this.sendChatMessage("...or use me?~");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "catchDone":
                if ("bj".equals(this.entityDataManager.get(GIRL_HAND_STATES))) {
-                  this.b(fp.CATCH_BJ);
+                  this.setCurrentAction(fp.CATCH_BJ);
                }
                break;
             case "catchBjDone":
-               this.b(fp.CATCH_BJ_IDLE);
+               this.setCurrentAction(fp.CATCH_BJ_IDLE);
                if (this.isControlledByLocalPlayer()) {
                   EntityPlayerSP var6 = Minecraft.getMinecraft().player;
-                  a(var6, this, new String[]{"use her", "take ur stuff back"}, null, false);
+                  openInventoryGui(var6, this, new String[]{"use her", "take ur stuff back"}, null, false);
                }
                break;
             case "paizuriChoice":
                this.sendChatMessage("good choice!~");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "paizuriBoth":
                this.sendChatMessage("...for both of us!");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "paizruiUse":
                this.sendChatMessage("now use me like a fuck toy!~");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "paizuriSwitch":
                if (!this.getRNG().nextBoolean()) {
@@ -1714,35 +1714,35 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
                break;
             case "touch":
-               this.a(SoundHandler.MISC_TOUCH, 3.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_TOUCH, 3.0F);
                break;
             case "pound":
-               this.a(SoundHandler.MISC_POUNDING);
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04F);
                }
                break;
             case "paizuri_startDone":
-               this.b(fp.PAIZURI_IDLE);
+               this.setCurrentAction(fp.PAIZURI_IDLE);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "paizuriFastDone":
-               this.b(fp.PAIZURI_SLOW);
+               this.setCurrentAction(fp.PAIZURI_SLOW);
                break;
             case "paizuriFastReady":
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.b(fp.PAIZURI_FAST_CONTINUES);
+                  this.setCurrentAction(fp.PAIZURI_FAST_CONTINUES);
                }
                break;
             case "paizuriFastContinuesReady":
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.N();
+                  this.resetAnimationControllerOffset();
                }
                break;
             case "smallPound":
-               this.a(SoundHandler.MISC_POUNDING, 0.25F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_POUNDING, 0.25F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02F);
                }
@@ -1760,10 +1760,10 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
                break;
             case "paizuriCumDone":
-               this.b(fp.NULL);
+               this.setCurrentAction(fp.NULL);
                break;
             case "cumSound":
-               this.a(SoundHandler.MISC_SMALLINSERTS, 3.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "jumpCam":
                if (this.isControlledByLocalPlayer()) {
@@ -1784,15 +1784,15 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
 
                this.sendChatMessage("hmm...");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "breedingFound":
                this.sendChatMessage("guess we found a worthy breeding partner!");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "breedingEnough":
                this.sendChatMessage("Eh.. go pin him down, before he runs off!");
-               this.a(SoundHandler.MISC_PLOB);
+               this.playRandomSound(SoundHandler.MISC_PLOB);
                break;
             case "breedingCam2":
                if (this.isControlledByLocalPlayer()) {
@@ -1802,7 +1802,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                   var7.player.rotationPitch = -30.0F;
                }
             case "breedingIntroDone":
-               this.b(fp.BREEDING_SLOW_0);
+               this.setCurrentAction(fp.BREEDING_SLOW_0);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -1813,12 +1813,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
 
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.b(fp.BREEDING_FAST_0);
+                  this.setCurrentAction(fp.BREEDING_FAST_0);
                   this.ay = false;
                }
                break;
             case "breeding_fast1Done":
-               this.b(fp.BREEDING_SLOW_0);
+               this.setCurrentAction(fp.BREEDING_SLOW_0);
                if (this.isControlledByLocalPlayer()) {
                   this.ay = false;
                }
@@ -1826,15 +1826,15 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             case "breeding_fast1Ready":
                if (this.isControlledByLocalPlayer() && d3.d) {
                   this.ay = true;
-                  this.N();
+                  this.resetAnimationControllerOffset();
                   this.actionController.tickOffset = 0.0;
                }
                break;
             case "cum":
-               this.a(SoundHandler.MISC_SMALLINSERTS, 2.0F);
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "breeding_intro_3Done":
-               this.b(fp.BREEDING_SLOW_2);
+               this.setCurrentAction(fp.BREEDING_SLOW_2);
                break;
             case "breeding_3_wiggle":
                if (this.getRNG().nextBoolean()) {
@@ -1843,11 +1843,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                break;
             case "breeding_fast_3Done":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.BREEDING_SLOW_2);
+                  this.setCurrentAction(fp.BREEDING_SLOW_2);
                }
                break;
             case "breeding_intro_2Done":
-               this.b(fp.BREEDING_1);
+               this.setCurrentAction(fp.BREEDING_1);
                break;
             case "breeding_cumCam":
                if (this.isControlledByLocalPlayer()) {
@@ -1860,7 +1860,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
                break;
             case "neslon_introDone":
-               this.b(fp.NELSON_SLOW);
+               this.setCurrentAction(fp.NELSON_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
@@ -1890,13 +1890,13 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             case "nelsonFastDone":
                this.X = false;
                if (this.isControlledByLocalPlayer()) {
-                  this.b(fp.NELSON_SLOW);
+                  this.setCurrentAction(fp.NELSON_SLOW);
                }
                break;
             case "nelson_cumDone":
                if (this.isControlledByLocalPlayer()) {
                   this.resetCameraAndPhysics();
-                  this.b(fp.NULL);
+                  this.setCurrentAction(fp.NULL);
                }
          }
       };
@@ -1958,7 +1958,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      var6 = var9;
                      var6.setOwnerUUID(null);
                      var6.setInteractionPlayerUUID(null);
-                     var6.b(fp.NULL);
+                     var6.setCurrentAction(fp.NULL);
                      GoblinEntity var12 = new GoblinEntity(var5);
                      var12.dimension = var4;
                      var12.forceSpawn = true;
@@ -1968,7 +1968,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      var5.spawnEntity(var12);
                      var12.setPositionAndUpdate(var2.posX, var2.posY, var2.posZ);
                      var12.setOwnerUUID(var3);
-                     var12.b(fp.SHOULDER_IDLE);
+                     var12.setCurrentAction(fp.SHOULDER_IDLE);
                      break;
                   }
                }

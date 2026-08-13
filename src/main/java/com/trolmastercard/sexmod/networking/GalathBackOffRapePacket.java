@@ -31,7 +31,7 @@ public class GalathBackOffRapePacket implements IMessage {
       public IMessage onMessage(GalathBackOffRapePacket var1, MessageContext var2) {
          if (var1.a && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               BaseGirlEntity var1x = BaseGirlEntity.a(var2.getServerHandler().player.getPersistentID(), Boolean.valueOf(true));
+               BaseGirlEntity var1x = BaseGirlEntity.getGirlByUUID(var2.getServerHandler().player.getPersistentID(), Boolean.valueOf(true));
                if (var1x instanceof GalathEntity) {
                   ((GalathEntity)var1x).w_clash641();
                }

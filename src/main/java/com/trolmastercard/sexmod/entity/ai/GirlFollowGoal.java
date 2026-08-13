@@ -63,7 +63,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       this.l = this.q.getDistance(this.a);
       this.i = this.a.getPositionVector();
       if (this.q.getCurrentAction() == fp.BOW) {
-         this.q.b(fp.NULL);
+         this.q.setCurrentAction(fp.NULL);
       }
    }
 
@@ -92,11 +92,11 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             } else {
                if (this.q.Q.getStackInSlot(1).getItem() instanceof ItemBow && this.q.getEntitySenses().canSee(this.r) && ++this.p > 0 && var6 > 6.0) {
                   this.e.set(AbstractGirlNpcEntity.M, 2);
-                  this.q.b(fp.BOW);
+                  this.q.setCurrentAction(fp.BOW);
                   if (++this.p >= 32) {
                      this.p = -20;
                      this.e_clash828();
-                     this.q.b(fp.NULL);
+                     this.q.setCurrentAction(fp.NULL);
                   }
 
                   this.l = this.q.getDistance(this.a);
@@ -107,11 +107,11 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                if (var6 < 2.0) {
                   this.e.set(AbstractGirlNpcEntity.M, 1);
                   this.c.tryMoveToEntityLiving(this.r, 0.5);
-                  this.q.a(BaseGirlEntity.BaseGirlEntityState.WALK);
+                  this.q.setWalkSpeed(BaseGirlEntity.BaseGirlEntityState.WALK);
                } else {
                   this.e.set(AbstractGirlNpcEntity.M, 1);
                   this.c.tryMoveToEntityLiving(this.r, 0.7);
-                  this.q.a(BaseGirlEntity.BaseGirlEntityState.RUN);
+                  this.q.setWalkSpeed(BaseGirlEntity.BaseGirlEntityState.RUN);
                }
             }
             break;
@@ -151,7 +151,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             break;
          case RIDE:
             if (this.q.isRiding()) {
-               this.q.b(fp.SIT);
+               this.q.setCurrentAction(fp.SIT);
             } else {
                this.q.setNoGravity(true);
                this.q.noClip = true;
@@ -160,7 +160,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                this.q.motionX = 0.0;
                this.q.motionY = 0.0;
                this.q.motionZ = 0.0;
-               this.q.b(fp.RIDE);
+               this.q.setCurrentAction(fp.RIDE);
             }
             break;
          case DOWNED:
@@ -179,7 +179,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                return GirlFollowAiBase.GirlFollowAiBaseState.RIDE;
             }
          } else if (!this.a.isRiding() && this.q.isRiding() || this.f == GirlFollowAiBase.GirlFollowAiBaseState.RIDE && !this.a.isRiding()) {
-            this.q.b(fp.NULL);
+            this.q.setCurrentAction(fp.NULL);
             this.q.dismountRidingEntity();
             this.q.noClip = false;
             this.q.setNoGravity(false);
@@ -297,7 +297,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    }
 
    void d_clash830() {
-      this.q.b(fp.ATTACK);
+      this.q.setCurrentAction(fp.ATTACK);
       this.e.set(AbstractGirlNpcEntity.M, 1);
       ItemStack var1 = this.q.Q.getStackInSlot(0);
       Multimap var2 = var1.getAttributeModifiers(EntityEquipmentSlot.MAINHAND);
@@ -358,7 +358,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       }
 
       this.c.setSpeed(var1);
-      this.q.a(this.q.getWalkType());
+      this.q.setWalkSpeed(this.q.getWalkType());
       return var1;
    }
 
@@ -387,7 +387,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                var1.setCanceled(true);
             } else if (var2.getHealth() - var1.getAmount() < 0.0F && !((String)var2.getDataManager().get(AbstractGirlNpcEntity.MASTER)).equals("")) {
                var2.N = true;
-               var2.b(fp.DOWNED);
+               var2.setCurrentAction(fp.DOWNED);
                var1.setAmount(var2.getHealth() - 1.0F);
                var2.getNavigator().clearPath();
             }
@@ -400,7 +400,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
             if (var2.N && var2.getHealth() + var1.getAmount() >= var2.getMaxHealth()) {
                var2.N = false;
-               var2.b(fp.NULL);
+               var2.setCurrentAction(fp.NULL);
             }
          }
       }

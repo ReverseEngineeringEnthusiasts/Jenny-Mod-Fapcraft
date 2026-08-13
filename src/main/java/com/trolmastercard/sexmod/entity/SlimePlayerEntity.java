@@ -74,22 +74,22 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    public void b(String var1, UUID var2) {
       if ("action.names.blowjob".equals(var1)) {
          this.a(0, fp.SUCKBLOWJOB);
-         this.b(fp.SUCKBLOWJOB);
+         this.setCurrentAction(fp.SUCKBLOWJOB);
          this.b_clash577(var2);
       }
    }
 
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
-      a(var1, this, new String[]{"action.names.blowjob"}, false);
+      openInventoryGui(var1, this, new String[]{"action.names.blowjob"}, false);
       return true;
    }
 
    @Override
-   public void b(fp var1) {
-      if (this.getCurrentAction() != fp.CUMBLOWJOB || var1 != fp.THRUSTBLOWJOB && var1 != fp.SUCKBLOWJOB) {
-         if (this.getCurrentAction() != fp.DOGGYCUM || var1 != fp.DOGGYFAST && var1 != fp.DOGGYSLOW) {
-            super.b(var1);
+   public void setCurrentAction(fp action) {
+      if (this.getCurrentAction() != fp.CUMBLOWJOB || action != fp.THRUSTBLOWJOB && action != fp.SUCKBLOWJOB) {
+         if (this.getCurrentAction() != fp.DOGGYCUM || action != fp.DOGGYFAST && action != fp.DOGGYSLOW) {
+            super.setCurrentAction(action);
          }
       }
    }
@@ -126,7 +126,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                var1.setPosition(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z);
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
                this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
-               this.b(fp.DOGGYSTART);
+               this.setCurrentAction(fp.DOGGYSTART);
                var1.setNoGravity(true);
                var1.noClip = true;
                EntityPlayer var2 = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
@@ -140,92 +140,92 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       switch (var1.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() != fp.NULL && this.getCurrentAction().autoBlink) {
-               this.a("animation.slime.fhappy", true, var1);
+               this.createAnimation("animation.slime.fhappy", true, var1);
             } else {
-               this.a("animation.slime.null", true, var1);
+               this.createAnimation("animation.slime.null", true, var1);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.slime.null", true, var1);
+               this.createAnimation("animation.slime.null", true, var1);
             } else if (this.ak) {
-               this.a("animation.slime.sit", true, var1);
+               this.createAnimation("animation.slime.sit", true, var1);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.ap = !this.ap;
                }
 
                if (!this.af) {
-                  this.a("animation.slime.fly" + (this.ap ? "2" : ""), true, var1);
+                  this.createAnimation("animation.slime.fly" + (this.ap ? "2" : ""), true, var1);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
-                     this.a("animation.slime.run", true, var1);
+                     this.createAnimation("animation.slime.run", true, var1);
                   } else if (this.ao.y >= -0.1F) {
-                     this.a("animation.slime.walk", true, var1);
+                     this.createAnimation("animation.slime.walk", true, var1);
                   } else {
-                     this.a("animation.slime.backwards_walk", true, var1);
+                     this.createAnimation("animation.slime.backwards_walk", true, var1);
                   }
                } else {
-                  this.a("animation.slime.idle", true, var1);
+                  this.createAnimation("animation.slime.idle", true, var1);
                }
             }
             break;
          case "action":
             if (this.getCurrentAction() == fp.NULL) {
-               this.a("animation.slime.null", true, var1);
+               this.createAnimation("animation.slime.null", true, var1);
             } else {
                switch (this.getCurrentAction()) {
                   case UNDRESS:
-                     this.a("animation.slime.undress", false, var1);
+                     this.createAnimation("animation.slime.undress", false, var1);
                      break;
                   case DRESS:
-                     this.a("animation.slime.dress", false, var1);
+                     this.createAnimation("animation.slime.dress", false, var1);
                      break;
                   case STRIP:
-                     this.a("animation.slime.strip", false, var1);
+                     this.createAnimation("animation.slime.strip", false, var1);
                      break;
                   case SUCKBLOWJOB:
-                     this.a("animation.slime.blowjobsuck", true, var1);
+                     this.createAnimation("animation.slime.blowjobsuck", true, var1);
                      break;
                   case THRUSTBLOWJOB:
-                     this.a("animation.slime.blowjobthrust", true, var1);
+                     this.createAnimation("animation.slime.blowjobthrust", true, var1);
                      break;
                   case CUMBLOWJOB:
-                     this.a("animation.slime.blowjobcum", false, var1);
+                     this.createAnimation("animation.slime.blowjobcum", false, var1);
                      break;
                   case STARTDOGGY:
-                     this.a("animation.slime.doggygoonbed", false, var1);
+                     this.createAnimation("animation.slime.doggygoonbed", false, var1);
                      break;
                   case WAITDOGGY:
-                     this.a("animation.slime.doggywait", true, var1);
+                     this.createAnimation("animation.slime.doggywait", true, var1);
                      break;
                   case DOGGYSTART:
-                     this.a("animation.slime.doggystart", false, var1);
+                     this.createAnimation("animation.slime.doggystart", false, var1);
                      break;
                   case DOGGYSLOW:
-                     this.a("animation.slime.doggyslow", true, var1);
+                     this.createAnimation("animation.slime.doggyslow", true, var1);
                      break;
                   case DOGGYFAST:
-                     this.a("animation.slime.doggyfast", true, var1);
+                     this.createAnimation("animation.slime.doggyfast", true, var1);
                      break;
                   case DOGGYCUM:
-                     this.a("animation.slime.doggycum", false, var1);
+                     this.createAnimation("animation.slime.doggycum", false, var1);
                      break;
                   case ATTACK:
-                     this.a("animation.slime.attack" + this.S, false, var1);
+                     this.createAnimation("animation.slime.attack" + this.S, false, var1);
                      break;
                   case BOW:
-                     this.a("animation.slime.bowcharge", false, var1);
+                     this.createAnimation("animation.slime.bowcharge", false, var1);
                      break;
                   case RIDE:
-                     this.a("animation.slime.ride", true, var1);
+                     this.createAnimation("animation.slime.ride", true, var1);
                      break;
                   case SIT:
-                     this.a("animation.slime.sit", true, var1);
+                     this.createAnimation("animation.slime.sit", true, var1);
                }
             }
       }
@@ -256,7 +256,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
             case "dress":
                if (this.isLocalPlayerNearby()) {
                   this.entityDataManager.set(OUTFIT_INDEX, 1);
-                  this.b((fp) null);
+                  this.setCurrentAction((fp)null);
                   this.resetCameraAndPhysics();
                }
                break;
@@ -271,58 +271,58 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "bjiMSG11":
-               this.a(SoundEvents.ENTITY_SLIME_SQUISH, 0.5F);
+               this.playSoundAtVolume(SoundEvents.ENTITY_SLIME_SQUISH, 0.5F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "bjiMSG12":
                if (Reference.f.nextInt(5) == 0) {
-                  this.a(SoundEvents.ENTITY_SLIME_JUMP, 0.5F);
+                  this.playSoundAtVolume(SoundEvents.ENTITY_SLIME_JUMP, 0.5F);
                }
 
-               this.a(SoundEvents.ENTITY_SLIME_SQUISH, 0.5F);
+               this.playSoundAtVolume(SoundEvents.ENTITY_SLIME_SQUISH, 0.5F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "bjtMSG1":
-               this.a(SoundEvents.BLOCK_SLIME_HIT);
-               this.a(SoundEvents.ENTITY_SLIME_DEATH);
+               this.playSound(SoundEvents.BLOCK_SLIME_HIT);
+               this.playSound(SoundEvents.ENTITY_SLIME_DEATH);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04);
                }
                break;
             case "bjiDone":
-               this.b(fp.SUCKBLOWJOB);
+               this.setCurrentAction(fp.SUCKBLOWJOB);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "bjtDone":
-               this.b(fp.SUCKBLOWJOB);
+               this.setCurrentAction(fp.SUCKBLOWJOB);
                break;
             case "doggyfastReady":
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.N();
+                  this.resetAnimationControllerOffset();
                }
                break;
             case "bjtReady":
                if (this.isControlledByLocalPlayer() && d3.d) {
-                  this.N();
+                  this.resetAnimationControllerOffset();
                }
                break;
             case "bjcMSG1":
-               this.a(SoundEvents.ENTITY_SLIME_JUMP);
+               this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                break;
             case "bjcMSG2":
-               this.a(SoundEvents.ENTITY_SLIME_JUMP);
+               this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.hideHornyMeter();
                }
                break;
             case "doggyslowMSG2":
-               this.a(SoundEvents.BLOCK_SLIME_HIT);
+               this.playSound(SoundEvents.BLOCK_SLIME_HIT);
                break;
             case "bjcBlackScreen":
                if (this.isControlledByLocalPlayer()) {
@@ -337,50 +337,50 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "doggyGoOnBedMSG1":
-               this.a(SoundEvents.ENTITY_SLIME_SQUISH);
+               this.playSound(SoundEvents.ENTITY_SLIME_SQUISH);
                this.cameraYaw = this.rotationYaw;
                break;
             case "doggyGoOnBedDone":
                PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
-               this.b(fp.WAITDOGGY);
+               this.setCurrentAction(fp.WAITDOGGY);
                break;
             case "doggystartMSG1":
-               this.a(SoundHandler.MISC_TOUCH[0]);
+               this.playSound(SoundHandler.MISC_TOUCH[0]);
                break;
             case "doggystartMSG2":
-               this.a(SoundHandler.MISC_TOUCH[1]);
+               this.playSound(SoundHandler.MISC_TOUCH[1]);
                break;
             case "doggystartMSG3":
-               this.a(SoundEvents.ENTITY_SLIME_SQUISH, 0.25F);
+               this.playSoundAtVolume(SoundEvents.ENTITY_SLIME_SQUISH, 0.25F);
                break;
             case "doggystartMSG4":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_SMALLINSERTS), 1.5F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_SMALLINSERTS), 1.5F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                }
                break;
             case "doggystartMSG5":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
-               this.a(SoundEvents.BLOCK_SLIME_HIT);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
+               this.playSound(SoundEvents.BLOCK_SLIME_HIT);
                break;
             case "doggystartDone":
-               this.b(fp.DOGGYSLOW);
+               this.setCurrentAction(fp.DOGGYSLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "doggyslowMSG1":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
                int var5 = Reference.f.nextInt(4);
                if (var5 == 0) {
                   var5 = Reference.f.nextInt(2);
                   if (var5 == 0) {
-                     this.a(SoundEvents.ENTITY_SLIME_JUMP);
+                     this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                   } else {
-                     this.a(SoundEvents.ENTITY_SLIME_SQUISH);
+                     this.playSound(SoundEvents.ENTITY_SLIME_SQUISH);
                   }
                } else {
-                  this.a(SoundEvents.BLOCK_SLIME_HIT);
+                  this.playSound(SoundEvents.BLOCK_SLIME_HIT);
                }
 
                if (this.isControlledByLocalPlayer()) {
@@ -388,7 +388,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "doggyfastMSG1":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
@@ -397,21 +397,21 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                if (this.aq % 2 == 0) {
                   int var6 = Reference.f.nextInt(2);
                   if (var6 == 0) {
-                     this.a(SoundEvents.ENTITY_SLIME_JUMP);
+                     this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                   } else {
-                     this.a(SoundEvents.ENTITY_SLIME_SQUISH);
+                     this.playSound(SoundEvents.ENTITY_SLIME_SQUISH);
                   }
                } else {
-                  this.a(SoundEvents.BLOCK_SLIME_HIT);
+                  this.playSound(SoundEvents.BLOCK_SLIME_HIT);
                }
                break;
             case "doggyfastDone":
-               this.b(fp.DOGGYSLOW);
+               this.setCurrentAction(fp.DOGGYSLOW);
                break;
             case "doggycumMSG1":
-               this.a(SoundHandler.MISC_CUMINFLATION[0], 4.0F);
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 2.0F);
-               this.a(SoundEvents.ENTITY_SLIME_DEATH);
+               this.playSoundAtVolume(SoundHandler.MISC_CUMINFLATION[0], 4.0F);
+               this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 2.0F);
+               this.playSound(SoundEvents.ENTITY_SLIME_DEATH);
          }
       };
       this.actionController.registerSoundListener(var2);

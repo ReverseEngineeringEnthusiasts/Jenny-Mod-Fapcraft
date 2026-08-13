@@ -114,7 +114,7 @@ public class NpcEditorWandItem extends Item {
                   if (var3.world.isRemote) {
                      BaseGirlEntity var5 = (BaseGirlEntity)var2;
                      String var6 = var5.getCustomModelCode();
-                     String var7 = BaseGirlEntity.c(BaseGirlEntity.getAllPartIdsForGirl(var5.getGirlId()));
+                     String var7 = BaseGirlEntity.encodePartIdList(BaseGirlEntity.getAllPartIdsForGirl(var5.getGirlId()));
                      var3.sendMessage(
                         new TextComponentString(String.format("%s's model-code: %s%s$%s", var5.getDisplayNameText(), TextFormatting.YELLOW, var6, var7))
                      );
@@ -160,7 +160,7 @@ public class NpcEditorWandItem extends Item {
             return true;
          } else {
             String var5 = var4.getCustomModelCode();
-            String var6 = BaseGirlEntity.c(BaseGirlEntity.getAllPartIdsForGirl(var4.getGirlId()));
+            String var6 = BaseGirlEntity.encodePartIdList(BaseGirlEntity.getAllPartIdsForGirl(var4.getGirlId()));
             var1.sendMessage(
                new TextComponentString(
                   String.format("%s's model-code: %s%s$%s", ThreadNames.b_clash163(NpcType.getNpcType(var4).toString()), TextFormatting.YELLOW, var5, var6)

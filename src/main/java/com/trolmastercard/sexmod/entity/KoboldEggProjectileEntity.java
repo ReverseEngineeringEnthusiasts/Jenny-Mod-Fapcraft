@@ -111,7 +111,7 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
          if (var1.getEntityLiving() instanceof BaseGirlEntity) {
             BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntityLiving();
             var2.activeEnderPearl = null;
-            var2.b(fp.NULL);
+            var2.setCurrentAction(fp.NULL);
             var2.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
             var2.goHome();
          }

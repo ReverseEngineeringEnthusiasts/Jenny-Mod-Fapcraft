@@ -314,7 +314,7 @@ public class ClothingScreen extends GuiScreen {
                }
             }
 
-            this.c.b(var12);
+            this.c.setCustomPartsData(var12);
          }
       }
    }

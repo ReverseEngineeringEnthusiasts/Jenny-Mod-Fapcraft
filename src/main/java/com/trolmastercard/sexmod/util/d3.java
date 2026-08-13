@@ -37,7 +37,7 @@ public class d3 {
          }
 
          if (b.sneak) {
-            BaseGirlEntity.k(Minecraft.getMinecraft().player.getPersistentID());
+            BaseGirlEntity.triggerFastSexAction(Minecraft.getMinecraft().player.getPersistentID());
          }
 
          if (b.jump && HornyMeterHud.c >= 1.0) {

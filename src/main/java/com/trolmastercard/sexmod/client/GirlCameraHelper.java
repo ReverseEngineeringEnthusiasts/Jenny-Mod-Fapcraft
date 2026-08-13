@@ -90,11 +90,11 @@ public class GirlCameraHelper {
       }
 
       if ((var1.getHeldItemMainhand().getItem() instanceof ItemBow || var1.getHeldItemOffhand().getItem() instanceof ItemBow) && var0.ah) {
-         var0.b(fp.BOW);
+         var0.setCurrentAction(fp.BOW);
       }
 
       if (var0.getCurrentAction() == fp.BOW && !var0.ah) {
-         var0.b(fp.NULL);
+         var0.setCurrentAction(fp.NULL);
       }
 
       if (var0.getCurrentAction() == fp.BOW) {

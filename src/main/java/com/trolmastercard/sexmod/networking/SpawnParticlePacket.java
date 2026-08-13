@@ -58,7 +58,7 @@ public class SpawnParticlePacket implements IMessage {
             for (BaseGirlEntity var5 : BaseGirlEntity.girlList(var1.c)) {
                if (var5.world.isRemote) {
                   for (int var6 = 0; var6 < var1.a; var6++) {
-                     BaseGirlEntity.a(EnumParticleTypes.getByName(var1.b), var5);
+                     BaseGirlEntity.spawnParticlesAround(EnumParticleTypes.getByName(var1.b), var5);
                   }
                   break;
                }

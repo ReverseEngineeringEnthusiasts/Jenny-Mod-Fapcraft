@@ -566,10 +566,10 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       var2.addAll(var1.boneTrackingList);
 
       for (String var4 : (java.util.Collection<String>) (var2) ) {
-         MatrixStack var5 = var1.a(var4, !var1.isLocallyRegistered());
+         MatrixStack var5 = var1.getBoneMatrixStack(var4, !var1.isLocallyRegistered());
          Matrix4f var6 = var5.getModelMatrix();
          Vec3d var7 = new Vec3d(-var6.m03, var6.m13, -var6.m23);
-         var1.a(var4, var7);
+         var1.setBoneWorldPosition(var4, var7);
       }
    }
 
@@ -1051,7 +1051,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
             if (var6 != null) {
                if (var6.getItem().equals(Items.BOW) && var4.getCurrentAction() == fp.BOW) {
                   this.a += 0.015F;
-                  var4.d(Math.round(-this.a * 20.0F + var6.getMaxItemUseDuration()));
+                  var4.setItemUseCount(Math.round(-this.a * 20.0F + var6.getMaxItemUseDuration()));
                   var4.setHeldItemOverride(var6);
                }
 

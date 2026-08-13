@@ -188,7 +188,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       Vec3d var11 = y.player.getPositionVector();
       var1.prevRenderYawOffset = var9.prevRotationYawHead;
       var1.renderYawOffset = var9.rotationYawHead;
-      var1.b(fp.START_THROWING);
+      var1.setCurrentAction(fp.START_THROWING);
       return var10.subtract(var11);
    }
 

@@ -283,7 +283,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    public static void a_clash185(GalathEntity var0) {
-      var0.b(fp.GALATH_DE_SUMMON);
+      var0.setCurrentAction(fp.GALATH_DE_SUMMON);
       var0.aC();
       var0.setAnchored(true);
       var0.setTargetPosition(var0.getPositionVector());
@@ -365,12 +365,12 @@ public class GalathCoinItem extends Item implements IAnimatable {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      this.a = new AnimationController<>(this, "controller", 0.0F, this::a);
+      this.a = new AnimationController<>(this, "controller", 0.0F, this::animationPredicate);
       var1.addAnimationController(this.a);
    }
 
    @SideOnly(Side.CLIENT)
-   protected <segs extends IAnimatable> PlayState a(AnimationEvent<segs> var1) {
+   protected <segs extends IAnimatable> PlayState animationPredicate(AnimationEvent<segs> var1) {
       NBTTagCompound var2 = Minecraft.getMinecraft().player.getEntityData();
       if (var2.getLong("sexmod:galath_coin_activation_time") == 0L && var2.getLong("sexmod:galath_coin_deactivation_time") == 0L) {
          var1.getController().clearAnimationCache();

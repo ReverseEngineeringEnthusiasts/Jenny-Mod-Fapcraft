@@ -156,14 +156,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @Override
    public void c_clash237() {
       this.sendChatMessage("Love it here owo");
-      this.a(SoundHandler.GIRLS_LUNA_OWO);
+      this.playRandomSound(SoundHandler.GIRLS_LUNA_OWO);
    }
 
    @Override
-   public void b(fp var1) {
-      if (this.getCurrentAction() != fp.COWGIRL_SITTING_CUM || var1 != fp.COWGIRL_SITTING_SLOW && var1 != fp.COWGIRL_SITTING_FAST) {
-         if (this.getCurrentAction() != fp.TOUCH_BOOBS_CUM || var1 != fp.TOUCH_BOOBS_FAST && var1 != fp.TOUCH_BOOBS_SLOW) {
-            super.b(var1);
+   public void setCurrentAction(fp action) {
+      if (this.getCurrentAction() != fp.COWGIRL_SITTING_CUM || action != fp.COWGIRL_SITTING_SLOW && action != fp.COWGIRL_SITTING_FAST) {
+         if (this.getCurrentAction() != fp.TOUCH_BOOBS_CUM || action != fp.TOUCH_BOOBS_FAST && action != fp.TOUCH_BOOBS_SLOW) {
+            super.setCurrentAction(action);
          }
       }
    }
@@ -254,7 +254,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             this.motionX = 0.0;
             this.motionY = 0.0;
             this.motionZ = 0.0;
-            this.b(fp.WAIT_CAT);
+            this.setCurrentAction(fp.WAIT_CAT);
          }
       }
 
@@ -308,7 +308,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
                var1.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVector().y, this.getPositionVector().z);
-               this.b(fp.COWGIRL_SITTING_INTRO);
+               this.setCurrentAction(fp.COWGIRL_SITTING_INTRO);
                var1.setRotationYawHead(this.getYawRotation() + 180.0F);
                var1.rotationYaw = this.getYawRotation() + 180.0F;
                var1.prevRotationYaw = this.getYawRotation() + 180.0F;
@@ -344,11 +344,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @Override
    public void a_clash292() {
       this.entityDataManager.set(IS_ANCHORED, false);
-      this.b(fp.NULL);
+      this.setCurrentAction(fp.NULL);
       this.ar = true;
       BlockPos var1 = this.getNearestBed(this.getPosition());
       if (var1 == null) {
-         this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
+         this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
          PacketHandler.b
             .sendToAllAround(
                new SendChatMessagePacket(
@@ -394,7 +394,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          }
 
          if (var5 == -1) {
-            this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
+            this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
             this.sendChatMessage("Heh.. the bed is obscured.. but I already ate the fish so nya~ hehe");
             return;
          }
@@ -428,7 +428,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       this.entityDataManager.set(IS_ANCHORED, false);
       this.entityDataManager.set(ag, ItemStack.EMPTY);
       this.setSilent(false);
-      this.b(fp.NULL);
+      this.setCurrentAction(fp.NULL);
       if (this.av != null) {
          this.world.removeEntity(this.av);
          this.av = null;
@@ -461,9 +461,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                ItemStack var1 = (ItemStack)this.entityDataManager.get(ag);
                if (var1 != ItemStack.EMPTY) {
                   if (var1.getItem() instanceof ItemFood) {
-                     this.b(fp.FISHING_EAT);
+                     this.setCurrentAction(fp.FISHING_EAT);
                   } else {
-                     this.b(fp.FISHING_THROW_AWAY);
+                     this.setCurrentAction(fp.FISHING_THROW_AWAY);
                   }
                }
             }
@@ -492,7 +492,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
 
                if (this.getCurrentAction() == fp.NULL) {
-                  this.b(fp.FISHING_START);
+                  this.setCurrentAction(fp.FISHING_START);
                   this.setTargetPosition(this.getPositionVector());
                   this.entityDataManager.set(IS_ANCHORED, true);
                   this.setYawRotation(
@@ -554,7 +554,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       int var3 = 0;
 
       while (++var1 < 50) {
-         BlockPos var4 = this.a(
+         BlockPos var4 = this.findNearestStructureBlock(
             this.getPosition(),
             var1 + 1,
             Blocks.WATER,
@@ -629,11 +629,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public void a(String var1, UUID var2) {
-      super.a(var1, var2);
+   public void doAction(String var1, UUID var2) {
+      super.doAction(var1, var2);
       if ("action.names.touchboobs".equals(var1)) {
          this.setInteractionPlayerUUID(var2);
-         this.a(true, true, var2);
+         this.triggerActionSync(true, true, var2);
          this.changeDataParameterFromClient("animationFollowUp", "touch_boobs");
          this.changeDataParameterFromClient("currentModel", "0");
          d3.setMovementLock(false);
@@ -641,14 +641,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
       if ("action.names.sex".equals(var1)) {
          this.setInteractionPlayerUUID(var2);
-         this.a(true, true, var2);
+         this.triggerActionSync(true, true, var2);
          this.changeDataParameterFromClient("animationFollowUp", "sex");
          d3.setMovementLock(false);
       }
 
       if ("action.names.headpat".equals(var1)) {
          this.setInteractionPlayerUUID(var2);
-         this.a(true, true, var2);
+         this.triggerActionSync(true, true, var2);
          d3.setMovementLock(false);
          this.changeDataParameterFromClient("animationFollowUp", "headpat");
       }
@@ -677,15 +677,15 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       switch ((String)this.entityDataManager.get(GIRL_HAND_STATES)) {
          case "touch_boobs":
             if (this.getCurrentAction() != fp.PAYMENT) {
-               this.b(fp.PAYMENT);
+               this.setCurrentAction(fp.PAYMENT);
                return;
             }
 
-            this.b(fp.TOUCH_BOOBS_INTRO);
+            this.setCurrentAction(fp.TOUCH_BOOBS_INTRO);
             break;
          case "sex":
             if (this.getCurrentAction() != fp.PAYMENT) {
-               this.b(fp.PAYMENT);
+               this.setCurrentAction(fp.PAYMENT);
             } else {
                PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
                PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
@@ -693,7 +693,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
             return;
          case "headpat":
-            this.b(fp.HEAD_PAT);
+            this.setCurrentAction(fp.HEAD_PAT);
       }
 
       if (this.world.isRemote) {
@@ -704,7 +704,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    protected void playHurtSound(DamageSource var1) {
-      this.a(SoundHandler.GIRLS_LUNA_OUU);
+      this.playRandomSound(SoundHandler.GIRLS_LUNA_OUU);
    }
 
    @Nullable
@@ -723,7 +723,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
       if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
@@ -731,93 +731,93 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       switch (var1.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.cat.null", true, var1);
+               this.createAnimation("animation.cat.null", true, var1);
             } else {
-               this.a("animation.cat.blink", true, var1);
+               this.createAnimation("animation.cat.blink", true, var1);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
-               this.a("animation.cat.null", true, var1);
+               this.createAnimation("animation.cat.null", true, var1);
             } else if (this.isRiding()) {
-               this.a("animation.cat.sit", true, var1);
+               this.createAnimation("animation.cat.sit", true, var1);
             } else if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
                if (this.onGround && Math.abs(Math.abs(this.prevPosY) - Math.abs(this.posY)) < 0.1F) {
-                  this.a(this.entityDataManager.get(Y) < 3.0F ? "animation.cat.walk" : "animation.cat.run", true, var1);
+                  this.createAnimation(this.entityDataManager.get(Y) < 3.0F ? "animation.cat.walk" : "animation.cat.run", true, var1);
                } else {
-                  this.a("animation.cat.fly", true, var1);
+                  this.createAnimation("animation.cat.fly", true, var1);
                }
 
                this.rotationYaw = this.rotationYawHead;
             } else {
-               this.a("animation.cat.idle" + (this.ad ? "2" : ""), true, var1);
+               this.createAnimation("animation.cat.idle" + (this.ad ? "2" : ""), true, var1);
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.a("animation.cat.null", true, var1);
+                  this.createAnimation("animation.cat.null", true, var1);
                   break;
                case ATTACK:
-                  this.a("animation.cat.attack" + this.S, false, var1);
+                  this.createAnimation("animation.cat.attack" + this.S, false, var1);
                   break;
                case RIDE:
                case SIT:
-                  this.a("animation.cat.sit", true, var1);
+                  this.createAnimation("animation.cat.sit", true, var1);
                   break;
                case BOW:
-                  this.a("animation.cat.bowcharge", false, var1);
+                  this.createAnimation("animation.cat.bowcharge", false, var1);
                   break;
                case THROW_PEARL:
-                  this.a("animation.cat.throwpearl", true, var1);
+                  this.createAnimation("animation.cat.throwpearl", true, var1);
                   break;
                case DOWNED:
-                  this.a("animation.cat.downed", true, var1);
+                  this.createAnimation("animation.cat.downed", true, var1);
                   break;
                case FISHING_START:
-                  this.a("animation.cat.start_fishing", false, var1);
+                  this.createAnimation("animation.cat.start_fishing", false, var1);
                   break;
                case FISHING_IDLE:
-                  this.a("animation.cat.idle_fishing", true, var1);
+                  this.createAnimation("animation.cat.idle_fishing", true, var1);
                   break;
                case FISHING_EAT:
-                  this.a("animation.cat.eat_fishing", false, var1);
+                  this.createAnimation("animation.cat.eat_fishing", false, var1);
                   break;
                case FISHING_THROW_AWAY:
-                  this.a("animation.cat.throw_away", false, var1);
+                  this.createAnimation("animation.cat.throw_away", false, var1);
                   break;
                case PAYMENT:
-                  this.a("animation.cat.payment", false, var1);
+                  this.createAnimation("animation.cat.payment", false, var1);
                   break;
                case TOUCH_BOOBS_INTRO:
-                  this.a("animation.cat.touch_boobs_intro", false, var1);
+                  this.createAnimation("animation.cat.touch_boobs_intro", false, var1);
                   break;
                case TOUCH_BOOBS_SLOW:
-                  this.a("animation.cat.touch_boobs_slow" + (this.ae ? "1" : ""), true, var1);
+                  this.createAnimation("animation.cat.touch_boobs_slow" + (this.ae ? "1" : ""), true, var1);
                   break;
                case TOUCH_BOOBS_FAST:
-                  this.a("animation.cat.touch_boobs_fast", true, var1);
+                  this.createAnimation("animation.cat.touch_boobs_fast", true, var1);
                   break;
                case TOUCH_BOOBS_CUM:
-                  this.a("animation.cat.touch_boobs_cum", false, var1);
+                  this.createAnimation("animation.cat.touch_boobs_cum", false, var1);
                   break;
                case WAIT_CAT:
-                  this.a("animation.cat.wait", false, var1);
+                  this.createAnimation("animation.cat.wait", false, var1);
                   break;
                case COWGIRL_SITTING_INTRO:
-                  this.a("animation.cat.sitting_intro", false, var1);
+                  this.createAnimation("animation.cat.sitting_intro", false, var1);
                   break;
                case COWGIRL_SITTING_SLOW:
-                  this.a("animation.cat.sitting_slow", true, var1);
+                  this.createAnimation("animation.cat.sitting_slow", true, var1);
                   break;
                case COWGIRL_SITTING_FAST:
-                  this.a("animation.cat.sitting_fast", true, var1);
+                  this.createAnimation("animation.cat.sitting_fast", true, var1);
                   break;
                case COWGIRL_SITTING_CUM:
-                  this.a("animation.cat.sitting_cum", false, var1);
+                  this.createAnimation("animation.cat.sitting_cum", false, var1);
                   break;
                case HEAD_PAT:
-                  this.a("animation.cat.head_pat", true, var1);
+                  this.createAnimation("animation.cat.head_pat", true, var1);
             }
       }
 
@@ -833,10 +833,10 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackSound":
-               this.a(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
+               this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
                break;
             case "attackDone":
-               this.b(fp.NULL);
+               this.setCurrentAction(fp.NULL);
                if (++this.S == 3) {
                   this.S = 0;
                }
@@ -852,7 +852,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "start_fishingDone":
                if (this.isLocalPlayerNearby()) {
-                  this.b(fp.FISHING_IDLE);
+                  this.setCurrentAction(fp.FISHING_IDLE);
                }
                break;
             case "rod_shoot":
@@ -861,7 +861,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "eat":
-               this.a(
+               this.playSoundAtPosition(
                   SoundHandler.randomSound(SoundHandler.MISC_EAT),
                   0.5F + 0.5F * this.rand.nextInt(2),
                   (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F
@@ -869,7 +869,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.aa -= 0.33333334F;
                break;
             case "eatPay":
-               this.a(
+               this.playSoundAtPosition(
                   SoundHandler.randomSound(SoundHandler.MISC_EAT),
                   0.5F + 0.5F * this.rand.nextInt(2),
                   (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F
@@ -877,12 +877,12 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.scaleFactor -= 0.33333334F;
                break;
             case "burp":
-               this.a(SoundEvents.ENTITY_PLAYER_BURP, 0.5F, this.rand.nextFloat() * 0.1F + 0.9F);
+               this.playSoundAtPosition(SoundEvents.ENTITY_PLAYER_BURP, 0.5F, this.rand.nextFloat() * 0.1F + 0.9F);
                break;
             case "eatingDone":
                if (this.isLocalPlayerNearby()) {
                   PacketHandler.b.sendToServer(new CatEatingDonePacket(this.getGirlId()));
-                  this.b(fp.NULL);
+                  this.setCurrentAction(fp.NULL);
                }
 
                this.aa = 1.0F;
@@ -900,22 +900,22 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.Z = 1.0F;
                break;
             case "paymentMSG1":
-               this.a(this.getInteractionPlayerUUID(), "Here, I know u like fish and yea.. these are for you");
-               this.a(SoundHandler.MISC_PLOB[0]);
+               this.sendChatMessageToPlayer(this.getInteractionPlayerUUID(), "Here, I know u like fish and yea.. these are for you");
+               this.playSound(SoundHandler.MISC_PLOB[0]);
                break;
             case "paymentMSG2":
                this.sendChatMessage("huh~?");
-               this.a(SoundHandler.GIRLS_LUNA_HUH);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HUH);
                break;
             case "paymentMSG3":
                this.sendChatMessage("nyyyaaaa~ :D");
                int[] var4 = new int[]{1, 7, 10, 11};
                int var5 = var4[this.getRNG().nextInt(var4.length)];
-               this.a(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
+               this.playSound(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
                break;
             case "paymentMSG4":
                this.sendChatMessage("tankuuuu owowowo");
-               this.a(SoundHandler.GIRLS_LUNA_OWO);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_OWO);
                break;
             case "paymentDone":
                if (this.isLocalPlayerNearby()) {
@@ -926,54 +926,54 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "breath":
             case "rod_breath":
-               this.a(SoundHandler.GIRLS_LUNA_LIGHTBREATHING);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_LIGHTBREATHING);
                break;
             case "happyOh":
-               this.a(SoundHandler.GIRLS_LUNA_HAPPYOH);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HAPPYOH);
                break;
             case "cutenya3":
-               this.a(SoundHandler.GIRLS_LUNA_CUTENYA[3]);
+               this.playSound(SoundHandler.GIRLS_LUNA_CUTENYA[3]);
                break;
             case "cutenya2":
-               this.a(SoundHandler.GIRLS_LUNA_CUTENYA[2]);
+               this.playSound(SoundHandler.GIRLS_LUNA_CUTENYA[2]);
                break;
             case "huh":
-               this.a(SoundHandler.GIRLS_LUNA_HUH);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HUH);
                break;
             case "hmph":
-               this.a(SoundHandler.GIRLS_LUNA_HMPH);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HMPH);
                break;
             case "hehe":
             case "giggle":
-               this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
                break;
             case "singing":
-               this.a(SoundHandler.GIRLS_LUNA_SINGING);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_SINGING);
                break;
             case "touch_boobsMSG1":
                this.sendChatMessage("comon~ touch me hihi~");
-               this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
                break;
             case "touch":
-               this.a(SoundHandler.MISC_TOUCH);
+               this.playRandomSound(SoundHandler.MISC_TOUCH);
                break;
             case "jump":
-               this.a(SoundHandler.MISC_JUMP[0], 0.2F);
+               this.playSoundAtVolume(SoundHandler.MISC_JUMP[0], 0.2F);
                break;
             case "horninya":
-               this.a(SoundHandler.GIRLS_LUNA_HORNINYA);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HORNINYA);
                break;
             case "horninya2":
             case "touch_boobs_cumMSG3":
             case "sitting_cumMSG1":
-               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[1]);
-               this.a(SoundHandler.MISC_CUMINFLATION[0], 5.0F);
+               this.playSound(SoundHandler.GIRLS_LUNA_HORNINYA[1]);
+               this.playSoundAtVolume(SoundHandler.MISC_CUMINFLATION[0], 5.0F);
                break;
             case "moan":
-               this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
+               this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                break;
             case "touch_boobs_introDone":
-               this.b(fp.TOUCH_BOOBS_SLOW);
+               this.setCurrentAction(fp.TOUCH_BOOBS_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                   HornyMeterHud.showHornyMeter();
@@ -999,14 +999,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "fastDone":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.TOUCH_BOOBS_SLOW);
+                  this.setCurrentAction(fp.TOUCH_BOOBS_SLOW);
                }
                break;
             case "moanOrNya":
                if (Math.random() > 0.5) {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                } else {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                }
                break;
             case "blackScreen":
@@ -1026,25 +1026,25 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "touch_boobs_cumMSG1":
-               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[3]);
+               this.playSound(SoundHandler.GIRLS_LUNA_HORNINYA[3]);
                break;
             case "touch_boobs_cumMSG2":
-               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[9]);
+               this.playSound(SoundHandler.GIRLS_LUNA_HORNINYA[9]);
                break;
             case "call_playerMSG1":
-               this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
                this.sendChatMessage("come here - big guy hehe~");
                break;
             case "pounding":
-               this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
+               this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
                break;
             case "sitting_introMSG1":
-               this.a(SoundHandler.GIRLS_LUNA_GIGGLE);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
                this.sendChatMessage("hehe~");
                break;
             case "sitting_introDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.b(fp.COWGIRL_SITTING_SLOW);
+                  this.setCurrentAction(fp.COWGIRL_SITTING_SLOW);
                   HornyMeterHud.resetHornyMeter();
                   HornyMeterHud.showHornyMeter();
                }
@@ -1052,13 +1052,13 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             case "sitting_slowMSG1":
                if (this.getRNG().nextBoolean()) {
                   if (this.getRNG().nextBoolean()) {
-                     this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
+                     this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                      break;
                   }
 
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                } else {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_LIGHTBREATHING));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_LIGHTBREATHING));
                }
 
                if (this.isControlledByLocalPlayer()) {
@@ -1067,9 +1067,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "sitting_fastMSG1":
                if (this.getRNG().nextBoolean()) {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_HORNINYA));
                } else {
-                  this.a(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
+                  this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                }
 
                if (this.isControlledByLocalPlayer()) {
@@ -1078,7 +1078,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "sitting_fastDone":
                if (this.isControlledByLocalPlayer() && !d3.d) {
-                  this.b(fp.COWGIRL_SITTING_SLOW);
+                  this.setCurrentAction(fp.COWGIRL_SITTING_SLOW);
                   Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
                   Vec3d var9 = ck.rotateByYaw(var8, this.getYawRotation() + 180.0F);
                   Minecraft.getMinecraft()
@@ -1105,14 +1105,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "headpatMSG1":
                this.sendChatMessage("huh?~");
-               this.a(SoundHandler.GIRLS_LUNA_HUH);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_HUH);
                break;
             case "headpatMSG2":
-               this.a(SoundHandler.GIRLS_LUNA_MMM);
+               this.playRandomSound(SoundHandler.GIRLS_LUNA_MMM);
                break;
             case "headpatMSG3":
                this.sendChatMessage("nya~");
-               this.a(SoundHandler.GIRLS_LUNA_HORNINYA[0]);
+               this.playSound(SoundHandler.GIRLS_LUNA_HORNINYA[0]);
          }
       };
       this.movementController.transitionLengthTicks = 10.0;

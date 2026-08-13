@@ -72,14 +72,14 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
       }
 
       this.c.setSpeed(var2);
-      this.d.a(var4);
+      this.d.setWalkSpeed(var4);
       return var2;
    }
 
    public void resetTask() {
       this.c.clearPath();
       this.f = GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
-      this.d.b(fp.NULL);
+      this.d.setCurrentAction(fp.NULL);
       this.e.set(BaseGirlEntity.MASTER, "");
       this.c = null;
       this.e = null;
