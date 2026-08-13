@@ -69,8 +69,8 @@ public class RotationHelper {
    }
 
    public static UnknownScreen a(UnknownScreen var0, UnknownScreen var1, double var2) {
-      UnknownScreen var4 = new UnknownScreen(var1.a - var0.a, var1.d - var0.d, var1.c - var0.c, var1.b - var0.b);
-      return new UnknownScreen((int)(var0.a + var4.a * var2), (int)(var0.d + var4.d * var2), (int)(var0.c + var4.c * var2), (int)(var0.b + var4.b * var2));
+      UnknownScreen var4 = new UnknownScreen(var1.red - var0.red, var1.green - var0.green, var1.blue - var0.blue, var1.alpha - var0.alpha);
+      return new UnknownScreen((int)(var0.red + var4.red * var2), (int)(var0.green + var4.green * var2), (int)(var0.blue + var4.blue * var2), (int)(var0.alpha + var4.alpha * var2));
    }
 
    public static double e(double var0) {

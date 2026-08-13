@@ -146,7 +146,7 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.bee.throw_pearl", true, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.bee.attack" + this.S, false, var1);
+                  this.createAnimation("animation.bee.attack" + this.nextAttack, false, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.bee.bowcharge", false, var1);
@@ -168,13 +168,13 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "attackDone":
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "pearl":
                if (this.isLocalPlayerNearby() && this.getCurrentAction() == Action.THROW_PEARL) {
-                  PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+                  PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                }
                break;
             case "resetCumPercentage":
@@ -195,12 +195,12 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "sex_fastReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
                break;
             case "sex_fastDone":
-               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.d) {
+               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.isJumping) {
                   return;
                }
             case "sex_startDone":

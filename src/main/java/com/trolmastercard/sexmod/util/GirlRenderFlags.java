@@ -2,14 +2,14 @@ package com.trolmastercard.sexmod.util;
 
 
 public class GirlRenderFlags {
-   public static GirlRenderFlags a;
-   public boolean c;
-   public boolean d;
-   public boolean b;
+   public static GirlRenderFlags instance;
+   public boolean flagC;
+   public boolean flagD;
+   public boolean flagB;
 
    public GirlRenderFlags(boolean var1, boolean var2, boolean var3) {
-      this.c = var1;
-      this.d = var2;
-      this.b = var3;
+      this.flagC = var1;
+      this.flagD = var2;
+      this.flagB = var3;
    }
 }

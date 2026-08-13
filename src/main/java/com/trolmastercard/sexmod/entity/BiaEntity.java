@@ -53,10 +53,10 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 
 public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddableSexGirl {
    static final int ae = 3;
-   public boolean Y = false;
+   public boolean yFlag = false;
    int ag = 0;
    boolean af = false;
-   int Z = 0;
+   int zFlag = 0;
    boolean ab = true;
    int ac = -1;
    boolean aa = false;
@@ -72,10 +72,10 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    public BiaEntity(World var1) {
       super(var1);
       this.setSize(0.49F, 1.65F);
-      this.P = 140;
-      this.O = 50;
-      this.K = 140;
-      this.V = new Vec3d(0.0, -0.029999997854232782, -0.2);
+      this.slashSwordRot = 140;
+      this.stabSwordRot = 50;
+      this.holdBowRot = 140;
+      this.swordOffsetStab = new Vec3d(0.0, -0.029999997854232782, -0.2);
    }
 
    @Override
@@ -96,7 +96,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
    @Override
    public void b_clash158() {
-      this.Y = true;
+      this.yFlag = true;
    }
 
    @Override
@@ -115,7 +115,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
    @Override
    protected ResourceLocation getLootTable() {
-      return LootTableHandler.c;
+      return LootTableHandler.BIA_TABLE;
    }
 
    @Override
@@ -127,7 +127,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          this.ab = false;
       }
 
-      if (this.Y) {
+      if (this.yFlag) {
          this.ag++;
          if (!this.getPositionVector().equals(this.getTargetPosition()) && this.ag <= 40) {
             this.rotationYaw = this.getYawRotation();
@@ -142,7 +142,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
             Vec3d var1 = RotationHelper.a(this.getPositionVector(), this.getTargetPosition(), 40 - this.ag);
             this.setPosition(var1.x, var1.y, var1.z);
          } else {
-            this.Y = false;
+            this.yFlag = false;
             this.ag = 0;
             this.setYawRotation(this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID()).rotationYaw + 180.0F);
             this.entityDataManager.set(IS_ANCHORED, true);
@@ -152,16 +152,16 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       }
 
       if (this.af) {
-         if (!(this.getPositionVector().distanceTo(this.getTargetPosition()) < 0.6) && this.Z <= 200) {
-            this.Z++;
-            if (this.Z == 60 || this.Z == 120) {
+         if (!(this.getPositionVector().distanceTo(this.getTargetPosition()) < 0.6) && this.zFlag <= 200) {
+            this.zFlag++;
+            if (this.zFlag == 60 || this.zFlag == 120) {
                this.getNavigator().clearPath();
                this.getNavigator().tryMoveToXYZ(this.getTargetPosition().x, this.getTargetPosition().y, this.getTargetPosition().z, 0.35);
             }
          } else {
             this.af = false;
             this.entityDataManager.set(IS_ANCHORED, true);
-            this.Z = 0;
+            this.zFlag = 0;
             this.noClip = true;
             this.setNoGravity(true);
             this.motionX = 0.0;
@@ -497,7 +497,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          this.getNavigator().clearPath();
          this.getNavigator().tryMoveToXYZ(var3.x, var3.y, var3.z, 0.35);
          this.af = true;
-         this.Z = 0;
+         this.zFlag = 0;
       }
    }
 
@@ -531,7 +531,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          case "doggy":
          case "anal":
             this.resetCameraAndPhysics();
-            PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
+            PacketHandler.networkWrapper.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
             return;
       }
 
@@ -597,7 +597,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                   this.createAnimation("animation.bia.strip", false, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.bia.attack" + this.S, false, var1);
+                  this.createAnimation("animation.bia.attack" + this.nextAttack, false, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.bia.bowcharge", false, var1);
@@ -687,8 +687,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          switch (var1x.sound) {
             case "attackDone":
                this.setCurrentAction(Action.NULL);
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "becomeNude":
@@ -710,7 +710,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                }
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "talk_hornyMSG1":
                this.sendChatMessage(I18n.format("bia.dialogue.heya", new Object[0]));
@@ -783,7 +783,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
                break;
             case "anal_fastDone":
-               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.d) {
+               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.isJumping) {
                   return;
                }
             case "anal_startDone":
@@ -850,12 +850,12 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                }
                break;
             case "doggySwitch":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.PRONE_DOGGY_HARD);
                }
                break;
             case "doggyReset":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
                break;

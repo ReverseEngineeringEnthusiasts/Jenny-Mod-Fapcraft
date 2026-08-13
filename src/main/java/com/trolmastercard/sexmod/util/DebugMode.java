@@ -30,7 +30,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class DebugMode {
-   static final int a = 60;
+   static final int debugFlag = 60;
    public static float[] b;
 
    public DebugMode() {

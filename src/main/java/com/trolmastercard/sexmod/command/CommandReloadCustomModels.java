@@ -16,7 +16,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 
 public class CommandReloadCustomModels extends CommandBase {
-   public static final CommandReloadCustomModels a = new CommandReloadCustomModels();
+   public static final CommandReloadCustomModels RELOAD_CUSTOM_MODELS_COMMAND = new CommandReloadCustomModels();
 
    public String getName() {
       return "reloadcustommodels";
@@ -34,7 +34,7 @@ public class CommandReloadCustomModels extends CommandBase {
       ServerWhitelistManager.b_clash126(false);
 
       for (EntityPlayerMP var5 : var1.getPlayerList().getPlayers()) {
-         var1.addScheduledTask(() -> PacketHandler.b.sendTo(new UnknownPacket(ServerWhitelistManager.e_clash144()), var5));
+         var1.addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(new UnknownPacket(ServerWhitelistManager.e_clash144()), var5));
       }
    }
 }

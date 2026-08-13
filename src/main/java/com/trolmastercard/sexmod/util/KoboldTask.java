@@ -23,79 +23,79 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class KoboldTask {
-   public static final int d = 30;
-   BlockPos a;
-   KoboldTask.TaskType c;
-   HashSet<BlockPos> b;
-   List<KoboldEntity> f = new ArrayList<>();
-   EnumFacing e = EnumFacing.NORTH;
+   public static final int maxWorkers = 30;
+   BlockPos targetPos;
+   KoboldTask.TaskType taskType;
+   HashSet<BlockPos> miningTargets;
+   List<KoboldEntity> workers = new ArrayList<>();
+   EnumFacing facing = EnumFacing.NORTH;
 
    public KoboldTask(BlockPos var1, KoboldTask.TaskType var2, HashSet<BlockPos> var3) {
-      this.a = var1;
-      this.c = var2;
-      this.b = var3;
+      this.targetPos = var1;
+      this.taskType = var2;
+      this.miningTargets = var3;
    }
 
    public KoboldTask(BlockPos var1, KoboldTask.TaskType var2, HashSet<BlockPos> var3, EnumFacing var4) {
-      this.a = var1;
-      this.c = var2;
-      this.b = var3;
-      this.e = var4;
+      this.targetPos = var1;
+      this.taskType = var2;
+      this.miningTargets = var3;
+      this.facing = var4;
    }
 
    public EnumFacing f_clash200() {
-      return this.e;
+      return this.facing;
    }
 
    public BlockPos b_clash201() {
-      return this.a;
+      return this.targetPos;
    }
 
    public KoboldTask.TaskType d_clash202() {
-      return this.c;
+      return this.taskType;
    }
 
    public HashSet<BlockPos> g_clash203() {
-      return this.b;
+      return this.miningTargets;
    }
 
    public void b_clash204(BlockPos var1) {
-      this.b.add(var1);
+      this.miningTargets.add(var1);
    }
 
    public void addMiningTargets(HashSet<BlockPos> var1) {
-      this.b.addAll(var1);
+      this.miningTargets.addAll(var1);
    }
 
    public void removeMiningTarget(BlockPos var1) {
-      this.b.remove(var1);
+      this.miningTargets.remove(var1);
    }
 
    public void b(HashSet<BlockPos> var1) {
       if (!var1.isEmpty()) {
-         this.b.removeAll(var1);
+         this.miningTargets.removeAll(var1);
       }
    }
 
    public boolean c_clash207(BlockPos var1) {
-      return this.b.contains(var1);
+      return this.miningTargets.contains(var1);
    }
 
    public boolean addWorker(KoboldEntity var1) {
-      if (this.c.a <= this.f.size()) {
+      if (this.taskType.targetPos <= this.workers.size()) {
          return false;
       }
 
-      this.f.add(var1);
+      this.workers.add(var1);
       return true;
    }
 
    public List<KoboldEntity> c_clash209() {
-      return this.f;
+      return this.workers;
    }
 
    public void releaseWorkers() {
-      for (KoboldEntity var2 : this.f) {
+      for (KoboldEntity var2 : this.workers) {
          if (var2.getInteractionPlayerUUID() == null) {
             var2.setNoGravity(false);
             var2.noClip = false;
@@ -104,19 +104,19 @@ public class KoboldTask {
          }
       }
 
-      this.f.clear();
+      this.workers.clear();
    }
 
    public void c(KoboldEntity var1) {
-      this.f.remove(var1);
+      this.workers.remove(var1);
    }
 
    public boolean e_clash211() {
-      return this.c.a <= this.f.size();
+      return this.taskType.targetPos <= this.workers.size();
    }
 
    public boolean b_clash212(KoboldEntity var1) {
-      return this.f.contains(var1);
+      return this.workers.contains(var1);
    }
 
    public static HashSet<BlockPos> a(World var0, BlockPos var1, UUID var2) {
@@ -267,14 +267,14 @@ public class KoboldTask {
       FALL_TREE(1),
       MINE(3);
 
-      int a;
+      int targetPos;
 
       TaskType(int var3) {
-         this.a = var3;
+         this.targetPos = var3;
       }
 
       int a_clash887() {
-         return this.a;
+         return this.targetPos;
       }
    }
 }

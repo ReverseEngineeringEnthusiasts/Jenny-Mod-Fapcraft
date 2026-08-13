@@ -39,7 +39,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class NpcEditorWandItem extends Item {
-   public static final NpcEditorWandItem a = new NpcEditorWandItem();
+   public static final NpcEditorWandItem EDITOR_WAND = new NpcEditorWandItem();
 
    public NpcEditorWandItem() {
       this.setCreativeTab(CreativeTabs.TOOLS);
@@ -75,16 +75,16 @@ public class NpcEditorWandItem extends Item {
             EntityPlayer var3 = var1.getEntityPlayer();
             if (var3 != null) {
                ItemStack var4 = var3.getHeldItemMainhand();
-               if (var4.getItem() != a) {
+               if (var4.getItem() != EDITOR_WAND) {
                   var4 = var3.getHeldItemOffhand();
                }
 
-               if (var4.getItem() == a) {
+               if (var4.getItem() == EDITOR_WAND) {
                   var1.setCanceled(true);
                   if (var1.getWorld().isRemote) {
-                     if (ServerWhitelistManager.d) {
-                        ServerWhitelistManager.d = 0 != ServerWhitelistManager.b_clash126(true);
-                        if (ServerWhitelistManager.d) {
+                     if (ServerWhitelistManager.isGlobalRenderingDisabled) {
+                        ServerWhitelistManager.isGlobalRenderingDisabled = 0 != ServerWhitelistManager.b_clash126(true);
+                        if (ServerWhitelistManager.isGlobalRenderingDisabled) {
                            return;
                         }
                      }
@@ -105,11 +105,11 @@ public class NpcEditorWandItem extends Item {
             EntityPlayer var3 = var1.getEntityPlayer();
             if (var3 != null) {
                ItemStack var4 = var3.getHeldItemMainhand();
-               if (var4.getItem() != a) {
+               if (var4.getItem() != EDITOR_WAND) {
                   var4 = var3.getHeldItemOffhand();
                }
 
-               if (var4.getItem() == a) {
+               if (var4.getItem() == EDITOR_WAND) {
                   var1.setCanceled(true);
                   if (var3.world.isRemote) {
                      BaseGirlEntity var5 = (BaseGirlEntity)var2;
@@ -145,11 +145,11 @@ public class NpcEditorWandItem extends Item {
       }
 
       ItemStack var3 = var1.getHeldItemMainhand();
-      if (var3.getItem() != a) {
+      if (var3.getItem() != EDITOR_WAND) {
          var3 = var1.getHeldItemOffhand();
       }
 
-      if (var3.getItem() != a) {
+      if (var3.getItem() != EDITOR_WAND) {
          return false;
       } else if (!var2.isRemote) {
          return true;
@@ -174,21 +174,21 @@ public class NpcEditorWandItem extends Item {
    }
 
    public static void register() {
-      a.setRegistryName(new ResourceLocation("sexmod", "npc_editor_wand"));
-      a.setTranslationKey("npc_editor_wand");
+      EDITOR_WAND.setRegistryName(new ResourceLocation("sexmod", "npc_editor_wand"));
+      EDITOR_WAND.setTranslationKey("npc_editor_wand");
       MinecraftForge.EVENT_BUS.register(NpcEditorWandItem.class);
    }
 
    @SubscribeEvent
    public static void a(Register<Item> var0) {
-      var0.getRegistry().register(a);
+      var0.getRegistry().register(EDITOR_WAND);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public static void a(ModelRegistryEvent var0) {
-      ModelLoader.setCustomModelResourceLocation(a, 0, new ModelResourceLocation("sexmod:npc_editor_wand"));
-      ModelLoader.setCustomModelResourceLocation(a, 1, new ModelResourceLocation("sexmod:npc_editor_wand_active"));
+      ModelLoader.setCustomModelResourceLocation(EDITOR_WAND, 0, new ModelResourceLocation("sexmod:npc_editor_wand"));
+      ModelLoader.setCustomModelResourceLocation(EDITOR_WAND, 1, new ModelResourceLocation("sexmod:npc_editor_wand_active"));
    }
 
 }

@@ -29,10 +29,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public class SexEntityRenderer extends Render<SexEntity> {
-   static final double b = 0.1896224320030116;
-   static final double d = -0.5;
-   static final double c = 0.08742380916962415;
-   private static final ResourceLocation a = new ResourceLocation("textures/particle/particles.png");
+   static final double PARTICLE_OFFSET_B = 0.1896224320030116;
+   static final double PARTICLE_OFFSET_D = -0.5;
+   static final double PARTICLE_OFFSET_C = 0.08742380916962415;
+   private static final ResourceLocation PARTICLE_TEXTURE = new ResourceLocation("textures/particle/particles.png");
 
    public SexEntityRenderer(RenderManager var1) {
       super(var1);
@@ -40,7 +40,7 @@ public class SexEntityRenderer extends Render<SexEntity> {
 
    public void a(SexEntity var1, double var2, double var4, double var6, float var8, float var9) {
       LunaEntity var10 = var1.g_clash776();
-      if (var10 != null && !this.renderOutlines && var10.Z != 1.0F) {
+      if (var10 != null && !this.renderOutlines && var10.zFlag != 1.0F) {
          var10.av = var1;
          ItemStack var11 = (ItemStack)var10.getDataManager().get(LunaEntity.ag);
          if (!var11.getItem().equals(Items.AIR)) {
@@ -49,8 +49,8 @@ public class SexEntityRenderer extends Render<SexEntity> {
                var12 = 0.1F;
             }
 
-            var10.Z += 60.0F / var12 * 0.01666F * 2.0F;
-            var10.Z = Math.min(1.0F, var10.Z);
+            var10.zFlag += 60.0F / var12 * 0.01666F * 2.0F;
+            var10.zFlag = Math.min(1.0F, var10.zFlag);
             EntityPlayerSP var13 = Minecraft.getMinecraft().player;
             Vec3d var14 = RotationHelper.a(new Vec3d(var13.lastTickPosX, var13.lastTickPosY, var13.lastTickPosZ), var13.getPositionVector(), var9);
             Vec3d var15 = new Vec3d(var2, var4, var6);
@@ -58,12 +58,12 @@ public class SexEntityRenderer extends Render<SexEntity> {
                new Vec3d(var10.lastTickPosX, var10.lastTickPosY + 0.875, var10.lastTickPosZ), var10.getPositionVector().add(0.0, 0.875, 0.0), var9
             );
             var16 = var16.subtract(var14);
-            var15 = RotationHelper.a(var15, var16, var10.Z);
+            var15 = RotationHelper.a(var15, var16, var10.zFlag);
             var2 = var15.x;
             var4 = var15.y;
             var6 = var15.z;
          } else {
-            var10.Z = 0.0F;
+            var10.zFlag = 0.0F;
          }
 
          GlStateManager.pushMatrix();
@@ -159,7 +159,7 @@ public class SexEntityRenderer extends Render<SexEntity> {
 
    @Nullable
    protected ResourceLocation getEntityTexture(SexEntity var0) {
-      return a;
+      return PARTICLE_TEXTURE;
    }
 
 }

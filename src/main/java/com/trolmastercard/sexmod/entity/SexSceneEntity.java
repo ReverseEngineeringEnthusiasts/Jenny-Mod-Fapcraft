@@ -24,17 +24,17 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.MatrixStack;
 
 public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
-   static final float e = 11000.0F;
-   public static final DataParameter<String> a = EntityDataManager.createKey(SexSceneEntity.class, DataSerializers.STRING)
+   static final float DESPAWN_DISTANCE = 11000.0F;
+   public static final DataParameter<String> modelCode = EntityDataManager.createKey(SexSceneEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(101);
-   public static final DataParameter<String> b = EntityDataManager.createKey(SexSceneEntity.class, DataSerializers.STRING)
+   public static final DataParameter<String> modelData = EntityDataManager.createKey(SexSceneEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(102);
-   AnimationFactory g = new AnimationFactory(this);
-   public boolean f = false;
-   public MatrixStack c = new MatrixStack();
-   public BoneType d = null;
+   AnimationFactory factory = new AnimationFactory(this);
+   public boolean isItemModel = false;
+   public MatrixStack matrixStack = new MatrixStack();
+   public BoneType boneType = null;
 
    public SexSceneEntity(World var1) {
       super(var1);
@@ -44,22 +44,22 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
 
    public SexSceneEntity(World var1, UUID var2, String var3) {
       this(var1);
-      this.dataManager.set(a, var2.toString());
-      this.dataManager.set(b, var3);
+      this.dataManager.set(modelCode, var2.toString());
+      this.dataManager.set(modelData, var3);
    }
 
    public static SexSceneEntity a(World var0, UUID var1, BoneType var2) {
       SexSceneEntity var3 = new SexSceneEntity(var0);
-      var3.getDataManager().set(a, var1.toString());
-      var3.f = true;
-      var3.d = var2;
+      var3.getDataManager().set(modelCode, var1.toString());
+      var3.isItemModel = true;
+      var3.boneType = var2;
       return var3;
    }
 
    protected void entityInit() {
       super.entityInit();
-      this.dataManager.register(a, "");
-      this.dataManager.register(b, "");
+      this.dataManager.register(modelCode, "");
+      this.dataManager.register(modelData, "");
    }
 
    public AxisAlignedBB getRenderBoundingBox() {
@@ -84,7 +84,7 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
 
    @Nullable
    public UUID b_clash342() {
-      String var1 = (String)this.dataManager.get(a);
+      String var1 = (String)this.dataManager.get(modelCode);
       return "".equals(var1) ? null : UUID.fromString(var1);
    }
 
@@ -94,7 +94,7 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
 
    @Nullable
    public String a_clash343() {
-      String var1 = (String)this.dataManager.get(b);
+      String var1 = (String)this.dataManager.get(modelData);
       return "".equals(var1) ? null : var1;
    }
 
@@ -112,7 +112,7 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
 
    @Override
    public AnimationFactory getFactory() {
-      return this.g;
+      return this.factory;
    }
 
    @Override

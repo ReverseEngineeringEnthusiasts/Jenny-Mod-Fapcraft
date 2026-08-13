@@ -49,21 +49,21 @@ public class GoblinFirstPersonRenderer {
             Render var9 = var2.getRenderManager().getEntityRenderObject(var4);
             if (var9 != null) {
                float var10 = var2.player.rotationYaw;
-               GoblinRenderer.N = (float)(var2.player.movementInput.moveStrafe * GoblinRenderer.G.x);
-               GoblinRenderer.N = GoblinRenderer.N + -(var10 - GoblinRenderer.H) * 3.0F;
-               GoblinRenderer.N = RotationHelper.lerp(GoblinRenderer.I, GoblinRenderer.N, 0.1F);
+               GoblinRenderer.strafeRotation = (float)(var2.player.movementInput.moveStrafe * GoblinRenderer.MOVEMENT_DIR_VECTOR.x);
+               GoblinRenderer.strafeRotation = GoblinRenderer.strafeRotation + -(var10 - GoblinRenderer.lastPlayerYaw) * 3.0F;
+               GoblinRenderer.strafeRotation = RotationHelper.lerp(GoblinRenderer.prevStrafeRotation, GoblinRenderer.strafeRotation, 0.1F);
                float var11 = -var2.player.rotationPitch;
-               GoblinRenderer.x = (float)(
-                  var2.player.movementInput.moveForward * GoblinRenderer.G.z
-                     + (float)var2.player.motionY * GoblinRenderer.G.y
+               GoblinRenderer.forwardRotation = (float)(
+                  var2.player.movementInput.moveForward * GoblinRenderer.MOVEMENT_DIR_VECTOR.z
+                     + (float)var2.player.motionY * GoblinRenderer.MOVEMENT_DIR_VECTOR.y
                );
-               GoblinRenderer.x = GoblinRenderer.x + -(var11 - GoblinRenderer.t) * 3.0F;
-               GoblinRenderer.x = RotationHelper.lerp(GoblinRenderer.E, GoblinRenderer.x, 0.1F);
+               GoblinRenderer.forwardRotation = GoblinRenderer.forwardRotation + -(var11 - GoblinRenderer.lastPlayerPitch) * 3.0F;
+               GoblinRenderer.forwardRotation = RotationHelper.lerp(GoblinRenderer.prevForwardRotation, GoblinRenderer.forwardRotation, 0.1F);
                GoblinRenderer.a_clash398(var4, var1.getPartialTicks());
-               GoblinRenderer.H = var10;
-               GoblinRenderer.I = GoblinRenderer.N;
-               GoblinRenderer.t = var11;
-               GoblinRenderer.E = GoblinRenderer.x;
+               GoblinRenderer.lastPlayerYaw = var10;
+               GoblinRenderer.prevStrafeRotation = GoblinRenderer.strafeRotation;
+               GoblinRenderer.lastPlayerPitch = var11;
+               GoblinRenderer.prevForwardRotation = GoblinRenderer.forwardRotation;
                GlStateManager.enableLighting();
                GlStateManager.enableDepth();
                GlStateManager.enableAlpha();

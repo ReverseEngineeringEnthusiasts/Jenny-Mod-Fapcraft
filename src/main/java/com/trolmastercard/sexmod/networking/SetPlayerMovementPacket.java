@@ -18,39 +18,39 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class SetPlayerMovementPacket implements IMessage {
-   boolean a;
-   boolean b;
+   boolean isValid;
+   boolean isSprinting;
 
    public SetPlayerMovementPacket(boolean var1) {
-      this.b = var1;
-      this.a = true;
+      this.isSprinting = var1;
+      this.isValid = true;
    }
 
    public SetPlayerMovementPacket() {
-      this.a = false;
+      this.isValid = false;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.b = var1.readBoolean();
-      this.a = true;
+      this.isSprinting = var1.readBoolean();
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeBoolean(this.b);
-      this.a = true;
+      var1.writeBoolean(this.isSprinting);
+      this.isValid = true;
    }
 
    public static class Handler implements IMessageHandler<SetPlayerMovementPacket, IMessage> {
       public IMessage onMessage(SetPlayerMovementPacket var1, MessageContext var2) {
-         if (var1.a && var2.side == Side.CLIENT) {
-            HandlePlayerMovement.setMovementLock(var1.b);
+         if (var1.isValid && var2.side == Side.CLIENT) {
+            HandlePlayerMovement.setMovementLock(var1.isSprinting);
 
             try {
                Minecraft.getMinecraft().player.setVelocity(0.0, 0.0, 0.0);
             } catch (Exception var3) {
             }
 
-            if (var1.b) {
+            if (var1.isSprinting) {
                HornyMeterHud.hideHornyMeter();
             }
 

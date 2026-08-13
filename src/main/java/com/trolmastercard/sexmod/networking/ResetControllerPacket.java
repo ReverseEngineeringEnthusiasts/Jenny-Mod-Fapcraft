@@ -19,38 +19,38 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class ResetControllerPacket implements IMessage {
-   public static final int b = 100;
-   boolean d;
-   UUID a;
-   UUID c;
+   public static final int controllerIndex = 100;
+   boolean isValid;
+   UUID girlUUID;
+   UUID playerUUID;
 
    public ResetControllerPacket() {
-      this.d = false;
+      this.isValid = false;
    }
 
    public ResetControllerPacket(UUID var1) {
-      this.a = var1;
-      this.d = true;
+      this.girlUUID = var1;
+      this.isValid = true;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.a = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.d = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.a.toString());
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<ResetControllerPacket, IMessage> {
       public IMessage onMessage(ResetControllerPacket var1, MessageContext var2) {
-         if (!var1.d) {
+         if (!var1.isValid) {
             System.out.println("received an invalid message @ResetController :(");
             return null;
          }
 
          if (var2.side.isServer()) {
-            BaseGirlEntity var7 = BaseGirlEntity.getServerGirlEntity(var1.a);
+            BaseGirlEntity var7 = BaseGirlEntity.getServerGirlEntity(var1.girlUUID);
             if (var7 == null) {
                return null;
             }
@@ -60,13 +60,13 @@ public class ResetControllerPacket implements IMessage {
 
             for (EntityPlayerMP var6 : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
                if (!var4.equals(var6.getPersistentID()) && var6.getDistance(var7) < 100.0F) {
-                  PacketHandler.b.sendTo(new ResetControllerPacket(var1.a), var6);
+                  PacketHandler.networkWrapper.sendTo(new ResetControllerPacket(var1.girlUUID), var6);
                }
             }
 
             return null;
          } else {
-            BaseGirlEntity var3 = BaseGirlEntity.getClientGirlEntity(var1.a);
+            BaseGirlEntity var3 = BaseGirlEntity.getClientGirlEntity(var1.girlUUID);
             if (var3 != null) {
                var3.resetAnimationControllerTicks();
             }

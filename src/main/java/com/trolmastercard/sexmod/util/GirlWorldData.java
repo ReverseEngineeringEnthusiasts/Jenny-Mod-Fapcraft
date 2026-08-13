@@ -21,8 +21,8 @@ import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class GirlWorldData extends WorldSavedData {
-   static final String a = "sexmod:static_custom_model_manager";
-   static final String d = "sexmod:static_custom_model_manager";
+   static final String DATA_KEY = "sexmod:static_custom_model_manager";
+   static final String SAVE_KEY = "sexmod:static_custom_model_manager";
    public static HashMap<UUID, String> c = new HashMap<>();
    public static HashMap<UUID, String> b = new HashMap<>();
 

@@ -32,15 +32,15 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import org.apache.logging.log4j.Level;
 
 public class GirlSavedData extends WorldSavedData {
-   public static boolean f = true;
-   public static final float c = 60.0F;
-   public static final String e = "sexmod:galath_owner_ship";
-   public static final String d = "sexmod:ownershipdata";
-   public static final String g = "sexmod:mangownershipdata";
-   static final long a = 0L;
+   public static boolean debugEnabled = true;
+   public static final float CUM_TIMEOUT = 60.0F;
+   public static final String GALATH_OWNERSHIP_KEY = "sexmod:galath_owner_ship";
+   public static final String OWNERSHIP_DATA_KEY = "sexmod:ownershipdata";
+   public static final String MANG_OWNERSHIP_DATA_KEY = "sexmod:mangownershipdata";
+   static final long lastSaveTime = 0L;
    static BiDirectionalMap<UUID, UUID> h = new BiDirectionalMap<>();
    static HashMap<UUID, Long> b = new HashMap<>();
-   static HashSet<UUID> i = new HashSet<>();
+   static HashSet<UUID> mangOwnershipSet = new HashSet<>();
 
    public GirlSavedData() {
       super("sexmod:galath_owner_ship");
@@ -51,19 +51,19 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static void clearAll() {
-      i.clear();
+      mangOwnershipSet.clear();
       h.b_clash769();
    }
 
    public static void e_clash845(UUID var0) {
       UUID var1 = f_clash850(var0);
       if (var1 != null) {
-         i.add(var1);
+         mangOwnershipSet.add(var1);
       }
    }
 
    public static boolean b_clash846(UUID var0) {
-      return i.contains(var0);
+      return mangOwnershipSet.contains(var0);
    }
 
    public static boolean c_clash847(GalathEntity var0) {
@@ -100,7 +100,7 @@ public class GirlSavedData extends WorldSavedData {
          var0.world.removeEntity(var0);
          h.a(var2);
          if (var4 != null) {
-            PacketHandler.b.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var4);
+            PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var4);
          }
       }
    }
@@ -181,7 +181,7 @@ public class GirlSavedData extends WorldSavedData {
 
          for (EntityPlayer var10 : (java.util.Collection<EntityPlayer>) (var3) ) {
             h.a(var10.getPersistentID());
-            PacketHandler.b.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var10);
+            PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var10);
          }
       }
    }
@@ -218,7 +218,7 @@ public class GirlSavedData extends WorldSavedData {
       NBTTagCompound var9 = var1.getCompoundTag("sexmod:mangownershipdata");
 
       for (int var10 = 0; var9.hasUniqueId("mang" + var10); var10++) {
-         i.add(var9.getUniqueId("mang" + var10));
+         mangOwnershipSet.add(var9.getUniqueId("mang" + var10));
       }
 
       var1.setTag("sexmod:mangownershipdata", new NBTTagCompound());
@@ -247,7 +247,7 @@ public class GirlSavedData extends WorldSavedData {
       NBTTagCompound var10 = new NBTTagCompound();
       var3 = 0;
 
-      for (UUID var12 : i) {
+      for (UUID var12 : mangOwnershipSet) {
          var10.setUniqueId("mang" + var3++, var12);
       }
 

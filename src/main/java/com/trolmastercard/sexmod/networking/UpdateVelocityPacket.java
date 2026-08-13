@@ -21,40 +21,40 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class UpdateVelocityPacket implements IMessage {
-   boolean c = false;
-   Vec3d b;
-   UUID a;
+   boolean isValid = false;
+   Vec3d velocity;
+   UUID girlUUID;
 
    public UpdateVelocityPacket(Vec3d var1, UUID var2) {
-      this.b = var1;
-      this.a = var2;
+      this.velocity = var1;
+      this.girlUUID = var2;
    }
 
    public UpdateVelocityPacket() {
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.b = new Vec3d(var1.readDouble(), var1.readDouble(), var1.readDouble());
-      this.a = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.c = true;
+      this.velocity = new Vec3d(var1.readDouble(), var1.readDouble(), var1.readDouble());
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeDouble(this.b.x);
-      var1.writeDouble(this.b.y);
-      var1.writeDouble(this.b.z);
-      ByteBufUtils.writeUTF8String(var1, this.a.toString());
+      var1.writeDouble(this.velocity.x);
+      var1.writeDouble(this.velocity.y);
+      var1.writeDouble(this.velocity.z);
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<UpdateVelocityPacket, IMessage> {
       public IMessage onMessage(UpdateVelocityPacket var1, MessageContext var2) {
-         if (var1.c && var2.side.equals(Side.SERVER)) {
+         if (var1.isValid && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               BaseGirlEntity var2x = BaseGirlEntity.getServerGirlEntity(var1.a);
+               BaseGirlEntity var2x = BaseGirlEntity.getServerGirlEntity(var1.girlUUID);
                if (var2x instanceof GalathEntity) {
                   GalathEntity var3 = (GalathEntity)var2x;
                   if (var2.getServerHandler().player.equals(var3.ab_clash671())) {
-                     var3.d(var1.b);
+                     var3.d(var1.velocity);
                   }
                }
             });

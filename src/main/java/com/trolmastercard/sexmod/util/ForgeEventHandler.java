@@ -48,14 +48,14 @@ public class ForgeEventHandler {
       MinecraftForge.EVENT_BUS.register(new DamageCalculation());
       MinecraftForge.EVENT_BUS.register(new KoboldEggProjectileEntity.a());
       MinecraftForge.EVENT_BUS.register(new GirlFollowGoal.a());
-      MinecraftForge.EVENT_BUS.register(AlliesLampItem.b);
-      MinecraftForge.EVENT_BUS.register(DragonStaffItem.b);
-      MinecraftForge.EVENT_BUS.register(NpcEditorWandItem.a);
+      MinecraftForge.EVENT_BUS.register(AlliesLampItem.ALLIES_LAMP);
+      MinecraftForge.EVENT_BUS.register(DragonStaffItem.DRAGON_STAFF);
+      MinecraftForge.EVENT_BUS.register(NpcEditorWandItem.EDITOR_WAND);
       MinecraftForge.EVENT_BUS.register(new LunaRodItem());
       MinecraftForge.EVENT_BUS.register(new PlayerGirlEvents());
       MinecraftForge.EVENT_BUS.register(new LunaEntity.a());
       MinecraftForge.EVENT_BUS.register(new GirlBedInteraction());
-      MinecraftForge.EVENT_BUS.register(SexFireBlock.a);
+      MinecraftForge.EVENT_BUS.register(SexFireBlock.FIRE);
       MinecraftForge.EVENT_BUS.register(new KoboldEntity.c());
       MinecraftForge.EVENT_BUS.register(new DragonStaffItem.a());
       MinecraftForge.EVENT_BUS.register(new KoboldManager.b("tribes"));
@@ -67,8 +67,8 @@ public class ForgeEventHandler {
       MinecraftForge.EVENT_BUS.register(new DebugMode());
       MinecraftForge.EVENT_BUS.register(new GalathEntity.a());
       MinecraftForge.EVENT_BUS.register(new GirlSavedData());
-      MinecraftForge.EVENT_BUS.register(GalathCoinItem.r);
-      MinecraftForge.EVENT_BUS.register(WinchesterItem.b);
+      MinecraftForge.EVENT_BUS.register(GalathCoinItem.GALATH_COIN);
+      MinecraftForge.EVENT_BUS.register(WinchesterItem.WINCHESTER_ITEM);
       MinecraftForge.EVENT_BUS.register(new BeeWorldData());
       MinecraftForge.EVENT_BUS.register(new AllieWorldData());
       MinecraftForge.EVENT_BUS.register(new GirlWorldData());
@@ -85,7 +85,7 @@ public class ForgeEventHandler {
       if (a_clash149()) {
          MinecraftForge.EVENT_BUS.register(new DebugWindow());
       } else {
-         DebugWindow2.a = false;
+         DebugWindow2.isVisible = false;
       }
 
       MinecraftForge.EVENT_BUS.register(new HornyMeterHud());

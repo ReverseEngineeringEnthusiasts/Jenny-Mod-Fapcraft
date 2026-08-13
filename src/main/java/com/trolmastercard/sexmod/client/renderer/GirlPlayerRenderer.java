@@ -38,14 +38,14 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
 public class GirlPlayerRenderer extends GirlRenderer {
-   public static boolean v = false;
-   public ItemStack s = ItemStack.EMPTY;
-   public ItemStack x = ItemStack.EMPTY;
-   public boolean r = false;
-   public boolean u = false;
-   protected AbstractPlayerGirlEntity w;
-   protected float y;
-   float t = 0.0F;
+   public static boolean isFirstPerson = false;
+   public ItemStack mainhandItem = ItemStack.EMPTY;
+   public ItemStack offhandItem = ItemStack.EMPTY;
+   public boolean isRendering = false;
+   public boolean isUsingItem = false;
+   protected AbstractPlayerGirlEntity playerGirl;
+   protected float partialTicks;
+   float bowPullProgress = 0.0F;
 
    public GirlPlayerRenderer(RenderManager var1, AnimatedGeoModel var2) {
       super(var1, var2, 0.0);
@@ -59,8 +59,8 @@ public class GirlPlayerRenderer extends GirlRenderer {
          return true;
       }
 
-      boolean var2 = v;
-      v = false;
+      boolean var2 = isFirstPerson;
+      isFirstPerson = false;
       return var2;
    }
 
@@ -71,12 +71,12 @@ public class GirlPlayerRenderer extends GirlRenderer {
          if (var10.getOwnerUserUUID() != null) {
             EntityPlayer var11 = Minecraft.getMinecraft().player.world.getPlayerEntityByUUID(var10.getOwnerUserUUID());
             if (var11 != null) {
-               this.s = var11.getHeldItemMainhand();
-               this.x = var11.getHeldItemOffhand();
-               this.u = var10.ah;
-               this.r = var10.ad;
-               this.w = (AbstractPlayerGirlEntity)var1;
-               this.y = var9;
+               this.mainhandItem = var11.getHeldItemMainhand();
+               this.offhandItem = var11.getHeldItemOffhand();
+               this.isUsingItem = var10.ah;
+               this.isRendering = var10.ad;
+               this.playerGirl = (AbstractPlayerGirlEntity)var1;
+               this.partialTicks = var9;
                var10.f(var11);
                if (this.a_clash366(var11, var1)) {
                   this.renderLivingLabel(var1, var11.getName(), var2, var4 + var10.i_clash226(), var6, 300);
@@ -117,7 +117,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
    @Override
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
       String var7 = var2.getName();
-      if (this.r) {
+      if (this.isRendering) {
          if (var7.equals("upperBody")) {
             var2.setRotationX(var2.getRotationX() - 0.5F);
          }
@@ -132,38 +132,38 @@ public class GirlPlayerRenderer extends GirlRenderer {
       }
 
       this.onBoneRenderStart(var7, var2);
-      this.onBoneRenderingLayer(var7, var2, this.w, var1);
-      if (this.u && (this.s.getItem() instanceof ItemBow || this.x.getItem() instanceof ItemBow)) {
+      this.onBoneRenderingLayer(var7, var2, this.playerGirl, var1);
+      if (this.isUsingItem && (this.mainhandItem.getItem() instanceof ItemBow || this.offhandItem.getItem() instanceof ItemBow)) {
          if (var7.equals("armR")) {
-            var2.setRotationX(var2.getRotationX() - this.j.rotationPitch / 50.0F);
+            var2.setRotationX(var2.getRotationX() - this.playerGirl.rotationPitch / 50.0F);
          }
 
          if (var7.equals("armL")) {
-            var2.setRotationY(var2.getRotationY() - this.j.rotationPitch / 50.0F);
+            var2.setRotationY(var2.getRotationY() - this.playerGirl.rotationPitch / 50.0F);
          }
 
-         if (this.x.getItem() instanceof ItemBow) {
-            ItemStack var8 = this.x;
-            this.x = this.s;
-            this.s = var8;
+         if (this.offhandItem.getItem() instanceof ItemBow) {
+            ItemStack var8 = this.offhandItem;
+            this.offhandItem = this.mainhandItem;
+            this.mainhandItem = var8;
          }
       }
 
-      if (this.u && this.s.getItem() instanceof ItemShield) {
+      if (this.isUsingItem && this.mainhandItem.getItem() instanceof ItemShield) {
          if (var7.equals("armR")) {
             var2.setRotationZ(0.0F);
             var2.setRotationX(0.5F);
-         } else if (this.x.getItem() instanceof ItemShield && var7.equals("armL")) {
+         } else if (this.offhandItem.getItem() instanceof ItemShield && var7.equals("armL")) {
             var2.setRotationZ(0.0F);
             var2.setRotationX(0.5F);
          }
       }
 
-      if (var7.equals("weapon") && !this.s.isEmpty()) {
+      if (var7.equals("weapon") && !this.mainhandItem.isEmpty()) {
          this.renderEquippedItem(var1, var2, false);
       }
 
-      if (var7.equals("offhand") && !this.x.isEmpty()) {
+      if (var7.equals("offhand") && !this.offhandItem.isEmpty()) {
          this.renderEquippedItem(var1, var2, true);
       }
 
@@ -184,11 +184,11 @@ public class GirlPlayerRenderer extends GirlRenderer {
             var4 = var17.y;
             var5 = var17.z;
             double var9 = var17.w;
-            if (!this.p.contains(var7)) {
+            if (!this.activeCustomPartBones.contains(var7)) {
                for (GeoCube var12 : var2.childCubes) {
                   MATRIX_STACK.push();
                   GlStateManager.pushMatrix();
-                  this.q = var2;
+                  this.currentRenderingBone = var2;
                   this.renderCubeGeometry(var1, var12, var3, var4, var5, var6, (double)var9);
                   GlStateManager.popMatrix();
                   MATRIX_STACK.pop();
@@ -212,10 +212,10 @@ public class GirlPlayerRenderer extends GirlRenderer {
    }
 
    public boolean shouldRenderFirstPersonHead() {
-      if (!((AbstractPlayerGirlEntity)this.j).f_clash579()) {
+      if (!((AbstractPlayerGirlEntity)this.playerGirl).f_clash579()) {
          return true;
       } else {
-         return i.gameSettings.thirdPersonView != 0 ? true : i.currentScreen instanceof GuiInventory || i.currentScreen instanceof GuiContainerCreative;
+         return mc.gameSettings.thirdPersonView != 0 ? true : mc.currentScreen instanceof GuiInventory || mc.currentScreen instanceof GuiContainerCreative;
       }
    }
 
@@ -225,8 +225,8 @@ public class GirlPlayerRenderer extends GirlRenderer {
       com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
       GL11.glEnable(2896);
       this.preRenderCallback();
-      new GirlLayerRenderer(this).render(this.j, this.j.limbSwing, this.j.limbSwingAmount, this.y, 0.0F, 0.0F, 0.0F, var3);
-      this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
+      new GirlLayerRenderer(this).render(this.playerGirl, this.playerGirl.limbSwing, this.playerGirl.limbSwingAmount, this.partialTicks, 0.0F, 0.0F, 0.0F, var3);
+      this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.playerGirl)));
       var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -245,33 +245,33 @@ public class GirlPlayerRenderer extends GirlRenderer {
       GL11.glEnable(2896);
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-      ItemStack var5 = var3 ? this.x : this.s;
+      ItemStack var5 = var3 ? this.offhandItem : this.mainhandItem;
       switch (var5.getItem().getItemUseAction(var5)) {
          case BOW:
             this.applyBowRotation(var3);
             break;
          case BLOCK:
-            this.applyShieldBlockingTransform(var3, this.u);
+            this.applyShieldBlockingTransform(var3, this.isUsingItem);
       }
 
-      if (this.u && !var3 && var5.getItem() instanceof ItemBow) {
-         this.t += 0.015F;
-         this.j.setItemUseCount(Math.round(-this.t * 20.0F + var5.getMaxItemUseDuration()));
-         this.j.setHeldItemOverride(var5);
-         this.j.setActiveHand(EnumHand.MAIN_HAND);
-         this.j.setHandActiveState();
+      if (this.isUsingItem && !var3 && var5.getItem() instanceof ItemBow) {
+         this.bowPullProgress += 0.015F;
+         this.playerGirl.setItemUseCount(Math.round(-this.bowPullProgress * 20.0F + var5.getMaxItemUseDuration()));
+         this.playerGirl.setHeldItemOverride(var5);
+         this.playerGirl.setActiveHand(EnumHand.MAIN_HAND);
+         this.playerGirl.setHandActiveState();
       } else {
-         this.t = 0.0F;
-         this.j.setItemUseCount(0);
-         this.j.setHeldItemOverride(ItemStack.EMPTY);
-         this.j.setHandActiveState();
+         this.bowPullProgress = 0.0F;
+         this.playerGirl.setItemUseCount(0);
+         this.playerGirl.setHeldItemOverride(ItemStack.EMPTY);
+         this.playerGirl.setHandActiveState();
       }
 
       this.applyItemPostRotation(var3, var5);
       GlStateManager.scale(0.75F, 0.75F, 0.75F);
-      var4.renderItem(this.j, var5, TransformType.THIRD_PERSON_RIGHT_HAND);
+      var4.renderItem(this.playerGirl, var5, TransformType.THIRD_PERSON_RIGHT_HAND);
       var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-      this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
+      this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.playerGirl)));
       GL11.glDisable(2896);
       GlStateManager.popMatrix();
       GlStateManager.enableBlend();

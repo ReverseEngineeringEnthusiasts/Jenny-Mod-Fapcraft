@@ -39,71 +39,71 @@ import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
 public class StructureCommandScreen extends GuiScreen {
-   static final float f = 100.0F;
-   static final float g = 15.0F;
-   static final float j = 0.5F;
-   static final ResourceLocation h = new ResourceLocation("sexmod", "textures/gui/command.png");
-   static final HashSet<Material> l = new HashSet<>(
+   static final float SIZE_100 = 100.0F;
+   static final float OFFSET_15 = 15.0F;
+   static final float SCALE_0_5 = 0.5F;
+   static final ResourceLocation GUI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/command.png");
+   static final HashSet<Material> breakableMaterials = new HashSet<>(
       Arrays.asList(Material.CLAY, Material.ROCK, Material.SAND, Material.GROUND)
    );
-   public static boolean d = false;
-   float m = 0.0F;
-   float a = 0.0F;
-   float k = 0.0F;
-   float n = 0.0F;
-   float i = 0.0F;
-   IBlockState e;
-   BlockPos c;
-   EnumFacing b;
+   public static boolean isErasing = false;
+   float animProgress = 0.0F;
+   float animBottomLeft = 0.0F;
+   float animTopLeft = 0.0F;
+   float animBottomRight = 0.0F;
+   float animTopRight = 0.0F;
+   IBlockState targetBlockState;
+   BlockPos targetBlockPos;
+   EnumFacing targetFacing;
 
    public StructureCommandScreen() {
       Minecraft var1 = Minecraft.getMinecraft();
-      this.c = var1.objectMouseOver.getBlockPos();
+      this.targetBlockPos = var1.objectMouseOver.getBlockPos();
       if (var1.objectMouseOver.sideHit == null) {
-         this.b = EnumFacing.NORTH;
+         this.targetFacing = EnumFacing.NORTH;
       } else {
-         this.b = var1.objectMouseOver.sideHit.getOpposite();
+         this.targetFacing = var1.objectMouseOver.sideHit.getOpposite();
       }
 
-      if (this.c == null) {
-         this.c = BlockPos.ORIGIN;
+      if (this.targetBlockPos == null) {
+         this.targetBlockPos = BlockPos.ORIGIN;
       }
 
-      this.e = var1.world.getBlockState(this.c);
+      this.targetBlockState = var1.world.getBlockState(this.targetBlockPos);
    }
 
    public void onGuiClosed() {
       super.onGuiClosed();
-      List var1 = Arrays.asList(this.a, this.k, this.n, this.i);
+      List var1 = Arrays.asList(this.animBottomLeft, this.animTopLeft, this.animBottomRight, this.animTopRight);
       float var2 = (Float) Collections.max((List<Float>) (List) var1);
       if (var2 != 0.0F) {
-         if (this.a == var2) {
+         if (this.animBottomLeft == var2) {
             this.b_clash832();
          }
 
-         if (this.k == var2) {
+         if (this.animTopLeft == var2) {
             this.d_clash833();
          }
 
-         if (this.n == var2) {
+         if (this.animBottomRight == var2) {
             this.c_clash834();
          }
 
-         if (this.i == var2) {
+         if (this.animTopRight == var2) {
             this.a_clash835();
          }
       }
    }
 
    void b_clash832() {
-      IBlockState var1 = this.mc.world.getBlockState(this.c);
+      IBlockState var1 = this.mc.world.getBlockState(this.targetBlockPos);
       if (var1.getBlock() instanceof BlockBed || var1.getBlock() instanceof BlockChest) {
-         PacketHandler.b.sendToServer(new SendBlocksPacket(this.c, !StructureMarkerRenderer.isMarked(this.c)));
+         PacketHandler.networkWrapper.sendToServer(new SendBlocksPacket(this.targetBlockPos, !StructureMarkerRenderer.isMarked(this.targetBlockPos)));
       }
    }
 
    void d_clash833() {
-      PacketHandler.b.sendToServer(new SetTribeFollowModePacket(!d));
+      PacketHandler.networkWrapper.sendToServer(new SetTribeFollowModePacket(!isErasing));
    }
 
    void c_clash834() {
@@ -111,49 +111,49 @@ public class StructureCommandScreen extends GuiScreen {
    }
 
    void a_clash835() {
-      Block var1 = this.e.getBlock();
+      Block var1 = this.targetBlockState.getBlock();
       if (var1 instanceof BlockLog) {
-         if (StructureMarkerRenderer.isMarked(this.c)) {
-            PacketHandler.b.sendToServer(new CancelTaskPacket(this.c));
+         if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
+            PacketHandler.networkWrapper.sendToServer(new CancelTaskPacket(this.targetBlockPos));
             return;
          }
 
-         PacketHandler.b.sendToServer(new FallTreePacket(this.c));
+         PacketHandler.networkWrapper.sendToServer(new FallTreePacket(this.targetBlockPos));
       }
 
       Object[] var2 = this.e_clash836();
       if (var2 != null) {
-         if (StructureMarkerRenderer.isMarked(this.c)) {
-            PacketHandler.b.sendToServer(new CancelTaskPacket(this.c));
+         if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
+            PacketHandler.networkWrapper.sendToServer(new CancelTaskPacket(this.targetBlockPos));
             return;
          }
 
-         PacketHandler.b.sendToServer(new MinePacket((BlockPos)var2[0], (EnumFacing)var2[1]));
+         PacketHandler.networkWrapper.sendToServer(new MinePacket((BlockPos)var2[0], (EnumFacing)var2[1]));
       }
    }
 
    @Nullable
    Object[] e_clash836() {
-      Material var1 = this.mc.world.getBlockState(this.c).getMaterial();
+      Material var1 = this.mc.world.getBlockState(this.targetBlockPos).getMaterial();
       EntityPlayerSP var2 = this.mc.player;
-      if (!l.contains(var1)) {
+      if (!breakableMaterials.contains(var1)) {
          return null;
       }
 
-      if (var2.getPosition().getY() > this.c.getY()) {
+      if (var2.getPosition().getY() > this.targetBlockPos.getY()) {
          return null;
       }
 
-      BlockPos var3 = this.c;
+      BlockPos var3 = this.targetBlockPos;
 
       while (
-         this.mc.world.getBlockState(var3.down().add(this.b.getOpposite().getDirectionVec())).getBlock()
+         this.mc.world.getBlockState(var3.down().add(this.targetFacing.getOpposite().getDirectionVec())).getBlock()
             == Blocks.AIR
       ) {
          var3 = var3.down();
       }
 
-      return this.c.getY() - var3.getY() > 3 ? null : new Object[]{var3, this.b};
+      return this.targetBlockPos.getY() - var3.getY() > 3 ? null : new Object[]{var3, this.targetFacing};
    }
 
    public void drawScreen(int var1, int var2, float var3) {
@@ -163,49 +163,49 @@ public class StructureCommandScreen extends GuiScreen {
       GL11.glBlendFunc(770, 771);
 
       try {
-         this.m = Math.min(1.0F, this.m + this.mc.getTickLength() / 5.0F);
+         this.animProgress = Math.min(1.0F, this.animProgress + this.mc.getTickLength() / 5.0F);
       } catch (NullPointerException var11) {
       }
 
-      float var4 = (float)this.a_clash841(this.m);
+      float var4 = (float)this.a_clash841(this.animProgress);
       float var5 = (1.0F - var4) * 100.0F;
-      this.a = this.a + (var1 < this.width / 2 && var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.k = this.k + (var1 < this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.n = this.n + (var1 > this.width / 2 && var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.i = this.i + (var1 > this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.a = ThreadNames.b(this.a, 0.0F, 1.0F);
-      this.k = ThreadNames.b(this.k, 0.0F, 1.0F);
-      this.n = ThreadNames.b(this.n, 0.0F, 1.0F);
-      this.i = ThreadNames.b(this.i, 0.0F, 1.0F);
+      this.animBottomLeft = this.animBottomLeft + (var1 < this.width / 2 && var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animTopLeft = this.animTopLeft + (var1 < this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animBottomRight = this.animBottomRight + (var1 > this.width / 2 && var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animTopRight = this.animTopRight + (var1 > this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animBottomLeft = ThreadNames.b(this.animBottomLeft, 0.0F, 1.0F);
+      this.animTopLeft = ThreadNames.b(this.animTopLeft, 0.0F, 1.0F);
+      this.animBottomRight = ThreadNames.b(this.animBottomRight, 0.0F, 1.0F);
+      this.animTopRight = ThreadNames.b(this.animTopRight, 0.0F, 1.0F);
       GlStateManager.pushMatrix();
       GlStateManager.translate(this.width / 2.0F, this.height / 2.0F, 0.0F);
       GlStateManager.scale(var4, var4, var4);
-      this.mc.renderEngine.bindTexture(h);
+      this.mc.renderEngine.bindTexture(GUI_TEXTURE);
       GlStateManager.pushMatrix();
-      GlStateManager.scale(1.0F + this.k * 0.5F, 1.0F + this.k * 0.5F, 1.0F);
-      this.drawTexturedModalRect(-62.0F + var5 - this.k * 15.0F, -62.0F + var5 - this.k * 15.0F, 0, 0, 64, 64);
+      GlStateManager.scale(1.0F + this.animTopLeft * 0.5F, 1.0F + this.animTopLeft * 0.5F, 1.0F);
+      this.drawTexturedModalRect(-62.0F + var5 - this.animTopLeft * 15.0F, -62.0F + var5 - this.animTopLeft * 15.0F, 0, 0, 64, 64);
       this.c_clash838(var5);
-      if (d) {
-         this.drawTexturedModalRect(-62.0F + var5 - this.k * 15.0F, -62.0F + var5 - this.k * 15.0F, 128, 64, 64, 64);
+      if (isErasing) {
+         this.drawTexturedModalRect(-62.0F + var5 - this.animTopLeft * 15.0F, -62.0F + var5 - this.animTopLeft * 15.0F, 128, 64, 64, 64);
       }
 
       GlStateManager.popMatrix();
       GlStateManager.pushMatrix();
-      GlStateManager.scale(1.0F + this.n * 0.5F, 1.0F + this.n * 0.5F, 1.0F);
-      this.drawTexturedModalRect(-2.0F - var5 + this.n * 15.0F, -2.0F - var5 + this.n * 15.0F, 0, 0, 64, 64);
+      GlStateManager.scale(1.0F + this.animBottomRight * 0.5F, 1.0F + this.animBottomRight * 0.5F, 1.0F);
+      this.drawTexturedModalRect(-2.0F - var5 + this.animBottomRight * 15.0F, -2.0F - var5 + this.animBottomRight * 15.0F, 0, 0, 64, 64);
       this.a_clash837(var5);
       if (DragonStaffRenderer.b_clash631()) {
-         this.drawTexturedModalRect(-2.0F - var5 + this.n * 15.0F, -2.0F - var5 + this.n * 15.0F, 128, 64, 64, 64);
+         this.drawTexturedModalRect(-2.0F - var5 + this.animBottomRight * 15.0F, -2.0F - var5 + this.animBottomRight * 15.0F, 128, 64, 64, 64);
       }
 
       GlStateManager.popMatrix();
-      Block var6 = this.e.getBlock();
+      Block var6 = this.targetBlockState.getBlock();
       boolean var7 = var6 instanceof BlockChest;
       boolean var8 = var6 instanceof BlockBed;
       if (var7 || var8) {
          GlStateManager.pushMatrix();
-         GlStateManager.scale(1.0F + this.a * 0.5F, 1.0F + this.a * 0.5F, 1.0F);
-         this.drawTexturedModalRect(-62.0F + var5 - this.a * 15.0F, -2.0F - var5 + this.a * 15.0F, 0, 0, 64, 64);
+         GlStateManager.scale(1.0F + this.animBottomLeft * 0.5F, 1.0F + this.animBottomLeft * 0.5F, 1.0F);
+         this.drawTexturedModalRect(-62.0F + var5 - this.animBottomLeft * 15.0F, -2.0F - var5 + this.animBottomLeft * 15.0F, 0, 0, 64, 64);
          if (var7) {
             this.d_clash840(var5);
          }
@@ -214,8 +214,8 @@ public class StructureCommandScreen extends GuiScreen {
             this.f(var5);
          }
 
-         if (StructureMarkerRenderer.isMarked(this.c)) {
-            this.drawTexturedModalRect(-62.0F + var5 - this.a * 15.0F, -2.0F - var5 + this.a * 15.0F, 128, 64, 64, 64);
+         if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
+            this.drawTexturedModalRect(-62.0F + var5 - this.animBottomLeft * 15.0F, -2.0F - var5 + this.animBottomLeft * 15.0F, 128, 64, 64, 64);
          }
 
          GlStateManager.popMatrix();
@@ -225,8 +225,8 @@ public class StructureCommandScreen extends GuiScreen {
       boolean var10 = this.e_clash836() != null;
       if (var9 || var10) {
          GlStateManager.pushMatrix();
-         GlStateManager.scale(1.0F + this.i * 0.5F, 1.0F + this.i * 0.5F, 1.0F);
-         this.drawTexturedModalRect(-2.0F - var5 + this.i * 15.0F, -62.0F + var5 - this.i * 15.0F, 0, 0, 64, 64);
+         GlStateManager.scale(1.0F + this.animTopRight * 0.5F, 1.0F + this.animTopRight * 0.5F, 1.0F);
+         this.drawTexturedModalRect(-2.0F - var5 + this.animTopRight * 15.0F, -62.0F + var5 - this.animTopRight * 15.0F, 0, 0, 64, 64);
          if (var9) {
             this.e(var5);
          }
@@ -235,8 +235,8 @@ public class StructureCommandScreen extends GuiScreen {
             this.b_clash839(var5);
          }
 
-         if (StructureMarkerRenderer.isMarked(this.c)) {
-            this.drawTexturedModalRect(-2.0F - var5 + this.i * 15.0F, -62.0F + var5 - this.i * 15.0F, 128, 64, 64, 64);
+         if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
+            this.drawTexturedModalRect(-2.0F - var5 + this.animTopRight * 15.0F, -62.0F + var5 - this.animTopRight * 15.0F, 128, 64, 64, 64);
          }
 
          GlStateManager.popMatrix();
@@ -247,27 +247,27 @@ public class StructureCommandScreen extends GuiScreen {
    }
 
    void a_clash837(float var1) {
-      this.drawTexturedModalRect(-2.0F - var1 + this.n * 15.0F, -2.0F - var1 + this.n * 15.0F, 192, 64, 64, 64);
+      this.drawTexturedModalRect(-2.0F - var1 + this.animBottomRight * 15.0F, -2.0F - var1 + this.animBottomRight * 15.0F, 192, 64, 64, 64);
    }
 
    void c_clash838(float var1) {
-      this.drawTexturedModalRect(-62.0F + var1 - this.k * 15.0F, -62.0F + var1 - this.k * 15.0F, 64, 64, 64, 64);
+      this.drawTexturedModalRect(-62.0F + var1 - this.animTopLeft * 15.0F, -62.0F + var1 - this.animTopLeft * 15.0F, 64, 64, 64, 64);
    }
 
    void e(float var1) {
-      this.drawTexturedModalRect(-2.0F - var1 + this.i * 15.0F, -62.0F + var1 - this.i * 15.0F, 64, 0, 64, 64);
+      this.drawTexturedModalRect(-2.0F - var1 + this.animTopRight * 15.0F, -62.0F + var1 - this.animTopRight * 15.0F, 64, 0, 64, 64);
    }
 
    void b_clash839(float var1) {
-      this.drawTexturedModalRect(-2.0F - var1 + this.i * 15.0F, -62.0F + var1 - this.i * 15.0F, 128, 0, 64, 64);
+      this.drawTexturedModalRect(-2.0F - var1 + this.animTopRight * 15.0F, -62.0F + var1 - this.animTopRight * 15.0F, 128, 0, 64, 64);
    }
 
    void f(float var1) {
-      this.drawTexturedModalRect(-62.0F + var1 - this.a * 15.0F, -2.0F - var1 + this.a * 15.0F, 0, 64, 64, 64);
+      this.drawTexturedModalRect(-62.0F + var1 - this.animBottomLeft * 15.0F, -2.0F - var1 + this.animBottomLeft * 15.0F, 0, 64, 64, 64);
    }
 
    void d_clash840(float var1) {
-      this.drawTexturedModalRect(-62.0F + var1 - this.a * 15.0F, -2.0F - var1 + this.a * 15.0F, 192, 0, 64, 64);
+      this.drawTexturedModalRect(-62.0F + var1 - this.animBottomLeft * 15.0F, -2.0F - var1 + this.animBottomLeft * 15.0F, 192, 0, 64, 64);
    }
 
    double a_clash841(double var1) {

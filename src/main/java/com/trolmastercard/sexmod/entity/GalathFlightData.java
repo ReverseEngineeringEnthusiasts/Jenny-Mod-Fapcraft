@@ -114,23 +114,23 @@ public enum GalathFlightData {
          if (!var5.isEmpty()) {
             ArrayList<Entry> var18 = new ArrayList<Entry>(var5.entrySet());
             var18.sort((var0x, var1x) -> ((Integer)((Entry) var1x).getValue()).compareTo((Integer)((Entry) var0x).getValue()));
-            var0.O = new Vec3d((Vec3i)((Entry)var18.get(ThreadNames.weightedRandomIndex(var18.size() - 1))).getKey());
+            var0.flightTargetPosition = new Vec3d((Vec3i)((Entry)var18.get(ThreadNames.weightedRandomIndex(var18.size() - 1))).getKey());
          } else if (var4.isEmpty()) {
-            var0.O = new Vec3d(
+            var0.flightTargetPosition = new Vec3d(
                var3.add(ThreadNames.randomSignedFloat(10.0F, true), ThreadNames.randomSignedFloat(10.0F, false), ThreadNames.randomSignedFloat(10.0F, true))
             );
          } else {
-            var0.O = new Vec3d((Vec3i)var4.get(Reference.f.nextInt(var4.size())));
+            var0.flightTargetPosition = new Vec3d((Vec3i)var4.get(Reference.RANDOM.nextInt(var4.size())));
          }
 
          var0.bL = null;
          var0.b_clash690(0);
          var0.setCurrentAction(Action.FLY);
-         PacketHandler.b.sendToAllTracking(new ResetControllerPacket(var0.getGirlId()), var0);
+         PacketHandler.networkWrapper.sendToAllTracking(new ResetControllerPacket(var0.getGirlId()), var0);
       },
       var0 -> {
          Vec3d var1 = var0.getPositionVector();
-         Vec3d var2 = var0.O;
+         Vec3d var2 = var0.flightTargetPosition;
          if (var2 != null) {
             var0.bL = var1;
             int var3 = var0.ar();
@@ -252,7 +252,7 @@ public enum GalathFlightData {
       var0.e(var1);
       Vec3d var2 = var0.getTargetEntity().getPositionVector();
       Vector2d var3 = new Vector2d(var2.x - var1.x, var2.z - var1.z);
-      double var4 = TrigMath.b(Math.atan2(var3.a, var3.b)) - 90.0;
+      double var4 = TrigMath.b(Math.atan2(var3.x, var3.y)) - 90.0;
       var0.setAnchored(true);
       var0.setTargetPosition(var1);
       var0.setYawRotation((float)var4);
@@ -264,7 +264,7 @@ public enum GalathFlightData {
       if (ThreadNames.isBetween(var2, 24.0, 32.0)) {
          Vec3d var3 = var1.getPositionVector().add(0.0, var1.getEyeHeight(), 0.0);
          Vector2d var4 = new Vector2d(var3.x - var0.posX, var3.z - var0.posZ);
-         double var5 = TrigMath.b(Math.atan2(var4.a, var4.b)) - 90.0;
+         double var5 = TrigMath.b(Math.atan2(var4.x, var4.y)) - 90.0;
          var0.setYawRotation((float)var5);
          Vec3d var7 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 3.0), (float)(var5 + 180.0));
          Vec3d var8 = var0.B_clash642();
@@ -308,7 +308,7 @@ public enum GalathFlightData {
          var0.setCurrentAction(Action.RAPE_PREPARE);
          var0.aF = 0;
          var0.bd = null;
-         var0.O = null;
+         var0.flightTargetPosition = null;
          var0.getDataManager().set(GalathEntity.bO, 0.0F);
       },
       var0 -> {
@@ -316,7 +316,7 @@ public enum GalathFlightData {
             var0.setCurrentAction(Action.RAPE_CHARGE);
             EntityLivingBase var1 = var0.getTargetEntity();
             if (var0.bd == null) {
-               var0.O = var1.getPositionVector().add(0.0, var1.getEyeHeight() / 2.0F, 0.0);
+               var0.flightTargetPosition = var1.getPositionVector().add(0.0, var1.getEyeHeight() / 2.0F, 0.0);
                var0.bd = var0.getPositionVector();
                Vec3d var2 = var1.getPositionVector().subtract(var0.getPositionVector()).normalize();
                var0.setYawRotation((float)(TrigMath.b(Math.atan2(var2.z, var2.x)) - 90.0));
@@ -339,7 +339,7 @@ public enum GalathFlightData {
                      for (EntityWitherSkeleton var15 : var0.bI) {
                         Vec3d var16 = var15.getPositionVector();
                         var15.world.removeEntity(var15);
-                        PacketHandler.b
+                        PacketHandler.networkWrapper
                            .sendToAllTracking(
                               new SpawnEnergyBallParticlesPacket2(var16, true),
                               new TargetPoint(var15.dimension, var16.x, var16.y, var16.z, 50.0)
@@ -353,7 +353,7 @@ public enum GalathFlightData {
                      var0.setAnchored(true);
                      var0.setCurrentAction(Action.RAPE_INTRO);
                      byte var32 = (byte)MathHelper.floor((var0.getYawRotation() + 180.0F) * 256.0F / 360.0F);
-                     PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var30);
+                     PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), var30);
                      var30.connection.sendPacket(new SPacketEntityVelocity(var30.getEntityId(), 0.0, 0.0, 0.0));
                      var30.connection.sendPacket(new S16PacketEntityLook(var30.getEntityId(), var32, (byte)-14, true));
                      return;
@@ -362,7 +362,7 @@ public enum GalathFlightData {
             }
 
             Vec3d var22 = var0.bd;
-            Vec3d var23 = var0.O;
+            Vec3d var23 = var0.flightTargetPosition;
             Vec3d var24 = var23.subtract(var22);
             Vec3d var25 = var23.add(var24);
             var25 = new Vec3d(var25.x, var22.y, var25.z);
@@ -382,7 +382,7 @@ public enum GalathFlightData {
             double var18 = 1.0 / var33 * 20.0;
             var28 += var18;
             if (!var27 && var28 < 0.9F) {
-               var0.O = var1.getPositionVector().add(0.0, var1.getEyeHeight() / 2.0F, 0.0);
+               var0.flightTargetPosition = var1.getPositionVector().add(0.0, var1.getEyeHeight() / 2.0F, 0.0);
             }
 
             if (var27) {
@@ -411,7 +411,7 @@ public enum GalathFlightData {
          }
 
          Vec3d var1 = var0.bd;
-         Vec3d var2 = var0.O;
+         Vec3d var2 = var0.flightTargetPosition;
          if (var1 == null) {
             return false;
          }
@@ -422,7 +422,7 @@ public enum GalathFlightData {
          return var0.getDistance(var4.x, var4.y, var4.z) < 0.1F;
       },
       var0 -> {
-         var0.O = null;
+         var0.flightTargetPosition = null;
          var0.bd = null;
          var0.aF = 0;
          var0.getDataManager().set(GalathEntity.bO, 0.0F);
@@ -432,42 +432,42 @@ public enum GalathFlightData {
       true
    );
 
-   final IGalathUpdate a;
-   final IGalathStart f;
-   final IGalathFinish c;
-   final GalathActionListener b;
-   final IGalathExecute d;
+   final IGalathUpdate updateAction;
+   final IGalathStart startAction;
+   final IGalathFinish finishAction;
+   final GalathActionListener stopAction;
+   final IGalathExecute canExecuteAction;
    public final boolean applyAttackCoolDown;
    public final boolean onlyDoThisOnPlayers;
 
    GalathFlightData(IGalathStart var3, IGalathFinish var4, IGalathUpdate var5, GalathActionListener var6, boolean var7, IGalathExecute var8, boolean var9) {
-      this.a = var5;
-      this.f = var3;
-      this.c = var4;
-      this.b = var6;
+      this.updateAction = var5;
+      this.startAction = var3;
+      this.finishAction = var4;
+      this.stopAction = var6;
       this.applyAttackCoolDown = var7;
-      this.d = var8;
+      this.canExecuteAction = var8;
       this.onlyDoThisOnPlayers = var9;
    }
 
    public void executeStart(GalathEntity var1) {
-      this.f.start(var1);
+      this.startAction.start(var1);
    }
 
    public boolean executeUpdate(GalathEntity var1) {
-      return this.a.update(var1);
+      return this.updateAction.update(var1);
    }
 
    public void checkFinished(GalathEntity var1) {
-      this.c.finish(var1);
+      this.finishAction.finish(var1);
    }
 
    public void e(GalathEntity var1) {
-      this.b.stop(var1);
+      this.stopAction.stop(var1);
    }
 
    public boolean canExecute(GalathEntity var1) {
-      return this.d.canExecute(var1);
+      return this.canExecuteAction.canExecute(var1);
    }
 
 }

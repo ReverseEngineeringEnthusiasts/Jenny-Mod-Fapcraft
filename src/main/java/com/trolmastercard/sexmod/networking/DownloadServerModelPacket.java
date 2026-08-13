@@ -30,74 +30,74 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.io.FileUtils;
 
 public class DownloadServerModelPacket implements IMessage {
-   boolean d;
-   List<String> c = new ArrayList<>();
-   byte[] b;
-   DownloadServerModelPacket.DownloadServerModelPacketType f;
-   String e;
-   int a = 0;
+   boolean isValid;
+   List<String> modelNames = new ArrayList<>();
+   byte[] modelData;
+   DownloadServerModelPacket.DownloadServerModelPacketType packetType;
+   String modelName;
+   int modelIndex = 0;
 
    public DownloadServerModelPacket() {
    }
 
    public DownloadServerModelPacket(List<String> var1) {
-      this.c = var1;
+      this.modelNames = var1;
    }
 
    public DownloadServerModelPacket(byte[] var1, DownloadServerModelPacket.DownloadServerModelPacketType var2, String var3) {
-      this.b = var1;
-      this.f = var2;
-      this.e = var3;
+      this.modelData = var1;
+      this.packetType = var2;
+      this.modelName = var3;
    }
 
    public int a_clash350() {
-      return this.a;
+      return this.modelIndex;
    }
 
    public void a_clash351(int var1) {
-      this.a = var1;
+      this.modelIndex = var1;
    }
 
    public void fromBytes(ByteBuf var1) {
       if (null instanceof ClientProxy) {
          if (ServerWhitelistManager.b_clash129()) {
-            this.e = ByteBufUtils.readUTF8String(var1);
-            this.f = DownloadServerModelPacket.DownloadServerModelPacketType.valueOf(ByteBufUtils.readUTF8String(var1));
-            this.a = var1.readInt();
+            this.modelName = ByteBufUtils.readUTF8String(var1);
+            this.packetType = DownloadServerModelPacket.DownloadServerModelPacketType.valueOf(ByteBufUtils.readUTF8String(var1));
+            this.modelIndex = var1.readInt();
             int var4 = var1.readInt();
-            this.b = new byte[var4];
+            this.modelData = new byte[var4];
 
             for (int var5 = 0; var5 < var4; var5++) {
-               this.b[var5] = var1.readByte();
+               this.modelData[var5] = var1.readByte();
             }
 
-            this.d = true;
+            this.isValid = true;
          }
       } else {
          int var2 = var1.readInt();
 
          for (int var3 = 0; var3 < var2; var3++) {
-            this.c.add(ByteBufUtils.readUTF8String(var1));
+            this.modelNames.add(ByteBufUtils.readUTF8String(var1));
          }
 
-         this.d = true;
+         this.isValid = true;
       }
    }
 
    public void toBytes(ByteBuf var1) {
       if (null instanceof ClientProxy) {
-         var1.writeInt(this.c.size());
+         var1.writeInt(this.modelNames.size());
 
-         for (String var7 : this.c) {
+         for (String var7 : this.modelNames) {
             ByteBufUtils.writeUTF8String(var1, var7);
          }
       } else {
-         ByteBufUtils.writeUTF8String(var1, this.e);
-         ByteBufUtils.writeUTF8String(var1, this.f.toString());
-         var1.writeInt(this.a);
-         var1.writeInt(this.b.length);
+         ByteBufUtils.writeUTF8String(var1, this.modelName);
+         ByteBufUtils.writeUTF8String(var1, this.packetType.toString());
+         var1.writeInt(this.modelIndex);
+         var1.writeInt(this.modelData.length);
 
-         for (byte var5 : this.b) {
+         for (byte var5 : this.modelData) {
             var1.writeByte(var5);
          }
       }
@@ -105,7 +105,7 @@ public class DownloadServerModelPacket implements IMessage {
 
 
    public static class Handler implements IMessageHandler<DownloadServerModelPacket, IMessage> {
-      static int a = 0;
+      static int packetCounter = 0;
 
       @SideOnly(Side.CLIENT)
       void a_clash159(String var1) {
@@ -118,7 +118,7 @@ public class DownloadServerModelPacket implements IMessage {
       }
 
       public IMessage onMessage(DownloadServerModelPacket var1, MessageContext var2) {
-         if (!var1.d) {
+         if (!var1.isValid) {
             System.out.println("received an invalid Message @DownloadServerModel :(");
             return null;
          }
@@ -126,7 +126,7 @@ public class DownloadServerModelPacket implements IMessage {
          if (!var2.side.isClient()) {
             MinecraftServer var24 = FMLCommonHandler.instance().getMinecraftServerInstance();
             var24.addScheduledTask(() -> {
-               List var3x = var1.c;
+               List var3x = var1.modelNames;
                ArrayList var4x = new ArrayList();
 
                for (String var6x : (java.util.Collection<String>) (var3x) ) {
@@ -155,7 +155,7 @@ public class DownloadServerModelPacket implements IMessage {
 
                for (DownloadServerModelPacket var18 : (java.util.Collection<DownloadServerModelPacket>) (var4x) ) {
                   var18.a_clash351(var16);
-                  var24.addScheduledTask(() -> PacketHandler.b.sendTo(var18, var2.getServerHandler().player));
+                  var24.addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(var18, var2.getServerHandler().player));
                }
             });
             return null;
@@ -165,9 +165,9 @@ public class DownloadServerModelPacket implements IMessage {
             return null;
          }
 
-         String var3 = var1.e;
-         DownloadServerModelPacket.DownloadServerModelPacketType var4 = var1.f;
-         byte[] var5 = var1.b;
+         String var3 = var1.modelName;
+         DownloadServerModelPacket.DownloadServerModelPacketType var4 = var1.packetType;
+         byte[] var5 = var1.modelData;
          String var6 = ServerWhitelistManager.h_clash132() + "/" + var3;
          File var7 = new File(var6);
          var7.mkdirs();
@@ -235,11 +235,11 @@ public class DownloadServerModelPacket implements IMessage {
             );
          }
 
-         if (++a < var1.a) {
+         if (++packetCounter < var1.modelIndex) {
             return null;
          }
 
-         a = 0;
+         packetCounter = 0;
          this.a_clash160();
          return null;
       }

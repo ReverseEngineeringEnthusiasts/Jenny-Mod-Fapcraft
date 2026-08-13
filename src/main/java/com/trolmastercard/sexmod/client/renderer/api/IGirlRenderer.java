@@ -13,7 +13,7 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 
 public interface IGirlRenderer {
    default HashSet<String> a() {
-      return BodyParts.a;
+      return BodyParts.CUSTOM_PART_BONES;
    }
 
    default boolean a(HashSet<String> var1, GeoBone var2) {

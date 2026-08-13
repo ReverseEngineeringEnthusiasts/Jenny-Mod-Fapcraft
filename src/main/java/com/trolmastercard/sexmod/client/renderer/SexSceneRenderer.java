@@ -56,17 +56,17 @@ import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 import software.bernie.geckolib3.util.MatrixStack;
 
 public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
-   public static final float e = 1.876945F;
-   public static final float i = 2.876945F;
-   Minecraft a;
-   SexSceneEntity c = null;
-   ServerWhitelistManager.b b = null;
-   HashMap<String, String> h = new HashMap<>();
-   HashMap<String, String> f = new HashMap<>();
-   HashMap<String, IBoneRotationSupplier> g = new HashMap<>();
-   public static boolean k = false;
-   Vec3d d = new Vec3d(1.0, 1.0, 1.0);
-   Vec3d j;
+   public static final float ANGLE_1_87 = 1.876945F;
+   public static final float ANGLE_2_87 = 2.876945F;
+   Minecraft mc;
+   SexSceneEntity sceneEntity = null;
+   ServerWhitelistManager.b modelData = null;
+   HashMap<String, String> legBoneMap = new HashMap<>();
+   HashMap<String, String> bodyBoneMap = new HashMap<>();
+   HashMap<String, IBoneRotationSupplier> boneRotations = new HashMap<>();
+   public static boolean isCustom = false;
+   Vec3d colorScale = new Vec3d(1.0, 1.0, 1.0);
+   Vec3d lightingPos;
 
 
 
@@ -76,27 +76,27 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    }
    public SexSceneRenderer(RenderManager var1, AnimatedGeoModel<?> var2) {
       super(var1, (AnimatedGeoModel<SexSceneEntity>) (AnimatedGeoModel) var2);
-      this.a = Minecraft.getMinecraft();
+      this.mc = Minecraft.getMinecraft();
       this.a_clash809();
    }
 
    void a_clash809() {
-      this.h.put("customLegL", "legL");
-      this.h.put("customShinL", "shinL");
-      this.h.put("customLegR", "legR");
-      this.h.put("customShinR", "shinR");
-      this.f.put("top", "upperBody");
-      this.f.put("customArmL", "armL");
-      this.f.put("customLowerArmL", "lowerArmL");
-      this.f.put("customArmR", "armR");
-      this.f.put("customLowerArmR", "lowerArmR");
-      this.g.put("lowerArmR", var0 -> TrigMath.wrapDegrees(var0.getRightArmAngle()));
-      this.g.put("lowerArmL", var0 -> TrigMath.wrapDegrees(var0.getLeftArmAngle()));
+      this.legBoneMap.put("customLegL", "legL");
+      this.legBoneMap.put("customShinL", "shinL");
+      this.legBoneMap.put("customLegR", "legR");
+      this.legBoneMap.put("customShinR", "shinR");
+      this.bodyBoneMap.put("top", "upperBody");
+      this.bodyBoneMap.put("customArmL", "armL");
+      this.bodyBoneMap.put("customLowerArmL", "lowerArmL");
+      this.bodyBoneMap.put("customArmR", "armR");
+      this.bodyBoneMap.put("customLowerArmR", "lowerArmR");
+      this.boneRotations.put("lowerArmR", var0 -> TrigMath.wrapDegrees(var0.getRightArmAngle()));
+      this.boneRotations.put("lowerArmL", var0 -> TrigMath.wrapDegrees(var0.getLeftArmAngle()));
    }
 
    boolean d(SexSceneEntity var1) {
       String var2 = var1.a_clash343();
-      if (var1.f) {
+      if (var1.isItemModel) {
          return false;
       }
 
@@ -117,7 +117,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       HashSet var5 = var4.getCustomPartsSet();
       var5.remove(var2);
       String var6 = BaseGirlEntity.encodeCustomParts(var5);
-      PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var1.b_clash342()));
+      PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(var6, var1.b_clash342()));
       return true;
    }
 
@@ -130,7 +130,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
                for (String var4 : var0.getCustomPartsSet()) {
                   SexSceneEntity var5 = new SexSceneEntity(var0.world, var0.getGirlId(), var4);
-                  k = true;
+                  isCustom = true;
                   var2.renderEntity(var5, 0.0, 0.0, 0.0, 0.0F, var1, false);
                }
             }
@@ -147,8 +147,8 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
          return true;
       } else if (var1 == 1.876945F) {
          return true;
-      } else if (k) {
-         k = false;
+      } else if (isCustom) {
+         isCustom = false;
          return true;
       } else {
          return false;
@@ -158,9 +158,9 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    void a(ServerWhitelistManager.b var1, SexSceneEntity var2, float var3) {
       if (var1 != null && var1.i_clash894() != LightingType.DEFAULT) {
          GL11.glDisable(2896);
-         this.j = var1.i_clash894() == LightingType.SEXMOD ? WorldUtils.a_clash301(var2, var3) : null;
+         this.lightingPos = var1.i_clash894() == LightingType.SEXMOD ? WorldUtils.a_clash301(var2, var3) : null;
       } else {
-         this.j = null;
+         this.lightingPos = null;
       }
    }
 
@@ -171,12 +171,12 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
    public void a(SexSceneEntity var1, double var2, double var4, double var6, float var8, float var9) {
       if (this.a_clash811(var9)) {
-         if (!ServerWhitelistManager.d) {
+         if (!ServerWhitelistManager.isGlobalRenderingDisabled) {
             if (!this.d(var1)) {
-               var1.c = new MatrixStack();
+               var1.matrixStack = new MatrixStack();
                ServerWhitelistManager.b var10 = ServerWhitelistManager.b_clash142(var1.a_clash343());
-               this.c = var1;
-               this.b = var10;
+               this.sceneEntity = var1;
+               this.modelData = var10;
                this.a(var10, var1, var9);
                if (var9 != 1.876945F && var9 != 2.876945F) {
                   UUID var11 = var1.b_clash342();
@@ -197,7 +197,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                               var12 = var15 == null ? var13 : var15;
                            }
 
-                           Vec3d var19 = var13.renderCustomModelTransform(this.a, var1, (EntityLivingBase)var12, var9);
+                           Vec3d var19 = var13.renderCustomModelTransform(this.mc, var1, (EntityLivingBase)var12, var9);
                            BlockPos var20 = new BlockPos(
                               Math.floor(((EntityLivingBase)var12).posX),
                               Math.floor(((EntityLivingBase)var12).posY),
@@ -206,7 +206,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                            int var16 = ((EntityLivingBase)var12).world.getLight(var20, true);
                            Vec3d var17 = new Vec3d(1.0, 1.0, 1.0);
                            float var18 = ThreadNames.b(var16, 10.0F, 15.0F) / 15.0F;
-                           this.d = new Vec3d(var17.x * var18, var17.y * var18, var17.z * var18);
+                           this.colorScale = new Vec3d(var17.x * var18, var17.y * var18, var17.z * var18);
                            GlStateManager.pushMatrix();
                            GlStateManager.translate(var19.x, var19.y, var19.z);
                            if (var13.isAnchored()) {
@@ -220,7 +220,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                      }
                   }
                } else {
-                  this.d = new Vec3d(1.0, 1.0, 1.0);
+                  this.colorScale = new Vec3d(1.0, 1.0, 1.0);
                   super.doRender(var1, var2, var4, var6, var8, var9);
                   GL11.glEnable(2896);
                }
@@ -290,7 +290,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
             this.a(var2, var10, var3);
          }
 
-         var2.c.translate(-var10.getPivotX() / 16.0F, -var10.getPivotY() / 16.0F, -var10.getPivotZ() / 16.0F);
+         var2.matrixStack.translate(-var10.getPivotX() / 16.0F, -var10.getPivotY() / 16.0F, -var10.getPivotZ() / 16.0F);
          this.renderRecursively(var8, var10, var4, var5, var6, var7);
       }
 
@@ -332,16 +332,16 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    void a(SexSceneEntity var1, GeoBone var2, float var3, String var4) {
       BaseGirlEntity var5 = this.b_clash813(var1);
       this.c_clash812(var1);
-      var1.c = var5.getBoneMatrixStack(var4, false);
-      if (var1.f && var3 == 2.876945F) {
-         var1.c.scale(0.5F, 0.5F, 0.5F);
-         var1.c.rotateY((float)Math.toRadians(-ClothingScreen.b));
+      var1.matrixStack = var5.getBoneMatrixStack(var4, false);
+      if (var1.isItemModel && var3 == 2.876945F) {
+         var1.matrixStack.scale(0.5F, 0.5F, 0.5F);
+         var1.matrixStack.rotateY((float)Math.toRadians(-ClothingScreen.currentModelYaw));
       }
    }
 
    String a_clash814(SexSceneEntity var1) {
-      if (var1.f) {
-         return var1.d.boneName;
+      if (var1.isItemModel) {
+         return var1.boneType.boneName;
       } else {
          ServerWhitelistManager.b var2 = ServerWhitelistManager.b_clash142(var1.a_clash343());
          if (var2 == null) {
@@ -354,19 +354,19 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
    @Override
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
-      this.c.c.push();
-      this.c.c.translate(var2);
-      this.c.c.moveToPivot(var2);
-      this.c.c.rotate(var2);
-      this.c.c.scale(var2);
-      this.c.c.moveBackFromPivot(var2);
+      this.sceneEntity.matrixStack.push();
+      this.sceneEntity.matrixStack.translate(var2);
+      this.sceneEntity.matrixStack.moveToPivot(var2);
+      this.sceneEntity.matrixStack.rotate(var2);
+      this.sceneEntity.matrixStack.scale(var2);
+      this.sceneEntity.matrixStack.moveBackFromPivot(var2);
       if (!var2.isHidden()) {
          for (GeoCube var8 : var2.childCubes) {
-            this.c.c.push();
+            this.sceneEntity.matrixStack.push();
             GlStateManager.pushMatrix();
             this.renderCube(var1, var8, var3, var4, var5, var6);
             GlStateManager.popMatrix();
-            this.c.c.pop();
+            this.sceneEntity.matrixStack.pop();
          }
       }
 
@@ -377,21 +377,21 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
 
       try {
-         this.c.c.pop();
+         this.sceneEntity.matrixStack.pop();
       } catch (IllegalStateException var9) {
       }
    }
 
    @Override
    public void renderCube(BufferBuilder var1, GeoCube var2, float var3, float var4, float var5, float var6) {
-      this.c.c.moveToPivot(var2);
-      this.c.c.rotate(var2);
-      this.c.c.moveBackFromPivot(var2);
+      this.sceneEntity.matrixStack.moveToPivot(var2);
+      this.sceneEntity.matrixStack.rotate(var2);
+      this.sceneEntity.matrixStack.moveBackFromPivot(var2);
 
       for (GeoQuad var10 : var2.quads) {
          if (var10 != null) {
             Vector3f var11 = new Vector3f(var10.normal.getX(), var10.normal.getY(), var10.normal.getZ());
-            this.c.c.getNormalMatrix().transform(var11);
+            this.sceneEntity.matrixStack.getNormalMatrix().transform(var11);
             if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var11.getX() < 0.0F) {
                var11.x *= -1.0F;
             }
@@ -404,16 +404,16 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                var11.z *= -1.0F;
             }
 
-            if (this.j != null) {
-               this.d = BodyParts.a(this.d, var11, this.j);
+            if (this.lightingPos != null) {
+               this.colorScale = BodyParts.a(this.colorScale, var11, this.lightingPos);
             }
 
             for (GeoVertex var15 : var10.vertices) {
                Vector4f var16 = new Vector4f(var15.position.getX(), var15.position.getY(), var15.position.getZ(), 1.0F);
-               this.c.c.getModelMatrix().transform(var16);
+               this.sceneEntity.matrixStack.getModelMatrix().transform(var16);
                var1.pos(var16.getX(), var16.getY(), var16.getZ())
                   .tex(var15.textureU, var15.textureV)
-                  .color((float)this.d.x, (float)this.d.y, (float)this.d.z, var6)
+                  .color((float)this.colorScale.x, (float)this.colorScale.y, (float)this.colorScale.z, var6)
                   .normal(var11.getX(), var11.getY(), var11.getZ())
                   .endVertex();
             }

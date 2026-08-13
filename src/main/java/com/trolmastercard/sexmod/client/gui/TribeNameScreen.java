@@ -17,14 +17,14 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 
 public class TribeNameScreen extends GuiScreen {
-   static final int b = 15;
-   static final int a = 100;
-   static final int c = 20;
-   UUID e;
-   GuiTextField d;
+   static final int MAX_NAME_LENGTH = 15;
+   static final int WIDTH_100 = 100;
+   static final int HEIGHT_20 = 20;
+   UUID koboldId;
+   GuiTextField nameField;
 
    public TribeNameScreen(UUID var1) {
-      this.e = var1;
+      this.koboldId = var1;
    }
 
    public boolean doesGuiPauseGame() {
@@ -33,27 +33,27 @@ public class TribeNameScreen extends GuiScreen {
 
    public void initGui() {
       super.initGui();
-      this.d = new GuiTextField(0, this.mc.fontRenderer, this.width / 2 - 50, this.height / 2 - 10, 100, 20);
-      this.d.setFocused(true);
+      this.nameField = new GuiTextField(0, this.mc.fontRenderer, this.width / 2 - 50, this.height / 2 - 10, 100, 20);
+      this.nameField.setFocused(true);
       this.buttonList.add(new GuiButton(0, this.width / 2 - 25, this.height / 2 + 20, 50, 20, "set"));
    }
 
    public void updateScreen() {
-      this.d.updateCursorCounter();
+      this.nameField.updateCursorCounter();
       super.updateScreen();
    }
 
    public void drawScreen(int var1, int var2, float var3) {
       this.drawHoveringText("Name Tribe", this.width / 2 - 39, this.height / 2 - 10);
-      this.d.drawTextBox();
+      this.nameField.drawTextBox();
       super.drawScreen(var1, var2, var3);
    }
 
    protected void keyTyped(char var1, int var2) {
-      this.d.textboxKeyTyped(var1, var2);
-      String var3 = this.d.getText();
+      this.nameField.textboxKeyTyped(var1, var2);
+      String var3 = this.nameField.getText();
       if (var3.length() > 15) {
-         this.d.setText(var3.substring(0, 15));
+         this.nameField.setText(var3.substring(0, 15));
       }
 
       super.keyTyped(var1, var2);
@@ -61,9 +61,9 @@ public class TribeNameScreen extends GuiScreen {
 
    protected void actionPerformed(GuiButton var1) {
       super.actionPerformed(var1);
-      String var2 = this.d.getText().trim();
+      String var2 = this.nameField.getText().trim();
       if (var2.length() != 0) {
-         PacketHandler.b.sendToServer(new ClaimTribePacket(this.e, Minecraft.getMinecraft().player.getPersistentID(), var2));
+         PacketHandler.networkWrapper.sendToServer(new ClaimTribePacket(this.koboldId, Minecraft.getMinecraft().player.getPersistentID(), var2));
          Minecraft.getMinecraft().player.closeScreen();
       }
    }

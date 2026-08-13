@@ -21,7 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
-   ResourceLocation a = null;
+   ResourceLocation lampTexture = null;
 
    public ResourceLocation getModelLocation(AlliesLampItem var1) {
       return new ResourceLocation("sexmod", "geo/allie/lamp.geo.json");
@@ -34,8 +34,8 @@ public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
       return new ResourceLocation("sexmod", "animations/allie/lamp.animation.json");
    }
    public ResourceLocation getTextureLocation(AlliesLampItem var1) {
-      if (this.a != null) {
-         return this.a;
+      if (this.lampTexture != null) {
+         return this.lampTexture;
       }
 
       try {
@@ -48,13 +48,13 @@ public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
          var4.fillRect(2, 0, 1, 2);
          var4.setColor(new Color(0, 0, 0));
          var4.fillRect(3, 0, 1, 2);
-         this.a = var2.renderEngine.getDynamicTextureLocation("alliesLamp", new DynamicTexture(var3));
+         this.lampTexture = var2.renderEngine.getDynamicTextureLocation("alliesLamp", new DynamicTexture(var3));
       } catch (Exception var5) {
          var5.printStackTrace();
-         this.a = new ResourceLocation("sexmod", "textures/entity/allie/lamp.png");
+         this.lampTexture = new ResourceLocation("sexmod", "textures/entity/allie/lamp.png");
       }
 
-      return this.a;
+      return this.lampTexture;
    }
 
    public ResourceLocation a(AlliesLampItem var1) {

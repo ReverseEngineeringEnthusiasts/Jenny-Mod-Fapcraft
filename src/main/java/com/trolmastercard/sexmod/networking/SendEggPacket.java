@@ -23,10 +23,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class SendEggPacket implements IMessage {
-   boolean a;
+   boolean isValid;
 
    public void fromBytes(ByteBuf var1) {
-      this.a = true;
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
@@ -34,13 +34,13 @@ public class SendEggPacket implements IMessage {
 
    public static class Handler implements IMessageHandler<SendEggPacket, IMessage> {
       public IMessage onMessage(SendEggPacket var1, MessageContext var2) {
-         if (var1.a && var2.side.equals(Side.SERVER)) {
+         if (var1.isValid && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                EntityPlayerMP var1x = var2.getServerHandler().player;
                UUID var2x = KoboldManager.getTribeUUID(var1x.getPersistentID());
                if (var2x != null) {
                   EyeAndKoboldColor var3 = KoboldManager.l_clash75(var2x);
-                  ItemStack var4 = new ItemStack(KoboldEggItem.a, 1, var3.getWoolMeta());
+                  ItemStack var4 = new ItemStack(KoboldEggItem.KOBOLD_EGG_ITEM, 1, var3.getWoolMeta());
                   NBTTagCompound var5 = var4.getTagCompound();
                   if (var5 == null) {
                      var5 = new NBTTagCompound();

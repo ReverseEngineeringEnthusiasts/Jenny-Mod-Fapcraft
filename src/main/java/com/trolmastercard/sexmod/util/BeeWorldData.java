@@ -12,10 +12,10 @@ import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class BeeWorldData extends WorldSavedData {
-   public static final List<BlockPos> c = new ArrayList<>();
-   public static final List<BlockPos> b = new ArrayList<>();
-   static final String d = "sexmod:galath_spawn_list";
-   static final String a = "sexmod:galath_spawn_list";
+   public static final List<BlockPos> hivePositions = new ArrayList<>();
+   public static final List<BlockPos> flowerPositions = new ArrayList<>();
+   static final String DATA_KEY = "sexmod:galath_spawn_list";
+   static final String SAVE_KEY = "sexmod:galath_spawn_list";
 
    public BeeWorldData() {
       super("sexmod:galath_spawn_list");
@@ -44,14 +44,14 @@ public class BeeWorldData extends WorldSavedData {
 
    public void readFromNBT(NBTTagCompound var1) {
       NBTTagCompound var2 = var1.getCompoundTag("sexmod:galath_spawn_list");
-      this.b(var2, "", c);
-      this.b(var2, "mang", b);
+      this.b(var2, "", hivePositions);
+      this.b(var2, "mang", flowerPositions);
    }
 
    public NBTTagCompound writeToNBT(NBTTagCompound var1) {
       NBTTagCompound var2 = new NBTTagCompound();
-      this.a(var2, "", c);
-      this.a(var2, "mang", b);
+      this.a(var2, "", hivePositions);
+      this.a(var2, "mang", flowerPositions);
       var1.setTag("sexmod:galath_spawn_list", var2);
       return var1;
    }

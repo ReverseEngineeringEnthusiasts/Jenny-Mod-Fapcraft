@@ -12,7 +12,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class BiaNpcModel extends GirlModel<BaseGirlEntity> {
    public BiaNpcModel() {
-      this.c = this.getModelLocations();
+      this.modelLocations = this.getModelLocations();
    }
 
    @Override

@@ -18,13 +18,13 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 
 public class GalathDamageSource extends DamageSource {
-   GalathEntity a;
-   Vec3d b;
+   GalathEntity galathEntity;
+   Vec3d sourcePos;
 
    public GalathDamageSource(GalathEntity var1) {
       super("galath");
-      this.a = var1;
-      this.b = var1.getPositionVector();
+      this.galathEntity = var1;
+      this.sourcePos = var1.getPositionVector();
    }
 
    public ITextComponent getDeathMessage(EntityLivingBase var1) {
@@ -33,16 +33,16 @@ public class GalathDamageSource extends DamageSource {
 
    @Nullable
    public Entity getImmediateSource() {
-      return this.a;
+      return this.galathEntity;
    }
 
    @Nullable
    public Entity getTrueSource() {
-      return this.a;
+      return this.galathEntity;
    }
 
    @Nullable
    public Vec3d getDamageLocation() {
-      return this.b;
+      return this.sourcePos;
    }
 }

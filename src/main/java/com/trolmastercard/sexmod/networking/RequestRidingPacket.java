@@ -20,10 +20,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class RequestRidingPacket implements IMessage {
-   boolean a = false;
+   boolean isValid = false;
 
    public void fromBytes(ByteBuf var1) {
-      this.a = true;
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
@@ -31,7 +31,7 @@ public class RequestRidingPacket implements IMessage {
 
    public static class Handler implements IMessageHandler<RequestRidingPacket, IMessage> {
       public IMessage onMessage(RequestRidingPacket var1, MessageContext var2) {
-         if (var1.a && var2.side.equals(Side.SERVER)) {
+         if (var1.isValid && var2.side.equals(Side.SERVER)) {
             EntityPlayerMP var3 = var2.getServerHandler().player;
             UUID var4 = GirlSavedData.b_clash853(var3);
             BaseGirlEntity var5 = BaseGirlEntity.getServerGirlEntity(var4);

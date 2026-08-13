@@ -26,8 +26,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class PositionData {
-   Vec3d b = null;
-   Vec3d a = null;
+   Vec3d position = null;
+   Vec3d rotation = null;
 
    @SubscribeEvent
    public void a(Pre var1) {
@@ -77,21 +77,21 @@ public class PositionData {
       Minecraft var2 = Minecraft.getMinecraft();
       if (var2.player != null) {
          if (var1.phase == Phase.END) {
-            if (this.b != null) {
-               var2.player.setPosition(this.b.x, this.b.y, this.b.z);
-               var2.player.lastTickPosX = this.a.x;
-               var2.player.lastTickPosY = this.a.y;
-               var2.player.lastTickPosZ = this.a.z;
-               this.b = null;
-               this.a = null;
+            if (this.position != null) {
+               var2.player.setPosition(this.position.x, this.position.y, this.position.z);
+               var2.player.lastTickPosX = this.rotation.x;
+               var2.player.lastTickPosY = this.rotation.y;
+               var2.player.lastTickPosZ = this.rotation.z;
+               this.position = null;
+               this.rotation = null;
             }
          } else if (var2.gameSettings.thirdPersonView == 0) {
             BaseGirlEntity var3 = BaseGirlEntity.getGirlByUUID(var2.player.getPersistentID(), Boolean.valueOf(false));
             if (var3 != null) {
                if (var3.getCurrentAction().useBoyCam) {
                   if (!var3.isCustomType()) {
-                     this.b = var2.player.getPositionVector();
-                     this.a = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
+                     this.position = var2.player.getPositionVector();
+                     this.rotation = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
                      Vec3d var4 = var3.isAnchored()
                         ? var3.getCachedBoneOffset("boyCam").add(var3.getTargetPosition())
                         : var3.getCachedBoneOffset("boyCam")

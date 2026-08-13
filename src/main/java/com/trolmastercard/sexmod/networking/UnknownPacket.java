@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class UnknownPacket implements IMessage {
-   boolean a = false;
+   boolean isValid = false;
    HashMap<String, Float> b = new HashMap<>();
 
    public UnknownPacket() {
@@ -33,13 +33,13 @@ public class UnknownPacket implements IMessage {
 
    public void fromBytes(ByteBuf var1) {
       if (!(null instanceof ClientProxy)) {
-         this.a = true;
+         this.isValid = true;
       } else if (ServerWhitelistManager.b_clash129()) {
          int var2;
          try {
             var2 = var1.readInt();
          } catch (IndexOutOfBoundsException var4) {
-            this.a = true;
+            this.isValid = true;
             return;
          }
 
@@ -47,7 +47,7 @@ public class UnknownPacket implements IMessage {
             this.b.put(ByteBufUtils.readUTF8String(var1), var1.readFloat());
          }
 
-         this.a = true;
+         this.isValid = true;
       }
    }
 
@@ -65,7 +65,7 @@ public class UnknownPacket implements IMessage {
 
    public static class Handler implements IMessageHandler<UnknownPacket, IMessage> {
       public IMessage onMessage(UnknownPacket var1, MessageContext var2) {
-         if (!var1.a) {
+         if (!var1.isValid) {
             System.out.println("received an invalid Message @RequestServerModelAvailability :(");
             return null;
          }
@@ -94,7 +94,7 @@ public class UnknownPacket implements IMessage {
          } else {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .addScheduledTask(() -> PacketHandler.b.sendTo(new UnknownPacket(ServerWhitelistManager.e_clash144()), var2.getServerHandler().player));
+               .addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(new UnknownPacket(ServerWhitelistManager.e_clash144()), var2.getServerHandler().player));
             return null;
          }
       }

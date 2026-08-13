@@ -11,17 +11,17 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 public class GirlInventoryContainer extends Container {
-   private final IInventory a;
-   private final int d;
-   public static List<GirlInventoryContainer> b = new ArrayList<>();
-   public UUID c;
+   private final IInventory inventory;
+   private final int slotIndex;
+   public static List<GirlInventoryContainer> containers = new ArrayList<>();
+   public UUID girlUUID;
 
    public GirlInventoryContainer(IInventory var1, IInventory var2, EntityPlayer var3, UUID var4) {
-      this.c = var4;
-      b.add(this);
-      this.a = var2;
+      this.girlUUID = var4;
+      containers.add(this);
+      this.inventory = var2;
       var2.openInventory(var3);
-      this.d = 3;
+      this.slotIndex = 3;
       byte var5 = -18;
 
       for (int var6 = 0; var6 < 3; var6++) {
@@ -42,7 +42,7 @@ public class GirlInventoryContainer extends Container {
    }
 
    public boolean canInteractWith(EntityPlayer var1) {
-      return this.a.isUsableByPlayer(var1);
+      return this.inventory.isUsableByPlayer(var1);
    }
 
    public ItemStack transferStackInSlot(EntityPlayer var1, int var2) {
@@ -51,11 +51,11 @@ public class GirlInventoryContainer extends Container {
       if (var4 != null && var4.getHasStack()) {
          ItemStack var5 = var4.getStack();
          var3 = var5.copy();
-         if (var2 < this.d * 9) {
-            if (!this.mergeItemStack(var5, this.d * 9, this.inventorySlots.size(), true)) {
+         if (var2 < this.slotIndex * 9) {
+            if (!this.mergeItemStack(var5, this.slotIndex * 9, this.inventorySlots.size(), true)) {
                return ItemStack.EMPTY;
             }
-         } else if (!this.mergeItemStack(var5, 0, this.d * 9, false)) {
+         } else if (!this.mergeItemStack(var5, 0, this.slotIndex * 9, false)) {
             return ItemStack.EMPTY;
          }
 
@@ -71,11 +71,11 @@ public class GirlInventoryContainer extends Container {
 
    public void onContainerClosed(EntityPlayer var1) {
       super.onContainerClosed(var1);
-      this.a.closeInventory(var1);
+      this.inventory.closeInventory(var1);
    }
 
    public IInventory a_clash197() {
-      return this.a;
+      return this.inventory;
    }
 
 }

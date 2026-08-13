@@ -196,7 +196,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    protected void changeDataParameterFromClient(String var1, String var2) {
-      PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.getGirlId(), var1, var2));
+      PacketHandler.networkWrapper.sendToServer(new ChangeDataParameterPacket(this.getGirlId(), var1, var2));
    }
 
    /** @return this girl's persistent UUID, minted on first access if unset */
@@ -579,7 +579,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
     * persists the filtered set (SERVER side; respects ServerWhitelistManager).
     */
    protected void updateCustomModelParts() {
-      if (ServerWhitelistManager.e) {
+      if (ServerWhitelistManager.isLoaded) {
          HashSet var1 = this.getCustomPartsSet();
          NpcType var2 = NpcType.getNpcType(this);
          HashSet var3 = new HashSet();
@@ -712,7 +712,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    protected void triggerActionSync(boolean flag1, boolean flag2, UUID playerUUID) {
       if (this.world.isRemote) {
-         PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), playerUUID, flag1, flag2));
+         PacketHandler.networkWrapper.sendToServer(new KoboldStatePacket(this.getGirlId(), playerUUID, flag1, flag2));
       } else {
          KoboldStatePacket.Handler.a(this.getGirlId(), playerUUID, flag1, flag2);
       }
@@ -889,7 +889,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    protected ResourceLocation getLootTable() {
-      return LootTableHandler.d;
+      return LootTableHandler.JENNY_TABLE;
    }
 
    @SideOnly(Side.CLIENT)
@@ -906,7 +906,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    protected void createAnimation(String var1, boolean var2, AnimationEvent var3, boolean var4) {
-      if (var4 || !Action.b_clash719(this, var3.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.d, var3)) {
+      if (var4 || !Action.b_clash719(this, var3.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.isJumping, var3)) {
          ILoopType.EDefaultLoopTypes var5 = var2 ? ILoopType.EDefaultLoopTypes.LOOP : ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME;
          var3.getController().setAnimation(new AnimationBuilder().addAnimation(var1, var5));
          var3.getController().transitionLengthTicks = 0.0;
@@ -920,7 +920,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    protected void playRandomizedAnimation(String var1, int var2, float var3, AnimationEvent var4, boolean var5) {
-      if (var5 || !Action.b_clash719(this, var4.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.d, var4)) {
+      if (var5 || !Action.b_clash719(this, var4.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.isJumping, var4)) {
          AnimationController var6 = var4.getController();
          Pair var7 = this.animationVariantMap.get(var1);
          if (var7 == null) {
@@ -1010,7 +1010,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    protected void resetGirlState() {
       if (this.world.isRemote && this.isControlledByLocalPlayer()) {
          this.cameraOriginPos = null;
-         PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId(), true));
+         PacketHandler.networkWrapper.sendToServer(new ResetGirlPacket(this.getGirlId(), true));
       } else if (!this.world.isRemote) {
          ResetGirlPacket.Handler.a((EntityPlayerMP)this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID()));
       }
@@ -1095,7 +1095,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       if (this.isControlledByLocalPlayer()) {
          HandlePlayerMovement.setMovementLock(true);
          Minecraft.getMinecraft().player.setInvisible(false);
-         PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
+         PacketHandler.networkWrapper.sendToServer(new ResetGirlPacket(this.getGirlId()));
       }
    }
 
@@ -1139,7 +1139,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    /** Resets the animation controller tick offset and notifies the server (ResetControllerPacket). */
    public void resetAnimationControllerOffset() {
       this.resetAnimationControllerTicks();
-      PacketHandler.b.sendToServer(new ResetControllerPacket(this.getGirlId()));
+      PacketHandler.networkWrapper.sendToServer(new ResetControllerPacket(this.getGirlId()));
    }
 
    @SideOnly(Side.CLIENT)
@@ -1173,7 +1173,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
          var10 = var10.add(0.0, var3, 0.0);
          var10 = var10.add(-Math.sin(this.cameraYaw * (Math.PI / 180.0)) * var5, 0.0, Math.cos(this.cameraYaw * (Math.PI / 180.0)) * var5);
          if (this.world.isRemote) {
-            PacketHandler.b.sendToServer(new TeleportPlayerPacket(var9.getPersistentID().toString(), var10, this.cameraYaw + var7, var8));
+            PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(var9.getPersistentID().toString(), var10, this.cameraYaw + var7, var8));
          } else {
             var9.setPositionAndRotation(var10.x, var10.y, var10.z, this.cameraYaw + var7, var8);
             var9.setPositionAndUpdate(var10.x, var10.y, var10.z);
@@ -1225,13 +1225,13 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    /** Broadcasts "&lt;name&gt; message" chat to nearby players (both sides). */
    public void sendGirlChatMessage(String var1) {
       if (!this.world.isRemote) {
-         PacketHandler.b
+         PacketHandler.networkWrapper
             .sendToAllAround(
                new SendChatMessagePacket(String.format("<%s> %s", this.getEffectiveDisplayName(), var1), this.dimension, this.getGirlId()),
                new TargetPoint(this.dimension, this.posX, this.posY, this.posZ, 40.0)
             );
       } else if (this.isControlledByLocalPlayer()) {
-         PacketHandler.b.sendToServer(new SendChatMessagePacket(String.format("<%s> %s", this.getEffectiveDisplayName(), var1), this.dimension, this.getGirlId()));
+         PacketHandler.networkWrapper.sendToServer(new SendChatMessagePacket(String.format("<%s> %s", this.getEffectiveDisplayName(), var1), this.dimension, this.getGirlId()));
       }
    }
 
@@ -1242,14 +1242,14 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
 
       if (!this.world.isRemote) {
-         PacketHandler.b
+         PacketHandler.networkWrapper
             .sendToAllAround(
                new SendChatMessagePacket(var1, this.dimension, this.getGirlId()),
                new TargetPoint(this.dimension, this.posX, this.posY, this.posZ, 40.0)
             );
       } else {
          if (this.isControlledByLocalPlayer()) {
-            PacketHandler.b.sendToServer(new SendChatMessagePacket(var1, this.dimension, this.getGirlId()));
+            PacketHandler.networkWrapper.sendToServer(new SendChatMessagePacket(var1, this.dimension, this.getGirlId()));
          }
       }
    }
@@ -1342,15 +1342,15 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    public static void spawnParticlesAround(EnumParticleTypes particle, BaseGirlEntity girl) {
-      double vx = Reference.f.nextGaussian() * 0.02;
-      double vy = Reference.f.nextGaussian() * 0.02;
-      double vz = Reference.f.nextGaussian() * 0.02;
+      double vx = Reference.RANDOM.nextGaussian() * 0.02;
+      double vy = Reference.RANDOM.nextGaussian() * 0.02;
+      double vz = Reference.RANDOM.nextGaussian() * 0.02;
       girl.world
          .spawnParticle(
             particle,
-            girl.posX + Reference.f.nextFloat() * girl.width * 2.0F - girl.width,
-            girl.posY + 0.5 + Reference.f.nextFloat() * girl.height,
-            girl.posZ + Reference.f.nextFloat() * girl.width * 2.0F - girl.width,
+            girl.posX + Reference.RANDOM.nextFloat() * girl.width * 2.0F - girl.width,
+            girl.posY + 0.5 + Reference.RANDOM.nextFloat() * girl.height,
+            girl.posZ + Reference.RANDOM.nextFloat() * girl.width * 2.0F - girl.width,
             vx,
             vy,
             vz,
@@ -1407,7 +1407,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
       IBone var3 = this.cachedAnimationProcessor.getBone(var1);
       if (var3 == null) {
-         if (!GirlModel.e.contains(var1)) {
+         if (!GirlModel.CAMERA_PLACEMENTS.contains(var1)) {
             Main.LOGGER.log(Level.WARN, String.format("The bone '%s' does not exist on %s. Bone model matrix couldn't be calculated", var1, this.getDisplayNameText()));
             this.boneTrackingList.remove(var1);
          }
@@ -1532,7 +1532,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    public Point2D g(int var1) {
-      return Point2D.a;
+      return Point2D.ZERO;
    }
 
    public void setCustomPartList(List<Integer> var1) {
@@ -1543,14 +1543,14 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
             AbstractNpcOnlyEntity.c(var2, var4);
          }
 
-         this.entityDataManager.set(AbstractNpcOnlyEntity.M, var2.toString());
+         this.entityDataManager.set(AbstractNpcOnlyEntity.APPEARANCE_DNA, var2.toString());
       }
    }
 
    public String getCustomPartListCode() {
       return !(this instanceof AbstractNpcOnlyEntity) && !(this instanceof AbstractKoboldPlayerEntity)
          ? ""
-         : (String)this.entityDataManager.get(AbstractNpcOnlyEntity.M);
+         : (String)this.entityDataManager.get(AbstractNpcOnlyEntity.APPEARANCE_DNA);
    }
 
    public static String encodePartIdList(List<Integer> parts) {
@@ -1579,7 +1579,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       BaseGirlEntity var1 = null instanceof ClientProxy ? getClientGirlEntity(var0) : getServerGirlEntity(var0);
       ArrayList var2 = new ArrayList<>(var1.getBasePartIdList());
       if (var1 instanceof AbstractNpcOnlyEntity || var1 instanceof AbstractKoboldPlayerEntity) {
-         var2.addAll(decodePartIdList((String)var1.getDataManager().get(AbstractNpcOnlyEntity.M)));
+         var2.addAll(decodePartIdList((String)var1.getDataManager().get(AbstractNpcOnlyEntity.APPEARANCE_DNA)));
       }
 
       return var2;
@@ -1627,7 +1627,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    public void setCustomPartListCode(String var1) {
       if (this instanceof AbstractNpcOnlyEntity || this instanceof AbstractKoboldPlayerEntity) {
-         this.entityDataManager.set(AbstractNpcOnlyEntity.M, var1);
+         this.entityDataManager.set(AbstractNpcOnlyEntity.APPEARANCE_DNA, var1);
       }
    }
 

@@ -42,8 +42,8 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 public class DragonStaffItem extends Item implements IAnimatable {
-   public static final DragonStaffItem b = new DragonStaffItem();
-   private final AnimationFactory a = new AnimationFactory(this);
+   public static final DragonStaffItem DRAGON_STAFF = new DragonStaffItem();
+   private final AnimationFactory animationFactory = new AnimationFactory(this);
 
    public DragonStaffItem() {
       this.setCreativeTab(CreativeTabs.TOOLS);
@@ -51,8 +51,8 @@ public class DragonStaffItem extends Item implements IAnimatable {
    }
 
    public static void register() {
-      b.setRegistryName(new ResourceLocation("sexmod", "dragon_staff"));
-      b.setTranslationKey("dragon_staff");
+      DRAGON_STAFF.setRegistryName(new ResourceLocation("sexmod", "dragon_staff"));
+      DRAGON_STAFF.setTranslationKey("dragon_staff");
       MinecraftForge.EVENT_BUS.register(DragonStaffItem.class);
    }
 
@@ -62,14 +62,14 @@ public class DragonStaffItem extends Item implements IAnimatable {
 
    @SubscribeEvent
    public static void a(Register<Item> var0) {
-      var0.getRegistry().register(b);
+      var0.getRegistry().register(DRAGON_STAFF);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public static void a(ModelRegistryEvent var0) {
-      ModelLoader.setCustomModelResourceLocation(b, 0, new ModelResourceLocation("sexmod:dragon_staff"));
-      b.setTileEntityItemStackRenderer(new DragonStaffRenderer());
+      ModelLoader.setCustomModelResourceLocation(DRAGON_STAFF, 0, new ModelResourceLocation("sexmod:dragon_staff"));
+      DRAGON_STAFF.setTileEntityItemStackRenderer(new DragonStaffRenderer());
    }
 
    @Override
@@ -78,7 +78,7 @@ public class DragonStaffItem extends Item implements IAnimatable {
 
    @Override
    public AnimationFactory getFactory() {
-      return this.a;
+      return this.animationFactory;
    }
 
    public static class a {
@@ -87,8 +87,8 @@ public class DragonStaffItem extends Item implements IAnimatable {
          World var2 = var1.getWorld();
          if (var2.isRemote) {
             EntityPlayer var3 = var1.getEntityPlayer();
-            if (var3.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.b
-               || var3.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.b) {
+            if (var3.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.DRAGON_STAFF
+               || var3.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.DRAGON_STAFF) {
                if (!KoboldEntity.aY.isEmpty()) {
                   this.a_clash2();
                }
@@ -99,14 +99,14 @@ public class DragonStaffItem extends Item implements IAnimatable {
       @SideOnly(Side.CLIENT)
       void a_clash2() {
          Minecraft.getMinecraft().displayGuiScreen(new StructureCommandScreen());
-         PacketHandler.b.sendToServer(new GetTribeUiValuesPacket());
+         PacketHandler.networkWrapper.sendToServer(new GetTribeUiValuesPacket());
       }
 
       @SubscribeEvent
       public void a(RightClickBlock var1) {
          EntityPlayer var2 = var1.getEntityPlayer();
-         if (var2.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.b
-            || var2.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.b) {
+         if (var2.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.DRAGON_STAFF
+            || var2.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.DRAGON_STAFF) {
             Block var3 = var1.getWorld().getBlockState(var1.getPos()).getBlock();
             if (var3 instanceof BlockBed) {
                var1.setCancellationResult(EnumActionResult.FAIL);

@@ -30,14 +30,14 @@ import software.bernie.geckolib3.geo.render.built.GeoVertex;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
 public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
-   public static final Vector3fSexmodSpecial e = new Vector3fSexmodSpecial(0.84705883F, 0.11764706F, 0.35686275F);
-   public static final Vector3fSexmodSpecial f = new Vector3fSexmodSpecial(0.44705883F, 0.44705883F, 0.44705883F);
-   public static final float b = 240.0F;
-   public static final float g = 120.0F;
-   static final float h = 0.05F;
-   static final Minecraft a = Minecraft.getMinecraft();
-   boolean c = false;
-   Vector3fSexmodSpecial d;
+   public static final Vector3fSexmodSpecial COIN_COLOR = new Vector3fSexmodSpecial(0.84705883F, 0.11764706F, 0.35686275F);
+   public static final Vector3fSexmodSpecial COIN_COLOR_DARK = new Vector3fSexmodSpecial(0.44705883F, 0.44705883F, 0.44705883F);
+   public static final float ROTATION_SPEED = 240.0F;
+   public static final float ROTATION_AMPLITUDE = 120.0F;
+   static final float BOB_SPEED = 0.05F;
+   static final Minecraft mc = Minecraft.getMinecraft();
+   boolean isFlipping = false;
+   Vector3fSexmodSpecial currentTint;
 
    public GalathCoinRenderer() {
       super(new GalathCoinModel());
@@ -50,7 +50,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       BufferBuilder var8 = Tessellator.getInstance().getBuffer();
       var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       GeoBone var9 = null;
-      this.c = false;
+      this.isFlipping = false;
       GeoBone var10 = var1.topLevelBones.get(0);
       MATRIX_STACK.push();
       MATRIX_STACK.translate(var10);
@@ -69,14 +69,14 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
 
       Tessellator.getInstance().draw();
       float var13 = this.a_clash107(var3);
-      this.d = this.a_clash108();
-      if (!GirlSavedData.f) {
+      this.currentTint = this.a_clash108();
+      if (!GirlSavedData.debugEnabled) {
          OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, var13, var13);
          GL11.glDisable(2896);
       }
 
       var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-      this.c = true;
+      this.isFlipping = true;
       this.renderRecursively(var8, var9, var4, var5, var6, var7);
       Tessellator.getInstance().draw();
       GL11.glEnable(2896);
@@ -87,11 +87,11 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
    }
 
    float a_clash107(float var1) {
-      if (a.player.getHeldItemMainhand() != this.currentItemStack && a.player.getHeldItemOffhand() != this.currentItemStack) {
+      if (mc.player.getHeldItemMainhand() != this.currentItemStack && mc.player.getHeldItemOffhand() != this.currentItemStack) {
          return this.b_clash109(var1);
       } else {
          long var2 = System.currentTimeMillis();
-         NBTTagCompound var4 = a.player.getEntityData();
+         NBTTagCompound var4 = mc.player.getEntityData();
          long var5 = var4.getLong("sexmod:galath_coin_activation_time");
          long var7 = var4.getLong("sexmod:galath_coin_deactivation_time");
          if (var5 != 0L) {
@@ -99,7 +99,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
          } else if (var7 != 0L) {
             return this.b(var2, var7, var1);
          } else {
-            return GirlSavedData.f ? 120.0F : this.b_clash109(var1);
+            return GirlSavedData.debugEnabled ? 120.0F : this.b_clash109(var1);
          }
       }
    }
@@ -123,11 +123,11 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
    }
 
    Vector3fSexmodSpecial a_clash108() {
-      if (a.player.getHeldItemMainhand() != this.currentItemStack && a.player.getHeldItemOffhand() != this.currentItemStack) {
-         return e;
+      if (mc.player.getHeldItemMainhand() != this.currentItemStack && mc.player.getHeldItemOffhand() != this.currentItemStack) {
+         return COIN_COLOR;
       } else {
          long var1 = System.currentTimeMillis();
-         NBTTagCompound var3 = a.player.getEntityData();
+         NBTTagCompound var3 = mc.player.getEntityData();
          long var4 = var3.getLong("sexmod:galath_coin_activation_time");
          long var6 = var3.getLong("sexmod:galath_coin_deactivation_time");
          if (var4 != 0L) {
@@ -135,7 +135,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
          } else if (var6 != 0L) {
             return this.a(var6, var1);
          } else {
-            return GirlSavedData.f ? f : e;
+            return GirlSavedData.debugEnabled ? COIN_COLOR_DARK : COIN_COLOR;
          }
       }
    }
@@ -143,23 +143,23 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
    Vector3fSexmodSpecial a(long var1, long var3) {
       float var5 = (float)(var3 - var1);
       if (var5 < 1000.0F) {
-         return f;
+         return COIN_COLOR_DARK;
       } else {
-         return var5 <= 3000.0F ? RotationHelper.a(f, e, (var5 - 1000.0F) / 2000.0F) : e;
+         return var5 <= 3000.0F ? RotationHelper.a(COIN_COLOR_DARK, COIN_COLOR, (var5 - 1000.0F) / 2000.0F) : COIN_COLOR;
       }
    }
 
    Vector3fSexmodSpecial b(long var1, long var3) {
       float var5 = (float)(var3 - var1);
       if (var5 < 1000.0F) {
-         return e;
+         return COIN_COLOR;
       } else {
-         return var5 <= 3000.0F ? RotationHelper.a(e, f, (var5 - 1000.0F) / 2000.0F) : f;
+         return var5 <= 3000.0F ? RotationHelper.a(COIN_COLOR, COIN_COLOR_DARK, (var5 - 1000.0F) / 2000.0F) : COIN_COLOR_DARK;
       }
    }
 
    float b_clash109(float var1) {
-      return (float)(60.0 * Math.sin((a.player.ticksExisted + var1) * 0.05F) + 180.0);
+      return (float)(60.0 * Math.sin((mc.player.ticksExisted + var1) * 0.05F) + 180.0);
    }
 
    void a(BufferBuilder var1, GeoCube var2) {
@@ -170,7 +170,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
                MATRIX_STACK.getModelMatrix().transform(var11);
                var1.pos(var11.getX(), var11.getY(), var11.getZ())
                   .tex(var10.textureU, var10.textureV)
-                  .color(this.d.a, this.d.c, this.d.b, 1.0F)
+                  .color(this.currentTint.x, this.currentTint.y, this.currentTint.z, 1.0F)
                   .endVertex();
             }
          }
@@ -182,7 +182,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       MATRIX_STACK.moveToPivot(var2);
       MATRIX_STACK.rotate(var2);
       MATRIX_STACK.moveBackFromPivot(var2);
-      if (this.c) {
+      if (this.isFlipping) {
          this.a(var1, var2);
       } else {
          for (GeoQuad var10 : var2.quads) {

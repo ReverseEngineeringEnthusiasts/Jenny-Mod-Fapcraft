@@ -77,10 +77,10 @@ public class ClientProxy extends CommonProxy {
       }
 
       IS_PRELOADING = false;
-      GenderSwapScreen.a = new GenderSwapScreen();
-      ClientCommandHandler.instance.registerCommand(CommandWhitelistServer.a);
-      ClientCommandHandler.instance.registerCommand(CommandSetModelCode.a);
-      ClientCommandHandler.instance.registerCommand(CommandFuta.b);
+      GenderSwapScreen.instance = new GenderSwapScreen();
+      ClientCommandHandler.instance.registerCommand(CommandWhitelistServer.WHITELIST_SERVER_COMMAND);
+      ClientCommandHandler.instance.registerCommand(CommandSetModelCode.SET_MODEL_CODE_COMMAND);
+      ClientCommandHandler.instance.registerCommand(CommandFuta.FUTA_COMMAND);
       Minecraft.getMinecraft()
          .effectRenderer
          .registerParticle(625115, (var0, var1x, var2, var4, var6, var8x, var10x, var12x, var14) -> new DragonBreathParticle(var1x, var2, var4, var6));

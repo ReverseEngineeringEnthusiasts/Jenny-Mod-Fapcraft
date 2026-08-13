@@ -8,7 +8,7 @@ import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
 
 public class GirlAnimationProcessor<T extends IAnimatable> extends AnimationProcessor<T> {
-   HashMap<String, IBone> a = new HashMap<>();
+   HashMap<String, IBone> boneCache = new HashMap<>();
 
    public GirlAnimationProcessor(IAnimatableModel var1) {
       super(var1);
@@ -16,18 +16,18 @@ public class GirlAnimationProcessor<T extends IAnimatable> extends AnimationProc
 
    @Override
    public IBone getBone(String var1) {
-      return this.a.get(var1);
+      return this.boneCache.get(var1);
    }
 
    @Override
    public void registerModelRenderer(IBone var1) {
       super.registerModelRenderer(var1);
-      this.a.put(var1.getName(), var1);
+      this.boneCache.put(var1.getName(), var1);
    }
 
    @Override
    public void clearModelRendererList() {
       super.clearModelRendererList();
-      this.a.clear();
+      this.boneCache.clear();
    }
 }

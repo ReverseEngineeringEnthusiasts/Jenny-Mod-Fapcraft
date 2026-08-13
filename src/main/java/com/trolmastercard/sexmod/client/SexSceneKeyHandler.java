@@ -32,7 +32,7 @@ public class SexSceneKeyHandler {
                if (var5.world.isRemote && !var5.isDead && var5.getInteractionPlayerUUID() != null) {
                   UUID var6 = var5.getInteractionPlayerUUID();
                   if (var3.equals(var6) || var2.player.getUniqueID().equals(var6)) {
-                     PacketHandler.b.sendToServer(new ResetGirlPacket(var5.getGirlId(), true));
+                     PacketHandler.networkWrapper.sendToServer(new ResetGirlPacket(var5.getGirlId(), true));
                   }
                }
             }
@@ -41,7 +41,7 @@ public class SexSceneKeyHandler {
 
          AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3);
          if (var8 != null && var8.getCurrentAction() != Action.NULL) {
-            PacketHandler.b.sendToServer(new ResetGirlPacket(var8.getGirlId(), true));
+            PacketHandler.networkWrapper.sendToServer(new ResetGirlPacket(var8.getGirlId(), true));
          }
       }
    }

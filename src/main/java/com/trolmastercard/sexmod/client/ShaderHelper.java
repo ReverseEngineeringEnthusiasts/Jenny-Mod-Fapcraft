@@ -20,9 +20,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 public class ShaderHelper {
-   public static ShaderGroup b;
-   static final ResourceLocation a = new ResourceLocation("sexmod", "shaders/post/outline.json");
-   static Framebuffer c;
+   public static ShaderGroup outlineShaderGroup;
+   static final ResourceLocation entityShader = new ResourceLocation("sexmod", "shaders/post/outline.json");
+   static Framebuffer outlineFramebuffer;
 
    public static void initOutlineShader() {
       Minecraft var0 = Minecraft.getMinecraft();
@@ -34,15 +34,15 @@ public class ShaderHelper {
          }
 
          try {
-            b = new ShaderGroup(var0.getTextureManager(), var0.getResourceManager(), var0.getFramebuffer(), a);
-            b.createBindFramebuffers(var0.displayWidth, var0.displayHeight);
-            c = b.getFramebufferRaw("final");
-            ClientRegistry.registerEntityShader(BaseGirlEntity.class, a);
+            outlineShaderGroup = new ShaderGroup(var0.getTextureManager(), var0.getResourceManager(), var0.getFramebuffer(), entityShader);
+            outlineShaderGroup.createBindFramebuffers(var0.displayWidth, var0.displayHeight);
+            outlineFramebuffer = outlineShaderGroup.getFramebufferRaw("final");
+            ClientRegistry.registerEntityShader(BaseGirlEntity.class, entityShader);
             System.out.println("succ registered the outline shader :)");
          } catch (IOException var2) {
-            Main.LOGGER.warn("Failed to load shader: {}", a, var2);
+            Main.LOGGER.warn("Failed to load shader: {}", entityShader, var2);
          } catch (JsonSyntaxException var3) {
-            Main.LOGGER.warn("Failed to load shader: {}", a, var3);
+            Main.LOGGER.warn("Failed to load shader: {}", entityShader, var3);
          }
       }
    }

@@ -41,180 +41,180 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class GirlFollowGoal extends GirlFollowAiBase {
-   AbstractGirlNpcEntity q;
-   EntityLivingBase r;
-   Entity o;
-   double l = Float.MAX_VALUE;
-   Vec3d i = Vec3d.ZERO;
-   int j = 0;
-   int n = 0;
-   int k = 0;
-   int p = 0;
-   int m = 0;
+   AbstractGirlNpcEntity girl;
+   EntityLivingBase target;
+   Entity mountEntity;
+   double lastDistance = Float.MAX_VALUE;
+   Vec3d masterPos = Vec3d.ZERO;
+   int wanderTimer = 0;
+   int attackCooldown = 0;
+   int attackTimer = 0;
+   int bowTimer = 0;
+   int checkTimer = 0;
 
    public GirlFollowGoal(AbstractGirlNpcEntity var1) {
       super(var1);
-      this.q = var1;
+      this.girl = var1;
    }
 
    @Override
    public void updateTask() {
       super.updateTask();
-      this.l = this.q.getDistance(this.a);
-      this.i = this.a.getPositionVector();
-      if (this.q.getCurrentAction() == Action.BOW) {
-         this.q.setCurrentAction(Action.NULL);
+      this.lastDistance = this.girl.getDistance(this.master);
+      this.masterPos = this.master.getPositionVector();
+      if (this.girl.getCurrentAction() == Action.BOW) {
+         this.girl.setCurrentAction(Action.NULL);
       }
    }
 
    boolean a_clash827(EntityLivingBase var1) {
-      Vec3d var2 = this.q.getPositionVector();
+      Vec3d var2 = this.girl.getPositionVector();
       return !(var1 instanceof BaseGirlEntity)
-         && this.n <= 0
+         && this.attackCooldown <= 0
          && var1 != null
          && var1.world != null
-         && !this.q.equals(var1)
+         && !this.girl.equals(var1)
          && var1.isEntityAlive()
-         && var2.distanceTo(this.a.getPositionVector()) < 15.0
+         && var2.distanceTo(this.master.getPositionVector()) < 15.0
          && var2.distanceTo(var1.getPositionVector()) < 20.0
-         && !var1.equals(this.a);
+         && !var1.equals(this.master);
    }
 
    @Override
    protected void a(GirlFollowAiBase.GirlFollowAiBaseState var1) {
       switch (var1) {
          case ATTACK:
-            this.q.getLookHelper().setLookPositionWithEntity(this.r, 30.0F, 30.0F);
-            double var6 = this.q.getDistance(this.r);
-            this.c.clearPath();
-            if (var6 < 1.9 && --this.k <= 0) {
+            this.girl.getLookHelper().setLookPositionWithEntity(this.target, 30.0F, 30.0F);
+            double var6 = this.girl.getDistance(this.target);
+            this.navigator.clearPath();
+            if (var6 < 1.9 && --this.attackTimer <= 0) {
                this.d_clash830();
             } else {
-               if (this.q.Q.getStackInSlot(1).getItem() instanceof ItemBow && this.q.getEntitySenses().canSee(this.r) && ++this.p > 0 && var6 > 6.0) {
-                  this.e.set(AbstractGirlNpcEntity.M, 2);
-                  this.q.setCurrentAction(Action.BOW);
-                  if (++this.p >= 32) {
-                     this.p = -20;
+               if (this.girl.inventory.getStackInSlot(1).getItem() instanceof ItemBow && this.girl.getEntitySenses().canSee(this.target) && ++this.bowTimer > 0 && var6 > 6.0) {
+                  this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 2);
+                  this.girl.setCurrentAction(Action.BOW);
+                  if (++this.bowTimer >= 32) {
+                     this.bowTimer = -20;
                      this.e_clash828();
-                     this.q.setCurrentAction(Action.NULL);
+                     this.girl.setCurrentAction(Action.NULL);
                   }
 
-                  this.l = this.q.getDistance(this.a);
-                  this.i = this.a.getPositionVector();
+                  this.lastDistance = this.girl.getDistance(this.master);
+                  this.masterPos = this.master.getPositionVector();
                   return;
                }
 
                if (var6 < 2.0) {
-                  this.e.set(AbstractGirlNpcEntity.M, 1);
-                  this.c.tryMoveToEntityLiving(this.r, 0.5);
-                  this.q.setWalkSpeed(BaseGirlEntity.BaseGirlEntityState.WALK);
+                  this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 1);
+                  this.navigator.tryMoveToEntityLiving(this.target, 0.5);
+                  this.girl.setWalkSpeed(BaseGirlEntity.BaseGirlEntityState.WALK);
                } else {
-                  this.e.set(AbstractGirlNpcEntity.M, 1);
-                  this.c.tryMoveToEntityLiving(this.r, 0.7);
-                  this.q.setWalkSpeed(BaseGirlEntity.BaseGirlEntityState.RUN);
+                  this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 1);
+                  this.navigator.tryMoveToEntityLiving(this.target, 0.7);
+                  this.girl.setWalkSpeed(BaseGirlEntity.BaseGirlEntityState.RUN);
                }
             }
             break;
          case FOLLOW:
-            this.e.set(AbstractGirlNpcEntity.M, 0);
-            double var2 = this.q.getDistance(this.a);
-            if (this.c.getPathSearchRange() > var2) {
-               this.c.clearPath();
-               if (!this.q.N) {
-                  this.c.tryMoveToEntityLiving(this.a, 0.5);
+            this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 0);
+            double var2 = this.girl.getDistance(this.master);
+            if (this.navigator.getPathSearchRange() > var2) {
+               this.navigator.clearPath();
+               if (!this.girl.downed) {
+                  this.navigator.tryMoveToEntityLiving(this.master, 0.5);
                   this.a_clash831();
                }
             } else {
                this.c_clash805();
             }
 
-            this.j = 300;
+            this.wanderTimer = 300;
             this.b_clash806();
             break;
          case IDLE:
-            this.e.set(AbstractGirlNpcEntity.M, 0);
-            if (!this.q.N) {
-               if (++this.j > 200 + Reference.f.nextInt(100)) {
-                  this.j = 0;
-                  Vec3d var7 = this.a.getPositionVector();
+            this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 0);
+            if (!this.girl.downed) {
+               if (++this.wanderTimer > 200 + Reference.RANDOM.nextInt(100)) {
+                  this.wanderTimer = 0;
+                  Vec3d var7 = this.master.getPositionVector();
                   Vec3d var5 = new Vec3d(
-                     var7.x + 1.0 + Reference.f.nextFloat() * 3.0F, var7.y, var7.z + 1.0 + Reference.f.nextFloat() * 3.0F
+                     var7.x + 1.0 + Reference.RANDOM.nextFloat() * 3.0F, var7.y, var7.z + 1.0 + Reference.RANDOM.nextFloat() * 3.0F
                   );
-                  this.c.clearPath();
-                  this.c.tryMoveToXYZ(var5.x, var5.y, var5.z, 0.5);
+                  this.navigator.clearPath();
+                  this.navigator.tryMoveToXYZ(var5.x, var5.y, var5.z, 0.5);
                }
 
                this.b_clash806();
-            } else if (this.q.getDistance(this.a) > 10.0F) {
+            } else if (this.girl.getDistance(this.master) > 10.0F) {
                this.c_clash805();
             }
             break;
          case RIDE:
-            if (this.q.isRiding()) {
-               this.q.setCurrentAction(Action.SIT);
+            if (this.girl.isRiding()) {
+               this.girl.setCurrentAction(Action.SIT);
             } else {
-               this.q.setNoGravity(true);
-               this.q.noClip = true;
-               Vec3d var4 = this.a.getPositionVector().subtract(this.o.getLookVec().x * 0.5, 0.0, this.o.getLookVec().z * 0.5);
-               this.q.setPositionAndRotation(var4.x, var4.y, var4.z, 0.0F, 0.0F);
-               this.q.motionX = 0.0;
-               this.q.motionY = 0.0;
-               this.q.motionZ = 0.0;
-               this.q.setCurrentAction(Action.RIDE);
+               this.girl.setNoGravity(true);
+               this.girl.noClip = true;
+               Vec3d var4 = this.master.getPositionVector().subtract(this.mountEntity.getLookVec().x * 0.5, 0.0, this.mountEntity.getLookVec().z * 0.5);
+               this.girl.setPositionAndRotation(var4.x, var4.y, var4.z, 0.0F, 0.0F);
+               this.girl.motionX = 0.0;
+               this.girl.motionY = 0.0;
+               this.girl.motionZ = 0.0;
+               this.girl.setCurrentAction(Action.RIDE);
             }
             break;
          case DOWNED:
-            this.c.clearPath();
+            this.navigator.clearPath();
       }
    }
 
    @Override
    protected GirlFollowAiBase.GirlFollowAiBaseState a_clash807() {
-      this.n--;
-      if (!this.q.N && this.q.getInteractionPlayerUUID() == null) {
-         if (this.a.isRiding()) {
-            Entity var1 = this.a.getRidingEntity();
-            if (this.q.isRiding() || this.q.startRiding(var1) || var1 instanceof EntityHorse && ((EntityHorse)var1).isHorseSaddled()) {
-               this.o = var1;
+      this.attackCooldown--;
+      if (!this.girl.downed && this.girl.getInteractionPlayerUUID() == null) {
+         if (this.master.isRiding()) {
+            Entity var1 = this.master.getRidingEntity();
+            if (this.girl.isRiding() || this.girl.startRiding(var1) || var1 instanceof EntityHorse && ((EntityHorse)var1).isHorseSaddled()) {
+               this.mountEntity = var1;
                return GirlFollowAiBase.GirlFollowAiBaseState.RIDE;
             }
-         } else if (!this.a.isRiding() && this.q.isRiding() || this.f == GirlFollowAiBase.GirlFollowAiBaseState.RIDE && !this.a.isRiding()) {
-            this.q.setCurrentAction(Action.NULL);
-            this.q.dismountRidingEntity();
-            this.q.noClip = false;
-            this.q.setNoGravity(false);
+         } else if (!this.master.isRiding() && this.girl.isRiding() || this.state == GirlFollowAiBase.GirlFollowAiBaseState.RIDE && !this.master.isRiding()) {
+            this.girl.setCurrentAction(Action.NULL);
+            this.girl.dismountRidingEntity();
+            this.girl.noClip = false;
+            this.girl.setNoGravity(false);
          }
 
-         if (this.a_clash827(this.r)) {
+         if (this.a_clash827(this.target)) {
             return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
          }
 
-         DamageSource var2 = this.q.getLastDamageSource();
+         DamageSource var2 = this.girl.getLastDamageSource();
          if (var2 != null) {
             EntityLivingBase var8 = (EntityLivingBase)var2.getTrueSource();
             if (this.a_clash827(var8)) {
-               this.r = var8;
+               this.target = var8;
                return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
             }
          }
 
-         EntityLivingBase var9 = this.a.getLastAttackedEntity();
-         if (this.a.ticksExisted - this.a.getLastAttackedEntityTime() < 140 && this.a_clash827(var9)) {
-            this.r = var9;
+         EntityLivingBase var9 = this.master.getLastAttackedEntity();
+         if (this.master.ticksExisted - this.master.getLastAttackedEntityTime() < 140 && this.a_clash827(var9)) {
+            this.target = var9;
             return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
          }
 
-         if (this.f != GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
-            var2 = this.a.getLastDamageSource();
+         if (this.state != GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
+            var2 = this.master.getLastDamageSource();
             if (var2 != null) {
                var9 = (EntityLivingBase)var2.getTrueSource();
                if (this.a_clash827(var9)) {
-                  this.r = var9;
+                  this.target = var9;
                   return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
                }
             }
 
-            Vec3d var3 = this.q.getPositionVector();
+            Vec3d var3 = this.girl.getPositionVector();
             AxisAlignedBB var4 = new AxisAlignedBB(
                var3.x - 5.0,
                var3.y - 2.0,
@@ -223,10 +223,10 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                var3.y + 2.0,
                var3.z + 5.0
             );
-            List<EntityMob> var5 = (List<EntityMob>) (List) this.q.world.getEntitiesWithinAABB(EntityMob.class, var4);
+            List<EntityMob> var5 = (List<EntityMob>) (List) this.girl.world.getEntitiesWithinAABB(EntityMob.class, var4);
             var5.sort((var1x, var2x) -> {
-               double var3x = var1x.getDistance(this.q);
-               double var5x = var2x.getDistance(this.q);
+               double var3x = var1x.getDistance(this.girl);
+               double var5x = var2x.getDistance(this.girl);
                if (var3x == var5x) {
                   return 0;
                } else {
@@ -236,25 +236,25 @@ public class GirlFollowGoal extends GirlFollowAiBase {
 
             for (EntityMob var7 : (java.util.Collection<EntityMob>) (var5) ) {
                if (this.a_clash827(var7) && !(var7 instanceof EntityCreeper)) {
-                  this.r = var7;
+                  this.target = var7;
                   return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
                }
             }
          }
 
-         float var12 = this.q.getDistance(this.a);
+         float var12 = this.girl.getDistance(this.master);
          boolean var13 = var12 > 5.0F;
-         if (!var13 && this.f == GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
-            if (++this.m > 60) {
+         if (!var13 && this.state == GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
+            if (++this.checkTimer > 60) {
                var13 = false;
-               this.m = 0;
+               this.checkTimer = 0;
             } else {
                var13 = true;
             }
          }
 
-         if (var13 && this.f == GirlFollowAiBase.GirlFollowAiBaseState.ATTACK) {
-            this.n = 60;
+         if (var13 && this.state == GirlFollowAiBase.GirlFollowAiBaseState.ATTACK) {
+            this.attackCooldown = 60;
          }
 
          return var13 ? GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW : GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
@@ -265,19 +265,19 @@ public class GirlFollowGoal extends GirlFollowAiBase {
 
    public void e_clash828() {
       EntityArrow var1 = this.b_clash829();
-      double var2 = this.r.posX - this.q.posX;
-      double var4 = this.r.getEntityBoundingBox().minY + this.r.height / 3.0F - var1.posY;
-      double var6 = this.r.posZ - this.q.posZ;
+      double var2 = this.target.posX - this.girl.posX;
+      double var4 = this.target.getEntityBoundingBox().minY + this.target.height / 3.0F - var1.posY;
+      double var6 = this.target.posZ - this.girl.posZ;
       double var8 = MathHelper.sqrt(var2 * var2 + var6 * var6);
       var1.shoot(var2, var4 + var8 * 0.2F, var6, 1.6F, 2.0F);
-      this.q.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0F, 1.0F / (this.q.getRNG().nextFloat() * 0.4F + 0.8F));
-      this.q.world.spawnEntity(var1);
+      this.girl.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0F, 1.0F / (this.girl.getRNG().nextFloat() * 0.4F + 0.8F));
+      this.girl.world.spawnEntity(var1);
       var1.setDamage(4.5);
    }
 
    protected EntityArrow b_clash829() {
-      EntityTippedArrow var1 = new EntityTippedArrow(this.q.world, this.q);
-      ItemStack var2 = this.q.Q.getStackInSlot(1);
+      EntityTippedArrow var1 = new EntityTippedArrow(this.girl.world, this.girl);
+      ItemStack var2 = this.girl.inventory.getStackInSlot(1);
       double var3 = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, var2);
       int var5 = EnchantmentHelper.getEnchantmentLevel(Enchantments.PUNCH, var2);
       int var6 = EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, var2);
@@ -297,9 +297,9 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    }
 
    void d_clash830() {
-      this.q.setCurrentAction(Action.ATTACK);
-      this.e.set(AbstractGirlNpcEntity.M, 1);
-      ItemStack var1 = this.q.Q.getStackInSlot(0);
+      this.girl.setCurrentAction(Action.ATTACK);
+      this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 1);
+      ItemStack var1 = this.girl.inventory.getStackInSlot(0);
       Multimap var2 = var1.getAttributeModifiers(EntityEquipmentSlot.MAINHAND);
       float var3 = 0.0F;
       float var4 = 0.0F;
@@ -313,18 +313,18 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       }
 
       var4 = Math.max(var4, 0.5F);
-      float var14 = EnchantmentHelper.getModifierForCreature(var1, this.r.getCreatureAttribute());
+      float var14 = EnchantmentHelper.getModifierForCreature(var1, this.target.getCreatureAttribute());
       int var16 = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, var1);
       int var7 = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, var1);
       int var8 = EnchantmentHelper.getEnchantmentLevel(Enchantments.SWEEPING, var1);
-      this.r
+      this.target
          .knockBack(
-            this.q,
+            this.girl,
             var16 * 0.5F,
-            MathHelper.sin(this.q.rotationYaw * (float) (Math.PI / 180.0)),
-            -MathHelper.cos(this.q.rotationYaw * (float) (Math.PI / 180.0))
+            MathHelper.sin(this.girl.rotationYaw * (float) (Math.PI / 180.0)),
+            -MathHelper.cos(this.girl.rotationYaw * (float) (Math.PI / 180.0))
          );
-      this.r.setFire(var7 * 4);
+      this.target.setFire(var7 * 4);
       if (var8 != 0) {
          float var9 = 0.5F;
          if (var8 == 2) {
@@ -333,47 +333,47 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             var9 = 0.75F;
          }
 
-         for (EntityLivingBase var11 : this.q.world.getEntitiesWithinAABB(EntityLivingBase.class, this.r.getEntityBoundingBox().grow(1.0, 0.25, 1.0))) {
-            if (var11 != this.q && var11 != this.a && var11 != this.r && !this.q.isOnSameTeam(var11) && this.q.getDistanceSq(var11) < 9.0) {
+         for (EntityLivingBase var11 : this.girl.world.getEntitiesWithinAABB(EntityLivingBase.class, this.target.getEntityBoundingBox().grow(1.0, 0.25, 1.0))) {
+            if (var11 != this.girl && var11 != this.master && var11 != this.target && !this.girl.isOnSameTeam(var11) && this.girl.getDistanceSq(var11) < 9.0) {
                var11.knockBack(
-                  this.q,
+                  this.girl,
                   0.4F,
-                  MathHelper.sin(this.q.rotationYaw * (float) (Math.PI / 180.0)),
-                  -MathHelper.cos(this.q.rotationYaw * (float) (Math.PI / 180.0))
+                  MathHelper.sin(this.girl.rotationYaw * (float) (Math.PI / 180.0)),
+                  -MathHelper.cos(this.girl.rotationYaw * (float) (Math.PI / 180.0))
                );
-               var11.attackEntityFrom(DamageSource.causeMobDamage(this.q), (var3 + var14) * var9);
+               var11.attackEntityFrom(DamageSource.causeMobDamage(this.girl), (var3 + var14) * var9);
             }
          }
       }
 
-      this.r.attackEntityFrom(DamageSource.causeMobDamage(this.q), var3 + var14);
-      this.k = Math.round(Math.abs(var4) / 3.373494F * 20.0F);
+      this.target.attackEntityFrom(DamageSource.causeMobDamage(this.girl), var3 + var14);
+      this.attackTimer = Math.round(Math.abs(var4) / 3.373494F * 20.0F);
    }
 
    @Override
    protected double b_clash806() {
       double var1 = super.b_clash806();
-      if (this.q.N) {
+      if (this.girl.downed) {
          var1 = 0.0;
       }
 
-      this.c.setSpeed(var1);
-      this.q.setWalkSpeed(this.q.getWalkType());
+      this.navigator.setSpeed(var1);
+      this.girl.setWalkSpeed(this.girl.getWalkType());
       return var1;
    }
 
    @Override
    public void resetTask() {
       super.resetTask();
-      this.q.getDataManager().set(AbstractGirlNpcEntity.M, 0);
+      this.girl.getDataManager().set(AbstractGirlNpcEntity.ATTACK_MODE, 0);
    }
 
    void a_clash831() {
-      if (!this.q.onGround && !this.q.isInWater() && this.q.motionX + this.q.motionZ == 0.0 && !(this.q.motionY <= 0.0)) {
+      if (!this.girl.onGround && !this.girl.isInWater() && this.girl.motionX + this.girl.motionZ == 0.0 && !(this.girl.motionY <= 0.0)) {
          Vec3d var1 = new Vec3d(0.0, 0.0, 0.1F);
-         var1 = VectorMath.rotateByYaw(var1, this.q.rotationYaw);
-         this.q.motionX = var1.x;
-         this.q.motionZ = var1.z;
+         var1 = VectorMath.rotateByYaw(var1, this.girl.rotationYaw);
+         this.girl.motionX = var1.x;
+         this.girl.motionZ = var1.z;
       }
    }
 
@@ -383,10 +383,10 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       public void a(LivingHurtEvent var1) {
          if (var1.getEntityLiving() instanceof AbstractGirlNpcEntity) {
             AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
-            if (var2.N) {
+            if (var2.downed) {
                var1.setCanceled(true);
             } else if (var2.getHealth() - var1.getAmount() < 0.0F && !((String)var2.getDataManager().get(AbstractGirlNpcEntity.MASTER)).equals("")) {
-               var2.N = true;
+               var2.downed = true;
                var2.setCurrentAction(Action.DOWNED);
                var1.setAmount(var2.getHealth() - 1.0F);
                var2.getNavigator().clearPath();
@@ -398,8 +398,8 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       public void a(LivingHealEvent var1) {
          if (var1.getEntityLiving() instanceof AbstractGirlNpcEntity) {
             AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
-            if (var2.N && var2.getHealth() + var1.getAmount() >= var2.getMaxHealth()) {
-               var2.N = false;
+            if (var2.downed && var2.getHealth() + var1.getAmount() >= var2.getMaxHealth()) {
+               var2.downed = false;
                var2.setCurrentAction(Action.NULL);
             }
          }
@@ -414,7 +414,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             }
 
             for (int var3 = 0; var3 < 6; var3++) {
-               Item var4 = var2.Q.getStackInSlot(var3).getItem();
+               Item var4 = var2.inventory.getStackInSlot(var3).getItem();
                if (var4 != Items.AIR) {
                   var2.dropItem(var4, 1);
                }

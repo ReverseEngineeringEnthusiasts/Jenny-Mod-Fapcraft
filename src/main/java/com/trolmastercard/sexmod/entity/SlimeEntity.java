@@ -40,23 +40,23 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
 public class SlimeEntity extends BaseGirlEntity {
-   static final double Q = 0.7F;
-   static final float W = 0.9F;
-   static final double M = 100.0;
-   static final float L = 0.1F;
-   static final int O = 2400;
-   SlimeEntity.SlimeEntityState S = SlimeEntity.SlimeEntityState.IDLE;
-   public static DataParameter<Integer> U = EntityDataManager.createKey(SlimeEntity.class, DataSerializers.VARINT)
+   static final double PREG_SCALE_0_7 = 0.7F;
+   static final float PREG_SCALE_0_9 = 0.9F;
+   static final double PREG_MAX_100 = 100.0;
+   static final float PREG_GROWTH_0_1 = 0.1F;
+   static final int PREGNANT_TICKS = 2400;
+   SlimeEntity.SlimeEntityState slimeState = SlimeEntity.SlimeEntityState.IDLE;
+   public static DataParameter<Integer> HORNY_LEVEL = EntityDataManager.createKey(SlimeEntity.class, DataSerializers.VARINT)
       .getSerializer()
       .createKey(113);
-   public static DataParameter<Float> R = EntityDataManager.createKey(SlimeEntity.class, DataSerializers.FLOAT).getSerializer().createKey(112);
-   public static DataParameter<Integer> T = EntityDataManager.createKey(SlimeEntity.class, DataSerializers.VARINT)
+   public static DataParameter<Float> TARGET_YAW = EntityDataManager.createKey(SlimeEntity.class, DataSerializers.FLOAT).getSerializer().createKey(112);
+   public static DataParameter<Integer> TICKS_UNTIL_BIRTH = EntityDataManager.createKey(SlimeEntity.class, DataSerializers.VARINT)
       .getSerializer()
       .createKey(111);
-   int N = 0;
-   boolean K = true;
-   boolean V = false;
-   int P = 0;
+   int jumpTicks = 0;
+   boolean wasOnGround = true;
+   boolean isJumping = false;
+   int blinkTicks = 0;
 
    public SlimeEntity(World var1) {
       super(var1);
@@ -94,9 +94,9 @@ public class SlimeEntity extends BaseGirlEntity {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.getDataManager().register(T, 0);
-      this.getDataManager().register(R, 0.0F);
-      this.getDataManager().register(U, -1);
+      this.getDataManager().register(TICKS_UNTIL_BIRTH, 0);
+      this.getDataManager().register(TARGET_YAW, 0.0F);
+      this.getDataManager().register(HORNY_LEVEL, -1);
    }
 
    @Override
@@ -124,16 +124,16 @@ public class SlimeEntity extends BaseGirlEntity {
    @Override
    public void writeEntityToNBT(NBTTagCompound var1) {
       super.writeEntityToNBT(var1);
-      var1.setInteger("hornyLevel", (Integer)this.entityDataManager.get(T));
-      var1.setInteger("ticksUntilBirth", (Integer)this.entityDataManager.get(U));
+      var1.setInteger("hornyLevel", (Integer)this.entityDataManager.get(TICKS_UNTIL_BIRTH));
+      var1.setInteger("ticksUntilBirth", (Integer)this.entityDataManager.get(HORNY_LEVEL));
    }
 
    @Override
    public void readEntityFromNBT(NBTTagCompound var1) {
       super.readEntityFromNBT(var1);
-      this.entityDataManager.set(T, var1.getInteger("hornyLevel"));
-      this.entityDataManager.set(U, var1.getInteger("ticksUntilBirth"));
-      if ((Integer)this.entityDataManager.get(T) != 0) {
+      this.entityDataManager.set(TICKS_UNTIL_BIRTH, var1.getInteger("hornyLevel"));
+      this.entityDataManager.set(HORNY_LEVEL, var1.getInteger("ticksUntilBirth"));
+      if ((Integer)this.entityDataManager.get(TICKS_UNTIL_BIRTH) != 0) {
          this.entityDataManager.set(OUTFIT_INDEX, 0);
       }
 
@@ -143,12 +143,12 @@ public class SlimeEntity extends BaseGirlEntity {
 
    @Override
    protected ResourceLocation getLootTable() {
-      return LootTableHandler.b;
+      return LootTableHandler.SLIME_TABLE;
    }
 
    @Override
    public void reinitTasks() {
-      this.entityDataManager.set(T, 0);
+      this.entityDataManager.set(TICKS_UNTIL_BIRTH, 0);
       this.entityDataManager.set(OUTFIT_INDEX, 1);
    }
 
@@ -157,13 +157,13 @@ public class SlimeEntity extends BaseGirlEntity {
       super.updateAITasks();
       this.checkInteractionTrigger();
       this.c_clash724();
-      if (this.isPotionActive(HornyPotion.b) && this.S == SlimeEntity.SlimeEntityState.IDLE && (Integer)this.entityDataManager.get(U) == -1) {
-         this.entityDataManager.set(T, 2);
+      if (this.isPotionActive(HornyPotion.HORNY_POTION) && this.slimeState == SlimeEntity.SlimeEntityState.IDLE && (Integer)this.entityDataManager.get(HORNY_LEVEL) == -1) {
+         this.entityDataManager.set(TICKS_UNTIL_BIRTH, 2);
          if ((Integer)this.entityDataManager.get(OUTFIT_INDEX) == 1) {
             this.setCurrentAction(Action.UNDRESS);
          }
 
-         this.removePotionEffect(HornyPotion.b);
+         this.removePotionEffect(HornyPotion.HORNY_POTION);
       }
    }
 
@@ -174,7 +174,7 @@ public class SlimeEntity extends BaseGirlEntity {
          this.b_clash726();
       }
 
-      if ((Integer)this.entityDataManager.get(T) >= 2 && this.ticksExisted % 10 == 0) {
+      if ((Integer)this.entityDataManager.get(TICKS_UNTIL_BIRTH) >= 2 && this.ticksExisted % 10 == 0) {
          spawnParticlesAround(EnumParticleTypes.HEART, this);
       }
 
@@ -199,7 +199,7 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    void d_clash723() {
-      int var1 = (Integer)this.entityDataManager.get(U);
+      int var1 = (Integer)this.entityDataManager.get(HORNY_LEVEL);
       if (var1 != -1) {
          spawnParticlesAround(EnumParticleTypes.SPELL_WITCH, this);
          if (var1 == 0) {
@@ -209,20 +209,20 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    void c_clash724() {
-      int var1 = (Integer)this.entityDataManager.get(U);
+      int var1 = (Integer)this.entityDataManager.get(HORNY_LEVEL);
       if (var1 != -1) {
-         this.entityDataManager.set(U, var1 - 1);
+         this.entityDataManager.set(HORNY_LEVEL, var1 - 1);
          if (--var1 < 0) {
             WildSlimeEntity var2 = new WildSlimeEntity(this.world);
             var2.setPosition(this.posX, this.posY, this.posZ);
             this.world.spawnEntity(var2);
-            this.entityDataManager.set(U, -1);
+            this.entityDataManager.set(HORNY_LEVEL, -1);
          }
       }
    }
 
    void checkInteractionTrigger() {
-      int var1 = (Integer)this.entityDataManager.get(T);
+      int var1 = (Integer)this.entityDataManager.get(TICKS_UNTIL_BIRTH);
       if (var1 >= 2) {
          if (var1 >= 4 && this.onGround && this.getCurrentAction() == Action.NULL) {
             this.setTargetPosition(this.getPositionVector());
@@ -241,7 +241,7 @@ public class SlimeEntity extends BaseGirlEntity {
                this.noClip = true;
                var2.setNoGravity(true);
                var2.noClip = true;
-               PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
+               PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
                this.setInteractionPlayerUUID(var2.getPersistentID());
                var2.rotationYaw = this.getYawRotation();
                Vec3d var3 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.65F), this.getYawRotation());
@@ -258,36 +258,36 @@ public class SlimeEntity extends BaseGirlEntity {
 
    void b_clash726() {
       if (this.world.isRemote) {
-         if (this.N == 90.0) {
-            this.S = SlimeEntity.SlimeEntityState.JUMP_START;
+         if (this.jumpTicks == 90.0) {
+            this.slimeState = SlimeEntity.SlimeEntityState.JUMP_START;
          }
 
-         if (!this.K && this.onGround) {
-            this.S = SlimeEntity.SlimeEntityState.JUMP_END;
-            this.N = 0;
+         if (!this.wasOnGround && this.onGround) {
+            this.slimeState = SlimeEntity.SlimeEntityState.JUMP_END;
+            this.jumpTicks = 0;
          }
 
-         float var1 = (Float)this.entityDataManager.get(R);
+         float var1 = (Float)this.entityDataManager.get(TARGET_YAW);
          this.rotationYaw = var1;
          this.rotationYawHead = var1;
          this.renderYawOffset = var1;
       } else {
-         if (this.N == 85.0) {
-            this.entityDataManager.set(R, this.e_clash728());
+         if (this.jumpTicks == 85.0) {
+            this.entityDataManager.set(TARGET_YAW, this.e_clash728());
          }
 
-         if (this.N == 100.0) {
+         if (this.jumpTicks == 100.0) {
             this.h_clash727();
          }
 
-         if (!this.K && this.onGround) {
-            this.V = (Integer)this.entityDataManager.get(U) == -1 && this.getRNG().nextFloat() < 0.1F;
+         if (!this.wasOnGround && this.onGround) {
+            this.isJumping = (Integer)this.entityDataManager.get(HORNY_LEVEL) == -1 && this.getRNG().nextFloat() < 0.1F;
          }
 
-         if (this.V && this.N == 50) {
-            int var3 = (Integer)this.entityDataManager.get(T);
+         if (this.isJumping && this.jumpTicks == 50) {
+            int var3 = (Integer)this.entityDataManager.get(TICKS_UNTIL_BIRTH);
             int var2 = var3 + 1;
-            this.entityDataManager.set(T, var2);
+            this.entityDataManager.set(TICKS_UNTIL_BIRTH, var2);
             if (var2 == 1) {
                this.setCurrentAction(Action.UNDRESS);
             }
@@ -295,10 +295,10 @@ public class SlimeEntity extends BaseGirlEntity {
       }
 
       if (this.onGround) {
-         this.N++;
+         this.jumpTicks++;
       }
 
-      this.K = this.onGround;
+      this.wasOnGround = this.onGround;
    }
 
    void h_clash727() {
@@ -306,19 +306,19 @@ public class SlimeEntity extends BaseGirlEntity {
       this.motionY = 0.0;
       this.motionZ = 0.0;
       this.jump();
-      float var1 = (Float)this.entityDataManager.get(R);
+      float var1 = (Float)this.entityDataManager.get(TARGET_YAW);
       this.rotationYaw = var1;
       this.prevRotationYaw = var1;
       Vec3d var2 = new Vec3d(0.0, 0.0, 0.7F);
       var2 = VectorMath.rotateByYaw(var2, var1);
       this.motionX = var2.x;
       this.motionZ = var2.z;
-      this.N = 0;
+      this.jumpTicks = 0;
    }
 
    float e_clash728() {
-      int var1 = (Integer)this.entityDataManager.get(T);
-      if ((Integer)this.entityDataManager.get(U) != -1) {
+      int var1 = (Integer)this.entityDataManager.get(TICKS_UNTIL_BIRTH);
+      if ((Integer)this.entityDataManager.get(HORNY_LEVEL) != -1) {
          return this.f_clash729();
       } else if (var1 < 2) {
          return this.f_clash729();
@@ -335,7 +335,7 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    float f_clash729() {
-      return Reference.f.nextFloat() * 360.0F;
+      return Reference.RANDOM.nextFloat() * 360.0F;
    }
 
    public void fall(float var1, float var2) {
@@ -357,7 +357,7 @@ public class SlimeEntity extends BaseGirlEntity {
             break;
          case "action":
             if (this.getCurrentAction() == Action.NULL) {
-               this.createAnimation(this.S.animationId, true, var1);
+               this.createAnimation(this.slimeState.animationId, true, var1);
             } else {
                switch (this.getCurrentAction()) {
                   case UNDRESS:
@@ -426,7 +426,7 @@ public class SlimeEntity extends BaseGirlEntity {
                this.entityDataManager.set(OUTFIT_INDEX, 0);
                break;
             case "sexUiOn":
-               if (this.isControlledByLocalPlayer() && !HornyMeterHud.d) {
+               if (this.isControlledByLocalPlayer() && !HornyMeterHud.isVisible) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
@@ -442,7 +442,7 @@ public class SlimeEntity extends BaseGirlEntity {
                }
                break;
             case "bjiMSG12":
-               if (Reference.f.nextInt(5) == 0) {
+               if (Reference.RANDOM.nextInt(5) == 0) {
                   this.playSoundAtVolume(SoundEvents.ENTITY_SLIME_JUMP, 0.5F);
                }
 
@@ -469,7 +469,7 @@ public class SlimeEntity extends BaseGirlEntity {
                break;
             case "bjtReady":
             case "doggyfastReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -529,9 +529,9 @@ public class SlimeEntity extends BaseGirlEntity {
                break;
             case "doggyslowMSG1":
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
-               int var4 = Reference.f.nextInt(4);
+               int var4 = Reference.RANDOM.nextInt(4);
                if (var4 == 0) {
-                  var4 = Reference.f.nextInt(2);
+                  var4 = Reference.RANDOM.nextInt(2);
                   if (var4 == 0) {
                      this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                   } else {
@@ -551,9 +551,9 @@ public class SlimeEntity extends BaseGirlEntity {
                   HornyMeterHud.addToHornyMeter(0.04);
                }
 
-               this.P++;
-               if (this.P % 2 == 0) {
-                  int var5 = Reference.f.nextInt(2);
+               this.blinkTicks++;
+               if (this.blinkTicks % 2 == 0) {
+                  int var5 = Reference.RANDOM.nextInt(2);
                   if (var5 == 0) {
                      this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                   } else {
@@ -575,13 +575,13 @@ public class SlimeEntity extends BaseGirlEntity {
                this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                break;
             case "jumpStartDone":
-               this.S = SlimeEntity.SlimeEntityState.JUMP_AIR;
+               this.slimeState = SlimeEntity.SlimeEntityState.JUMP_AIR;
                break;
             case "jumpEndSound":
                this.playSound(SoundEvents.ENTITY_SLIME_SQUISH);
                break;
             case "jumpEndDone":
-               this.S = SlimeEntity.SlimeEntityState.IDLE;
+               this.slimeState = SlimeEntity.SlimeEntityState.IDLE;
          }
       };
       this.actionController.registerSoundListener(var2);

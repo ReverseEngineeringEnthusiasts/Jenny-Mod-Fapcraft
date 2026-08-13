@@ -25,15 +25,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BasicGirlEntity extends EntityLiving {
-   public static final long b = 60000L;
-   public static final float g = 3.0F;
-   static final float c = 30.0F;
-   static final int h = 175;
-   static final int i = 10;
-   BlockPos f = null;
-   int d = 0;
-   boolean e = false;
-   public int a = -1;
+   public static final long LIFETIME_MS = 60000L;
+   public static final float FOLLOW_DISTANCE = 3.0F;
+   static final float WANDER_DISTANCE = 30.0F;
+   static final int SOUND_COOLDOWN = 175;
+   static final int TICK_COUNT = 10;
+   BlockPos wanderTarget = null;
+   int wanderTicks = 0;
+   boolean shouldStopMoving = false;
+   public int lastSoundTick = -1;
 
    public BasicGirlEntity(World var1) {
       super(var1);
@@ -45,28 +45,28 @@ public class BasicGirlEntity extends EntityLiving {
    }
 
    void updateWanderAndFollowAI() {
-      if (this.e) {
+      if (this.shouldStopMoving) {
          this.getNavigator().clearPath();
       } else {
          EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 15.0);
          if (var1 != null && var1.getDistance(this) < 3.0F) {
             this.getNavigator().clearPath();
          } else {
-            if (this.f == null || this.getDistance(this.f.getX(), this.f.getY(), this.f.getZ()) > this.c_clash50() || this.d > 175) {
+            if (this.wanderTarget == null || this.getDistance(this.wanderTarget.getX(), this.wanderTarget.getY(), this.wanderTarget.getZ()) > this.c_clash50() || this.wanderTicks > 175) {
                int var2 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
                int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
                int var4 = this.world.provider.getDimensionType() == DimensionType.NETHER
                   ? (int)Math.ceil(this.posY)
                   : WorldUtils.a(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
-               this.f = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
-               this.d = 0;
+               this.wanderTarget = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
+               this.wanderTicks = 0;
             }
 
-            if (Math.sqrt(this.f.distanceSq(this.getPosition())) > 2.0) {
-               this.getNavigator().tryMoveToXYZ(this.f.getX(), this.f.getY(), this.f.getZ(), 0.35F);
+            if (Math.sqrt(this.wanderTarget.distanceSq(this.getPosition())) > 2.0) {
+               this.getNavigator().tryMoveToXYZ(this.wanderTarget.getX(), this.wanderTarget.getY(), this.wanderTarget.getZ(), 0.35F);
                this.d_clash48();
             } else {
-               this.d++;
+               this.wanderTicks++;
             }
          }
       }
@@ -103,7 +103,7 @@ public class BasicGirlEntity extends EntityLiving {
          this.b_clash49();
       }
 
-      this.e = true;
+      this.shouldStopMoving = true;
       ThreadNames.a(6250, () -> this.world.removeEntity(this));
       return false;
    }
@@ -111,7 +111,7 @@ public class BasicGirlEntity extends EntityLiving {
    @SideOnly(Side.CLIENT)
    void b_clash49() {
       EntityPlayerSP var1 = Minecraft.getMinecraft().player;
-      this.a = var1.ticksExisted;
+      this.lastSoundTick = var1.ticksExisted;
       var1.playSound(SoundHandler.MISC_WEOWEO[3], 1.0F, 1.0F);
    }
 

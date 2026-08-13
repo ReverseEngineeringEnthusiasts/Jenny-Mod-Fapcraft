@@ -21,80 +21,80 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class ChangeDataParameterPacket implements IMessage {
-   boolean b;
-   UUID d;
-   String a;
-   String c;
+   boolean isValid;
+   UUID girlUUID;
+   String parameterName;
+   String value;
 
    public ChangeDataParameterPacket() {
-      this.b = false;
+      this.isValid = false;
    }
 
    public ChangeDataParameterPacket(UUID var1, String var2, String var3) {
-      this.d = var1;
-      this.a = var2;
-      this.c = var3;
-      this.b = true;
+      this.girlUUID = var1;
+      this.parameterName = var2;
+      this.value = var3;
+      this.isValid = true;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.d = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.a = ByteBufUtils.readUTF8String(var1);
-      this.c = ByteBufUtils.readUTF8String(var1);
-      this.b = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.parameterName = ByteBufUtils.readUTF8String(var1);
+      this.value = ByteBufUtils.readUTF8String(var1);
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.d.toString());
-      ByteBufUtils.writeUTF8String(var1, this.a);
-      ByteBufUtils.writeUTF8String(var1, this.c == null ? "null" : this.c);
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(var1, this.parameterName);
+      ByteBufUtils.writeUTF8String(var1, this.value == null ? "null" : this.value);
    }
 
 
    public static class Handler implements IMessageHandler<ChangeDataParameterPacket, IMessage> {
       public IMessage onMessage(ChangeDataParameterPacket var1, MessageContext var2) {
-         if (!var1.b) {
+         if (!var1.isValid) {
             System.out.println("received an invalid message @ChangeDataParameter :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               BaseGirlEntity var1x = BaseGirlEntity.getServerGirlEntity(var1.d);
+               BaseGirlEntity var1x = BaseGirlEntity.getServerGirlEntity(var1.girlUUID);
                if (var1x != null) {
-                  switch (var1.a) {
+                  switch (var1.parameterName) {
                      case "pregnant":
-                        var1x.getDataManager().set(SlimeEntity.U, Integer.valueOf(var1.c));
+                        var1x.getDataManager().set(SlimeEntity.HORNY_LEVEL, Integer.valueOf(var1.value));
                         break;
                      case "currentModel":
-                        var1x.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, Integer.valueOf(var1.c));
+                        var1x.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, Integer.valueOf(var1.value));
                         break;
                      case "currentAction":
-                        if (Action.valueOf(var1.c) != Action.ATTACK || var1x.getCurrentAction() == Action.NULL) {
-                           var1x.setCurrentAction(Action.valueOf(var1.c));
+                        if (Action.valueOf(var1.value) != Action.ATTACK || var1x.getCurrentAction() == Action.NULL) {
+                           var1x.setCurrentAction(Action.valueOf(var1.value));
                         }
                         break;
                      case "animationFollowUp":
-                        var1x.getDataManager().set(BaseGirlEntity.GIRL_HAND_STATES, var1.c);
+                        var1x.getDataManager().set(BaseGirlEntity.GIRL_HAND_STATES, var1.value);
                         break;
                      case "playerSheHasSexWith":
-                        if (var1.c.equals("null")) {
+                        if (var1.value.equals("null")) {
                            var1x.setInteractionPlayerUUID(null);
                         } else {
-                           var1x.setInteractionPlayerUUID(UUID.fromString(var1.c));
+                           var1x.setInteractionPlayerUUID(UUID.fromString(var1.value));
                         }
                         break;
                      case "targetPos":
-                        String[] var4 = var1.c.split("f");
+                        String[] var4 = var1.value.split("f");
                         Vec3d var5 = new Vec3d(Double.parseDouble(var4[0]), Double.parseDouble(var4[1]), Double.parseDouble(var4[2]));
                         var1x.setTargetPosition(var5);
                         break;
                      case "master":
-                        var1x.getDataManager().set(BaseGirlEntity.MASTER, var1.c);
+                        var1x.getDataManager().set(BaseGirlEntity.MASTER, var1.value);
                         break;
                      case "walk speed":
-                        var1x.getDataManager().set(BaseGirlEntity.WALK_SPEED, var1.c);
+                        var1x.getDataManager().set(BaseGirlEntity.WALK_SPEED, var1.value);
                         break;
                      case "shouldbeattargetpos":
-                        var1x.getDataManager().set(BaseGirlEntity.IS_ANCHORED, Boolean.valueOf(var1.c));
+                        var1x.getDataManager().set(BaseGirlEntity.IS_ANCHORED, Boolean.valueOf(var1.value));
                   }
                }
             });

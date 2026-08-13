@@ -26,39 +26,39 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class SendBlocksPacket implements IMessage {
-   boolean b = false;
-   HashSet<BlockPos> c = new HashSet<>();
-   boolean a;
+   boolean isValid = false;
+   HashSet<BlockPos> blockPositions = new HashSet<>();
+   boolean isBreaking;
 
    public SendBlocksPacket() {
    }
 
    public SendBlocksPacket(HashSet<BlockPos> var1, boolean var2) {
-      this.c = var1;
-      this.a = var2;
+      this.blockPositions = var1;
+      this.isBreaking = var2;
    }
 
    public SendBlocksPacket(BlockPos var1, boolean var2) {
-      this.c.add(var1);
-      this.a = var2;
+      this.blockPositions.add(var1);
+      this.isBreaking = var2;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.a = var1.readBoolean();
+      this.isBreaking = var1.readBoolean();
       int var2 = var1.readInt();
 
       for (int var3 = 0; var3 < var2; var3++) {
-         this.c.add(new BlockPos(var1.readInt(), var1.readInt(), var1.readInt()));
+         this.blockPositions.add(new BlockPos(var1.readInt(), var1.readInt(), var1.readInt()));
       }
 
-      this.b = true;
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeBoolean(this.a);
-      var1.writeInt(this.c.size());
+      var1.writeBoolean(this.isBreaking);
+      var1.writeInt(this.blockPositions.size());
 
-      for (BlockPos var3 : this.c) {
+      for (BlockPos var3 : this.blockPositions) {
          var1.writeInt(var3.getX());
          var1.writeInt(var3.getY());
          var1.writeInt(var3.getZ());
@@ -68,16 +68,16 @@ public class SendBlocksPacket implements IMessage {
 
    public static class Handler implements IMessageHandler<SendBlocksPacket, IMessage> {
       public IMessage onMessage(SendBlocksPacket var1, MessageContext var2) {
-         if (!var1.b) {
+         if (!var1.isValid) {
             System.out.println("received an invalid Message @SendBlocks :(");
             return null;
          }
 
          if (var2.side.isClient()) {
-            if (var1.a) {
-               StructureMarkerRenderer.a_clash774(var1.c);
+            if (var1.isBreaking) {
+               StructureMarkerRenderer.a_clash774(var1.blockPositions);
             } else {
-               StructureMarkerRenderer.b(var1.c);
+               StructureMarkerRenderer.b(var1.blockPositions);
             }
 
             return null;
@@ -89,10 +89,10 @@ public class SendBlocksPacket implements IMessage {
                      UUID var2x = var2.getServerHandler().player.getPersistentID();
                      UUID var3 = KoboldManager.getTribeUUID(var2x);
                      if (var3 != null) {
-                        if (var1.c.size() == 1) {
+                        if (var1.blockPositions.size() == 1) {
                            World var4 = var2.getServerHandler().player.world;
 
-                           for (BlockPos var6 : var1.c) {
+                           for (BlockPos var6 : var1.blockPositions) {
                               IBlockState var7 = var4.getBlockState(var6);
                               BlockPos var8 = null;
                               if (var7.getBlock() instanceof BlockBed) {
@@ -126,7 +126,7 @@ public class SendBlocksPacket implements IMessage {
                                  return;
                               }
 
-                              if (var1.a) {
+                              if (var1.isBreaking) {
                                  if (var7.getBlock() instanceof BlockBed) {
                                     KoboldManager.a(var3, var6);
                                     KoboldManager.a(var3, var8);
@@ -148,7 +148,7 @@ public class SendBlocksPacket implements IMessage {
                                  var10.add(var8);
                               }
 
-                              PacketHandler.b.sendTo(new SendBlocksPacket(var10, var1.a), var2.getServerHandler().player);
+                              PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var10, var1.isBreaking), var2.getServerHandler().player);
                            }
                         }
                      }

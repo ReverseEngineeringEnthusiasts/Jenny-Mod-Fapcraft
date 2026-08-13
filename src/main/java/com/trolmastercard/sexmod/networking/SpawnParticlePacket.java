@@ -19,46 +19,46 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class SpawnParticlePacket implements IMessage {
-   boolean d = false;
-   UUID c;
-   String b;
-   int a;
+   boolean isValid = false;
+   UUID girlUUID;
+   String particleType;
+   int count;
 
    public SpawnParticlePacket() {
    }
 
    public SpawnParticlePacket(UUID var1, String var2) {
-      this.c = var1;
-      this.b = var2;
-      this.a = 1;
+      this.girlUUID = var1;
+      this.particleType = var2;
+      this.count = 1;
    }
 
    public SpawnParticlePacket(UUID var1, String var2, int var3) {
-      this.c = var1;
-      this.b = var2;
-      this.a = var3;
+      this.girlUUID = var1;
+      this.particleType = var2;
+      this.count = var3;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.c = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.b = ByteBufUtils.readUTF8String(var1);
-      this.a = var1.readInt();
-      this.d = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.particleType = ByteBufUtils.readUTF8String(var1);
+      this.count = var1.readInt();
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.c.toString());
-      ByteBufUtils.writeUTF8String(var1, this.b);
-      var1.writeInt(this.a);
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(var1, this.particleType);
+      var1.writeInt(this.count);
    }
 
    public static class Handler implements IMessageHandler<SpawnParticlePacket, IMessage> {
       public IMessage onMessage(SpawnParticlePacket var1, MessageContext var2) {
-         if (var1.d && var2.side.equals(Side.CLIENT)) {
-            for (BaseGirlEntity var5 : BaseGirlEntity.girlList(var1.c)) {
+         if (var1.isValid && var2.side.equals(Side.CLIENT)) {
+            for (BaseGirlEntity var5 : BaseGirlEntity.girlList(var1.girlUUID)) {
                if (var5.world.isRemote) {
-                  for (int var6 = 0; var6 < var1.a; var6++) {
-                     BaseGirlEntity.spawnParticlesAround(EnumParticleTypes.getByName(var1.b), var5);
+                  for (int var6 = 0; var6 < var1.count; var6++) {
+                     BaseGirlEntity.spawnParticlesAround(EnumParticleTypes.getByName(var1.particleType), var5);
                   }
                   break;
                }

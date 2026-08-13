@@ -14,27 +14,27 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 
 public class EllieModel extends ModelBase implements IVanillaModel {
-   private final ModelRenderer a;
-   private final ModelRenderer b;
-   private final ModelRenderer c;
+   private final ModelRenderer rootPart;
+   private final ModelRenderer childPart;
+   private final ModelRenderer emptyPart;
 
    public EllieModel() {
       this.textureWidth = 16;
       this.textureHeight = 16;
-      this.a = new ModelRenderer(this);
-      this.a.setRotationPoint(-5.0F, 1.5708F, 0.0F);
-      this.b = new ModelRenderer(this);
-      this.b.setRotationPoint(-1.0F, -3.0F, 1.0F);
-      this.a.addChild(this.b);
-      this.a(this.b, 0.0F, 1.5708F, 0.0F);
-      this.b.cubeList.add(new ModelBox(this.b, 0, 0, -1.0F, -3.0F, -1.0F, 2, 6, 2, 0.0F, false));
-      this.c = new ModelRenderer(this);
-      this.c.setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.rootPart = new ModelRenderer(this);
+      this.rootPart.setRotationPoint(-5.0F, 1.5708F, 0.0F);
+      this.childPart = new ModelRenderer(this);
+      this.childPart.setRotationPoint(-1.0F, -3.0F, 1.0F);
+      this.rootPart.addChild(this.childPart);
+      this.a(this.childPart, 0.0F, 1.5708F, 0.0F);
+      this.childPart.cubeList.add(new ModelBox(this.childPart, 0, 0, -1.0F, -3.0F, -1.0F, 2, 6, 2, 0.0F, false));
+      this.emptyPart = new ModelRenderer(this);
+      this.emptyPart.setRotationPoint(0.0F, 0.0F, 0.0F);
    }
 
    public void render(Entity var1, float var2, float var3, float var4, float var5, float var6, float var7) {
-      this.a.render(var7);
-      this.c.render(var7);
+      this.rootPart.render(var7);
+      this.emptyPart.render(var7);
    }
 
    public void a(ModelRenderer var1, float var2, float var3, float var4) {
@@ -45,6 +45,6 @@ public class EllieModel extends ModelBase implements IVanillaModel {
 
    @Override
    public ModelRenderer getModel() {
-      return this.a;
+      return this.rootPart;
    }
 }

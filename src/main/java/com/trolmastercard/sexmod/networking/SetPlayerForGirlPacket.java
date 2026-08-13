@@ -22,42 +22,42 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class SetPlayerForGirlPacket implements IMessage {
-   boolean a;
-   UUID c;
-   UUID b;
+   boolean isValid;
+   UUID girlUUID;
+   UUID playerUUID;
 
    public SetPlayerForGirlPacket() {
-      this.a = false;
+      this.isValid = false;
    }
 
    public SetPlayerForGirlPacket(UUID var1, UUID var2) {
-      this.c = var1;
-      this.b = var2;
-      this.a = true;
+      this.girlUUID = var1;
+      this.playerUUID = var2;
+      this.isValid = true;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.c = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.b = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.a = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.c.toString());
-      ByteBufUtils.writeUTF8String(var1, this.b.toString());
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<SetPlayerForGirlPacket, IMessage> {
       public IMessage onMessage(SetPlayerForGirlPacket var1, MessageContext var2) {
-         if (var1.a && var2.side == Side.SERVER) {
+         if (var1.isValid && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.c)) {
+               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
                   PlayerList var4 = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
 
                   try {
-                     var4.getPlayerByUUID(var1.b).getName();
+                     var4.getPlayerByUUID(var1.playerUUID).getName();
                   } catch (NullPointerException var8) {
-                     System.out.println("couldn't find player with UUID: " + var1.b);
+                     System.out.println("couldn't find player with UUID: " + var1.playerUUID);
                      System.out.println("could only find players with thsese UUID's:");
 
                      for (EntityPlayerMP var7 : var4.getPlayers()) {
@@ -70,7 +70,7 @@ public class SetPlayerForGirlPacket implements IMessage {
                      ((JennyEntity)var3).af = true;
                   }
 
-                  var3.setInteractionPlayerUUID(var1.b);
+                  var3.setInteractionPlayerUUID(var1.playerUUID);
                }
             });
             return null;

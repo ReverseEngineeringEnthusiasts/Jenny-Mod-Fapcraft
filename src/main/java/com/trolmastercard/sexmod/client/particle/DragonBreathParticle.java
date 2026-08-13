@@ -9,16 +9,16 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class DragonBreathParticle extends ParticleDragonBreath {
-   public static final float a = 0.2F;
-   public static final float c = 0.5F;
-   public static float b = 0.2F;
+   public static final float motionX = 0.2F;
+   public static final float motionY = 0.5F;
+   public static float BREATH_SCALE = 0.2F;
 
    public DragonBreathParticle(World var1, double var2, double var4, double var6) {
       super(var1, var2, var4, var6, 0.0, 0.0, 0.0);
    }
 
    public void renderParticle(BufferBuilder var1, Entity var2, float var3, float var4, float var5, float var6, float var7, float var8) {
-      this.particleScale = b;
+      this.particleScale = BREATH_SCALE;
       float var9 = this.particleTextureIndexX / 16.0F;
       float var10 = var9 + 0.0624375F;
       float var11 = this.particleTextureIndexY / 16.0F;

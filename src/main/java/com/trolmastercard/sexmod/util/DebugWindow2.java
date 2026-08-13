@@ -20,16 +20,16 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.io.FileUtils;
 
 public class DebugWindow2 extends JFrame {
-   private JPanel c;
-   static DebugWindow2 b;
-   public static boolean a = true;
+   private JPanel panel;
+   static DebugWindow2 instance;
+   public static boolean isVisible = true;
 
    public static void a_clash451() {
       EventQueue.invokeLater(() -> {
          try {
-            b = new DebugWindow2();
-            b.setVisible(true);
-            b.requestFocus();
+            instance = new DebugWindow2();
+            instance.setVisible(true);
+            instance.requestFocus();
          } catch (Exception var1) {
             var1.printStackTrace();
          }
@@ -39,24 +39,24 @@ public class DebugWindow2 extends JFrame {
    public DebugWindow2() {
       this.setResizable(false);
       this.setBounds(100, 100, 600, 260);
-      this.c = new JPanel();
-      this.c.setBorder(new EmptyBorder(5, 5, 5, 5));
-      this.c.setLayout(new BorderLayout(0, 0));
-      this.setContentPane(this.c);
+      this.panel = new JPanel();
+      this.panel.setBorder(new EmptyBorder(5, 5, 5, 5));
+      this.panel.setLayout(new BorderLayout(0, 0));
+      this.setContentPane(this.panel);
       JPanel var1 = new JPanel();
-      this.c.add(var1, "North");
+      this.panel.add(var1, "North");
       JTextPane var2 = new JTextPane();
       var2.setFont(new Font("Tahoma", 0, 16));
       var2.setBackground(SystemColor.control);
       var2.setText(I18n.format("window.pornwarning.title", new Object[0]));
       var1.add(var2);
       JPanel var3 = new JPanel();
-      this.c.add(var3, "South");
+      this.panel.add(var3, "South");
       JCheckBox var4 = new JCheckBox(I18n.format("window.pornwarning.dontaskagain", new Object[0]));
       var3.add(var4);
       JButton var5 = new JButton(I18n.format("window.pornwarning.am18", new Object[0]));
       var5.addActionListener(var1x -> {
-         a = false;
+         isVisible = false;
          if (var4.isSelected()) {
             File var2x = new File("sexmod");
             var2x.mkdir();
@@ -69,12 +69,12 @@ public class DebugWindow2 extends JFrame {
             }
          }
 
-         b.dispose();
+         instance.dispose();
       });
       var3.add(var5);
       JButton var6 = new JButton(I18n.format("window.pornwarning.not18", new Object[0]));
       var6.addActionListener(var0 -> {
-         a = false;
+         isVisible = false;
          System.out.println("MINOR!!! WHEOO WOOO WHEEE WHOOO WHEEE WHOO");
          File var1x = new File("sexmod");
 
@@ -102,7 +102,7 @@ public class DebugWindow2 extends JFrame {
       });
       var3.add(var6);
       JPanel var7 = new JPanel();
-      this.c.add(var7, "Center");
+      this.panel.add(var7, "Center");
       var7.setLayout(new BoxLayout(var7, 0));
       JTextPane var8 = new JTextPane();
       var8.setContentType("text/html");

@@ -16,11 +16,11 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class SexSceneModel extends AnimatedGeoModel<SexSceneEntity> {
    public ResourceLocation getModelLocation(SexSceneEntity var0) {
-      return var0.f ? new ResourceLocation("sexmod", "geo/cross.geo.json") : ServerWhitelistManager.k(var0.a_clash343());
+      return var0.isItemModel ? new ResourceLocation("sexmod", "geo/cross.geo.json") : ServerWhitelistManager.k(var0.a_clash343());
    }
 
    public ResourceLocation getTextureLocation(SexSceneEntity var0) {
-      return var0.f ? new ResourceLocation("sexmod", "textures/cross.png") : ServerWhitelistManager.c_clash137(var0.a_clash343());
+      return var0.isItemModel ? new ResourceLocation("sexmod", "textures/cross.png") : ServerWhitelistManager.c_clash137(var0.a_clash343());
    }
 
    public ResourceLocation getAnimationFileLocation(SexSceneEntity var0) {

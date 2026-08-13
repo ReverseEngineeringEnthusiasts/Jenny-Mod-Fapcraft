@@ -36,35 +36,35 @@ import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
 public class StructureMarkerRenderer {
-   static final Vec3i e = new Vec3i(255, 0, 0);
-   static final Vec3i g = new Vec3i(0, 255, 0);
-   static final Vec3i d = new Vec3i(0, 0, 255);
-   static final ResourceLocation b = new ResourceLocation("sexmod", "textures/mark.png");
-   static HashSet<BlockPos> f = new HashSet<>();
-   static Minecraft a = Minecraft.getMinecraft();
-   static TextureManager c = Minecraft.getMinecraft().getTextureManager();
+   static final Vec3i COLOR_RED = new Vec3i(255, 0, 0);
+   static final Vec3i COLOR_GREEN = new Vec3i(0, 255, 0);
+   static final Vec3i COLOR_BLUE = new Vec3i(0, 0, 255);
+   static final ResourceLocation MARK_TEXTURE = new ResourceLocation("sexmod", "textures/mark.png");
+   static HashSet<BlockPos> markerPositions = new HashSet<>();
+   static Minecraft mc = Minecraft.getMinecraft();
+   static TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
 
    public static void clearMarkers() {
-      f.clear();
+      markerPositions.clear();
    }
 
    public static boolean isMarked(BlockPos var0) {
-      return f.contains(var0);
+      return markerPositions.contains(var0);
    }
 
    public static void renderMarkers() {
       Tessellator var0 = Tessellator.getInstance();
       BufferBuilder var1 = var0.getBuffer();
-      Vec3d var2 = RotationHelper.a(Reference.k, Reference.j, a.getRenderPartialTicks());
+      Vec3d var2 = RotationHelper.a(Reference.cameraPosPrevious, Reference.cameraPosCurrent, mc.getRenderPartialTicks());
       GlStateManager.pushMatrix();
       GlStateManager.disableCull();
       GlStateManager.disableDepth();
-      c.bindTexture(b);
+      textureManager.bindTexture(MARK_TEXTURE);
       GlStateManager.translate(-var2.x, -var2.y, -var2.z);
       var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
 
       try {
-         for (BlockPos var4 : f) {
+         for (BlockPos var4 : markerPositions) {
             Vec3i var5 = b_clash773(var4);
             a(var1, var4, var5.getX(), var5.getY(), var5.getZ());
          }
@@ -80,9 +80,9 @@ public class StructureMarkerRenderer {
    static Vec3i b_clash773(BlockPos var0) {
       Block var1 = Minecraft.getMinecraft().world.getBlockState(var0).getBlock();
       if (var1 instanceof BlockBed) {
-         return d;
+         return COLOR_BLUE;
       } else {
-         return var1 instanceof BlockChest ? g : e;
+         return var1 instanceof BlockChest ? COLOR_GREEN : COLOR_RED;
       }
    }
 
@@ -186,23 +186,23 @@ public class StructureMarkerRenderer {
    }
 
    public static void a_clash774(HashSet<BlockPos> var0) {
-      f.addAll(var0);
+      markerPositions.addAll(var0);
    }
 
    public static void b(HashSet<BlockPos> var0) {
-      f.removeAll(var0);
+      markerPositions.removeAll(var0);
    }
 
    @SubscribeEvent
    public void a(RenderWorldLastEvent var1) {
       GlStateManager.enableColorMaterial();
       GL11.glDisable(2896);
-      ItemStack var2 = a.player.getHeldItem(EnumHand.MAIN_HAND);
-      if (var2.getItem() != DragonStaffItem.b) {
-         var2 = a.player.getHeldItem(EnumHand.OFF_HAND);
+      ItemStack var2 = mc.player.getHeldItem(EnumHand.MAIN_HAND);
+      if (var2.getItem() != DragonStaffItem.DRAGON_STAFF) {
+         var2 = mc.player.getHeldItem(EnumHand.OFF_HAND);
       }
 
-      if (var2.getItem() == DragonStaffItem.b) {
+      if (var2.getItem() == DragonStaffItem.DRAGON_STAFF) {
          renderMarkers();
       }
 
@@ -218,8 +218,8 @@ public class StructureMarkerRenderer {
       if (var1.phase != Phase.START) {
          EntityPlayerSP var2 = Minecraft.getMinecraft().player;
          if (var2 != null) {
-            Reference.k = Reference.j;
-            Reference.j = var2.getPositionVector();
+            Reference.cameraPosPrevious = Reference.cameraPosCurrent;
+            Reference.cameraPosCurrent = var2.getPositionVector();
          }
       }
    }

@@ -20,42 +20,42 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class SetNewHomePacket implements IMessage {
-   boolean b;
-   UUID c;
-   Vec3d a;
+   boolean isValid;
+   UUID girlUUID;
+   Vec3d homePos;
 
    public SetNewHomePacket() {
    }
 
    public SetNewHomePacket(UUID var1, Vec3d var2) {
-      this.c = var1;
-      this.a = var2;
+      this.girlUUID = var1;
+      this.homePos = var2;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.c = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.a = new Vec3d(var1.readDouble(), var1.readDouble(), var1.readDouble());
-      this.b = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.homePos = new Vec3d(var1.readDouble(), var1.readDouble(), var1.readDouble());
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.c.toString());
-      var1.writeDouble(this.a.x);
-      var1.writeDouble(this.a.y);
-      var1.writeDouble(this.a.z);
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      var1.writeDouble(this.homePos.x);
+      var1.writeDouble(this.homePos.y);
+      var1.writeDouble(this.homePos.z);
    }
 
    public static class Handler implements IMessageHandler<SetNewHomePacket, IMessage> {
       public IMessage onMessage(SetNewHomePacket var1, MessageContext var2) {
-         if (!var1.b) {
+         if (!var1.isValid) {
             System.out.println("received an invalid message @SetNewHome :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               ArrayList var1x = BaseGirlEntity.girlList(var1.c);
+               ArrayList var1x = BaseGirlEntity.girlList(var1.girlUUID);
                if (!var1x.isEmpty()) {
                   for (BaseGirlEntity var3 : (java.util.Collection<BaseGirlEntity>) (var1x) ) {
-                     var3.homePos = new Vec3d(var1.a.x, Math.floor(var1.a.y), var1.a.z);
+                     var3.homePos = new Vec3d(var1.homePos.x, Math.floor(var1.homePos.y), var1.homePos.z);
                   }
                }
             });

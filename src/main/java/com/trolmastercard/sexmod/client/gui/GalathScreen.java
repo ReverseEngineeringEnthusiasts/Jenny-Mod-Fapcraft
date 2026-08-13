@@ -21,32 +21,32 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 public class GalathScreen extends GuiScreen {
-   static final float j = 100.0F;
-   static final float c = 15.0F;
-   static final float k = 5.0F;
-   static final float l = 0.5F;
-   static final float b = 0.5F;
-   static final ResourceLocation i = new ResourceLocation("sexmod", "textures/gui/command.png");
-   float a = 0.0F;
-   float g = 0.0F;
-   float e = 0.0F;
-   float d = 0.0F;
-   float m = 0.0F;
-   BaseGirlEntity f;
-   boolean h = false;
+   static final float SIZE_100 = 100.0F;
+   static final float OFFSET_15 = 15.0F;
+   static final float OFFSET_5 = 5.0F;
+   static final float SCALE_0_5 = 0.5F;
+   static final float SCALE_B = 0.5F;
+   static final ResourceLocation GUI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/command.png");
+   float animProgress = 0.0F;
+   float animLeft = 0.0F;
+   float animRight = 0.0F;
+   float animTop = 0.0F;
+   float animBottom = 0.0F;
+   BaseGirlEntity targetEntity;
+   boolean isGoblinTarget = false;
 
    public GalathScreen(BaseGirlEntity var1) {
-      this.f = var1;
-      this.h = var1 instanceof GoblinEntity;
+      this.targetEntity = var1;
+      this.isGoblinTarget = var1 instanceof GoblinEntity;
    }
 
    public void onGuiClosed() {
       super.onGuiClosed();
-      if (this.d != 0.0F || this.m != 0.0F || this.g != 0.0F) {
-         if (this.g > 0.0F) {
+      if (this.animTop != 0.0F || this.animBottom != 0.0F || this.animLeft != 0.0F) {
+         if (this.animLeft > 0.0F) {
             this.c_clash396();
-         } else if (this.h) {
-            if (this.d > this.m) {
+         } else if (this.isGoblinTarget) {
+            if (this.animTop > this.animBottom) {
                this.a_clash394();
             } else {
                this.b_clash395();
@@ -56,18 +56,18 @@ public class GalathScreen extends GuiScreen {
    }
 
    void a_clash394() {
-      if (this.h) {
-         ((GoblinEntity)this.f).c_clash239(Minecraft.getMinecraft().player.getPersistentID());
+      if (this.isGoblinTarget) {
+         ((GoblinEntity)this.targetEntity).c_clash239(Minecraft.getMinecraft().player.getPersistentID());
       }
    }
 
    void b_clash395() {
-      ((GoblinEntity)this.f).b_clash240(Minecraft.getMinecraft().player.getPersistentID());
+      ((GoblinEntity)this.targetEntity).b_clash240(Minecraft.getMinecraft().player.getPersistentID());
    }
 
    void c_clash396() {
-      if (this.f.getInteractionPlayerUUID() == null) {
-         this.f.setCurrentAction(Action.START_THROWING);
+      if (this.targetEntity.getInteractionPlayerUUID() == null) {
+         this.targetEntity.setCurrentAction(Action.START_THROWING);
       }
    }
 
@@ -86,48 +86,48 @@ public class GalathScreen extends GuiScreen {
       GL11.glBlendFunc(770, 771);
 
       try {
-         this.a = Math.min(1.0F, this.a + this.mc.getTickLength() / 5.0F);
+         this.animProgress = Math.min(1.0F, this.animProgress + this.mc.getTickLength() / 5.0F);
       } catch (NullPointerException var6) {
       }
 
-      float var4 = (float)this.a_clash397(this.a);
+      float var4 = (float)this.a_clash397(this.animProgress);
       float var5 = (1.0F - var4) * 100.0F;
-      this.g = this.g + (var1 < this.width / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.e = this.e + (var1 > this.width / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.d = this.d + (var2 < this.height / 2 - 1 ? 1 : -1) * this.mc.getTickLength();
-      this.m = this.m + (var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.g = ThreadNames.b(this.g, 0.0F, 1.0F);
-      this.e = ThreadNames.b(this.e, 0.0F, 1.0F);
-      this.d = ThreadNames.b(this.d, 0.0F, 1.0F);
-      this.m = ThreadNames.b(this.m, 0.0F, 1.0F);
+      this.animLeft = this.animLeft + (var1 < this.width / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animRight = this.animRight + (var1 > this.width / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animTop = this.animTop + (var2 < this.height / 2 - 1 ? 1 : -1) * this.mc.getTickLength();
+      this.animBottom = this.animBottom + (var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animLeft = ThreadNames.b(this.animLeft, 0.0F, 1.0F);
+      this.animRight = ThreadNames.b(this.animRight, 0.0F, 1.0F);
+      this.animTop = ThreadNames.b(this.animTop, 0.0F, 1.0F);
+      this.animBottom = ThreadNames.b(this.animBottom, 0.0F, 1.0F);
       GlStateManager.pushMatrix();
       GlStateManager.translate(this.width / 2.0F, this.height / 2.0F, 0.0F);
       GlStateManager.scale(var4, var4, var4);
-      this.mc.renderEngine.bindTexture(i);
+      this.mc.renderEngine.bindTexture(GUI_TEXTURE);
       GlStateManager.pushMatrix();
-      GlStateManager.scale(1.0F + this.g * 0.5F, 1.0F + this.g * 0.5F, 1.0F);
-      this.drawTexturedModalRect(-62.0F + var5 - this.g * 15.0F, var5 - 32.0F, 0, 0, 64, 64);
-      this.drawTexturedModalRect(-62.0F + var5 - this.g * 15.0F, var5 - 32.0F, 64, 128, 64, 64);
+      GlStateManager.scale(1.0F + this.animLeft * 0.5F, 1.0F + this.animLeft * 0.5F, 1.0F);
+      this.drawTexturedModalRect(-62.0F + var5 - this.animLeft * 15.0F, var5 - 32.0F, 0, 0, 64, 64);
+      this.drawTexturedModalRect(-62.0F + var5 - this.animLeft * 15.0F, var5 - 32.0F, 64, 128, 64, 64);
       GlStateManager.popMatrix();
-      if (!this.h) {
+      if (!this.isGoblinTarget) {
          GlStateManager.popMatrix();
          GL11.glDisable(3042);
       } else {
          GlStateManager.pushMatrix();
-         GlStateManager.scale(1.0F - this.e, 1.0F - this.e, 1.0F);
-         this.drawTexturedModalRect(-2.0F - var5 + this.e * 32.0F, -var5 - 32.0F, 0, 0, 64, 64);
-         this.drawTexturedModalRect(-2.0F - var5 + this.e * 32.0F, -var5 - 32.0F, 0, 128, 64, 64);
+         GlStateManager.scale(1.0F - this.animRight, 1.0F - this.animRight, 1.0F);
+         this.drawTexturedModalRect(-2.0F - var5 + this.animRight * 32.0F, -var5 - 32.0F, 0, 0, 64, 64);
+         this.drawTexturedModalRect(-2.0F - var5 + this.animRight * 32.0F, -var5 - 32.0F, 0, 128, 64, 64);
          GlStateManager.popMatrix();
-         if (this.e > 0.0F) {
+         if (this.animRight > 0.0F) {
             GlStateManager.pushMatrix();
-            GlStateManager.scale(-1.0F + this.e + 1.0F + this.d * 0.5F, -1.0F + this.e + 1.0F + this.d * 0.5F, 1.0F);
-            this.drawTexturedModalRect(-2.0F - var5 + this.d * 5.0F, -var5 - 64.0F - this.d * 5.0F / 2.0F, 0, 0, 64, 64);
-            this.drawTexturedModalRect(-2.0F - var5 + this.d * 5.0F, -var5 - 64.0F - this.d * 5.0F / 2.0F, 128, 128, 64, 64);
+            GlStateManager.scale(-1.0F + this.animRight + 1.0F + this.animTop * 0.5F, -1.0F + this.animRight + 1.0F + this.animTop * 0.5F, 1.0F);
+            this.drawTexturedModalRect(-2.0F - var5 + this.animTop * 5.0F, -var5 - 64.0F - this.animTop * 5.0F / 2.0F, 0, 0, 64, 64);
+            this.drawTexturedModalRect(-2.0F - var5 + this.animTop * 5.0F, -var5 - 64.0F - this.animTop * 5.0F / 2.0F, 128, 128, 64, 64);
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            GlStateManager.scale(-1.0F + this.e + 1.0F + this.m * 0.5F, -1.0F + this.e + 1.0F + this.m * 0.5F, 1.0F);
-            this.drawTexturedModalRect(-2.0F - var5 + this.m * 5.0F, -var5 + this.m * 5.0F / 2.0F, 0, 0, 64, 64);
-            this.drawTexturedModalRect(-2.0F - var5 + this.m * 5.0F, -var5 + this.m * 5.0F / 2.0F, 192, 128, 64, 64);
+            GlStateManager.scale(-1.0F + this.animRight + 1.0F + this.animBottom * 0.5F, -1.0F + this.animRight + 1.0F + this.animBottom * 0.5F, 1.0F);
+            this.drawTexturedModalRect(-2.0F - var5 + this.animBottom * 5.0F, -var5 + this.animBottom * 5.0F / 2.0F, 0, 0, 64, 64);
+            this.drawTexturedModalRect(-2.0F - var5 + this.animBottom * 5.0F, -var5 + this.animBottom * 5.0F / 2.0F, 192, 128, 64, 64);
             GlStateManager.popMatrix();
          }
 

@@ -21,17 +21,17 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
 public class GirlInventoryContainer2 extends Container {
-   LunaEntity d;
+   LunaEntity lunaEntity;
    public Slot[] b;
-   public UUID a;
-   public static List<GirlInventoryContainer2> c = new ArrayList<>();
+   public UUID girlUUID;
+   public static List<GirlInventoryContainer2> containers = new ArrayList<>();
 
    public GirlInventoryContainer2(LunaEntity var1, InventoryPlayer var2, UUID var3) {
-      this.a = var3;
-      c.add(this);
+      this.girlUUID = var3;
+      containers.add(this);
       if (var1.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH)) {
          IItemHandler var4 = (IItemHandler) var1.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
-         this.d = var1;
+         this.lunaEntity = var1;
          this.b = new Slot[]{
             new GirlInventorySlot(GirlInventorySlot.b.WEAPON, var4, GirlInventorySlot.b.WEAPON.id, 41, 60),
             new GirlInventorySlot(GirlInventorySlot.b.BOW, var4, GirlInventorySlot.b.BOW.id, 59, 60),

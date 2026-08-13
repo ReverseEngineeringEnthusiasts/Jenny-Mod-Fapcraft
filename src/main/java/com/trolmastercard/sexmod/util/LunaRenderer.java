@@ -28,7 +28,7 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
 public class LunaRenderer extends GirlRenderer {
-   float r;
+   float rotR;
 
    public LunaRenderer(RenderManager var1, AnimatedGeoModel var2, double var3) {
       super(var1, var2, var3);
@@ -36,18 +36,18 @@ public class LunaRenderer extends GirlRenderer {
 
    @Override
    protected ItemStack resolveHeldItemStack(@Nullable ItemStack var1) {
-      switch (this.j.getCurrentAction()) {
+      switch (this.renderEntity.getCurrentAction()) {
          case FISHING_IDLE:
          case FISHING_START:
-            ItemStack var2 = ((LunaEntity)this.j).ao;
-            ItemStack var3 = (ItemStack)this.j.getDataManager().get(LunaEntity.az);
+            ItemStack var2 = ((LunaEntity)this.renderEntity).ao;
+            ItemStack var3 = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.az);
             if (var3.equals(ItemStack.EMPTY)) {
                return var2;
             }
 
             Map var4 = EnchantmentHelper.getEnchantments(var3);
             EnchantmentHelper.setEnchantments(var4, var2);
-            this.j.setHeldItem(EnumHand.MAIN_HAND, var2);
+            this.renderEntity.setHeldItem(EnumHand.MAIN_HAND, var2);
             return var2;
          default:
             return var1;
@@ -55,7 +55,7 @@ public class LunaRenderer extends GirlRenderer {
    }
 
    boolean a_clash364() {
-      return (Boolean)this.j.getDataManager().get(BaseGirlEntity.IS_ANCHORED);
+      return (Boolean)this.renderEntity.getDataManager().get(BaseGirlEntity.IS_ANCHORED);
    }
 
    @Override
@@ -63,15 +63,15 @@ public class LunaRenderer extends GirlRenderer {
       if (!Minecraft.getMinecraft().isGamePaused()) {
          switch (var2) {
             case "head":
-               this.r = var3.getRotationX();
+               this.rotR = var3.getRotationX();
                break;
             case "backHair":
                if (!this.a_clash364()) {
-                  double var11 = this.r / TrigMath.wrapDegrees(45.0F);
+                  double var11 = this.rotR / TrigMath.wrapDegrees(45.0F);
                   float var12 = (float)RotationHelper.b(0.0, 0.75, var11);
                   var3.setPositionZ(var12);
                   var3.setPositionY(var12);
-                  var3.setRotationX(-this.r);
+                  var3.setRotationX(-this.rotR);
                }
                break;
             case "sideHairR":
@@ -80,28 +80,28 @@ public class LunaRenderer extends GirlRenderer {
                   break;
                }
 
-               double var6 = this.r / TrigMath.wrapDegrees(45.0F);
+               double var6 = this.rotR / TrigMath.wrapDegrees(45.0F);
                float var8 = (float)RotationHelper.b(0.0, 1.3F, var6);
                var3.setPositionZ(-var8);
                var3.setPositionY(var8);
             case "frontHairL":
             case "frontHairR":
                if (!this.a_clash364()) {
-                  var3.setRotationX(-this.r);
+                  var3.setRotationX(-this.rotR);
                }
                break;
             case "offhand":
-               LunaEntity var9 = (LunaEntity)this.j;
-               ItemStack var10 = (ItemStack)this.j.getDataManager().get(LunaEntity.ag);
-               if (!var10.equals(ItemStack.EMPTY) && var9.Z == 1.0F) {
+               LunaEntity var9 = (LunaEntity)this.renderEntity;
+               ItemStack var10 = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.ag);
+               if (!var10.equals(ItemStack.EMPTY) && var9.zFlag == 1.0F) {
                   GlStateManager.pushMatrix();
                   Tessellator.getInstance().draw();
                   com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var3);
                   GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
                   GlStateManager.scale(var9.aa, var9.aa, var9.aa);
-                  Minecraft.getMinecraft().getItemRenderer().renderItem(this.j, var10, TransformType.THIRD_PERSON_RIGHT_HAND);
-                  GirlRenderer.n.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-                  this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
+                  Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, var10, TransformType.THIRD_PERSON_RIGHT_HAND);
+                  GirlRenderer.tempBuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+                  this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
                   GlStateManager.popMatrix();
                }
          }

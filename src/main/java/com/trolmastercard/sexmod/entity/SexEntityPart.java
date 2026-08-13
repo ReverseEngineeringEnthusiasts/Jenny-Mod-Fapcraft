@@ -6,7 +6,7 @@ import net.minecraft.entity.MultiPartEntityPart;
 import net.minecraft.world.World;
 
 public class SexEntityPart extends MultiPartEntityPart {
-   public boolean a = false;
+   public boolean isActive = false;
 
    public SexEntityPart(World var1) {
       super(null, "", 0.0F, 0.0F);
@@ -17,6 +17,6 @@ public class SexEntityPart extends MultiPartEntityPart {
    }
 
    public boolean canBeCollidedWith() {
-      return this.a;
+      return this.isActive;
    }
 }

@@ -52,11 +52,11 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
 public class BeeEntity extends BeeEntityBase {
-   public float N = 3200.0F;
-   int P = 0;
-   static final float O = 4800.0F;
-   static final float Q = 10.0F;
-   public static final DataParameter<Boolean> M = EntityDataManager.createKey(BeeEntity.class, DataSerializers.BOOLEAN)
+   public float hornyTimer = 3200.0F;
+   int eggState = 0;
+   static final float timerO = 4800.0F;
+   static final float timerQ = 10.0F;
+   public static final DataParameter<Boolean> HORNY_FLAG = EntityDataManager.createKey(BeeEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(112);
 
@@ -79,7 +79,7 @@ public class BeeEntity extends BeeEntityBase {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.entityDataManager.register(M, false);
+      this.entityDataManager.register(HORNY_FLAG, false);
    }
 
    protected PathNavigate createNavigator(World var1) {
@@ -118,14 +118,14 @@ public class BeeEntity extends BeeEntityBase {
    @Override
    public void updateAITasks() {
       super.updateAITasks();
-      if (this.isPotionActive(HornyPotion.b) && this.N < 4800.0F && this.getInteractionPlayerUUID() == null) {
-         this.removePotionEffect(HornyPotion.b);
-         this.N = 6.9420184E7F;
+      if (this.isPotionActive(HornyPotion.HORNY_POTION) && this.hornyTimer < 4800.0F && this.getInteractionPlayerUUID() == null) {
+         this.removePotionEffect(HornyPotion.HORNY_POTION);
+         this.hornyTimer = 6.9420184E7F;
       }
 
       this.c_clash752();
       if (this.getCurrentAction().equals(Action.CITIZEN_CUM)) {
-         this.P = Math.max(1, this.P);
+         this.eggState = Math.max(1, this.eggState);
       }
 
       this.doParticleStuff();
@@ -142,20 +142,20 @@ public class BeeEntity extends BeeEntityBase {
    void c_clash752() {
       if (this.getInteractionPlayerUUID() == null) {
          if (!this.hasMaster()) {
-            this.N++;
-            if (!(this.N < 4800.0F)) {
+            this.hornyTimer++;
+            if (!(this.hornyTimer < 4800.0F)) {
                EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
                if (var1 != null) {
                   if (getActiveSceneInfo(var1) == null) {
                      if (!AbstractPlayerGirlEntity.e(var1)) {
                         if (var1.getDistance(this) < 1.5F) {
-                           this.N = 0.0F;
+                           this.hornyTimer = 0.0F;
                            this.setInteractionPlayerUUID(var1.getPersistentID());
                            this.entityDataManager.set(IS_ANCHORED, true);
                            this.setTargetPosition(this.getFrontOffsetVector());
                            this.setYawRotation(var1.rotationYaw - 180.0F);
                            this.pathNavigator.clearPath();
-                           PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
+                           PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
                            this.setCurrentAction(Action.CITIZEN_START);
                            Vec3d var2 = this.getVectorTowardPlayer(0.2);
                            var1.setPositionAndUpdate(var2.x, var2.y, var2.z);
@@ -183,10 +183,10 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    void doParticleStuff() {
-      if (this.P != 0) {
-         this.P++;
-         if ((Boolean)this.entityDataManager.get(M)) {
-            if (this.P < 40) {
+      if (this.eggState != 0) {
+         this.eggState++;
+         if ((Boolean)this.entityDataManager.get(HORNY_FLAG)) {
+            if (this.eggState < 40) {
                for (EntityPlayer var2 : this.world.playerEntities) {
                   if (var2.getDistance(this) < 15.0F) {
                      ((EntityPlayerMP)var2)
@@ -209,9 +209,9 @@ public class BeeEntity extends BeeEntityBase {
                   }
                }
             } else {
-               this.P = 0;
+               this.eggState = 0;
             }
-         } else if (this.P < 200) {
+         } else if (this.eggState < 200) {
             for (EntityPlayer var6 : this.world.playerEntities) {
                if (var6.getDistance(this) < 15.0F) {
                   ((EntityPlayerMP)var6)
@@ -233,16 +233,16 @@ public class BeeEntity extends BeeEntityBase {
                      );
                }
             }
-         } else if (this.P == 200) {
-            this.entityDataManager.set(M, this.getRNG().nextBoolean());
-         } else if (this.P < 250) {
+         } else if (this.eggState == 200) {
+            this.entityDataManager.set(HORNY_FLAG, this.getRNG().nextBoolean());
+         } else if (this.eggState < 250) {
             for (EntityPlayer var7 : this.world.playerEntities) {
                if (var7.getDistance(this) < 15.0F) {
                   ((EntityPlayerMP)var7)
                      .connection
                      .sendPacket(
                         new SPacketParticles(
-                           this.entityDataManager.get(M) ? EnumParticleTypes.HEART : EnumParticleTypes.VILLAGER_ANGRY,
+                           this.entityDataManager.get(HORNY_FLAG) ? EnumParticleTypes.HEART : EnumParticleTypes.VILLAGER_ANGRY,
                            true,
                            (float)this.posX,
                            (float)this.posY + 0.3F,
@@ -258,7 +258,7 @@ public class BeeEntity extends BeeEntityBase {
                }
             }
          } else {
-            this.P = 0;
+            this.eggState = 0;
          }
 
          for (EntityPlayer var8 : this.world.playerEntities) {
@@ -288,7 +288,7 @@ public class BeeEntity extends BeeEntityBase {
    @Override
    public void onUpdate() {
       super.onUpdate();
-      if (this.N < 4800.0F && !this.onGround && this.motionY < 0.0) {
+      if (this.hornyTimer < 4800.0F && !this.onGround && this.motionY < 0.0) {
          this.motionY *= 0.4;
       }
    }
@@ -297,15 +297,15 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
-      if ((Boolean)this.entityDataManager.get(M)
-         && !(Boolean)this.entityDataManager.get(K)
+      if ((Boolean)this.entityDataManager.get(HORNY_FLAG)
+         && !(Boolean)this.entityDataManager.get(HORNY_FLAG)
          && var1.getHeldItem(var2).getItem() == Item.getItemFromBlock(Blocks.CHEST)) {
-         this.entityDataManager.set(K, true);
+         this.entityDataManager.set(HORNY_FLAG, true);
          var1.getHeldItem(var2).shrink(1);
          return super.processInteract(var1, var2);
       }
 
-      if (this.world.isRemote && (Boolean)this.entityDataManager.get(M)) {
+      if (this.world.isRemote && (Boolean)this.entityDataManager.get(HORNY_FLAG)) {
          this.b_clash755(var1);
       }
 
@@ -343,19 +343,19 @@ public class BeeEntity extends BeeEntityBase {
    @Override
    public void writeEntityToNBT(NBTTagCompound var1) {
       super.writeEntityToNBT(var1);
-      var1.setBoolean("isTamed", (Boolean)this.entityDataManager.get(M));
-      var1.setBoolean("hasChest", (Boolean)this.entityDataManager.get(K));
-      var1.setTag("inventory", this.L.serializeNBT());
+      var1.setBoolean("isTamed", (Boolean)this.entityDataManager.get(HORNY_FLAG));
+      var1.setBoolean("hasChest", (Boolean)this.entityDataManager.get(HORNY_FLAG));
+      var1.setTag("inventory", this.inventory.serializeNBT());
    }
 
    public void readFromNBT(NBTTagCompound var1) {
       super.readFromNBT(var1);
       if (var1.hasKey("isTamed")) {
-         this.entityDataManager.set(M, var1.getBoolean("isTamed"));
+         this.entityDataManager.set(HORNY_FLAG, var1.getBoolean("isTamed"));
       }
 
-      this.entityDataManager.set(K, var1.getBoolean("hasChest"));
-      this.L.deserializeNBT(var1.getCompoundTag("inventory"));
+      this.entityDataManager.set(HORNY_FLAG, var1.getBoolean("hasChest"));
+      this.inventory.deserializeNBT(var1.getCompoundTag("inventory"));
    }
 
    @SideOnly(Side.CLIENT)
@@ -370,7 +370,7 @@ public class BeeEntity extends BeeEntityBase {
             if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.bee.null", true, var1);
             } else {
-               this.createAnimation("animation.bee." + (this.entityDataManager.get(K) ? "idle_has_chest" : "idle"), true, var1);
+               this.createAnimation("animation.bee." + (this.entityDataManager.get(HORNY_FLAG) ? "idle_has_chest" : "idle"), true, var1);
             }
             break;
          case "action":
@@ -405,7 +405,7 @@ public class BeeEntity extends BeeEntityBase {
          switch (var1x.sound) {
             case "pearl":
                if (this.isLocalPlayerNearby() && this.getCurrentAction() == Action.THROW_PEARL) {
-                  PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+                  PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                }
                break;
             case "resetCumPercentage":
@@ -426,7 +426,7 @@ public class BeeEntity extends BeeEntityBase {
                }
                break;
             case "sex_fastDone":
-               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.d) {
+               if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.isJumping) {
                   return;
                }
             case "sex_startDone":
@@ -451,7 +451,7 @@ public class BeeEntity extends BeeEntityBase {
                }
                break;
             case "sex_fastReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
          }

@@ -63,17 +63,17 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 public class AlliesLampItem extends Item implements IAnimatable {
-   static final String e = "sexmodAllieInUse";
-   static final String d = "sexmodAllieInUseTicks";
-   public static final String j = "sexmodUses";
-   public static final String h = "sexmodAllieID";
-   static final Integer c = 95;
-   static final Integer k = 50;
-   public static final int a = 150;
-   public static final float f = 0.75F;
-   public static final AlliesLampItem b = new AlliesLampItem();
-   private final AnimationFactory i = new AnimationFactory(this);
-   AnimationController<AlliesLampItem> g;
+   static final String ALLIE_IN_USE_KEY = "sexmodAllieInUse";
+   static final String ALLIE_IN_USE_TICKS_KEY = "sexmodAllieInUseTicks";
+   public static final String USES_KEY = "sexmodUses";
+   public static final String ALLIE_ID_KEY = "sexmodAllieID";
+   static final Integer SUMMON_TICK = 95;
+   static final Integer PARTICLE_START_TICK = 50;
+   public static final int PARTICLE_COUNT = 150;
+   public static final float PARTICLE_SPREAD = 0.75F;
+   public static final AlliesLampItem ALLIES_LAMP = new AlliesLampItem();
+   private final AnimationFactory animationFactory = new AnimationFactory(this);
+   AnimationController<AlliesLampItem> controller;
 
    public AlliesLampItem() {
       this.setCreativeTab(CreativeTabs.MISC);
@@ -81,21 +81,21 @@ public class AlliesLampItem extends Item implements IAnimatable {
    }
 
    public static void register() {
-      b.setRegistryName(new ResourceLocation("sexmod", "allies_lamp"));
-      b.setTranslationKey("allies_lamp");
+      ALLIES_LAMP.setRegistryName(new ResourceLocation("sexmod", "allies_lamp"));
+      ALLIES_LAMP.setTranslationKey("allies_lamp");
       MinecraftForge.EVENT_BUS.register(AlliesLampItem.class);
    }
 
    @SubscribeEvent
    public static void a(Register<Item> var0) {
-      var0.getRegistry().register(b);
+      var0.getRegistry().register(ALLIES_LAMP);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public static void a(ModelRegistryEvent var0) {
-      ModelLoader.setCustomModelResourceLocation(b, 0, new ModelResourceLocation("sexmod:allies_lamp"));
-      b.setTileEntityItemStackRenderer(new AlliesLampRenderer());
+      ModelLoader.setCustomModelResourceLocation(ALLIES_LAMP, 0, new ModelResourceLocation("sexmod:allies_lamp"));
+      ALLIES_LAMP.setTileEntityItemStackRenderer(new AlliesLampRenderer());
    }
 
    @SideOnly(Side.CLIENT)
@@ -121,15 +121,15 @@ public class AlliesLampItem extends Item implements IAnimatable {
          }
 
          if (var3 != null) {
-            var3.addEntry(new LootEntryItem(b, 5, 0, new LootFunction[0], new LootCondition[0], "sexmod:allies_lamp"));
+            var3.addEntry(new LootEntryItem(ALLIES_LAMP, 5, 0, new LootFunction[0], new LootCondition[0], "sexmod:allies_lamp"));
          }
       }
    }
 
    @Override
    public void registerControllers(AnimationData var1) {
-      this.g = new AnimationController<>(this, "controller", 2.0F, this::animationPredicate);
-      var1.addAnimationController(this.g);
+      this.controller = new AnimationController<>(this, "controller", 2.0F, this::animationPredicate);
+      var1.addAnimationController(this.controller);
    }
 
    @SideOnly(Side.CLIENT)
@@ -173,14 +173,14 @@ public class AlliesLampItem extends Item implements IAnimatable {
             int var9 = var7.getInteger("sexmodAllieInUseTicks");
             if (var8) {
                var7.setInteger("sexmodAllieInUseTicks", var9 + 1);
-               if (var9 > k && var9 < c) {
-                  double var10 = (float)(var9 - k) / (c - k);
+               if (var9 > PARTICLE_START_TICK && var9 < SUMMON_TICK) {
+                  double var10 = (float)(var9 - PARTICLE_START_TICK) / (SUMMON_TICK - PARTICLE_START_TICK);
                   var10 = RotationHelper.h(var10);
                   Vec3d var12 = new Vec3d(0.0, var6.eyeHeight * (1.0 - var10), 0.0);
                   WorldUtils.a(var2, EnumParticleTypes.CRIT_MAGIC, this.a_clash32(var6).add(var12), (int)(var10 * 150.0), var10 * 0.75, var10);
                }
 
-               if (var9 >= c) {
+               if (var9 >= SUMMON_TICK) {
                   WorldUtils.a(var2, EnumParticleTypes.CRIT_MAGIC, this.a_clash32(var6), 150, 0.75, 2.0);
                   var7.setBoolean("sexmodAllieInUse", false);
                   var7.setInteger("sexmodAllieInUseTicks", 0);
@@ -224,7 +224,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
 
    @Override
    public AnimationFactory getFactory() {
-      return this.i;
+      return this.animationFactory;
    }
 
 
@@ -246,7 +246,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
                      for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
                         if (!var6.isDead && var6 instanceof AllieEntity) {
                            AllieEntity var7 = (AllieEntity)var6;
-                           ItemStack var8 = (ItemStack)var7.getDataManager().get(AllieEntity.N);
+                           ItemStack var8 = (ItemStack)var7.getDataManager().get(AllieEntity.LAMP_ITEM);
                            if (var4.equals(var8)) {
                               return;
                            }
@@ -256,7 +256,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
                   }
                }
 
-               if (var4.getItem() == AlliesLampItem.b) {
+               if (var4.getItem() == AlliesLampItem.ALLIES_LAMP) {
                   NBTTagCompound var10 = var4.getTagCompound();
                   if (var10 == null || var10.getInteger("sexmodUses") < 3) {
                      NBTTagCompound var11 = var2.getEntityData();

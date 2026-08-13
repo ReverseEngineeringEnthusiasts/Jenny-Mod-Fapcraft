@@ -26,7 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CommandSetModelCode extends CommandBase implements IClientCommand {
-   public static final CommandSetModelCode a = new CommandSetModelCode();
+   public static final CommandSetModelCode SET_MODEL_CODE_COMMAND = new CommandSetModelCode();
 
    public boolean allowUsageWithoutPrefix(ICommandSender var1, String var2) {
       return false;
@@ -62,10 +62,10 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
       if (var9 == null) {
          var5.sendStatusMessage(new TextComponentString("You gotta transform into the girl you want to apply the model-code to"), true);
       } else if ("".equals(var7)) {
-         PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId()));
+         PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId()));
          var5.sendStatusMessage(new TextComponentString(this.a_clash756(var9)), true);
       } else {
-         PacketHandler.b.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId(), BaseGirlEntity.decodePartIdList(var7)));
+         PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId(), BaseGirlEntity.decodePartIdList(var7)));
          var5.sendStatusMessage(new TextComponentString(this.a_clash756(var9)), true);
       }
    }

@@ -56,10 +56,10 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
 public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBeddableSexGirl {
-   public boolean Z = false;
+   public boolean zFlag = false;
    public boolean ab = false;
    public boolean af = false;
-   public static final DataParameter<Boolean> Y = EntityDataManager.createKey(BaseGirlEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> yFlag = EntityDataManager.createKey(BaseGirlEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(118);
    int ac = 0;
@@ -71,10 +71,10 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    public JennyEntity(World var1) {
       super(var1);
       this.setSize(0.49F, 1.95F);
-      this.P = 140;
-      this.O = 50;
-      this.K = 140;
-      this.V = new Vec3d(0.0, -0.029999997854232782, -0.2);
+      this.slashSwordRot = 140;
+      this.stabSwordRot = 50;
+      this.holdBowRot = 140;
+      this.swordOffsetStab = new Vec3d(0.0, -0.029999997854232782, -0.2);
    }
 
    public static JennyEntity a(World var0) {
@@ -96,7 +96,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.entityDataManager.register(Y, false);
+      this.entityDataManager.register(yFlag, false);
    }
 
    @Override
@@ -132,10 +132,10 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
          this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
          this.cameraOriginPos = null;
          this.setCurrentAction(Action.DOGGYSTART);
-         PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var2);
+         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), var2);
       }
 
-      if (this.Z) {
+      if (this.zFlag) {
          if (!(this.getPositionVector().distanceTo(this.getTargetPosition()) < 0.6) && this.ad <= 200) {
             this.ad++;
             if (this.ad == 60 || this.ad == 120) {
@@ -143,7 +143,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                this.getNavigator().tryMoveToXYZ(this.getTargetPosition().x, this.getTargetPosition().y, this.getTargetPosition().z, 0.35);
             }
          } else {
-            this.Z = false;
+            this.zFlag = false;
             this.entityDataManager.set(BaseGirlEntity.IS_ANCHORED, true);
             this.ad = 0;
             this.noClip = true;
@@ -169,7 +169,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
             this.setYawRotation(this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID()).rotationYaw + 180.0F);
             this.entityDataManager.set(BaseGirlEntity.IS_ANCHORED, true);
             this.getNavigator().clearPath();
-            if ((Boolean)this.entityDataManager.get(Y)) {
+            if ((Boolean)this.entityDataManager.get(yFlag)) {
                this.U();
                return;
             }
@@ -195,7 +195,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    public void onUpdate() {
       super.onUpdate();
       if (!this.world.isRemote) {
-         this.entityDataManager.set(Y, this.isPotionActive(HornyPotion.b));
+         this.entityDataManager.set(yFlag, this.isPotionActive(HornyPotion.HORNY_POTION));
       }
    }
 
@@ -211,7 +211,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
             "action.names.doggy",
             this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) == 1 ? "action.names.strip" : "action.names.dressup"
          };
-         if ((Boolean)this.entityDataManager.get(Y)) {
+         if ((Boolean)this.entityDataManager.get(yFlag)) {
             BaseGirlEntity.openInventoryGui(var1, this, var2, true);
             return true;
          } else {
@@ -317,7 +317,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
          this.cameraYaw = this.getYawRotation();
          this.getNavigator().clearPath();
          this.getNavigator().tryMoveToXYZ(var12.x, var12.y, var12.z, 0.35);
-         this.Z = true;
+         this.zFlag = true;
          this.ad = 0;
       }
    }
@@ -415,7 +415,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
 
             this.resetCameraAndPhysics();
             if (this.world.isRemote) {
-               PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
             } else {
                this.resetGirlState();
                this.goToSexBed();
@@ -510,7 +510,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                   this.createAnimation("animation.jenny.doggycum", false, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.jenny.attack" + this.S, false, var1);
+                  this.createAnimation("animation.jenny.attack" + this.nextAttack, false, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.jenny.bowcharge", false, var1);
@@ -561,8 +561,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                break;
             case "attackDone":
                this.setCurrentAction(Action.NULL);
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "becomeNude":
@@ -670,7 +670,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                }
                break;
             case "bjiMSG11":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
 
@@ -680,7 +680,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                }
                break;
             case "bjiMSG12":
-               if (Reference.f.nextInt(5) == 0) {
+               if (Reference.RANDOM.nextInt(5) == 0) {
                   this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_BJMOAN));
                }
 
@@ -706,14 +706,14 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                this.setCurrentAction(Action.SUCKBLOWJOB);
                break;
             case "doggyfastReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                   this.aa = true;
                }
                break;
             case "bjtReady":
             case "paizuriReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
                }
                break;
@@ -770,7 +770,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                this.playSoundAtVolume(SoundHandler.MISC_SLAP[0], 0.75F);
                break;
             case "doggyGoOnBedDone":
-               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
+               PacketHandler.networkWrapper.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
                this.setCurrentAction(Action.WAITDOGGY);
                break;
             case "doggystartMSG1":
@@ -802,9 +802,9 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
             case "doggyslowMSG1":
                this.aa = false;
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
-               int var5 = Reference.f.nextInt(4);
+               int var5 = Reference.RANDOM.nextInt(4);
                if (var5 == 0) {
-                  var5 = Reference.f.nextInt(2);
+                  var5 = Reference.RANDOM.nextInt(2);
                   if (var5 == 0) {
                      this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MMM));
                   } else {
@@ -829,7 +829,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
 
                this.ag++;
                if (this.ag % 2 == 0) {
-                  int var10 = Reference.f.nextInt(2);
+                  int var10 = Reference.RANDOM.nextInt(2);
                   if (var10 == 0) {
                      this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
                   } else {
@@ -861,7 +861,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                this.playSound(SoundHandler.GIRLS_JENNY_HEAVYBREATHING[7]);
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "boobjob_camera":
                UUID var6 = Minecraft.getMinecraft().player.getPersistentID();

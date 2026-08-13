@@ -29,8 +29,8 @@ import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
 
 public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
-   final float g = 60.0F;
-   Minecraft f = Minecraft.getMinecraft();
+   final float legSwingAngle = 60.0F;
+   Minecraft mc = Minecraft.getMinecraft();
 
    @Override
    protected ResourceLocation[] getModelLocations() {
@@ -80,7 +80,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             IBone var13 = var4.getBone("body");
             IBone var14 = var4.getBone("head");
             Action var15 = var1.getCurrentAction();
-            if ((var15 == Action.BREEDING_SLOW_2 || var15 == Action.BREEDING_FAST_2 || var15 == Action.BREEDING_CUM_2) && this.f.gameSettings.thirdPersonView == 0) {
+            if ((var15 == Action.BREEDING_SLOW_2 || var15 == Action.BREEDING_FAST_2 || var15 == Action.BREEDING_CUM_2) && this.mc.gameSettings.thirdPersonView == 0) {
                var13.setPositionY(var13.getPositionY() + 1.5F);
             }
 
@@ -94,7 +94,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             }
 
             if (var15 == Action.START_THROWING) {
-               if (this.f.player.getPersistentID().equals(var16.getOwnerUUID())) {
+               if (this.mc.player.getPersistentID().equals(var16.getOwnerUUID())) {
                   this.a(var13, var4, var1, var16);
                } else {
                   this.a(var13, var4, var1);
@@ -119,7 +119,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             IBone var7 = var4.getBone("body");
             IBone var8 = var4.getBone("head");
             Action var9 = var1.getCurrentAction();
-            if ((var9 == Action.BREEDING_SLOW_2 || var9 == Action.BREEDING_FAST_2 || var9 == Action.BREEDING_CUM_2) && this.f.gameSettings.thirdPersonView == 0) {
+            if ((var9 == Action.BREEDING_SLOW_2 || var9 == Action.BREEDING_FAST_2 || var9 == Action.BREEDING_CUM_2) && this.mc.gameSettings.thirdPersonView == 0) {
                var7.setPositionY(var7.getPositionY() + 1.5F);
             }
 
@@ -129,7 +129,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             }
 
             if (var9 == Action.START_THROWING) {
-               if (this.f.player.getPersistentID().equals(var10.getOwnerUUID())) {
+               if (this.mc.player.getPersistentID().equals(var10.getOwnerUUID())) {
                   this.a(var7, var4, var1, var10);
                } else {
                   this.a(var7, var4, var1);
@@ -157,7 +157,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
 
    void a(AnimationProcessor var1, BaseGirlEntity var2) {
       if (var2.getCurrentAction() == Action.START_THROWING) {
-         if (this.f.gameSettings.thirdPersonView == 0 && this.f.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var2).getOwnerUserUUID())) {
+         if (this.mc.gameSettings.thirdPersonView == 0 && this.mc.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var2).getOwnerUserUUID())) {
             IBone var3 = var1.getBone("body");
             if (var3 != null) {
                var3.setHidden(true);
@@ -168,7 +168,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
 
    void b(AnimationProcessor var1, BaseGirlEntity var2) {
       if (var2.getCurrentAction() == Action.PICK_UP) {
-         if (this.f.gameSettings.thirdPersonView != 0 || !this.f.player.getPersistentID().equals(((IGoblin)var2).getOwnerUUID())) {
+         if (this.mc.gameSettings.thirdPersonView != 0 || !this.mc.player.getPersistentID().equals(((IGoblin)var2).getOwnerUUID())) {
             IBone var3 = var1.getBone("body");
             if (var3 != null) {
                IBone var4 = var1.getBone("steve");
@@ -186,7 +186,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       if (var4 != null) {
          EntityPlayer var5 = var3.world.getPlayerEntityByUUID(var4);
          if (var5 != null) {
-            float var6 = RotationHelper.lerp(var5.prevLimbSwingAmount, var5.limbSwingAmount, this.f.getRenderPartialTicks());
+            float var6 = RotationHelper.lerp(var5.prevLimbSwingAmount, var5.limbSwingAmount, this.mc.getRenderPartialTicks());
             float var7 = var5.limbSwing;
             float var8 = (float)Math.sin(var7);
             IBone var9 = var1.getBone("LeftLeg");

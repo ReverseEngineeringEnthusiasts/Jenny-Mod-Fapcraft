@@ -36,7 +36,7 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
 public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends GirlRenderer<G> {
-   protected static final Vec3i r = new Vec3i(255, 255, 255);
+   protected static final Vec3i defaultColor = new Vec3i(255, 255, 255);
    static HashMap<Integer, Vec3i> s = new HashMap<>();
 
    public GirlRendererBase(RenderManager var1, AnimatedGeoModel var2, double var3) {
@@ -49,7 +49,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
 
    protected Vec3i getCachedBoneColor(GeoBone var1) {
       String var2 = var1.getName();
-      int var3 = var2.hashCode() + this.j.getPersistentID().hashCode();
+      int var3 = var2.hashCode() + this.renderEntity.getPersistentID().hashCode();
       Vec3i var4 = s.get(var3);
       if (var4 != null) {
          return var4;
@@ -89,8 +89,8 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
          GlStateManager.rotate((float)var5.x, 1.0F, 0.0F, 0.0F);
          GlStateManager.rotate((float)var5.y, 0.0F, 1.0F, 0.0F);
          GlStateManager.rotate((float)var5.z, 0.0F, 0.0F, 1.0F);
-         Minecraft.getMinecraft().getItemRenderer().renderItem(this.j, var3, TransformType.THIRD_PERSON_RIGHT_HAND);
-         this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
+         Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, var3, TransformType.THIRD_PERSON_RIGHT_HAND);
+         this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
          var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          GL11.glDisable(2896);
          GlStateManager.popMatrix();
@@ -129,13 +129,13 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
 
    @Override
    public void renderCustomBones(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
-      if (!(this.j.world instanceof SexWorldClient)) {
+      if (!(this.renderEntity.world instanceof SexWorldClient)) {
          String var9 = var2.getName();
          if (var9.equals("weapon")) {
             this.renderHeldItem(var1, var2);
          }
 
-         if (var9.equals("itemRenderer") && this.j.getCurrentAction() == Action.PAYMENT) {
+         if (var9.equals("itemRenderer") && this.renderEntity.getCurrentAction() == Action.PAYMENT) {
             this.renderTradeOverlay(var1, var2);
          }
 
@@ -150,7 +150,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
             for (GeoCube var11 : var2.childCubes) {
                MATRIX_STACK.push();
                GlStateManager.pushMatrix();
-               this.q = var2;
+               this.currentRenderingBone = var2;
                this.renderCubeGeometry(var1, var11, var2, var3, var4, var5, var6, var7);
                GlStateManager.popMatrix();
                MATRIX_STACK.pop();

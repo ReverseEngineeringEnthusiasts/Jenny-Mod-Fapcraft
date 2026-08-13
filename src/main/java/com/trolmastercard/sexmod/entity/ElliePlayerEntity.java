@@ -98,7 +98,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       } else if ("action.names.missionary".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", "Missionary");
       } else if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
-         PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
+         PacketHandler.networkWrapper.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
          this.ab = true;
       }
    }
@@ -168,8 +168,8 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
          this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
          this.setInteractionPlayerUUID(var2.getPersistentID());
          EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
-         PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
-         PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var3);
+         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
+         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), var3);
          var2.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
          var3.capabilities.isFlying = true;
          var2.capabilities.isFlying = true;
@@ -282,7 +282,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.ellie.cowgirlcum", true, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.ellie.attack" + this.S, false, var1);
+                  this.createAnimation("animation.ellie.attack" + this.nextAttack, false, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.ellie.bowcharge", false, var1);
@@ -365,7 +365,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
             case "hugMSG1":
                EntityPlayerSP var7 = Minecraft.getMinecraft().player;
                if (var7.getPersistentID().equals(this.getInteractionPlayerUUID()) || var7.getUniqueID().equals(this.getInteractionPlayerUUID())) {
-                  PacketHandler.b
+                  PacketHandler.networkWrapper
                      .sendToServer(
                         new TeleportPlayerPacket(var7.getUniqueID().toString(), var7.getPositionVector(), var7.rotationYaw - 80.0F, var7.rotationPitch)
                      );
@@ -414,9 +414,9 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                      -Math.sin(this.rotationYaw * (Math.PI / 180.0)) * 0.5296875F, 0.0, Math.cos(this.rotationYaw * (Math.PI / 180.0)) * 0.5296875F
                   );
                   String var6 = var10.x + "f" + var10.y + "f" + var10.z + "f";
-                  PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.getGirlId(), "targetPos", var6));
+                  PacketHandler.networkWrapper.sendToServer(new ChangeDataParameterPacket(this.getGirlId(), "targetPos", var6));
                   this.resetCameraAndPhysics();
-                  PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
+                  PacketHandler.networkWrapper.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
                   this.setCurrentAction(Action.NULL);
                }
                break;
@@ -474,9 +474,9 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "cowgirlfastReady":
                if (this.isControlledByLocalPlayer()) {
-                  if (!HandlePlayerMovement.d) {
+                  if (!HandlePlayerMovement.isJumping) {
                      this.setCurrentAction(Action.COWGIRLSLOW);
-                  } else if (Reference.f.nextInt(4) != 1) {
+                  } else if (Reference.RANDOM.nextInt(4) != 1) {
                      this.actionController.clearAnimationCache();
                   }
                }
@@ -524,12 +524,12 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "attackDone":
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "openSexUi":
                if (this.isControlledByLocalPlayer()) {
@@ -562,7 +562,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "missionary_fastDone":
                if (this.isControlledByLocalPlayer()) {
-                  if (HandlePlayerMovement.d) {
+                  if (HandlePlayerMovement.isJumping) {
                      this.setCurrentAction(Action.MISSIONARY_FAST);
                   } else {
                      this.setCurrentAction(Action.MISSIONARY_SLOW);
@@ -612,7 +612,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
 
                return;
             case "carry_fastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.CARRY_SLOW);
                }
                break;

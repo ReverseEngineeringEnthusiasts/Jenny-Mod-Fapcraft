@@ -279,7 +279,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                   this.createAnimation("animation.galath.strip", true, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.galath.attack" + this.S, true, var1);
+                  this.createAnimation("animation.galath.attack" + this.nextAttack, true, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.galath.bowcharge", true, var1);
@@ -308,8 +308,8 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
             var1x -> {
                switch (var1x.sound) {
                   case "attackDone":
-                     if (++this.S == 3) {
-                        this.S = 0;
+                     if (++this.nextAttack == 3) {
+                        this.nextAttack = 0;
                      }
                      break;
                   case "cum":
@@ -370,12 +370,12 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      }
                      break;
                   case "corruptSwitch":
-                     if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                     if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                         this.setCurrentAction(Action.CORRUPT_FAST);
                      }
                      break;
                   case "corrupt_hard":
-                     if (this.isControlledByLocalPlayer() && HandlePlayerMovement.d) {
+                     if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                         this.as = true;
                         this.resetAnimationControllerOffset();
                      }
@@ -403,7 +403,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      EntityPlayerSP var11 = Minecraft.getMinecraft().player;
                      float var12 = this.getYawRotation() + 220.0F;
                      Vec3d var13 = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5F - var11.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
-                     PacketHandler.b.sendToServer(new TeleportPlayerPacket(var11.getPersistentID().toString(), var13, var12, 15.0F));
+                     PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(var11.getPersistentID().toString(), var13, var12, 15.0F));
                      HornyMeterHud.showHornyMeter();
                      break;
                   case "enableBoyCam":
@@ -449,7 +449,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                               RotationHelper.lerp(var14.prevRotationPitch, var14.rotationPitch, var10.getRenderPartialTicks()),
                               RotationHelper.lerp(var14.prevRotationYawHead, var14.rotationYawHead, var10.getRenderPartialTicks())
                            );
-                           PacketHandler.b.sendToServer(new UpdateVelocityPacket(var17, this.getGirlId()));
+                           PacketHandler.networkWrapper.sendToServer(new UpdateVelocityPacket(var17, this.getGirlId()));
                         }
                      }
                      break;

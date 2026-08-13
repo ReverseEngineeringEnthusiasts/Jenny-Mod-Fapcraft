@@ -38,17 +38,17 @@ import net.minecraft.world.World;
 import net.minecraft.world.storage.loot.LootTableList;
 
 public class WildSlimeEntity extends EntityLiving {
-   public static List<WildSlimeEntity> g = new ArrayList<>();
-   private static final DataParameter<Integer> d = EntityDataManager.createKey(WildSlimeEntity.class, DataSerializers.VARINT)
+   public static List<WildSlimeEntity> ALL_SLIMES = new ArrayList<>();
+   private static final DataParameter<Integer> AGE_IN_TICKS = EntityDataManager.createKey(WildSlimeEntity.class, DataSerializers.VARINT)
       .getSerializer()
       .createKey(111);
-   private static final DataParameter<Integer> c = EntityDataManager.createKey(WildSlimeEntity.class, DataSerializers.VARINT)
+   private static final DataParameter<Integer> SIZE = EntityDataManager.createKey(WildSlimeEntity.class, DataSerializers.VARINT)
       .getSerializer()
       .createKey(110);
-   public float a;
-   public float e;
-   public float h;
-   private boolean f;
+   public float squishAmount;
+   public float squishFactor;
+   public float prevSquishFactor;
+   private boolean wasOnGround;
 
    public WildSlimeEntity(World var1) {
       super(var1);
@@ -62,8 +62,8 @@ public class WildSlimeEntity extends EntityLiving {
 
    protected void entityInit() {
       super.entityInit();
-      this.dataManager.register(c, 1);
-      this.dataManager.register(d, 0);
+      this.dataManager.register(SIZE, 1);
+      this.dataManager.register(AGE_IN_TICKS, 0);
    }
 
    public void fall(float var1, float var2) {
@@ -74,7 +74,7 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    protected void a(int var1, boolean var2) {
-      this.dataManager.set(c, var1);
+      this.dataManager.set(SIZE, var1);
       this.setSize(0.51000005F * var1, 0.51000005F * var1);
       this.setPosition(this.posX, this.posY, this.posZ);
       this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(var1 * var1);
@@ -87,7 +87,7 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    public int getSquishFactor() {
-      return (Integer)this.dataManager.get(c);
+      return (Integer)this.dataManager.get(SIZE);
    }
 
    public static void a(DataFixer var0) {
@@ -97,8 +97,8 @@ public class WildSlimeEntity extends EntityLiving {
    public void writeEntityToNBT(NBTTagCompound var1) {
       super.writeEntityToNBT(var1);
       var1.setInteger("Size", this.getSquishFactor() - 1);
-      var1.setBoolean("wasOnGround", this.f);
-      var1.setInteger("ageInTicks", (Integer)this.dataManager.get(d));
+      var1.setBoolean("wasOnGround", this.wasOnGround);
+      var1.setInteger("ageInTicks", (Integer)this.dataManager.get(AGE_IN_TICKS));
    }
 
    public void readEntityFromNBT(NBTTagCompound var1) {
@@ -109,8 +109,8 @@ public class WildSlimeEntity extends EntityLiving {
       }
 
       this.a(var2 + 1, false);
-      this.f = var1.getBoolean("wasOnGround");
-      this.dataManager.set(d, var1.getInteger("ageInTicks"));
+      this.wasOnGround = var1.getBoolean("wasOnGround");
+      this.dataManager.set(AGE_IN_TICKS, var1.getInteger("ageInTicks"));
    }
 
    public boolean j_clash93() {
@@ -134,7 +134,7 @@ public class WildSlimeEntity extends EntityLiving {
       ArrayList var3 = new ArrayList();
 
       try {
-         for (WildSlimeEntity var5 : g) {
+         for (WildSlimeEntity var5 : ALL_SLIMES) {
             if (var5 != null) {
                double var6 = Math.abs(var5.prevPosX - var0.x)
                   + Math.abs(var5.prevPosY - var0.y)
@@ -156,15 +156,15 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    void a(EnumParticleTypes var1) {
-      double var2 = Reference.f.nextGaussian() * 0.02;
-      double var4 = Reference.f.nextGaussian() * 0.02;
-      double var6 = Reference.f.nextGaussian() * 0.02;
+      double var2 = Reference.RANDOM.nextGaussian() * 0.02;
+      double var4 = Reference.RANDOM.nextGaussian() * 0.02;
+      double var6 = Reference.RANDOM.nextGaussian() * 0.02;
       this.world
          .spawnParticle(
             var1,
-            this.posX + Reference.f.nextFloat() * this.width * 2.0F - this.width,
-            this.posY + 0.15 + Reference.f.nextFloat() * this.height,
-            this.posZ + Reference.f.nextFloat() * this.width * 2.0F - this.width,
+            this.posX + Reference.RANDOM.nextFloat() * this.width * 2.0F - this.width,
+            this.posY + 0.15 + Reference.RANDOM.nextFloat() * this.height,
+            this.posZ + Reference.RANDOM.nextFloat() * this.width * 2.0F - this.width,
             var2,
             var4,
             var6,
@@ -173,14 +173,14 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    public void onUpdate() {
-      this.dataManager.set(d, (Integer)this.dataManager.get(d) + 1);
+      this.dataManager.set(AGE_IN_TICKS, (Integer)this.dataManager.get(AGE_IN_TICKS) + 1);
       if (this.world.isRemote) {
-         if (((Integer)this.dataManager.get(d)).intValue() > 7980.0) {
+         if (((Integer)this.dataManager.get(AGE_IN_TICKS)).intValue() > 7980.0) {
             this.a(EnumParticleTypes.CLOUD);
-         } else if (((Integer)this.dataManager.get(d)).intValue() > 5880.0 && this.ticksExisted % 10 == 0) {
+         } else if (((Integer)this.dataManager.get(AGE_IN_TICKS)).intValue() > 5880.0 && this.ticksExisted % 10 == 0) {
             this.a(EnumParticleTypes.VILLAGER_HAPPY);
          }
-      } else if ((Integer)this.dataManager.get(d) > 8400) {
+      } else if ((Integer)this.dataManager.get(AGE_IN_TICKS) > 8400) {
          SlimeEntity var1 = new SlimeEntity(this.world);
          var1.setPositionAndRotation(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
          this.world.spawnEntity(var1);
@@ -188,10 +188,10 @@ public class WildSlimeEntity extends EntityLiving {
          this.world.removeEntity(this);
       }
 
-      this.e = this.e + (this.a - this.e) * 0.5F;
-      this.h = this.e;
+      this.squishFactor = this.squishFactor + (this.squishAmount - this.squishFactor) * 0.5F;
+      this.prevSquishFactor = this.squishFactor;
       super.onUpdate();
-      if (this.onGround && !this.f) {
+      if (this.onGround && !this.wasOnGround) {
          int var13 = this.getSquishFactor();
          if (this.k_clash104()) {
             var13 = 0;
@@ -210,17 +210,17 @@ public class WildSlimeEntity extends EntityLiving {
          }
 
          this.playSound(this.f_clash101(), this.getSoundVolume(), ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F) / 0.8F);
-         this.a = -0.5F;
-      } else if (!this.onGround && this.f) {
-         this.a = 1.0F;
+         this.squishAmount = -0.5F;
+      } else if (!this.onGround && this.wasOnGround) {
+         this.squishAmount = 1.0F;
       }
 
-      this.f = this.onGround;
+      this.wasOnGround = this.onGround;
       this.b_clash98();
    }
 
    protected void b_clash98() {
-      this.a *= 0.6F;
+      this.squishAmount *= 0.6F;
    }
 
    protected int getRandomDespawnDelay() {
@@ -232,7 +232,7 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    public void notifyDataManagerChange(DataParameter<?> var1) {
-      if (c.equals(var1)) {
+      if (SIZE.equals(var1)) {
          int var2 = this.getSquishFactor();
          this.setSize(0.51000005F * var2, 0.51000005F * var2);
          this.rotationYaw = this.rotationYawHead;
@@ -329,46 +329,46 @@ public class WildSlimeEntity extends EntityLiving {
 
 
    static class a extends EntityAIBase {
-      private final WildSlimeEntity b;
-      private float a;
-      private int c;
+      private final WildSlimeEntity ownerSlime;
+      private float squishAngle;
+      private int floatDelay;
 
       public a(WildSlimeEntity var1) {
-         this.b = var1;
+         this.ownerSlime = var1;
          this.setMutexBits(2);
       }
 
       public boolean shouldExecute() {
-         return this.b.getAttackTarget() == null
-            && (this.b.onGround || this.b.isInWater() || this.b.isInLava() || this.b.isPotionActive(MobEffects.LEVITATION));
+         return this.ownerSlime.getAttackTarget() == null
+            && (this.ownerSlime.onGround || this.ownerSlime.isInWater() || this.ownerSlime.isInLava() || this.ownerSlime.isPotionActive(MobEffects.LEVITATION));
       }
 
       public void updateTask() {
-         if (--this.c <= 0) {
-            this.c = 40 + this.b.getRNG().nextInt(60);
-            this.a = this.b.getRNG().nextInt(360);
+         if (--this.floatDelay <= 0) {
+            this.floatDelay = 40 + this.ownerSlime.getRNG().nextInt(60);
+            this.squishAngle = this.ownerSlime.getRNG().nextInt(360);
          }
 
-         ((WildSlimeEntity.b)this.b.getMoveHelper()).a_clash0(this.a, false);
+         ((WildSlimeEntity.b)this.ownerSlime.getMoveHelper()).a_clash0(this.squishAngle, false);
       }
 
    }
 
    static class b extends EntityMoveHelper {
-      private float b;
-      private int c;
-      private final WildSlimeEntity d;
-      private boolean a;
+      private float rotationYaw;
+      private int squishDelay;
+      private final WildSlimeEntity slime;
+      private boolean wasOnGround;
 
       public b(WildSlimeEntity var1) {
          super(var1);
-         this.d = var1;
-         this.b = 180.0F * var1.rotationYaw / (float) Math.PI;
+         this.slime = var1;
+         this.rotationYaw = 180.0F * var1.rotationYaw / (float) Math.PI;
       }
 
       public void a_clash0(float var1, boolean var2) {
-         this.b = var1;
-         this.a = var2;
+         this.rotationYaw = var1;
+         this.wasOnGround = var2;
       }
 
       public void a_clash1(double var1) {
@@ -377,7 +377,7 @@ public class WildSlimeEntity extends EntityLiving {
       }
 
       public void onUpdateMoveHelper() {
-         this.entity.rotationYaw = this.limitAngle(this.entity.rotationYaw, this.b, 90.0F);
+         this.entity.rotationYaw = this.limitAngle(this.entity.rotationYaw, this.rotationYaw, 90.0F);
          this.entity.rotationYawHead = this.entity.rotationYaw;
          this.entity.renderYawOffset = this.entity.rotationYaw;
          if (this.action != Action.MOVE_TO) {
@@ -387,26 +387,26 @@ public class WildSlimeEntity extends EntityLiving {
             if (this.entity.onGround) {
                this.entity
                   .setAIMoveSpeed((float)(this.speed * this.entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue()));
-               if (this.c-- <= 0) {
-                  this.c = this.d.getRandomDespawnDelay();
-                  if (this.a) {
-                     this.c /= 3;
+               if (this.squishDelay-- <= 0) {
+                  this.squishDelay = this.slime.getRandomDespawnDelay();
+                  if (this.wasOnGround) {
+                     this.squishDelay /= 3;
                   }
 
-                  float var1 = Reference.f.nextInt(360);
-                  ((WildSlimeEntity.b)this.d.getMoveHelper()).a_clash0(var1, false);
-                  this.d.getJumpHelper().setJumping();
-                  if (this.d.i_clash102()) {
-                     this.d
+                  float var1 = Reference.RANDOM.nextInt(360);
+                  ((WildSlimeEntity.b)this.slime.getMoveHelper()).a_clash0(var1, false);
+                  this.slime.getJumpHelper().setJumping();
+                  if (this.slime.i_clash102()) {
+                     this.slime
                         .playSound(
-                           this.d.c_clash103(),
-                           this.d.getSoundVolume(),
-                           ((this.d.getRNG().nextFloat() - this.d.getRNG().nextFloat()) * 0.2F + 1.0F) * 0.8F
+                           this.slime.c_clash103(),
+                           this.slime.getSoundVolume(),
+                           ((this.slime.getRNG().nextFloat() - this.slime.getRNG().nextFloat()) * 0.2F + 1.0F) * 0.8F
                         );
                   }
                } else {
-                  this.d.moveStrafing = 0.0F;
-                  this.d.moveForward = 0.0F;
+                  this.slime.moveStrafing = 0.0F;
+                  this.slime.moveForward = 0.0F;
                   this.entity.setAIMoveSpeed(0.0F);
                }
             } else {
@@ -419,10 +419,10 @@ public class WildSlimeEntity extends EntityLiving {
    }
 
    static class c extends EntityAIBase {
-      private final WildSlimeEntity a;
+      private final WildSlimeEntity squishAmount;
 
       public c(WildSlimeEntity var1) {
-         this.a = var1;
+         this.squishAmount = var1;
          this.setMutexBits(5);
       }
 
@@ -431,29 +431,29 @@ public class WildSlimeEntity extends EntityLiving {
       }
 
       public void updateTask() {
-         ((WildSlimeEntity.b)this.a.getMoveHelper()).a_clash1(1.0);
+         ((WildSlimeEntity.b)this.squishAmount.getMoveHelper()).a_clash1(1.0);
       }
    }
 
    static class d extends EntityAIBase {
-      private final WildSlimeEntity a;
+      private final WildSlimeEntity squishAmount;
 
       public d(WildSlimeEntity var1) {
-         this.a = var1;
+         this.squishAmount = var1;
          this.setMutexBits(5);
          ((PathNavigateGround)var1.getNavigator()).setCanSwim(true);
       }
 
       public boolean shouldExecute() {
-         return this.a.isInWater() || this.a.isInLava();
+         return this.squishAmount.isInWater() || this.squishAmount.isInLava();
       }
 
       public void updateTask() {
-         if (this.a.getRNG().nextFloat() < 0.8F) {
-            this.a.getJumpHelper().setJumping();
+         if (this.squishAmount.getRNG().nextFloat() < 0.8F) {
+            this.squishAmount.getJumpHelper().setJumping();
          }
 
-         ((WildSlimeEntity.b)this.a.getMoveHelper()).a_clash1(1.2);
+         ((WildSlimeEntity.b)this.squishAmount.getMoveHelper()).a_clash1(1.2);
       }
 
    }

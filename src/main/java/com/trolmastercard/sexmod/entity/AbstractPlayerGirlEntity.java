@@ -60,7 +60,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public static final String ae = "sexmod:GirlSpecific";
    public static final float ac = 0.0F;
    public static final int am = 100;
-   public static final int Y = 65;
+   public static final int yFlag = 65;
    public static boolean ag = true;
    public Vector2f ao = new Vector2f(0.0F, 0.0F);
    public boolean ad = false;
@@ -72,14 +72,14 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       .getSerializer()
       .createKey(118);
    public static Hashtable<UUID, AbstractPlayerGirlEntity> al = new Hashtable<>();
-   public static List<AbstractPlayerGirlEntity> Z = new ArrayList<>();
+   public static List<AbstractPlayerGirlEntity> playerGirlList = new ArrayList<>();
    int an = -1;
    public boolean ab = true;
 
    protected AbstractPlayerGirlEntity(World var1) {
       super(var1);
       this.setSize(0.01F, 0.01F);
-      Z.add(this);
+      playerGirlList.add(this);
    }
 
    protected AbstractPlayerGirlEntity(World var1, UUID var2) {
@@ -120,7 +120,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public void a(int var1, Action var2) {
-      PacketHandler.b.sendToAllTracking(new ForcePlayerGirlUpdatePacket(this.getOwnerUserUUID(), var1, var2), this.getTargetNetworkPoint());
+      PacketHandler.networkWrapper.sendToAllTracking(new ForcePlayerGirlUpdatePacket(this.getOwnerUserUUID(), var1, var2), this.getTargetNetworkPoint());
    }
 
    public EntityPlayer resolvePlayerEntity(EntityPlayer var1) {
@@ -234,7 +234,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          var1.setNoGravity(false);
          var1.noClip = false;
          this.entityDataManager.set(IS_ANCHORED, false);
-         PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
+         PacketHandler.networkWrapper.sendToServer(new ResetGirlPacket(this.getGirlId()));
       }
    }
 
@@ -317,8 +317,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    protected void b_clash577(UUID var1) {
       EntityPlayerMP var2 = (EntityPlayerMP)this.world.getPlayerEntityByUUID(var1);
       EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
-      PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var2);
-      PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var3);
+      PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), var2);
+      PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), var3);
       this.setInteractionPlayerUUID(var1);
       this.rotationYaw = 0.0F;
       this.rotationYawHead = 0.0F;
@@ -352,7 +352,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       this.D_clash581();
       if (this.world.isRemote) {
          if (this.f_clash579()) {
-            GenderSwapScreen.a.tick();
+            GenderSwapScreen.instance.tick();
          }
       }
    }
@@ -472,28 +472,28 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public void f(EntityPlayer var1) {
-      this.entityDataManager.set(X, ItemStack.EMPTY);
-      this.entityDataManager.set(T, ItemStack.EMPTY);
-      this.entityDataManager.set(U, ItemStack.EMPTY);
-      this.entityDataManager.set(W, ItemStack.EMPTY);
+      this.entityDataManager.set(HELMET_SLOT, ItemStack.EMPTY);
+      this.entityDataManager.set(CHEST_SLOT, ItemStack.EMPTY);
+      this.entityDataManager.set(LEGS_SLOT, ItemStack.EMPTY);
+      this.entityDataManager.set(BOOTS_SLOT, ItemStack.EMPTY);
 
       for (ItemStack var3 : var1.getArmorInventoryList()) {
          if (var3.getItem() instanceof ItemElytra) {
-            this.entityDataManager.set(T, var3);
+            this.entityDataManager.set(CHEST_SLOT, var3);
          } else if (var3.getItem() instanceof ItemArmor) {
             ItemArmor var4 = (ItemArmor)var3.getItem();
             switch (var4.getEquipmentSlot()) {
                case HEAD:
-                  this.entityDataManager.set(X, var3);
+                  this.entityDataManager.set(HELMET_SLOT, var3);
                   break;
                case CHEST:
-                  this.entityDataManager.set(T, var3);
+                  this.entityDataManager.set(CHEST_SLOT, var3);
                   break;
                case LEGS:
-                  this.entityDataManager.set(U, var3);
+                  this.entityDataManager.set(LEGS_SLOT, var3);
                   break;
                case FEET:
-                  this.entityDataManager.set(W, var3);
+                  this.entityDataManager.set(BOOTS_SLOT, var3);
             }
          }
       }
@@ -523,7 +523,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       ArrayList var0 = new ArrayList();
 
       try {
-         for (AbstractPlayerGirlEntity var2 : Z) {
+         for (AbstractPlayerGirlEntity var2 : playerGirlList) {
             if (var2.getOwnerUserUUID() != null) {
                al.put(var2.getOwnerUserUUID(), var2);
                var0.add(var2);
@@ -533,7 +533,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
 
       for (AbstractPlayerGirlEntity var5 : (java.util.Collection<AbstractPlayerGirlEntity>) (var0) ) {
-         Z.remove(var5);
+         playerGirlList.remove(var5);
       }
 
       t_clash586();
@@ -566,7 +566,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public void doAction(String var1, UUID var2) {
       if (!this.handleActionRequest(var1)) {
          if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
-            PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
+            PacketHandler.networkWrapper.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
             this.ab = true;
          }
       }
@@ -582,7 +582,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public void readEntityFromNBT(NBTTagCompound var1) {
       super.readEntityFromNBT(var1);
       this.entityDataManager.set(ai, Optional.of(UUID.fromString(var1.getString("owner"))));
-      Z.add(this);
+      playerGirlList.add(this);
    }
 
    @Override

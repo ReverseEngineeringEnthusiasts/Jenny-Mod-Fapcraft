@@ -68,15 +68,15 @@ public class ManglelieEntity extends BaseGirlEntity {
    public static final String ac = "sexmod:mommy";
    public static final float am = 60.0F;
    public static final float ag = 4.0F;
-   public static final float P = 3.5F;
+   public static final float SPEED_3_5 = 3.5F;
    public static final float ah = 28.0F;
    public static final float ae = 15.0F;
-   public static final float K = 15.0F;
-   public static final float L = 0.65F;
+   public static final float ANGLE_15 = 15.0F;
+   public static final float SCALE_0_65 = 0.65F;
    public static final float ao = 3.65F;
-   public static final float O = 6.0F;
+   public static final float RANGE_6 = 6.0F;
    public static final float ak = 80.0F;
-   public static final float X = 700.0F;
+   public static final float DISTANCE_700 = 700.0F;
    public static final DataParameter<String> ad = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(111);
@@ -92,22 +92,22 @@ public class ManglelieEntity extends BaseGirlEntity {
    public static final DataParameter<Boolean> ar = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(115);
-   private UUID Q = null;
+   private UUID galathPartnerUUID = null;
    public boolean aj = true;
-   public Vec3d R = Vec3d.ZERO;
-   public float V = 0.0F;
+   public Vec3d ZERO_VECTOR = Vec3d.ZERO;
+   public float VELOCITY_0 = 0.0F;
    boolean aq = true;
-   boolean S = false;
-   boolean U = false;
+   boolean despawned = false;
+   boolean corrupting = false;
    public float af = 0.0F;
-   public float W = 0.0F;
-   public float T = 0.0F;
+   public float rotationLerp = 0.0F;
+   public float TICK_0 = 0.0F;
    public float ai = 0.0F;
    boolean aa = false;
-   boolean Z = false;
-   boolean N = false;
-   boolean Y = false;
-   boolean M = false;
+   boolean modelCodeLoaded = false;
+   boolean threesomeSlowStarted = false;
+   boolean threesomeFastStarted = false;
+   boolean threesomeCumDone = false;
    public int an = 2;
 
    public ManglelieEntity(World var1) {
@@ -198,7 +198,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    public void q_clash416() {
-      this.S = true;
+      this.despawned = true;
    }
 
    @Override
@@ -265,7 +265,7 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    public void a(long var1) {
       this.entityDataManager.set(al, Long.toString(var1));
-      this.U = false;
+      this.corrupting = false;
    }
 
    void h_clash421() {
@@ -273,7 +273,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       if (var1 != -1L) {
          long var3 = this.world.getTotalWorldTime();
          if (!((float)var3 < 28.0F + (float)var1)) {
-            if (!this.U) {
+            if (!this.corrupting) {
                Entity var5 = this.b_clash424();
                if (var5 != null) {
                   GalathEntity var6 = this.getGalathPartner(true);
@@ -288,7 +288,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                      var7.motionZ = var10.z * 4.0;
                      BaseGirlEntity.girlPlaySound(var6, SoundEvents.ENTITY_ARROW_SHOOT, true);
                      this.world.spawnEntity(var7);
-                     this.U = true;
+                     this.corrupting = true;
                   }
                }
             }
@@ -429,7 +429,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                long var5 = this.world.getTotalWorldTime();
                long var7 = var5 - this.e_clash420();
                if (!((float)var7 < 60.0F)) {
-                  this.U = false;
+                  this.corrupting = false;
                   this.a_clash425(-1);
                }
             }
@@ -438,15 +438,15 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    void j_clash429() {
-      if (this.Q != null) {
-         BaseGirlEntity var1 = BaseGirlEntity.getServerGirlEntity(this.Q);
+      if (this.galathPartnerUUID != null) {
+         BaseGirlEntity var1 = BaseGirlEntity.getServerGirlEntity(this.galathPartnerUUID);
          if (var1 instanceof GalathEntity) {
             GalathEntity var2 = (GalathEntity)var1;
-            this.setGalathPartnerUUID(this.Q);
+            this.setGalathPartnerUUID(this.galathPartnerUUID);
             var2.setMangleliePartnerUUID(this.getGirlId());
             this.c_clash410(true);
             this.setCurrentAction(Action.RIDE_MOMMY_HEAD);
-            this.Q = null;
+            this.galathPartnerUUID = null;
             if (var2.getCurrentAction() == Action.HUG_MANG) {
                var2.setAnchored(false);
                var2.setCurrentAction((Action)null);
@@ -580,7 +580,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                Entity var2 = this.o_clash437();
                if (var2 == null) {
                   this.af = 0.0F;
-                  this.W = 0.0F;
+                  this.rotationLerp = 0.0F;
                } else {
                   Vec3d var3 = var2.getPositionVector().add(0.0, var2.getEyeHeight(), 0.0);
                   Vec3d var4 = var1.getPositionVector().add(var1.getCachedBoneOffset("mangPos")).add(this.getCachedBoneOffset("head"));
@@ -593,7 +593,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                   }
 
                   this.af = Math.abs(WorldUtils.a_clash300(0.0F, var6)) < 80.0F ? -TrigMath.wrapDegrees(var6) : 0.0F;
-                  this.W = this.af == 0.0F ? 0.0F : (float)ThreadNames.b(-var5.y / 2.0, -0.75, 0.75);
+                  this.rotationLerp = this.af == 0.0F ? 0.0F : (float)ThreadNames.b(-var5.y / 2.0, -0.75, 0.75);
                }
             }
          }
@@ -637,7 +637,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       UUID var2 = this.v_clash412();
       var1.setString("sexmod:mommy", var2 == null ? "" : var2.toString());
       var1.setBoolean("sexmod:iswild", this.aq);
-      if (this.S) {
+      if (this.despawned) {
          var1.setBoolean("sexmod:despawned", true);
       }
    }
@@ -646,7 +646,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       super.readFromNBT(var1);
       String var2 = var1.getString("sexmod:mommy");
       if (!"".equals(var2)) {
-         this.Q = UUID.fromString(var2);
+         this.galathPartnerUUID = UUID.fromString(var2);
       }
 
       if (var1.getBoolean("sexmod:despawned")) {
@@ -668,9 +668,9 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    void f_clash440() {
-      if (!this.Z) {
+      if (!this.modelCodeLoaded) {
          this.setCustomModelCode(GirlWorldData.c_clash151(this));
-         this.Z = true;
+         this.modelCodeLoaded = true;
       }
    }
 
@@ -683,7 +683,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    @Override
    protected Action getCumAction(Action var1) {
       if (Action.a(var1, Action.THREESOME_FAST, Action.THREESOME_SLOW)) {
-         this.N = true;
+         this.threesomeSlowStarted = true;
       }
 
       return null;
@@ -705,8 +705,8 @@ public class ManglelieEntity extends BaseGirlEntity {
 
       BlockPos var1 = this.getPosition();
       ArrayList var2 = new ArrayList();
-      var2.addAll(BeeWorldData.c);
-      var2.addAll(BeeWorldData.b);
+      var2.addAll(BeeWorldData.hivePositions);
+      var2.addAll(BeeWorldData.flowerPositions);
 
       for (BlockPos var4 : (java.util.Collection<BlockPos>) (var2) ) {
          if (Math.sqrt(var1.distanceSq(var4)) < 700.0) {
@@ -714,16 +714,16 @@ public class ManglelieEntity extends BaseGirlEntity {
          }
       }
 
-      BeeWorldData.a(var1, BeeWorldData.b);
+      BeeWorldData.a(var1, BeeWorldData.flowerPositions);
       return true;
    }
 
    @Override
    protected boolean handleActionAnimationOverrides(Action var1, String var2, boolean var3, AnimationEvent var4) {
       if (var1 == Action.THREESOME_CUM) {
-         this.N = false;
-         this.Y = false;
-         this.M = false;
+         this.threesomeSlowStarted = false;
+         this.threesomeFastStarted = false;
+         this.threesomeCumDone = false;
          this.an = 2;
          this.resetCameraAndPhysics();
          GalathEntity var8 = this.getGalathPartner(false);
@@ -734,7 +734,7 @@ public class ManglelieEntity extends BaseGirlEntity {
 
          CummyEntity.a_clash747(this);
          return true;
-      } else if (this.N && var1 == Action.THREESOME_FAST) {
+      } else if (this.threesomeSlowStarted && var1 == Action.THREESOME_FAST) {
          this.setCurrentAction(Action.THREESOME_CUM);
          this.createAnimation("animation.shared.double_holding_cum", true, var4, true);
          GalathEntity var7 = this.getGalathPartner(false);
@@ -743,8 +743,8 @@ public class ManglelieEntity extends BaseGirlEntity {
          }
 
          return true;
-      } else if ((this.N || var3) && var1 == Action.THREESOME_SLOW) {
-         this.Y = false;
+      } else if ((this.threesomeSlowStarted || var3) && var1 == Action.THREESOME_SLOW) {
+         this.threesomeFastStarted = false;
          this.setCurrentAction(Action.THREESOME_FAST);
          this.createAnimation("animation.shared.double_holding_soft", true, var4, true);
          GalathEntity var6 = this.getGalathPartner(false);
@@ -754,18 +754,18 @@ public class ManglelieEntity extends BaseGirlEntity {
 
          return true;
       } else {
-         if (this.N) {
+         if (this.threesomeSlowStarted) {
             return false;
          }
 
-         if (var3 && !this.Y && var1 == Action.THREESOME_FAST) {
-            this.Y = true;
+         if (var3 && !this.threesomeFastStarted && var1 == Action.THREESOME_FAST) {
+            this.threesomeFastStarted = true;
             this.createAnimation("animation.shared.double_holding_hard", true, var4, true);
             return true;
          }
 
          if (!var3 && var1 == Action.THREESOME_FAST) {
-            this.M = true;
+            this.threesomeCumDone = true;
             this.setCurrentAction(Action.THREESOME_SLOW);
             this.createAnimation("animation.shared.double_holding_back", true, var4, true);
             GalathEntity var5 = this.getGalathPartner(false);
@@ -774,8 +774,8 @@ public class ManglelieEntity extends BaseGirlEntity {
             }
 
             return true;
-         } else if (this.M && var1 == Action.THREESOME_SLOW) {
-            this.M = false;
+         } else if (this.threesomeCumDone && var1 == Action.THREESOME_SLOW) {
+            this.threesomeCumDone = false;
             this.createAnimation("animation.shared.double_holding_slow", true, var4, true);
             return true;
          } else {
@@ -821,14 +821,14 @@ public class ManglelieEntity extends BaseGirlEntity {
                this.createAnimation("animation.manglelie.sit_on_galath", true, var1);
                break;
             case THREESOME_SLOW:
-               if (this.M) {
+               if (this.threesomeCumDone) {
                   this.createAnimation("animation.shared.double_holding_back", true, var1);
                } else {
                   this.playRandomizedAnimation("animation.shared.double_holding_slow", 4, 0.33F, var1);
                }
                break;
             case THREESOME_FAST:
-               if (this.Y) {
+               if (this.threesomeFastStarted) {
                   this.playRandomizedAnimation("animation.shared.double_holding_hard", 3, 0.33F, var1);
                } else {
                   this.createAnimation("animation.shared.double_holding_soft", true, var1);

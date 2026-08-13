@@ -21,23 +21,23 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class BeeScreen extends GuiScreen {
-   public static final int d = 1200;
-   private static boolean b = false;
-   private static double e = 0.0;
-   static ResourceLocation c = new ResourceLocation("sexmod", "textures/gui/transitionscreen.png");
-   static ResourceLocation f = new ResourceLocation("sexmod", "textures/gui/mirroredtransitionscreen.png");
-   static ResourceLocation a = new ResourceLocation("sexmod", "textures/gui/blackscreen.png");
+   public static final int TRADE_TIMEOUT = 1200;
+   private static boolean isVisible = false;
+   private static double animTimer = 0.0;
+   static ResourceLocation TRADE_TEXTURE = new ResourceLocation("sexmod", "textures/gui/transitionscreen.png");
+   static ResourceLocation MIRROR_TEXTURE = new ResourceLocation("sexmod", "textures/gui/mirroredtransitionscreen.png");
+   static ResourceLocation BLANK_TEXTURE = new ResourceLocation("sexmod", "textures/gui/blackscreen.png");
 
    public static boolean a_clash731() {
-      return b;
+      return isVisible;
    }
 
    public static void enableInteraction() {
-      b = true;
+      isVisible = true;
    }
 
    public static void a(Runnable var0) {
-      b = true;
+      isVisible = true;
       ThreadNames.a(1200, var0);
    }
 
@@ -47,18 +47,18 @@ public class BeeScreen extends GuiScreen {
 
    @SubscribeEvent
    public void a(RenderGameOverlayEvent var1) {
-      if (b) {
+      if (isVisible) {
          if (var1.getType() == ElementType.TEXT) {
             Minecraft var2 = Minecraft.getMinecraft();
-            e = e + var2.getTickLength() * 0.75F;
+            animTimer = animTimer + var2.getTickLength() * 0.75F;
             int var4 = var2.gameSettings.guiScale;
             float var3;
             if (var4 == 1) {
-               var3 = (float)RotationHelper.b(-1800.0, 1000.0, 0.5 * Math.cos(e / 25.0) + 0.5);
+               var3 = (float)RotationHelper.b(-1800.0, 1000.0, 0.5 * Math.cos(animTimer / 25.0) + 0.5);
             } else if (var4 == 2) {
-               var3 = (float)RotationHelper.b(-900.0, 750.0, 0.5 * Math.cos(e / 25.0) + 0.5);
+               var3 = (float)RotationHelper.b(-900.0, 750.0, 0.5 * Math.cos(animTimer / 25.0) + 0.5);
             } else {
-               var3 = (float)RotationHelper.b(-900.0, 600.0, 0.5 * Math.cos(e / 25.0) + 0.5);
+               var3 = (float)RotationHelper.b(-900.0, 600.0, 0.5 * Math.cos(animTimer / 25.0) + 0.5);
             }
 
             GlStateManager.pushMatrix();
@@ -70,25 +70,25 @@ public class BeeScreen extends GuiScreen {
                GlStateManager.scale(1.5, 1.5, 1.5);
             }
 
-            var2.renderEngine.bindTexture(c);
-            this.drawTexturedModalRect(var3, 0.0F, 0, (int)(e * 1.5), 256, 256);
-            this.drawTexturedModalRect(var3, 256.0F, 0, (int)(e * 1.5), 256, 256);
-            this.drawTexturedModalRect(var3, 512.0F, 0, (int)(e * 1.5), 256, 256);
-            var2.renderEngine.bindTexture(f);
-            this.drawTexturedModalRect(var3 + 600.0F, 0.0F, 0, (int)(e * 1.5), 256, 256);
-            this.drawTexturedModalRect(var3 + 600.0F, 256.0F, 0, (int)(e * 1.5), 256, 256);
-            this.drawTexturedModalRect(var3 + 600.0F, 512.0F, 0, (int)(e * 1.5), 256, 256);
-            var2.renderEngine.bindTexture(a);
+            var2.renderEngine.bindTexture(TRADE_TEXTURE);
+            this.drawTexturedModalRect(var3, 0.0F, 0, (int)(animTimer * 1.5), 256, 256);
+            this.drawTexturedModalRect(var3, 256.0F, 0, (int)(animTimer * 1.5), 256, 256);
+            this.drawTexturedModalRect(var3, 512.0F, 0, (int)(animTimer * 1.5), 256, 256);
+            var2.renderEngine.bindTexture(MIRROR_TEXTURE);
+            this.drawTexturedModalRect(var3 + 600.0F, 0.0F, 0, (int)(animTimer * 1.5), 256, 256);
+            this.drawTexturedModalRect(var3 + 600.0F, 256.0F, 0, (int)(animTimer * 1.5), 256, 256);
+            this.drawTexturedModalRect(var3 + 600.0F, 512.0F, 0, (int)(animTimer * 1.5), 256, 256);
+            var2.renderEngine.bindTexture(BLANK_TEXTURE);
             this.drawTexturedModalRect(var3 + 200.0F, 0.0F, 0, 0, 400, 256);
             this.drawTexturedModalRect(var3 + 200.0F, 256.0F, 0, 0, 400, 256);
             this.drawTexturedModalRect(var3 + 200.0F, 512.0F, 0, 0, 400, 256);
-            if (e > 30.0) {
+            if (animTimer > 30.0) {
                HornyMeterHud.hideHornyMeter();
             }
 
-            if (e > 69.0) {
-               e = 0.0;
-               b = false;
+            if (animTimer > 69.0) {
+               animTimer = 0.0;
+               isVisible = false;
             }
 
             GlStateManager.popMatrix();

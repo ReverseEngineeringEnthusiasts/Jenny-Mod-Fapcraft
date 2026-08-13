@@ -22,7 +22,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class GirlBedInteraction {
-   static final int a = 3;
+   static final int bedIndex = 3;
 
    @SubscribeEvent
    public void a(BreakEvent var1) {

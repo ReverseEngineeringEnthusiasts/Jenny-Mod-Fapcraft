@@ -20,7 +20,7 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.processor.IBone;
 
 public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
-   HashMap<Integer, float[]> f = new HashMap<Integer, float[]>() {
+   HashMap<Integer, float[]> headYawOffsets = new HashMap<Integer, float[]>() {
       {
          this.put(0, new float[]{0.0F, -1.2F, 1.2F});
          this.put(-90, new float[]{2.0F, -71.56F, -68.0F});
@@ -29,7 +29,7 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
    };
 
    public EllieNpcModel() {
-      this.c = this.getModelLocations();
+      this.modelLocations = this.getModelLocations();
    }
 
    @Override
@@ -73,9 +73,9 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
                         var12 = 0.0F;
                      }
                   } else {
-                     float var9 = this.f.get(var7)[1];
-                     float var10 = this.f.get(var7)[2];
-                     var12 = ((float)(Math.atan2(var6.x, var6.z) + this.f.get(var7)[0]) + var1.getYawRotation()) * 0.8F;
+                     float var9 = this.headYawOffsets.get(var7)[1];
+                     float var10 = this.headYawOffsets.get(var7)[2];
+                     var12 = ((float)(Math.atan2(var6.x, var6.z) + this.headYawOffsets.get(var7)[0]) + var1.getYawRotation()) * 0.8F;
                      var12 = ThreadNames.b(var12, var9, var10);
                      if (var12 == var9 || var12 == var10) {
                         var12 = 0.0F;

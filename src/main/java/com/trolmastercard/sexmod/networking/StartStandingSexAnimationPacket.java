@@ -20,45 +20,45 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class StartStandingSexAnimationPacket implements IMessage {
-   boolean c;
-   UUID a;
-   UUID b;
-   String d;
+   boolean isValid;
+   UUID girlUUID;
+   UUID playerUUID;
+   String animation;
 
    public StartStandingSexAnimationPacket() {
    }
 
    public StartStandingSexAnimationPacket(UUID var1, UUID var2, String var3) {
-      this.a = var1;
-      this.b = var2;
-      this.d = var3;
+      this.girlUUID = var1;
+      this.playerUUID = var2;
+      this.animation = var3;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.a = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.b = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.d = ByteBufUtils.readUTF8String(var1);
-      this.c = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.animation = ByteBufUtils.readUTF8String(var1);
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.a.toString());
-      ByteBufUtils.writeUTF8String(var1, this.b.toString());
-      ByteBufUtils.writeUTF8String(var1, this.d);
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
+      ByteBufUtils.writeUTF8String(var1, this.animation);
    }
 
    public static class Handler implements IMessageHandler<StartStandingSexAnimationPacket, IMessage> {
       public IMessage onMessage(StartStandingSexAnimationPacket var1, MessageContext var2) {
-         if (var1.c && var2.side == Side.SERVER) {
+         if (var1.isValid && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               AbstractPlayerGirlEntity var1x = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.a);
+               AbstractPlayerGirlEntity var1x = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.girlUUID);
                if (var1x != null) {
                   if (!FMLCommonHandler.instance().getMinecraftServerInstance().isDedicatedServer()) {
                      try {
                         for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
                            if (var3 instanceof AbstractPlayerGirlEntity) {
                               var1x = (AbstractPlayerGirlEntity)var3;
-                              if (!var1x.world.isRemote && var1x.getOwnerUserUUID().equals(var1.a)) {
+                              if (!var1x.world.isRemote && var1x.getOwnerUserUUID().equals(var1.girlUUID)) {
                                  break;
                               }
                            }
@@ -67,7 +67,7 @@ public class StartStandingSexAnimationPacket implements IMessage {
                      }
                   }
 
-                  var1x.b(var1.d, var1.b);
+                  var1x.b(var1.animation, var1.playerUUID);
                }
             });
             return null;

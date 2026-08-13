@@ -29,18 +29,18 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class GetTribeUiValuesPacket implements IMessage {
-   boolean a = false;
-   boolean b;
-   List<Vector4d> c;
+   boolean isTribeLeader = false;
+   boolean isValid;
+   List<Vector4d> tribeMembers;
 
    public GetTribeUiValuesPacket() {
-      this.b = false;
-      this.c = new ArrayList<>();
+      this.isValid = false;
+      this.tribeMembers = new ArrayList<>();
    }
 
    public GetTribeUiValuesPacket(boolean var1, List<Vector4d> var2) {
-      this.b = var1;
-      this.c = var2;
+      this.isValid = var1;
+      this.tribeMembers = var2;
    }
 
    static GetTribeUiValuesPacket a_clash29() {
@@ -48,21 +48,21 @@ public class GetTribeUiValuesPacket implements IMessage {
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.b = var1.readBoolean();
+      this.isValid = var1.readBoolean();
       int var2 = var1.readInt();
 
       for (int var3 = 0; var3 < var2; var3++) {
-         this.c.add(new Vector4d(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt()));
+         this.tribeMembers.add(new Vector4d(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt()));
       }
 
-      this.a = true;
+      this.isTribeLeader = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeBoolean(this.b);
-      var1.writeInt(this.c.size());
+      var1.writeBoolean(this.isValid);
+      var1.writeInt(this.tribeMembers.size());
 
-      for (Vector4d var3 : this.c) {
+      for (Vector4d var3 : this.tribeMembers) {
          var1.writeInt((int)var3.getX());
          var1.writeInt((int)var3.getY());
          var1.writeInt((int)var3.getZ());
@@ -73,18 +73,18 @@ public class GetTribeUiValuesPacket implements IMessage {
 
    public static class Handler implements IMessageHandler<GetTribeUiValuesPacket, IMessage> {
       public IMessage onMessage(GetTribeUiValuesPacket var1, MessageContext var2) {
-         if (!var1.a) {
+         if (!var1.isTribeLeader) {
             System.out.println("received an invalid message @GetTribeUIValues :(");
             return null;
          } else if (var2.side.isClient()) {
-            StructureCommandScreen.d = var1.b;
-            KoboldEntity.aY = var1.c;
+            StructureCommandScreen.isErasing = var1.isValid;
+            KoboldEntity.aY = var1.tribeMembers;
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                UUID var1x = KoboldManager.getTribeUUID(var2.getServerHandler().player.getPersistentID());
                if (var1x == null) {
-                  PacketHandler.b.sendTo(GetTribeUiValuesPacket.a_clash29(), var2.getServerHandler().player);
+                  PacketHandler.networkWrapper.sendTo(GetTribeUiValuesPacket.a_clash29(), var2.getServerHandler().player);
                } else {
                   boolean var2x = KoboldManager.c_clash86(var1x);
                   EntityPlayerMP var3 = var2.getServerHandler().player;
@@ -99,7 +99,7 @@ public class GetTribeUiValuesPacket implements IMessage {
                         UUID var11 = var10.getGirlId();
                         if (!var8.contains(var11)) {
                            if (var10.aA) {
-                              var7 = EyeAndKoboldColor.safeValueOf((String)var10.getDataManager().get(AbstractNpcOnlyEntity.N)).getWoolMeta();
+                              var7 = EyeAndKoboldColor.safeValueOf((String)var10.getDataManager().get(AbstractNpcOnlyEntity.CURRENT_ACTION)).getWoolMeta();
                            }
 
                            var6.add(new Vector4d(var10.posX, var10.posY, var10.posZ, var7));
@@ -115,7 +115,7 @@ public class GetTribeUiValuesPacket implements IMessage {
                      }
                   }
 
-                  PacketHandler.b.sendTo(new GetTribeUiValuesPacket(var2x, var6), var3);
+                  PacketHandler.networkWrapper.sendTo(new GetTribeUiValuesPacket(var2x, var6), var3);
                }
             });
             return null;

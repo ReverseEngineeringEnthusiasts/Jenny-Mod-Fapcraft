@@ -13,11 +13,11 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
 public class GirlInventorySlot extends SlotItemHandler {
-   GirlInventorySlot.b a;
+   GirlInventorySlot.b slotType;
 
    public GirlInventorySlot(GirlInventorySlot.b var1, IItemHandler var2, int var3, int var4, int var5) {
       super(var2, var3, var4, var5);
-      this.a = var1;
+      this.slotType = var1;
    }
 
    public static boolean a(ItemStack var0, int var1) {
@@ -25,7 +25,7 @@ public class GirlInventorySlot extends SlotItemHandler {
    }
 
    public boolean isItemValid(ItemStack var1) {
-      return a(var1, this.a);
+      return a(var1, this.slotType);
    }
 
    static boolean a(ItemStack var0, GirlInventorySlot.b var1) {

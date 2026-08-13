@@ -8,7 +8,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class DeprecatedCheckForUpdates {
-   final String c = new String(
+   final String versionUrl = new String(
       new byte[]{
          104,
          116,
@@ -46,12 +46,12 @@ public class DeprecatedCheckForUpdates {
          116
       }
    );
-   final String a = new String(
+   final String downloadUrl = new String(
       new byte[]{
          104, 116, 116, 112, 115, 58, 47, 47, 116, 119, 105, 116, 116, 101, 114, 46, 99, 111, 109, 47, 83, 99, 104, 110, 117, 114, 114, 105, 95, 116, 118
       }
    );
-   boolean b = false;
+   boolean isChecking = false;
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent

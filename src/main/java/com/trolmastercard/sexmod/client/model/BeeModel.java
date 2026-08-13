@@ -14,18 +14,18 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 
 public class BeeModel extends ModelBase implements IVanillaModel {
-   private final ModelRenderer a;
+   private final ModelRenderer rootPart;
 
    public BeeModel() {
       this.textureWidth = 16;
       this.textureHeight = 16;
-      this.a = new ModelRenderer(this);
-      this.a.setRotationPoint(-5.0F, 2.5F, 0.0F);
-      this.a.cubeList.add(new ModelBox(this.a, 0, 0, -2.0F, -6.0F, 0.0F, 2, 6, 2, 0.0F, false));
+      this.rootPart = new ModelRenderer(this);
+      this.rootPart.setRotationPoint(-5.0F, 2.5F, 0.0F);
+      this.rootPart.cubeList.add(new ModelBox(this.rootPart, 0, 0, -2.0F, -6.0F, 0.0F, 2, 6, 2, 0.0F, false));
    }
 
    public void render(Entity var1, float var2, float var3, float var4, float var5, float var6, float var7) {
-      this.a.render(var7);
+      this.rootPart.render(var7);
    }
 
    public void a(ModelRenderer var1, float var2, float var3, float var4) {
@@ -36,6 +36,6 @@ public class BeeModel extends ModelBase implements IVanillaModel {
 
    @Override
    public ModelRenderer getModel() {
-      return this.a;
+      return this.rootPart;
    }
 }

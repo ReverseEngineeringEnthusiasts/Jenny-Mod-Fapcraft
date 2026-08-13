@@ -25,8 +25,8 @@ public class AllieRenderer extends GirlRenderer {
    public void a(GeoModel var1, BaseGirlEntity var2, float var3, float var4, float var5, float var6, float var7) {
       AllieEntity var8 = (AllieEntity)var2;
       if (var2.getCurrentAction() != Action.NULL || var2.isLocallyRegistered()) {
-         var8.U = var8.U == 1.0F ? var8.U : var8.U - 0.01F;
-         var7 = var8.U;
+         var8.LAMP_SCALE = var8.LAMP_SCALE == 1.0F ? var8.LAMP_SCALE : var8.LAMP_SCALE - 0.01F;
+         var7 = var8.LAMP_SCALE;
          GlStateManager.scale(var7, var7, var7);
          GlStateManager.translate(0.0F, var7 == 1.0F ? 0.0F : 3.0F - var7 * 3.0F, 0.0F);
          super.a(var1, var2, var3, var4, var5, var6, var7);
@@ -35,11 +35,11 @@ public class AllieRenderer extends GirlRenderer {
 
    @Override
    protected void renderNameTag(double var1, double var3, double var5) {
-      if (this.j.getCurrentAction() != Action.NULL) {
-         if (!this.j.isLocallyRegistered()) {
-            if (!this.j.getCurrentAction().hideNameTag) {
-               if (i.getRenderManager().renderViewEntity != null) {
-                  this.renderLivingLabel(this.j, this.j.getEffectiveDisplayName(), var1, var3 + this.j.i_clash226(), var5, 300);
+      if (this.renderEntity.getCurrentAction() != Action.NULL) {
+         if (!this.renderEntity.isLocallyRegistered()) {
+            if (!this.renderEntity.getCurrentAction().hideNameTag) {
+               if (mc.getRenderManager().renderViewEntity != null) {
+                  this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName(), var1, var3 + this.renderEntity.i_clash226(), var5, 300);
                }
             }
          }

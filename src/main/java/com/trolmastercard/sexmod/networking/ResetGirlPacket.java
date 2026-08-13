@@ -27,43 +27,43 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class ResetGirlPacket implements IMessage {
-   boolean b;
-   UUID c;
-   boolean a;
+   boolean isValid;
+   UUID girlUUID;
+   boolean resetPose;
 
    public ResetGirlPacket() {
-      this.b = false;
+      this.isValid = false;
    }
 
    public ResetGirlPacket(UUID var1) {
-      this.c = var1;
-      this.a = false;
-      this.b = true;
+      this.girlUUID = var1;
+      this.resetPose = false;
+      this.isValid = true;
    }
 
    public ResetGirlPacket(UUID var1, boolean var2) {
-      this.c = var1;
-      this.a = var2;
-      this.b = true;
+      this.girlUUID = var1;
+      this.resetPose = var2;
+      this.isValid = true;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.c = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.a = var1.readBoolean();
-      this.b = true;
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      this.resetPose = var1.readBoolean();
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.c.toString());
-      var1.writeBoolean(this.a);
-      this.b = true;
+      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+      var1.writeBoolean(this.resetPose);
+      this.isValid = true;
    }
 
    public static class Handler implements IMessageHandler<ResetGirlPacket, IMessage> {
       public static void a_clash10(BaseGirlEntity var0) {
          var0.reinitTasks();
          if (var0 instanceof AbstractPlayerGirlEntity && var0.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID()) != null) {
-            PacketHandler.b
+            PacketHandler.networkWrapper
                .sendTo(
                   new SetPlayerMovementPacket(true),
                   (EntityPlayerMP)FMLCommonHandler.instance()
@@ -117,20 +117,20 @@ public class ResetGirlPacket implements IMessage {
             var0.noClip = false;
             var0.setNoGravity(false);
             var0.capabilities.isFlying = false;
-            PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), var0);
+            PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), var0);
          }
       }
 
       public IMessage onMessage(ResetGirlPacket var1, MessageContext var2) {
-         if (var1.b && var2.side == Side.SERVER) {
+         if (var1.isValid && var2.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.c)) {
+               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
                   if (!var3.world.isRemote) {
                      if (var3.getInteractionPlayerUUID() != null) {
                         a(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(var3.getInteractionPlayerUUID()));
                      }
 
-                     if (var1.a) {
+                     if (var1.resetPose) {
                         a_clash10(var3);
                      }
                   }

@@ -32,16 +32,16 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 public class KoboldEggItem extends Item implements IAnimatable {
-   private final AnimationFactory b = new AnimationFactory(this);
-   public static KoboldEggItem a = new KoboldEggItem();
+   private final AnimationFactory animationFactory = new AnimationFactory(this);
+   public static KoboldEggItem KOBOLD_EGG_ITEM = new KoboldEggItem();
 
    public KoboldEggItem() {
       this.setMaxStackSize(1);
    }
 
    public static void register() {
-      a.setRegistryName(new ResourceLocation("sexmod", "kobold_egg_item"));
-      a.setTranslationKey("kobold_egg_item");
+      KOBOLD_EGG_ITEM.setRegistryName(new ResourceLocation("sexmod", "kobold_egg_item"));
+      KOBOLD_EGG_ITEM.setTranslationKey("kobold_egg_item");
       MinecraftForge.EVENT_BUS.register(KoboldEggItem.class);
    }
 
@@ -51,21 +51,21 @@ public class KoboldEggItem extends Item implements IAnimatable {
 
    @Override
    public AnimationFactory getFactory() {
-      return this.b;
+      return this.animationFactory;
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public static void a(ModelRegistryEvent var0) {
       ModelResourceLocation var1 = new ModelResourceLocation("sexmod:kobold_egg_item");
-      ModelLoader.setCustomMeshDefinition(a, var1x -> var1);
-      ModelBakery.registerItemVariants(a, new ResourceLocation[]{var1});
-      a.setTileEntityItemStackRenderer(new KoboldEggItemRenderer());
+      ModelLoader.setCustomMeshDefinition(KOBOLD_EGG_ITEM, var1x -> var1);
+      ModelBakery.registerItemVariants(KOBOLD_EGG_ITEM, new ResourceLocation[]{var1});
+      KOBOLD_EGG_ITEM.setTileEntityItemStackRenderer(new KoboldEggItemRenderer());
    }
 
    @SubscribeEvent
    public static void a(Register<Item> var0) {
-      var0.getRegistry().register(a);
+      var0.getRegistry().register(KOBOLD_EGG_ITEM);
    }
 
    @SubscribeEvent
@@ -74,13 +74,13 @@ public class KoboldEggItem extends Item implements IAnimatable {
       ItemStack var2 = var0.getItemStack();
       Vec3d var3 = var0.getHitVec();
       if (!var1.isRemote) {
-         if (var2.getItem() == a) {
+         if (var2.getItem() == KOBOLD_EGG_ITEM) {
             KoboldEggEntity var4 = new KoboldEggEntity(var1);
             var4.setPosition(var3.x, var3.y, var3.z);
-            var4.getDataManager().set(KoboldEggEntity.b, EyeAndKoboldColor.getColorByWoolId(var2.getMetadata()).toString());
+            var4.getDataManager().set(KoboldEggEntity.EGG_COLOR, EyeAndKoboldColor.getColorByWoolId(var2.getMetadata()).toString());
             NBTTagCompound var5 = var2.getTagCompound();
             if (var5 != null) {
-               var4.f = UUID.fromString(var5.getString("tribeID"));
+               var4.tribeId = UUID.fromString(var5.getString("tribeID"));
             }
 
             var1.spawnEntity(var4);

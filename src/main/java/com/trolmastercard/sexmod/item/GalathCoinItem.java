@@ -57,46 +57,46 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 public class GalathCoinItem extends Item implements IAnimatable {
-   public static final GalathCoinItem r = new GalathCoinItem();
-   public static final long c = 4000L;
-   public static final long g = 1000L;
-   public static final long j = 3000L;
-   public static final float q = 0.1F;
-   public static final float p = -0.01F;
-   public static final float e = 0.0015F;
-   public static final float k = 2.0F;
-   public static final float h = 1.5F;
-   public static final float d = 0.03F;
-   public static final float s = 100.0F;
-   public static final float l = 0.2F;
-   public static final float o = 1.5F;
-   public static final String b = "sexmod:galath_coin_activation_time";
-   public static final String m = "sexmod:galath_coin_deactivation_time";
-   public static final String n = "sexmod:galath_coin_de_summoning_animation_time";
-   public static final String f = "Defeating a succubus makes her accept the victor as her master, granting him a coin to which her soul is bound. Using the coin summons her, offering services on demand. If her master uses the coin on her or goes too far, she returns to the coin";
-   private final AnimationFactory i = new AnimationFactory(this);
-   AnimationController<GalathCoinItem> a;
+   public static final GalathCoinItem GALATH_COIN = new GalathCoinItem();
+   public static final long SUMMON_DURATION = 4000L;
+   public static final long ANIMATION_START_DELAY = 1000L;
+   public static final long ANIMATION_END_DELAY = 3000L;
+   public static final float HORIZONTAL_OFFSET = 0.1F;
+   public static final float BASE_VERTICAL_OFFSET = -0.01F;
+   public static final float PITCH_MULTIPLIER = 0.0015F;
+   public static final float SPAWN_DISTANCE = 2.0F;
+   public static final float HEIGHT_OFFSET = 1.5F;
+   public static final float PARTICLE_VELOCITY = 0.03F;
+   public static final float PARTICLE_COUNT = 100.0F;
+   public static final float PARTICLE_VELOCITY_SPREAD = 0.2F;
+   public static final float PARTICLE_SPAWN_SPREAD = 1.5F;
+   public static final String ACTIVATION_TIME_KEY = "sexmod:galath_coin_activation_time";
+   public static final String DEACTIVATION_TIME_KEY = "sexmod:galath_coin_deactivation_time";
+   public static final String DE_SUMMON_ANIMATION_KEY = "sexmod:galath_coin_de_summoning_animation_time";
+   public static final String DESCRIPTION = "Defeating a succubus makes her accept the victor as her master, granting him a coin to which her soul is bound. Using the coin summons her, offering services on demand. If her master uses the coin on her or goes too far, she returns to the coin";
+   private final AnimationFactory animationFactory = new AnimationFactory(this);
+   AnimationController<GalathCoinItem> controller;
 
    public GalathCoinItem() {
       this.maxStackSize = 1;
    }
 
    public static void register() {
-      r.setRegistryName(new ResourceLocation("sexmod", "galath_coin"));
-      r.setTranslationKey("galath_coin");
+      GALATH_COIN.setRegistryName(new ResourceLocation("sexmod", "galath_coin"));
+      GALATH_COIN.setTranslationKey("galath_coin");
       MinecraftForge.EVENT_BUS.register(GalathCoinItem.class);
    }
 
    @SubscribeEvent
    public static void a(Register<Item> var0) {
-      var0.getRegistry().register(r);
+      var0.getRegistry().register(GALATH_COIN);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public static void a(ModelRegistryEvent var0) {
-      ModelLoader.setCustomModelResourceLocation(r, 0, new ModelResourceLocation("sexmod:galath_coin"));
-      r.setTileEntityItemStackRenderer(new GalathCoinRenderer());
+      ModelLoader.setCustomModelResourceLocation(GALATH_COIN, 0, new ModelResourceLocation("sexmod:galath_coin"));
+      GALATH_COIN.setTileEntityItemStackRenderer(new GalathCoinRenderer());
    }
 
    public ActionResult<ItemStack> onItemRightClick(World var1, EntityPlayer var2, EnumHand var3) {
@@ -117,14 +117,14 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    boolean a(World var1, EntityPlayer var2) {
-      return !var1.isRemote ? !GirlSavedData.c_clash849(var2.getPersistentID()) : !GirlSavedData.f;
+      return !var1.isRemote ? !GirlSavedData.c_clash849(var2.getPersistentID()) : !GirlSavedData.debugEnabled;
    }
 
    @SubscribeEvent
    public void a(EntityInteract var1) {
       EntityPlayer var2 = var1.getEntityPlayer();
       ItemStack var3 = var2.getHeldItem(var1.getHand());
-      if (r.equals(var3.getItem())) {
+      if (GALATH_COIN.equals(var3.getItem())) {
          Entity var4 = var1.getTarget();
          if (var4 instanceof GalathEntity) {
             GalathEntity var5 = (GalathEntity)var4;
@@ -182,11 +182,11 @@ public class GalathCoinItem extends Item implements IAnimatable {
                Vec3d var13 = var6.getTargetPosition().add(0.0, 1.5, 0.0);
                Vec3d var14 = var1.getPositionVector().add(0.0, var1.getEyeHeight(), 0.0);
                Vec3d var9 = var14.add(
-                  VectorMath.a((var1.getHeldItemMainhand().getItem().equals(r) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
+                  VectorMath.a((var1.getHeldItemMainhand().getItem().equals(GALATH_COIN) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
                );
                float var10 = (float)(var2 - var4 - 1000L) / 2000.0F;
                Vec3d var11 = RotationHelper.a(var13, var9, var10);
-               DragonBreathParticle.b = 0.2F;
+               DragonBreathParticle.BREATH_SCALE = 0.2F;
                Minecraft.getMinecraft().effectRenderer.addEffect(new DragonBreathParticle(var1.world, var11.x, var11.y, var11.z));
             }
          }
@@ -196,7 +196,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
    @SideOnly(Side.CLIENT)
    void a_clash182(EntityPlayer var1) {
       if (Minecraft.getMinecraft().player.getPersistentID().equals(var1.getPersistentID())) {
-         GirlSavedData.f = true;
+         GirlSavedData.debugEnabled = true;
       }
    }
 
@@ -205,12 +205,12 @@ public class GalathCoinItem extends Item implements IAnimatable {
       if (var2 > var4 + 1000L && var2 < var4 + 3000L) {
          Vec3d var6 = var1.getPositionVector().add(0.0, var1.getEyeHeight(), 0.0);
          Vec3d var7 = var6.add(
-            VectorMath.a((var1.getHeldItemMainhand().getItem().equals(r) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
+            VectorMath.a((var1.getHeldItemMainhand().getItem().equals(GALATH_COIN) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
          );
          Vec3d var8 = var6.add(var1.getLookVec().normalize().scale(2.0));
          float var9 = (float)(var2 - var4 - 1000L) / 2000.0F;
          Vec3d var10 = RotationHelper.a(var7, var8, var9);
-         DragonBreathParticle.b = 0.2F;
+         DragonBreathParticle.BREATH_SCALE = 0.2F;
          Minecraft.getMinecraft().effectRenderer.addEffect(new DragonBreathParticle(var1.world, var10.x, var10.y, var10.z));
       }
    }
@@ -223,7 +223,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
          BaseGirlEntity var4 = BaseGirlEntity.getServerGirlEntity(var3);
          if (var4 != null) {
             GirlSavedData.a_clash848((GalathEntity)var4);
-            PacketHandler.b.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var2);
+            PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var2);
          }
       }
    }
@@ -333,7 +333,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
       }
 
       if (Minecraft.getMinecraft().player.getPersistentID().equals(var0)) {
-         GirlSavedData.f = false;
+         GirlSavedData.debugEnabled = false;
       }
    }
 
@@ -365,8 +365,8 @@ public class GalathCoinItem extends Item implements IAnimatable {
 
    @Override
    public void registerControllers(AnimationData var1) {
-      this.a = new AnimationController<>(this, "controller", 0.0F, this::animationPredicate);
-      var1.addAnimationController(this.a);
+      this.controller = new AnimationController<>(this, "controller", 0.0F, this::animationPredicate);
+      var1.addAnimationController(this.controller);
    }
 
    @SideOnly(Side.CLIENT)
@@ -376,14 +376,14 @@ public class GalathCoinItem extends Item implements IAnimatable {
          var1.getController().clearAnimationCache();
          return PlayState.STOP;
       } else {
-         this.a.setAnimation(new AnimationBuilder().addAnimation("animation.galath_coin.summon", ILoopType.EDefaultLoopTypes.PLAY_ONCE));
+         this.controller.setAnimation(new AnimationBuilder().addAnimation("animation.galath_coin.summon", ILoopType.EDefaultLoopTypes.PLAY_ONCE));
          return PlayState.CONTINUE;
       }
    }
 
    @Override
    public AnimationFactory getFactory() {
-      return this.i;
+      return this.animationFactory;
    }
 
 }

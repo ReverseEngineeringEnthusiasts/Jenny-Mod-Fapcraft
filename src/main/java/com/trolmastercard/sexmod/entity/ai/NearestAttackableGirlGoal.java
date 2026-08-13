@@ -17,8 +17,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 
 public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<KoboldEntity> {
-   private final int a;
-   private final boolean b;
+   private final int targetRadius;
+   private final boolean isValid;
 
    public NearestAttackableGirlGoal(EntityCreature var1, boolean var2, boolean var3) {
       this(var1, var2, false, var3);
@@ -30,19 +30,19 @@ public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<K
 
    public NearestAttackableGirlGoal(EntityCreature var1, int var2, boolean var3, boolean var4, @Nullable Predicate var5, boolean var6) {
       super(var1, KoboldEntity.class, var2, var3, var4, var5);
-      this.a = var2;
-      this.b = var6;
+      this.targetRadius = var2;
+      this.isValid = var6;
    }
 
    public boolean shouldExecute() {
-      if (this.b) {
+      if (this.isValid) {
          float var1 = this.taskOwner.getBrightness();
          if (var1 >= 0.5F) {
             return false;
          }
       }
 
-      if (this.a > 0 && this.taskOwner.getRNG().nextInt(this.a) != 0) {
+      if (this.targetRadius > 0 && this.taskOwner.getRNG().nextInt(this.targetRadius) != 0) {
          return false;
       }
 

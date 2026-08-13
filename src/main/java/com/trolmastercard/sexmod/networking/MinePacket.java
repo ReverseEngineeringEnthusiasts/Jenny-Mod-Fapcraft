@@ -29,34 +29,34 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class MinePacket implements IMessage {
-   boolean c = false;
-   BlockPos a;
-   EnumFacing b;
+   boolean isValid = false;
+   BlockPos targetPos;
+   EnumFacing facing;
 
    public MinePacket() {
    }
 
    public MinePacket(BlockPos var1, EnumFacing var2) {
-      this.a = var1;
-      this.b = var2;
+      this.targetPos = var1;
+      this.facing = var2;
    }
 
    public void fromBytes(ByteBuf var1) {
-      this.a = new BlockPos(var1.readInt(), var1.readInt(), var1.readInt());
-      this.b = EnumFacing.byName(ByteBufUtils.readUTF8String(var1));
-      this.c = true;
+      this.targetPos = new BlockPos(var1.readInt(), var1.readInt(), var1.readInt());
+      this.facing = EnumFacing.byName(ByteBufUtils.readUTF8String(var1));
+      this.isValid = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeInt(this.a.getX());
-      var1.writeInt(this.a.getY());
-      var1.writeInt(this.a.getZ());
-      ByteBufUtils.writeUTF8String(var1, this.b.getName());
+      var1.writeInt(this.targetPos.getX());
+      var1.writeInt(this.targetPos.getY());
+      var1.writeInt(this.targetPos.getZ());
+      ByteBufUtils.writeUTF8String(var1, this.facing.getName());
    }
 
    public static class Handler implements IMessageHandler<MinePacket, IMessage> {
       public IMessage onMessage(MinePacket var1, MessageContext var2) {
-         if (var1.c && var2.side.equals(Side.SERVER)) {
+         if (var1.isValid && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
@@ -79,7 +79,7 @@ public class MinePacket implements IMessage {
                            );
                            var3.sendMessage(new TextComponentString(String.format("%s%d/%d Beds", TextFormatting.YELLOW, var6, var5)));
                         } else {
-                           HashSet var7 = this.a(var1.a, var1.b);
+                           HashSet var7 = this.a(var1.targetPos, var1.facing);
                            World var8 = var2.getServerHandler().player.world;
 
                            for (BlockPos var10 : (java.util.Collection<BlockPos>) (var7) ) {
@@ -90,9 +90,9 @@ public class MinePacket implements IMessage {
                               }
                            }
 
-                           KoboldTask var12 = new KoboldTask(var1.a, KoboldTask.TaskType.MINE, var7, var1.b);
+                           KoboldTask var12 = new KoboldTask(var1.targetPos, KoboldTask.TaskType.MINE, var7, var1.facing);
                            KoboldManager.b(var4, var12);
-                           PacketHandler.b.sendTo(new SendBlocksPacket(var7, true), var2.getServerHandler().player);
+                           PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var7, true), var2.getServerHandler().player);
                         }
                      }
                   }

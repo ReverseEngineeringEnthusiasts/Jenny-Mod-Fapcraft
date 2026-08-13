@@ -63,21 +63,21 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    boolean ae = false;
    boolean ac = false;
    int af = -1;
-   int Y = -1;
+   int yFlag = -1;
    int al = -1;
    int ai = -1;
    boolean ah = false;
    Object[] am;
-   int Z = -1;
+   int zFlag = -1;
    int aa = 1;
    boolean aj = false;
 
    public EllieEntity(World var1) {
       super(var1);
-      this.P = -85;
-      this.O = -175;
-      this.K = -85;
-      this.V = new Vec3d(-0.1, 0.05, 0.0);
+      this.slashSwordRot = -85;
+      this.stabSwordRot = -175;
+      this.holdBowRot = -85;
+      this.swordOffsetStab = new Vec3d(-0.1, 0.05, 0.0);
    }
 
    @Override
@@ -93,7 +93,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    @Override
    protected ResourceLocation getLootTable() {
-      return LootTableHandler.a;
+      return LootTableHandler.ELLIE_TABLE;
    }
 
    boolean i_clash474() {
@@ -298,7 +298,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          Vec3d var5 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.1), var3.rotationYaw);
          var4 = var4.add(var5);
          var3.setPositionAndUpdate(var4.x, var4.y, var4.z);
-         PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var3);
+         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var3);
       }
 
       if ("cowgirl".equals(var1)) {
@@ -322,7 +322,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          Vec3d var11 = VectorMath.rotateByYaw(new Vec3d(0.0, 1.0 - var7.eyeHeight, -1.8125), var7.rotationYaw);
          var9 = var9.add(var11);
          var7.setPositionAndUpdate(var9.x, var9.y, var9.z);
-         PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var7);
+         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var7);
       }
    }
 
@@ -345,7 +345,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    void a_clash482() {
-      if (--this.Y == 0) {
+      if (--this.yFlag == 0) {
          this.setCurrentAction(Action.HUGIDLE);
       }
    }
@@ -402,7 +402,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    @Override
    public void reinitTasks() {
       super.reinitTasks();
-      this.Y = -1;
+      this.yFlag = -1;
    }
 
    Object[] g_clash485() {
@@ -459,20 +459,20 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    void d_clash486() {
-      if (this.getActivePotionEffect(HornyPotion.b) != null) {
+      if (this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null) {
          EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
          if (var1 != null) {
-            this.removeActivePotionEffect(HornyPotion.b);
+            this.removeActivePotionEffect(HornyPotion.HORNY_POTION);
             this.setInteractionPlayerUUID(var1.getPersistentID());
             float var2 = (float)(Math.atan2(this.posZ - var1.posZ, this.posX - var1.posX) * (180.0 / Math.PI));
             this.setYawRotation(var2);
             this.setTargetPosition(this.getPositionVector());
             this.entityDataManager.set(IS_ANCHORED, true);
             this.setCurrentAction(Action.DASH);
-            this.Z = 16;
+            this.zFlag = 16;
             this.setNoGravity(true);
             this.noClip = true;
-            PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
+            PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
             this.tasks.removeTask(this.wanderGoal);
             this.tasks.removeTask(this.watchClosestGirlGoal);
          }
@@ -480,7 +480,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    void n_clash487() {
-      if (--this.Z == 0) {
+      if (--this.zFlag == 0) {
          UUID var1 = this.getInteractionPlayerUUID();
          if (var1 == null) {
             this.f_clash488();
@@ -496,7 +496,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                this.setTargetPosition(var4);
                this.setYawRotation(var2.rotationYaw);
                this.setCurrentAction(Action.HUG);
-               this.Y = 150;
+               this.yFlag = 150;
             }
          }
       }
@@ -509,8 +509,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       this.noClip = false;
       this.setNoGravity(false);
       this.ah = false;
-      this.Y = -1;
-      this.Z = -1;
+      this.yFlag = -1;
+      this.zFlag = -1;
       this.ai = -1;
       this.am = null;
    }
@@ -629,7 +629,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                   this.createAnimation("animation.ellie.cowgirlcum", true, var1);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.ellie.attack" + this.S, false, var1);
+                  this.createAnimation("animation.ellie.attack" + this.nextAttack, false, var1);
                   break;
                case BOW:
                   this.createAnimation("animation.ellie.bowcharge", false, var1);
@@ -767,7 +767,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "cowgirlfastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.COWGIRLSLOW);
                }
                break;
@@ -819,12 +819,12 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                break;
             case "attackDone":
                this.setCurrentAction(Action.NULL);
-               if (++this.S == 3) {
-                  this.S = 0;
+               if (++this.nextAttack == 3) {
+                  this.nextAttack = 0;
                }
                break;
             case "pearl":
-               PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
+               PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "openSexUi":
                if (this.isLocalPlayerNearby()) {
@@ -862,7 +862,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "missionary_fastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.MISSIONARY_SLOW);
                }
                break;
@@ -909,7 +909,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
                return;
             case "carry_fastDone":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.d) {
+               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.CARRY_SLOW);
                }
          }

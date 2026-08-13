@@ -36,18 +36,18 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class DragonEntity extends EntityLiving {
-   public static final float d = 0.4F;
-   public static final float e = 0.3F;
-   static final int b = 200;
-   static final int k = 100;
-   static final float a = 0.5F;
-   static final float l = 0.15F;
-   public static final float j = 0.75F;
-   public double g = 1.0;
-   Vec3d h = Vec3d.ZERO;
-   boolean c = false;
-   boolean i = true;
-   GalathEntity f;
+   public static final float SCALE_0_4 = 0.4F;
+   public static final float SCALE_0_3 = 0.3F;
+   static final int MAX_TICKS_200 = 200;
+   static final int MAX_TICKS_100 = 100;
+   static final float SIZE_0_5 = 0.5F;
+   static final float SCALE_0_15 = 0.15F;
+   public static final float SCALE_0_75 = 0.75F;
+   public double SCALE_1_0 = 1.0;
+   Vec3d direction = Vec3d.ZERO;
+   boolean isCharging = false;
+   boolean shouldSpawnSkeleton = true;
+   GalathEntity ownerGalath;
 
    public DragonEntity(World var1) {
       super(var1);
@@ -57,13 +57,13 @@ public class DragonEntity extends EntityLiving {
    public DragonEntity(World var1, GalathEntity var2) {
       super(var1);
       this.setSize(0.5F, 0.5F);
-      this.f = var2;
+      this.ownerGalath = var2;
    }
 
    public DragonEntity(World var1, GalathEntity var2, Vec3d var3) {
       this(var1);
-      this.h = var3;
-      this.f = var2;
+      this.direction = var3;
+      this.ownerGalath = var2;
    }
 
    protected boolean canTriggerWalking() {
@@ -77,9 +77,9 @@ public class DragonEntity extends EntityLiving {
       if (!this.isDead) {
          this.noClip = true;
          this.setNoGravity(true);
-         this.motionX = this.h.x;
-         this.motionY = this.h.y;
-         this.motionZ = this.h.z;
+         this.motionX = this.direction.x;
+         this.motionY = this.direction.y;
+         this.motionZ = this.direction.z;
          super.onUpdate();
          if (this.world.isRemote) {
             this.a_clash114();
@@ -95,7 +95,7 @@ public class DragonEntity extends EntityLiving {
 
    void c_clash113() {
       if (!this.world.isRemote) {
-         if (this.c) {
+         if (this.isCharging) {
             Vec3d var1 = this.getPositionVector();
             Vec3d var2 = var1.subtract(0.75, 0.75, 0.75);
             Vec3d var3 = var1.add(0.75, 0.75, 0.75);
@@ -143,18 +143,18 @@ public class DragonEntity extends EntityLiving {
    void b_clash116() {
       if (!this.world.isRemote) {
          if (!this.isDead) {
-            if (this.i) {
+            if (this.shouldSpawnSkeleton) {
                Vec3d var1 = new Vec3d(this.posX, this.getPosition().getY() + 1, this.posZ);
                if (!this.b_clash117(var1)) {
                   this.world.createExplosion(this, this.posX, this.posY, this.posZ, 2.0F, true);
-                  this.i = false;
+                  this.shouldSpawnSkeleton = false;
                } else {
                   EntityWitherSkeleton var2 = new EntityWitherSkeleton(this.world);
                   var2.setHeldItem(EnumHand.MAIN_HAND, new ItemStack(Items.STONE_SWORD));
                   var2.setPositionAndUpdate(var1.x, var1.y, var1.z);
                   this.world.spawnEntity(var2);
-                  PacketHandler.b.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(var1, true), this);
-                  this.f.bI.add(var2);
+                  PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(var1, true), this);
+                  this.ownerGalath.bI.add(var2);
                }
             }
          }
@@ -162,11 +162,11 @@ public class DragonEntity extends EntityLiving {
    }
 
    boolean b_clash117(Vec3d var1) {
-      if (this.f == null) {
+      if (this.ownerGalath == null) {
          return true;
       }
 
-      EntityLivingBase var2 = this.f.getTargetEntity();
+      EntityLivingBase var2 = this.ownerGalath.getTargetEntity();
       return var2 == null ? true : var2.getDistance(var1.x, var1.y, var1.z) < 15.0;
    }
 
@@ -174,7 +174,7 @@ public class DragonEntity extends EntityLiving {
    public static void a_clash118(Vec3d var0) {
       WorldClient var1 = Minecraft.getMinecraft().world;
       float var2 = TrigMath.wrapDegrees(1.8F);
-      Random var3 = Reference.f;
+      Random var3 = Reference.RANDOM;
 
       for (float var4 = 0.0F; var4 < Math.PI * 2; var4 += var2) {
          double var5 = Math.sin(var4);
@@ -192,7 +192,7 @@ public class DragonEntity extends EntityLiving {
    @SideOnly(Side.CLIENT)
    public static void c_clash119(Vec3d var0) {
       WorldClient var1 = Minecraft.getMinecraft().world;
-      Random var2 = Reference.f;
+      Random var2 = Reference.RANDOM;
 
       for (int var3 = 0; var3 < 100; var3++) {
          var1.spawnParticle(
@@ -213,15 +213,15 @@ public class DragonEntity extends EntityLiving {
    public boolean attackEntityFrom(DamageSource var1, float var2) {
       if (DamageSource.OUT_OF_WORLD.equals(var1)) {
          this.setHealth(0.0F);
-         this.i = false;
+         this.shouldSpawnSkeleton = false;
          this.world.removeEntity(this);
          return true;
       }
 
       if (!this.world.isRemote && "arrow".equals(var1.damageType)) {
          this.setHealth(0.0F);
-         this.i = false;
-         PacketHandler.b.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(this.getPositionVector(), false), this);
+         this.shouldSpawnSkeleton = false;
+         PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(this.getPositionVector(), false), this);
          Entity var4 = var1.getImmediateSource();
          if (var4 != null) {
             this.world.removeEntity(var4);
@@ -235,8 +235,8 @@ public class DragonEntity extends EntityLiving {
             return false;
          }
 
-         this.h = var3.getLookVec();
-         this.c = true;
+         this.direction = var3.getLookVec();
+         this.isCharging = true;
          return true;
       }
    }

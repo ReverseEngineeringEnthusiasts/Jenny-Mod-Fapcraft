@@ -24,24 +24,24 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class PlayerAllieRenderer extends GirlPlayerRenderer {
-   static final float E = 8.0F;
-   static final float K = 1.68F;
-   static final float M = 5.0F;
-   static Collection<PlayerAllieRenderer> J = new ArrayList<>();
-   double C = 0.0;
-   double z = 0.0;
-   double A = 0.0;
-   double D = 0.0;
-   float F = 0.0F;
-   float B = 0.0F;
-   float G;
-   float I;
-   double H = 0.0;
-   double L = 0.0;
+   static final float BOB_SCALE_8 = 8.0F;
+   static final float BOB_SCALE_1_68 = 1.68F;
+   static final float BOB_SCALE_5 = 5.0F;
+   static Collection<PlayerAllieRenderer> renderers = new ArrayList<>();
+   double currentPosX = 0.0;
+   double currentPosZ = 0.0;
+   double prevPosX = 0.0;
+   double prevPosZ = 0.0;
+   float prevRotX = 0.0F;
+   float prevRotZ = 0.0F;
+   float rotG;
+   float rotI;
+   double smoothedBob = 0.0;
+   double moveMagnitude = 0.0;
 
    public PlayerAllieRenderer(RenderManager var1, AnimatedGeoModel var2) {
       super(var1, var2);
-      J.add(this);
+      renderers.add(this);
    }
 
    @Override
@@ -89,7 +89,7 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
 
    @Override
    protected void onBoneRenderStart(String var1, GeoBone var2) {
-      if (!(Boolean)this.w.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
+      if (!(Boolean)this.playerGirl.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
          if ("tail".equals(var1)) {
             this.a(var2, 0.0F, 0.0F, 1.0F);
          }
@@ -98,12 +98,12 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
             this.a_clash408(var2);
          }
 
-         if (this.w.getCurrentAction() != Action.BOW) {
+         if (this.playerGirl.getCurrentAction() != Action.BOW) {
             if ("armL".equals(var1)) {
                this.a(var2, 0.0F, (float) (-Math.PI / 9), 0.15F);
             }
 
-            if (this.w.getCurrentAction() != Action.ATTACK) {
+            if (this.playerGirl.getCurrentAction() != Action.ATTACK) {
                if ("armR".equals(var1)) {
                   this.a(var2, 0.0F, (float) (Math.PI / 9), 0.15F);
                }
@@ -113,43 +113,43 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
    }
 
    void a(GeoBone var1, float var2, float var3, float var4) {
-      double var5 = this.C - this.A;
-      double var7 = this.z - this.D;
-      double var9 = (Math.PI / 180.0) * this.w.rotationYaw;
+      double var5 = this.currentPosX - this.prevPosX;
+      double var7 = this.currentPosZ - this.prevPosZ;
+      double var9 = (Math.PI / 180.0) * this.playerGirl.rotationYaw;
       Vec2f var11 = new Vec2f((float)(var5 * Math.cos(var9) + var7 * Math.sin(var9)), (float)(-var5 * Math.sin(var9) + var7 * Math.cos(var9)));
-      this.G = var11.y * -8.0F;
-      this.I = var11.x * 8.0F;
-      this.G = ThreadNames.b(this.G, -1.68F, 1.68F);
-      this.I = ThreadNames.b(this.I, -1.68F, 1.68F);
-      this.G = RotationHelper.lerp(this.F, this.G, this.y);
-      this.I = RotationHelper.lerp(this.B, this.I, this.y);
-      var1.setRotationX(var2 + this.G * var4);
-      var1.setRotationZ(var3 + this.I * var4);
+      this.rotG = var11.y * -8.0F;
+      this.rotI = var11.x * 8.0F;
+      this.rotG = ThreadNames.b(this.rotG, -1.68F, 1.68F);
+      this.rotI = ThreadNames.b(this.rotI, -1.68F, 1.68F);
+      this.rotG = RotationHelper.lerp(this.prevRotX, this.rotG, this.partialTicks);
+      this.rotI = RotationHelper.lerp(this.prevRotZ, this.rotI, this.partialTicks);
+      var1.setRotationX(var2 + this.rotG * var4);
+      var1.setRotationZ(var3 + this.rotI * var4);
    }
 
    void a_clash408(GeoBone var1) {
-      double var2 = this.C - this.A;
-      double var4 = this.z - this.D;
-      this.L = (Math.abs(var2) + Math.abs(var4)) * 5.0;
-      this.L = ThreadNames.b((float)this.L, 0.0F, 1.0F);
-      var1.setPositionY((float)RotationHelper.a_clash28(5.0, 0.0, RotationHelper.b(this.H, this.L, this.y)));
-      if (this.w instanceof AlliePlayerEntity) {
-         ((AlliePlayerEntity)this.w).aq = (float)RotationHelper.a_clash28(0.3F, 0.0, RotationHelper.b(this.H, this.L, this.y));
+      double var2 = this.currentPosX - this.prevPosX;
+      double var4 = this.currentPosZ - this.prevPosZ;
+      this.moveMagnitude = (Math.abs(var2) + Math.abs(var4)) * 5.0;
+      this.moveMagnitude = ThreadNames.b((float)this.moveMagnitude, 0.0F, 1.0F);
+      var1.setPositionY((float)RotationHelper.a_clash28(5.0, 0.0, RotationHelper.b(this.smoothedBob, this.moveMagnitude, this.partialTicks)));
+      if (this.playerGirl instanceof AlliePlayerEntity) {
+         ((AlliePlayerEntity)this.playerGirl).aq = (float)RotationHelper.a_clash28(0.3F, 0.0, RotationHelper.b(this.smoothedBob, this.moveMagnitude, this.partialTicks));
       }
    }
 
    void a_clash409() {
-      if (this.w != null) {
-         this.F = this.G;
-         this.B = this.I;
-         this.H = this.L;
-         if (this.w.getOwnerUserUUID() != null) {
-            EntityPlayer var1 = this.j.world.getPlayerEntityByUUID(this.w.getOwnerUserUUID());
+      if (this.playerGirl != null) {
+         this.prevRotX = this.rotG;
+         this.prevRotZ = this.rotI;
+         this.smoothedBob = this.moveMagnitude;
+         if (this.playerGirl.getOwnerUserUUID() != null) {
+            EntityPlayer var1 = this.renderEntity.world.getPlayerEntityByUUID(this.playerGirl.getOwnerUserUUID());
             if (var1 != null) {
-               this.A = this.C;
-               this.D = this.z;
-               this.C = var1.posX;
-               this.z = var1.posZ;
+               this.prevPosX = this.currentPosX;
+               this.prevPosZ = this.currentPosZ;
+               this.currentPosX = var1.posX;
+               this.currentPosZ = var1.posZ;
             }
          }
       }
@@ -159,7 +159,7 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
    public static class a {
       @SubscribeEvent
       public void a(ClientTickEvent var1) {
-         for (PlayerAllieRenderer var3 : PlayerAllieRenderer.J) {
+         for (PlayerAllieRenderer var3 : PlayerAllieRenderer.renderers) {
             var3.a_clash409();
          }
       }

@@ -56,19 +56,19 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.resource.GeckoLibCache;
 
 public class ServerWhitelistManager {
-   public static final String a = "sexmod/custom_models";
-   static final String b = "sexmod/custom_models/whitelisted_servers.txt";
-   public static final String f = "sexmod_custom_models";
-   static Map<String, ServerWhitelistManager.b> c = new HashMap<>();
-   public static boolean d = false;
-   public static boolean e = false;
+   public static final String CUSTOM_MODELS_DIR = "sexmod/custom_models";
+   static final String WHITELIST_FILE = "sexmod/custom_models/whitelisted_servers.txt";
+   public static final String CUSTOM_MODELS_KEY = "sexmod_custom_models";
+   static Map<String, ServerWhitelistManager.b> modelDataMap = new HashMap<>();
+   public static boolean isGlobalRenderingDisabled = false;
+   public static boolean isLoaded = false;
 
    public static Map<String, ServerWhitelistManager.b> i_clash124() {
-      return c;
+      return modelDataMap;
    }
 
    public static boolean f_clash125(String var0) {
-      return c.get(var0) != null;
+      return modelDataMap.get(var0) != null;
    }
 
    public static int b_clash126(boolean var0) {
@@ -89,11 +89,11 @@ public class ServerWhitelistManager {
          c_clash131();
       }
 
-      c.clear();
+      modelDataMap.clear();
    }
 
    public static void a_clash128() {
-      PacketHandler.b.sendToServer(new UnknownPacket());
+      PacketHandler.networkWrapper.sendToServer(new UnknownPacket());
    }
 
    @SideOnly(Side.CLIENT)
@@ -194,13 +194,13 @@ public class ServerWhitelistManager {
    }
 
    public static float i(String var0) {
-      ServerWhitelistManager.b var1 = c.get(var0);
+      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       return var1 == null ? 0.0F : var1.f_clash905();
    }
 
    @SideOnly(Side.CLIENT)
    static void c_clash131() {
-      for (Entry var1 : c.entrySet()) {
+      for (Entry var1 : modelDataMap.entrySet()) {
          ServerWhitelistManager.b var2 = (ServerWhitelistManager.b)var1.getValue();
          if (var2 != null) {
             ResourceLocation var3 = var2.c_clash904();
@@ -300,7 +300,7 @@ public class ServerWhitelistManager {
       }
 
       b(Level.DEBUG, String.format("successfully registered %s custom models", var4));
-      e = true;
+      isLoaded = true;
       return 0;
    }
 
@@ -344,7 +344,7 @@ public class ServerWhitelistManager {
    }
 
    public static String a(String var0, String var1, boolean var2) {
-      if (c.get(var0) != null) {
+      if (modelDataMap.get(var0) != null) {
          return String.format("already registered '%s'... honestly, unsure how this could happen lol", var0);
       }
 
@@ -356,8 +356,8 @@ public class ServerWhitelistManager {
       }
 
       ServerWhitelistManager.b var6 = new ServerWhitelistManager.b(var5, var0);
-      if (var6.h != null) {
-         return var6.h;
+      if (var6.errorMessage != null) {
+         return var6.errorMessage;
       }
 
       String var8 = var3 + var0 + ".png";
@@ -408,13 +408,13 @@ public class ServerWhitelistManager {
          var6.a_clash903(var9);
       }
 
-      c.put(var0, var6);
+      modelDataMap.put(var0, var6);
       b(Level.DEBUG, String.format("successfully registered custom model '%s'", var0));
       return "";
    }
 
    public static ResourceLocation k(String var0) {
-      ServerWhitelistManager.b var1 = c.get(var0);
+      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The custom model for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -427,7 +427,7 @@ public class ServerWhitelistManager {
    }
 
    public static ResourceLocation c_clash137(String var0) {
-      ServerWhitelistManager.b var1 = c.get(var0);
+      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The custom texture for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -444,7 +444,7 @@ public class ServerWhitelistManager {
    }
 
    public static BoneType e_clash138(String var0) {
-      ServerWhitelistManager.b var1 = c.get(var0);
+      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The ClothingType for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -452,12 +452,12 @@ public class ServerWhitelistManager {
 
          return BoneType.HEAD;
       } else {
-         return var1.d;
+         return var1.boneType;
       }
    }
 
    public static HashSet<NpcType> a_clash139(String var0) {
-      ServerWhitelistManager.b var1 = c.get(var0);
+      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The HashSet<GirlType> for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -465,12 +465,12 @@ public class ServerWhitelistManager {
 
          return null;
       } else {
-         return var1.g;
+         return var1.allowedNpcTypes;
       }
    }
 
    public static HashSet<String> g_clash140(String var0) {
-      ServerWhitelistManager.b var1 = c.get(var0);
+      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The HashSet<String> for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -478,12 +478,12 @@ public class ServerWhitelistManager {
 
          return new HashSet<>();
       } else {
-         return var1.b;
+         return var1.customPartBones;
       }
    }
 
    public static String d_clash141(String var0) {
-      ServerWhitelistManager.b var1 = c.get(var0);
+      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The author for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -491,13 +491,13 @@ public class ServerWhitelistManager {
 
          return "";
       } else {
-         return var1.k;
+         return var1.modelCode;
       }
    }
 
    @Nullable
    public static ServerWhitelistManager.b b_clash142(String var0) {
-      return c.get(var0);
+      return modelDataMap.get(var0);
    }
 
    public static HashMap<BoneType, List<String>> a_clash143(BaseGirlEntity var0) {
@@ -507,12 +507,12 @@ public class ServerWhitelistManager {
          var1.put(var5, new ArrayList());
       }
 
-      for (Entry var9 : c.entrySet()) {
+      for (Entry var9 : modelDataMap.entrySet()) {
          String var10 = (String)var9.getKey();
          ServerWhitelistManager.b var11 = (ServerWhitelistManager.b)var9.getValue();
-         BoneType var6 = var11.d;
+         BoneType var6 = var11.boneType;
          List var7 = (List)var1.get(var6);
-         if (var11.g.isEmpty() || var11.g.contains(NpcType.getNpcType(var0))) {
+         if (var11.allowedNpcTypes.isEmpty() || var11.allowedNpcTypes.contains(NpcType.getNpcType(var0))) {
             var7.add(var10);
             var1.put(var6, var7);
          }
@@ -534,7 +534,7 @@ public class ServerWhitelistManager {
 
    @SideOnly(Side.CLIENT)
    public static class a {
-      boolean a = false;
+      boolean hasSentId = false;
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
@@ -565,15 +565,15 @@ public class ServerWhitelistManager {
       public void a(ClientConnectedToServerEvent var1) {
          Minecraft var2 = Minecraft.getMinecraft();
          var2.addScheduledTask(() -> ServerWhitelistManager.c_clash135(true));
-         this.a = false;
+         this.hasSentId = false;
       }
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
       public void a(EntityJoinWorldEvent var1) {
          if (var1.getEntity().equals(Minecraft.getMinecraft().player)) {
-            if (!this.a) {
-               this.a = true;
+            if (!this.hasSentId) {
+               this.hasSentId = true;
                if (ServerWhitelistManager.b_clash129()) {
                   ServerWhitelistManager.a_clash128();
                }
@@ -585,31 +585,31 @@ public class ServerWhitelistManager {
       @SubscribeEvent
       public void a(ClientDisconnectionFromServerEvent var1) {
          Minecraft.getMinecraft().addScheduledTask(() -> ServerWhitelistManager.a_clash127(true));
-         this.a = false;
+         this.hasSentId = false;
       }
 
    }
 
    public static class b {
-      BoneType d;
-      HashSet<NpcType> g = new HashSet<>();
-      HashSet<String> b = new HashSet<>();
-      String k;
-      String j;
-      boolean c;
-      LightingType e;
-      float m = 1.0F;
-      float a = 0.0F;
-      ResourceLocation i;
-      ResourceLocation f;
-      public String h = null;
-      float l;
+      BoneType boneType;
+      HashSet<NpcType> allowedNpcTypes = new HashSet<>();
+      HashSet<String> customPartBones = new HashSet<>();
+      String modelCode;
+      String modelName;
+      boolean disabled;
+      LightingType lightingType;
+      float scale = 1.0F;
+      float xOffset = 0.0F;
+      ResourceLocation textureLocation;
+      ResourceLocation fallbackTexture;
+      public String errorMessage = null;
+      float zOffset;
 
       public b(File var1, String var2) {
          if (var2.contains(" ") || var2.contains("#") || var2.contains("$")) {
-            this.h = String.format("You cannot call your custom model '%s'. '#', '$' and spaces are illegal characters", var2);
+            this.errorMessage = String.format("You cannot call your custom model '%s'. '#', '$' and spaces are illegal characters", var2);
          } else if ("cross".equalsIgnoreCase(var2)) {
-            this.h = "You cannot call your custom model 'cross'. Im sorry, but I need that specific name for internal stuff";
+            this.errorMessage = "You cannot call your custom model 'cross'. Im sorry, but I need that specific name for internal stuff";
          } else {
             Properties var3 = new Properties();
 
@@ -617,14 +617,14 @@ public class ServerWhitelistManager {
             try {
                var4 = new FileInputStream(var1);
             } catch (FileNotFoundException var21) {
-               this.h = String.format("couldn't find cfg File for '%s'. It should have been at '%s'. Are you sure it exists?", var2, var1.getAbsolutePath());
+               this.errorMessage = String.format("couldn't find cfg File for '%s'. It should have been at '%s'. Are you sure it exists?", var2, var1.getAbsolutePath());
                return;
             }
 
             try {
                var3.load(var4);
             } catch (IOException var20) {
-               this.h = String.format(
+               this.errorMessage = String.format(
                   "couldn't read the cfg File for '%s' at '%s'. It appears to be corrupted. Try making a new one", var2, var1.getAbsolutePath()
                );
                return;
@@ -632,7 +632,7 @@ public class ServerWhitelistManager {
 
             String var5 = var3.getProperty("wear_type");
             if (var5 == null) {
-               this.h = String.format(
+               this.errorMessage = String.format(
                   "The cfg File for the model '%s' at '%s' is missing the 'wear_type'. Go to the bottom of the cfg File and write 'wear_type=HEAD'. Check the cfg files of my examples to see what values for 'wear_type' are possible",
                   var2,
                   var1.getAbsolutePath()
@@ -640,9 +640,9 @@ public class ServerWhitelistManager {
             } else {
                try {
                   var5 = var5.replace(" ", "");
-                  this.d = BoneType.valueOf(var5);
+                  this.boneType = BoneType.valueOf(var5);
                } catch (IllegalArgumentException var19) {
-                  this.h = String.format(
+                  this.errorMessage = String.format(
                      "you entered '%s' into the 'wear_type' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'wear_type",
                      var5,
                      var2,
@@ -651,10 +651,10 @@ public class ServerWhitelistManager {
                   return;
                }
 
-               if (BoneType.CUSTOM_BONE.equals(this.d)) {
-                  this.j = var3.getProperty("custom_bone");
-                  if ("".equals(this.j)) {
-                     this.h = String.format(
+               if (BoneType.CUSTOM_BONE.equals(this.boneType)) {
+                  this.modelName = var3.getProperty("custom_bone");
+                  if ("".equals(this.modelName)) {
+                     this.errorMessage = String.format(
                         "You selected CUSTOM_BONE as the 'wear_type' in the cfg file for '%s' at '%s', yet you left the 'custom_bone' field right underneath it empty. If you want ur model to be parented to a specific bone, you have to enter the name of that bone at the field 'custom_bone'.",
                         var2,
                         var1.getAbsolutePath()
@@ -670,10 +670,10 @@ public class ServerWhitelistManager {
                for (String var11 : var7) {
                   try {
                      if (!"".equals(var11)) {
-                        this.g.add(NpcType.valueOf(var11));
+                        this.allowedNpcTypes.add(NpcType.valueOf(var11));
                      }
                   } catch (IllegalArgumentException var22) {
-                     this.h = String.format(
+                     this.errorMessage = String.format(
                         "you entered '%s' as one of the girls, you put into the 'which_girls' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'which_girls'.",
                         var11,
                         var2,
@@ -685,7 +685,7 @@ public class ServerWhitelistManager {
 
                String var24 = var3.getProperty("which_lighting");
                if (var24 == null) {
-                  this.h = String.format(
+                  this.errorMessage = String.format(
                      "The %s's cfg file at '%s' doesn't contain the field 'which_lighting'. Go to the bottom of the cfg file and write either 'which_lighting=DEFAULT', 'which_lighting=SEXMOD', or 'which_lighting=NONE'.",
                      var2,
                      var1.getAbsolutePath()
@@ -694,9 +694,9 @@ public class ServerWhitelistManager {
                   var24 = var24.replace(" ", "");
 
                   try {
-                     this.e = LightingType.valueOf(var24);
+                     this.lightingType = LightingType.valueOf(var24);
                   } catch (IllegalArgumentException var18) {
-                     this.h = String.format(
+                     this.errorMessage = String.format(
                         "you entered '%s' into the 'which_lighting' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'which_lighting'.",
                         var24,
                         var2,
@@ -706,24 +706,24 @@ public class ServerWhitelistManager {
 
                   String var26 = var3.getProperty("author");
                   if (var26 != null && !"".equals(var26)) {
-                     this.k = var26;
+                     this.modelCode = var26;
                   } else {
-                     this.k = "anon";
+                     this.modelCode = "anon";
                   }
 
                   String var27 = var3.getProperty("bones_to_hide");
                   if (var27 != null && !"".equals(var27)) {
                      var27 = var27.replace(" ", "");
                      String[] var29 = var27.split(",");
-                     this.b.addAll(Arrays.asList(var29));
+                     this.customPartBones.addAll(Arrays.asList(var29));
                   }
 
                   String var30 = var3.getProperty("enable_when_nude");
                   if (var30 == null) {
-                     this.c = false;
+                     this.disabled = false;
                   } else {
                      var30 = var30.replace(" ", "");
-                     this.c = var30.equalsIgnoreCase("yes");
+                     this.disabled = var30.equalsIgnoreCase("yes");
                   }
 
                   String var12 = var3.getProperty("gui_size_factor");
@@ -732,9 +732,9 @@ public class ServerWhitelistManager {
                      var12 = var12.replace(",", ".");
 
                      try {
-                        this.m = Float.parseFloat(var12);
+                        this.scale = Float.parseFloat(var12);
                      } catch (NumberFormatException var17) {
-                        this.h = String.format(
+                        this.errorMessage = String.format(
                            "you entered '%s' into the 'gui_size_factor' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'gui_size_factor'.",
                            var12,
                            var2,
@@ -749,9 +749,9 @@ public class ServerWhitelistManager {
                      var13 = var13.replace(",", ".");
 
                      try {
-                        this.a = Float.parseFloat(var13);
+                        this.xOffset = Float.parseFloat(var13);
                      } catch (NumberFormatException var16) {
-                        this.h = String.format(
+                        this.errorMessage = String.format(
                            "you entered '%s' into the 'gui_vertical_positioning' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'gui_vertical_positioning'.",
                            var13,
                            var2,
@@ -765,9 +765,9 @@ public class ServerWhitelistManager {
                   var14 = var14.replace(",", ".");
 
                   try {
-                     this.l = Float.parseFloat(var14);
+                     this.zOffset = Float.parseFloat(var14);
                   } catch (NumberFormatException var15) {
-                     this.h = String.format(
+                     this.errorMessage = String.format(
                         "you entered '%s' into the 'versionString' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'versionString'.",
                         var14,
                         var2,
@@ -780,59 +780,59 @@ public class ServerWhitelistManager {
       }
 
       public String b_clash893() {
-         return this.j;
+         return this.modelName;
       }
 
       public LightingType i_clash894() {
-         return this.e;
+         return this.lightingType;
       }
 
       public float g_clash895() {
-         return this.a;
+         return this.xOffset;
       }
 
       public float d_clash896() {
-         return this.m;
+         return this.scale;
       }
 
       public BoneType j_clash897() {
-         return this.d;
+         return this.boneType;
       }
 
       public HashSet<NpcType> l_clash898() {
-         return this.g;
+         return this.allowedNpcTypes;
       }
 
       public String e_clash899() {
-         return this.k;
+         return this.modelCode;
       }
 
       public boolean a_clash900() {
-         return this.c;
+         return this.disabled;
       }
 
       public HashSet<String> h_clash901() {
-         return this.b;
+         return this.customPartBones;
       }
 
       public ResourceLocation k_clash902() {
-         return this.i;
+         return this.textureLocation;
       }
 
       public void a_clash903(ResourceLocation var1) {
-         this.i = var1;
+         this.textureLocation = var1;
       }
 
       public ResourceLocation c_clash904() {
-         return this.f;
+         return this.fallbackTexture;
       }
 
       public void b(ResourceLocation var1) {
-         this.f = var1;
+         this.fallbackTexture = var1;
       }
 
       public float f_clash905() {
-         return this.l;
+         return this.zOffset;
       }
 
       private static FileNotFoundException a(FileNotFoundException var0) {
