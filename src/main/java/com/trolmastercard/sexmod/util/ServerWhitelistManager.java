@@ -210,7 +210,7 @@ public class ServerWhitelistManager {
             }
 
             if (var4 != null) {
-               Minecraft.func_71410_x().field_71446_o.func_147645_c(var4);
+               Minecraft.getMinecraft().renderEngine.deleteTexture(var4);
             }
          }
       }
@@ -218,7 +218,7 @@ public class ServerWhitelistManager {
 
    @SideOnly(Side.CLIENT)
    static void a(Level var0, String var1) {
-      EntityPlayerSP var2 = Minecraft.func_71410_x().field_71439_g;
+      EntityPlayerSP var2 = Minecraft.getMinecraft().player;
       if (var2 == null) {
          Main.LOGGER.log(var0, var1);
       } else {
@@ -231,7 +231,7 @@ public class ServerWhitelistManager {
             var3 = TextFormatting.WHITE;
          }
 
-         var2.func_145747_a(new TextComponentString(var3.toString() + var1));
+         var2.sendMessage(new TextComponentString(var3.toString() + var1));
       }
    }
 
@@ -248,13 +248,13 @@ public class ServerWhitelistManager {
    @SideOnly(Side.CLIENT)
    @Nullable
    public static String g_clash134() {
-      Minecraft var0 = Minecraft.func_71410_x();
-      ServerData var1 = var0.func_147104_D();
+      Minecraft var0 = Minecraft.getMinecraft();
+      ServerData var1 = var0.getCurrentServerData();
       if (var1 == null) {
          return null;
       }
 
-      String var2 = var1.field_78845_b;
+      String var2 = var1.serverIP;
       int var3 = var2.indexOf(":");
       if (var3 != -1) {
          var2 = var2.substring(0, var3);
@@ -323,7 +323,7 @@ public class ServerWhitelistManager {
    @SideOnly(Side.CLIENT)
    static ResourceLocation a(String var0, File var1) throws IOException {
       BufferedImage var2 = ImageIO.read(var1);
-      return Minecraft.func_71410_x().field_71446_o.func_110578_a(var0, new DynamicTexture(var2));
+      return Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(var0, new DynamicTexture(var2));
    }
 
    @SideOnly(Side.CLIENT)
@@ -396,7 +396,7 @@ public class ServerWhitelistManager {
 
          try {
             RawGeometryTree var14 = RawGeometryTree.parseHierarchy(var11, var10);
-            GeoModel var15 = GeoBuilder.getGeoBuilder(var10.func_110624_b()).constructGeoModel(var14);
+            GeoModel var15 = GeoBuilder.getGeoBuilder(var10.getNamespace()).constructGeoModel(var14);
             GeckoLibCache.getInstance().getGeoModels().put(var10, var15);
          } catch (Exception var16) {
             return String.format("The geo model for the custom model '%s' at '%s' appears to be corrupted. Try replacing it.", var0, var12);
@@ -541,20 +541,20 @@ public class ServerWhitelistManager {
       public void a(ClientChatEvent var1) {
          String var2 = var1.getOriginalMessage();
          if ("id".equals(var2)) {
-            EntityPlayerSP var3 = Minecraft.func_71410_x().field_71439_g;
-            List var4 = var3.field_70170_p.func_72872_a(BaseGirlEntity.class, var3.func_174813_aQ().func_186662_g(10.0));
+            EntityPlayerSP var3 = Minecraft.getMinecraft().player;
+            List var4 = var3.world.getEntitiesWithinAABB(BaseGirlEntity.class, var3.getEntityBoundingBox().grow(10.0));
             BaseGirlEntity var5 = null;
 
             for (BaseGirlEntity var7 : (java.util.Collection<BaseGirlEntity>) (var4) ) {
                if (var5 == null) {
                   var5 = var7;
-               } else if (var3.func_70032_d(var7) < var3.func_70032_d(var5)) {
+               } else if (var3.getDistance(var7) < var3.getDistance(var5)) {
                   var5 = var7;
                }
             }
 
             if (var5 != null) {
-               var3.func_146105_b(new TextComponentString(var5.getGirlId().toString()), false);
+               var3.sendStatusMessage(new TextComponentString(var5.getGirlId().toString()), false);
                var1.setCanceled(true);
             }
          }
@@ -563,15 +563,15 @@ public class ServerWhitelistManager {
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
       public void a(ClientConnectedToServerEvent var1) {
-         Minecraft var2 = Minecraft.func_71410_x();
-         var2.func_152343_a(() -> ServerWhitelistManager.c_clash135(true));
+         Minecraft var2 = Minecraft.getMinecraft();
+         var2.addScheduledTask(() -> ServerWhitelistManager.c_clash135(true));
          this.a = false;
       }
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
       public void a(EntityJoinWorldEvent var1) {
-         if (var1.getEntity().equals(Minecraft.func_71410_x().field_71439_g)) {
+         if (var1.getEntity().equals(Minecraft.getMinecraft().player)) {
             if (!this.a) {
                this.a = true;
                if (ServerWhitelistManager.b_clash129()) {
@@ -584,7 +584,7 @@ public class ServerWhitelistManager {
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
       public void a(ClientDisconnectionFromServerEvent var1) {
-         Minecraft.func_71410_x().func_152344_a(() -> ServerWhitelistManager.a_clash127(true));
+         Minecraft.getMinecraft().addScheduledTask(() -> ServerWhitelistManager.a_clash127(true));
          this.a = false;
       }
 

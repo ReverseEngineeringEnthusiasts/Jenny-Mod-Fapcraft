@@ -73,7 +73,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    void e_clash314(BaseGirlEntity var1) {
-      if (!this.a.func_147113_T()) {
+      if (!this.a.isGamePaused()) {
          if (!c_clash313(var1)) {
             GalathEntity var2 = ManglelieEntity.a_clash419(var1, false);
             if (var2 != null) {
@@ -98,7 +98,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
             GalathEntity var3 = var2.a_clash413(false);
             if (var3 != null) {
                IBone var4 = this.getAnimationProcessor().getBone("body");
-               var4.setRotationY(var3.bw + (this.a.func_147113_T() ? 0.0F : var4.getRotationY()));
+               var4.setRotationY(var3.bw + (this.a.isGamePaused() ? 0.0F : var4.getRotationY()));
                var4.setScaleX(var3.bm);
                var4.setScaleY(var3.bm);
                var4.setScaleZ(var3.bm);
@@ -108,13 +108,13 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    Vec3d a_clash316(@Nonnull Entity var1) {
-      return ak.a_clash52(var1, this.a.func_184121_ak()).func_72441_c(0.0, var1.func_70047_e(), 0.0);
+      return ak.a_clash52(var1, this.a.getRenderPartialTicks()).add(0.0, var1.getEyeHeight(), 0.0);
    }
 
    void d_clash317(BaseGirlEntity var1) {
       if (!ClientProxy.IS_PRELOADING) {
          if (!c_clash313(var1)) {
-            if (!this.a.func_147113_T()) {
+            if (!this.a.isGamePaused()) {
                ManglelieEntity var2 = (ManglelieEntity)var1;
                if (var2.r_clash411()) {
                   GalathEntity var3 = var2.a_clash413(false);
@@ -129,7 +129,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                      Entity var11 = var2.b_clash424();
                      boolean var12 = var11 == null;
                      if (var12) {
-                        float var16 = Minecraft.func_175610_ah();
+                        float var16 = Minecraft.getDebugFPS();
                         if (var16 == 0.0F) {
                            var16 = 1.0F;
                         }
@@ -174,7 +174,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                         var10.setRotationY(var15.e);
                      } else {
                         var2.R = this.a_clash316(var11);
-                        float var14 = Minecraft.func_175610_ah();
+                        float var14 = Minecraft.getDebugFPS();
                         if (var14 == 0.0F) {
                            var14 = 1.0F;
                         }
@@ -230,14 +230,14 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       var6.b = new f7(m, 0.0F, var3.getRotationZ());
       var6.h = new f7(l, 0.0F, var4.getRotationZ());
       float var7 = var2.aE + var5.getBone("upperBody").getRotationX();
-      float var8 = this.a.func_184121_ak();
+      float var8 = this.a.getRenderPartialTicks();
       Vec3d var9 = ManglelieRenderer.a_clash376(var2, var8);
-      Vec3d var10 = var1.getCachedBoneOffset("armR").func_178787_e(var9);
-      Vec3d var11 = var1.getCachedBoneOffset("armL").func_178787_e(var9);
+      Vec3d var10 = var1.getCachedBoneOffset("armR").add(var9);
+      Vec3d var11 = var1.getCachedBoneOffset("armL").add(var9);
       bm var12 = ThreadNames.a_clash161(var10, var1.R);
       bm var13 = ThreadNames.a_clash161(var11, var1.R);
       Float var14 = GalathEntity.a_clash692(var2, var8);
-      float var15 = var14 == null ? RotationHelper.b(var2.field_70758_at, var2.field_70759_as, var8) : var14;
+      float var15 = var14 == null ? RotationHelper.b(var2.prevRotationYawHead, var2.rotationYawHead, var8) : var14;
       float var16 = gc.wrapDegrees(var15);
       float var17 = var1.b_clash423(var8);
       float var18 = (float)RotationHelper.e(Math.min(1.0F, var17));
@@ -309,7 +309,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
 
    void b_clash318(BaseGirlEntity var1) {
       if (!ClientProxy.IS_PRELOADING) {
-         if (!this.a.func_147113_T()) {
+         if (!this.a.isGamePaused()) {
             ManglelieEntity var2 = (ManglelieEntity)var1;
             if (ManglelieRenderer.b(var2)) {
                GalathEntity var3 = var2.a_clash413(false);
@@ -331,7 +331,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
 
                   float var9 = ThreadNames.a(var2.T, var2.af);
                   float var10 = ThreadNames.a(var2.ai, var2.W);
-                  float var11 = Minecraft.func_175610_ah();
+                  float var11 = Minecraft.getDebugFPS();
                   if (var11 == 0.0F) {
                      var11 = 1.0F;
                   }

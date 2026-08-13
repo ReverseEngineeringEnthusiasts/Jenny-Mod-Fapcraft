@@ -109,12 +109,12 @@ public class DownloadServerModelPacket implements IMessage {
 
       @SideOnly(Side.CLIENT)
       void a_clash159(String var1) {
-         Minecraft.func_71410_x().field_71439_g.func_145747_a(new TextComponentString(var1));
+         Minecraft.getMinecraft().player.sendMessage(new TextComponentString(var1));
       }
 
       @SideOnly(Side.CLIENT)
       void a_clash160() {
-         Minecraft.func_71410_x().func_152343_a(() -> ServerWhitelistManager.b_clash126(true));
+         Minecraft.getMinecraft().addScheduledTask(() -> ServerWhitelistManager.b_clash126(true));
       }
 
       public IMessage onMessage(DownloadServerModelPacket var1, MessageContext var2) {
@@ -125,7 +125,7 @@ public class DownloadServerModelPacket implements IMessage {
 
          if (!var2.side.isClient()) {
             MinecraftServer var24 = FMLCommonHandler.instance().getMinecraftServerInstance();
-            var24.func_152344_a(() -> {
+            var24.addScheduledTask(() -> {
                List var3x = var1.c;
                ArrayList var4x = new ArrayList();
 
@@ -155,7 +155,7 @@ public class DownloadServerModelPacket implements IMessage {
 
                for (DownloadServerModelPacket var18 : (java.util.Collection<DownloadServerModelPacket>) (var4x) ) {
                   var18.a_clash351(var16);
-                  var24.func_152344_a(() -> PacketHandler.b.sendTo(var18, var2.getServerHandler().field_147369_b));
+                  var24.addScheduledTask(() -> PacketHandler.b.sendTo(var18, var2.getServerHandler().player));
                }
             });
             return null;

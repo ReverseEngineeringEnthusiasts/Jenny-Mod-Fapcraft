@@ -94,7 +94,7 @@ public class UnknownPacket implements IMessage {
          } else {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .func_152344_a(() -> PacketHandler.b.sendTo(new UnknownPacket(ServerWhitelistManager.e_clash144()), var2.getServerHandler().field_147369_b));
+               .addScheduledTask(() -> PacketHandler.b.sendTo(new UnknownPacket(ServerWhitelistManager.e_clash144()), var2.getServerHandler().player));
             return null;
          }
       }

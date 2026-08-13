@@ -92,15 +92,15 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    @Override
-   protected ResourceLocation func_184647_J() {
+   protected ResourceLocation getLootTable() {
       return dz.a;
    }
 
    boolean i_clash474() {
-      return this.isLocallyRegistered() ? false : this.field_70170_p.func_180495_p(this.func_180425_c().func_177982_a(0, 2, 0)).func_177230_c() != Blocks.field_150350_a;
+      return this.isLocallyRegistered() ? false : this.world.getBlockState(this.getPosition().add(0, 2, 0)).getBlock() != Blocks.AIR;
    }
 
-   public float func_70047_e() {
+   public float getEyeHeight() {
       return this.i_clash474() ? 1.53F : 1.9F;
    }
 
@@ -115,11 +115,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       if (var1 == null) {
          this.f_clash488();
       } else {
-         EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
+         EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
          if (var2 == null) {
             this.f_clash488();
          } else {
-            float var3 = var2.field_70177_z - 180.0F;
+            float var3 = var2.rotationYaw - 180.0F;
             this.setYawRotation(var3);
             this.b(fp.CARRY_INTRO);
             this.setAnchored(true);
@@ -136,7 +136,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       if (var2) {
          a(var1, this, new String[]{"action.names.cowgirl", "action.names.missionary"}, false);
          return true;
-      } else if ((Integer)this.m.func_187225_a(D) == 0) {
+      } else if ((Integer)this.m.get(D) == 0) {
          a(var1, this, new String[]{"action.names.dressup"}, true);
          return true;
       } else {
@@ -183,7 +183,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    @Override
    public void b(fp var1) {
       fp var2 = this.getCurrentAction();
-      if (var1 == fp.HUGSELECTED && !this.field_70170_p.field_72995_K) {
+      if (var1 == fp.HUGSELECTED && !this.world.isRemote) {
          this.ai = 79;
       }
 
@@ -202,10 +202,10 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    @SideOnly(Side.CLIENT)
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
       if (this.ae) {
-         this.a(Minecraft.func_71410_x().field_71439_g, true);
+         this.a(Minecraft.getMinecraft().player, true);
          this.ae = false;
       }
 
@@ -228,11 +228,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             if (this.getCurrentAction() == fp.CARRY_INTRO) {
                UUID var1 = this.getInteractionPlayerUUID();
                if (var1 != null) {
-                  EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
+                  EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
                   if (var2 != null) {
                      float var3 = this.getYawRotation();
-                     Vec3d var4 = this.getTargetPosition().func_178787_e(ck.rotateByYaw(new Vec3d(0.0, 2.5625F - var2.func_70047_e(), -0.3125), 180.0F + var3));
-                     var2.func_70634_a(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c);
+                     Vec3d var4 = this.getTargetPosition().add(ck.rotateByYaw(new Vec3d(0.0, 2.5625F - var2.getEyeHeight(), -0.3125), 180.0F + var3));
+                     var2.setPositionAndUpdate(var4.x, var4.y, var4.z);
                   }
                }
             }
@@ -242,10 +242,10 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    void m_clash478() {
       if (this.getCurrentAction() == fp.SITDOWNIDLE) {
-         EntityPlayer var1 = this.field_70170_p.func_72890_a(this, 10.0);
+         EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
          if (var1 != null) {
-            if (!(this.func_70032_d(var1) > 1.5F)) {
-               if (var1.getPersistentID().equals(Minecraft.func_71410_x().field_71439_g.getPersistentID())) {
+            if (!(this.getDistance(var1) > 1.5F)) {
+               if (var1.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
                   BeeScreen.enableInteraction();
                }
             }
@@ -254,8 +254,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
+   public void updateAITasks() {
+      super.updateAITasks();
       this.o_clash479();
       this.d_clash486();
       this.n_clash487();
@@ -269,59 +269,59 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    void o_clash479() {
       if (!this.ac) {
          this.ac = true;
-         this.field_70145_X = false;
-         this.func_189654_d(false);
+         this.noClip = false;
+         this.setNoGravity(false);
       }
    }
 
    @Override
    protected void U() {
-      String var1 = (String)this.m.func_187225_a(h);
+      String var1 = (String)this.m.get(h);
       if ("Missionary".equals(var1)) {
-         this.m.func_187227_b(D, 0);
+         this.m.set(D, 0);
          this.b(fp.MISSIONARY_START);
          UUID var2 = this.getInteractionPlayerUUID();
          if (var2 == null) {
             return;
          }
 
-         EntityPlayer var3 = this.field_70170_p.func_152378_a(var2);
+         EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
          if (var3 == null) {
             this.r_clash533();
             return;
          }
 
-         var3.func_189654_d(true);
-         var3.field_70145_X = true;
+         var3.setNoGravity(true);
+         var3.noClip = true;
          Vec3d var4 = this.getTargetPosition();
-         var3.field_70177_z = this.getYawRotation();
-         Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 0.1), var3.field_70177_z);
-         var4 = var4.func_178787_e(var5);
-         var3.func_70634_a(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c);
+         var3.rotationYaw = this.getYawRotation();
+         Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 0.1), var3.rotationYaw);
+         var4 = var4.add(var5);
+         var3.setPositionAndUpdate(var4.x, var4.y, var4.z);
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var3);
       }
 
       if ("cowgirl".equals(var1)) {
-         this.m.func_187227_b(D, 0);
+         this.m.set(D, 0);
          this.b(fp.COWGIRLSTART);
          UUID var6 = this.getInteractionPlayerUUID();
          if (var6 == null) {
             return;
          }
 
-         EntityPlayer var7 = this.field_70170_p.func_152378_a(var6);
+         EntityPlayer var7 = this.world.getPlayerEntityByUUID(var6);
          if (var7 == null) {
             this.r_clash533();
             return;
          }
 
-         var7.func_189654_d(true);
-         var7.field_70145_X = true;
+         var7.setNoGravity(true);
+         var7.noClip = true;
          Vec3d var9 = this.getTargetPosition();
-         var7.field_70177_z = this.getYawRotation() + 180.0F;
-         Vec3d var11 = ck.rotateByYaw(new Vec3d(0.0, 1.0 - var7.eyeHeight, -1.8125), var7.field_70177_z);
-         var9 = var9.func_178787_e(var11);
-         var7.func_70634_a(var9.field_72450_a, var9.field_72448_b, var9.field_72449_c);
+         var7.rotationYaw = this.getYawRotation() + 180.0F;
+         Vec3d var11 = ck.rotateByYaw(new Vec3d(0.0, 1.0 - var7.eyeHeight, -1.8125), var7.rotationYaw);
+         var9 = var9.add(var11);
+         var7.setPositionAndUpdate(var9.x, var9.y, var9.z);
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var7);
       }
    }
@@ -334,9 +334,9 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    void t_clash481() {
       if (this.getCurrentAction() == fp.SITDOWNIDLE && this.af < 0) {
-         EntityPlayer var1 = this.field_70170_p.func_72890_a(this, 10.0);
+         EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
          if (var1 != null) {
-            if (!(this.func_70032_d(var1) > 1.5F)) {
+            if (!(this.getDistance(var1) > 1.5F)) {
                this.af = 20;
                this.setInteractionPlayerUUID(var1.getPersistentID());
             }
@@ -359,39 +359,39 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    void q_clash484() {
       if (--this.ai == 0 || this.ah) {
          this.ah = true;
-         this.m.func_187227_b(G, false);
+         this.m.set(G, false);
          this.b(fp.NULL);
-         this.field_70145_X = false;
-         this.func_189654_d(false);
+         this.noClip = false;
+         this.setNoGravity(false);
          if (this.am == null) {
             this.am = this.g_clash485();
          }
 
          if (this.am == null) {
             this.h("no bed in sight...");
-            this.field_70170_p.func_184133_a(null, this.func_180425_c(), SoundHandler.GIRLS_ELLIE_SIGH[0], SoundCategory.NEUTRAL, 6.0F, 1.0F);
+            this.world.playSound(null, this.getPosition(), SoundHandler.GIRLS_ELLIE_SIGH[0], SoundCategory.NEUTRAL, 6.0F, 1.0F);
             this.s();
             this.f_clash488();
          } else {
-            EntityPlayer var1 = this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID());
+            EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
             if (var1 != null) {
-               var1.func_189654_d(false);
-               var1.field_70145_X = false;
+               var1.setNoGravity(false);
+               var1.noClip = false;
             }
 
             Vec3d var2 = (Vec3d)this.am[0];
             int var3 = (Integer)this.am[1];
-            if (var2.func_72438_d(this.func_174791_d()) > 1.0) {
-               this.func_70661_as().func_75492_a(var2.field_72450_a, var2.field_72448_b, var2.field_72449_c, 0.35F);
+            if (var2.distanceTo(this.getPositionVector()) > 1.0) {
+               this.getNavigator().tryMoveToXYZ(var2.x, var2.y, var2.z, 0.35F);
                this.tickPathVelocity();
             } else {
                this.setTargetPosition(var2);
                this.setYawRotation(var3);
                this.b(fp.SITDOWN);
-               this.m.func_187227_b(G, true);
+               this.m.set(G, true);
                this.al = 109;
-               this.field_70145_X = true;
-               this.func_189654_d(true);
+               this.noClip = true;
+               this.setNoGravity(true);
                this.ah = false;
                this.am = null;
             }
@@ -418,33 +418,33 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
       Vec3d var3;
       do {
-         BlockPos var6 = this.a(this.func_180425_c(), ++var2);
+         BlockPos var6 = this.a(this.getPosition(), ++var2);
          if (var6 == null) {
             return null;
          }
 
-         var3 = new Vec3d(var6.func_177958_n(), var6.func_177956_o(), var6.func_177952_p());
+         var3 = new Vec3d(var6.getX(), var6.getY(), var6.getZ());
 
          for (int var7 = 0; var7 < var4.length; var7++) {
-            Vec3d var8 = var3.func_178787_e(var4[var7][1]);
-            Block var9 = this.field_70170_p.func_180495_p(new BlockPos(var8.field_72450_a, var8.field_72448_b, var8.field_72449_c)).func_177230_c();
-            Vec3d var10 = var3.func_178787_e(var4[var7][2]);
-            Block var11 = this.field_70170_p.func_180495_p(new BlockPos(var10.field_72450_a, var10.field_72448_b, var10.field_72449_c)).func_177230_c();
-            if (var9 == Blocks.field_150350_a && var11 == Blocks.field_150324_C) {
+            Vec3d var8 = var3.add(var4[var7][1]);
+            Block var9 = this.world.getBlockState(new BlockPos(var8.x, var8.y, var8.z)).getBlock();
+            Vec3d var10 = var3.add(var4[var7][2]);
+            Block var11 = this.world.getBlockState(new BlockPos(var10.x, var10.y, var10.z)).getBlock();
+            if (var9 == Blocks.AIR && var11 == Blocks.BED) {
                if (var1 == -1) {
                   var1 = var7;
                } else {
-                  double var12 = this.func_180425_c()
-                     .func_177954_c(
-                        var3.func_178787_e(var4[var1][0]).field_72450_a,
-                        var3.func_178787_e(var4[var1][0]).field_72448_b,
-                        var3.func_178787_e(var4[var1][0]).field_72449_c
+                  double var12 = this.getPosition()
+                     .distanceSq(
+                        var3.add(var4[var1][0]).x,
+                        var3.add(var4[var1][0]).y,
+                        var3.add(var4[var1][0]).z
                      );
-                  double var14 = this.func_180425_c()
-                     .func_177954_c(
-                        var3.func_178787_e(var4[var7][0]).field_72450_a,
-                        var3.func_178787_e(var4[var7][0]).field_72448_b,
-                        var3.func_178787_e(var4[var7][0]).field_72449_c
+                  double var14 = this.getPosition()
+                     .distanceSq(
+                        var3.add(var4[var7][0]).x,
+                        var3.add(var4[var7][0]).y,
+                        var3.add(var4[var7][0]).z
                      );
                   if (var14 < var12) {
                      var1 = var7;
@@ -454,27 +454,27 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          }
       } while (var1 == -1);
 
-      Vec3d var16 = var3.func_178787_e(var4[var1][0]);
+      Vec3d var16 = var3.add(var4[var1][0]);
       return new Object[]{var16, var5[var1]};
    }
 
    void d_clash486() {
-      if (this.func_70660_b(HornyPotion.b) != null) {
-         EntityPlayer var1 = this.field_70170_p.func_72890_a(this, 10.0);
+      if (this.getActivePotionEffect(HornyPotion.b) != null) {
+         EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
          if (var1 != null) {
-            this.func_184596_c(HornyPotion.b);
+            this.removeActivePotionEffect(HornyPotion.b);
             this.setInteractionPlayerUUID(var1.getPersistentID());
-            float var2 = (float)(Math.atan2(this.field_70161_v - var1.field_70161_v, this.field_70165_t - var1.field_70165_t) * (180.0 / Math.PI));
+            float var2 = (float)(Math.atan2(this.posZ - var1.posZ, this.posX - var1.posX) * (180.0 / Math.PI));
             this.setYawRotation(var2);
-            this.setTargetPosition(this.func_174791_d());
-            this.m.func_187227_b(G, true);
+            this.setTargetPosition(this.getPositionVector());
+            this.m.set(G, true);
             this.b(fp.DASH);
             this.Z = 16;
-            this.func_189654_d(true);
-            this.field_70145_X = true;
+            this.setNoGravity(true);
+            this.noClip = true;
             PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
-            this.field_70714_bg.func_85156_a(this.z);
-            this.field_70714_bg.func_85156_a(this.o);
+            this.tasks.removeTask(this.z);
+            this.tasks.removeTask(this.o);
          }
       }
    }
@@ -485,16 +485,16 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          if (var1 == null) {
             this.f_clash488();
          } else {
-            EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
+            EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
             if (var2 == null) {
                this.f_clash488();
             } else {
-               var2.func_189654_d(true);
-               var2.field_70145_X = true;
-               Vec3d var3 = ck.rotateByYaw(new Vec3d(0.0, 0.0, -0.5), var2.field_70177_z);
-               Vec3d var4 = var3.func_178787_e(var2.func_174791_d());
+               var2.setNoGravity(true);
+               var2.noClip = true;
+               Vec3d var3 = ck.rotateByYaw(new Vec3d(0.0, 0.0, -0.5), var2.rotationYaw);
+               Vec3d var4 = var3.add(var2.getPositionVector());
                this.setTargetPosition(var4);
-               this.setYawRotation(var2.field_70177_z);
+               this.setYawRotation(var2.rotationYaw);
                this.b(fp.HUG);
                this.Y = 150;
             }
@@ -503,11 +503,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    void f_clash488() {
-      this.m.func_187227_b(G, false);
+      this.m.set(G, false);
       this.b(fp.NULL);
       this.setInteractionPlayerUUID(null);
-      this.field_70145_X = false;
-      this.func_189654_d(false);
+      this.noClip = false;
+      this.setNoGravity(false);
       this.ah = false;
       this.Y = -1;
       this.Z = -1;
@@ -515,7 +515,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       this.am = null;
    }
 
-   protected boolean func_184645_a(EntityPlayer var1, EnumHand var2) {
+   protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
       if (d_clash532(var1) != null) {
          return false;
       }
@@ -524,7 +524,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          return false;
       }
 
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          this.a(var1, false);
       }
 
@@ -555,7 +555,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.field_70170_p instanceof SexWorldClient) {
+      if (this.world instanceof SexWorldClient) {
          return null;
       }
 
@@ -571,7 +571,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.ellie.null", true, var1);
             } else {
-               double var4 = Math.abs(this.field_70169_q - this.field_70165_t) + Math.abs(this.field_70166_s - this.field_70161_v);
+               double var4 = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
                if (var4 == 0.0) {
                   this.a(this.i_clash474() ? "animation.ellie.crouchidle" : "animation.ellie.idle", true, var1);
                } else if (this.i_clash474()) {
@@ -686,7 +686,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          switch (var1x.sound) {
             case "becomeNude":
                if (this.isLocalPlayerNearby()) {
-                  this.changeDataParameterFromClient("currentModel", this.m.func_187225_a(D) == 1 ? "0" : "1");
+                  this.changeDataParameterFromClient("currentModel", this.m.get(D) == 1 ? "0" : "1");
                }
                break;
             case "stripDone":
@@ -703,24 +703,24 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                this.a(SoundHandler.GIRLS_ELLIE_HUH[1], 1.0F);
                break;
             case "hugMSG4":
-               this.h(I18n.func_135052_a("ellie.dialogue.mommyhorny", new Object[0]));
+               this.h(I18n.format("ellie.dialogue.mommyhorny", new Object[0]));
                this.a(SoundHandler.GIRLS_ELLIE_MOMMYHORNY, 0.5F);
                break;
             case "hugMSG5":
-               this.h(I18n.func_135052_a("ellie.dialogue.whattodo", new Object[0]));
+               this.h(I18n.format("ellie.dialogue.whattodo", new Object[0]));
                this.a(SoundHandler.GIRLS_ELLIE_HUH[1], 6.0F);
                break;
             case "hugDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.a(Minecraft.func_71410_x().field_71439_g, true);
+                  this.a(Minecraft.getMinecraft().player, true);
                }
                break;
             case "hugselectedMSG1":
-               this.h(I18n.func_135052_a("ellie.dialogue.iknow", new Object[0]));
+               this.h(I18n.format("ellie.dialogue.iknow", new Object[0]));
                this.a(SoundHandler.GIRLS_ELLIE_HMPH[3], 6.0F);
                break;
             case "hugselectedMSG2":
-               this.h(I18n.func_135052_a("ellie.dialogue.followmedarling", new Object[0]));
+               this.h(I18n.format("ellie.dialogue.followmedarling", new Object[0]));
                this.a(SoundHandler.GIRLS_ELLIE_GIGGLE[3], 6.0F);
                if (this.isControlledByLocalPlayer()) {
                   d3.setMovementLock(true);
@@ -729,7 +729,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             case "sitdownMSG1":
                this.a(SoundHandler.GIRLS_ELLIE_COMETOMOMMY, 0.5F);
                if (this.isLocalPlayerNearby()) {
-                  this.h(I18n.func_135052_a("ellie.dialogue.cometomommy", new Object[0]));
+                  this.h(I18n.format("ellie.dialogue.cometomommy", new Object[0]));
                }
                break;
             case "cowgirlStartMSG0":
@@ -737,7 +737,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                break;
             case "cowgirlStartMSG1":
                if (this.isLocalPlayerNearby()) {
-                  this.sendChatMessage(I18n.func_135052_a("ellie.dialogue.like", new Object[0]));
+                  this.sendChatMessage(I18n.format("ellie.dialogue.like", new Object[0]));
                   HornyMeterHud.resetHornyMeter();
                }
                break;
@@ -797,7 +797,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             case "missionary_cumMSG2":
                this.a(SoundHandler.GIRLS_ELLIE_GOODBOY, 0.5F);
                if (this.isControlledByLocalPlayer()) {
-                  this.sendChatMessage(I18n.func_135052_a("ellie.dialogue.goodboy", new Object[0]));
+                  this.sendChatMessage(I18n.format("ellie.dialogue.goodboy", new Object[0]));
                }
                break;
             case "cowgirlcumMSG6":
@@ -815,7 +815,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "attackSound":
-               this.a(SoundEvents.field_187727_dV);
+               this.a(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
                break;
             case "attackDone":
                this.b(fp.NULL);
@@ -833,7 +833,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                break;
             case "missionary_slowMSG1":
                this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
-               if (this.func_70681_au().nextBoolean() && this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean() && this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_MOAN), 6.0F);
                } else {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
@@ -845,7 +845,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                break;
             case "missionary_fastMSG1":
                this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
-               if (!this.func_70681_au().nextBoolean() && !this.func_70681_au().nextBoolean()) {
+               if (!this.getRNG().nextBoolean() && !this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
                } else {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_MOAN), 6.0F);
@@ -904,7 +904,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                int var4 = this.aa;
 
                do {
-                  this.aa = this.func_70681_au().nextInt(4) + 1;
+                  this.aa = this.getRNG().nextInt(4) + 1;
                } while (this.aa == var4);
 
                return;

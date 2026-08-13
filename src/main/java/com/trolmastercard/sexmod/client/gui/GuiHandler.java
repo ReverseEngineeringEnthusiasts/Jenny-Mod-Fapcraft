@@ -39,15 +39,15 @@ public class GuiHandler implements IGuiHandler {
       if (var1 == 0) {
          try {
             for (BaseGirlEntity var8 : BaseGirlEntity.getGirlEntityList()) {
-               if (!var8.field_70170_p.field_72995_K
-                  && var8.func_180425_c().func_177958_n() == var4
-                  && var8.func_180425_c().func_177956_o() == var5
-                  && var8.func_180425_c().func_177952_p() == var6) {
+               if (!var8.world.isRemote
+                  && var8.getPosition().getX() == var4
+                  && var8.getPosition().getY() == var5
+                  && var8.getPosition().getZ() == var6) {
                   if (var8 instanceof LunaEntity) {
-                     return new GirlInventoryContainer2((LunaEntity)var8, var2.field_71071_by, UUID.randomUUID());
+                     return new GirlInventoryContainer2((LunaEntity)var8, var2.inventory, UUID.randomUUID());
                   }
 
-                  return new ChestContainer(var8, var2.field_71071_by, UUID.randomUUID());
+                  return new ChestContainer(var8, var2.inventory, UUID.randomUUID());
                }
             }
          } catch (ConcurrentModificationException var11) {
@@ -57,13 +57,13 @@ public class GuiHandler implements IGuiHandler {
       if (var1 == 1) {
          try {
             for (BaseGirlEntity var13 : BaseGirlEntity.getGirlEntityList()) {
-               if (!var13.field_70170_p.field_72995_K
+               if (!var13.world.isRemote
                   && var13 instanceof IInventory
-                  && var13.func_180425_c().func_177958_n() == var4
-                  && var13.func_180425_c().func_177956_o() == var5
-                  && var13.func_180425_c().func_177952_p() == var6) {
+                  && var13.getPosition().getX() == var4
+                  && var13.getPosition().getY() == var5
+                  && var13.getPosition().getZ() == var6) {
                   IInventory var9 = (IInventory)var13;
-                  return new GirlInventoryContainer(var2.field_71071_by, var9, var2, UUID.randomUUID());
+                  return new GirlInventoryContainer(var2.inventory, var9, var2, UUID.randomUUID());
                }
             }
          } catch (ConcurrentModificationException var10) {
@@ -77,15 +77,15 @@ public class GuiHandler implements IGuiHandler {
       if (var1 == 0) {
          try {
             for (BaseGirlEntity var8 : BaseGirlEntity.getGirlEntityList()) {
-               if (var8.field_70170_p.field_72995_K
-                  && var8.func_180425_c().func_177958_n() == var4
-                  && var8.func_180425_c().func_177956_o() == var5
-                  && var8.func_180425_c().func_177952_p() == var6) {
+               if (var8.world.isRemote
+                  && var8.getPosition().getX() == var4
+                  && var8.getPosition().getY() == var5
+                  && var8.getPosition().getZ() == var6) {
                   if (var8 instanceof LunaEntity) {
-                     return new GirlInventoryContainerGui((LunaEntity)var8, var2.field_71071_by, UUID.randomUUID());
+                     return new GirlInventoryContainerGui((LunaEntity)var8, var2.inventory, UUID.randomUUID());
                   }
 
-                  return new GirlInventoryContainerGui2(var8, var2.field_71071_by, UUID.randomUUID());
+                  return new GirlInventoryContainerGui2(var8, var2.inventory, UUID.randomUUID());
                }
             }
          } catch (ConcurrentModificationException var10) {
@@ -95,11 +95,11 @@ public class GuiHandler implements IGuiHandler {
       if (var1 == 1) {
          try {
             for (BaseGirlEntity var12 : BaseGirlEntity.getGirlEntityList()) {
-               if (var12.field_70170_p.field_72995_K
+               if (var12.world.isRemote
                   && var12 instanceof IInventory
-                  && var12.func_180425_c().func_177958_n() == var4
-                  && var12.func_180425_c().func_177956_o() == var5
-                  && var12.func_180425_c().func_177952_p() == var6) {
+                  && var12.getPosition().getX() == var4
+                  && var12.getPosition().getY() == var5
+                  && var12.getPosition().getZ() == var6) {
                   return new ChestContainerGui(var2, var12, UUID.randomUUID());
                }
             }

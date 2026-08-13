@@ -43,15 +43,15 @@ public class MinePacket implements IMessage {
 
    public void fromBytes(ByteBuf var1) {
       this.a = new BlockPos(var1.readInt(), var1.readInt(), var1.readInt());
-      this.b = EnumFacing.func_176739_a(ByteBufUtils.readUTF8String(var1));
+      this.b = EnumFacing.byName(ByteBufUtils.readUTF8String(var1));
       this.c = true;
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeInt(this.a.func_177958_n());
-      var1.writeInt(this.a.func_177956_o());
-      var1.writeInt(this.a.func_177952_p());
-      ByteBufUtils.writeUTF8String(var1, this.b.func_176610_l());
+      var1.writeInt(this.a.getX());
+      var1.writeInt(this.a.getY());
+      var1.writeInt(this.a.getZ());
+      ByteBufUtils.writeUTF8String(var1, this.b.getName());
    }
 
    public static class Handler implements IMessageHandler<MinePacket, IMessage> {
@@ -59,15 +59,15 @@ public class MinePacket implements IMessage {
          if (var1.c && var2.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .func_152344_a(
+               .addScheduledTask(
                   () -> {
-                     EntityPlayerMP var3 = var2.getServerHandler().field_147369_b;
+                     EntityPlayerMP var3 = var2.getServerHandler().player;
                      UUID var4 = KoboldManager.getTribeUUID(var3.getPersistentID());
                      if (var4 != null) {
                         int var5 = KoboldManager.h_clash81(var4);
                         int var6 = (int)Math.floor(KoboldManager.j_clash76(var4).size() / 2.0);
                         if (var5 > var6) {
-                           var3.func_145747_a(
+                           var3.sendMessage(
                               new TextComponentString(
                                  String.format(
                                     "sUr Tribe will only work for you, if %severyone%s of them has a %sbed",
@@ -77,22 +77,22 @@ public class MinePacket implements IMessage {
                                  )
                               )
                            );
-                           var3.func_145747_a(new TextComponentString(String.format("%s%d/%d Beds", TextFormatting.YELLOW, var6, var5)));
+                           var3.sendMessage(new TextComponentString(String.format("%s%d/%d Beds", TextFormatting.YELLOW, var6, var5)));
                         } else {
                            HashSet var7 = this.a(var1.a, var1.b);
-                           World var8 = var2.getServerHandler().field_147369_b.field_70170_p;
+                           World var8 = var2.getServerHandler().player.world;
 
                            for (BlockPos var10 : (java.util.Collection<BlockPos>) (var7) ) {
-                              IBlockState var11 = var8.func_180495_p(var10);
-                              if (var11.func_177230_c().func_176195_g(var11, var8, var10) < 0.0F) {
-                                 var3.func_146105_b(new TextComponentString("This area contains Bedrock and cannot be mined"), true);
+                              IBlockState var11 = var8.getBlockState(var10);
+                              if (var11.getBlock().getBlockHardness(var11, var8, var10) < 0.0F) {
+                                 var3.sendStatusMessage(new TextComponentString("This area contains Bedrock and cannot be mined"), true);
                                  return;
                               }
                            }
 
                            KoboldTask var12 = new KoboldTask(var1.a, KoboldTask.TaskType.MINE, var7, var1.b);
                            KoboldManager.b(var4, var12);
-                           PacketHandler.b.sendTo(new SendBlocksPacket(var7, true), var2.getServerHandler().field_147369_b);
+                           PacketHandler.b.sendTo(new SendBlocksPacket(var7, true), var2.getServerHandler().player);
                         }
                      }
                   }
@@ -109,24 +109,24 @@ public class MinePacket implements IMessage {
          BlockPos var4 = var1;
 
          for (int var5 = 0; var5 < 30; var5++) {
-            var3.add(var4.func_177973_b(this.a(var2)));
-            var3.add(var4.func_177973_b(this.a(var2)).func_177984_a());
-            var3.add(var4.func_177973_b(this.a(var2)).func_177984_a().func_177984_a());
+            var3.add(var4.subtract(this.a(var2)));
+            var3.add(var4.subtract(this.a(var2)).up());
+            var3.add(var4.subtract(this.a(var2)).up().up());
             var3.add(var4);
-            var3.add(var4.func_177984_a());
-            var3.add(var4.func_177984_a().func_177984_a());
-            var3.add(var4.func_177971_a(this.a(var2)));
-            var3.add(var4.func_177971_a(this.a(var2)).func_177984_a());
-            var3.add(var4.func_177971_a(this.a(var2)).func_177984_a().func_177984_a());
-            var4 = var4.func_177971_a(var2.func_176730_m());
+            var3.add(var4.up());
+            var3.add(var4.up().up());
+            var3.add(var4.add(this.a(var2)));
+            var3.add(var4.add(this.a(var2)).up());
+            var3.add(var4.add(this.a(var2)).up().up());
+            var4 = var4.add(var2.getDirectionVec());
          }
 
          return var3;
       }
 
       BlockPos a(EnumFacing var1) {
-         Vec3i var2 = var1.func_176730_m();
-         return new BlockPos(var2.func_177952_p(), var2.func_177956_o(), -var2.func_177958_n());
+         Vec3i var2 = var1.getDirectionVec();
+         return new BlockPos(var2.getZ(), var2.getY(), -var2.getX());
       }
 
    }

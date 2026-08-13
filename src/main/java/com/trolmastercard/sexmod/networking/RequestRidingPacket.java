@@ -32,18 +32,18 @@ public class RequestRidingPacket implements IMessage {
    public static class Handler implements IMessageHandler<RequestRidingPacket, IMessage> {
       public IMessage onMessage(RequestRidingPacket var1, MessageContext var2) {
          if (var1.a && var2.side.equals(Side.SERVER)) {
-            EntityPlayerMP var3 = var2.getServerHandler().field_147369_b;
+            EntityPlayerMP var3 = var2.getServerHandler().player;
             UUID var4 = GirlSavedData.b_clash853(var3);
             BaseGirlEntity var5 = BaseGirlEntity.getServerGirlEntity(var4);
             if (var5 == null) {
                return null;
             }
 
-            var3.func_184205_a(var5, true);
+            var3.startRiding(var5, true);
             var5.b(fp.CONTROLLED_FLIGHT);
             var5.setInteractionPlayer(var3);
-            var5.field_70181_x = 0.25;
-            var3.field_70170_p.func_175726_f(var5.func_180425_c()).func_76622_b(var5);
+            var5.motionY = 0.25;
+            var3.world.getChunk(var5.getPosition()).removeEntity(var5);
             return null;
          } else {
             System.out.println("received an invalid message @RequestRiding :(");

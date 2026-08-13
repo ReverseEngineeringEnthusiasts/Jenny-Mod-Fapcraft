@@ -51,21 +51,21 @@ public class BeeOpenChestPacket implements IMessage {
          } else {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .func_152344_a(
+               .addScheduledTask(
                   () -> {
                      for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.a)) {
-                        if (!var3.field_70170_p.field_72995_K && var3 instanceof BeeEntity) {
+                        if (!var3.world.isRemote && var3 instanceof BeeEntity) {
                            BeeEntity var4 = (BeeEntity)var3;
-                           if ((Boolean)var4.func_184212_Q().func_187225_a(BeeEntity.M)) {
-                              EntityPlayerMP var5 = (EntityPlayerMP)var4.field_70170_p.func_152378_a(var1.c);
+                           if ((Boolean)var4.getDataManager().get(BeeEntity.M)) {
+                              EntityPlayerMP var5 = (EntityPlayerMP)var4.world.getPlayerEntityByUUID(var1.c);
                               if (var5 != null) {
                                  var5.openGui(
                                     null,
                                     1,
-                                    var3.field_70170_p,
-                                    var3.func_180425_c().func_177958_n(),
-                                    var3.func_180425_c().func_177956_o(),
-                                    var3.func_180425_c().func_177952_p()
+                                    var3.world,
+                                    var3.getPosition().getX(),
+                                    var3.getPosition().getY(),
+                                    var3.getPosition().getZ()
                                  );
                                  return;
                               }

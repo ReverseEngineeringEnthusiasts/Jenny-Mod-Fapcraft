@@ -40,9 +40,9 @@ public class SetNewHomePacket implements IMessage {
 
    public void toBytes(ByteBuf var1) {
       ByteBufUtils.writeUTF8String(var1, this.c.toString());
-      var1.writeDouble(this.a.field_72450_a);
-      var1.writeDouble(this.a.field_72448_b);
-      var1.writeDouble(this.a.field_72449_c);
+      var1.writeDouble(this.a.x);
+      var1.writeDouble(this.a.y);
+      var1.writeDouble(this.a.z);
    }
 
    public static class Handler implements IMessageHandler<SetNewHomePacket, IMessage> {
@@ -51,11 +51,11 @@ public class SetNewHomePacket implements IMessage {
             System.out.println("received an invalid message @SetNewHome :(");
             return null;
          } else {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                ArrayList var1x = BaseGirlEntity.girlList(var1.c);
                if (!var1x.isEmpty()) {
                   for (BaseGirlEntity var3 : (java.util.Collection<BaseGirlEntity>) (var1x) ) {
-                     var3.l = new Vec3d(var1.a.field_72450_a, Math.floor(var1.a.field_72448_b), var1.a.field_72449_c);
+                     var3.l = new Vec3d(var1.a.x, Math.floor(var1.a.y), var1.a.z);
                   }
                }
             });

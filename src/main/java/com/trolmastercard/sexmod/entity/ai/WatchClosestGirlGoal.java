@@ -12,9 +12,9 @@ public class WatchClosestGirlGoal extends EntityAIWatchClosest2 {
       super(var1, var2, var3, var4);
    }
 
-   public void func_75246_d() {
+   public void updateTask() {
       if (this.a) {
-         super.func_75246_d();
+         super.updateTask();
       }
    }
 

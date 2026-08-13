@@ -71,12 +71,12 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
 
    @Override
-   protected ResourceLocation func_110775_a(SexSceneEntity var1) {
+   public ResourceLocation getEntityTexture(SexSceneEntity var1) {
       return new ResourceLocation("sexmod", "textures/entity/kobold/egg.png");
    }
    public SexSceneRenderer(RenderManager var1, AnimatedGeoModel<?> var2) {
       super(var1, (AnimatedGeoModel<SexSceneEntity>) (AnimatedGeoModel) var2);
-      this.a = Minecraft.func_71410_x();
+      this.a = Minecraft.getMinecraft();
       this.a_clash809();
    }
 
@@ -123,15 +123,15 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
    @SideOnly(Side.CLIENT)
    public static void a_clash810(BaseGirlEntity var0, float var1) {
-      if (!var0.field_70128_L) {
-         if (var0.field_70170_p.field_72995_K) {
+      if (!var0.isDead) {
+         if (var0.world.isRemote) {
             if (var0.H_clash562()) {
-               RenderManager var2 = Minecraft.func_71410_x().func_175598_ae();
+               RenderManager var2 = Minecraft.getMinecraft().getRenderManager();
 
                for (String var4 : var0.getCustomPartsSet()) {
-                  SexSceneEntity var5 = new SexSceneEntity(var0.field_70170_p, var0.getGirlId(), var4);
+                  SexSceneEntity var5 = new SexSceneEntity(var0.world, var0.getGirlId(), var4);
                   k = true;
-                  var2.func_188391_a(var5, 0.0, 0.0, 0.0, 0.0F, var1, false);
+                  var2.renderEntity(var5, 0.0, 0.0, 0.0, 0.0F, var1, false);
                }
             }
          }
@@ -139,7 +139,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    }
 
    public boolean a(SexSceneEntity var1, ICamera var2, double var3, double var5, double var7) {
-      return super.func_177071_a(var1, var2, var3, var5, var7);
+      return super.shouldRender(var1, var2, var3, var5, var7);
    }
 
    boolean a_clash811(float var1) {
@@ -193,28 +193,28 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                                  return;
                               }
 
-                              EntityPlayer var15 = var1.field_70170_p.func_152378_a(var14);
+                              EntityPlayer var15 = var1.world.getPlayerEntityByUUID(var14);
                               var12 = var15 == null ? var13 : var15;
                            }
 
                            Vec3d var19 = var13.a(this.a, var1, (EntityLivingBase)var12, var9);
                            BlockPos var20 = new BlockPos(
-                              Math.floor(((EntityLivingBase)var12).field_70165_t),
-                              Math.floor(((EntityLivingBase)var12).field_70163_u),
-                              Math.floor(((EntityLivingBase)var12).field_70161_v)
+                              Math.floor(((EntityLivingBase)var12).posX),
+                              Math.floor(((EntityLivingBase)var12).posY),
+                              Math.floor(((EntityLivingBase)var12).posZ)
                            );
-                           int var16 = ((EntityLivingBase)var12).field_70170_p.func_175721_c(var20, true);
+                           int var16 = ((EntityLivingBase)var12).world.getLight(var20, true);
                            Vec3d var17 = new Vec3d(1.0, 1.0, 1.0);
                            float var18 = ThreadNames.b(var16, 10.0F, 15.0F) / 15.0F;
-                           this.d = new Vec3d(var17.field_72450_a * var18, var17.field_72448_b * var18, var17.field_72449_c * var18);
-                           GlStateManager.func_179094_E();
-                           GlStateManager.func_179137_b(var19.field_72450_a, var19.field_72448_b, var19.field_72449_c);
+                           this.d = new Vec3d(var17.x * var18, var17.y * var18, var17.z * var18);
+                           GlStateManager.pushMatrix();
+                           GlStateManager.translate(var19.x, var19.y, var19.z);
                            if (var13.isAnchored()) {
-                              GlStateManager.func_179114_b(var13.getYawRotation(), 0.0F, 1.0F, 0.0F);
+                              GlStateManager.rotate(var13.getYawRotation(), 0.0F, 1.0F, 0.0F);
                            }
 
                            super.doRender(var1, 0.0, 0.0, 0.0, var8, var9);
-                           GlStateManager.func_179121_F();
+                           GlStateManager.popMatrix();
                            GL11.glEnable(2896);
                         }
                      }
@@ -234,56 +234,56 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       if (var3.isAnchored()) {
          Vec3d var6 = var3.getTargetPosition();
          float var7 = var3.getYawRotation();
-         var1.field_70169_q = var6.field_72450_a;
-         var1.field_70167_r = var6.field_72448_b;
-         var1.field_70166_s = var6.field_72449_c;
-         var1.field_70142_S = var6.field_72450_a;
-         var1.field_70137_T = var6.field_72448_b;
-         var1.field_70136_U = var6.field_72449_c;
-         var1.field_70165_t = var6.field_72450_a;
-         var1.field_70163_u = var6.field_72448_b;
-         var1.field_70161_v = var6.field_72449_c;
-         var1.field_70177_z = var7;
-         var1.field_70126_B = var7;
-         var1.field_70759_as = var7;
-         var1.field_70758_at = var7;
-         var1.field_70761_aq = var7;
-         var1.field_70760_ar = var7;
-         var1.field_70125_A = var7;
-         var1.field_70127_C = var7;
+         var1.prevPosX = var6.x;
+         var1.prevPosY = var6.y;
+         var1.prevPosZ = var6.z;
+         var1.lastTickPosX = var6.x;
+         var1.lastTickPosY = var6.y;
+         var1.lastTickPosZ = var6.z;
+         var1.posX = var6.x;
+         var1.posY = var6.y;
+         var1.posZ = var6.z;
+         var1.rotationYaw = var7;
+         var1.prevRotationYaw = var7;
+         var1.rotationYawHead = var7;
+         var1.prevRotationYawHead = var7;
+         var1.renderYawOffset = var7;
+         var1.prevRenderYawOffset = var7;
+         var1.rotationPitch = var7;
+         var1.prevRotationPitch = var7;
          var5 = var6;
       } else {
-         var1.field_70177_z = var2.field_70177_z;
-         var1.field_70126_B = var2.field_70126_B;
-         var1.field_70759_as = var2.field_70759_as;
-         var1.field_70758_at = var2.field_70758_at;
-         var1.field_70761_aq = var2.field_70761_aq;
-         var1.field_70760_ar = var2.field_70760_ar;
-         var1.field_70125_A = var2.field_70125_A;
-         var1.field_70127_C = var2.field_70127_C;
-         var1.field_70169_q = var2.field_70169_q;
-         var1.field_70167_r = var2.field_70167_r;
-         var1.field_70166_s = var2.field_70166_s;
-         var1.field_70142_S = var2.field_70142_S;
-         var1.field_70137_T = var2.field_70137_T;
-         var1.field_70136_U = var2.field_70136_U;
-         var1.field_70165_t = var2.field_70165_t;
-         var1.field_70163_u = var2.field_70163_u;
-         var1.field_70161_v = var2.field_70161_v;
-         var5 = RotationHelper.a(new Vec3d(var2.field_70142_S, var2.field_70137_T, var2.field_70136_U), var2.func_174791_d(), var4);
+         var1.rotationYaw = var2.rotationYaw;
+         var1.prevRotationYaw = var2.prevRotationYaw;
+         var1.rotationYawHead = var2.rotationYawHead;
+         var1.prevRotationYawHead = var2.prevRotationYawHead;
+         var1.renderYawOffset = var2.renderYawOffset;
+         var1.prevRenderYawOffset = var2.prevRenderYawOffset;
+         var1.rotationPitch = var2.rotationPitch;
+         var1.prevRotationPitch = var2.prevRotationPitch;
+         var1.prevPosX = var2.prevPosX;
+         var1.prevPosY = var2.prevPosY;
+         var1.prevPosZ = var2.prevPosZ;
+         var1.lastTickPosX = var2.lastTickPosX;
+         var1.lastTickPosY = var2.lastTickPosY;
+         var1.lastTickPosZ = var2.lastTickPosZ;
+         var1.posX = var2.posX;
+         var1.posY = var2.posY;
+         var1.posZ = var2.posZ;
+         var5 = RotationHelper.a(new Vec3d(var2.lastTickPosX, var2.lastTickPosY, var2.lastTickPosZ), var2.getPositionVector(), var4);
       }
 
-      EntityPlayerSP var8 = var0.field_71439_g;
-      Vec3d var9 = RotationHelper.a(new Vec3d(var8.field_70142_S, var8.field_70137_T, var8.field_70136_U), var8.func_174791_d(), var4);
-      return var5.func_178788_d(var9);
+      EntityPlayerSP var8 = var0.player;
+      Vec3d var9 = RotationHelper.a(new Vec3d(var8.lastTickPosX, var8.lastTickPosY, var8.lastTickPosZ), var8.getPositionVector(), var4);
+      return var5.subtract(var9);
    }
 
    @Override
    public void render(GeoModel var1, SexSceneEntity var2, float var3, float var4, float var5, float var6, float var7) {
-      GlStateManager.func_179129_p();
-      GlStateManager.func_179091_B();
-      BufferBuilder var8 = Tessellator.func_178181_a().func_178180_c();
-      var8.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+      GlStateManager.disableCull();
+      GlStateManager.enableRescaleNormal();
+      BufferBuilder var8 = Tessellator.getInstance().getBuffer();
+      var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
       for (GeoBone var10 : var1.topLevelBones) {
          if (var3 != 1.876945F) {
@@ -294,9 +294,9 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
          this.renderRecursively(var8, var10, var4, var5, var6, var7);
       }
 
-      Tessellator.func_178181_a().func_78381_a();
-      GlStateManager.func_179101_C();
-      GlStateManager.func_179089_o();
+      Tessellator.getInstance().draw();
+      GlStateManager.disableRescaleNormal();
+      GlStateManager.enableCull();
    }
 
    EntityLivingBase c_clash812(SexSceneEntity var1) {
@@ -309,7 +309,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       if (!(var3 instanceof AbstractPlayerGirlEntity)) {
          var2 = var3;
       } else {
-         EntityPlayer var4 = var1.field_70170_p.func_152378_a(((AbstractPlayerGirlEntity)var3).getOwnerUserUUID());
+         EntityPlayer var4 = var1.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var3).getOwnerUserUUID());
          var2 = var4 == null ? var3 : var4;
       }
 
@@ -363,9 +363,9 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       if (!var2.isHidden()) {
          for (GeoCube var8 : var2.childCubes) {
             this.c.c.push();
-            GlStateManager.func_179094_E();
+            GlStateManager.pushMatrix();
             this.renderCube(var1, var8, var3, var4, var5, var6);
-            GlStateManager.func_179121_F();
+            GlStateManager.popMatrix();
             this.c.c.pop();
          }
       }
@@ -390,7 +390,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
       for (GeoQuad var10 : var2.quads) {
          if (var10 != null) {
-            Vector3f var11 = new Vector3f(var10.normal.func_177958_n(), var10.normal.func_177956_o(), var10.normal.func_177952_p());
+            Vector3f var11 = new Vector3f(var10.normal.getX(), var10.normal.getY(), var10.normal.getZ());
             this.c.c.getNormalMatrix().transform(var11);
             if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var11.getX() < 0.0F) {
                var11.x *= -1.0F;
@@ -411,11 +411,11 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
             for (GeoVertex var15 : var10.vertices) {
                Vector4f var16 = new Vector4f(var15.position.getX(), var15.position.getY(), var15.position.getZ(), 1.0F);
                this.c.c.getModelMatrix().transform(var16);
-               var1.func_181662_b(var16.getX(), var16.getY(), var16.getZ())
-                  .func_187315_a(var15.textureU, var15.textureV)
-                  .func_181666_a((float)this.d.field_72450_a, (float)this.d.field_72448_b, (float)this.d.field_72449_c, var6)
-                  .func_181663_c(var11.getX(), var11.getY(), var11.getZ())
-                  .func_181675_d();
+               var1.pos(var16.getX(), var16.getY(), var16.getZ())
+                  .tex(var15.textureU, var15.textureV)
+                  .color((float)this.d.x, (float)this.d.y, (float)this.d.z, var6)
+                  .normal(var11.getX(), var11.getY(), var11.getZ())
+                  .endVertex();
             }
          }
       }

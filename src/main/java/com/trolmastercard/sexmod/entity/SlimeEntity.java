@@ -46,13 +46,13 @@ public class SlimeEntity extends BaseGirlEntity {
    static final float L = 0.1F;
    static final int O = 2400;
    SlimeEntity.SlimeEntityState S = SlimeEntity.SlimeEntityState.IDLE;
-   public static DataParameter<Integer> U = EntityDataManager.func_187226_a(SlimeEntity.class, DataSerializers.field_187192_b)
-      .func_187156_b()
-      .func_187161_a(113);
-   public static DataParameter<Float> R = EntityDataManager.func_187226_a(SlimeEntity.class, DataSerializers.field_187193_c).func_187156_b().func_187161_a(112);
-   public static DataParameter<Integer> T = EntityDataManager.func_187226_a(SlimeEntity.class, DataSerializers.field_187192_b)
-      .func_187156_b()
-      .func_187161_a(111);
+   public static DataParameter<Integer> U = EntityDataManager.createKey(SlimeEntity.class, DataSerializers.VARINT)
+      .getSerializer()
+      .createKey(113);
+   public static DataParameter<Float> R = EntityDataManager.createKey(SlimeEntity.class, DataSerializers.FLOAT).getSerializer().createKey(112);
+   public static DataParameter<Integer> T = EntityDataManager.createKey(SlimeEntity.class, DataSerializers.VARINT)
+      .getSerializer()
+      .createKey(111);
    int N = 0;
    boolean K = true;
    boolean V = false;
@@ -88,15 +88,15 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    @Override
-   protected void func_184651_r() {
+   protected void initEntityAI() {
    }
 
    @Override
-   protected void func_70088_a() {
-      super.func_70088_a();
-      this.func_184212_Q().func_187214_a(T, 0);
-      this.func_184212_Q().func_187214_a(R, 0.0F);
-      this.func_184212_Q().func_187214_a(U, -1);
+   protected void entityInit() {
+      super.entityInit();
+      this.getDataManager().register(T, 0);
+      this.getDataManager().register(R, 0.0F);
+      this.getDataManager().register(U, -1);
    }
 
    @Override
@@ -117,68 +117,68 @@ public class SlimeEntity extends BaseGirlEntity {
       }
    }
 
-   protected float func_175134_bD() {
+   protected float getJumpUpwardsMotion() {
       return 0.9F;
    }
 
    @Override
-   public void func_70014_b(NBTTagCompound var1) {
-      super.func_70014_b(var1);
-      var1.func_74768_a("hornyLevel", (Integer)this.m.func_187225_a(T));
-      var1.func_74768_a("ticksUntilBirth", (Integer)this.m.func_187225_a(U));
+   public void writeEntityToNBT(NBTTagCompound var1) {
+      super.writeEntityToNBT(var1);
+      var1.setInteger("hornyLevel", (Integer)this.m.get(T));
+      var1.setInteger("ticksUntilBirth", (Integer)this.m.get(U));
    }
 
    @Override
-   public void func_70037_a(NBTTagCompound var1) {
-      super.func_70037_a(var1);
-      this.m.func_187227_b(T, var1.func_74762_e("hornyLevel"));
-      this.m.func_187227_b(U, var1.func_74762_e("ticksUntilBirth"));
-      if ((Integer)this.m.func_187225_a(T) != 0) {
-         this.m.func_187227_b(D, 0);
+   public void readEntityFromNBT(NBTTagCompound var1) {
+      super.readEntityFromNBT(var1);
+      this.m.set(T, var1.getInteger("hornyLevel"));
+      this.m.set(U, var1.getInteger("ticksUntilBirth"));
+      if ((Integer)this.m.get(T) != 0) {
+         this.m.set(D, 0);
       }
 
-      this.field_70145_X = false;
-      this.func_189654_d(false);
+      this.noClip = false;
+      this.setNoGravity(false);
    }
 
    @Override
-   protected ResourceLocation func_184647_J() {
+   protected ResourceLocation getLootTable() {
       return dz.b;
    }
 
    @Override
    public void reinitTasks() {
-      this.m.func_187227_b(T, 0);
-      this.m.func_187227_b(D, 1);
+      this.m.set(T, 0);
+      this.m.set(D, 1);
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
+   public void updateAITasks() {
+      super.updateAITasks();
       this.a_clash725();
       this.c_clash724();
-      if (this.func_70644_a(HornyPotion.b) && this.S == SlimeEntity.SlimeEntityState.IDLE && (Integer)this.m.func_187225_a(U) == -1) {
-         this.m.func_187227_b(T, 2);
-         if ((Integer)this.m.func_187225_a(D) == 1) {
+      if (this.isPotionActive(HornyPotion.b) && this.S == SlimeEntity.SlimeEntityState.IDLE && (Integer)this.m.get(U) == -1) {
+         this.m.set(T, 2);
+         if ((Integer)this.m.get(D) == 1) {
             this.b(fp.UNDRESS);
          }
 
-         this.func_184589_d(HornyPotion.b);
+         this.removePotionEffect(HornyPotion.b);
       }
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
       if (this.getCurrentAction() == fp.NULL) {
          this.b_clash726();
       }
 
-      if ((Integer)this.m.func_187225_a(T) >= 2 && this.field_70173_aa % 10 == 0) {
+      if ((Integer)this.m.get(T) >= 2 && this.ticksExisted % 10 == 0) {
          a(EnumParticleTypes.HEART, this);
       }
 
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          this.d_clash723();
          this.i_clash722();
       }
@@ -187,19 +187,19 @@ public class SlimeEntity extends BaseGirlEntity {
    @SideOnly(Side.CLIENT)
    void i_clash722() {
       if (this.getInteractionPlayerUUID() != null) {
-         EntityPlayerSP var1 = Minecraft.func_71410_x().field_71439_g;
+         EntityPlayerSP var1 = Minecraft.getMinecraft().player;
          if (this.getInteractionPlayerUUID().equals(var1.getPersistentID())) {
-            Vec3d var2 = this.func_174791_d();
+            Vec3d var2 = this.getPositionVector();
             Vec3d var3 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 0.65F), this.getYawRotation());
-            var2 = var2.func_178787_e(var3);
-            var1.func_70107_b(var2.field_72450_a, var2.field_72448_b, var2.field_72449_c);
-            var1.func_70016_h(0.0, 0.0, 0.0);
+            var2 = var2.add(var3);
+            var1.setPosition(var2.x, var2.y, var2.z);
+            var1.setVelocity(0.0, 0.0, 0.0);
          }
       }
    }
 
    void d_clash723() {
-      int var1 = (Integer)this.m.func_187225_a(U);
+      int var1 = (Integer)this.m.get(U);
       if (var1 != -1) {
          a(EnumParticleTypes.SPELL_WITCH, this);
          if (var1 == 0) {
@@ -209,43 +209,43 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    void c_clash724() {
-      int var1 = (Integer)this.m.func_187225_a(U);
+      int var1 = (Integer)this.m.get(U);
       if (var1 != -1) {
-         this.m.func_187227_b(U, var1 - 1);
+         this.m.set(U, var1 - 1);
          if (--var1 < 0) {
-            WildSlimeEntity var2 = new WildSlimeEntity(this.field_70170_p);
-            var2.func_70107_b(this.field_70165_t, this.field_70163_u, this.field_70161_v);
-            this.field_70170_p.func_72838_d(var2);
-            this.m.func_187227_b(U, -1);
+            WildSlimeEntity var2 = new WildSlimeEntity(this.world);
+            var2.setPosition(this.posX, this.posY, this.posZ);
+            this.world.spawnEntity(var2);
+            this.m.set(U, -1);
          }
       }
    }
 
    void a_clash725() {
-      int var1 = (Integer)this.m.func_187225_a(T);
+      int var1 = (Integer)this.m.get(T);
       if (var1 >= 2) {
-         if (var1 >= 4 && this.field_70122_E && this.getCurrentAction() == fp.NULL) {
-            this.setTargetPosition(this.func_174791_d());
-            this.setYawRotation(this.field_70177_z);
-            this.m.func_187227_b(G, true);
-            this.func_189654_d(true);
-            this.field_70145_X = true;
+         if (var1 >= 4 && this.onGround && this.getCurrentAction() == fp.NULL) {
+            this.setTargetPosition(this.getPositionVector());
+            this.setYawRotation(this.rotationYaw);
+            this.m.set(G, true);
+            this.setNoGravity(true);
+            this.noClip = true;
             this.b(fp.STARTDOGGY);
          } else {
-            EntityPlayer var2 = this.field_70170_p.func_72890_a(this, 1.0);
-            if (var2 != null && var2.field_70122_E && d_clash532(var2) == null) {
-               this.setTargetPosition(this.func_174791_d());
-               this.setYawRotation(this.field_70177_z);
-               this.m.func_187227_b(G, true);
-               this.func_189654_d(true);
-               this.field_70145_X = true;
-               var2.func_189654_d(true);
-               var2.field_70145_X = true;
+            EntityPlayer var2 = this.world.getClosestPlayerToEntity(this, 1.0);
+            if (var2 != null && var2.onGround && d_clash532(var2) == null) {
+               this.setTargetPosition(this.getPositionVector());
+               this.setYawRotation(this.rotationYaw);
+               this.m.set(G, true);
+               this.setNoGravity(true);
+               this.noClip = true;
+               var2.setNoGravity(true);
+               var2.noClip = true;
                PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
                this.setInteractionPlayerUUID(var2.getPersistentID());
-               var2.field_70177_z = this.getYawRotation();
+               var2.rotationYaw = this.getYawRotation();
                Vec3d var3 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 0.65F), this.getYawRotation());
-               var2.func_70107_b(this.field_70165_t + var3.field_72450_a, this.field_70163_u, this.field_70161_v + var3.field_72449_c);
+               var2.setPosition(this.posX + var3.x, this.posY, this.posZ + var3.z);
                if (this.getCurrentAction() == fp.WAITDOGGY) {
                   this.b(fp.DOGGYSTART);
                } else {
@@ -257,79 +257,79 @@ public class SlimeEntity extends BaseGirlEntity {
    }
 
    void b_clash726() {
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          if (this.N == 90.0) {
             this.S = SlimeEntity.SlimeEntityState.JUMP_START;
          }
 
-         if (!this.K && this.field_70122_E) {
+         if (!this.K && this.onGround) {
             this.S = SlimeEntity.SlimeEntityState.JUMP_END;
             this.N = 0;
          }
 
-         float var1 = (Float)this.m.func_187225_a(R);
-         this.field_70177_z = var1;
-         this.field_70759_as = var1;
-         this.field_70761_aq = var1;
+         float var1 = (Float)this.m.get(R);
+         this.rotationYaw = var1;
+         this.rotationYawHead = var1;
+         this.renderYawOffset = var1;
       } else {
          if (this.N == 85.0) {
-            this.m.func_187227_b(R, this.e_clash728());
+            this.m.set(R, this.e_clash728());
          }
 
          if (this.N == 100.0) {
             this.h_clash727();
          }
 
-         if (!this.K && this.field_70122_E) {
-            this.V = (Integer)this.m.func_187225_a(U) == -1 && this.func_70681_au().nextFloat() < 0.1F;
+         if (!this.K && this.onGround) {
+            this.V = (Integer)this.m.get(U) == -1 && this.getRNG().nextFloat() < 0.1F;
          }
 
          if (this.V && this.N == 50) {
-            int var3 = (Integer)this.m.func_187225_a(T);
+            int var3 = (Integer)this.m.get(T);
             int var2 = var3 + 1;
-            this.m.func_187227_b(T, var2);
+            this.m.set(T, var2);
             if (var2 == 1) {
                this.b(fp.UNDRESS);
             }
          }
       }
 
-      if (this.field_70122_E) {
+      if (this.onGround) {
          this.N++;
       }
 
-      this.K = this.field_70122_E;
+      this.K = this.onGround;
    }
 
    void h_clash727() {
-      this.field_70159_w = 0.0;
-      this.field_70181_x = 0.0;
-      this.field_70179_y = 0.0;
-      this.func_70664_aZ();
-      float var1 = (Float)this.m.func_187225_a(R);
-      this.field_70177_z = var1;
-      this.field_70126_B = var1;
+      this.motionX = 0.0;
+      this.motionY = 0.0;
+      this.motionZ = 0.0;
+      this.jump();
+      float var1 = (Float)this.m.get(R);
+      this.rotationYaw = var1;
+      this.prevRotationYaw = var1;
       Vec3d var2 = new Vec3d(0.0, 0.0, 0.7F);
       var2 = ck.rotateByYaw(var2, var1);
-      this.field_70159_w = var2.field_72450_a;
-      this.field_70179_y = var2.field_72449_c;
+      this.motionX = var2.x;
+      this.motionZ = var2.z;
       this.N = 0;
    }
 
    float e_clash728() {
-      int var1 = (Integer)this.m.func_187225_a(T);
-      if ((Integer)this.m.func_187225_a(U) != -1) {
+      int var1 = (Integer)this.m.get(T);
+      if ((Integer)this.m.get(U) != -1) {
          return this.f_clash729();
       } else if (var1 < 2) {
          return this.f_clash729();
       } else {
-         EntityPlayer var2 = this.field_70170_p.func_72890_a(this, 30.0);
+         EntityPlayer var2 = this.world.getClosestPlayerToEntity(this, 30.0);
          if (var2 == null) {
             return this.f_clash729();
          } else {
             return d_clash532(var2) != null
                ? this.f_clash729()
-               : (float)Math.atan2(this.field_70161_v - var2.field_70161_v, this.field_70165_t - var2.field_70165_t) * (float) (180.0 / Math.PI) + 90.0F;
+               : (float)Math.atan2(this.posZ - var2.posZ, this.posX - var2.posX) * (float) (180.0 / Math.PI) + 90.0F;
          }
       }
    }
@@ -338,12 +338,12 @@ public class SlimeEntity extends BaseGirlEntity {
       return Reference.f.nextFloat() * 360.0F;
    }
 
-   public void func_180430_e(float var1, float var2) {
+   public void fall(float var1, float var2) {
    }
 
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.field_70170_p instanceof SexWorldClient) {
+      if (this.world instanceof SexWorldClient) {
          return null;
       }
 
@@ -417,13 +417,13 @@ public class SlimeEntity extends BaseGirlEntity {
                break;
             case "dress":
                if (this.isLocalPlayerNearby()) {
-                  this.m.func_187227_b(D, 1);
+                  this.m.set(D, 1);
                   this.b((fp) null);
                   this.r_clash533();
                }
                break;
             case "becomeNude":
-               this.m.func_187227_b(D, 0);
+               this.m.set(D, 0);
                break;
             case "sexUiOn":
                if (this.isControlledByLocalPlayer() && !HornyMeterHud.d) {
@@ -436,24 +436,24 @@ public class SlimeEntity extends BaseGirlEntity {
                }
                break;
             case "bjiMSG11":
-               this.a(SoundEvents.field_187886_fs, 0.5F);
+               this.a(SoundEvents.ENTITY_SLIME_SQUISH, 0.5F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "bjiMSG12":
                if (Reference.f.nextInt(5) == 0) {
-                  this.a(SoundEvents.field_187882_fq, 0.5F);
+                  this.a(SoundEvents.ENTITY_SLIME_JUMP, 0.5F);
                }
 
-               this.a(SoundEvents.field_187886_fs, 0.5F);
+               this.a(SoundEvents.ENTITY_SLIME_SQUISH, 0.5F);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
                break;
             case "bjtMSG1":
-               this.a(SoundEvents.field_187878_fo);
-               this.a(SoundEvents.field_187874_fm);
+               this.a(SoundEvents.BLOCK_SLIME_HIT);
+               this.a(SoundEvents.ENTITY_SLIME_DEATH);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04);
                }
@@ -474,16 +474,16 @@ public class SlimeEntity extends BaseGirlEntity {
                }
                break;
             case "bjcMSG1":
-               this.a(SoundEvents.field_187882_fq);
+               this.a(SoundEvents.ENTITY_SLIME_JUMP);
                break;
             case "bjcMSG2":
-               this.a(SoundEvents.field_187882_fq);
+               this.a(SoundEvents.ENTITY_SLIME_JUMP);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.hideHornyMeter();
                }
                break;
             case "doggyslowMSG2":
-               this.a(SoundEvents.field_187878_fo);
+               this.a(SoundEvents.BLOCK_SLIME_HIT);
                break;
             case "bjcBlackScreen":
                if (this.isControlledByLocalPlayer()) {
@@ -499,8 +499,8 @@ public class SlimeEntity extends BaseGirlEntity {
                }
                break;
             case "doggyGoOnBedMSG1":
-               this.a(SoundEvents.field_187886_fs);
-               this.r = this.field_70177_z;
+               this.a(SoundEvents.ENTITY_SLIME_SQUISH);
+               this.r = this.rotationYaw;
                break;
             case "doggyGoOnBedDone":
                this.b(fp.WAITDOGGY);
@@ -512,14 +512,14 @@ public class SlimeEntity extends BaseGirlEntity {
                this.a(SoundHandler.MISC_TOUCH[1]);
                break;
             case "doggystartMSG3":
-               this.a(SoundEvents.field_187886_fs, 0.25F);
+               this.a(SoundEvents.ENTITY_SLIME_SQUISH, 0.25F);
                break;
             case "doggystartMSG4":
                this.a(SoundHandler.randomSound(SoundHandler.MISC_SMALLINSERTS), 1.5F);
                break;
             case "doggystartMSG5":
                this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
-               this.a(SoundEvents.field_187878_fo);
+               this.a(SoundEvents.BLOCK_SLIME_HIT);
                break;
             case "doggystartDone":
                this.b(fp.DOGGYSLOW);
@@ -533,12 +533,12 @@ public class SlimeEntity extends BaseGirlEntity {
                if (var4 == 0) {
                   var4 = Reference.f.nextInt(2);
                   if (var4 == 0) {
-                     this.a(SoundEvents.field_187882_fq);
+                     this.a(SoundEvents.ENTITY_SLIME_JUMP);
                   } else {
-                     this.a(SoundEvents.field_187886_fs);
+                     this.a(SoundEvents.ENTITY_SLIME_SQUISH);
                   }
                } else {
-                  this.a(SoundEvents.field_187878_fo);
+                  this.a(SoundEvents.BLOCK_SLIME_HIT);
                }
 
                if (this.isControlledByLocalPlayer()) {
@@ -555,12 +555,12 @@ public class SlimeEntity extends BaseGirlEntity {
                if (this.P % 2 == 0) {
                   int var5 = Reference.f.nextInt(2);
                   if (var5 == 0) {
-                     this.a(SoundEvents.field_187882_fq);
+                     this.a(SoundEvents.ENTITY_SLIME_JUMP);
                   } else {
-                     this.a(SoundEvents.field_187886_fs);
+                     this.a(SoundEvents.ENTITY_SLIME_SQUISH);
                   }
                } else {
-                  this.a(SoundEvents.field_187878_fo);
+                  this.a(SoundEvents.BLOCK_SLIME_HIT);
                }
                break;
             case "doggyfastDone":
@@ -569,16 +569,16 @@ public class SlimeEntity extends BaseGirlEntity {
             case "doggycumMSG1":
                this.a(SoundHandler.MISC_CUMINFLATION[0], 4.0F);
                this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 2.0F);
-               this.a(SoundEvents.field_187874_fm);
+               this.a(SoundEvents.ENTITY_SLIME_DEATH);
                break;
             case "jumpStart":
-               this.a(SoundEvents.field_187882_fq);
+               this.a(SoundEvents.ENTITY_SLIME_JUMP);
                break;
             case "jumpStartDone":
                this.S = SlimeEntity.SlimeEntityState.JUMP_AIR;
                break;
             case "jumpEndSound":
-               this.a(SoundEvents.field_187886_fs);
+               this.a(SoundEvents.ENTITY_SLIME_SQUISH);
                break;
             case "jumpEndDone":
                this.S = SlimeEntity.SlimeEntityState.IDLE;

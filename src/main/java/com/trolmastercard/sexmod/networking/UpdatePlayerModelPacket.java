@@ -59,16 +59,16 @@ public class UpdatePlayerModelPacket implements IMessage {
    public static class Handler implements IMessageHandler<UpdatePlayerModelPacket, IMessage> {
       public IMessage onMessage(UpdatePlayerModelPacket var1, MessageContext var2) {
          if (var1.b && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               EntityPlayerMP var2x = var2.getServerHandler().field_147369_b;
-               World var3 = var2x.field_70170_p;
-               UUID var4 = var2.getServerHandler().field_147369_b.getPersistentID();
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+               EntityPlayerMP var2x = var2.getServerHandler().player;
+               World var3 = var2x.world;
+               UUID var4 = var2.getServerHandler().player.getPersistentID();
                AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var4);
                if (var5 != null) {
                   try {
                      for (BaseGirlEntity var7 : BaseGirlEntity.getGirlEntityList()) {
-                        if (!var7.field_70170_p.field_72995_K && var7.getGirlId().equals(var5.getGirlId())) {
-                           var3.func_72900_e(var7);
+                        if (!var7.world.isRemote && var7.getGirlId().equals(var5.getGirlId())) {
+                           var3.removeEntity(var7);
                         }
                      }
                   } catch (ConcurrentModificationException var10) {
@@ -85,19 +85,19 @@ public class UpdatePlayerModelPacket implements IMessage {
                   AbstractPlayerGirlEntity var11;
                   try {
                      Constructor var8 = var12.playerClass.getConstructor(World.class, UUID.class);
-                     var11 = (AbstractPlayerGirlEntity)var8.newInstance(var3, var2.getServerHandler().field_147369_b.getPersistentID());
+                     var11 = (AbstractPlayerGirlEntity)var8.newInstance(var3, var2.getServerHandler().player.getPersistentID());
                   } catch (Exception var9) {
                      var9.printStackTrace();
                      return;
                   }
 
-                  var11.func_189654_d(true);
-                  var11.field_70145_X = true;
-                  var11.field_70159_w = 0.0;
-                  var11.field_70181_x = 0.0;
-                  var11.field_70179_y = 0.0;
-                  var11.func_70107_b(var2x.field_70165_t, var2x.field_70163_u + 69.0, var2x.field_70161_v);
-                  var3.func_72838_d(var11);
+                  var11.setNoGravity(true);
+                  var11.noClip = true;
+                  var11.motionX = 0.0;
+                  var11.motionY = 0.0;
+                  var11.motionZ = 0.0;
+                  var11.setPosition(var2x.posX, var2x.posY + 69.0, var2x.posZ);
+                  var3.spawnEntity(var11);
                   var11.B_clash233();
                }
             });

@@ -15,6 +15,6 @@ public class Reference {
    public static int i = 0;
    public static final int a = 4674237;
    public static final int e = 6281823;
-   public static Vec3d j = Vec3d.field_186680_a;
-   public static Vec3d k = Vec3d.field_186680_a;
+   public static Vec3d j = Vec3d.ZERO;
+   public static Vec3d k = Vec3d.ZERO;
 }

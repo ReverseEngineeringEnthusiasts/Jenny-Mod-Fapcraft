@@ -60,26 +60,26 @@ public class ClaimTribePacket implements IMessage {
          if (var1.c && var2.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .func_152344_a(
+               .addScheduledTask(
                   () -> {
                      List var2x = KoboldManager.n_clash82(var1.d);
                      EyeAndKoboldColor var3 = null;
 
                      for (KoboldEntity var5 : (java.util.Collection<KoboldEntity>) (var2x) ) {
                         if (!var5.J_clash526()) {
-                           EntityDataManager var6 = var5.func_184212_Q();
-                           var6.func_187227_b(BaseGirlEntity.v, var1.a.toString());
-                           var6.func_187227_b(KoboldEntity.aU, var1.b);
-                           var3 = EyeAndKoboldColor.valueOf((String)var6.func_187225_a(KoboldEntity.N));
+                           EntityDataManager var6 = var5.getDataManager();
+                           var6.set(BaseGirlEntity.v, var1.a.toString());
+                           var6.set(KoboldEntity.aU, var1.b);
+                           var3 = EyeAndKoboldColor.valueOf((String)var6.get(KoboldEntity.N));
                         }
                      }
 
                      if (var3 != null) {
-                        PlayerList var8 = FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al();
-                        String var9 = var2.getServerHandler().field_147369_b.func_70005_c_();
+                        PlayerList var8 = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
+                        String var9 = var2.getServerHandler().player.getName();
 
-                        for (EntityPlayer var7 : var8.func_181057_v()) {
-                           var7.func_145747_a(
+                        for (EntityPlayer var7 : var8.getPlayers()) {
+                           var7.sendMessage(
                               new TextComponentString(
                                  String.format("%s formed the " + var3.getTextColor() + "%s " + TextFormatting.WHITE + "Tribe", var9, var1.b)
                               )
@@ -87,7 +87,7 @@ public class ClaimTribePacket implements IMessage {
                         }
 
                         KoboldManager.a_clash87(var1.d, true);
-                        KoboldManager.a(var1.d, var2.getServerHandler().field_147369_b.getPersistentID());
+                        KoboldManager.a(var1.d, var2.getServerHandler().player.getPersistentID());
                      }
                   }
                );

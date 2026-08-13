@@ -41,10 +41,10 @@ public class UploadInventoryToServerPacket2 implements IMessage {
    public static class Handler implements IMessageHandler<UploadInventoryToServerPacket2, IMessage> {
       public IMessage onMessage(UploadInventoryToServerPacket2 var1, MessageContext var2) {
          if (var1.a && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.b)) {
-                  if (!var3.field_70170_p.field_72995_K) {
-                     var3.field_70170_p.func_72900_e(var3);
+                  if (!var3.world.isRemote) {
+                     var3.world.removeEntity(var3);
                   }
                }
             });

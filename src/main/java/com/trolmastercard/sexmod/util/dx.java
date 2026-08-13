@@ -59,7 +59,7 @@ public class dx extends GirlPlayerRenderer {
    @Nullable
    @Override
    protected f7 e_clash326(BaseGirlEntity var1) {
-      if (var1.field_70170_p instanceof SexWorldClient) {
+      if (var1.world instanceof SexWorldClient) {
          return null;
       } else {
          return ((IGalath)var1).c_clash21() ? null : GalathRenderer.y;
@@ -80,7 +80,7 @@ public class dx extends GirlPlayerRenderer {
    @Override
    public void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       super.a(var1, var2, var4, var6, var8, var9);
-      if (i.field_71474_y.field_74320_O != 0 || !i.field_71439_g.getPersistentID().equals(((AbstractPlayerGirlEntity)var1).getOwnerUserUUID()) || var1.isAnchored()) {
+      if (i.gameSettings.thirdPersonView != 0 || !i.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var1).getOwnerUserUUID()) || var1.isAnchored()) {
          GalathRenderer.a_clash324(var1, var9);
       }
    }
@@ -89,7 +89,7 @@ public class dx extends GirlPlayerRenderer {
    protected void a_clash146(boolean var1) {
       super.a_clash146(var1);
       if (var1) {
-         GlStateManager.func_179137_b(0.15, 0.0, 0.0);
+         GlStateManager.translate(0.15, 0.0, 0.0);
       }
    }
 
@@ -97,18 +97,18 @@ public class dx extends GirlPlayerRenderer {
    protected void a(boolean var1, boolean var2) {
       super.a(var1, var2);
       if (var1) {
-         GlStateManager.func_179137_b(0.0, -0.05, -0.05);
-         GlStateManager.func_179114_b(15.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.translate(0.0, -0.05, -0.05);
+         GlStateManager.rotate(15.0F, 1.0F, 0.0F, 0.0F);
          if (var2) {
-            GlStateManager.func_179137_b(0.3, 0.2, 0.0);
-            GlStateManager.func_179114_b(-30.0F, 1.0F, 0.0F, 0.0F);
-            GlStateManager.func_179114_b(15.0F, 0.0F, 0.0F, 1.0F);
+            GlStateManager.translate(0.3, 0.2, 0.0);
+            GlStateManager.rotate(-30.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(15.0F, 0.0F, 0.0F, 1.0F);
          }
       } else {
-         GlStateManager.func_179137_b(0.0, 0.0, 0.1);
-         GlStateManager.func_179114_b(30.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.translate(0.0, 0.0, 0.1);
+         GlStateManager.rotate(30.0F, 1.0F, 0.0F, 0.0F);
          if (var2) {
-            GlStateManager.func_179114_b(-29.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(-29.0F, 1.0F, 0.0F, 0.0F);
          }
       }
    }
@@ -123,18 +123,18 @@ public class dx extends GirlPlayerRenderer {
          return super.a(var1, var2, var3, var4);
       }
 
-      ItemStack var5 = ItemStack.field_190927_a;
+      ItemStack var5 = ItemStack.EMPTY;
       switch (var1) {
          case "braBoobL":
          case "braBoobR":
          case "armorNippleR":
          case "armorNippleL":
-            var5 = (ItemStack)this.j.func_184212_Q().func_187225_a(AbstractGirlNpcEntity.T);
+            var5 = (ItemStack)this.j.getDataManager().get(AbstractGirlNpcEntity.T);
             break;
          case "turnable":
          case "static":
          case "slip":
-            var5 = (ItemStack)this.j.func_184212_Q().func_187225_a(AbstractGirlNpcEntity.U);
+            var5 = (ItemStack)this.j.getDataManager().get(AbstractGirlNpcEntity.U);
             break;
          case "shinL":
          case "shinR":
@@ -142,22 +142,22 @@ public class dx extends GirlPlayerRenderer {
          case "sockR":
          case "kneeL":
          case "kneeR":
-            var5 = (ItemStack)this.j.func_184212_Q().func_187225_a(AbstractGirlNpcEntity.W);
+            var5 = (ItemStack)this.j.getDataManager().get(AbstractGirlNpcEntity.W);
       }
 
-      if (!(var5.func_77973_b() instanceof ItemArmor)) {
+      if (!(var5.getItem() instanceof ItemArmor)) {
          return this.a_clash337(var2, var3, var4);
       }
 
-      ItemArmor var14 = (ItemArmor)var5.func_77973_b();
-      switch (var14.func_82812_d()) {
+      ItemArmor var14 = (ItemArmor)var5.getItem();
+      switch (var14.getArmorMaterial()) {
          case GOLD:
             return new Vector4f(var2, var3, var4, -0.15625F);
          case IRON:
          case CHAIN:
             return new Vector4f(var2, var3, var4, -0.125F);
          case LEATHER:
-            int var15 = var14.func_82814_b(var5);
+            int var15 = var14.getColor(var5);
             float var8 = (var15 >> 16 & 0xFF) / 255.0F;
             float var9 = (var15 >> 8 & 0xFF) / 255.0F;
             float var10 = (var15 & 0xFF) / 255.0F;
@@ -193,13 +193,13 @@ public class dx extends GirlPlayerRenderer {
       MATRIX_STACK.scale(var9);
       MATRIX_STACK.moveBackFromPivot(var9);
       this.renderRecursively(var2, var10, var4, var5, var6, var7);
-      Tessellator.func_178181_a().func_78381_a();
-      var2.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+      Tessellator.getInstance().draw();
+      var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
-      Minecraft.func_71410_x().field_71446_o.func_110577_a(this.func_110775_a(this.j));
+      Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.j));
 
       this.renderRecursively(var2, var11, var4, var5, var6, this.j.v_clash550());
-      Tessellator.func_178181_a().func_78381_a();
+      Tessellator.getInstance().draw();
       MATRIX_STACK.pop();
    }
 

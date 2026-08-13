@@ -24,33 +24,33 @@ public class SuccubusDamageSource extends DamageSource {
    public SuccubusDamageSource(GalathEntity var1) {
       super("galath");
       this.a = var1;
-      this.b = var1.func_174791_d();
+      this.b = var1.getPositionVector();
    }
 
-   public ITextComponent func_151519_b(EntityLivingBase var1) {
-      return new TextComponentString(var1.func_70005_c_() + " got his cum drained by a Succubus");
+   public ITextComponent getDeathMessage(EntityLivingBase var1) {
+      return new TextComponentString(var1.getName() + " got his cum drained by a Succubus");
    }
 
-   public boolean func_76363_c() {
+   public boolean isUnblockable() {
       return true;
    }
 
-   public boolean func_76357_e() {
+   public boolean canHarmInCreative() {
       return true;
    }
 
    @Nullable
-   public Entity func_76364_f() {
+   public Entity getImmediateSource() {
       return this.a;
    }
 
    @Nullable
-   public Entity func_76346_g() {
+   public Entity getTrueSource() {
       return this.a;
    }
 
    @Nullable
-   public Vec3d func_188404_v() {
+   public Vec3d getDamageLocation() {
       return this.b;
    }
 }

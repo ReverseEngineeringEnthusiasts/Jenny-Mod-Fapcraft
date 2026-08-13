@@ -54,8 +54,8 @@ public class gu {
          ArrayList var5 = new ArrayList();
 
          for (ItemStack var9 : var3) {
-            if (var9.func_77973_b() instanceof ItemArmor) {
-               var4.add((ItemArmor)var9.func_77973_b());
+            if (var9.getItem() instanceof ItemArmor) {
+               var4.add((ItemArmor)var9.getItem());
                var5.add(var9);
             }
          }
@@ -64,10 +64,10 @@ public class gu {
             DamageSource var17 = var1.getSource();
             int var18 = 0;
             int var19 = 0;
-            if (!var17.func_76363_c()) {
+            if (!var17.isUnblockable()) {
                for (ItemArmor var10 : (java.util.Collection<ItemArmor>) (var4) ) {
-                  var18 += gu.a.a(var10.field_77881_a, var10.func_82812_d());
-                  var19 += gu.a.b(var10.field_77881_a, var10.func_82812_d());
+                  var18 += gu.a.a(var10.armorType, var10.getArmorMaterial());
+                  var19 += gu.a.b(var10.armorType, var10.getArmorMaterial());
                }
             }
 
@@ -76,36 +76,36 @@ public class gu {
             float var23 = 0.0F;
 
             for (ItemStack var13 : (java.util.Collection<ItemStack>) (var5) ) {
-               int var14 = EnchantmentHelper.func_77506_a(Enchantments.field_180310_c, var13);
+               int var14 = EnchantmentHelper.getEnchantmentLevel(Enchantments.PROTECTION, var13);
                var21 -= var14 * 0.04F * var21;
-               int var15 = EnchantmentHelper.func_77506_a(Enchantments.field_92091_k, var13);
+               int var15 = EnchantmentHelper.getEnchantmentLevel(Enchantments.THORNS, var13);
                var23 += Reference.f.nextFloat() < 0.15F * var15 ? Reference.f.nextFloat() * 4.0F + 1.0F : 0.0F;
                var23 = Math.min(4.0F, var23);
-               if (var17.func_76347_k()) {
-                  int var16 = EnchantmentHelper.func_77506_a(Enchantments.field_77329_d, var13);
+               if (var17.isFireDamage()) {
+                  int var16 = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_PROTECTION, var13);
                   var21 -= var16 * 0.08F * var21;
                }
 
-               if (var17.func_94541_c()) {
-                  int var26 = EnchantmentHelper.func_77506_a(Enchantments.field_185297_d, var13);
+               if (var17.isExplosion()) {
+                  int var26 = EnchantmentHelper.getEnchantmentLevel(Enchantments.BLAST_PROTECTION, var13);
                   var21 -= var26 * 0.08F * var21;
                }
 
-               if (var17.field_76373_n.equals("fall")) {
-                  int var27 = EnchantmentHelper.func_77506_a(Enchantments.field_180309_e, var13);
+               if (var17.damageType.equals("fall")) {
+                  int var27 = EnchantmentHelper.getEnchantmentLevel(Enchantments.FEATHER_FALLING, var13);
                   var21 -= var27 * 0.12F * var21;
                }
 
-               if (var17.func_76352_a()) {
-                  int var28 = EnchantmentHelper.func_77506_a(Enchantments.field_180308_g, var13);
+               if (var17.isProjectile()) {
+                  int var28 = EnchantmentHelper.getEnchantmentLevel(Enchantments.PROJECTILE_PROTECTION, var13);
                   var21 -= var28 * 0.08F * var21;
                }
             }
 
             if (var23 > 0.0F && var17 instanceof EntityDamageSource) {
                EntityDamageSource var25 = (EntityDamageSource)var17;
-               if (var25.func_76346_g() != null) {
-                  var25.func_76346_g().func_70097_a(DamageSource.func_92087_a(var2), var23);
+               if (var25.getTrueSource() != null) {
+                  var25.getTrueSource().attackEntityFrom(DamageSource.causeThornsDamage(var2), var23);
                }
             }
 

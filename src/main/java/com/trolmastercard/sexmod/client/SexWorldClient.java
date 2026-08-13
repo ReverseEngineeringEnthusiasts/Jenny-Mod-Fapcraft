@@ -23,11 +23,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SexWorldClient extends WorldClient {
    public Biome getBiomeForCoordsBody(BlockPos var1) {
-      return new BiomePlains(false, new BiomeProperties("Plains").func_185398_c(0.125F).func_185400_d(0.05F).func_185400_d(0.8F).func_185395_b(0.4F));
+      return new BiomePlains(false, new BiomeProperties("Plains").setBaseHeight(0.125F).setHeightVariation(0.05F).setHeightVariation(0.8F).setRainfall(0.4F));
    }
 
-   public void func_175685_c(BlockPos var1, Block var2, boolean var3) {
-      super.func_175685_c(var1, var2, var3);
+   public void notifyNeighborsOfStateChange(BlockPos var1, Block var2, boolean var3) {
+      super.notifyNeighborsOfStateChange(var1, var2, var3);
    }
 
    public void markAndNotifyBlock(BlockPos var1, Chunk var2, IBlockState var3, IBlockState var4, int var5) {
@@ -55,13 +55,13 @@ public class SexWorldClient extends WorldClient {
 
    public SexWorldClient() {
       super(
-         new ClientNetHandlerOverride(Minecraft.func_71410_x()),
-         new WorldSettings(0L, GameType.SURVIVAL, false, false, WorldType.field_77138_c),
+         new ClientNetHandlerOverride(Minecraft.getMinecraft()),
+         new WorldSettings(0L, GameType.SURVIVAL, false, false, WorldType.FLAT),
          0,
          EnumDifficulty.HARD,
          new Profiler()
       );
-      this.field_73011_w.func_76558_a(this);
+      this.provider.setWorld(this);
    }
 
    public boolean canMineBlockBody(EntityPlayer var1, BlockPos var2) {
@@ -69,11 +69,11 @@ public class SexWorldClient extends WorldClient {
    }
 
    public boolean isSideSolid(BlockPos var1, EnumFacing var2) {
-      return var1.func_177956_o() <= 63;
+      return var1.getY() <= 63;
    }
 
    public boolean isSideSolid(BlockPos var1, EnumFacing var2, boolean var3) {
-      return var1.func_177956_o() <= 63;
+      return var1.getY() <= 63;
    }
 
    public int countEntities(EnumCreatureType var1, boolean var2) {

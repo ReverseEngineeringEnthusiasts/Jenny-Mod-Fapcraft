@@ -24,25 +24,25 @@ public class GalathDamageSource extends DamageSource {
    public GalathDamageSource(GalathEntity var1) {
       super("galath");
       this.a = var1;
-      this.b = var1.func_174791_d();
+      this.b = var1.getPositionVector();
    }
 
-   public ITextComponent func_151519_b(EntityLivingBase var1) {
-      return new TextComponentString(var1.func_70005_c_() + " was slain by Galath");
+   public ITextComponent getDeathMessage(EntityLivingBase var1) {
+      return new TextComponentString(var1.getName() + " was slain by Galath");
    }
 
    @Nullable
-   public Entity func_76364_f() {
+   public Entity getImmediateSource() {
       return this.a;
    }
 
    @Nullable
-   public Entity func_76346_g() {
+   public Entity getTrueSource() {
       return this.a;
    }
 
    @Nullable
-   public Vec3d func_188404_v() {
+   public Vec3d getDamageLocation() {
       return this.b;
    }
 }

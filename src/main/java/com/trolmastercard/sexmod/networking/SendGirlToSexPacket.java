@@ -45,9 +45,9 @@ public class SendGirlToSexPacket implements IMessage {
             System.out.println("received an invalid message @SendGirlToSex :(");
             return null;
          } else {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.b)) {
-                  if (!var3.field_70170_p.field_72995_K && var3 instanceof fg) {
+                  if (!var3.world.isRemote && var3 instanceof fg) {
                      ((fg)var3).a_clash292();
                   }
                }

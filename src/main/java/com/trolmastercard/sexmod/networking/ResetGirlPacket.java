@@ -62,28 +62,28 @@ public class ResetGirlPacket implements IMessage {
    public static class Handler implements IMessageHandler<ResetGirlPacket, IMessage> {
       public static void a_clash10(BaseGirlEntity var0) {
          var0.reinitTasks();
-         if (var0 instanceof AbstractPlayerGirlEntity && var0.field_70170_p.func_152378_a(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID()) != null) {
+         if (var0 instanceof AbstractPlayerGirlEntity && var0.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID()) != null) {
             PacketHandler.b
                .sendTo(
                   new SetPlayerMovementPacket(true),
                   (EntityPlayerMP)FMLCommonHandler.instance()
                      .getMinecraftServerInstance()
-                     .func_71218_a(var0.field_71093_bK)
-                     .func_152378_a(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID())
+                     .getWorld(var0.dimension)
+                     .getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID())
                );
-            var0.func_184212_Q().func_187227_b(BaseGirlEntity.D, 1);
-            EntityPlayer var1 = var0.field_70170_p.func_152378_a(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID());
-            var1.field_71075_bZ.field_75100_b = false;
-            var1.func_189654_d(false);
-            var1.field_70145_X = false;
+            var0.getDataManager().set(BaseGirlEntity.D, 1);
+            EntityPlayer var1 = var0.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID());
+            var1.capabilities.isFlying = false;
+            var1.setNoGravity(false);
+            var1.noClip = false;
             var0.setAnchored(false);
             var0.b(fp.NULL);
             if (var0.getInteractionPlayerUUID() != null) {
-               EntityPlayer var2 = var0.field_70170_p.func_152378_a(var0.getInteractionPlayerUUID());
+               EntityPlayer var2 = var0.world.getPlayerEntityByUUID(var0.getInteractionPlayerUUID());
                if (var2 != null) {
-                  var2.field_71075_bZ.field_75100_b = false;
-                  var2.func_189654_d(false);
-                  var2.field_70145_X = false;
+                  var2.capabilities.isFlying = false;
+                  var2.setNoGravity(false);
+                  var2.noClip = false;
                }
             }
          }
@@ -91,43 +91,43 @@ public class ResetGirlPacket implements IMessage {
          var0.setAnchored(false);
          var0.setInteractionPlayerUUID(null);
          var0.B = null;
-         var0.func_189654_d(false);
-         var0.field_70145_X = false;
-         World var3 = var0.field_70170_p;
-         Vec3d var4 = var0.func_174791_d();
+         var0.setNoGravity(false);
+         var0.noClip = false;
+         World var3 = var0.world;
+         Vec3d var4 = var0.getPositionVector();
 
-         while (var3.func_180495_p(new BlockPos(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c)).func_177230_c() != Blocks.field_150350_a) {
-            var4 = var4.func_72441_c(0.0, 1.0, 0.0);
+         while (var3.getBlockState(new BlockPos(var4.x, var4.y, var4.z)).getBlock() != Blocks.AIR) {
+            var4 = var4.add(0.0, 1.0, 0.0);
          }
 
-         var0.func_70634_a(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c);
+         var0.setPositionAndUpdate(var4.x, var4.y, var4.z);
       }
 
       public static void a(EntityPlayerMP var0) {
          if (var0 != null) {
-            World var1 = var0.field_70170_p;
-            Vec3d var2 = var0.func_174791_d();
+            World var1 = var0.world;
+            Vec3d var2 = var0.getPositionVector();
 
-            while (var1.func_180495_p(new BlockPos(var2.field_72450_a, var2.field_72448_b, var2.field_72449_c)).func_177230_c() != Blocks.field_150350_a) {
-               var2 = var2.func_72441_c(0.0, 1.0, 0.0);
+            while (var1.getBlockState(new BlockPos(var2.x, var2.y, var2.z)).getBlock() != Blocks.AIR) {
+               var2 = var2.add(0.0, 1.0, 0.0);
             }
 
-            var0.func_70634_a(var2.field_72450_a, var2.field_72448_b, var2.field_72449_c);
-            var0.func_82142_c(false);
-            var0.field_70145_X = false;
-            var0.func_189654_d(false);
-            var0.field_71075_bZ.field_75100_b = false;
+            var0.setPositionAndUpdate(var2.x, var2.y, var2.z);
+            var0.setInvisible(false);
+            var0.noClip = false;
+            var0.setNoGravity(false);
+            var0.capabilities.isFlying = false;
             PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), var0);
          }
       }
 
       public IMessage onMessage(ResetGirlPacket var1, MessageContext var2) {
          if (var1.b && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.c)) {
-                  if (!var3.field_70170_p.field_72995_K) {
+                  if (!var3.world.isRemote) {
                      if (var3.getInteractionPlayerUUID() != null) {
-                        a(FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al().func_177451_a(var3.getInteractionPlayerUUID()));
+                        a(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(var3.getInteractionPlayerUUID()));
                      }
 
                      if (var1.a) {

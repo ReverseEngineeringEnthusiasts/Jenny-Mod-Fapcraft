@@ -17,8 +17,8 @@ public class RotationHelper {
          return var1;
       }
 
-      Vec3d var3 = var1.func_178788_d(var0);
-      return var0.func_72441_c(var3.field_72450_a / var2, var3.field_72448_b / var2, var3.field_72449_c / var2);
+      Vec3d var3 = var1.subtract(var0);
+      return var0.add(var3.x / var2, var3.y / var2, var3.z / var2);
    }
 
    public static double b(double var0, double var2, double var4) {
@@ -50,8 +50,8 @@ public class RotationHelper {
    }
 
    public static Vec3d a(Vec3d var0, Vec3d var1, double var2) {
-      Vec3d var4 = var1.func_178788_d(var0);
-      return var0.func_178787_e(new Vec3d(var4.field_72450_a * var2, var4.field_72448_b * var2, var4.field_72449_c * var2));
+      Vec3d var4 = var1.subtract(var0);
+      return var0.add(new Vec3d(var4.x * var2, var4.y * var2, var4.z * var2));
    }
 
    public static f7 a(f7 var0, f7 var1, double var2) {
@@ -61,10 +61,10 @@ public class RotationHelper {
 
    public static Vec3i a(Vec3i var0, Vec3i var1, double var2) {
       Vec3d var4 = new Vec3d(
-         var1.func_177958_n() - var0.func_177958_n(), var1.func_177956_o() - var0.func_177956_o(), var1.func_177952_p() - var0.func_177952_p()
+         var1.getX() - var0.getX(), var1.getY() - var0.getY(), var1.getZ() - var0.getZ()
       );
       return new Vec3i(
-         var0.func_177958_n() + var4.field_72450_a * var2, var0.func_177956_o() + var4.field_72448_b * var2, var0.func_177952_p() + var4.field_72449_c * var2
+         var0.getX() + var4.x * var2, var0.getY() + var4.y * var2, var0.getZ() + var4.z * var2
       );
    }
 

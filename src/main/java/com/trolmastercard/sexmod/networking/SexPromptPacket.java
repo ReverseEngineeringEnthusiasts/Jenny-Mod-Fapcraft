@@ -62,10 +62,10 @@ public class SexPromptPacket implements IMessage {
             GenderSwapScreen.a.a(new GenderSwapScreen.a(var1.c, var1.b, var1.a, var1.d));
             return null;
          } else {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               World var2x = var2.getServerHandler().field_147369_b.field_70170_p;
-               EntityPlayer var3 = var2x.func_152378_a(var1.a);
-               EntityPlayer var4 = var2x.func_152378_a(var1.b);
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+               World var2x = var2.getServerHandler().player.world;
+               EntityPlayer var3 = var2x.getPlayerEntityByUUID(var1.a);
+               EntityPlayer var4 = var2x.getPlayerEntityByUUID(var1.b);
                if (var3 == null) {
                   System.out.println("Sex prompt invalid -> female player not found");
                } else if (var4 == null) {

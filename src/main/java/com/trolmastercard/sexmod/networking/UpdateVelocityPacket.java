@@ -40,20 +40,20 @@ public class UpdateVelocityPacket implements IMessage {
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeDouble(this.b.field_72450_a);
-      var1.writeDouble(this.b.field_72448_b);
-      var1.writeDouble(this.b.field_72449_c);
+      var1.writeDouble(this.b.x);
+      var1.writeDouble(this.b.y);
+      var1.writeDouble(this.b.z);
       ByteBufUtils.writeUTF8String(var1, this.a.toString());
    }
 
    public static class Handler implements IMessageHandler<UpdateVelocityPacket, IMessage> {
       public IMessage onMessage(UpdateVelocityPacket var1, MessageContext var2) {
          if (var1.c && var2.side.equals(Side.SERVER)) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                BaseGirlEntity var2x = BaseGirlEntity.getServerGirlEntity(var1.a);
                if (var2x instanceof GalathEntity) {
                   GalathEntity var3 = (GalathEntity)var2x;
-                  if (var2.getServerHandler().field_147369_b.equals(var3.ab_clash671())) {
+                  if (var2.getServerHandler().player.equals(var3.ab_clash671())) {
                      var3.d(var1.b);
                   }
                }

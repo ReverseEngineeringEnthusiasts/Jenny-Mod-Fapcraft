@@ -71,12 +71,12 @@ public class GirlSavedData extends WorldSavedData {
       if (var1 == null) {
          return false;
       } else {
-         World var2 = var0.field_70170_p;
-         EntityPlayer var3 = var2.func_152378_a(var1);
+         World var2 = var0.world;
+         EntityPlayer var3 = var2.getPlayerEntityByUUID(var1);
          if (var3 == null) {
             return true;
          } else {
-            return var3.field_71093_bK != var0.field_71093_bK ? false : !(var3.func_70032_d(var0) > 60.0F);
+            return var3.dimension != var0.dimension ? false : !(var3.getDistance(var0) > 60.0F);
          }
       }
    }
@@ -88,16 +88,16 @@ public class GirlSavedData extends WorldSavedData {
    public static void a_clash848(GalathEntity var0) {
       ManglelieEntity var1 = var0.a_clash638(true);
       if (var1 != null) {
-         var0.field_70170_p.func_72900_e(var1);
+         var0.world.removeEntity(var1);
       }
 
       UUID var2 = h.b(var0.getGirlId());
       if (var2 == null) {
-         var0.field_70170_p.func_72900_e(var0);
+         var0.world.removeEntity(var0);
       } else {
-         World var3 = var0.field_70170_p;
-         EntityPlayer var4 = var3.func_152378_a(var2);
-         var0.field_70170_p.func_72900_e(var0);
+         World var3 = var0.world;
+         EntityPlayer var4 = var3.getPlayerEntityByUUID(var2);
+         var0.world.removeEntity(var0);
          h.a(var2);
          if (var4 != null) {
             PacketHandler.b.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var4);
@@ -152,7 +152,7 @@ public class GirlSavedData extends WorldSavedData {
       if (!b_clash846(var0)) {
          return false;
       } else {
-         return var2 == null ? true : var1.func_82737_E() - var2 > 0L;
+         return var2 == null ? true : var1.getTotalWorldTime() - var2 > 0L;
       }
    }
 
@@ -167,13 +167,13 @@ public class GirlSavedData extends WorldSavedData {
    @SubscribeEvent
    public void a(ServerTickEvent var1) {
       if (var1.phase == Phase.END) {
-         World var2 = FMLCommonHandler.instance().getMinecraftServerInstance().func_130014_f_();
+         World var2 = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
          ArrayList var3 = new ArrayList();
 
          for (Entry var5 : h.c_clash766()) {
             UUID var6 = (UUID)var5.getKey();
             UUID var7 = (UUID)var5.getValue();
-            EntityPlayer var8 = var2.func_152378_a(var6);
+            EntityPlayer var8 = var2.getPlayerEntityByUUID(var6);
             if (var8 != null && BaseGirlEntity.getServerGirlEntity(var7) == null) {
                var3.add(var8);
             }
@@ -189,24 +189,24 @@ public class GirlSavedData extends WorldSavedData {
    @SubscribeEvent
    public void a(Save var1) {
       World var2 = var1.getWorld();
-      var2.func_175693_T().func_75745_a("sexmod:galath_owner_ship", this);
-      this.func_76185_a();
+      var2.getMapStorage().setData("sexmod:galath_owner_ship", this);
+      this.markDirty();
    }
 
    @SubscribeEvent
    public void a(Load var1) {
       World var2 = var1.getWorld();
-      var2.func_175693_T().func_75742_a(GirlSavedData.class, "sexmod:galath_owner_ship");
+      var2.getMapStorage().getOrLoadData(GirlSavedData.class, "sexmod:galath_owner_ship");
    }
 
-   public void func_76184_a(NBTTagCompound var1) {
-      NBTTagCompound var2 = var1.func_74775_l("sexmod:ownershipdata");
-      int var3 = var2.func_74762_e("amount");
+   public void readFromNBT(NBTTagCompound var1) {
+      NBTTagCompound var2 = var1.getCompoundTag("sexmod:ownershipdata");
+      int var3 = var2.getInteger("amount");
 
       for (int var4 = 0; var4 < var3; var4++) {
-         UUID var5 = var2.func_186857_a("master" + var4);
-         UUID var6 = var2.func_186857_a("galath" + var4);
-         long var7 = var2.func_74763_f("lastcumdosage" + var4);
+         UUID var5 = var2.getUniqueId("master" + var4);
+         UUID var6 = var2.getUniqueId("galath" + var4);
+         long var7 = var2.getLong("lastcumdosage" + var4);
          if (var5 != null && var6 != null) {
             h.a(var5, var6);
             b.put(var5, var7);
@@ -215,19 +215,19 @@ public class GirlSavedData extends WorldSavedData {
          }
       }
 
-      NBTTagCompound var9 = var1.func_74775_l("sexmod:mangownershipdata");
+      NBTTagCompound var9 = var1.getCompoundTag("sexmod:mangownershipdata");
 
-      for (int var10 = 0; var9.func_186855_b("mang" + var10); var10++) {
-         i.add(var9.func_186857_a("mang" + var10));
+      for (int var10 = 0; var9.hasUniqueId("mang" + var10); var10++) {
+         i.add(var9.getUniqueId("mang" + var10));
       }
 
-      var1.func_74782_a("sexmod:mangownershipdata", new NBTTagCompound());
-      var1.func_74782_a("sexmod:ownershipdata", new NBTTagCompound());
+      var1.setTag("sexmod:mangownershipdata", new NBTTagCompound());
+      var1.setTag("sexmod:ownershipdata", new NBTTagCompound());
    }
 
-   public NBTTagCompound func_189551_b(NBTTagCompound var1) {
+   public NBTTagCompound writeToNBT(NBTTagCompound var1) {
       NBTTagCompound var2 = new NBTTagCompound();
-      var2.func_74768_a("amount", h.e_clash765());
+      var2.setInteger("amount", h.e_clash765());
       int var3 = 0;
 
       for (Entry var5 : h.c_clash766()) {
@@ -238,9 +238,9 @@ public class GirlSavedData extends WorldSavedData {
             var8 = 0L;
          }
 
-         var2.func_186854_a("galath" + var3, var7);
-         var2.func_186854_a("master" + var3, var6);
-         var2.func_74772_a("lastcumdosage" + var3, var8);
+         var2.setUniqueId("galath" + var3, var7);
+         var2.setUniqueId("master" + var3, var6);
+         var2.setLong("lastcumdosage" + var3, var8);
          var3++;
       }
 
@@ -248,11 +248,11 @@ public class GirlSavedData extends WorldSavedData {
       var3 = 0;
 
       for (UUID var12 : i) {
-         var10.func_186854_a("mang" + var3++, var12);
+         var10.setUniqueId("mang" + var3++, var12);
       }
 
-      var1.func_74782_a("sexmod:ownershipdata", var2);
-      var1.func_74782_a("sexmod:mangownershipdata", var10);
+      var1.setTag("sexmod:ownershipdata", var2);
+      var1.setTag("sexmod:mangownershipdata", var10);
       return var1;
    }
 

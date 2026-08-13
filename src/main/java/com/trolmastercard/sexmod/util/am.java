@@ -27,14 +27,14 @@ public class am {
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public void a(RenderWorldLastEvent var1) {
-      Minecraft var2 = Minecraft.func_71410_x();
-      if (var2.field_71474_y.field_74320_O == 0) {
-         UUID var3 = var2.field_71439_g.getPersistentID();
+      Minecraft var2 = Minecraft.getMinecraft();
+      if (var2.gameSettings.thirdPersonView == 0) {
+         UUID var3 = var2.player.getPersistentID();
          BaseGirlEntity var4 = null;
 
          try {
             for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
-               if (var6 != null && !var6.field_70128_L && var6.field_70170_p.field_72995_K && var6 instanceof IGoblin) {
+               if (var6 != null && !var6.isDead && var6.world.isRemote && var6 instanceof IGoblin) {
                   IGoblin var7 = (IGoblin)var6;
                   if (var3.equals(var7.getOwnerUUID())) {
                      var4 = var6;
@@ -46,16 +46,16 @@ public class am {
          }
 
          if (var4 != null) {
-            Render var9 = var2.func_175598_ae().func_78713_a(var4);
+            Render var9 = var2.getRenderManager().getEntityRenderObject(var4);
             if (var9 != null) {
-               float var10 = var2.field_71439_g.field_70177_z;
-               GoblinRenderer.N = (float)(var2.field_71439_g.field_71158_b.field_78902_a * GoblinRenderer.G.field_72450_a);
+               float var10 = var2.player.rotationYaw;
+               GoblinRenderer.N = (float)(var2.player.movementInput.moveStrafe * GoblinRenderer.G.x);
                GoblinRenderer.N = GoblinRenderer.N + -(var10 - GoblinRenderer.H) * 3.0F;
                GoblinRenderer.N = RotationHelper.lerp(GoblinRenderer.I, GoblinRenderer.N, 0.1F);
-               float var11 = -var2.field_71439_g.field_70125_A;
+               float var11 = -var2.player.rotationPitch;
                GoblinRenderer.x = (float)(
-                  var2.field_71439_g.field_71158_b.field_192832_b * GoblinRenderer.G.field_72449_c
-                     + (float)var2.field_71439_g.field_70181_x * GoblinRenderer.G.field_72448_b
+                  var2.player.movementInput.moveForward * GoblinRenderer.G.z
+                     + (float)var2.player.motionY * GoblinRenderer.G.y
                );
                GoblinRenderer.x = GoblinRenderer.x + -(var11 - GoblinRenderer.t) * 3.0F;
                GoblinRenderer.x = RotationHelper.lerp(GoblinRenderer.E, GoblinRenderer.x, 0.1F);
@@ -64,9 +64,9 @@ public class am {
                GoblinRenderer.I = GoblinRenderer.N;
                GoblinRenderer.t = var11;
                GoblinRenderer.E = GoblinRenderer.x;
-               GlStateManager.func_179145_e();
-               GlStateManager.func_179126_j();
-               GlStateManager.func_179141_d();
+               GlStateManager.enableLighting();
+               GlStateManager.enableDepth();
+               GlStateManager.enableAlpha();
             }
          }
       }
@@ -75,17 +75,17 @@ public class am {
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public void b(RenderWorldLastEvent var1) {
-      Minecraft var2 = Minecraft.func_71410_x();
-      if (var2.field_71439_g != null) {
-         UUID var3 = var2.field_71439_g.getPersistentID();
+      Minecraft var2 = Minecraft.getMinecraft();
+      if (var2.player != null) {
+         UUID var3 = var2.player.getPersistentID();
 
          try {
             for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {
-               if (var5.field_70170_p.field_72995_K && !var5.field_70128_L && var5 instanceof IGoblin) {
+               if (var5.world.isRemote && !var5.isDead && var5 instanceof IGoblin) {
                   IGoblin var6 = (IGoblin)var5;
                   if (var5.getCurrentAction() == fp.START_THROWING) {
                      var5.setLocallyRegistered(true);
-                     var2.func_175598_ae().func_188391_a(var5, 0.0, 0.0, 0.0, var3.equals(var6.getOwnerUUID()) ? -420.69F : 0.0F, var2.func_184121_ak(), false);
+                     var2.getRenderManager().renderEntity(var5, 0.0, 0.0, 0.0, var3.equals(var6.getOwnerUUID()) ? -420.69F : 0.0F, var2.getRenderPartialTicks(), false);
                      var5.setLocallyRegistered(false);
                      return;
                   }
@@ -94,17 +94,17 @@ public class am {
          } catch (ConcurrentModificationException var7) {
          }
 
-         GlStateManager.func_179145_e();
-         GlStateManager.func_179126_j();
-         GlStateManager.func_179141_d();
+         GlStateManager.enableLighting();
+         GlStateManager.enableDepth();
+         GlStateManager.enableAlpha();
       }
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public void a(RenderHandEvent var1) {
-      Minecraft var2 = Minecraft.func_71410_x();
-      UUID var3 = var2.field_71439_g.getPersistentID();
+      Minecraft var2 = Minecraft.getMinecraft();
+      UUID var3 = var2.player.getPersistentID();
 
       try {
          for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {

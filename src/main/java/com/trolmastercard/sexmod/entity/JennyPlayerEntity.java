@@ -64,15 +64,15 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       return 140.0F;
    }
 
-   public float func_70047_e() {
+   public float getEyeHeight() {
       return 1.64F;
    }
 
    @Override
    public void u_clash377() {
       this.b(fp.STARTDOGGY);
-      this.m.func_187227_b(BaseGirlEntity.D, 0);
-      this.r = (Float)this.m.func_187225_a(BaseGirlEntity.w);
+      this.m.set(BaseGirlEntity.D, 0);
+      this.r = (Float)this.m.get(BaseGirlEntity.w);
    }
 
    @Override
@@ -93,7 +93,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void b(String var1, UUID var2) {
       if ("action.names.boobjob".equals(var1)) {
-         this.m.func_187227_b(BaseGirlEntity.D, 0);
+         this.m.set(BaseGirlEntity.D, 0);
          this.b(fp.PAIZURI_START);
          this.a(0, fp.PAIZURI_START);
          this.b_clash577(var2);
@@ -107,22 +107,22 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
+   public void updateAITasks() {
+      super.updateAITasks();
       if (this.getCurrentAction() == fp.WAITDOGGY) {
          EntityPlayer var1 = this.j_clash575();
-         if (var1 != null && var1.func_70011_f(this.w_clash576().field_72450_a, this.w_clash576().field_72448_b, this.w_clash576().field_72449_c) < 1.0) {
+         if (var1 != null && var1.getDistance(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z) < 1.0) {
             if (this.c_clash587(var1.getPersistentID())) {
-               var1.func_145747_a(new TextComponentString(TextFormatting.DARK_PURPLE + "sowy no lesbo action yet uwu"));
+               var1.sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + "sowy no lesbo action yet uwu"));
                return;
             }
 
             this.setInteractionPlayerUUID(var1.getPersistentID());
-            var1.func_70634_a(this.func_174791_d().field_72450_a, this.w_clash576().field_72448_b, this.func_174791_d().field_72449_c);
+            var1.setPositionAndUpdate(this.getPositionVector().x, this.w_clash576().y, this.getPositionVector().z);
             this.a((EntityPlayerMP)var1, false);
-            var1.func_191958_b(0.0F, 0.0F, 0.0F, 0.0F);
-            var1.field_71075_bZ.field_75100_b = true;
-            this.field_70170_p.func_152378_a(this.getOwnerUserUUID()).field_71075_bZ.field_75100_b = true;
+            var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
+            var1.capabilities.isFlying = true;
+            this.world.getPlayerEntityByUUID(this.getOwnerUserUUID()).capabilities.isFlying = true;
             this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
             this.B = null;
             this.b(fp.DOGGYSTART);
@@ -317,8 +317,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "paymentMSG2":
                this.a(SoundHandler.MISC_PLOB[0], 0.5F);
-               String var4 = "<" + Minecraft.func_71410_x().field_71439_g.func_70005_c_() + "> ";
-               switch ((String)this.m.func_187225_a(BaseGirlEntity.h)) {
+               String var4 = "<" + Minecraft.getMinecraft().player.getName() + "> ";
+               switch ((String)this.m.get(BaseGirlEntity.h)) {
                   case "strip":
                      this.b(var4 + "show Bobs and vegana pls", true);
                      return;
@@ -385,7 +385,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.GIRLS_JENNY_GIGGLE[4]);
                break;
             case "bjiMSG8":
-               this.b("<" + Minecraft.func_71410_x().field_71439_g.func_70005_c_() + "> Yee", true);
+               this.b("<" + Minecraft.getMinecraft().player.getName() + "> Yee", true);
                this.a(SoundHandler.MISC_PLOB[0], 0.5F);
                break;
             case "bjiMSG9":
@@ -480,7 +480,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "doggyGoOnBedMSG1":
                this.a(SoundHandler.MISC_BEDRUSTLE[0]);
-               this.r = this.field_70177_z;
+               this.r = this.rotationYaw;
                break;
             case "doggyGoOnBedMSG2":
                this.sendChatMessage("what are you waiting for?~");
@@ -494,7 +494,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.MISC_SLAP[0], 0.75F);
                break;
             case "doggyGoOnBedDone":
-               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.func_71410_x().field_71439_g.getPersistentID()));
+               PacketHandler.b.sendToServer(new SetPlayerForGirlPacket(this.getGirlId(), Minecraft.getMinecraft().player.getPersistentID()));
                this.b(fp.WAITDOGGY);
                break;
             case "doggystartMSG1":
@@ -603,7 +603,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "paizuriFastMSG1":
                this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
-               if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MMM));
                } else {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_AHH));
@@ -628,8 +628,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "paizuri_startStep":
-               IBlockState var6 = this.field_70170_p.func_180495_p(this.func_180425_c().func_177973_b(new Vec3i(0, 1, 0)));
-               this.a(var6.func_177230_c().getSoundType(var6, this.field_70170_p, this.func_180425_c(), this).func_185844_d());
+               IBlockState var6 = this.world.getBlockState(this.getPosition().subtract(new Vec3i(0, 1, 0)));
+               this.a(var6.getBlock().getSoundType(var6, this.world, this.getPosition(), this).getStepSound());
                break;
             case "paizuri_cumStart":
                if (this.isControlledByLocalPlayer() && !this.as) {

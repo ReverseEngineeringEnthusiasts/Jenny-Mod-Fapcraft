@@ -55,7 +55,7 @@ public class GirlInventoryScreen extends GuiScreen {
       this.h = new String[0];
       this.f = new ItemStack[0];
       this.k = true;
-      this.l = var1.func_184212_Q();
+      this.l = var1.getDataManager();
    }
 
    public GirlInventoryScreen(BaseGirlEntity var1, EntityPlayer var2, String[] var3, @Nullable ItemStack[] var4, boolean var5) {
@@ -64,32 +64,32 @@ public class GirlInventoryScreen extends GuiScreen {
       this.h = var3;
       this.f = var4;
       this.k = var5;
-      this.l = var1.func_184212_Q();
+      this.l = var1.getDataManager();
    }
 
-   public boolean func_73868_f() {
+   public boolean doesGuiPauseGame() {
       return false;
    }
 
    @SideOnly(Side.CLIENT)
-   public void func_146281_b() {
-      super.func_146281_b();
+   public void onGuiClosed() {
+      super.onGuiClosed();
       this.g.ac();
    }
 
-   protected void func_146284_a(GuiButton var1) {
-      if (var1.field_146127_k >= 5 && this.f != null && this.f[var1.field_146127_k - 5] != null && !this.i.field_71075_bZ.field_75098_d) {
-         for (ItemStack var3 : this.i.field_71071_by.field_70462_a) {
-            if (var3.func_77973_b().equals(this.f[var1.field_146127_k - 5].func_77973_b())
-               && var3.func_190916_E() >= this.f[var1.field_146127_k - 5].func_190916_E()
-               && var3.func_77960_j() == this.f[var1.field_146127_k - 5].func_77960_j()) {
-               PacketHandler.b.sendToServer(new RemoveItemsPacket(this.i.getPersistentID(), this.f[var1.field_146127_k - 5]));
+   protected void actionPerformed(GuiButton var1) {
+      if (var1.id >= 5 && this.f != null && this.f[var1.id - 5] != null && !this.i.capabilities.isCreativeMode) {
+         for (ItemStack var3 : this.i.inventory.mainInventory) {
+            if (var3.getItem().equals(this.f[var1.id - 5].getItem())
+               && var3.getCount() >= this.f[var1.id - 5].getCount()
+               && var3.getMetadata() == this.f[var1.id - 5].getMetadata()) {
+               PacketHandler.b.sendToServer(new RemoveItemsPacket(this.i.getPersistentID(), this.f[var1.id - 5]));
                this.a(var1);
                return;
             }
          }
 
-         this.i.func_145747_a(new TextComponentString("<" + this.g.func_70005_c_() + "> you cannot afford that..."));
+         this.i.sendMessage(new TextComponentString("<" + this.g.getName() + "> you cannot afford that..."));
          this.g.a(SoundHandler.GIRLS_JENNY_SADOH[1]);
       } else {
          this.a(var1);
@@ -98,25 +98,25 @@ public class GirlInventoryScreen extends GuiScreen {
 
    void a(GuiButton var1) {
       String var2;
-      if (var1.field_146127_k < 5) {
-         var2 = this.a[var1.field_146127_k];
+      if (var1.id < 5) {
+         var2 = this.a[var1.id];
       } else {
-         var2 = this.h[var1.field_146127_k - 5];
+         var2 = this.h[var1.id - 5];
       }
 
       this.g.a(var2, this.i.getPersistentID());
-      Minecraft.func_71410_x().field_71439_g.func_71053_j();
+      Minecraft.getMinecraft().player.closeScreen();
    }
 
-   public void func_73863_a(int var1, int var2, float var3) {
-      super.func_73863_a(var1, var2, var3);
-      this.field_146292_n.clear();
-      ScaledResolution var4 = new ScaledResolution(this.field_146297_k);
-      int var5 = var4.func_78326_a();
-      int var6 = var4.func_78328_b();
-      this.m = Math.min(1.0F, this.m + this.field_146297_k.func_193989_ak() / 5.0F);
+   public void drawScreen(int var1, int var2, float var3) {
+      super.drawScreen(var1, var2, var3);
+      this.buttonList.clear();
+      ScaledResolution var4 = new ScaledResolution(this.mc);
+      int var5 = var4.getScaledWidth();
+      int var6 = var4.getScaledHeight();
+      this.m = Math.min(1.0F, this.m + this.mc.getTickLength() / 5.0F);
       if (this.m == 1.0F) {
-         this.n = Math.min(1.0F, this.n + this.field_146297_k.func_193989_ak() / 5.0F);
+         this.n = Math.min(1.0F, this.n + this.mc.getTickLength() / 5.0F);
       }
 
       int var7 = (int)RotationHelper.lerp(115.0F, 161.0F, this.n);
@@ -127,16 +127,16 @@ public class GirlInventoryScreen extends GuiScreen {
       byte var12 = 68;
 
       for (int var13 = 5; var13 < this.h.length + 5; var13++) {
-         if (this.n > 0.0F && this.f != null && this.f[var13 - 5] != null && this.f[var13 - 5].func_190916_E() != 0) {
-            this.field_73735_i = -300.0F;
-            this.field_146296_j.field_77023_b = -300.0F;
-            this.a(Arrays.asList(this.f[var13 - 5].func_190916_E() + "x    "), var5 - var7, var6 - var11, this.field_146289_q);
-            this.field_146296_j.func_175042_a(this.f[var13 - 5], var5 - var8, var6 - var12);
-            this.field_73735_i = 0.0F;
-            this.field_146296_j.field_77023_b = 0.0F;
+         if (this.n > 0.0F && this.f != null && this.f[var13 - 5] != null && this.f[var13 - 5].getCount() != 0) {
+            this.zLevel = -300.0F;
+            this.itemRender.zLevel = -300.0F;
+            this.a(Arrays.asList(this.f[var13 - 5].getCount() + "x    "), var5 - var7, var6 - var11, this.fontRenderer);
+            this.itemRender.renderItemIntoGUI(this.f[var13 - 5], var5 - var8, var6 - var12);
+            this.zLevel = 0.0F;
+            this.itemRender.zLevel = 0.0F;
          }
 
-         this.field_146292_n.add(new GuiButton(var13, var5 - var9, var6 - var10, 100, 20, I18n.func_135052_a(this.h[var13 - 5], new Object[0])));
+         this.buttonList.add(new GuiButton(var13, var5 - var9, var6 - var10, 100, 20, I18n.format(this.h[var13 - 5], new Object[0])));
          var10 += 30;
          var11 += 30;
          var12 += 30;
@@ -149,14 +149,14 @@ public class GirlInventoryScreen extends GuiScreen {
 
    void a_clash826(int var1, int var2) {
       int var3 = (int)RotationHelper.lerp(-30.0F, 120.0F, this.m);
-      this.field_146296_j.func_175042_a((ItemStack)this.l.func_187225_a(AbstractGirlNpcEntity.L), var3 - 105, 68);
-      this.field_146296_j.func_175042_a((ItemStack)this.l.func_187225_a(AbstractGirlNpcEntity.R), var3 - 105, 87);
-      this.field_146296_j.func_175042_a((ItemStack)this.l.func_187225_a(AbstractGirlNpcEntity.X), var3 - 105, 109);
-      this.field_146296_j.func_175042_a((ItemStack)this.l.func_187225_a(AbstractGirlNpcEntity.T), var3 - 105, 127);
-      this.field_146296_j.func_175042_a((ItemStack)this.l.func_187225_a(AbstractGirlNpcEntity.U), var3 - 105, 146);
-      this.field_146296_j.func_175042_a((ItemStack)this.l.func_187225_a(AbstractGirlNpcEntity.W), var3 - 105, 166);
+      this.itemRender.renderItemIntoGUI((ItemStack)this.l.get(AbstractGirlNpcEntity.L), var3 - 105, 68);
+      this.itemRender.renderItemIntoGUI((ItemStack)this.l.get(AbstractGirlNpcEntity.R), var3 - 105, 87);
+      this.itemRender.renderItemIntoGUI((ItemStack)this.l.get(AbstractGirlNpcEntity.X), var3 - 105, 109);
+      this.itemRender.renderItemIntoGUI((ItemStack)this.l.get(AbstractGirlNpcEntity.T), var3 - 105, 127);
+      this.itemRender.renderItemIntoGUI((ItemStack)this.l.get(AbstractGirlNpcEntity.U), var3 - 105, 146);
+      this.itemRender.renderItemIntoGUI((ItemStack)this.l.get(AbstractGirlNpcEntity.W), var3 - 105, 166);
       if (this.n != 0.0F) {
-         if (!((String)this.l.func_187225_a(BaseGirlEntity.v)).equals("")) {
+         if (!((String)this.l.get(BaseGirlEntity.v)).equals("")) {
             byte var10 = 35;
             byte var11 = 70;
 
@@ -172,20 +172,20 @@ public class GirlInventoryScreen extends GuiScreen {
                   this.d[var12] = Math.max(0, this.d[var12] - 7);
                }
 
-               StringBuilder var13 = new StringBuilder(I18n.func_135052_a(this.a[var12], new Object[0]));
+               StringBuilder var13 = new StringBuilder(I18n.format(this.a[var12], new Object[0]));
 
                for (int var14 = 0; var14 < this.b[var12]; var14++) {
                   var13.append(" ");
                }
 
-               this.field_146297_k.field_71446_o.func_110577_a(c);
-               this.func_73729_b(this.d[var12] + var10 - 18 + (int)RotationHelper.lerp(0.0F, 23.0F, this.n), var11 + 2, this.j[var12], 0, 16, 16);
-               this.field_146292_n.add(new GuiButton(var12, 36, var11, 100, 20, var13.toString()));
+               this.mc.renderEngine.bindTexture(c);
+               this.drawTexturedModalRect(this.d[var12] + var10 - 18 + (int)RotationHelper.lerp(0.0F, 23.0F, this.n), var11 + 2, this.j[var12], 0, 16, 16);
+               this.buttonList.add(new GuiButton(var12, 36, var11, 100, 20, var13.toString()));
                var11 += 30;
             }
 
-            this.field_146297_k.field_71446_o.func_110577_a(c);
-            this.func_73729_b(var3 - 113, 60, 0, 0, 32, 130);
+            this.mc.renderEngine.bindTexture(c);
+            this.drawTexturedModalRect(var3 - 113, 60, 0, 0, 32, 130);
          } else {
             byte var5 = 35;
             byte var6 = 70;
@@ -204,32 +204,32 @@ public class GirlInventoryScreen extends GuiScreen {
                   this.d[var7] = Math.max(0, this.d[var7] - 7);
                }
 
-               StringBuilder var8 = new StringBuilder(I18n.func_135052_a(this.a[var7], new Object[0]));
+               StringBuilder var8 = new StringBuilder(I18n.format(this.a[var7], new Object[0]));
 
                for (int var9 = 0; var9 < this.b[var7]; var9++) {
                   var8.append(" ");
                }
 
-               this.field_146297_k.field_71446_o.func_110577_a(c);
-               this.func_73729_b(this.d[var7] + var5 - 18 + (int)RotationHelper.lerp(0.0F, 23.0F, this.n), var6 + 2, this.j[var7], 0, 16, 16);
-               this.field_146292_n.add(new GuiButton(var7, 36, var6, 100, 20, var8.toString()));
+               this.mc.renderEngine.bindTexture(c);
+               this.drawTexturedModalRect(this.d[var7] + var5 - 18 + (int)RotationHelper.lerp(0.0F, 23.0F, this.n), var6 + 2, this.j[var7], 0, 16, 16);
+               this.buttonList.add(new GuiButton(var7, 36, var6, 100, 20, var8.toString()));
                var6 += 30;
             }
 
-            this.field_146297_k.field_71446_o.func_110577_a(c);
-            this.func_73729_b(var3 - 113, 60, 0, 0, 32, 130);
+            this.mc.renderEngine.bindTexture(c);
+            this.drawTexturedModalRect(var3 - 113, 60, 0, 0, 32, 130);
          }
       }
    }
 
    void a(List<String> var1, int var2, int var3, FontRenderer var4) {
-      GlStateManager.func_179101_C();
-      RenderHelper.func_74518_a();
-      GlStateManager.func_179140_f();
+      GlStateManager.disableRescaleNormal();
+      RenderHelper.disableStandardItemLighting();
+      GlStateManager.disableLighting();
       int var5 = 0;
 
       for (String var7 : var1) {
-         int var8 = this.field_146289_q.func_78256_a(var7);
+         int var8 = this.fontRenderer.getStringWidth(var7);
          if (var8 > var5) {
             var5 = var8;
          }
@@ -242,27 +242,27 @@ public class GirlInventoryScreen extends GuiScreen {
          var13 += 2 + (var1.size() - 1) * 10;
       }
 
-      if (var11 + var5 > this.field_146294_l) {
+      if (var11 + var5 > this.width) {
          var11 -= 28 + var5;
       }
 
-      if (var12 + var13 + 6 > this.field_146295_m) {
-         var12 = this.field_146295_m - var13 - 6;
+      if (var12 + var13 + 6 > this.height) {
+         var12 = this.height - var13 - 6;
       }
 
-      this.func_73733_a(var11 - 3, var12 - 4, var11 + var5 + 3, var12 - 3, -267386864, -267386864);
-      this.func_73733_a(var11 - 3, var12 + var13 + 3, var11 + var5 + 3, var12 + var13 + 4, -267386864, -267386864);
-      this.func_73733_a(var11 - 3, var12 - 3, var11 + var5 + 3, var12 + var13 + 3, -267386864, -267386864);
-      this.func_73733_a(var11 - 4, var12 - 3, var11 - 3, var12 + var13 + 3, -267386864, -267386864);
-      this.func_73733_a(var11 + var5 + 3, var12 - 3, var11 + var5 + 4, var12 + var13 + 3, -267386864, -267386864);
-      this.func_73733_a(var11 - 3, var12 - 3 + 1, var11 - 3 + 1, var12 + var13 + 3 - 1, 1347420415, 1344798847);
-      this.func_73733_a(var11 + var5 + 2, var12 - 3 + 1, var11 + var5 + 3, var12 + var13 + 3 - 1, 1347420415, 1344798847);
-      this.func_73733_a(var11 - 3, var12 - 3, var11 + var5 + 3, var12 - 3 + 1, 1347420415, 1347420415);
-      this.func_73733_a(var11 - 3, var12 + var13 + 2, var11 + var5 + 3, var12 + var13 + 3, 1344798847, 1344798847);
+      this.drawGradientRect(var11 - 3, var12 - 4, var11 + var5 + 3, var12 - 3, -267386864, -267386864);
+      this.drawGradientRect(var11 - 3, var12 + var13 + 3, var11 + var5 + 3, var12 + var13 + 4, -267386864, -267386864);
+      this.drawGradientRect(var11 - 3, var12 - 3, var11 + var5 + 3, var12 + var13 + 3, -267386864, -267386864);
+      this.drawGradientRect(var11 - 4, var12 - 3, var11 - 3, var12 + var13 + 3, -267386864, -267386864);
+      this.drawGradientRect(var11 + var5 + 3, var12 - 3, var11 + var5 + 4, var12 + var13 + 3, -267386864, -267386864);
+      this.drawGradientRect(var11 - 3, var12 - 3 + 1, var11 - 3 + 1, var12 + var13 + 3 - 1, 1347420415, 1344798847);
+      this.drawGradientRect(var11 + var5 + 2, var12 - 3 + 1, var11 + var5 + 3, var12 + var13 + 3 - 1, 1347420415, 1344798847);
+      this.drawGradientRect(var11 - 3, var12 - 3, var11 + var5 + 3, var12 - 3 + 1, 1347420415, 1347420415);
+      this.drawGradientRect(var11 - 3, var12 + var13 + 2, var11 + var5 + 3, var12 + var13 + 3, 1344798847, 1344798847);
 
       for (int var9 = 0; var9 < var1.size(); var9++) {
          String var10 = (String)var1.get(var9);
-         this.field_146289_q.func_175063_a(var10, var11, var12, -1);
+         this.fontRenderer.drawStringWithShadow(var10, var11, var12, -1);
          if (var9 == 0) {
             var12 += 2;
          }
@@ -270,9 +270,9 @@ public class GirlInventoryScreen extends GuiScreen {
          var12 += 10;
       }
 
-      GlStateManager.func_179145_e();
-      RenderHelper.func_74519_b();
-      GlStateManager.func_179091_B();
+      GlStateManager.enableLighting();
+      RenderHelper.enableStandardItemLighting();
+      GlStateManager.enableRescaleNormal();
    }
 
 }

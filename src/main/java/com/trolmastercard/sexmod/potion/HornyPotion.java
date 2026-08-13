@@ -31,7 +31,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 public class HornyPotion extends Potion {
    public static final Potion b = new HornyPotion("horny potion", false, 16736968, 0, 0);
    public static final PotionType a = (PotionType)new PotionType(
-         "horny_potion", new PotionEffect[]{new PotionEffect(b, 3600), new PotionEffect(MobEffects.field_76431_k, 200, 1)}
+         "horny_potion", new PotionEffect[]{new PotionEffect(b, 3600), new PotionEffect(MobEffects.NAUSEA, 200, 1)}
       )
       .setRegistryName("horny_potion");
 
@@ -41,25 +41,25 @@ public class HornyPotion extends Potion {
 
    public HornyPotion(String var1, boolean var2, int var3, int var4, int var5) {
       super(var2, var3);
-      this.func_76390_b(var1);
-      this.func_76399_b(var4, var5);
+      this.setPotionName(var1);
+      this.setIconIndex(var4, var5);
       this.setRegistryName(new ResourceLocation("sexmod:" + var1));
    }
 
    public static void register() {
       ForgeRegistries.POTIONS.register(b);
       ForgeRegistries.POTION_TYPES.register(a);
-      PotionHelper.func_193357_a(PotionTypes.field_185231_c, Item.func_150898_a(Blocks.field_150328_O), a);
+      PotionHelper.addMix(PotionTypes.MUNDANE, Item.getItemFromBlock(Blocks.RED_FLOWER), a);
    }
 
    @SubscribeEvent
    public void a(PlayerTickEvent var1) {
       EntityPlayer var2 = var1.player;
-      PotionEffect var3 = var2.func_70660_b(b);
-      if (!var2.field_70170_p.field_72995_K) {
+      PotionEffect var3 = var2.getActivePotionEffect(b);
+      if (!var2.world.isRemote) {
          if (var3 != null) {
-            if (var3.func_76459_b() <= 3500) {
-               var2.func_184589_d(b);
+            if (var3.getDuration() <= 3500) {
+               var2.removePotionEffect(b);
                PacketHandler.b.sendTo(new GirlDataPacket(var2), (EntityPlayerMP)var2);
             }
          }
@@ -70,22 +70,22 @@ public class HornyPotion extends Potion {
    public void a(LivingUpdateEvent var1) {
       if (var1.getEntity() instanceof EntityVillager) {
          EntityVillager var2 = (EntityVillager)var1.getEntity();
-         if (var2.func_70644_a(b)) {
-            var2.field_70714_bg.func_75776_a(2, new GirlAiBase(var2));
-            var2.func_184589_d(b);
+         if (var2.isPotionActive(b)) {
+            var2.tasks.addTask(2, new GirlAiBase(var2));
+            var2.removePotionEffect(b);
          }
       }
 
       if (var1.getEntity() instanceof EntityAnimal) {
          EntityAnimal var3 = (EntityAnimal)var1.getEntity();
-         if (var3.func_70644_a(b)) {
-            if (var3.func_70874_b() >= 0) {
-               var3.func_70873_a(0);
-               var3.func_70875_t();
-               var3.func_146082_f(var3.field_70170_p.func_72890_a(var3, 30.0));
+         if (var3.isPotionActive(b)) {
+            if (var3.getGrowingAge() >= 0) {
+               var3.setGrowingAge(0);
+               var3.resetInLove();
+               var3.setInLove(var3.world.getClosestPlayerToEntity(var3, 30.0));
             }
 
-            var3.func_184589_d(b);
+            var3.removePotionEffect(b);
          }
       }
    }

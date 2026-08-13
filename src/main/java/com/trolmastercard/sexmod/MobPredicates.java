@@ -23,8 +23,8 @@ public class MobPredicates {
    }
 
    public static boolean a(World var0, Vec3d var1, Entity var2) {
-      RayTraceResult var3 = var0.func_147447_a(var1, var2.func_174791_d().func_72441_c(0.0, var2.func_70047_e(), 0.0), true, true, false);
-      return var3 == null ? true : var3.field_72313_a != Type.BLOCK;
+      RayTraceResult var3 = var0.rayTraceBlocks(var1, var2.getPositionVector().add(0.0, var2.getEyeHeight(), 0.0), true, true, false);
+      return var3 == null ? true : var3.typeOfHit != Type.BLOCK;
    }
 
 }

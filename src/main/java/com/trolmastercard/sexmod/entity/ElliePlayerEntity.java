@@ -58,7 +58,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       return 2.05F;
    }
 
-   public float func_70047_e() {
+   public float getEyeHeight() {
       return this.a_clash382() ? 1.53F : 1.9F;
    }
 
@@ -97,8 +97,8 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
          this.changeDataParameterFromClient("animationFollowUp", "Cowgirl");
       } else if ("action.names.missionary".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", "Missionary");
-      } else if (((Optional)this.m.func_187225_a(ai)).isPresent()) {
-         PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.m.func_187225_a(ai)).get(), this.ab));
+      } else if (((Optional)this.m.get(ai)).isPresent()) {
+         PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.m.get(ai)).get(), this.ab));
          this.ab = true;
       }
    }
@@ -151,49 +151,49 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
+   public void updateAITasks() {
+      super.updateAITasks();
       if (this.getCurrentAction() == fp.SITDOWNIDLE) {
-         String var1 = (String)this.m.func_187225_a(BaseGirlEntity.h);
+         String var1 = (String)this.m.get(BaseGirlEntity.h);
          if (!"Missionary".equals(var1) && !"Cowgirl".equals(var1)) {
             return;
          }
 
          EntityPlayer var2 = this.j_clash575();
-         if (var2 == null || var2.func_70011_f(this.w_clash576().field_72450_a, this.w_clash576().field_72448_b, this.w_clash576().field_72449_c) > 1.0) {
+         if (var2 == null || var2.getDistance(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z) > 1.0) {
             return;
          }
 
-         this.m.func_187227_b(BaseGirlEntity.h, "");
-         this.m.func_187227_b(BaseGirlEntity.D, 0);
+         this.m.set(BaseGirlEntity.h, "");
+         this.m.set(BaseGirlEntity.D, 0);
          this.setInteractionPlayerUUID(var2.getPersistentID());
-         EntityPlayerMP var3 = (EntityPlayerMP)this.field_70170_p.func_152378_a((UUID)((Optional)this.m.func_187225_a(ai)).get());
+         EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.m.get(ai)).get());
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
          PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var3);
-         var2.func_191958_b(0.0F, 0.0F, 0.0F, 0.0F);
-         var3.field_71075_bZ.field_75100_b = true;
-         var2.field_71075_bZ.field_75100_b = true;
-         var3.field_70145_X = true;
-         var2.field_70145_X = true;
-         var3.func_189654_d(true);
-         var2.func_189654_d(true);
+         var2.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
+         var3.capabilities.isFlying = true;
+         var2.capabilities.isFlying = true;
+         var3.noClip = true;
+         var2.noClip = true;
+         var3.setNoGravity(true);
+         var2.setNoGravity(true);
          if ("Missionary".equals(var1)) {
             this.b(fp.MISSIONARY_START);
-            Vec3d var4 = this.w_clash576().func_178786_a(0.0, 0.1, 0.0);
-            var2.func_70080_a(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c, this.getYawRotation(), 60.0F);
-            var2.func_70634_a(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c);
+            Vec3d var4 = this.w_clash576().subtract(0.0, 0.1, 0.0);
+            var2.setPositionAndRotation(var4.x, var4.y, var4.z, this.getYawRotation(), 60.0F);
+            var2.setPositionAndUpdate(var4.x, var4.y, var4.z);
          } else {
             this.b(fp.COWGIRLSTART);
             Vec3d var5 = this.w_clash576()
-               .func_178787_e(
+               .add(
                   new Vec3d(
                      -Math.sin(this.getYawRotation().floatValue() * (Math.PI / 180.0)) * 1.8,
                      -0.65,
                      Math.cos(this.getYawRotation().floatValue() * (Math.PI / 180.0)) * 1.8
                   )
                );
-            var2.func_70080_a(var5.field_72450_a, var5.field_72448_b, var5.field_72449_c, 180.0F + this.getYawRotation(), -30.0F);
-            var2.func_70634_a(var5.field_72450_a, var5.field_72448_b, var5.field_72449_c);
+            var2.setPositionAndRotation(var5.x, var5.y, var5.z, 180.0F + this.getYawRotation(), -30.0F);
+            var2.setPositionAndUpdate(var5.x, var5.y, var5.z);
          }
       }
    }
@@ -202,7 +202,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       EntityPlayer var1 = this.k_clash584();
       return var1 == null
          ? false
-         : this.field_70170_p.func_180495_p(var1.func_180425_c().func_177984_a().func_177984_a()).func_177230_c() != Blocks.field_150350_a;
+         : this.world.getBlockState(var1.getPosition().up().up()).getBlock() != Blocks.AIR;
    }
 
    @Override
@@ -338,13 +338,13 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "dashMSG1":
-               EntityPlayer var9 = this.field_70170_p.func_72890_a(this, 15.0);
+               EntityPlayer var9 = this.world.getClosestPlayerToEntity(this, 15.0);
                if (var9 != null) {
-                  Vec3d var14 = this.func_174791_d().func_178788_d(var9.func_174791_d());
-                  float var15 = (float)Math.atan2(var14.field_72449_c, var14.field_72450_a) * (float) (180.0 / Math.PI);
-                  this.field_70177_z = var15;
-                  this.field_70759_as = var15;
-                  this.field_70761_aq = var15;
+                  Vec3d var14 = this.getPositionVector().subtract(var9.getPositionVector());
+                  float var15 = (float)Math.atan2(var14.z, var14.x) * (float) (180.0 / Math.PI);
+                  this.rotationYaw = var15;
+                  this.rotationYawHead = var15;
+                  this.renderYawOffset = var15;
                }
                break;
             case "dashReady":
@@ -354,20 +354,20 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "dashDone":
                this.b(fp.HUG);
-               EntityPlayer var8 = this.field_70170_p.func_72890_a(this, 15.0);
+               EntityPlayer var8 = this.world.getClosestPlayerToEntity(this, 15.0);
                if (var8 != null) {
-                  float var13 = var8.field_70177_z;
-                  this.field_70177_z = var13;
-                  this.field_70759_as = var13;
-                  this.field_70761_aq = var13;
+                  float var13 = var8.rotationYaw;
+                  this.rotationYaw = var13;
+                  this.rotationYawHead = var13;
+                  this.renderYawOffset = var13;
                }
                break;
             case "hugMSG1":
-               EntityPlayerSP var7 = Minecraft.func_71410_x().field_71439_g;
-               if (var7.getPersistentID().equals(this.getInteractionPlayerUUID()) || var7.func_110124_au().equals(this.getInteractionPlayerUUID())) {
+               EntityPlayerSP var7 = Minecraft.getMinecraft().player;
+               if (var7.getPersistentID().equals(this.getInteractionPlayerUUID()) || var7.getUniqueID().equals(this.getInteractionPlayerUUID())) {
                   PacketHandler.b
                      .sendToServer(
-                        new TeleportPlayerPacket(var7.func_110124_au().toString(), var7.func_174791_d(), var7.field_70177_z - 80.0F, var7.field_70125_A)
+                        new TeleportPlayerPacket(var7.getUniqueID().toString(), var7.getPositionVector(), var7.rotationYaw - 80.0F, var7.rotationPitch)
                      );
                }
                break;
@@ -380,40 +380,40 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                this.a(SoundHandler.GIRLS_ELLIE_AHH[2], 3.0F);
                break;
             case "hugMSG4":
-               this.h(I18n.func_135052_a("ellie.dialogue.mommyhorny", new Object[0]));
+               this.h(I18n.format("ellie.dialogue.mommyhorny", new Object[0]));
                this.a(SoundHandler.GIRLS_ELLIE_GIGGLE[0], 3.0F);
                break;
             case "hugMSG5":
-               this.h(I18n.func_135052_a("ellie.dialogue.whattodo", new Object[0]));
+               this.h(I18n.format("ellie.dialogue.whattodo", new Object[0]));
                this.a(SoundHandler.GIRLS_ELLIE_HUH[1], 3.0F);
                break;
             case "hugDone":
-               EntityPlayerSP var4 = Minecraft.func_71410_x().field_71439_g;
+               EntityPlayerSP var4 = Minecraft.getMinecraft().player;
                if (var4.getPersistentID().equals(this.getInteractionPlayerUUID())) {
                   this.b(fp.HUGIDLE);
                   this.c_clash380(var4);
                }
                break;
             case "hugselectedMSG1":
-               this.h(I18n.func_135052_a("ellie.dialogue.iknow", new Object[0]));
+               this.h(I18n.format("ellie.dialogue.iknow", new Object[0]));
                this.a(SoundHandler.GIRLS_ELLIE_MMM[0], 3.0F);
                break;
             case "hugselectedMSG2":
-               this.h(I18n.func_135052_a("ellie.dialogue.followmedarling", new Object[0]));
+               this.h(I18n.format("ellie.dialogue.followmedarling", new Object[0]));
                this.a(SoundHandler.GIRLS_ELLIE_GIGGLE[3], 3.0F);
                break;
             case "hugselectedDone":
                if (this.isLocalPlayerNearby()) {
-                  Vec3d var10 = this.func_174791_d();
-                  var10 = var10.func_72441_c(
-                     -Math.sin((this.field_70177_z + 90.0F) * (Math.PI / 180.0)) * -0.7803125F,
+                  Vec3d var10 = this.getPositionVector();
+                  var10 = var10.add(
+                     -Math.sin((this.rotationYaw + 90.0F) * (Math.PI / 180.0)) * -0.7803125F,
                      0.0,
-                     Math.cos((this.field_70177_z + 90.0F) * (Math.PI / 180.0)) * -0.7803125F
+                     Math.cos((this.rotationYaw + 90.0F) * (Math.PI / 180.0)) * -0.7803125F
                   );
-                  var10 = var10.func_72441_c(
-                     -Math.sin(this.field_70177_z * (Math.PI / 180.0)) * 0.5296875F, 0.0, Math.cos(this.field_70177_z * (Math.PI / 180.0)) * 0.5296875F
+                  var10 = var10.add(
+                     -Math.sin(this.rotationYaw * (Math.PI / 180.0)) * 0.5296875F, 0.0, Math.cos(this.rotationYaw * (Math.PI / 180.0)) * 0.5296875F
                   );
-                  String var6 = var10.field_72450_a + "f" + var10.field_72448_b + "f" + var10.field_72449_c + "f";
+                  String var6 = var10.x + "f" + var10.y + "f" + var10.z + "f";
                   PacketHandler.b.sendToServer(new ChangeDataParameterPacket(this.getGirlId(), "targetPos", var6));
                   this.r_clash533();
                   PacketHandler.b.sendToServer(new SendGirlToSexPacket(this.getGirlId()));
@@ -423,13 +423,13 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
             case "sitdownMSG1":
                this.a(SoundHandler.GIRLS_ELLIE_GIGGLE[3], 3.0F);
                if (this.isLocalPlayerNearby()) {
-                  this.h(I18n.func_135052_a("ellie.dialogue.cometomommy", new Object[0]));
+                  this.h(I18n.format("ellie.dialogue.cometomommy", new Object[0]));
                }
                break;
             case "sitdownDone":
                if (this.f_clash579()) {
                   this.b(fp.SITDOWNIDLE);
-                  this.c_clash380(this.field_70170_p.func_152378_a(this.getOwnerUserUUID()));
+                  this.c_clash380(this.world.getPlayerEntityByUUID(this.getOwnerUserUUID()));
                }
                break;
             case "missionary_startDone":
@@ -443,7 +443,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "cowgirlStartMSG1":
                if (this.isLocalPlayerNearby()) {
-                  this.sendChatMessage(I18n.func_135052_a("ellie.dialogue.like", new Object[0]));
+                  this.sendChatMessage(I18n.format("ellie.dialogue.like", new Object[0]));
                   HornyMeterHud.resetHornyMeter();
                }
                break;
@@ -507,7 +507,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
             case "missionary_cumMSG2":
                this.a(SoundHandler.GIRLS_ELLIE_GIGGLE[4], 3.0F);
                if (this.isControlledByLocalPlayer()) {
-                  this.sendChatMessage(I18n.func_135052_a("ellie.dialogue.goodboy", new Object[0]));
+                  this.sendChatMessage(I18n.format("ellie.dialogue.goodboy", new Object[0]));
                }
                break;
             case "cowgirlcumMSG6":
@@ -538,7 +538,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "missionary_slowMSG1":
                this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
-               if (this.func_70681_au().nextBoolean() && this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean() && this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_MOAN), 3.0F);
                } else {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 3.0F);
@@ -550,7 +550,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "missionary_fastMSG1":
                this.a(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
-               if (!this.func_70681_au().nextBoolean() && !this.func_70681_au().nextBoolean()) {
+               if (!this.getRNG().nextBoolean() && !this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 3.0F);
                } else {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_MOAN), 3.0F);
@@ -607,7 +607,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                int var5 = this.ap;
 
                do {
-                  this.ap = this.func_70681_au().nextInt(4) + 1;
+                  this.ap = this.getRNG().nextInt(4) + 1;
                } while (this.ap == var5);
 
                return;

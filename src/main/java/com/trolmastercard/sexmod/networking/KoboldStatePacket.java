@@ -62,16 +62,16 @@ public class KoboldStatePacket implements IMessage {
       public static void a(UUID var0, UUID var1, boolean var2, boolean var3) {
          try {
             for (BaseGirlEntity var5 : BaseGirlEntity.girlList(var0)) {
-               if (!var5.field_70170_p.field_72995_K) {
+               if (!var5.world.isRemote) {
                   if (var5 instanceof JennyEntity || var5 instanceof EllieEntity || var5 instanceof LunaEntity) {
-                     var5.field_70714_bg.func_85156_a(var5.o);
-                     var5.field_70714_bg.func_85156_a(var5.z);
+                     var5.tasks.removeTask(var5.o);
+                     var5.tasks.removeTask(var5.z);
                   }
 
-                  var5.func_70661_as().func_75499_g();
-                  var5.field_70159_w = 0.0;
-                  var5.field_70181_x = 0.0;
-                  var5.field_70179_y = 0.0;
+                  var5.getNavigator().clearPath();
+                  var5.motionX = 0.0;
+                  var5.motionY = 0.0;
+                  var5.motionZ = 0.0;
                   if (var5.getInteractionPlayerUUID() == null) {
                      var5.setInteractionPlayerUUID(var1);
                   }
@@ -99,7 +99,7 @@ public class KoboldStatePacket implements IMessage {
 
       public IMessage onMessage(KoboldStatePacket var1, MessageContext var2) {
          if (var1.c && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> a(var1.a, var1.e, var1.b, var1.d));
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> a(var1.a, var1.e, var1.b, var1.d));
          }
 
          return null;

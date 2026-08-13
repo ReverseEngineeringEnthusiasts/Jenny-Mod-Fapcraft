@@ -50,18 +50,18 @@ public class SetPlayerForGirlPacket implements IMessage {
    public static class Handler implements IMessageHandler<SetPlayerForGirlPacket, IMessage> {
       public IMessage onMessage(SetPlayerForGirlPacket var1, MessageContext var2) {
          if (var1.a && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.c)) {
-                  PlayerList var4 = FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al();
+                  PlayerList var4 = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
 
                   try {
-                     var4.func_177451_a(var1.b).func_70005_c_();
+                     var4.getPlayerByUUID(var1.b).getName();
                   } catch (NullPointerException var8) {
                      System.out.println("couldn't find player with UUID: " + var1.b);
                      System.out.println("could only find players with thsese UUID's:");
 
-                     for (EntityPlayerMP var7 : var4.func_181057_v()) {
-                        System.out.println(var7.func_70005_c_() + " " + var7.func_110124_au());
+                     for (EntityPlayerMP var7 : var4.getPlayers()) {
+                        System.out.println(var7.getName() + " " + var7.getUniqueID());
                      }
                      continue;
                   }

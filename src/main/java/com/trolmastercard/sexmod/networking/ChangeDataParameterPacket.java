@@ -57,15 +57,15 @@ public class ChangeDataParameterPacket implements IMessage {
             System.out.println("received an invalid message @ChangeDataParameter :(");
             return null;
          } else {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                BaseGirlEntity var1x = BaseGirlEntity.getServerGirlEntity(var1.d);
                if (var1x != null) {
                   switch (var1.a) {
                      case "pregnant":
-                        var1x.func_184212_Q().func_187227_b(SlimeEntity.U, Integer.valueOf(var1.c));
+                        var1x.getDataManager().set(SlimeEntity.U, Integer.valueOf(var1.c));
                         break;
                      case "currentModel":
-                        var1x.func_184212_Q().func_187227_b(BaseGirlEntity.D, Integer.valueOf(var1.c));
+                        var1x.getDataManager().set(BaseGirlEntity.D, Integer.valueOf(var1.c));
                         break;
                      case "currentAction":
                         if (fp.valueOf(var1.c) != fp.ATTACK || var1x.getCurrentAction() == fp.NULL) {
@@ -73,7 +73,7 @@ public class ChangeDataParameterPacket implements IMessage {
                         }
                         break;
                      case "animationFollowUp":
-                        var1x.func_184212_Q().func_187227_b(BaseGirlEntity.h, var1.c);
+                        var1x.getDataManager().set(BaseGirlEntity.h, var1.c);
                         break;
                      case "playerSheHasSexWith":
                         if (var1.c.equals("null")) {
@@ -88,13 +88,13 @@ public class ChangeDataParameterPacket implements IMessage {
                         var1x.setTargetPosition(var5);
                         break;
                      case "master":
-                        var1x.func_184212_Q().func_187227_b(BaseGirlEntity.v, var1.c);
+                        var1x.getDataManager().set(BaseGirlEntity.v, var1.c);
                         break;
                      case "walk speed":
-                        var1x.func_184212_Q().func_187227_b(BaseGirlEntity.a, var1.c);
+                        var1x.getDataManager().set(BaseGirlEntity.a, var1.c);
                         break;
                      case "shouldbeattargetpos":
-                        var1x.func_184212_Q().func_187227_b(BaseGirlEntity.G, Boolean.valueOf(var1.c));
+                        var1x.getDataManager().set(BaseGirlEntity.G, Boolean.valueOf(var1.c));
                   }
                }
             });

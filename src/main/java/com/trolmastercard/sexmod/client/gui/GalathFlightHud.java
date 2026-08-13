@@ -41,7 +41,7 @@ public class GalathFlightHud extends Gui {
    static final int v = 70;
    static final int a = 70;
    static boolean q = false;
-   static Minecraft c = Minecraft.func_71410_x();
+   static Minecraft c = Minecraft.getMinecraft();
    static int e = 3;
    static long s = 0L;
    static long f = 0L;
@@ -72,17 +72,17 @@ public class GalathFlightHud extends Gui {
       this.b_clash790();
       if (q) {
          ScaledResolution var2 = var1.getResolution();
-         int var3 = var2.func_78326_a();
-         int var4 = var2.func_78328_b();
+         int var3 = var2.getScaledWidth();
+         int var4 = var2.getScaledHeight();
          int var5 = var3 / 2;
          long var6 = System.currentTimeMillis();
          if (var6 - g > 500L) {
             e_clash793();
          } else {
-            c.func_110434_K().func_110577_a(j);
-            GlStateManager.func_179147_l();
-            GlStateManager.func_187401_a(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-            GlStateManager.func_179141_d();
+            c.getTextureManager().bindTexture(j);
+            GlStateManager.enableBlend();
+            GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+            GlStateManager.enableAlpha();
             float var8;
             if (var6 < u + 500L) {
                var8 = (float)(var6 - u) / 500.0F;
@@ -93,7 +93,7 @@ public class GalathFlightHud extends Gui {
             }
 
             var8 = ThreadNames.b(var8, 0.0F, 1.0F);
-            GlStateManager.func_179131_c(1.0F, 1.0F, 1.0F, var8);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, var8);
             this.a(i, var5 - i.c / 2, var4 - 70);
             this.a(p, (int)(var5 - 1.5F * w.c + 1.0F), var4 - 70 + 3);
             this.a(p, var5 - w.c / 2 + 1, var4 - 70 + 3);
@@ -125,16 +125,16 @@ public class GalathFlightHud extends Gui {
       }
 
       float var10 = 1.0F + var8 * 0.075F + var9 * -0.15F;
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179152_a(var10, var10, var10);
-      GlStateManager.func_179109_b(var8 * x[var1 - 1] + var9 * t[var1 - 1], var8 * -11.25F + var9 * 37.5F, 0.0F);
-      GlStateManager.func_179131_c(1.0F, 1.0F, 1.0F, var7 - var8 - var9);
+      GlStateManager.pushMatrix();
+      GlStateManager.scale(var10, var10, var10);
+      GlStateManager.translate(var8 * x[var1 - 1] + var9 * t[var1 - 1], var8 * -11.25F + var9 * 37.5F, 0.0F);
+      GlStateManager.color(1.0F, 1.0F, 1.0F, var7 - var8 - var9);
       this.a(w, (int)(var5 + var2), var6 - 70);
-      GlStateManager.func_179117_G();
-      GlStateManager.func_179131_c(1.0F, 1.0F, 1.0F, (float)Math.sin(Math.PI * var8) * 0.5F);
+      GlStateManager.resetColor();
+      GlStateManager.color(1.0F, 1.0F, 1.0F, (float)Math.sin(Math.PI * var8) * 0.5F);
       this.a(k, (int)(var5 + var2), var6 - 70);
-      GlStateManager.func_179121_F();
-      GlStateManager.func_179117_G();
+      GlStateManager.popMatrix();
+      GlStateManager.resetColor();
    }
 
    public static void f_clash791() {
@@ -156,7 +156,7 @@ public class GalathFlightHud extends Gui {
    }
 
    void a(bl var1, int var2, int var3) {
-      this.func_73729_b(var2, var3, var1.a, var1.d, var1.c, var1.b);
+      this.drawTexturedModalRect(var2, var3, var1.a, var1.d, var1.c, var1.b);
    }
 
 }

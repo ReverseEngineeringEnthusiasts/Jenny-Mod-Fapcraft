@@ -45,7 +45,7 @@ public class CommonProxy {
    }
 
    void setUpCustomModelsOnServer() {
-      if (FMLCommonHandler.instance().getMinecraftServerInstance().func_71262_S()) {
+      if (FMLCommonHandler.instance().getMinecraftServerInstance().isDedicatedServer()) {
          ServerWhitelistManager.c_clash135(false);
       }
    }

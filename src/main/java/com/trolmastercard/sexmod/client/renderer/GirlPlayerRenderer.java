@@ -39,8 +39,8 @@ import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
 public class GirlPlayerRenderer extends GirlRenderer {
    public static boolean v = false;
-   public ItemStack s = ItemStack.field_190927_a;
-   public ItemStack x = ItemStack.field_190927_a;
+   public ItemStack s = ItemStack.EMPTY;
+   public ItemStack x = ItemStack.EMPTY;
    public boolean r = false;
    public boolean u = false;
    protected AbstractPlayerGirlEntity w;
@@ -51,7 +51,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
       super(var1, var2, 0.0);
    }
 
-   public void func_76979_b(Entity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderShadowAndFire(Entity var1, double var2, double var4, double var6, float var8, float var9) {
    }
 
    boolean a_clash365(BaseGirlEntity var1) {
@@ -69,17 +69,17 @@ public class GirlPlayerRenderer extends GirlRenderer {
       if (this.a_clash365(var1)) {
          AbstractPlayerGirlEntity var10 = (AbstractPlayerGirlEntity)var1;
          if (var10.getOwnerUserUUID() != null) {
-            EntityPlayer var11 = Minecraft.func_71410_x().field_71439_g.field_70170_p.func_152378_a(var10.getOwnerUserUUID());
+            EntityPlayer var11 = Minecraft.getMinecraft().player.world.getPlayerEntityByUUID(var10.getOwnerUserUUID());
             if (var11 != null) {
-               this.s = var11.func_184614_ca();
-               this.x = var11.func_184592_cb();
+               this.s = var11.getHeldItemMainhand();
+               this.x = var11.getHeldItemOffhand();
                this.u = var10.ah;
                this.r = var10.ad;
                this.w = (AbstractPlayerGirlEntity)var1;
                this.y = var9;
                var10.f(var11);
                if (this.a_clash366(var11, var1)) {
-                  this.func_147906_a(var1, var11.func_70005_c_(), var2, var4 + var10.i_clash226(), var6, 300);
+                  this.renderLivingLabel(var1, var11.getName(), var2, var4 + var10.i_clash226(), var6, 300);
                }
 
                super.a(var1, var2, var4, var6, var8, var9);
@@ -100,7 +100,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
    }
 
    boolean a_clash366(EntityPlayer var1, BaseGirlEntity var2) {
-      if (var1.getPersistentID().equals(Minecraft.func_71410_x().field_71439_g.getPersistentID())) {
+      if (var1.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
          return false;
       }
 
@@ -133,37 +133,37 @@ public class GirlPlayerRenderer extends GirlRenderer {
 
       this.a(var7, var2);
       this.a(var7, var2, this.w, var1);
-      if (this.u && (this.s.func_77973_b() instanceof ItemBow || this.x.func_77973_b() instanceof ItemBow)) {
+      if (this.u && (this.s.getItem() instanceof ItemBow || this.x.getItem() instanceof ItemBow)) {
          if (var7.equals("armR")) {
-            var2.setRotationX(var2.getRotationX() - this.j.field_70125_A / 50.0F);
+            var2.setRotationX(var2.getRotationX() - this.j.rotationPitch / 50.0F);
          }
 
          if (var7.equals("armL")) {
-            var2.setRotationY(var2.getRotationY() - this.j.field_70125_A / 50.0F);
+            var2.setRotationY(var2.getRotationY() - this.j.rotationPitch / 50.0F);
          }
 
-         if (this.x.func_77973_b() instanceof ItemBow) {
+         if (this.x.getItem() instanceof ItemBow) {
             ItemStack var8 = this.x;
             this.x = this.s;
             this.s = var8;
          }
       }
 
-      if (this.u && this.s.func_77973_b() instanceof ItemShield) {
+      if (this.u && this.s.getItem() instanceof ItemShield) {
          if (var7.equals("armR")) {
             var2.setRotationZ(0.0F);
             var2.setRotationX(0.5F);
-         } else if (this.x.func_77973_b() instanceof ItemShield && var7.equals("armL")) {
+         } else if (this.x.getItem() instanceof ItemShield && var7.equals("armL")) {
             var2.setRotationZ(0.0F);
             var2.setRotationX(0.5F);
          }
       }
 
-      if (var7.equals("weapon") && !this.s.func_190926_b()) {
+      if (var7.equals("weapon") && !this.s.isEmpty()) {
          this.a(var1, var2, false);
       }
 
-      if (var7.equals("offhand") && !this.x.func_190926_b()) {
+      if (var7.equals("offhand") && !this.x.isEmpty()) {
          this.a(var1, var2, true);
       }
 
@@ -187,10 +187,10 @@ public class GirlPlayerRenderer extends GirlRenderer {
             if (!this.p.contains(var7)) {
                for (GeoCube var12 : var2.childCubes) {
                   MATRIX_STACK.push();
-                  GlStateManager.func_179094_E();
+                  GlStateManager.pushMatrix();
                   this.q = var2;
                   this.a(var1, var12, var3, var4, var5, var6, (double)var9);
-                  GlStateManager.func_179121_F();
+                  GlStateManager.popMatrix();
                   MATRIX_STACK.pop();
                }
             }
@@ -215,38 +215,38 @@ public class GirlPlayerRenderer extends GirlRenderer {
       if (!((AbstractPlayerGirlEntity)this.j).f_clash579()) {
          return true;
       } else {
-         return i.field_71474_y.field_74320_O != 0 ? true : i.field_71462_r instanceof GuiInventory || i.field_71462_r instanceof GuiContainerCreative;
+         return i.gameSettings.thirdPersonView != 0 ? true : i.currentScreen instanceof GuiInventory || i.currentScreen instanceof GuiContainerCreative;
       }
    }
 
    public void a(BufferBuilder var1, GeoBone var2, Color var3) {
-      GlStateManager.func_179094_E();
-      Tessellator.func_178181_a().func_78381_a();
+      GlStateManager.pushMatrix();
+      Tessellator.getInstance().draw();
       com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
       GL11.glEnable(2896);
       this.c_clash145();
-      new GirlLayerRenderer(this).render(this.j, this.j.field_184619_aG, this.j.field_70721_aZ, this.y, 0.0F, 0.0F, 0.0F, var3);
-      this.func_110776_a(Objects.requireNonNull(this.getEntityTexture(this.j)));
-      var1.func_181668_a(7, DefaultVertexFormats.field_181712_l);
-      GlStateManager.func_179147_l();
-      GlStateManager.func_187401_a(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+      new GirlLayerRenderer(this).render(this.j, this.j.limbSwing, this.j.limbSwingAmount, this.y, 0.0F, 0.0F, 0.0F, var3);
+      this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
+      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      GlStateManager.enableBlend();
+      GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
       GL11.glDisable(2896);
-      GlStateManager.func_179121_F();
+      GlStateManager.popMatrix();
    }
 
    protected void c_clash145() {
    }
 
    public void a(BufferBuilder var1, GeoBone var2, boolean var3) {
-      ItemRenderer var4 = Minecraft.func_71410_x().func_175597_ag();
-      GlStateManager.func_179094_E();
-      Tessellator.func_178181_a().func_78381_a();
+      ItemRenderer var4 = Minecraft.getMinecraft().getItemRenderer();
+      GlStateManager.pushMatrix();
+      Tessellator.getInstance().draw();
       com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
       GL11.glEnable(2896);
-      GlStateManager.func_179147_l();
-      GlStateManager.func_187401_a(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+      GlStateManager.enableBlend();
+      GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
       ItemStack var5 = var3 ? this.x : this.s;
-      switch (var5.func_77973_b().func_77661_b(var5)) {
+      switch (var5.getItem().getItemUseAction(var5)) {
          case BOW:
             this.a_clash146(var3);
             break;
@@ -254,52 +254,52 @@ public class GirlPlayerRenderer extends GirlRenderer {
             this.a(var3, this.u);
       }
 
-      if (this.u && !var3 && var5.func_77973_b() instanceof ItemBow) {
+      if (this.u && !var3 && var5.getItem() instanceof ItemBow) {
          this.t += 0.015F;
-         this.j.d(Math.round(-this.t * 20.0F + var5.func_77988_m()));
+         this.j.d(Math.round(-this.t * 20.0F + var5.getMaxItemUseDuration()));
          this.j.a_clash517(var5);
-         this.j.func_184598_c(EnumHand.MAIN_HAND);
+         this.j.setActiveHand(EnumHand.MAIN_HAND);
          this.j.W();
       } else {
          this.t = 0.0F;
          this.j.d(0);
-         this.j.a_clash517(ItemStack.field_190927_a);
+         this.j.a_clash517(ItemStack.EMPTY);
          this.j.W();
       }
 
       this.a(var3, var5);
-      GlStateManager.func_179152_a(0.75F, 0.75F, 0.75F);
-      var4.func_178099_a(this.j, var5, TransformType.THIRD_PERSON_RIGHT_HAND);
-      var1.func_181668_a(7, DefaultVertexFormats.field_181712_l);
-      this.func_110776_a(Objects.requireNonNull(this.getEntityTexture(this.j)));
+      GlStateManager.scale(0.75F, 0.75F, 0.75F);
+      var4.renderItem(this.j, var5, TransformType.THIRD_PERSON_RIGHT_HAND);
+      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
       GL11.glDisable(2896);
-      GlStateManager.func_179121_F();
-      GlStateManager.func_179147_l();
-      GlStateManager.func_187401_a(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+      GlStateManager.popMatrix();
+      GlStateManager.enableBlend();
+      GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
    }
 
    protected void a(boolean var1, ItemStack var2) {
-      GlStateManager.func_179114_b(var1 ? 200.0F : 90.0F, 1.0F, 0.0F, 0.0F);
+      GlStateManager.rotate(var1 ? 200.0F : 90.0F, 1.0F, 0.0F, 0.0F);
    }
 
    protected void a_clash146(boolean var1) {
-      GlStateManager.func_179114_b(20.0F, 1.0F, 0.0F, 0.0F);
+      GlStateManager.rotate(20.0F, 1.0F, 0.0F, 0.0F);
    }
 
    protected void a(boolean var1, boolean var2) {
       if (var1) {
-         GlStateManager.func_179114_b(180.0F, 0.0F, 1.0F, 0.0F);
-         GlStateManager.func_179114_b(90.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
+         GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
          if (var2) {
-            GlStateManager.func_179114_b(-90.0F, 0.0F, 1.0F, 0.0F);
-            GlStateManager.func_179114_b(35.0F, 0.0F, 0.0F, 1.0F);
-            GlStateManager.func_179114_b(-20.0F, 1.0F, 0.0F, 0.0F);
-            GlStateManager.func_179109_b(0.0F, 0.0F, 0.228F);
+            GlStateManager.rotate(-90.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(35.0F, 0.0F, 0.0F, 1.0F);
+            GlStateManager.rotate(-20.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.translate(0.0F, 0.0F, 0.228F);
          }
       } else if (var2) {
-         GlStateManager.func_179114_b(-90.0F, 1.0F, 0.0F, 0.0F);
-         GlStateManager.func_179114_b(-90.0F, 0.0F, 0.0F, 1.0F);
-         GlStateManager.func_179109_b(0.0F, 0.165F, 0.0F);
+         GlStateManager.rotate(-90.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.rotate(-90.0F, 0.0F, 0.0F, 1.0F);
+         GlStateManager.translate(0.0F, 0.165F, 0.0F);
       }
    }
 

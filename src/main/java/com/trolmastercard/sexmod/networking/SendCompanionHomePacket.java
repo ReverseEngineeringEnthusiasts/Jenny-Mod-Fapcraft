@@ -48,42 +48,42 @@ public class SendCompanionHomePacket implements IMessage {
          if (var1.b && var2.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .func_152344_a(
+               .addScheduledTask(
                   () -> {
                      for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.a)) {
-                        if (!var3.field_70170_p.field_72995_K) {
+                        if (!var3.world.isRemote) {
                            if (var3.getCurrentAction() != fp.THROW_PEARL) {
                               var3.b(fp.THROW_PEARL);
                               var3.setYawRotation(
-                                 (float)Math.atan2(var3.field_70161_v - var3.l.field_72449_c, var3.field_70165_t - var3.l.field_72450_a)
+                                 (float)Math.atan2(var3.posZ - var3.l.z, var3.posX - var3.l.x)
                                        * (float) (180.0 / Math.PI)
                                     + 90.0F
                               );
-                              var3.setTargetPosition(var3.func_174791_d());
-                              var3.func_184212_Q().func_187227_b(BaseGirlEntity.G, true);
+                              var3.setTargetPosition(var3.getPositionVector());
+                              var3.getDataManager().set(BaseGirlEntity.G, true);
                               var3.q = null;
                            } else if (var3.q == null) {
-                              float var6 = (float)var3.func_174791_d().func_72438_d(var3.l);
-                              var3.q = new KoboldEggProjectileEntity(var3.field_70170_p, var3);
+                              float var6 = (float)var3.getPositionVector().distanceTo(var3.l);
+                              var3.q = new KoboldEggProjectileEntity(var3.world, var3);
                               var3.q
-                                 .func_70186_c(
-                                    var3.l.field_72450_a - var3.field_70165_t,
-                                    var3.l.field_72448_b - var3.field_70163_u,
-                                    var3.l.field_72449_c - var3.field_70161_v,
+                                 .shoot(
+                                    var3.l.x - var3.posX,
+                                    var3.l.y - var3.posY,
+                                    var3.l.z - var3.posZ,
                                     Math.min(4.0F, var6 * 0.1F),
                                     0.0F
                                  );
-                              var3.field_70170_p.func_72838_d(var3.q);
+                              var3.world.spawnEntity(var3.q);
                            } else {
-                              WorldServer var4 = (WorldServer)var3.field_70170_p;
+                              WorldServer var4 = (WorldServer)var3.world;
 
                               for (int var5 = 0; var5 < 32; var5++) {
-                                 var4.func_180505_a(
+                                 var4.spawnParticle(
                                     EnumParticleTypes.PORTAL,
                                     false,
-                                    var3.field_70165_t,
-                                    var3.field_70163_u + Reference.f.nextDouble() * 2.0,
-                                    var3.field_70161_v,
+                                    var3.posX,
+                                    var3.posY + Reference.f.nextDouble() * 2.0,
+                                    var3.posZ,
                                     32,
                                     0.2,
                                     0.2,
@@ -93,10 +93,10 @@ public class SendCompanionHomePacket implements IMessage {
                                  );
                               }
 
-                              var3.func_70107_b(var3.l.field_72450_a, var3.l.field_72448_b, var3.l.field_72449_c);
+                              var3.setPosition(var3.l.x, var3.l.y, var3.l.z);
                               var3.q = null;
                               var3.b(fp.NULL);
-                              var3.func_184212_Q().func_187227_b(BaseGirlEntity.G, false);
+                              var3.getDataManager().set(BaseGirlEntity.G, false);
                               var3.x_clash475();
                            }
                         }

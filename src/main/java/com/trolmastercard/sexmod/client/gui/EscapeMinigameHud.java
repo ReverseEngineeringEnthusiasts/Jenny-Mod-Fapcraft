@@ -43,12 +43,12 @@ public class EscapeMinigameHud extends Gui {
    static boolean b = true;
    static float d = 0.0F;
    static boolean c = false;
-   static Minecraft e = Minecraft.func_71410_x();
+   static Minecraft e = Minecraft.getMinecraft();
    static boolean o = false;
 
    public static void e_clash735() {
       if (g) {
-         if (e.field_71441_e == null) {
+         if (e.world == null) {
             g = false;
             o = false;
             j = 0.0F;
@@ -116,10 +116,10 @@ public class EscapeMinigameHud extends Gui {
    public void a(RenderGameOverlayEvent var1) {
       if (g) {
          if (var1.getType() == ElementType.TEXT) {
-            int var2 = var1.getResolution().func_78326_a();
-            int var3 = var1.getResolution().func_78328_b();
+            int var2 = var1.getResolution().getScaledWidth();
+            int var3 = var1.getResolution().getScaledHeight();
             float var4 = var1.getPartialTicks();
-            e.func_110434_K().func_110577_a(l);
+            e.getTextureManager().bindTexture(l);
             double var5;
             if (c) {
                var5 = 1.0 - RotationHelper.d((d + var4) / 20.0F);
@@ -128,17 +128,17 @@ public class EscapeMinigameHud extends Gui {
             }
 
             int var7 = var3 + 385;
-            GlStateManager.func_179094_E();
-            GlStateManager.func_179152_a(0.33F, 0.33F, 0.33F);
-            GlStateManager.func_179109_b(485.0F, 0.0F, 0.0F);
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(0.33F, 0.33F, 0.33F);
+            GlStateManager.translate(485.0F, 0.0F, 0.0F);
             int var8 = 4 * var3;
-            this.func_73729_b(var2 / 2 - 87, (int)RotationHelper.b(var8, var7, var5), 0, 104, 174, 48);
-            this.func_73729_b((int)(var2 / 2.0F - 78.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 52, b && q == gr.A ? 52 : 0, 52, 52);
-            this.func_73729_b((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 104, b && q == gr.S ? 52 : 0, 52, 52);
-            this.func_73729_b((int)(var2 / 2.0F + 26.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 156, b && q == gr.D ? 52 : 0, 52, 52);
-            this.func_73729_b((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.b(var8, var7 - 104, var5), 0, b && q == gr.W ? 52 : 0, 52, 52);
-            this.func_73729_b(var2 / 2 - 87 + 8, (int)RotationHelper.b(var8 - 8, var7 + 8, var5), 8, 152, (int)(158.0F * k), 32);
-            GlStateManager.func_179121_F();
+            this.drawTexturedModalRect(var2 / 2 - 87, (int)RotationHelper.b(var8, var7, var5), 0, 104, 174, 48);
+            this.drawTexturedModalRect((int)(var2 / 2.0F - 78.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 52, b && q == gr.A ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 104, b && q == gr.S ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(var2 / 2.0F + 26.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 156, b && q == gr.D ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.b(var8, var7 - 104, var5), 0, b && q == gr.W ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect(var2 / 2 - 87 + 8, (int)RotationHelper.b(var8 - 8, var7 + 8, var5), 8, 152, (int)(158.0F * k), 32);
+            GlStateManager.popMatrix();
          }
       }
    }
@@ -152,26 +152,26 @@ public class EscapeMinigameHud extends Gui {
 
    @SubscribeEvent
    public void a(KeyInputEvent var1) {
-      GameSettings var2 = Minecraft.func_71410_x().field_71474_y;
-      if (GameSettings.func_100015_a(var2.field_74370_x)) {
+      GameSettings var2 = Minecraft.getMinecraft().gameSettings;
+      if (GameSettings.isKeyDown(var2.keyBindLeft)) {
          if (q == gr.A) {
             k += 0.08F;
          } else {
             k -= 0.04F;
          }
-      } else if (GameSettings.func_100015_a(var2.field_74366_z)) {
+      } else if (GameSettings.isKeyDown(var2.keyBindRight)) {
          if (q == gr.D) {
             k += 0.08F;
          } else {
             k -= 0.04F;
          }
-      } else if (GameSettings.func_100015_a(var2.field_74351_w)) {
+      } else if (GameSettings.isKeyDown(var2.keyBindForward)) {
          if (q == gr.W) {
             k += 0.08F;
          } else {
             k -= 0.04F;
          }
-      } else if (GameSettings.func_100015_a(var2.field_74368_y)) {
+      } else if (GameSettings.isKeyDown(var2.keyBindBack)) {
          if (q == gr.S) {
             k += 0.08F;
          } else {

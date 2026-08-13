@@ -38,20 +38,20 @@ public class PlayerIds {
 
    @SubscribeEvent
    public void a(PlayerLoggedInEvent var1) {
-      EntityPlayerMP var2 = var1.player.field_70170_p.func_73046_m().func_184103_al().func_177451_a(var1.player.getPersistentID());
-      var2.func_82142_c(false);
-      var2.func_189654_d(false);
-      var2.field_70145_X = false;
-      if (!var2.field_71075_bZ.field_75098_d && var2.field_71075_bZ.field_75100_b) {
-         var2.field_71075_bZ.field_75100_b = false;
+      EntityPlayerMP var2 = var1.player.world.getMinecraftServer().getPlayerList().getPlayerByUUID(var1.player.getPersistentID());
+      var2.setInvisible(false);
+      var2.setNoGravity(false);
+      var2.noClip = false;
+      if (!var2.capabilities.isCreativeMode && var2.capabilities.isFlying) {
+         var2.capabilities.isFlying = false;
       }
 
       PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), var2);
       PacketHandler.b.sendTo(new InformOfOwnershipPacket(GirlSavedData.c_clash849(var2.getPersistentID())), var2);
 
-      for (ItemStack var4 : var2.field_71071_by.field_70462_a) {
-         if (var4.func_77973_b() == AlliesLampItem.b && var4.func_77942_o()) {
-            var4.func_77978_p().func_186854_a("user", UUID.randomUUID());
+      for (ItemStack var4 : var2.inventory.mainInventory) {
+         if (var4.getItem() == AlliesLampItem.b && var4.hasTagCompound()) {
+            var4.getTagCompound().setUniqueId("user", UUID.randomUUID());
          }
       }
 
@@ -63,7 +63,7 @@ public class PlayerIds {
 
       AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
       AbstractPlayerGirlEntity var9 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.player.getPersistentID());
-      World var5 = FMLCommonHandler.instance().getMinecraftServerInstance().func_130014_f_();
+      World var5 = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
       this.a(var5, var2, var9);
       if (var9 != null) {
          var9.setAnchored(false);
@@ -85,34 +85,34 @@ public class PlayerIds {
 
    void a(World var1, EntityPlayer var2, UUID var3) {
       BiaPlayerEntity var4 = new BiaPlayerEntity(var1, var3);
-      var4.func_189654_d(true);
-      var4.field_70145_X = true;
-      var4.field_70159_w = 0.0;
-      var4.field_70181_x = 0.0;
-      var4.field_70179_y = 0.0;
-      var4.func_70107_b(var2.field_70165_t, var2.field_70163_u + 69.0, var2.field_70161_v);
-      var1.func_72838_d(var4);
+      var4.setNoGravity(true);
+      var4.noClip = true;
+      var4.motionX = 0.0;
+      var4.motionY = 0.0;
+      var4.motionZ = 0.0;
+      var4.setPosition(var2.posX, var2.posY + 69.0, var2.posZ);
+      var1.spawnEntity(var4);
       var4.B_clash233();
    }
 
    void b(World var1, EntityPlayer var2, UUID var3) {
       ElliePlayerEntity var4 = new ElliePlayerEntity(var1, var3);
-      var4.func_189654_d(true);
-      var4.field_70145_X = true;
-      var4.field_70159_w = 0.0;
-      var4.field_70181_x = 0.0;
-      var4.field_70179_y = 0.0;
-      var4.func_70107_b(var2.field_70165_t, var2.field_70163_u + 69.0, var2.field_70161_v);
-      var1.func_72838_d(var4);
+      var4.setNoGravity(true);
+      var4.noClip = true;
+      var4.motionX = 0.0;
+      var4.motionY = 0.0;
+      var4.motionZ = 0.0;
+      var4.setPosition(var2.posX, var2.posY + 69.0, var2.posZ);
+      var1.spawnEntity(var4);
       var4.B_clash233();
    }
 
    void a(World var1, EntityPlayer var2, AbstractPlayerGirlEntity var3) {
       Predicate var4 = var0 -> true;
 
-      for (AbstractPlayerGirlEntity var7 : var1.func_175644_a(AbstractPlayerGirlEntity.class, var4::test)) {
-         if (var7.getOwnerUserUUID().equals(var2.getPersistentID()) && (var3 == null || var7.func_145782_y() != var3.func_145782_y())) {
-            var1.func_72900_e(var7);
+      for (AbstractPlayerGirlEntity var7 : var1.getEntities(AbstractPlayerGirlEntity.class, var4::test)) {
+         if (var7.getOwnerUserUUID().equals(var2.getPersistentID()) && (var3 == null || var7.getEntityId() != var3.getEntityId())) {
+            var1.removeEntity(var7);
          }
       }
    }
@@ -128,7 +128,7 @@ public class PlayerIds {
             }
 
             if (var4.getInteractionPlayerUUID() != null) {
-               if (var4.getInteractionPlayerUUID().equals(var2.getPersistentID()) || var4.getInteractionPlayerUUID().equals(var2.func_110124_au())) {
+               if (var4.getInteractionPlayerUUID().equals(var2.getPersistentID()) || var4.getInteractionPlayerUUID().equals(var2.getUniqueID())) {
                   ResetGirlPacket.Handler.a_clash10(var4);
                   var4.setAnchored(false);
                   var4.b(fp.NULL);
@@ -137,10 +137,10 @@ public class PlayerIds {
                if (var4 instanceof AbstractPlayerGirlEntity
                   && ((AbstractPlayerGirlEntity)var4).getOwnerUserUUID().equals(var2.getPersistentID())
                   && var4.getInteractionPlayerUUID() != null) {
-                  EntityPlayerMP var5 = (EntityPlayerMP)var1.player.field_70170_p.func_152378_a(var4.getInteractionPlayerUUID());
+                  EntityPlayerMP var5 = (EntityPlayerMP)var1.player.world.getPlayerEntityByUUID(var4.getInteractionPlayerUUID());
                   PacketHandler.b.sendTo(new SetPlayerMovementPacket(true), var5);
                   ResetGirlPacket.Handler.a(var5);
-                  var2.func_82142_c(false);
+                  var2.setInvisible(false);
                   var4.setInteractionPlayerUUID(null);
                }
             }

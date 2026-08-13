@@ -51,15 +51,15 @@ public class CommandFuta extends CommandBase implements IClientCommand {
       }
    }
 
-   public String func_71517_b() {
+   public String getName() {
       return "futa";
    }
 
-   public String func_71518_a(ICommandSender var1) {
+   public String getUsage(ICommandSender var1) {
       return "/futa <true|false>";
    }
 
-   public void func_184881_a(MinecraftServer var1, ICommandSender var2, String[] var3) {
+   public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
       if (var3.length < 1) {
          this.a(var2);
       } else {
@@ -85,17 +85,17 @@ public class CommandFuta extends CommandBase implements IClientCommand {
 
          try {
             for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
-               if (!var6.field_70128_L && var6.field_70170_p.field_72995_K && var6 instanceof GalathEntity) {
-                  Vec3d var7 = var6.getCachedBoneOffset("cockParticles").func_178787_e(var6.func_174791_d());
-                  Random var8 = var6.func_70681_au();
+               if (!var6.isDead && var6.world.isRemote && var6 instanceof GalathEntity) {
+                  Vec3d var7 = var6.getCachedBoneOffset("cockParticles").add(var6.getPositionVector());
+                  Random var8 = var6.getRNG();
 
                   for (int var9 = 0; var9 < 10; var9++) {
-                     var6.field_70170_p
-                        .func_175688_a(
+                     var6.world
+                        .spawnParticle(
                            EnumParticleTypes.DRAGON_BREATH,
-                           var7.field_72450_a,
-                           var7.field_72448_b,
-                           var7.field_72449_c,
+                           var7.x,
+                           var7.y,
+                           var7.z,
                            var8.nextFloat() * 0.025F * ThreadNames.a_clash166(),
                            var8.nextFloat() * 0.025F * ThreadNames.a_clash166(),
                            var8.nextFloat() * 0.025F * ThreadNames.a_clash166(),
@@ -110,7 +110,7 @@ public class CommandFuta extends CommandBase implements IClientCommand {
    }
 
    void a(ICommandSender var1) {
-      var1.func_145747_a(
+      var1.sendMessage(
          new TextComponentString(
             String.format(
                "%sYou can either do %s/futa true %sor %s/futa false", TextFormatting.YELLOW, TextFormatting.GRAY, TextFormatting.YELLOW, TextFormatting.GRAY

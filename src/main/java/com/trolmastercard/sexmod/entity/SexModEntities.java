@@ -38,10 +38,10 @@ public class SexModEntities {
       a("luna_hook", SexEntity.class, 4768742);
       a("energy_ball", DragonEntity.class, 2565153);
       a("pyrocinical", BasicGirlEntity.class, 515153);
-      EntityRegistry.addSpawn(SlimeEntity.class, 10, 1, 1, EnumCreatureType.CREATURE, new Biome[]{Biomes.field_76780_h, Biomes.field_150599_m});
-      EntityRegistry.addSpawn(BeeEntity.class, 5, 1, 1, EnumCreatureType.CREATURE, new Biome[]{Biomes.field_76767_f, Biomes.field_76785_t});
-      EntityRegistry.addSpawn(BasicGirlEntity.class, 3, 1, 1, EnumCreatureType.AMBIENT, new Biome[]{Biomes.field_76778_j});
-      EntityRegistry.addSpawn(ManglelieEntity.class, 5, 1, 1, EnumCreatureType.AMBIENT, new Biome[]{Biomes.field_76778_j});
+      EntityRegistry.addSpawn(SlimeEntity.class, 10, 1, 1, EnumCreatureType.CREATURE, new Biome[]{Biomes.SWAMPLAND, Biomes.MUTATED_SWAMPLAND});
+      EntityRegistry.addSpawn(BeeEntity.class, 5, 1, 1, EnumCreatureType.CREATURE, new Biome[]{Biomes.FOREST, Biomes.FOREST_HILLS});
+      EntityRegistry.addSpawn(BasicGirlEntity.class, 3, 1, 1, EnumCreatureType.AMBIENT, new Biome[]{Biomes.HELL});
+      EntityRegistry.addSpawn(ManglelieEntity.class, 5, 1, 1, EnumCreatureType.AMBIENT, new Biome[]{Biomes.HELL});
    }
 
    private static void b(String var0, Class<? extends Entity> var1, int var2) {

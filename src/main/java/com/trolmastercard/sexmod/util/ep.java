@@ -48,26 +48,26 @@ public class ep {
             this.g
                .add(
                   new an(
-                     var1.field_71441_e,
+                     var1.world,
                      this.d.a_clash24(this.e),
                      new Vec3d(
-                        var6.field_72450_a + (Reference.f.nextFloat() * 2.0F - 1.0F) * this.j,
-                        var6.field_72448_b + (Reference.f.nextFloat() * 2.0F - 1.0F) * this.j,
-                        var6.field_72449_c + (Reference.f.nextFloat() * 2.0F - 1.0F) * this.j
+                        var6.x + (Reference.f.nextFloat() * 2.0F - 1.0F) * this.j,
+                        var6.y + (Reference.f.nextFloat() * 2.0F - 1.0F) * this.j,
+                        var6.z + (Reference.f.nextFloat() * 2.0F - 1.0F) * this.j
                      )
                   )
                );
          }
       }
 
-      GlStateManager.func_179129_p();
-      GlStateManager.func_179118_c();
+      GlStateManager.disableCull();
+      GlStateManager.disableAlpha();
       Vec3d var10 = RotationHelper.a(
-         new Vec3d(var1.field_71439_g.field_70142_S, var1.field_71439_g.field_70137_T, var1.field_71439_g.field_70136_U),
-         var1.field_71439_g.func_174791_d(),
+         new Vec3d(var1.player.lastTickPosX, var1.player.lastTickPosY, var1.player.lastTickPosZ),
+         var1.player.getPositionVector(),
          var4
       );
-      var3.func_181668_a(9, DefaultVertexFormats.field_181706_f);
+      var3.begin(9, DefaultVertexFormats.POSITION_COLOR);
       this.b_clash450();
       Vec3d var11 = null;
 
@@ -77,19 +77,19 @@ public class ep {
             var11 = var9;
          }
 
-         if (var11.func_72438_d(var9) > this.h) {
-            var2.func_78381_a();
-            var3.func_181668_a(9, DefaultVertexFormats.field_181706_f);
+         if (var11.distanceTo(var9) > this.h) {
+            var2.draw();
+            var3.begin(9, DefaultVertexFormats.POSITION_COLOR);
          }
 
-         var3.func_181662_b(var9.field_72450_a - var10.field_72450_a, var9.field_72448_b - var10.field_72448_b, var9.field_72449_c - var10.field_72449_c)
-            .func_181669_b(255, 255, 255, 255)
-            .func_181675_d();
+         var3.pos(var9.x - var10.x, var9.y - var10.y, var9.z - var10.z)
+            .color(255, 255, 255, 255)
+            .endVertex();
          var11 = var9;
       }
 
-      var2.func_78381_a();
-      GlStateManager.func_179089_o();
+      var2.draw();
+      GlStateManager.enableCull();
    }
 
    public void a_clash449() {
@@ -105,7 +105,7 @@ public class ep {
             Vec3d var3 = var2.f;
 
             int var4;
-            for (var4 = var1 - 1; var4 >= 0 && var3.func_72438_d(this.g.get(var4).f) < var3.func_72438_d(this.g.get(var4 + 1).f); var4--) {
+            for (var4 = var1 - 1; var4 >= 0 && var3.distanceTo(this.g.get(var4).f) < var3.distanceTo(this.g.get(var4 + 1).f); var4--) {
                this.g.set(var4 + 1, this.g.get(var4));
             }
 

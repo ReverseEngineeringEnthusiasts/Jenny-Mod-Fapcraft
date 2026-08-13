@@ -28,26 +28,26 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class CummyEntity {
    static final ResourceLocation b = new ResourceLocation("sexmod", "textures/cummy.png");
-   static Minecraft c = Minecraft.func_71410_x();
+   static Minecraft c = Minecraft.getMinecraft();
    static List<ep> a = new ArrayList<>();
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public void a(RenderWorldLastEvent var1) {
-      c.field_71446_o.func_110577_a(b);
-      GlStateManager.func_179131_c(1.0F, 1.0F, 1.0F, 1.0F);
-      Tessellator var2 = Tessellator.func_178181_a();
-      BufferBuilder var3 = var2.func_178180_c();
+      c.renderEngine.bindTexture(b);
+      GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+      Tessellator var2 = Tessellator.getInstance();
+      BufferBuilder var3 = var2.getBuffer();
       float var4 = var1.getPartialTicks();
-      GlStateManager.func_179140_f();
-      GlStateManager.func_179141_d();
-      if (c.field_71439_g != null) {
+      GlStateManager.disableLighting();
+      GlStateManager.enableAlpha();
+      if (c.player != null) {
          for (ep var6 : a) {
             var6.a(c, var2, var3, var4);
          }
 
-         GlStateManager.func_179126_j();
-         GlStateManager.func_179145_e();
+         GlStateManager.enableDepth();
+         GlStateManager.enableLighting();
       }
    }
 

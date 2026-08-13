@@ -68,9 +68,9 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public boolean ak = false;
    public boolean af = true;
    public boolean ah = false;
-   protected static final DataParameter<Optional<UUID>> ai = EntityDataManager.func_187226_a(BaseGirlEntity.class, DataSerializers.field_187203_m)
-      .func_187156_b()
-      .func_187161_a(118);
+   protected static final DataParameter<Optional<UUID>> ai = EntityDataManager.createKey(BaseGirlEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID)
+      .getSerializer()
+      .createKey(118);
    public static Hashtable<UUID, AbstractPlayerGirlEntity> al = new Hashtable<>();
    public static List<AbstractPlayerGirlEntity> Z = new ArrayList<>();
    int an = -1;
@@ -78,13 +78,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    protected AbstractPlayerGirlEntity(World var1) {
       super(var1);
-      this.func_70105_a(0.01F, 0.01F);
+      this.setSize(0.01F, 0.01F);
       Z.add(this);
    }
 
    protected AbstractPlayerGirlEntity(World var1, UUID var2) {
       this(var1);
-      this.m.func_187227_b(ai, Optional.of(var2));
+      this.m.set(ai, Optional.of(var2));
    }
 
    @Nullable
@@ -101,7 +101,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public static AbstractPlayerGirlEntity a_clash568(UUID var0) {
       try {
          for (BaseGirlEntity var2 : getGirlEntityList()) {
-            if (!var2.field_70170_p.field_72995_K && var2 instanceof AbstractPlayerGirlEntity) {
+            if (!var2.world.isRemote && var2 instanceof AbstractPlayerGirlEntity) {
                AbstractPlayerGirlEntity var3 = (AbstractPlayerGirlEntity)var2;
                if (var0.equals(var3.getOwnerUserUUID())) {
                   return var3;
@@ -116,7 +116,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @Override
    public TargetPoint getTargetNetworkPoint() {
-      return new TargetPoint(this.field_71093_bK, this.field_70165_t, this.field_70163_u - 0.0, this.field_70161_v, 50.0);
+      return new TargetPoint(this.dimension, this.posX, this.posY - 0.0, this.posZ, 50.0);
    }
 
    public void a(int var1, fp var2) {
@@ -135,7 +135,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return var1;
    }
 
-   public boolean func_70067_L() {
+   public boolean canBeCollidedWith() {
       return false;
    }
 
@@ -165,10 +165,10 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @Override
    public String getDisplayNameText() {
-      if (((Optional)this.m.func_187225_a(ai)).isPresent()) {
-         EntityPlayer var1 = this.field_70170_p.func_152378_a((UUID)((Optional)this.m.func_187225_a(ai)).get());
+      if (((Optional)this.m.get(ai)).isPresent()) {
+         EntityPlayer var1 = this.world.getPlayerEntityByUUID((UUID)((Optional)this.m.get(ai)).get());
          if (var1 != null) {
-            return var1.func_70005_c_();
+            return var1.getName();
          }
       }
 
@@ -189,11 +189,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Override
-   public boolean func_70104_M() {
+   public boolean canBePushed() {
       return false;
    }
 
-   public boolean func_70058_J() {
+   public boolean isNotColliding() {
       return true;
    }
 
@@ -202,14 +202,14 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Override
-   protected void func_70088_a() {
-      super.func_70088_a();
-      this.m.func_187214_a(ai, Optional.absent());
+   protected void entityInit() {
+      super.entityInit();
+      this.m.register(ai, Optional.absent());
    }
 
    @SideOnly(Side.CLIENT)
    public static void i_clash572() {
-      AbstractPlayerGirlEntity var0 = getPlayerGirlByUUID(Minecraft.func_71410_x().field_71439_g.getPersistentID());
+      AbstractPlayerGirlEntity var0 = getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
       if (var0 != null) {
          var0.r_clash533();
       }
@@ -218,8 +218,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    public void r_clash533() {
       this.B = null;
-      this.func_189654_d(false);
-      if (this.field_70170_p.field_72995_K) {
+      this.setNoGravity(false);
+      if (this.world.isRemote) {
          this.V();
       }
    }
@@ -229,11 +229,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    protected void V() {
       if (this.isControlledByLocalPlayer() || this.f_clash579()) {
          d3.setMovementLock(true);
-         EntityPlayerSP var1 = Minecraft.func_71410_x().field_71439_g;
-         var1.func_82142_c(false);
-         var1.func_189654_d(false);
-         var1.field_70145_X = false;
-         this.m.func_187227_b(G, false);
+         EntityPlayerSP var1 = Minecraft.getMinecraft().player;
+         var1.setInvisible(false);
+         var1.setNoGravity(false);
+         var1.noClip = false;
+         this.m.set(G, false);
          PacketHandler.b.sendToServer(new ResetGirlPacket(this.getGirlId()));
       }
    }
@@ -241,21 +241,21 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @SideOnly(Side.CLIENT)
    @Override
    public boolean H_clash562() {
-      Minecraft var1 = Minecraft.func_71410_x();
-      return !this.f_clash579() || var1.field_71474_y.field_74320_O != 0;
+      Minecraft var1 = Minecraft.getMinecraft();
+      return !this.f_clash579() || var1.gameSettings.thirdPersonView != 0;
    }
 
    protected void c_clash573(boolean var1) {
       if (ag) {
          if (this.getOwnerUserUUID() != null) {
-            EntityPlayer var2 = this.field_70170_p.func_152378_a(this.getOwnerUserUUID());
+            EntityPlayer var2 = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
             if (var2 != null) {
-               var2.field_71075_bZ.field_75101_c = var1;
+               var2.capabilities.allowFlying = var1;
                if (!var1) {
-                  var2.field_71075_bZ.field_75100_b = false;
+                  var2.capabilities.isFlying = false;
                }
 
-               var2.func_71016_p();
+               var2.sendPlayerAbilities();
             }
          }
       }
@@ -278,21 +278,21 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return var0 == null ? false : e_clash574(var0.getPersistentID());
    }
 
-   public AxisAlignedBB func_174813_aQ() {
-      return super.func_174813_aQ().func_72317_d(0.0, 0.5, 0.0);
+   public AxisAlignedBB getEntityBoundingBox() {
+      return super.getEntityBoundingBox().offset(0.0, 0.5, 0.0);
    }
 
    protected EntityPlayer j_clash575() {
-      List var1 = this.field_70170_p.field_73010_i;
+      List var1 = this.world.playerEntities;
       EntityPlayer var2 = null;
 
       for (EntityPlayer var4 : (java.util.Collection<EntityPlayer>) (var1) ) {
-         if (!var4.getPersistentID().equals(((Optional)this.m.func_187225_a(ai)).get())) {
+         if (!var4.getPersistentID().equals(((Optional)this.m.get(ai)).get())) {
             if (var2 == null) {
                var2 = var4;
             } else {
-               double var5 = var2.func_70092_e(this.w_clash576().field_72450_a, this.w_clash576().field_72448_b, this.w_clash576().field_72449_c);
-               double var7 = var4.func_70092_e(this.w_clash576().field_72450_a, this.w_clash576().field_72448_b, this.w_clash576().field_72449_c);
+               double var5 = var2.getDistanceSq(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z);
+               double var7 = var4.getDistanceSq(this.w_clash576().x, this.w_clash576().y, this.w_clash576().z);
                if (var7 < var5) {
                   var2 = var4;
                }
@@ -307,50 +307,50 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    public boolean isLocalPlayerNearby() {
       EntityPlayer var1 = this.j_clash575();
-      return var1 == null ? false : var1.getPersistentID().equals(Minecraft.func_71410_x().field_71439_g.getPersistentID());
+      return var1 == null ? false : var1.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID());
    }
 
    public Vec3d w_clash576() {
-      return new Vec3d(this.field_70165_t, this.field_70163_u - 0.0, this.field_70161_v);
+      return new Vec3d(this.posX, this.posY - 0.0, this.posZ);
    }
 
    protected void b_clash577(UUID var1) {
-      EntityPlayerMP var2 = (EntityPlayerMP)this.field_70170_p.func_152378_a(var1);
-      EntityPlayerMP var3 = (EntityPlayerMP)this.field_70170_p.func_152378_a((UUID)((Optional)this.m.func_187225_a(ai)).get());
+      EntityPlayerMP var2 = (EntityPlayerMP)this.world.getPlayerEntityByUUID(var1);
+      EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.m.get(ai)).get());
       PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var2);
       PacketHandler.b.sendTo(new SetPlayerMovementPacket(false), var3);
       this.setInteractionPlayerUUID(var1);
-      this.field_70177_z = 0.0F;
-      this.field_70759_as = 0.0F;
-      var2.field_70177_z = 180.0F;
-      var2.field_70759_as = 180.0F;
-      var2.func_189654_d(true);
-      var2.field_70145_X = true;
-      Vec3d var4 = this.func_174791_d();
-      var2.func_70634_a(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c + 1.0);
-      var2.field_71075_bZ.field_75100_b = true;
-      var3.field_71075_bZ.field_75100_b = true;
+      this.rotationYaw = 0.0F;
+      this.rotationYawHead = 0.0F;
+      var2.rotationYaw = 180.0F;
+      var2.rotationYawHead = 180.0F;
+      var2.setNoGravity(true);
+      var2.noClip = true;
+      Vec3d var4 = this.getPositionVector();
+      var2.setPositionAndUpdate(var4.x, var4.y, var4.z + 1.0);
+      var2.capabilities.isFlying = true;
+      var3.capabilities.isFlying = true;
       this.j_clash521(var1);
-      this.m.func_187227_b(G, true);
+      this.m.set(G, true);
       this.setTargetPosition(var4);
       this.setYawRotation(0.0F);
    }
 
-   protected void func_180429_a(BlockPos var1, Block var2) {
-      super.func_180429_a(var1, var2);
+   protected void playStepSound(BlockPos var1, Block var2) {
+      super.playStepSound(var1, var2);
    }
 
    public AxisAlignedBB a_clash352(EntityPlayer var1) {
-      return var1.func_174813_aQ();
+      return var1.getEntityBoundingBox();
    }
 
    @Override
-   public void func_70071_h_() {
-      this.field_70145_X = true;
-      this.func_189654_d(true);
-      super.func_70071_h_();
+   public void onUpdate() {
+      this.noClip = true;
+      this.setNoGravity(true);
+      super.onUpdate();
       this.D_clash581();
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          if (this.f_clash579()) {
             GenderSwapScreen.a.a_clash861();
          }
@@ -359,14 +359,14 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @SideOnly(Side.CLIENT)
    void h_clash578() {
-      Minecraft.func_71410_x().field_71439_g.eyeHeight = this.func_70047_e();
+      Minecraft.getMinecraft().player.eyeHeight = this.getEyeHeight();
    }
 
    @SideOnly(Side.CLIENT)
    public boolean f_clash579() {
-      return !((Optional)this.m.func_187225_a(ai)).isPresent()
+      return !((Optional)this.m.get(ai)).isPresent()
          ? false
-         : ((UUID)((Optional)this.m.func_187225_a(ai)).get()).equals(Minecraft.func_71410_x().field_71439_g.getPersistentID());
+         : ((UUID)((Optional)this.m.get(ai)).get()).equals(Minecraft.getMinecraft().player.getPersistentID());
    }
 
    public boolean E_clash458() {
@@ -375,35 +375,35 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    void d_clash580(EntityPlayer var1) {
       NBTTagCompound var2 = var1.getEntityData();
-      String var3 = var2.func_74779_i("sexmod:CustomModel" + NpcType.getNpcType(this));
+      String var3 = var2.getString("sexmod:CustomModel" + NpcType.getNpcType(this));
       this.setCustomModelCode(var3);
    }
 
    @Override
-   public void func_70619_bc() {
+   public void updateAITasks() {
       rebuildPlayerGirlTable();
       this.tickFollowUpTransitions();
       this.G();
       UUID var1 = this.getOwnerUserUUID();
       if (var1 != null) {
-         EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
+         EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
          if (var2 == null) {
-            this.func_70634_a(this.field_70165_t, 0.0, this.field_70161_v);
+            this.setPositionAndUpdate(this.posX, 0.0, this.posZ);
          } else {
             this.d_clash580(var2);
             if (this.isAnchored()) {
                Vec3d var3 = this.getTargetPosition();
-               this.func_70634_a(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c);
+               this.setPositionAndUpdate(var3.x, var3.y, var3.z);
             } else {
-               this.func_70634_a(var2.field_70165_t, var2.field_70163_u + 0.0, var2.field_70161_v);
+               this.setPositionAndUpdate(var2.posX, var2.posY + 0.0, var2.posZ);
             }
 
             fp var4 = this.getCurrentAction();
-            if (var4 == fp.NULL && var2.field_82175_bq) {
+            if (var4 == fp.NULL && var2.isSwingInProgress) {
                this.b(fp.ATTACK);
             }
 
-            if (var4 == fp.ATTACK && !var2.field_82175_bq) {
+            if (var4 == fp.ATTACK && !var2.isSwingInProgress) {
                this.b(fp.NULL);
             }
          }
@@ -413,13 +413,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    void D_clash581() {
       if (this.an != -1) {
          this.an++;
-         if (!this.field_70170_p.field_72995_K && this.an == 65) {
+         if (!this.world.isRemote && this.an == 65) {
             this.f(this.getOutfitIndex() == 0 ? 1 : 0);
          }
 
          if (this.an >= 100) {
             if (this.getCurrentAction() == fp.STRIP) {
-               if (this.field_70170_p.field_72995_K) {
+               if (this.world.isRemote) {
                   this.n_clash582();
                } else {
                   this.b(fp.NULL);
@@ -432,9 +432,9 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @SideOnly(Side.CLIENT)
    void n_clash582() {
       if (this.f_clash579()) {
-         Minecraft var1 = Minecraft.func_71410_x();
-         var1.field_71474_y.field_74320_O = 0;
-         var1.field_71460_t.func_175066_a(var1.func_175606_aa());
+         Minecraft var1 = Minecraft.getMinecraft();
+         var1.gameSettings.thirdPersonView = 0;
+         var1.entityRenderer.loadEntityShader(var1.getRenderViewEntity());
          d3.setMovementLock(true);
       }
    }
@@ -460,11 +460,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @Override
    public void b(fp var1) {
-      if (!this.field_70170_p.field_72995_K && var1 == fp.NULL && this.isAnchored()) {
+      if (!this.world.isRemote && var1 == fp.NULL && this.isAnchored()) {
          System.out.println("prevented a potential animation break");
       } else {
          if (var1 == fp.STRIP) {
-            this.an = this.field_70170_p.field_72995_K ? 5 : 0;
+            this.an = this.world.isRemote ? 5 : 0;
          }
 
          super.b(var1);
@@ -472,45 +472,45 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public void f(EntityPlayer var1) {
-      this.m.func_187227_b(X, ItemStack.field_190927_a);
-      this.m.func_187227_b(T, ItemStack.field_190927_a);
-      this.m.func_187227_b(U, ItemStack.field_190927_a);
-      this.m.func_187227_b(W, ItemStack.field_190927_a);
+      this.m.set(X, ItemStack.EMPTY);
+      this.m.set(T, ItemStack.EMPTY);
+      this.m.set(U, ItemStack.EMPTY);
+      this.m.set(W, ItemStack.EMPTY);
 
-      for (ItemStack var3 : var1.func_184193_aE()) {
-         if (var3.func_77973_b() instanceof ItemElytra) {
-            this.m.func_187227_b(T, var3);
-         } else if (var3.func_77973_b() instanceof ItemArmor) {
-            ItemArmor var4 = (ItemArmor)var3.func_77973_b();
-            switch (var4.func_185083_B_()) {
+      for (ItemStack var3 : var1.getArmorInventoryList()) {
+         if (var3.getItem() instanceof ItemElytra) {
+            this.m.set(T, var3);
+         } else if (var3.getItem() instanceof ItemArmor) {
+            ItemArmor var4 = (ItemArmor)var3.getItem();
+            switch (var4.getEquipmentSlot()) {
                case HEAD:
-                  this.m.func_187227_b(X, var3);
+                  this.m.set(X, var3);
                   break;
                case CHEST:
-                  this.m.func_187227_b(T, var3);
+                  this.m.set(T, var3);
                   break;
                case LEGS:
-                  this.m.func_187227_b(U, var3);
+                  this.m.set(U, var3);
                   break;
                case FEET:
-                  this.m.func_187227_b(W, var3);
+                  this.m.set(W, var3);
             }
          }
       }
    }
 
    public UUID getOwnerUserUUID() {
-      return ((Optional)this.m.func_187225_a(ai)).isPresent() ? (UUID)((Optional)this.m.func_187225_a(ai)).get() : null;
+      return ((Optional)this.m.get(ai)).isPresent() ? (UUID)((Optional)this.m.get(ai)).get() : null;
    }
 
    @Nullable
    public EntityPlayer k_clash584() {
       UUID var1 = this.getOwnerUserUUID();
-      return var1 == null ? null : this.field_70170_p.func_152378_a(var1);
+      return var1 == null ? null : this.world.getPlayerEntityByUUID(var1);
    }
 
    public void a(Optional<UUID> var1) {
-      this.m.func_187227_b(ai, var1);
+      this.m.set(ai, var1);
    }
 
    public void y_clash234() {
@@ -543,7 +543,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       ArrayList var0 = new ArrayList();
 
       for (Entry var2 : al.entrySet()) {
-         if (((AbstractPlayerGirlEntity)var2.getValue()).field_70128_L) {
+         if (((AbstractPlayerGirlEntity)var2.getValue()).isDead) {
             var0.add(var2.getKey());
          }
       }
@@ -565,34 +565,34 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    public void a(String var1, UUID var2) {
       if (!this.a_clash571(var1)) {
-         if (((Optional)this.m.func_187225_a(ai)).isPresent()) {
-            PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.m.func_187225_a(ai)).get(), this.ab));
+         if (((Optional)this.m.get(ai)).isPresent()) {
+            PacketHandler.b.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.m.get(ai)).get(), this.ab));
             this.ab = true;
          }
       }
    }
 
    @Override
-   public void func_70014_b(NBTTagCompound var1) {
-      super.func_70014_b(var1);
-      var1.func_74778_a("owner", ((UUID)((Optional)this.m.func_187225_a(ai)).get()).toString());
+   public void writeEntityToNBT(NBTTagCompound var1) {
+      super.writeEntityToNBT(var1);
+      var1.setString("owner", ((UUID)((Optional)this.m.get(ai)).get()).toString());
    }
 
    @Override
-   public void func_70037_a(NBTTagCompound var1) {
-      super.func_70037_a(var1);
-      this.m.func_187227_b(ai, Optional.of(UUID.fromString(var1.func_74779_i("owner"))));
+   public void readEntityFromNBT(NBTTagCompound var1) {
+      super.readEntityFromNBT(var1);
+      this.m.set(ai, Optional.of(UUID.fromString(var1.getString("owner"))));
       Z.add(this);
    }
 
    @Override
    public void a(SoundEvent var1, float var2, float var3) {
       Vec3d var4 = this.w_clash576();
-      if (this.field_70170_p.field_72995_K) {
-         this.field_70170_p.func_184134_a(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c, var1, SoundCategory.NEUTRAL, var2, var3, false);
+      if (this.world.isRemote) {
+         this.world.playSound(var4.x, var4.y, var4.z, var1, SoundCategory.NEUTRAL, var2, var3, false);
       } else {
-         this.field_70170_p
-            .func_184133_a(null, new BlockPos(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c), var1, SoundCategory.PLAYERS, var2, var3);
+         this.world
+            .playSound(null, new BlockPos(var4.x, var4.y, var4.z), var1, SoundCategory.PLAYERS, var2, var3);
       }
    }
 
@@ -602,7 +602,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public void playRandomSound(SoundEvent[] var1) {
-      this.a(var1[this.func_70681_au().nextInt(var1.length)], 1.0F, 1.0F);
+      this.a(var1[this.getRNG().nextInt(var1.length)], 1.0F, 1.0F);
    }
 
    @Override

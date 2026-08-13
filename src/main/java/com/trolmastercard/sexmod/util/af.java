@@ -61,11 +61,11 @@ public class af {
       }
 
       for (int var10 = 0; var10 < 4; var10++) {
-         var8[var10] = var8[var10].func_178787_e(var6);
+         var8[var10] = var8[var10].add(var6);
       }
 
       for (int var11 = 4; var11 < 8; var11++) {
-         var8[var11] = var8[var11].func_178787_e(var7);
+         var8[var11] = var8[var11].add(var7);
       }
 
       return var8;
@@ -104,7 +104,7 @@ public class af {
       IBone var10 = var0.getAnimationProcessor().getBone(var9);
       if (var10 == null) {
          Vec3d[] var18 = new Vec3d[12];
-         Arrays.fill(var18, Vec3d.field_186680_a);
+         Arrays.fill(var18, Vec3d.ZERO);
          return var18;
       }
 
@@ -137,15 +137,15 @@ public class af {
       }
 
       for (int var20 = 0; var20 < 4; var20++) {
-         var16[var20] = var16[var20].func_178787_e(var13);
+         var16[var20] = var16[var20].add(var13);
       }
 
       for (int var21 = 4; var21 < 8; var21++) {
-         var16[var21] = var16[var21].func_178787_e(var14);
+         var16[var21] = var16[var21].add(var14);
       }
 
       for (int var22 = 8; var22 < 12; var22++) {
-         var16[var22] = var16[var22].func_178787_e(var15);
+         var16[var22] = var16[var22].add(var15);
       }
 
       return var16;
@@ -199,26 +199,26 @@ public class af {
    public static void a(BufferBuilder var0, Vec3d[][] var1, UnknownScreen var2) {
       for (Vec3d[] var6 : var1) {
          for (Vec3d var10 : var6) {
-            var0.func_181662_b(var10.field_72450_a, var10.field_72448_b, var10.field_72449_c)
-               .func_187315_a(0.0, 0.0)
-               .func_181669_b(var2.a, var2.d, var2.c, var2.b)
-               .func_181675_d();
+            var0.pos(var10.x, var10.y, var10.z)
+               .tex(0.0, 0.0)
+               .color(var2.a, var2.d, var2.c, var2.b)
+               .endVertex();
          }
       }
    }
 
    public static void a(Minecraft var0, BaseGirlEntity var1, float var2) {
-      EntityPlayerSP var3 = var0.field_71439_g;
+      EntityPlayerSP var3 = var0.player;
       if (var3 != null) {
-         GlStateManager.func_179137_b(0.0, 0.01, 0.0);
-         Entity var4 = ((GirlRenderer)var0.func_175598_ae().func_78713_a(var1)).c_clash336(var1);
+         GlStateManager.translate(0.0, 0.01, 0.0);
+         Entity var4 = ((GirlRenderer)var0.getRenderManager().getEntityRenderObject(var1)).c_clash336(var1);
          Vec3d var5 = var1.isAnchored()
             ? var1.getTargetPosition()
-            : RotationHelper.a(new Vec3d(var4.field_70142_S, var4.field_70137_T, var4.field_70136_U), var4.func_174791_d(), var2);
-         Vec3d var6 = RotationHelper.a(new Vec3d(var3.field_70142_S, var3.field_70137_T, var3.field_70136_U), var3.func_174791_d(), var2);
-         Vec3d var7 = var5.func_178788_d(var6);
+            : RotationHelper.a(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
+         Vec3d var6 = RotationHelper.a(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var2);
+         Vec3d var7 = var5.subtract(var6);
          var7 = var1.a_clash432(var7, var2);
-         GlStateManager.func_179137_b(var7.field_72450_a, var7.field_72448_b, var7.field_72449_c);
+         GlStateManager.translate(var7.x, var7.y, var7.z);
       }
    }
 

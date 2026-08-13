@@ -52,9 +52,9 @@ import software.bernie.geckolib3.util.MatrixStack;
 
 public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IKobold {
    public static final EyeAndKoboldColor aw = EyeAndKoboldColor.PURPLE;
-   public static final DataParameter<Float> aA = EntityDataManager.func_187226_a(KoboldPlayerEntity.class, DataSerializers.field_187193_c)
-      .func_187156_b()
-      .func_187161_a(122);
+   public static final DataParameter<Float> aA = EntityDataManager.createKey(KoboldPlayerEntity.class, DataSerializers.FLOAT)
+      .getSerializer()
+      .createKey(122);
    boolean aB = false;
    boolean az = true;
    boolean ay = false;
@@ -69,23 +69,23 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    @Override
-   protected void func_70088_a() {
-      super.func_70088_a();
-      EyeAndKoboldColor var1 = EyeAndKoboldColor.values()[this.func_70681_au().nextInt(EyeAndKoboldColor.values().length)];
-      this.m.func_187214_a(au, new BlockPos(var1.getMainColor()));
-      this.m.func_187214_a(as, aw.name());
-      this.m.func_187214_a(aA, 0.0F);
+   protected void entityInit() {
+      super.entityInit();
+      EyeAndKoboldColor var1 = EyeAndKoboldColor.values()[this.getRNG().nextInt(EyeAndKoboldColor.values().length)];
+      this.m.register(au, new BlockPos(var1.getMainColor()));
+      this.m.register(as, aw.name());
+      this.m.register(aA, 0.0F);
    }
 
    @Override
    public AxisAlignedBB a_clash352(EntityPlayer var1) {
       return new AxisAlignedBB(
-         var1.field_70165_t - 0.3F,
-         var1.field_70163_u,
-         var1.field_70161_v - 0.3F,
-         var1.field_70165_t + 0.3F,
-         var1.field_70163_u + 0.9F,
-         var1.field_70161_v + 0.3F
+         var1.posX - 0.3F,
+         var1.posY,
+         var1.posZ - 0.3F,
+         var1.posX + 0.3F,
+         var1.posY + 0.9F,
+         var1.posZ + 0.3F
       );
    }
 
@@ -97,21 +97,21 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
          int var4 = (Integer)var1.get(var3);
          switch (var3) {
             case 0:
-               this.m.func_187227_b(aA, var4 / 100.0F * 0.25F);
+               this.m.set(aA, var4 / 100.0F * 0.25F);
                break;
             case 1:
-               this.m.func_187227_b(as, EyeAndKoboldColor.values()[var4].toString());
+               this.m.set(as, EyeAndKoboldColor.values()[var4].toString());
                break;
             case 2:
-               this.m.func_187227_b(au, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
+               this.m.set(au, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
                break;
             default:
                AbstractNpcOnlyEntity.c(var2, var4);
          }
       }
 
-      this.m.func_187227_b(at, var2.toString());
-      if (this.field_70170_p.field_72995_K) {
+      this.m.set(at, var2.toString());
+      if (this.world.isRemote) {
          de.e_clash190();
       }
    }
@@ -119,9 +119,9 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    @Override
    public ArrayList<Integer> L_clash353() {
       ArrayList var1 = new ArrayList();
-      var1.add(Math.round((Float)this.m.func_187225_a(aA) * 100.0F / 0.25F));
-      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.m.func_187225_a(as))));
-      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.m.func_187225_a(au))));
+      var1.add(Math.round((Float)this.m.get(aA) * 100.0F / 0.25F));
+      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.m.get(as))));
+      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.m.get(au))));
       return var1;
    }
 
@@ -165,7 +165,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    @Override
    public float i_clash226() {
-      float var1 = 0.25F - (Float)this.m.func_187225_a(aA);
+      float var1 = 0.25F - (Float)this.m.get(aA);
       return 1.4F - var1;
    }
 
@@ -196,26 +196,26 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    @SideOnly(Side.CLIENT)
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
-      Minecraft.func_71410_x().func_147108_a(new GirlInventoryScreen(this, var1, new String[]{"anal", "oral", "mating"}, null, false));
+      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(this, var1, new String[]{"anal", "oral", "mating"}, null, false));
       return true;
    }
 
    @Override
    public boolean a_clash355() {
-      Block var1 = this.field_70170_p.func_180495_p(this.func_180425_c().func_177982_a(0, 1, 0)).func_177230_c();
-      return !var1.func_176205_b(this.field_70170_p, this.func_180425_c().func_177982_a(0, 1, 0));
+      Block var1 = this.world.getBlockState(this.getPosition().add(0, 1, 0)).getBlock();
+      return !var1.isPassable(this.world, this.getPosition().add(0, 1, 0));
    }
 
    @Override
    protected MatrixStack a(MatrixStack var1) {
-      float var2 = 0.25F - (Float)this.m.func_187225_a(aA);
+      float var2 = 0.25F - (Float)this.m.get(aA);
       var1.scale(1.0F - var2, 1.0F - var2, 1.0F - var2);
       return var1;
    }
 
    @Override
    protected float a_clash356(float var1) {
-      float var2 = 1.0F - (0.25F - (Float)this.m.func_187225_a(aA));
+      float var2 = 1.0F - (0.25F - (Float)this.m.get(aA));
       return var1 * var2;
    }
 
@@ -232,7 +232,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    @Override
    public Vec3i getHandColor(int var1) {
       try {
-         return EyeAndKoboldColor.valueOf((String)this.m.func_187225_a(as)).getMainColor();
+         return EyeAndKoboldColor.valueOf((String)this.m.get(as)).getMainColor();
       } catch (Exception var3) {
          var3.printStackTrace();
          return super.getHandColor(var1);
@@ -274,11 +274,11 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.field_70170_p instanceof SexWorldClient) {
+      if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
 
-      float var2 = 0.25F - (Float)this.func_184212_Q().func_187225_a(KoboldEntity.aE);
+      float var2 = 0.25F - (Float)this.getDataManager().get(KoboldEntity.aE);
       GeckoLibCache.getInstance().parser.setValue("size", var2);
       switch (var1.getController().getName()) {
          case "eyes":
@@ -394,11 +394,11 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    }
 
    void b(SoundEvent[] var1, float var2) {
-      this.b(var1[this.func_70681_au().nextInt(var1.length)], var2);
+      this.b(var1[this.getRNG().nextInt(var1.length)], var2);
    }
 
    void b(SoundEvent var1, float var2) {
-      float var3 = 0.25F - (Float)this.m.func_187225_a(aA);
+      float var3 = 0.25F - (Float)this.m.get(aA);
       double var4 = var3 / 0.25F;
       float var6 = (float)RotationHelper.b(0.9F, 1.1F, var4);
       this.a(var1, var2, var6);
@@ -437,28 +437,28 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                break;
             case "blowjobStartMSG1":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var11 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var13 = ck.rotateByYaw(new Vec3d(0.0, 0.625 - var11.func_70047_e(), -1.0), this.getYawRotation() + 180.0F);
+                  EntityPlayerSP var11 = Minecraft.getMinecraft().player;
+                  Vec3d var13 = ck.rotateByYaw(new Vec3d(0.0, 0.625 - var11.getEyeHeight(), -1.0), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(
-                        new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var13), this.getYawRotation() + 180.0F, 0.0F)
+                        new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var13), this.getYawRotation() + 180.0F, 0.0F)
                      );
                }
                break;
             case "blowjobStartMSG2":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var10 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var12 = ck.rotateByYaw(new Vec3d(0.5, 0.5 - var10.func_70047_e(), -0.6875), this.getYawRotation() + 180.0F);
+                  EntityPlayerSP var10 = Minecraft.getMinecraft().player;
+                  Vec3d var12 = ck.rotateByYaw(new Vec3d(0.5, 0.5 - var10.getEyeHeight(), -0.6875), this.getYawRotation() + 180.0F);
                   PacketHandler.b
                      .sendToServer(
                         new TeleportPlayerPacket(
-                           this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var12), this.getYawRotation() + 180.0F - 40.0F, 0.0F
+                           this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var12), this.getYawRotation() + 180.0F - 40.0F, 0.0F
                         )
                      );
                }
                break;
             case "lipsound":
-               if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.GIRLS_ALLIE_LIPSOUND, 1.5F);
                } else {
                   this.a(SoundHandler.GIRLS_JENNY_LIPSOUND, 1.5F);
@@ -478,7 +478,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                }
                break;
             case "switch":
-               this.ay = this.func_70681_au().nextBoolean();
+               this.ay = this.getRNG().nextBoolean();
                this.C.clearAnimationCache();
                break;
             case "endSwitch":
@@ -512,10 +512,10 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                break;
             case "analStartCam":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var9 = Minecraft.func_71410_x().field_71439_g;
-                  Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.5625 - var9.func_70047_e(), 0.5625), this.getYawRotation() + 180.0F);
+                  EntityPlayerSP var9 = Minecraft.getMinecraft().player;
+                  Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.5625 - var9.getEyeHeight(), 0.5625), this.getYawRotation() + 180.0F);
                   PacketHandler.b
-                     .sendToServer(new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().func_178787_e(var5), this.getYawRotation(), 0.0F));
+                     .sendToServer(new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var5), this.getYawRotation(), 0.0F));
                }
                break;
             case "pounding":
@@ -587,15 +587,15 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.b(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_BJMOAN));
                break;
             case "blowjobStartbreath":
-               int var6 = this.func_70681_au().nextInt(3);
+               int var6 = this.getRNG().nextInt(3);
                this.b(SoundHandler.GIRLS_KOBOLD_LIGHTBREATHING[var6]);
                break;
             case "matingCam":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var8 = Minecraft.func_71410_x().field_71439_g;
+                  EntityPlayerSP var8 = Minecraft.getMinecraft().player;
                   Vec3d var16 = new Vec3d(0.0, 0.4375 - var8.eyeHeight, -0.6875);
                   var16 = ck.rotateByYaw(var16, this.getYawRotation() + 180.0F);
-                  var16 = var16.func_178787_e(this.getTargetPosition());
+                  var16 = var16.add(this.getTargetPosition());
                   PacketHandler.b.sendToServer(new TeleportPlayerPacket(var8.getPersistentID().toString(), var16, this.getYawRotation() + 180.0F, 10.0F));
                }
                break;
@@ -628,16 +628,16 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                break;
             case "mating_cum_cam":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var4 = Minecraft.func_71410_x().field_71439_g;
+                  EntityPlayerSP var4 = Minecraft.getMinecraft().player;
                   Vec3d var7 = new Vec3d(0.0, 1.1875 - var4.eyeHeight, 0.125);
                   var7 = ck.rotateByYaw(var7, this.getYawRotation() + 180.0F);
-                  var7 = var7.func_178787_e(this.getTargetPosition());
+                  var7 = var7.add(this.getTargetPosition());
                   PacketHandler.b.sendToServer(new TeleportPlayerPacket(var4.getPersistentID().toString(), var7, this.getYawRotation() + 180.0F, 70.0F));
                }
                break;
             case "cumMsg":
                this.sendChatMessage("I.. hope I am satisfying you sir");
-               this.b(SoundHandler.GIRLS_KOBOLD_SAD[this.func_70681_au().nextInt(1)]);
+               this.b(SoundHandler.GIRLS_KOBOLD_SAD[this.getRNG().nextInt(1)]);
                break;
             case "mating_press_cumDone":
                if (this.isControlledByLocalPlayer()) {

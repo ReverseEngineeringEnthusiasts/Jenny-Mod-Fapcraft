@@ -25,18 +25,18 @@ public class ShaderHelper {
    static Framebuffer c;
 
    public static void a_clash66() {
-      Minecraft var0 = Minecraft.func_71410_x();
-      if (!OpenGlHelper.field_148824_g) {
+      Minecraft var0 = Minecraft.getMinecraft();
+      if (!OpenGlHelper.shadersSupported) {
          Main.LOGGER.warn("Shaders not supported");
       } else {
-         if (ShaderLinkHelper.func_148074_b() == null) {
-            ShaderLinkHelper.func_148076_a();
+         if (ShaderLinkHelper.getStaticShaderLinkHelper() == null) {
+            ShaderLinkHelper.setNewStaticShaderLinkHelper();
          }
 
          try {
-            b = new ShaderGroup(var0.func_110434_K(), var0.func_110442_L(), var0.func_147110_a(), a);
-            b.func_148026_a(var0.field_71443_c, var0.field_71440_d);
-            c = b.func_177066_a("final");
+            b = new ShaderGroup(var0.getTextureManager(), var0.getResourceManager(), var0.getFramebuffer(), a);
+            b.createBindFramebuffers(var0.displayWidth, var0.displayHeight);
+            c = b.getFramebufferRaw("final");
             ClientRegistry.registerEntityShader(BaseGirlEntity.class, a);
             System.out.println("succ registered the outline shader :)");
          } catch (IOException var2) {

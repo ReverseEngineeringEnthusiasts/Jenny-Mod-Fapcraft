@@ -40,14 +40,14 @@ public class dp extends GirlRenderer {
          case FISHING_IDLE:
          case FISHING_START:
             ItemStack var2 = ((LunaEntity)this.j).ao;
-            ItemStack var3 = (ItemStack)this.j.func_184212_Q().func_187225_a(LunaEntity.az);
-            if (var3.equals(ItemStack.field_190927_a)) {
+            ItemStack var3 = (ItemStack)this.j.getDataManager().get(LunaEntity.az);
+            if (var3.equals(ItemStack.EMPTY)) {
                return var2;
             }
 
-            Map var4 = EnchantmentHelper.func_82781_a(var3);
-            EnchantmentHelper.func_82782_a(var4, var2);
-            this.j.func_184611_a(EnumHand.MAIN_HAND, var2);
+            Map var4 = EnchantmentHelper.getEnchantments(var3);
+            EnchantmentHelper.setEnchantments(var4, var2);
+            this.j.setHeldItem(EnumHand.MAIN_HAND, var2);
             return var2;
          default:
             return var1;
@@ -55,12 +55,12 @@ public class dp extends GirlRenderer {
    }
 
    boolean a_clash364() {
-      return (Boolean)this.j.func_184212_Q().func_187225_a(BaseGirlEntity.G);
+      return (Boolean)this.j.getDataManager().get(BaseGirlEntity.G);
    }
 
    @Override
    protected void a(BufferBuilder var1, String var2, GeoBone var3) {
-      if (!Minecraft.func_71410_x().func_147113_T()) {
+      if (!Minecraft.getMinecraft().isGamePaused()) {
          switch (var2) {
             case "head":
                this.r = var3.getRotationX();
@@ -92,17 +92,17 @@ public class dp extends GirlRenderer {
                break;
             case "offhand":
                LunaEntity var9 = (LunaEntity)this.j;
-               ItemStack var10 = (ItemStack)this.j.func_184212_Q().func_187225_a(LunaEntity.ag);
-               if (!var10.equals(ItemStack.field_190927_a) && var9.Z == 1.0F) {
-                  GlStateManager.func_179094_E();
-                  Tessellator.func_178181_a().func_78381_a();
+               ItemStack var10 = (ItemStack)this.j.getDataManager().get(LunaEntity.ag);
+               if (!var10.equals(ItemStack.EMPTY) && var9.Z == 1.0F) {
+                  GlStateManager.pushMatrix();
+                  Tessellator.getInstance().draw();
                   com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var3);
-                  GlStateManager.func_179114_b(90.0F, 1.0F, 0.0F, 0.0F);
-                  GlStateManager.func_179152_a(var9.aa, var9.aa, var9.aa);
-                  Minecraft.func_71410_x().func_175597_ag().func_178099_a(this.j, var10, TransformType.THIRD_PERSON_RIGHT_HAND);
-                  GirlRenderer.n.func_181668_a(7, DefaultVertexFormats.field_181712_l);
-                  this.func_110776_a(Objects.requireNonNull(this.getEntityTexture(this.j)));
-                  GlStateManager.func_179121_F();
+                  GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
+                  GlStateManager.scale(var9.aa, var9.aa, var9.aa);
+                  Minecraft.getMinecraft().getItemRenderer().renderItem(this.j, var10, TransformType.THIRD_PERSON_RIGHT_HAND);
+                  GirlRenderer.n.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+                  this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
+                  GlStateManager.popMatrix();
                }
          }
       }

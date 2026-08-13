@@ -67,9 +67,9 @@ public class TeleportPlayerPacket implements IMessage {
 
    public void toBytes(ByteBuf var1) {
       ByteBufUtils.writeUTF8String(var1, this.c);
-      var1.writeDouble(this.e.field_72450_a);
-      var1.writeDouble(this.e.field_72448_b);
-      var1.writeDouble(this.e.field_72449_c);
+      var1.writeDouble(this.e.x);
+      var1.writeDouble(this.e.y);
+      var1.writeDouble(this.e.z);
       var1.writeFloat(this.a);
       var1.writeFloat(this.d);
       this.b = true;
@@ -80,24 +80,24 @@ public class TeleportPlayerPacket implements IMessage {
          if (var1.b && var2.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .func_152344_a(
+               .addScheduledTask(
                   () -> {
                      try {
                         System.out.println("teleporting player " + var1.c + " to " + var1.e);
-                        EntityPlayerMP var1x = FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al().func_177451_a(UUID.fromString(var1.c));
-                        var1.a = MathHelper.func_76142_g(var1.a);
-                        var1.d = MathHelper.func_76142_g(var1.d);
-                        var1x.func_70012_b(var1.e.field_72450_a, var1.e.field_72448_b, var1.e.field_72449_c, var1.a, var1.d);
-                        var1x.func_70034_d(var1.a);
-                        var1x.field_70159_w = 0.0;
-                        var1x.field_70181_x = 0.0;
-                        var1x.field_70179_y = 0.0;
-                        var1x.field_71135_a
-                           .func_175089_a(var1.e.field_72450_a, var1.e.field_72448_b, var1.e.field_72449_c, var1.a, var1.d, EnumSet.noneOf(EnumFlags.class));
+                        EntityPlayerMP var1x = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(UUID.fromString(var1.c));
+                        var1.a = MathHelper.wrapDegrees(var1.a);
+                        var1.d = MathHelper.wrapDegrees(var1.d);
+                        var1x.setLocationAndAngles(var1.e.x, var1.e.y, var1.e.z, var1.a, var1.d);
+                        var1x.setRotationYawHead(var1.a);
+                        var1x.motionX = 0.0;
+                        var1x.motionY = 0.0;
+                        var1x.motionZ = 0.0;
+                        var1x.connection
+                           .setPlayerLocation(var1.e.x, var1.e.y, var1.e.z, var1.a, var1.d, EnumSet.noneOf(EnumFlags.class));
                      } catch (Exception var2x) {
                         System.out.println("couldn't find player with UUID: " + var1.c);
                         System.out.println("could only find the following players:");
-                        System.out.println(FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al().func_181058_b(true));
+                        System.out.println(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getFormattedListOfPlayers(true));
                      }
                   }
                );

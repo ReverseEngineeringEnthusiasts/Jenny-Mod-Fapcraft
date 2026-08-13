@@ -315,7 +315,7 @@ public enum fp {
 
    @SideOnly(Side.CLIENT)
    public static float c_clash717(BaseGirlEntity var0, float var1) {
-      return (float)(var0.getFactory().getOrCreateAnimationData(var0.func_110124_au().hashCode()).tick + var1 - var0.C.tickOffset);
+      return (float)(var0.getFactory().getOrCreateAnimationData(var0.getUniqueID().hashCode()).tick + var1 - var0.C.tickOffset);
    }
 
    @SideOnly(Side.CLIENT)

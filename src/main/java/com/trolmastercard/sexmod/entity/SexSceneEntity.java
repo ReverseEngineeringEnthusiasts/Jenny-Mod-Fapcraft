@@ -25,12 +25,12 @@ import software.bernie.geckolib3.util.MatrixStack;
 
 public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
    static final float e = 11000.0F;
-   public static final DataParameter<String> a = EntityDataManager.func_187226_a(SexSceneEntity.class, DataSerializers.field_187194_d)
-      .func_187156_b()
-      .func_187161_a(101);
-   public static final DataParameter<String> b = EntityDataManager.func_187226_a(SexSceneEntity.class, DataSerializers.field_187194_d)
-      .func_187156_b()
-      .func_187161_a(102);
+   public static final DataParameter<String> a = EntityDataManager.createKey(SexSceneEntity.class, DataSerializers.STRING)
+      .getSerializer()
+      .createKey(101);
+   public static final DataParameter<String> b = EntityDataManager.createKey(SexSceneEntity.class, DataSerializers.STRING)
+      .getSerializer()
+      .createKey(102);
    AnimationFactory g = new AnimationFactory(this);
    public boolean f = false;
    public MatrixStack c = new MatrixStack();
@@ -38,76 +38,76 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
 
    public SexSceneEntity(World var1) {
       super(var1);
-      this.field_70130_N = 0.1F;
-      this.field_70131_O = 0.1F;
+      this.width = 0.1F;
+      this.height = 0.1F;
    }
 
    public SexSceneEntity(World var1, UUID var2, String var3) {
       this(var1);
-      this.field_70180_af.func_187227_b(a, var2.toString());
-      this.field_70180_af.func_187227_b(b, var3);
+      this.dataManager.set(a, var2.toString());
+      this.dataManager.set(b, var3);
    }
 
    public static SexSceneEntity a(World var0, UUID var1, BoneType var2) {
       SexSceneEntity var3 = new SexSceneEntity(var0);
-      var3.func_184212_Q().func_187227_b(a, var1.toString());
+      var3.getDataManager().set(a, var1.toString());
       var3.f = true;
       var3.d = var2;
       return var3;
    }
 
-   protected void func_70088_a() {
-      super.func_70088_a();
-      this.field_70180_af.func_187214_a(a, "");
-      this.field_70180_af.func_187214_a(b, "");
+   protected void entityInit() {
+      super.entityInit();
+      this.dataManager.register(a, "");
+      this.dataManager.register(b, "");
    }
 
-   public AxisAlignedBB func_184177_bl() {
-      BlockPos var1 = this.func_180425_c();
+   public AxisAlignedBB getRenderBoundingBox() {
+      BlockPos var1 = this.getPosition();
       Vec3i var2 = new Vec3i(0.5, 0.5, 0.5);
-      return new AxisAlignedBB(var1.func_177973_b(var2), var1.func_177971_a(var2));
+      return new AxisAlignedBB(var1.subtract(var2), var1.add(var2));
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean func_145770_h(double var1, double var3, double var5) {
-      double var7 = this.field_70165_t - var1;
-      double var9 = this.field_70163_u - var3;
-      double var11 = this.field_70161_v - var5;
+   public boolean isInRangeToRender3d(double var1, double var3, double var5) {
+      double var7 = this.posX - var1;
+      double var9 = this.posY - var3;
+      double var11 = this.posZ - var5;
       double var13 = var7 * var7 + var9 * var9 + var11 * var11;
-      return this.func_70112_a(var13);
+      return this.isInRangeToRenderDist(var13);
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean func_70112_a(double var1) {
+   public boolean isInRangeToRenderDist(double var1) {
       return var1 < 11000.0;
    }
 
    @Nullable
    public UUID b_clash342() {
-      String var1 = (String)this.field_70180_af.func_187225_a(a);
+      String var1 = (String)this.dataManager.get(a);
       return "".equals(var1) ? null : UUID.fromString(var1);
    }
 
-   public boolean func_70097_a(DamageSource var1, float var2) {
-      return var1 != DamageSource.field_76380_i ? false : super.func_70097_a(var1, var2);
+   public boolean attackEntityFrom(DamageSource var1, float var2) {
+      return var1 != DamageSource.OUT_OF_WORLD ? false : super.attackEntityFrom(var1, var2);
    }
 
    @Nullable
    public String a_clash343() {
-      String var1 = (String)this.field_70180_af.func_187225_a(b);
+      String var1 = (String)this.dataManager.get(b);
       return "".equals(var1) ? null : var1;
    }
 
-   public boolean func_70104_M() {
+   public boolean canBePushed() {
       return false;
    }
 
-   public boolean func_70067_L() {
+   public boolean canBeCollidedWith() {
       return false;
    }
 
-   public void func_70645_a(DamageSource var1) {
-      super.func_70645_a(var1);
+   public void onDeath(DamageSource var1) {
+      super.onDeath(var1);
    }
 
    @Override
@@ -119,18 +119,18 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
    public void registerControllers(AnimationData var1) {
    }
 
-   public Iterable<ItemStack> func_184193_aE() {
+   public Iterable<ItemStack> getArmorInventoryList() {
       return new ArrayList<>();
    }
 
-   public ItemStack func_184582_a(EntityEquipmentSlot var1) {
-      return ItemStack.field_190927_a;
+   public ItemStack getItemStackFromSlot(EntityEquipmentSlot var1) {
+      return ItemStack.EMPTY;
    }
 
-   public void func_184201_a(EntityEquipmentSlot var1, ItemStack var2) {
+   public void setItemStackToSlot(EntityEquipmentSlot var1, ItemStack var2) {
    }
 
-   public EnumHandSide func_184591_cq() {
+   public EnumHandSide getPrimaryHand() {
       return EnumHandSide.LEFT;
    }
 

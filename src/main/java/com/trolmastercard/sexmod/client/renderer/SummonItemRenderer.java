@@ -52,7 +52,7 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
 
       for (GeoQuad var10 : var2.quads) {
          if (var10 != null) {
-            Vector3f var11 = new Vector3f(var10.normal.func_177958_n(), var10.normal.func_177956_o(), var10.normal.func_177952_p());
+            Vector3f var11 = new Vector3f(var10.normal.getX(), var10.normal.getY(), var10.normal.getZ());
             MATRIX_STACK.getNormalMatrix().transform(var11);
             if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var11.getX() < 0.0F) {
                var11.x *= -1.0F;
@@ -71,11 +71,11 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
             for (GeoVertex var16 : var10.vertices) {
                Vector4f var17 = new Vector4f(var16.position.getX(), var16.position.getY(), var16.position.getZ(), 1.0F);
                MATRIX_STACK.getModelMatrix().transform(var17);
-               var1.func_181662_b(var17.getX(), var17.getY(), var17.getZ())
-                  .func_187315_a(var16.textureU, var16.textureV)
-                  .func_181666_a((float)var12.field_72450_a, (float)var12.field_72448_b, (float)var12.field_72449_c, var6)
-                  .func_181663_c(var11.getX(), var11.getY(), var11.getZ())
-                  .func_181675_d();
+               var1.pos(var17.getX(), var17.getY(), var17.getZ())
+                  .tex(var16.textureU, var16.textureV)
+                  .color((float)var12.x, (float)var12.y, (float)var12.z, var6)
+                  .normal(var11.getX(), var11.getY(), var11.getZ())
+                  .endVertex();
             }
          }
       }

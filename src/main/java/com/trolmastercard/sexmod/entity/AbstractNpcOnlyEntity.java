@@ -16,15 +16,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
-   public static final DataParameter<String> N = EntityDataManager.func_187226_a(AbstractNpcOnlyEntity.class, DataSerializers.field_187194_d)
-      .func_187156_b()
-      .func_187161_a(119);
-   public static final DataParameter<BlockPos> K = EntityDataManager.func_187226_a(AbstractNpcOnlyEntity.class, DataSerializers.field_187200_j)
-      .func_187156_b()
-      .func_187161_a(120);
-   public static final DataParameter<String> M = EntityDataManager.func_187226_a(AbstractNpcOnlyEntity.class, DataSerializers.field_187194_d)
-      .func_187156_b()
-      .func_187161_a(121);
+   public static final DataParameter<String> N = EntityDataManager.createKey(AbstractNpcOnlyEntity.class, DataSerializers.STRING)
+      .getSerializer()
+      .createKey(119);
+   public static final DataParameter<BlockPos> K = EntityDataManager.createKey(AbstractNpcOnlyEntity.class, DataSerializers.BLOCK_POS)
+      .getSerializer()
+      .createKey(120);
+   public static final DataParameter<String> M = EntityDataManager.createKey(AbstractNpcOnlyEntity.class, DataSerializers.STRING)
+      .getSerializer()
+      .createKey(121);
    String P = null;
    String O = null;
    BlockPos L = null;
@@ -34,24 +34,24 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
    }
 
    @Override
-   protected void func_70088_a() {
-      super.func_70088_a();
-      if (!this.field_70170_p.field_72995_K || !(this.field_70170_p instanceof SexWorldClient)) {
-         this.m.func_187214_a(M, this.a(new StringBuilder()));
+   protected void entityInit() {
+      super.entityInit();
+      if (!this.world.isRemote || !(this.world instanceof SexWorldClient)) {
+         this.m.register(M, this.a(new StringBuilder()));
       }
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
       this.c_clash221();
    }
 
    void c_clash221() {
-      if (this.field_70170_p.field_72995_K) {
-         String var1 = (String)this.m.func_187225_a(N);
-         String var2 = (String)this.m.func_187225_a(M);
-         BlockPos var3 = (BlockPos)this.m.func_187225_a(K);
+      if (this.world.isRemote) {
+         String var1 = (String)this.m.get(N);
+         String var2 = (String)this.m.get(M);
+         BlockPos var3 = (BlockPos)this.m.get(K);
          if (this.P == null) {
             this.P = var1;
             this.O = var2;
@@ -115,7 +115,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
    }
 
    public static String[] getModelCodeParts(BaseGirlEntity var0) {
-      return ((String)var0.func_184212_Q().func_187225_a(M)).split("-");
+      return ((String)var0.getDataManager().get(M)).split("-");
    }
 
 }

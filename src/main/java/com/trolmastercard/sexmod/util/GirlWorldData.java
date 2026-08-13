@@ -76,27 +76,27 @@ public class GirlWorldData extends WorldSavedData {
    @SubscribeEvent
    public void a(Save var1) {
       World var2 = var1.getWorld();
-      var2.func_175693_T().func_75745_a("sexmod:static_custom_model_manager", this);
-      this.func_76185_a();
+      var2.getMapStorage().setData("sexmod:static_custom_model_manager", this);
+      this.markDirty();
    }
 
    @SubscribeEvent
    public void a(Load var1) {
       World var2 = var1.getWorld();
-      var2.func_175693_T().func_75742_a(GirlWorldData.class, "sexmod:static_custom_model_manager");
+      var2.getMapStorage().getOrLoadData(GirlWorldData.class, "sexmod:static_custom_model_manager");
    }
 
-   public void func_76184_a(NBTTagCompound var1) {
-      NBTTagCompound var2 = var1.func_74775_l("sexmod:static_custom_model_manager");
-      this.a(var2.func_74775_l("galath"), c);
-      this.a(var2.func_74775_l("mang"), b);
+   public void readFromNBT(NBTTagCompound var1) {
+      NBTTagCompound var2 = var1.getCompoundTag("sexmod:static_custom_model_manager");
+      this.a(var2.getCompoundTag("galath"), c);
+      this.a(var2.getCompoundTag("mang"), b);
    }
 
-   public NBTTagCompound func_189551_b(NBTTagCompound var1) {
+   public NBTTagCompound writeToNBT(NBTTagCompound var1) {
       NBTTagCompound var2 = new NBTTagCompound();
-      var2.func_74782_a("galath", this.a_clash154(c));
-      var2.func_74782_a("mang", this.a_clash154(b));
-      var1.func_74782_a("sexmod:static_custom_model_manager", var2);
+      var2.setTag("galath", this.a_clash154(c));
+      var2.setTag("mang", this.a_clash154(b));
+      var1.setTag("sexmod:static_custom_model_manager", var2);
       return var1;
    }
 
@@ -106,8 +106,8 @@ public class GirlWorldData extends WorldSavedData {
 
       for (Entry var5 : var1.entrySet()) {
          UUID var6 = (UUID)var5.getKey();
-         var2.func_74778_a("UUID" + var3, var6.toString());
-         var2.func_74778_a("MODEL" + var3, (String)var5.getValue());
+         var2.setString("UUID" + var3, var6.toString());
+         var2.setString("MODEL" + var3, (String)var5.getValue());
          var3++;
       }
 
@@ -118,12 +118,12 @@ public class GirlWorldData extends WorldSavedData {
       int var3 = 0;
 
       while (true) {
-         String var4 = var1.func_74779_i("UUID" + var3);
+         String var4 = var1.getString("UUID" + var3);
          if ("".equals(var4)) {
             return;
          }
 
-         var2.put(UUID.fromString(var4), var1.func_74779_i("MODEL" + var3));
+         var2.put(UUID.fromString(var4), var1.getString("MODEL" + var3));
          var3++;
       }
    }

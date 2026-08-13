@@ -46,13 +46,13 @@ public class RemoveItemsPacket implements IMessage {
    public static class Handler implements IMessageHandler<RemoveItemsPacket, IMessage> {
       public IMessage onMessage(RemoveItemsPacket var1, MessageContext var2) {
          if (var1.c && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               InventoryPlayer var1x = FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al().func_177451_a(var1.a).field_71071_by;
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+               InventoryPlayer var1x = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(var1.a).inventory;
 
-               for (int var2x = 0; var2x < var1x.func_70302_i_(); var2x++) {
-                  ItemStack var3 = var1x.func_70301_a(var2x);
-                  if (var3.func_77973_b().equals(var1.b.func_77973_b())) {
-                     var3.func_190918_g(var1.b.func_190916_E());
+               for (int var2x = 0; var2x < var1x.getSizeInventory(); var2x++) {
+                  ItemStack var3 = var1x.getStackInSlot(var2x);
+                  if (var3.getItem().equals(var1.b.getItem())) {
+                     var3.shrink(var1.b.getCount());
                      break;
                   }
                }

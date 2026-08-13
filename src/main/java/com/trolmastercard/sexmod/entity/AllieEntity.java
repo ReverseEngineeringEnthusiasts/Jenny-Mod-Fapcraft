@@ -43,9 +43,9 @@ public class AllieEntity extends BaseGirlEntity {
    public static final Vec3d O = new Vec3d(0.5, 1.0, 0.0);
    public float U = 1.0F;
    public boolean P = false;
-   public static final DataParameter<ItemStack> N = EntityDataManager.func_187226_a(AllieEntity.class, DataSerializers.field_187196_f)
-      .func_187156_b()
-      .func_187161_a(111);
+   public static final DataParameter<ItemStack> N = EntityDataManager.createKey(AllieEntity.class, DataSerializers.ITEM_STACK)
+      .getSerializer()
+      .createKey(111);
    boolean S = true;
    int T = 1;
    int L = 1;
@@ -54,12 +54,12 @@ public class AllieEntity extends BaseGirlEntity {
 
    public AllieEntity(World var1) {
       super(var1);
-      this.func_70105_a((float)O.field_72450_a, (float)O.field_72448_b);
+      this.setSize((float)O.x, (float)O.y);
    }
 
    public AllieEntity(World var1, ItemStack var2) {
       this(var1);
-      this.m.func_187227_b(N, var2);
+      this.m.set(N, var2);
    }
 
    @Override
@@ -73,28 +73,28 @@ public class AllieEntity extends BaseGirlEntity {
    }
 
    @Override
-   protected void func_70088_a() {
-      super.func_70088_a();
-      this.m.func_187214_a(N, ItemStack.field_190927_a);
+   protected void entityInit() {
+      super.entityInit();
+      this.m.register(N, ItemStack.EMPTY);
    }
 
    public boolean f_clash697() {
-      NBTTagCompound var1 = ((ItemStack)this.m.func_187225_a(N)).func_77978_p();
-      return var1 == null ? true : var1.func_74762_e("sexmodUses") == 1;
+      NBTTagCompound var1 = ((ItemStack)this.m.get(N)).getTagCompound();
+      return var1 == null ? true : var1.getInteger("sexmodUses") == 1;
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
+   public void updateAITasks() {
+      super.updateAITasks();
       if (this.getCurrentAction() == fp.NULL) {
-         this.field_70170_p.func_72900_e(this);
+         this.world.removeEntity(this);
       }
 
       UUID var1 = this.getInteractionPlayerUUID();
       if (var1 != null) {
-         EntityPlayer var2 = this.field_70170_p.func_152378_a(var1);
+         EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
          if (var2 == null) {
-            this.field_70170_p.func_72900_e(this);
+            this.world.removeEntity(this);
          }
       }
    }
@@ -108,8 +108,8 @@ public class AllieEntity extends BaseGirlEntity {
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
+   public void onUpdate() {
+      super.onUpdate();
       if (this.U != 1.0F && this.U != -69.0F && this.U <= 0.0F) {
          if (this.isControlledByLocalPlayer()) {
             PacketHandler.b.sendToServer(new UploadInventoryToServerPacket2(this.getGirlId()));
@@ -119,7 +119,7 @@ public class AllieEntity extends BaseGirlEntity {
          this.U = -69.0F;
       }
 
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          if (this.P) {
             this.c_clash700();
          }
@@ -133,18 +133,18 @@ public class AllieEntity extends BaseGirlEntity {
    }
 
    void b_clash698() {
-      if (this.field_70173_aa % 10 == 0) {
-         int var1 = this.func_70681_au().nextInt(8);
-         Vec3d var2 = this.getCachedBoneOffset("tail" + var1).func_178787_e(this.func_174791_d());
-         this.field_70170_p
-            .func_175688_a(
+      if (this.ticksExisted % 10 == 0) {
+         int var1 = this.getRNG().nextInt(8);
+         Vec3d var2 = this.getCachedBoneOffset("tail" + var1).add(this.getPositionVector());
+         this.world
+            .spawnParticle(
                EnumParticleTypes.PORTAL,
-               var2.field_72450_a,
-               var2.field_72448_b,
-               var2.field_72449_c,
-               this.func_70681_au().nextGaussian() * 0.01F,
-               this.func_70681_au().nextGaussian() * 0.01F,
-               this.func_70681_au().nextGaussian() * 0.01F,
+               var2.x,
+               var2.y,
+               var2.z,
+               this.getRNG().nextGaussian() * 0.01F,
+               this.getRNG().nextGaussian() * 0.01F,
+               this.getRNG().nextGaussian() * 0.01F,
                new int[0]
             );
       }
@@ -153,12 +153,12 @@ public class AllieEntity extends BaseGirlEntity {
    @SideOnly(Side.CLIENT)
    void d_clash699() {
       this.S = false;
-      cj.a(this.field_70170_p, EnumParticleTypes.PORTAL, this.func_174791_d(), 300, 0.75, 1.5);
+      cj.a(this.world, EnumParticleTypes.PORTAL, this.getPositionVector(), 300, 0.75, 1.5);
    }
 
    @SideOnly(Side.CLIENT)
    void c_clash700() {
-      this.openInteractionMenu(Minecraft.func_71410_x().field_71439_g);
+      this.openInteractionMenu(Minecraft.getMinecraft().player);
       this.P = false;
    }
 
@@ -195,7 +195,7 @@ public class AllieEntity extends BaseGirlEntity {
       if (this.getCurrentAction() != fp.DEEPTHROAT_CUM || var1 != fp.DEEPTHROAT_FAST && var1 != fp.DEEPTHROAT_SLOW) {
          if (this.getCurrentAction() != fp.REVERSE_COWGIRL_CUM
             || var1 != fp.REVERSE_COWGIRL_SLOW && var1 != fp.REVERSE_COWGIRL_FAST_START && var1 != fp.REVERSE_COWGIRL_FAST_CONTINUES) {
-            if (!this.field_70170_p.field_72995_K && var1 == fp.REVERSE_COWGIRL_START) {
+            if (!this.world.isRemote && var1 == fp.REVERSE_COWGIRL_START) {
                this.a_clash701();
             }
 
@@ -208,13 +208,13 @@ public class AllieEntity extends BaseGirlEntity {
       EntityPlayer var1 = this.S_clash495();
       if (var1 != null) {
          Vec3d var2 = this.getTargetPosition();
-         var1.func_70634_a(var2.field_72450_a, var2.field_72448_b, var2.field_72449_c);
+         var1.setPositionAndUpdate(var2.x, var2.y, var2.z);
       }
    }
 
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.field_70170_p instanceof SexWorldClient) {
+      if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
 
@@ -298,47 +298,47 @@ public class AllieEntity extends BaseGirlEntity {
       AnimationController.ISoundListener var2 = var1x -> {
          switch (var1x.sound) {
             case "summonMSG1":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.summon1", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.summon1", new Object[0]));
                this.a(SoundHandler.GIRLS_ALLIE_SCAWY[0], 0.5F);
                break;
             case "summonMSG2":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.summon2", new Object[0]));
-               this.a(SoundHandler.GIRLS_ALLIE_GIGGLE[this.func_70681_au().nextInt(4)]);
+               this.sendChatMessage(I18n.format("allie.dialogue.summon2", new Object[0]));
+               this.a(SoundHandler.GIRLS_ALLIE_GIGGLE[this.getRNG().nextInt(4)]);
                break;
             case "summonMSG3":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.summon3", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.summon3", new Object[0]));
                break;
             case "summonMSG4":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.summon4", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.summon4", new Object[0]));
                this.a(SoundHandler.GIRLS_ALLIE_LIGHTBREATHING[2]);
                break;
             case "summonMSG5":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.summon5", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.summon5", new Object[0]));
                this.a(SoundHandler.GIRLS_ALLIE_HMPH[4]);
                break;
             case "summonMSG6":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.summon6", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.summon6", new Object[0]));
                this.a(SoundHandler.GIRLS_ALLIE_GIGGLE[3]);
                break;
             case "summonMSG7":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.summon7", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.summon7", new Object[0]));
                break;
             case "summonMSG8":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.summon8", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.summon8", new Object[0]));
                this.a(SoundHandler.GIRLS_ALLIE_HUH);
                if (this.isControlledByLocalPlayer()) {
-                  this.openInteractionMenu(this.field_70170_p.func_152378_a(this.getInteractionPlayerUUID()));
+                  this.openInteractionMenu(this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID()));
                }
                break;
             case "summonDone":
                this.b(fp.SUMMON_WAIT);
                break;
             case "deepthroat_prepareMSG1":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.hihi", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.hihi", new Object[0]));
                this.a(SoundHandler.GIRLS_ALLIE_GIGGLE);
                break;
             case "deepthroat_prepareMSG2":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.boys", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.boys", new Object[0]));
                this.a(SoundHandler.GIRLS_ALLIE_SIGH[0]);
                break;
             case "scream":
@@ -351,13 +351,13 @@ public class AllieEntity extends BaseGirlEntity {
                break;
             case "deepthroat_prepareDone":
                if (this.isControlledByLocalPlayer()) {
-                  if ("reverse_cowgirl".equals(this.m.func_187225_a(h))) {
-                     this.field_70125_A = 30.0F;
+                  if ("reverse_cowgirl".equals(this.m.get(h))) {
+                     this.rotationPitch = 30.0F;
                      this.b(fp.REVERSE_COWGIRL_START);
                   } else {
                      this.b(fp.DEEPTHROAT_START);
                      PacketHandler.b.sendToServer(new KoboldStatePacket(this.getGirlId(), this.getInteractionPlayerUUID(), false, true));
-                     this.r = this.field_70177_z + 180.0F;
+                     this.r = this.rotationYaw + 180.0F;
                      this.positionPlayerRelative(0.0, 0.0, 1.35F, 0.0F, 30.0F);
                      HornyMeterHud.resetHornyMeter();
                   }
@@ -379,7 +379,7 @@ public class AllieEntity extends BaseGirlEntity {
                }
                break;
             case "deepthroat_slowMSG1":
-               if (this.func_70681_au().nextFloat() > 0.33F) {
+               if (this.getRNG().nextFloat() > 0.33F) {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
                } else {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_BJMOAN));
@@ -403,17 +403,17 @@ public class AllieEntity extends BaseGirlEntity {
                }
                break;
             case "summon_normalMSG1":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.sup", new Object[0]));
-               this.a(SoundHandler.GIRLS_ALLIE_GIGGLE[this.func_70681_au().nextInt(4)]);
+               this.sendChatMessage(I18n.format("allie.dialogue.sup", new Object[0]));
+               this.a(SoundHandler.GIRLS_ALLIE_GIGGLE[this.getRNG().nextInt(4)]);
                break;
             case "summon_normalMSG2":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.youhave", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.youhave", new Object[0]));
                break;
             case "summon_normalMSG3":
-               if (((ItemStack)this.m.func_187225_a(N)).func_77978_p().func_74762_e("sexmodUses") == 2) {
-                  this.sendChatMessage(I18n.func_135052_a("allie.dialogue.2wishes", new Object[0]));
+               if (((ItemStack)this.m.get(N)).getTagCompound().getInteger("sexmodUses") == 2) {
+                  this.sendChatMessage(I18n.format("allie.dialogue.2wishes", new Object[0]));
                } else {
-                  this.sendChatMessage(I18n.func_135052_a("allie.dialogue.1wish", new Object[0]));
+                  this.sendChatMessage(I18n.format("allie.dialogue.1wish", new Object[0]));
                }
 
                this.a(SoundHandler.GIRLS_ALLIE_HMPH[4]);
@@ -422,36 +422,36 @@ public class AllieEntity extends BaseGirlEntity {
                this.sendChatMessage("So...");
                break;
             case "summon_normalMSG5":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.tellme", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.tellme", new Object[0]));
                this.a(SoundHandler.GIRLS_ALLIE_HUH);
                break;
             case "summon_normalDone":
                this.b(fp.SUMMON_NORMAL_WAIT);
                if (this.isControlledByLocalPlayer()) {
-                  this.openInteractionMenu(Minecraft.func_71410_x().field_71439_g);
+                  this.openInteractionMenu(Minecraft.getMinecraft().player);
                }
                break;
             case "deepthroat_normal_prepareMSG1":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.alright", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.alright", new Object[0]));
                this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_GIGGLE));
                break;
             case "rich_MSG1":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.wishgranted", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.wishgranted", new Object[0]));
                this.a(SoundHandler.randomSound(SoundHandler.MISC_PLOB));
                if (this.isControlledByLocalPlayer()) {
-                  PacketHandler.b.sendToServer(new MakeRichWishPacket(this.func_174791_d()));
+                  PacketHandler.b.sendToServer(new MakeRichWishPacket(this.getPositionVector()));
                }
                break;
             case "disappear":
                this.U = 0.99F;
                break;
             case "summon_sandMSG1":
-               this.sendChatMessage(I18n.func_135052_a("allie.dialogue.nooo", new Object[0]));
+               this.sendChatMessage(I18n.format("allie.dialogue.nooo", new Object[0]));
                this.a(SoundHandler.GIRLS_ALLIE_SCAWY[2]);
                break;
             case "summon_sandMSG2":
                if (this.isLocalPlayerNearby()) {
-                  this.b(I18n.func_135052_a("allie.dialogue.phobia", new Object[0]), true);
+                  this.b(I18n.format("allie.dialogue.phobia", new Object[0]), true);
                }
                break;
             case "giggle":
@@ -470,7 +470,7 @@ public class AllieEntity extends BaseGirlEntity {
                this.a(SoundHandler.MISC_SLIDE, 0, 1, 4, 6);
                break;
             case "slowMoan":
-               if (this.func_70681_au().nextBoolean()) {
+               if (this.getRNG().nextBoolean()) {
                   this.a(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_AHH));
                }
 
@@ -482,7 +482,7 @@ public class AllieEntity extends BaseGirlEntity {
                int var6 = this.T;
 
                do {
-                  this.T = this.func_70681_au().nextInt(3) + 1;
+                  this.T = this.getRNG().nextInt(3) + 1;
                } while (this.T == var6);
 
                return;
@@ -508,7 +508,7 @@ public class AllieEntity extends BaseGirlEntity {
                      int var4 = this.L;
 
                      do {
-                        this.L = this.func_70681_au().nextInt(3) + 1;
+                        this.L = this.getRNG().nextInt(3) + 1;
                      } while (this.L == var4);
                   }
                }

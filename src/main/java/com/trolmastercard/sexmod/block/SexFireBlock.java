@@ -16,12 +16,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class SexFireBlock extends BlockFire {
    public static final Block a = new SexFireBlock();
 
-   public void func_180650_b(World var1, BlockPos var2, IBlockState var3, Random var4) {
+   public void updateTick(World var1, BlockPos var2, IBlockState var3, Random var4) {
    }
 
    public static void register() {
       a.setRegistryName(new ResourceLocation("sexmod", "fire"));
-      a.func_149663_c("fire");
+      a.setTranslationKey("fire");
       MinecraftForge.EVENT_BUS.register(SexFireBlock.class);
    }
 

@@ -35,20 +35,20 @@ public class SendEggPacket implements IMessage {
    public static class Handler implements IMessageHandler<SendEggPacket, IMessage> {
       public IMessage onMessage(SendEggPacket var1, MessageContext var2) {
          if (var1.a && var2.side.equals(Side.SERVER)) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
-               EntityPlayerMP var1x = var2.getServerHandler().field_147369_b;
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+               EntityPlayerMP var1x = var2.getServerHandler().player;
                UUID var2x = KoboldManager.getTribeUUID(var1x.getPersistentID());
                if (var2x != null) {
                   EyeAndKoboldColor var3 = KoboldManager.l_clash75(var2x);
                   ItemStack var4 = new ItemStack(KoboldEggItem.a, 1, var3.getWoolMeta());
-                  NBTTagCompound var5 = var4.func_77978_p();
+                  NBTTagCompound var5 = var4.getTagCompound();
                   if (var5 == null) {
                      var5 = new NBTTagCompound();
                   }
 
-                  var5.func_74778_a("tribeID", var2x.toString());
-                  var4.func_77982_d(var5);
-                  var1x.field_71071_by.func_70441_a(var4);
+                  var5.setString("tribeID", var2x.toString());
+                  var4.setTagCompound(var5);
+                  var1x.inventory.addItemStackToInventory(var4);
                }
             });
             return null;

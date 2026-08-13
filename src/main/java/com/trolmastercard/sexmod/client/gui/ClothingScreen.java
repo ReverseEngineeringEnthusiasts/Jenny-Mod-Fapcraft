@@ -75,7 +75,7 @@ public class ClothingScreen extends GuiScreen {
    int e = 1;
 
    public ClothingScreen(@Nonnull BaseGirlEntity var1) {
-      this.field_146297_k = Minecraft.func_71410_x();
+      this.mc = Minecraft.getMinecraft();
       this.g = var1.getGirlId();
       NpcType var2 = NpcType.getNpcType(var1);
       if (var2 == null) {
@@ -84,7 +84,7 @@ public class ClothingScreen extends GuiScreen {
 
       try {
          Constructor var3 = var2.npcClass.getConstructor(World.class);
-         this.c = (BaseGirlEntity)var3.newInstance(this.field_146297_k.field_71441_e);
+         this.c = (BaseGirlEntity)var3.newInstance(this.mc.world);
          this.c.setLocallyRegistered(true);
       } catch (Exception var11) {
          var11.printStackTrace();
@@ -92,7 +92,7 @@ public class ClothingScreen extends GuiScreen {
 
       this.e_clash817();
       String var12 = var1.getCustomModelCode();
-      this.c.func_184212_Q().func_187227_b(BaseGirlEntity.b, var12);
+      this.c.getDataManager().set(BaseGirlEntity.b, var12);
       int var4 = 0;
 
       for (String var6 : this.c.getCustomPartsSet()) {
@@ -125,9 +125,9 @@ public class ClothingScreen extends GuiScreen {
       }
    }
 
-   public void func_146274_d() {
-      super.func_146274_d();
-      this.q.func_178039_p();
+   public void handleMouseInput() {
+      super.handleMouseInput();
+      this.q.handleMouseInput();
    }
 
    public static HashSet<String> b_clash815() {
@@ -184,12 +184,12 @@ public class ClothingScreen extends GuiScreen {
       }
    }
 
-   public void func_73866_w_() {
-      this.q = new CustomModelList(this.field_146297_k, this);
+   public void initGui() {
+      this.q = new CustomModelList(this.mc, this);
    }
 
-   public void func_146280_a(Minecraft var1, int var2, int var3) {
-      super.func_146280_a(var1, var2, var3);
+   public void setWorldAndResolution(Minecraft var1, int var2, int var3) {
+      super.setWorldAndResolution(var1, var2, var3);
       this.n = this.a_clash821(76.0F);
       this.l = this.b_clash822(89.0F);
       this.o = 90.0F;
@@ -205,41 +205,41 @@ public class ClothingScreen extends GuiScreen {
       }
    }
 
-   public void func_73863_a(int var1, int var2, float var3) {
-      super.func_73863_a(var1, var2, var3);
+   public void drawScreen(int var1, int var2, float var3) {
+      super.drawScreen(var1, var2, var3);
       if (this.p) {
          b = b + RotationHelper.lerp(h, s, var3);
       }
 
       this.a_clash824();
-      this.field_146297_k.field_71446_o.func_110577_a(k);
+      this.mc.renderEngine.bindTexture(k);
       int var4 = this.n - this.a_clash821(15.0F);
       int var5 = this.l - 20;
-      this.func_73729_b(var4, var5, 100, this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20) ? 40 : 20, 20, 20);
+      this.drawTexturedModalRect(var4, var5, 100, this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20) ? 40 : 20, 20, 20);
       if (ServerWhitelistManager.g_clash134() == null) {
          this.b(var4, var1, var2);
       }
 
       this.a(this.n, this.l, this.o, this.c, 1.2345679F);
-      this.c.func_70071_h_();
-      this.q.func_148128_a(var1, var2, var3);
+      this.c.onUpdate();
+      this.q.drawScreen(var1, var2, var3);
    }
 
    void b(int var1, int var2, int var3) {
       int var4 = this.l - 40;
-      this.func_73729_b(var1, var4, 120, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 40 : 20, 20, 20);
+      this.drawTexturedModalRect(var1, var4, 120, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 40 : 20, 20, 20);
       var4 -= 20;
-      this.func_73729_b(var1, var4, 20, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
+      this.drawTexturedModalRect(var1, var4, 20, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
       var4 -= 20;
-      this.func_73729_b(var1, var4, 0, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
+      this.drawTexturedModalRect(var1, var4, 0, this.a_clash818(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
    }
 
-   public boolean func_73868_f() {
+   public boolean doesGuiPauseGame() {
       return false;
    }
 
    void c_clash819() {
-      this.field_146297_k.func_147118_V().func_147682_a(PositionedSoundRecord.func_184371_a(SoundEvents.field_187909_gi, 1.0F));
+      this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
       HashSet var1 = new HashSet();
       ArrayList var2 = new ArrayList();
 
@@ -257,11 +257,11 @@ public class ClothingScreen extends GuiScreen {
       }
 
       PacketHandler.b.sendToServer(new UploadModelStringPacket(BaseGirlEntity.encodeCustomParts(var1), this.g, var2));
-      this.field_146297_k.field_71439_g.func_71053_j();
+      this.mc.player.closeScreen();
    }
 
    public void a(BoneType var1, boolean var2, int var3) {
-      this.field_146297_k.func_147118_V().func_147682_a(PositionedSoundRecord.func_184371_a(SoundEvents.field_187909_gi, 1.0F));
+      this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
       ArrayList var4 = new ArrayList();
       ArrayList var5 = new ArrayList();
       int var6 = 0;
@@ -328,13 +328,13 @@ public class ClothingScreen extends GuiScreen {
    }
 
    public void a(String var1, int var2, int var3) {
-      this.func_146279_a(var1, var2, var3);
+      this.drawHoveringText(var1, var2, var3);
    }
 
-   protected void func_146273_a(int var1, int var2, int var3, long var4) {
-      super.func_146273_a(var1, var2, var3, var4);
+   protected void mouseClickMove(int var1, int var2, int var3, long var4) {
+      super.mouseClickMove(var1, var2, var3, var4);
       if (var3 == 0) {
-         if (var1 >= this.field_146294_l / 2) {
+         if (var1 >= this.width / 2) {
             int var6 = var1 - this.t;
             a.add(var6);
             this.t = var1;
@@ -342,9 +342,9 @@ public class ClothingScreen extends GuiScreen {
       }
    }
 
-   protected void func_73864_a(int var1, int var2, int var3) {
-      super.func_73864_a(var1, var2, var3);
-      this.q.func_148179_a(var1, var2, var3);
+   protected void mouseClicked(int var1, int var2, int var3) {
+      super.mouseClicked(var1, var2, var3);
+      this.q.mouseClicked(var1, var2, var3);
       if (var3 == 0) {
          this.f = true;
          this.p = true;
@@ -358,8 +358,8 @@ public class ClothingScreen extends GuiScreen {
          if (ServerWhitelistManager.g_clash134() == null) {
             var5 = this.l - 40;
             if (this.a_clash818(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
-               this.field_146297_k.func_147118_V().func_147682_a(PositionedSoundRecord.func_184371_a(SoundEvents.field_187909_gi, 1.0F));
-               this.field_146297_k.field_71439_g.func_71053_j();
+               this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+               this.mc.player.closeScreen();
                int var6 = ServerWhitelistManager.b_clash126(true);
                if (var6 != 0) {
                   ServerWhitelistManager.d = true;
@@ -390,8 +390,8 @@ public class ClothingScreen extends GuiScreen {
       }
    }
 
-   protected void func_146286_b(int var1, int var2, int var3) {
-      super.func_146286_b(var1, var2, var3);
+   protected void mouseReleased(int var1, int var2, int var3) {
+      super.mouseReleased(var1, var2, var3);
       if (var3 == 0) {
          this.p = false;
          this.f = false;
@@ -401,16 +401,16 @@ public class ClothingScreen extends GuiScreen {
    }
 
    int a_clash821(float var1) {
-      return Math.round(this.field_146294_l * (var1 / 100.0F));
+      return Math.round(this.width * (var1 / 100.0F));
    }
 
    int b_clash822(float var1) {
-      return Math.round(this.field_146295_m * (var1 / 100.0F));
+      return Math.round(this.height * (var1 / 100.0F));
    }
 
-   public void func_146281_b() {
-      super.func_146281_b();
-      this.c.field_70170_p.func_72973_f(this.c);
+   public void onGuiClosed() {
+      super.onGuiClosed();
+      this.c.world.removeEntityDangerously(this.c);
       a.clear();
       m.clear();
    }
@@ -420,8 +420,8 @@ public class ClothingScreen extends GuiScreen {
    }
 
    public void a(int var1, int var2, int var3, int var4) {
-      this.field_146297_k.field_71446_o.func_110577_a(k);
-      this.func_73729_b(var1, var2, var3, var4, 20, 20);
+      this.mc.renderEngine.bindTexture(k);
+      this.drawTexturedModalRect(var1, var2, var3, var4, 20, 20);
    }
 
    public void a(int var1, int var2, int var3) {
@@ -437,49 +437,49 @@ public class ClothingScreen extends GuiScreen {
    }
 
    void a(int var1, int var2, float var3, EntityLivingBase var4, float var5, int var6) {
-      float var7 = var4.field_70761_aq;
-      float var8 = var4.field_70177_z;
-      float var9 = var4.field_70125_A;
-      float var10 = var4.field_70758_at;
-      float var11 = var4.field_70759_as;
-      var4.field_70761_aq = 0.0F;
-      var4.field_70177_z = 0.0F;
-      var4.field_70125_A = 0.0F;
-      var4.field_70758_at = 0.0F;
-      var4.field_70759_as = 0.0F;
-      GlStateManager.func_179142_g();
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179109_b(var1, var2, 50.0F);
-      GlStateManager.func_179152_a(-var3, var3, var3);
-      GlStateManager.func_179114_b(180.0F, 0.0F, 0.0F, 1.0F);
-      GlStateManager.func_179114_b(135.0F, 0.0F, 1.0F, 0.0F);
-      RenderHelper.func_74519_b();
-      GlStateManager.func_179114_b(-135.0F, 0.0F, 1.0F, 0.0F);
-      GlStateManager.func_179109_b(0.0F, 0.0F, var6);
-      GlStateManager.func_179114_b(b, 0.0F, 1.0F, 0.0F);
-      GlStateManager.func_179114_b(0.25F, 1.0F, 0.0F, 0.0F);
-      GlStateManager.func_179109_b(0.0F, 0.0F, 0.0F);
-      RenderManager var12 = Minecraft.func_71410_x().func_175598_ae();
-      var12.func_178631_a(180.0F);
-      var12.func_178633_a(false);
-      var12.func_188391_a(var4, 0.0, 0.0, 0.0, 0.0F, var5, false);
-      var12.func_178633_a(true);
-      GlStateManager.func_179121_F();
-      RenderHelper.func_74518_a();
-      GlStateManager.func_179101_C();
-      GlStateManager.func_179138_g(OpenGlHelper.field_77476_b);
-      GlStateManager.func_179090_x();
-      GlStateManager.func_179138_g(OpenGlHelper.field_77478_a);
-      var4.field_70761_aq = var7;
-      var4.field_70177_z = var8;
-      var4.field_70125_A = var9;
-      var4.field_70758_at = var10;
-      var4.field_70759_as = var11;
+      float var7 = var4.renderYawOffset;
+      float var8 = var4.rotationYaw;
+      float var9 = var4.rotationPitch;
+      float var10 = var4.prevRotationYawHead;
+      float var11 = var4.rotationYawHead;
+      var4.renderYawOffset = 0.0F;
+      var4.rotationYaw = 0.0F;
+      var4.rotationPitch = 0.0F;
+      var4.prevRotationYawHead = 0.0F;
+      var4.rotationYawHead = 0.0F;
+      GlStateManager.enableColorMaterial();
+      GlStateManager.pushMatrix();
+      GlStateManager.translate(var1, var2, 50.0F);
+      GlStateManager.scale(-var3, var3, var3);
+      GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
+      GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
+      RenderHelper.enableStandardItemLighting();
+      GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
+      GlStateManager.translate(0.0F, 0.0F, var6);
+      GlStateManager.rotate(b, 0.0F, 1.0F, 0.0F);
+      GlStateManager.rotate(0.25F, 1.0F, 0.0F, 0.0F);
+      GlStateManager.translate(0.0F, 0.0F, 0.0F);
+      RenderManager var12 = Minecraft.getMinecraft().getRenderManager();
+      var12.setPlayerViewY(180.0F);
+      var12.setRenderShadow(false);
+      var12.renderEntity(var4, 0.0, 0.0, 0.0, 0.0F, var5, false);
+      var12.setRenderShadow(true);
+      GlStateManager.popMatrix();
+      RenderHelper.disableStandardItemLighting();
+      GlStateManager.disableRescaleNormal();
+      GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+      GlStateManager.disableTexture2D();
+      GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+      var4.renderYawOffset = var7;
+      var4.rotationYaw = var8;
+      var4.rotationPitch = var9;
+      var4.prevRotationYawHead = var10;
+      var4.rotationYawHead = var11;
    }
 
    void a_clash824() {
       if (!this.p) {
-         float var1 = Minecraft.func_175610_ah();
+         float var1 = Minecraft.getDebugFPS();
          if (var1 == 0.0F) {
             var1 = 0.1F;
          }
@@ -499,16 +499,16 @@ public class ClothingScreen extends GuiScreen {
 
    @SideOnly(Side.CLIENT)
    public static void a_clash825(@Nonnull BaseGirlEntity var0) {
-      Minecraft var1 = Minecraft.func_71410_x();
-      if (!(var1.field_71462_r instanceof ClothingScreen)) {
+      Minecraft var1 = Minecraft.getMinecraft();
+      if (!(var1.currentScreen instanceof ClothingScreen)) {
          boolean var2 = ServerWhitelistManager.g_clash134() == null || ServerWhitelistManager.b_clash129();
          if (!var2) {
-            var1.field_71439_g
-               .func_146105_b(
+            var1.player
+               .sendStatusMessage(
                   new TextComponentString("You have to whitelist the server to use its custom models. " + TextFormatting.YELLOW + "/whitelistserver"), true
                );
          } else {
-            var1.func_152344_a(() -> var1.func_147108_a(new ClothingScreen(var0)));
+            var1.addScheduledTask(() -> var1.displayGuiScreen(new ClothingScreen(var0)));
          }
       }
    }
@@ -518,7 +518,7 @@ public class ClothingScreen extends GuiScreen {
       @SubscribeEvent
       @SideOnly(Side.CLIENT)
       public void a(KeyInputEvent var1) {
-         if (ClientProxy.keyBindings[1].func_151468_f()) {
+         if (ClientProxy.keyBindings[1].isPressed()) {
             if (ServerWhitelistManager.d) {
                ServerWhitelistManager.d = 0 != ServerWhitelistManager.b_clash126(true);
                if (ServerWhitelistManager.d) {
@@ -526,10 +526,10 @@ public class ClothingScreen extends GuiScreen {
                }
             }
 
-            Minecraft var2 = Minecraft.func_71410_x();
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.field_71439_g.getPersistentID());
+            Minecraft var2 = Minecraft.getMinecraft();
+            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
             if (var3 == null) {
-               var2.field_71439_g.func_146105_b(new TextComponentString("You have to turn into the girl you want to customize"), true);
+               var2.player.sendStatusMessage(new TextComponentString("You have to turn into the girl you want to customize"), true);
             } else {
                ClothingScreen.a_clash825(var3);
             }

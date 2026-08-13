@@ -38,17 +38,17 @@ public class LunaRodItem extends ItemFishingRod {
    public static final LunaRodItem a = new LunaRodItem();
 
    public LunaRodItem() {
-      this.func_77656_e(64);
-      this.func_77625_d(1);
-      this.func_185043_a(new ResourceLocation("cast"), new IItemPropertyGetter() {
+      this.setMaxDamage(64);
+      this.setMaxStackSize(1);
+      this.addPropertyOverride(new ResourceLocation("cast"), new IItemPropertyGetter() {
          @SideOnly(Side.CLIENT)
-         public float func_185085_a(ItemStack var1, @Nullable World var2, @Nullable EntityLivingBase var3) {
+         public float apply(ItemStack var1, @Nullable World var2, @Nullable EntityLivingBase var3) {
             if (var3 == null) {
                return 0.0F;
             } else if (!(var3 instanceof LunaEntity)) {
                return 0.0F;
             } else {
-               return var3.func_184212_Q().func_187225_a(LunaEntity.af) ? 1.0F : 0.0F;
+               return var3.getDataManager().get(LunaEntity.af) ? 1.0F : 0.0F;
             }
          }
       });
@@ -56,7 +56,7 @@ public class LunaRodItem extends ItemFishingRod {
 
    public static void register() {
       a.setRegistryName(new ResourceLocation("sexmod", "luna_rod"));
-      a.func_77655_b("luna_rod");
+      a.setTranslationKey("luna_rod");
       MinecraftForge.EVENT_BUS.register(LunaRodItem.class);
    }
 
@@ -72,50 +72,50 @@ public class LunaRodItem extends ItemFishingRod {
    }
 
    public ActionResult<ItemStack> a(World var1, LunaEntity var2, EnumHand var3) {
-      ItemStack var4 = var2.func_184586_b(var3);
+      ItemStack var4 = var2.getHeldItem(var3);
       if (var2.av != null) {
          int var5 = var2.av.c_clash786();
-         var4.func_77972_a(var5, var2);
-         var2.func_184609_a(var3);
-         var1.func_184148_a(
+         var4.damageItem(var5, var2);
+         var2.swingArm(var3);
+         var1.playSound(
             (EntityPlayer)null,
-            var2.field_70165_t,
-            var2.field_70163_u,
-            var2.field_70161_v,
-            SoundEvents.field_193780_J,
+            var2.posX,
+            var2.posY,
+            var2.posZ,
+            SoundEvents.ENTITY_BOBBER_RETRIEVE,
             SoundCategory.NEUTRAL,
             1.0F,
-            0.4F / (field_77697_d.nextFloat() * 0.4F + 0.8F)
+            0.4F / (itemRand.nextFloat() * 0.4F + 0.8F)
          );
       } else {
-         var1.func_184148_a(
+         var1.playSound(
             (EntityPlayer)null,
-            var2.field_70165_t,
-            var2.field_70163_u,
-            var2.field_70161_v,
-            SoundEvents.field_187612_G,
+            var2.posX,
+            var2.posY,
+            var2.posZ,
+            SoundEvents.ENTITY_BOBBER_THROW,
             SoundCategory.NEUTRAL,
             0.5F,
-            0.4F / (field_77697_d.nextFloat() * 0.4F + 0.8F)
+            0.4F / (itemRand.nextFloat() * 0.4F + 0.8F)
          );
-         if (!var1.field_72995_K) {
+         if (!var1.isRemote) {
             SexEntity.b = var2;
-            double var10 = var2.func_174791_d().func_72438_d(new Vec3d(var2.ai.func_177958_n(), var2.ai.func_177956_o(), var2.ai.func_177952_p()));
+            double var10 = var2.getPositionVector().distanceTo(new Vec3d(var2.ai.getX(), var2.ai.getY(), var2.ai.getZ()));
             SexEntity var7 = new SexEntity(var1, var2, var10 * 0.01);
-            int var8 = EnchantmentHelper.func_191528_c(var4);
+            int var8 = EnchantmentHelper.getFishingSpeedBonus(var4);
             if (var8 > 0) {
                var7.b_clash777(var8);
             }
 
-            int var9 = EnchantmentHelper.func_191529_b(var4);
+            int var9 = EnchantmentHelper.getFishingLuckBonus(var4);
             if (var9 > 0) {
                var7.a_clash778(var9);
             }
 
-            var1.func_72838_d(var7);
+            var1.spawnEntity(var7);
          }
 
-         var2.func_184609_a(var3);
+         var2.swingArm(var3);
       }
 
       return new ActionResult(EnumActionResult.SUCCESS, var4);

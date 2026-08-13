@@ -27,9 +27,9 @@ public class GenderSwapScreen {
    public void a_clash861() {
       if (a.b != null) {
          if (--a.b.e <= 0.0F) {
-            Minecraft.func_71410_x()
-               .field_71439_g
-               .func_145747_a(new TextComponentString(TextFormatting.DARK_PURPLE + I18n.func_135052_a("genderswap.sexpromt.timeout", new Object[0])));
+            Minecraft.getMinecraft()
+               .player
+               .sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + I18n.format("genderswap.sexpromt.timeout", new Object[0])));
             this.c_clash863();
          }
       }
@@ -44,36 +44,36 @@ public class GenderSwapScreen {
    }
 
    public void a(@Nonnull GenderSwapScreen.a var1) {
-      World var2 = Minecraft.func_71410_x().field_71439_g.field_70170_p;
-      EntityPlayer var3 = var2.func_152378_a(var1.d);
-      EntityPlayer var4 = var2.func_152378_a(var1.c);
+      World var2 = Minecraft.getMinecraft().player.world;
+      EntityPlayer var3 = var2.getPlayerEntityByUUID(var1.d);
+      EntityPlayer var4 = var2.getPlayerEntityByUUID(var1.c);
       if (var4 != null && var3 != null) {
          TextComponentString var5 = new TextComponentString(
             TextFormatting.LIGHT_PURPLE
-               + (var1.b ? var4.func_70005_c_() : var3.func_70005_c_())
+               + (var1.b ? var4.getName() : var3.getName())
                + " "
                + TextFormatting.DARK_PURPLE
-               + I18n.func_135052_a("genderswap.sexpromt.playerxaskedfory", new Object[0])
+               + I18n.format("genderswap.sexpromt.playerxaskedfory", new Object[0])
                + " "
                + TextFormatting.LIGHT_PURPLE
-               + I18n.func_135052_a(var1.a, new Object[0])
+               + I18n.format(var1.a, new Object[0])
          );
-         TextComponentString var6 = new TextComponentString(TextFormatting.DARK_PURPLE + I18n.func_135052_a("genderswap.sexpromt.autodeletion", new Object[0]));
+         TextComponentString var6 = new TextComponentString(TextFormatting.DARK_PURPLE + I18n.format("genderswap.sexpromt.autodeletion", new Object[0]));
          TextComponentString var7 = new TextComponentString(
             TextFormatting.DARK_PURPLE
                + "[ "
                + TextFormatting.LIGHT_PURPLE
-               + I18n.func_135052_a("genderswap.sexpromt.accept", new Object[0])
+               + I18n.format("genderswap.sexpromt.accept", new Object[0])
                + TextFormatting.DARK_PURPLE
                + " | "
                + TextFormatting.LIGHT_PURPLE
-               + I18n.func_135052_a("genderswap.sexpromt.decline", new Object[0])
+               + I18n.format("genderswap.sexpromt.decline", new Object[0])
                + TextFormatting.DARK_PURPLE
                + " ]"
          );
-         var3.func_145747_a(var5);
-         var3.func_145747_a(var6);
-         var3.func_145747_a(var7);
+         var3.sendMessage(var5);
+         var3.sendMessage(var6);
+         var3.sendMessage(var7);
          this.b = var1;
       }
    }
@@ -82,18 +82,18 @@ public class GenderSwapScreen {
    public void a(ClientChatEvent var1) {
       if (a.b_clash862() != null) {
          String var2 = var1.getMessage().toLowerCase();
-         if (var2.equals(I18n.func_135052_a("genderswap.sexpromt.accept", new Object[0]).toLowerCase())) {
+         if (var2.equals(I18n.format("genderswap.sexpromt.accept", new Object[0]).toLowerCase())) {
             GenderSwapScreen.a var3 = a.b_clash862();
             this.a(var3.a, var3.d, var3.c);
             this.c_clash863();
             var1.setCanceled(true);
          }
 
-         if (var2.equals(I18n.func_135052_a("genderswap.sexpromt.decline", new Object[0]).toLowerCase())) {
-            Minecraft.func_71410_x()
-               .field_71439_g
-               .func_145747_a(
-                  new TextComponentString(TextFormatting.DARK_PURPLE + I18n.func_135052_a("genderswap.sexpromt.declineconformation", new Object[0]))
+         if (var2.equals(I18n.format("genderswap.sexpromt.decline", new Object[0]).toLowerCase())) {
+            Minecraft.getMinecraft()
+               .player
+               .sendMessage(
+                  new TextComponentString(TextFormatting.DARK_PURPLE + I18n.format("genderswap.sexpromt.declineconformation", new Object[0]))
                );
             this.c_clash863();
             var1.setCanceled(true);

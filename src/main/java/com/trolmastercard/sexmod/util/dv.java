@@ -46,20 +46,20 @@ public class dv extends GirlPlayerRenderer {
 
    @Override
    protected void c_clash145() {
-      GlStateManager.func_179109_b(0.0F, -1.1F, 0.0F);
-      GlStateManager.func_179152_a(0.7F, 0.7F, 0.7F);
+      GlStateManager.translate(0.0F, -1.1F, 0.0F);
+      GlStateManager.scale(0.7F, 0.7F, 0.7F);
    }
 
    @Override
    protected void a(boolean var1, ItemStack var2) {
       super.a(var1, var2);
-      switch (var2.func_77973_b().func_77661_b(var2)) {
+      switch (var2.getItem().getItemUseAction(var2)) {
          default:
             if (!var1) {
-               GlStateManager.func_179114_b(20.0F, 1.0F, 0.0F, 0.0F);
+               GlStateManager.rotate(20.0F, 1.0F, 0.0F, 0.0F);
             }
 
-            GlStateManager.func_179137_b(0.0, 0.05, 0.0);
+            GlStateManager.translate(0.0, 0.05, 0.0);
          case BLOCK:
          case BOW:
       }
@@ -69,9 +69,9 @@ public class dv extends GirlPlayerRenderer {
    protected void a_clash146(boolean var1) {
       super.a_clash146(var1);
       if (var1) {
-         GlStateManager.func_179137_b(0.15, 0.0, 0.0);
+         GlStateManager.translate(0.15, 0.0, 0.0);
       } else {
-         GlStateManager.func_179137_b(-0.05, 0.0, 0.0);
+         GlStateManager.translate(-0.05, 0.0, 0.0);
       }
    }
 
@@ -79,17 +79,17 @@ public class dv extends GirlPlayerRenderer {
    protected void a(boolean var1, boolean var2) {
       super.a(var1, var2);
       if (var1 && !var2) {
-         GlStateManager.func_179137_b(-0.025, -0.1, -0.1);
-         GlStateManager.func_179114_b(10.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.translate(-0.025, -0.1, -0.1);
+         GlStateManager.rotate(10.0F, 1.0F, 0.0F, 0.0F);
       } else if (!var1 && !var2) {
-         GlStateManager.func_179137_b(-0.05, -0.125, 0.125);
-         GlStateManager.func_179114_b(50.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.translate(-0.05, -0.125, 0.125);
+         GlStateManager.rotate(50.0F, 1.0F, 0.0F, 0.0F);
       }
    }
 
    @Override
    protected void a(String var1, GeoBone var2) {
-      if (!(Boolean)this.w.func_184212_Q().func_187225_a(BaseGirlEntity.G)) {
+      if (!(Boolean)this.w.getDataManager().get(BaseGirlEntity.G)) {
          if ("tail".equals(var1)) {
             this.a(var2, 0.0F, 0.0F, 1.0F);
          }
@@ -115,10 +115,10 @@ public class dv extends GirlPlayerRenderer {
    void a(GeoBone var1, float var2, float var3, float var4) {
       double var5 = this.C - this.A;
       double var7 = this.z - this.D;
-      double var9 = (Math.PI / 180.0) * this.w.field_70177_z;
+      double var9 = (Math.PI / 180.0) * this.w.rotationYaw;
       Vec2f var11 = new Vec2f((float)(var5 * Math.cos(var9) + var7 * Math.sin(var9)), (float)(-var5 * Math.sin(var9) + var7 * Math.cos(var9)));
-      this.G = var11.field_189983_j * -8.0F;
-      this.I = var11.field_189982_i * 8.0F;
+      this.G = var11.y * -8.0F;
+      this.I = var11.x * 8.0F;
       this.G = ThreadNames.b(this.G, -1.68F, 1.68F);
       this.I = ThreadNames.b(this.I, -1.68F, 1.68F);
       this.G = RotationHelper.lerp(this.F, this.G, this.y);
@@ -144,12 +144,12 @@ public class dv extends GirlPlayerRenderer {
          this.B = this.I;
          this.H = this.L;
          if (this.w.getOwnerUserUUID() != null) {
-            EntityPlayer var1 = this.j.field_70170_p.func_152378_a(this.w.getOwnerUserUUID());
+            EntityPlayer var1 = this.j.world.getPlayerEntityByUUID(this.w.getOwnerUserUUID());
             if (var1 != null) {
                this.A = this.C;
                this.D = this.z;
-               this.C = var1.field_70165_t;
-               this.z = var1.field_70161_v;
+               this.C = var1.posX;
+               this.z = var1.posZ;
             }
          }
       }

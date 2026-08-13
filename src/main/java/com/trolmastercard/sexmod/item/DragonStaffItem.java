@@ -46,18 +46,18 @@ public class DragonStaffItem extends Item implements IAnimatable {
    private final AnimationFactory a = new AnimationFactory(this);
 
    public DragonStaffItem() {
-      this.func_77637_a(CreativeTabs.field_78040_i);
-      this.field_77777_bU = 1;
+      this.setCreativeTab(CreativeTabs.TOOLS);
+      this.maxStackSize = 1;
    }
 
    public static void register() {
       b.setRegistryName(new ResourceLocation("sexmod", "dragon_staff"));
-      b.func_77655_b("dragon_staff");
+      b.setTranslationKey("dragon_staff");
       MinecraftForge.EVENT_BUS.register(DragonStaffItem.class);
    }
 
-   public ActionResult<ItemStack> func_77659_a(World var1, EntityPlayer var2, EnumHand var3) {
-      return new ActionResult(EnumActionResult.FAIL, var2.func_184586_b(var3));
+   public ActionResult<ItemStack> onItemRightClick(World var1, EntityPlayer var2, EnumHand var3) {
+      return new ActionResult(EnumActionResult.FAIL, var2.getHeldItem(var3));
    }
 
    @SubscribeEvent
@@ -85,10 +85,10 @@ public class DragonStaffItem extends Item implements IAnimatable {
       @SubscribeEvent
       public void a(RightClickItem var1) {
          World var2 = var1.getWorld();
-         if (var2.field_72995_K) {
+         if (var2.isRemote) {
             EntityPlayer var3 = var1.getEntityPlayer();
-            if (var3.func_184586_b(EnumHand.MAIN_HAND).func_77973_b() == DragonStaffItem.b
-               || var3.func_184586_b(EnumHand.OFF_HAND).func_77973_b() == DragonStaffItem.b) {
+            if (var3.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.b
+               || var3.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.b) {
                if (!KoboldEntity.aY.isEmpty()) {
                   this.a_clash2();
                }
@@ -98,16 +98,16 @@ public class DragonStaffItem extends Item implements IAnimatable {
 
       @SideOnly(Side.CLIENT)
       void a_clash2() {
-         Minecraft.func_71410_x().func_147108_a(new StructureCommandScreen());
+         Minecraft.getMinecraft().displayGuiScreen(new StructureCommandScreen());
          PacketHandler.b.sendToServer(new GetTribeUiValuesPacket());
       }
 
       @SubscribeEvent
       public void a(RightClickBlock var1) {
          EntityPlayer var2 = var1.getEntityPlayer();
-         if (var2.func_184586_b(EnumHand.MAIN_HAND).func_77973_b() == DragonStaffItem.b
-            || var2.func_184586_b(EnumHand.OFF_HAND).func_77973_b() == DragonStaffItem.b) {
-            Block var3 = var1.getWorld().func_180495_p(var1.getPos()).func_177230_c();
+         if (var2.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.b
+            || var2.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.b) {
+            Block var3 = var1.getWorld().getBlockState(var1.getPos()).getBlock();
             if (var3 instanceof BlockBed) {
                var1.setCancellationResult(EnumActionResult.FAIL);
                var1.setResult(Result.DENY);

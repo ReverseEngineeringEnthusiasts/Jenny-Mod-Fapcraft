@@ -35,7 +35,7 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
    @Override
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations(var1, var2, var3);
-      if (!(var1.field_70170_p instanceof SexWorldClient)) {
+      if (!(var1.world instanceof SexWorldClient)) {
          AnimationProcessor var4 = this.getAnimationProcessor();
          IBone var5 = var4.getBone("chest");
          if (var5 != null) {
@@ -46,7 +46,7 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
 
    @Override
    protected void a(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
-      if (!(var1.field_70170_p instanceof SexWorldClient) && (var1.getCurrentAction() == fp.NULL || var1.getCurrentAction() == fp.ATTACK || var1.getCurrentAction() == fp.BOW)) {
+      if (!(var1.world instanceof SexWorldClient) && (var1.getCurrentAction() == fp.NULL || var1.getCurrentAction() == fp.ATTACK || var1.getCurrentAction() == fp.BOW)) {
          EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
          IBone var5 = var2.getBone("neck");
          var5.setRotationY(var4.netHeadYaw * 0.5F * (float) (Math.PI / 180.0));

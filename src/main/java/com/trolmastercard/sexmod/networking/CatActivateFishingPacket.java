@@ -45,13 +45,13 @@ public class CatActivateFishingPacket implements IMessage {
    public static class Handler implements IMessageHandler<CatActivateFishingPacket, IMessage> {
       public IMessage onMessage(CatActivateFishingPacket var1, MessageContext var2) {
          if (var1.b && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                for (BaseGirlEntity var4 : BaseGirlEntity.girlList(var1.a)) {
-                  if (!var4.field_70170_p.field_72995_K && var4 instanceof LunaEntity) {
+                  if (!var4.world.isRemote && var4 instanceof LunaEntity) {
                      LunaEntity var5 = (LunaEntity)var4;
                      ItemStack var6 = var5.ao;
-                     LunaRodItem var7 = (LunaRodItem)var6.func_77973_b();
-                     var7.a(var2.getServerHandler().field_147369_b.field_70170_p, var5, EnumHand.MAIN_HAND);
+                     LunaRodItem var7 = (LunaRodItem)var6.getItem();
+                     var7.a(var2.getServerHandler().player.world, var5, EnumHand.MAIN_HAND);
                   }
                }
             });

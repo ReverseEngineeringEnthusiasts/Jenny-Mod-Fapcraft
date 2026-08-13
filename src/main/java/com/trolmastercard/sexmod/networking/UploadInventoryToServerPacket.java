@@ -66,18 +66,18 @@ public class UploadInventoryToServerPacket implements IMessage {
    public static class Handler implements IMessageHandler<UploadInventoryToServerPacket, IMessage> {
       public IMessage onMessage(UploadInventoryToServerPacket var1, MessageContext var2) {
          if (var1.b && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.a)) {
-                  if (!var3.field_70170_p.field_72995_K) {
-                     EntityPlayer var4 = var3.field_70170_p.func_152378_a(var1.c);
+                  if (!var3.world.isRemote) {
+                     EntityPlayer var4 = var3.world.getPlayerEntityByUUID(var1.c);
                      if (var4 == null) {
                         return;
                      }
 
-                     InventoryPlayer var5 = var4.field_71071_by;
+                     InventoryPlayer var5 = var4.inventory;
 
                      for (int var6 = 0; var6 < 36; var6++) {
-                        var5.func_70299_a(var6, var1.d[var6]);
+                        var5.setInventorySlotContents(var6, var1.d[var6]);
                      }
 
                      if (var3 instanceof LunaEntity) {

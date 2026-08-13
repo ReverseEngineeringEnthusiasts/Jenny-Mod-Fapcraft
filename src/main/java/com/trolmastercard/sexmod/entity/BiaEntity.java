@@ -71,7 +71,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    public BiaEntity(World var1) {
       super(var1);
-      this.func_70105_a(0.49F, 1.65F);
+      this.setSize(0.49F, 1.65F);
       this.P = 140;
       this.O = 50;
       this.K = 140;
@@ -103,7 +103,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    public void b(fp var1) {
       fp var2 = this.getCurrentAction();
       if (var2 == fp.ANAL_CUM || var2 == fp.PRONE_DOGGY_CUM) {
-         this.m.func_187227_b(h, "");
+         this.m.set(h, "");
       }
 
       if (var2 != fp.ANAL_CUM || var1 != fp.ANAL_FAST && var1 != fp.ANAL_SLOW) {
@@ -114,23 +114,23 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   protected ResourceLocation func_184647_J() {
+   protected ResourceLocation getLootTable() {
       return dz.c;
    }
 
    @Override
-   public void func_70619_bc() {
-      super.func_70619_bc();
+   public void updateAITasks() {
+      super.updateAITasks();
       if (this.ab) {
-         this.func_189654_d(false);
-         this.field_70145_X = false;
+         this.setNoGravity(false);
+         this.noClip = false;
          this.ab = false;
       }
 
       if (this.Y) {
          this.ag++;
-         if (!this.func_174791_d().equals(this.getTargetPosition()) && this.ag <= 40) {
-            this.field_70177_z = this.getYawRotation();
+         if (!this.getPositionVector().equals(this.getTargetPosition()) && this.ag <= 40) {
+            this.rotationYaw = this.getYawRotation();
 
             try {
                e.equals(null);
@@ -138,36 +138,36 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.setTargetPosition(this.aa_clash545());
             }
 
-            this.func_189654_d(false);
-            Vec3d var1 = RotationHelper.a(this.func_174791_d(), this.getTargetPosition(), 40 - this.ag);
-            this.func_70107_b(var1.field_72450_a, var1.field_72448_b, var1.field_72449_c);
+            this.setNoGravity(false);
+            Vec3d var1 = RotationHelper.a(this.getPositionVector(), this.getTargetPosition(), 40 - this.ag);
+            this.setPosition(var1.x, var1.y, var1.z);
          } else {
             this.Y = false;
             this.ag = 0;
-            this.setYawRotation(this.field_70170_p.func_73046_m().func_184103_al().func_177451_a(this.getInteractionPlayerUUID()).field_70177_z + 180.0F);
-            this.m.func_187227_b(G, true);
-            this.func_70661_as().func_75499_g();
+            this.setYawRotation(this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID()).rotationYaw + 180.0F);
+            this.m.set(G, true);
+            this.getNavigator().clearPath();
             this.U();
          }
       }
 
       if (this.af) {
-         if (!(this.func_174791_d().func_72438_d(this.getTargetPosition()) < 0.6) && this.Z <= 200) {
+         if (!(this.getPositionVector().distanceTo(this.getTargetPosition()) < 0.6) && this.Z <= 200) {
             this.Z++;
             if (this.Z == 60 || this.Z == 120) {
-               this.func_70661_as().func_75499_g();
-               this.func_70661_as().func_75492_a(this.getTargetPosition().field_72450_a, this.getTargetPosition().field_72448_b, this.getTargetPosition().field_72449_c, 0.35);
+               this.getNavigator().clearPath();
+               this.getNavigator().tryMoveToXYZ(this.getTargetPosition().x, this.getTargetPosition().y, this.getTargetPosition().z, 0.35);
             }
          } else {
             this.af = false;
-            this.m.func_187227_b(G, true);
+            this.m.set(G, true);
             this.Z = 0;
-            this.field_70145_X = true;
-            this.func_189654_d(true);
-            this.field_70159_w = 0.0;
-            this.field_70181_x = 0.0;
-            this.field_70179_y = 0.0;
-            if ("anal".equals(this.m.func_187225_a(h))) {
+            this.noClip = true;
+            this.setNoGravity(true);
+            this.motionX = 0.0;
+            this.motionY = 0.0;
+            this.motionZ = 0.0;
+            if ("anal".equals(this.m.get(h))) {
                this.b(fp.ANAL_PREPARE);
                this.f(0);
             } else {
@@ -177,8 +177,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       }
    }
 
-   public boolean func_184645_a(EntityPlayer var1, EnumHand var2) {
-      if (super.func_184645_a(var1, var2)) {
+   public boolean processInteract(EntityPlayer var1, EnumHand var2) {
+      if (super.processInteract(var1, var2)) {
          return true;
       }
 
@@ -186,15 +186,15 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          return true;
       }
 
-      ItemStack var3 = var1.func_184586_b(var2);
-      boolean var4 = var3.func_77973_b() == Items.field_151057_cb;
+      ItemStack var3 = var1.getHeldItem(var2);
+      boolean var4 = var3.getItem() == Items.NAME_TAG;
       if (var4) {
-         var3.func_111282_a(var1, this, var2);
+         var3.interactWithEntity(var1, this, var2);
          return true;
       }
 
-      if (this.field_70170_p.field_72995_K && !this.openInteractionMenu(var1)) {
-         this.sendChatMessage(I18n.func_135052_a("bia.dialogue.busy", new Object[0]));
+      if (this.world.isRemote && !this.openInteractionMenu(var1)) {
+         this.sendChatMessage(I18n.format("bia.dialogue.busy", new Object[0]));
       }
 
       return true;
@@ -203,9 +203,9 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
       if (this.getInteractionPlayerUUID() == null
-         && (!this.J_clash526() || ((String)this.m.func_187225_a(v)).equals(Minecraft.func_71410_x().field_71439_g.getPersistentID().toString()))) {
+         && (!this.J_clash526() || ((String)this.m.get(v)).equals(Minecraft.getMinecraft().player.getPersistentID().toString()))) {
          String[] var2 = new String[]{
-            this.m.func_187225_a(D) == 1 ? "action.names.strip" : "action.names.dressup", "action.names.talk", "action.names.headpat"
+            this.m.get(D) == 1 ? "action.names.strip" : "action.names.dressup", "action.names.talk", "action.names.headpat"
          };
          a(var1, this, var2, true);
          return true;
@@ -228,9 +228,9 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    }
 
    @Override
-   public void func_70071_h_() {
-      super.func_70071_h_();
-      if (this.field_70170_p.field_72995_K && this.isControlledByLocalPlayer() && this.getCurrentAction() == fp.PRONE_DOGGY_INTRO && !BeeScreen.a_clash731()) {
+   public void onUpdate() {
+      super.onUpdate();
+      if (this.world.isRemote && this.isControlledByLocalPlayer() && this.getCurrentAction() == fp.PRONE_DOGGY_INTRO && !BeeScreen.a_clash731()) {
          HornyMeterHud.showHornyMeter();
       }
 
@@ -246,11 +246,11 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    void d_clash287() {
       fp var1 = this.getCurrentAction();
       if (var1 == fp.ANAL_WAIT || var1 == fp.SITDOWNIDLE) {
-         EntityPlayer var2 = this.field_70170_p.func_72890_a(this, 10.0);
+         EntityPlayer var2 = this.world.getClosestPlayerToEntity(this, 10.0);
          if (var2 != null) {
-            if (!(var2.func_70032_d(this) > 1.0F)) {
+            if (!(var2.getDistance(this) > 1.0F)) {
                if (this.ac == -1) {
-                  if (this.field_70170_p.field_72995_K) {
+                  if (this.world.isRemote) {
                      BeeScreen.enableInteraction();
                      d3.setMovementLock(false);
                   } else {
@@ -260,28 +260,28 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                   this.ac = -1;
                } else if (--this.ac <= 0) {
                   this.ac = -1;
-                  var2.field_70145_X = true;
-                  var2.func_189654_d(true);
+                  var2.noClip = true;
+                  var2.setNoGravity(true);
                   if (var1 == fp.ANAL_WAIT) {
-                     if (!this.field_70170_p.field_72995_K) {
+                     if (!this.world.isRemote) {
                         this.b(fp.ANAL_START);
-                        Vec3d var7 = this.getTargetPosition().func_178787_e(ck.a(-0.3, -1.0, -0.5, this.getYawRotation()));
-                        var2.func_70634_a(var7.field_72450_a, var7.field_72448_b, var7.field_72449_c);
+                        Vec3d var7 = this.getTargetPosition().add(ck.a(-0.3, -1.0, -0.5, this.getYawRotation()));
+                        var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
                      } else if (this.isControlledByLocalPlayer()) {
                         HornyMeterHud.showHornyMeter();
                      }
                   } else {
                      float var3 = this.getYawRotation();
-                     var2.field_70177_z = var3;
-                     var2.field_70125_A = 60.0F;
-                     if (!this.field_70170_p.field_72995_K) {
+                     var2.rotationYaw = var3;
+                     var2.rotationPitch = 60.0F;
+                     if (!this.world.isRemote) {
                         this.f(0);
                         this.b(fp.PRONE_DOGGY_INTRO);
                         Vec3d var4 = this.getTargetPosition();
-                        Vec3d var5 = var4.func_178787_e(ck.a(0.0, 0.0, 1.0, var3));
+                        Vec3d var5 = var4.add(ck.a(0.0, 0.0, 1.0, var3));
                         this.setTargetPosition(var5);
-                        Vec3d var6 = var4.func_178787_e(ck.a(0.0, 1.1875 - var2.func_70047_e(), 0.5, var3));
-                        var2.func_70634_a(var6.field_72450_a, var6.field_72448_b, var6.field_72449_c);
+                        Vec3d var6 = var4.add(ck.a(0.0, 1.1875 - var2.getEyeHeight(), 0.5, var3));
+                        var2.setPositionAndUpdate(var6.x, var6.y, var6.z);
                         this.setAnchored(true);
                      }
                   }
@@ -299,7 +299,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          int var1 = this.ah;
 
          do {
-            this.ah = this.func_70681_au().nextInt(3) + 1;
+            this.ah = this.getRNG().nextInt(3) + 1;
          } while (var1 == this.ah);
       }
    }
@@ -308,8 +308,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    public void reinitTasks() {
       this.z = new EntityAIWanderAvoidWater(this, 0.35);
       this.o = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-      this.field_70714_bg.func_75776_a(5, this.o);
-      this.field_70714_bg.func_75776_a(5, this.z);
+      this.tasks.addTask(5, this.o);
+      this.tasks.addTask(5, this.z);
    }
 
    @Override
@@ -317,14 +317,14 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       super.a(var1, var2);
       switch (var1) {
          case "action.names.talk":
-            this.setInteractionPlayerUUID(Minecraft.func_71410_x().field_71439_g.getPersistentID());
-            this.changeDataParameterFromClient("playerSheHasSexWith", Minecraft.func_71410_x().field_71439_g.getPersistentID().toString());
+            this.setInteractionPlayerUUID(Minecraft.getMinecraft().player.getPersistentID());
+            this.changeDataParameterFromClient("playerSheHasSexWith", Minecraft.getMinecraft().player.getPersistentID().toString());
             this.changeDataParameterFromClient("animationFollowUp", "talkHorny");
             this.a_clash288(var2);
             break;
          case "action.names.headpat":
-            this.setInteractionPlayerUUID(Minecraft.func_71410_x().field_71439_g.getPersistentID());
-            this.changeDataParameterFromClient("playerSheHasSexWith", Minecraft.func_71410_x().field_71439_g.getPersistentID().toString());
+            this.setInteractionPlayerUUID(Minecraft.getMinecraft().player.getPersistentID());
+            this.changeDataParameterFromClient("playerSheHasSexWith", Minecraft.getMinecraft().player.getPersistentID().toString());
             this.changeDataParameterFromClient("animationFollowUp", "Headpat");
             this.a_clash288(var2);
             break;
@@ -344,17 +344,17 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       }
    }
 
-   public void func_70645_a(DamageSource var1) {
-      super.func_70645_a(var1);
-      if (!this.field_70170_p.field_72995_K) {
+   public void onDeath(DamageSource var1) {
+      super.onDeath(var1);
+      if (!this.world.isRemote) {
          EntityItem var2 = new EntityItem(
-            this.field_70170_p,
-            this.field_70165_t,
-            this.field_70163_u,
-            this.field_70161_v,
-            new ItemStack(Blocks.field_150325_L, this.func_70681_au().nextInt(4), 12)
+            this.world,
+            this.posX,
+            this.posY,
+            this.posZ,
+            new ItemStack(Blocks.WOOL, this.getRNG().nextInt(4), 12)
          );
-         this.field_70170_p.func_72838_d(var2);
+         this.world.spawnEntity(var2);
       }
    }
 
@@ -368,37 +368,37 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
       int var2 = 0;
 
       while (!this.a_clash290(var1)) {
-         var1 = this.a(this.func_180425_c(), var2);
+         var1 = this.a(this.getPosition(), var2);
          if (++var2 == 50) {
             break;
          }
       }
 
       if (var1 != null && var2 != 50) {
-         this.field_70714_bg.func_85156_a(this.z);
-         this.field_70714_bg.func_85156_a(this.o);
-         Vec3d var3 = new Vec3d(var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p());
+         this.tasks.removeTask(this.z);
+         this.tasks.removeTask(this.o);
+         Vec3d var3 = new Vec3d(var1.getX(), var1.getY(), var1.getZ());
          int var4 = -1;
 
          for (int var5 = 0; var5 < this.ad.length; var5++) {
-            Vec3d var6 = var3.func_178787_e(this.ad[var5][1]);
-            Vec3d var7 = var3.func_178788_d(this.ad[var5][1]);
-            Block var8 = this.field_70170_p.func_180495_p(new BlockPos(var6.field_72450_a, var6.field_72448_b, var6.field_72449_c)).func_177230_c();
-            if (var8 == Blocks.field_150350_a && cj.b(this.field_70170_p, new BlockPos(var7))) {
+            Vec3d var6 = var3.add(this.ad[var5][1]);
+            Vec3d var7 = var3.subtract(this.ad[var5][1]);
+            Block var8 = this.world.getBlockState(new BlockPos(var6.x, var6.y, var6.z)).getBlock();
+            if (var8 == Blocks.AIR && cj.b(this.world, new BlockPos(var7))) {
                if (var4 == -1) {
                   var4 = var5;
                } else {
-                  double var9 = this.func_180425_c()
-                     .func_177954_c(
-                        var3.func_178787_e(this.ad[var4][0]).field_72450_a,
-                        var3.func_178787_e(this.ad[var4][0]).field_72448_b,
-                        var3.func_178787_e(this.ad[var4][0]).field_72449_c
+                  double var9 = this.getPosition()
+                     .distanceSq(
+                        var3.add(this.ad[var4][0]).x,
+                        var3.add(this.ad[var4][0]).y,
+                        var3.add(this.ad[var4][0]).z
                      );
-                  double var11 = this.func_180425_c()
-                     .func_177954_c(
-                        var3.func_178787_e(this.ad[var5][0]).field_72450_a,
-                        var3.func_178787_e(this.ad[var5][0]).field_72448_b,
-                        var3.func_178787_e(this.ad[var5][0]).field_72449_c
+                  double var11 = this.getPosition()
+                     .distanceSq(
+                        var3.add(this.ad[var5][0]).x,
+                        var3.add(this.ad[var5][0]).y,
+                        var3.add(this.ad[var5][0]).z
                      );
                   if (var11 < var9) {
                      var4 = var5;
@@ -409,15 +409,15 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
          if (var4 == -1) {
             this.a(SoundHandler.GIRLS_BIA_BREATH[2]);
-            this.sendChatMessage(I18n.func_135052_a("jenny.dialogue.nobedinsight", new Object[0]));
+            this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
             return null;
          } else {
-            Vec3d var13 = var3.func_178787_e(this.ad[var4][0]);
-            return new Vector4d(var13.field_72450_a, var13.field_72448_b, var13.field_72449_c, this.ai[var4]);
+            Vec3d var13 = var3.add(this.ad[var4][0]);
+            return new Vector4d(var13.x, var13.y, var13.z, this.ai[var4]);
          }
       } else {
          this.a(SoundHandler.GIRLS_BIA_BREATH[2]);
-         this.sendChatMessage(I18n.func_135052_a("jenny.dialogue.nobedinsight", new Object[0]));
+         this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
          return null;
       }
    }
@@ -425,48 +425,48 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
    boolean a_clash290(BlockPos var1) {
       if (var1 == null) {
          return false;
-      } else if (cj.b(this.field_70170_p, var1.func_177978_c()) && this.field_70170_p.func_175623_d(var1.func_177968_d())) {
+      } else if (cj.b(this.world, var1.north()) && this.world.isAirBlock(var1.south())) {
          return true;
-      } else if (cj.b(this.field_70170_p, var1.func_177974_f()) && this.field_70170_p.func_175623_d(var1.func_177976_e())) {
+      } else if (cj.b(this.world, var1.east()) && this.world.isAirBlock(var1.west())) {
          return true;
       } else {
-         return cj.b(this.field_70170_p, var1.func_177968_d()) && this.field_70170_p.func_175623_d(var1.func_177978_c())
+         return cj.b(this.world, var1.south()) && this.world.isAirBlock(var1.north())
             ? true
-            : cj.b(this.field_70170_p, var1.func_177976_e()) && this.field_70170_p.func_175623_d(var1.func_177974_f());
+            : cj.b(this.world, var1.west()) && this.world.isAirBlock(var1.east());
       }
    }
 
    Vector4d b_clash291() {
-      BlockPos var1 = this.a_clash525(this.func_180425_c());
+      BlockPos var1 = this.a_clash525(this.getPosition());
       if (var1 == null) {
          this.a(SoundHandler.GIRLS_BIA_BREATH[2]);
-         this.sendChatMessage(I18n.func_135052_a("jenny.dialogue.nobedinsight", new Object[0]));
+         this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
          return null;
       }
 
-      this.field_70714_bg.func_85156_a(this.z);
-      this.field_70714_bg.func_85156_a(this.o);
-      Vec3d var2 = new Vec3d(var1.func_177958_n(), var1.func_177956_o(), var1.func_177952_p());
+      this.tasks.removeTask(this.z);
+      this.tasks.removeTask(this.o);
+      Vec3d var2 = new Vec3d(var1.getX(), var1.getY(), var1.getZ());
       int var3 = -1;
 
       for (int var4 = 0; var4 < this.ad.length; var4++) {
-         Vec3d var5 = var2.func_178787_e(this.ad[var4][1]);
-         if (this.field_70170_p.func_180495_p(new BlockPos(var5.field_72450_a, var5.field_72448_b, var5.field_72449_c)).func_177230_c()
-            == Blocks.field_150350_a) {
+         Vec3d var5 = var2.add(this.ad[var4][1]);
+         if (this.world.getBlockState(new BlockPos(var5.x, var5.y, var5.z)).getBlock()
+            == Blocks.AIR) {
             if (var3 == -1) {
                var3 = var4;
             } else {
-               double var6 = this.func_180425_c()
-                  .func_177954_c(
-                     var2.func_178787_e(this.ad[var3][0]).field_72450_a,
-                     var2.func_178787_e(this.ad[var3][0]).field_72448_b,
-                     var2.func_178787_e(this.ad[var3][0]).field_72449_c
+               double var6 = this.getPosition()
+                  .distanceSq(
+                     var2.add(this.ad[var3][0]).x,
+                     var2.add(this.ad[var3][0]).y,
+                     var2.add(this.ad[var3][0]).z
                   );
-               double var8 = this.func_180425_c()
-                  .func_177954_c(
-                     var2.func_178787_e(this.ad[var4][0]).field_72450_a,
-                     var2.func_178787_e(this.ad[var4][0]).field_72448_b,
-                     var2.func_178787_e(this.ad[var4][0]).field_72449_c
+               double var8 = this.getPosition()
+                  .distanceSq(
+                     var2.add(this.ad[var4][0]).x,
+                     var2.add(this.ad[var4][0]).y,
+                     var2.add(this.ad[var4][0]).z
                   );
                if (var8 < var6) {
                   var3 = var4;
@@ -477,25 +477,25 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
       if (var3 == -1) {
          this.a(SoundHandler.GIRLS_BIA_BREATH[2]);
-         this.sendChatMessage(I18n.func_135052_a("jenny.dialogue.bedobscured", new Object[0]));
+         this.sendChatMessage(I18n.format("jenny.dialogue.bedobscured", new Object[0]));
          return null;
       } else {
-         Vec3d var10 = var2.func_178787_e(this.ad[var3][0]);
-         return new Vector4d(var10.field_72450_a, var10.field_72448_b, var10.field_72449_c, this.ai[var3]);
+         Vec3d var10 = var2.add(this.ad[var3][0]);
+         return new Vector4d(var10.x, var10.y, var10.z, this.ai[var3]);
       }
    }
 
    @Override
    public void a_clash292() {
-      String var1 = (String)this.m.func_187225_a(h);
+      String var1 = (String)this.m.get(h);
       Vector4d var2 = var1.equals("anal") ? this.b_clash291() : this.a_clash289();
       if (var2 != null) {
          Vec3d var3 = new Vec3d(var2.getX(), var2.getY(), var2.getZ());
          this.setYawRotation((float)var2.getW());
          this.setTargetPosition(var3);
          this.r = this.getYawRotation();
-         this.func_70661_as().func_75499_g();
-         this.func_70661_as().func_75492_a(var3.field_72450_a, var3.field_72448_b, var3.field_72449_c, 0.35);
+         this.getNavigator().clearPath();
+         this.getNavigator().tryMoveToXYZ(var3.x, var3.y, var3.z, 0.35);
          this.af = true;
          this.Z = 0;
       }
@@ -521,7 +521,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    protected void U() {
-      switch ((String)this.m.func_187225_a(h)) {
+      switch ((String)this.m.get(h)) {
          case "talkHorny":
             this.b(fp.TALK_HORNY);
             break;
@@ -535,10 +535,10 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
             return;
       }
 
-      if (this.field_70170_p.field_72995_K) {
+      if (this.world.isRemote) {
          this.changeDataParameterFromClient("animationFollowUp", "");
       } else {
-         this.m.func_187227_b(h, "");
+         this.m.set(h, "");
       }
    }
 
@@ -554,7 +554,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
 
    @Override
    protected <E extends IAnimatable> PlayState a(AnimationEvent<E> var1) {
-      if (this.field_70170_p instanceof SexWorldClient) {
+      if (this.world instanceof SexWorldClient) {
          return null;
       }
 
@@ -569,9 +569,9 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
          case "movement":
             if (this.getCurrentAction() != fp.NULL) {
                this.a("animation.bia.null", true, var1);
-            } else if (this.func_184218_aH()) {
+            } else if (this.isRiding()) {
                this.a("animation.bia.sit", true, var1);
-            } else if (Math.abs(this.field_70169_q - this.field_70165_t) + Math.abs(this.field_70166_s - this.field_70161_v) > 0.0) {
+            } else if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
                switch (this.q_clash489()) {
                   case RUN:
                      this.a("animation.bia.run", true, var1);
@@ -583,7 +583,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                      this.a("animation.bia.walk", true, var1);
                }
 
-               this.field_70177_z = this.field_70759_as;
+               this.rotationYaw = this.rotationYawHead;
             } else {
                this.a("animation.bia.idle", true, var1);
             }
@@ -693,7 +693,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                break;
             case "becomeNude":
                if (this.isLocalPlayerNearby()) {
-                  this.changeDataParameterFromClient("currentModel", this.m.func_187225_a(D) == 1 ? "0" : "1");
+                  this.changeDataParameterFromClient("currentModel", this.m.get(D) == 1 ? "0" : "1");
                }
                break;
             case "stripDone":
@@ -701,7 +701,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.U();
                break;
             case "stripMSG1":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.hihi", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.hihi", new Object[0]));
                this.a(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_GIGGLE));
                break;
             case "sexUiOn":
@@ -713,37 +713,37 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                PacketHandler.b.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "talk_hornyMSG1":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.heya", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.heya", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_HEY);
                break;
             case "talk_hornyMSG2":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.horny", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.horny", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_GIGGLE[2]);
                break;
             case "talk_hornyMSG3":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.so", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.so", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_BREATH[0]);
                break;
             case "talk_hornyMSG4":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.fun", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.fun", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_HUH[0]);
                break;
             case "talk_hornyDone":
                this.b(fp.TALK_IDLE);
                if (this.isControlledByLocalPlayer()) {
-                  this.b_clash286(Minecraft.func_71410_x().field_71439_g);
+                  this.b_clash286(Minecraft.getMinecraft().player);
                }
                break;
             case "talk_responseMSG1":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.huh", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.huh", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_HUH[2]);
                break;
             case "talk_responseMSG2":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.iuhm", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.iuhm", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_BREATH[1]);
                break;
             case "talk_responseMSG3":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.yes", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.yes", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_GIGGLE[0]);
                break;
             case "talk_responseDone":
@@ -809,19 +809,19 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                }
                break;
             case "headpatMSG1":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.headpats", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.headpats", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_BREATH[0]);
                break;
             case "headpatMSG2":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.hmm", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.hmm", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_MMM[0]);
                break;
             case "headpatMSG3":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.huh2", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.huh2", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_HUH[0]);
                break;
             case "headpatMSG4":
-               this.sendChatMessage(I18n.func_135052_a("bia.dialogue.thankyou", new Object[0]));
+               this.sendChatMessage(I18n.format("bia.dialogue.thankyou", new Object[0]));
                this.a(SoundHandler.GIRLS_BIA_GIGGLE[1]);
                break;
             case "headpatDone":
@@ -844,7 +844,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, fg {
                this.a(SoundHandler.MISC_POUNDING);
                break;
             case "doggyMoan":
-               this.a(this.func_70681_au().nextBoolean() ? SoundHandler.GIRLS_BIA_AHH : SoundHandler.GIRLS_BIA_MMM);
+               this.a(this.getRNG().nextBoolean() ? SoundHandler.GIRLS_BIA_AHH : SoundHandler.GIRLS_BIA_MMM);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.addToHornyMeter(0.04);
                }

@@ -32,49 +32,49 @@ public class BeeWorldData extends WorldSavedData {
    @SubscribeEvent
    public void a(Save var1) {
       World var2 = var1.getWorld();
-      var2.func_175693_T().func_75745_a("sexmod:galath_spawn_list", this);
-      this.func_76185_a();
+      var2.getMapStorage().setData("sexmod:galath_spawn_list", this);
+      this.markDirty();
    }
 
    @SubscribeEvent
    public void a(Load var1) {
       World var2 = var1.getWorld();
-      var2.func_175693_T().func_75742_a(BeeWorldData.class, "sexmod:galath_spawn_list");
+      var2.getMapStorage().getOrLoadData(BeeWorldData.class, "sexmod:galath_spawn_list");
    }
 
-   public void func_76184_a(NBTTagCompound var1) {
-      NBTTagCompound var2 = var1.func_74775_l("sexmod:galath_spawn_list");
+   public void readFromNBT(NBTTagCompound var1) {
+      NBTTagCompound var2 = var1.getCompoundTag("sexmod:galath_spawn_list");
       this.b(var2, "", c);
       this.b(var2, "mang", b);
    }
 
-   public NBTTagCompound func_189551_b(NBTTagCompound var1) {
+   public NBTTagCompound writeToNBT(NBTTagCompound var1) {
       NBTTagCompound var2 = new NBTTagCompound();
       this.a(var2, "", c);
       this.a(var2, "mang", b);
-      var1.func_74782_a("sexmod:galath_spawn_list", var2);
+      var1.setTag("sexmod:galath_spawn_list", var2);
       return var1;
    }
 
    void a(NBTTagCompound var1, String var2, List<BlockPos> var3) {
-      var1.func_74768_a("sexmod:pos_amount" + var2, var3.size());
+      var1.setInteger("sexmod:pos_amount" + var2, var3.size());
       int var4 = 0;
 
       for (BlockPos var6 : var3) {
-         var1.func_74768_a("sexmod:x" + var2 + var4, var6.func_177958_n());
-         var1.func_74768_a("sexmod:y" + var2 + var4, var6.func_177956_o());
-         var1.func_74768_a("sexmod:z" + var2 + var4, var6.func_177952_p());
+         var1.setInteger("sexmod:x" + var2 + var4, var6.getX());
+         var1.setInteger("sexmod:y" + var2 + var4, var6.getY());
+         var1.setInteger("sexmod:z" + var2 + var4, var6.getZ());
          var4++;
       }
    }
 
    void b(NBTTagCompound var1, String var2, List<BlockPos> var3) {
       var3.clear();
-      int var4 = var1.func_74762_e("sexmod:pos_amount" + var2);
+      int var4 = var1.getInteger("sexmod:pos_amount" + var2);
 
       for (int var5 = 0; var5 < var4; var5++) {
          var3.add(
-            new BlockPos(var1.func_74762_e("sexmod:x" + var2 + var5), var1.func_74762_e("sexmod:y" + var2 + var5), var1.func_74762_e("sexmod:z" + var2 + var5))
+            new BlockPos(var1.getInteger("sexmod:x" + var2 + var5), var1.getInteger("sexmod:y" + var2 + var5), var1.getInteger("sexmod:z" + var2 + var5))
          );
       }
    }

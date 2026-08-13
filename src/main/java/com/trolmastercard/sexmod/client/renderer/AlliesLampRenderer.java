@@ -29,7 +29,7 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
 public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
-   Minecraft a = Minecraft.func_71410_x();
+   Minecraft a = Minecraft.getMinecraft();
    static ResourceLocation b = null;
 
    public AlliesLampRenderer() {
@@ -41,7 +41,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
          try {
             URL var1 = new URL(
                "https://sessionserver.mojang.com/session/minecraft/profile/"
-                  + Minecraft.func_71410_x().field_71439_g.getPersistentID().toString().replace("-", "")
+                  + Minecraft.getMinecraft().player.getPersistentID().toString().replace("-", "")
             );
             BufferedReader var2 = new BufferedReader(new InputStreamReader(var1.openStream()));
             String var3 = var2.lines().collect(Collectors.joining());
@@ -64,7 +64,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
 
             URL var19 = new URL(var10.toString());
             BufferedImage var12 = ImageIO.read(var19);
-            BufferedImage var13 = ImageIO.read(this.a.func_110442_L().func_110536_a(new AlliesLampModel().getTextureLocation((AlliesLampItem) null)).func_110527_b());
+            BufferedImage var13 = ImageIO.read(this.a.getResourceManager().getResource(new AlliesLampModel().getTextureLocation((AlliesLampItem) null)).getInputStream());
 
             for (int var14 = 0; var14 < var13.getWidth(); var14++) {
                for (int var15 = 0; var15 < var13.getHeight(); var15++) {
@@ -75,7 +75,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
                }
             }
 
-            b = Minecraft.func_71410_x().func_175598_ae().field_78724_e.func_110578_a("lamptex", new DynamicTexture(var13));
+            b = Minecraft.getMinecraft().getRenderManager().renderEngine.getDynamicTextureLocation("lamptex", new DynamicTexture(var13));
          } catch (Exception var17) {
             b = new AlliesLampModel().getTextureLocation((AlliesLampItem) null);
          }
@@ -86,21 +86,21 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
 
    @Override
    public void render(GeoModel var1, AlliesLampItem var2, float var3, float var4, float var5, float var6, float var7) {
-      GlStateManager.func_179129_p();
-      GlStateManager.func_179091_B();
+      GlStateManager.disableCull();
+      GlStateManager.enableRescaleNormal();
       this.renderEarly(var2, var3, var4, var5, var6, var7);
       this.renderLate(var2, var3, var4, var5, var6, var7);
-      BufferBuilder var8 = Tessellator.func_178181_a().func_178180_c();
-      var8.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+      BufferBuilder var8 = Tessellator.getInstance().getBuffer();
+      var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
       for (GeoBone var10 : var1.topLevelBones) {
          this.a(var8, var2, var10, var4, var5, var6, var7);
       }
 
-      Tessellator.func_178181_a().func_78381_a();
+      Tessellator.getInstance().draw();
       this.renderAfter(var2, var3, var4, var5, var6, var7);
-      GlStateManager.func_179101_C();
-      GlStateManager.func_179089_o();
+      GlStateManager.disableRescaleNormal();
+      GlStateManager.enableCull();
    }
 
    public void a(BufferBuilder var1, AlliesLampItem var2, GeoBone var3, float var4, float var5, float var6, float var7) {
@@ -110,7 +110,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
       MATRIX_STACK.rotate(var3);
       MATRIX_STACK.scale(var3);
       MATRIX_STACK.moveBackFromPivot(var3);
-      this.a.field_71446_o.func_110577_a(this.a_clash368());
+      this.a.renderEngine.bindTexture(this.a_clash368());
       if (this.a_clash369(var3.getName())) {
          this.b(var1, var2, var3, var4, var5, var6, var7);
       }
@@ -121,16 +121,16 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
    boolean a_clash369(String var1) {
       return !var1.equals("leftArm") && !var1.equals("rightArm")
          ? true
-         : this.a.field_71439_g.getEntityData().func_74767_n("sexmodAllieInUse") && this.a.field_71474_y.field_74320_O == 0;
+         : this.a.player.getEntityData().getBoolean("sexmodAllieInUse") && this.a.gameSettings.thirdPersonView == 0;
    }
 
    void b(BufferBuilder var1, AlliesLampItem var2, GeoBone var3, float var4, float var5, float var6, float var7) {
       if (!var3.isHidden) {
          for (GeoCube var9 : var3.childCubes) {
             MATRIX_STACK.push();
-            GlStateManager.func_179094_E();
+            GlStateManager.pushMatrix();
             this.renderCube(var1, var9, var4, var5, var6, var7);
-            GlStateManager.func_179121_F();
+            GlStateManager.popMatrix();
             MATRIX_STACK.pop();
          }
 

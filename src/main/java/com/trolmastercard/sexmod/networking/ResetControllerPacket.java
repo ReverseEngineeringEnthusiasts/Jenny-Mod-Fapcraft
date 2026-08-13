@@ -55,11 +55,11 @@ public class ResetControllerPacket implements IMessage {
                return null;
             }
 
-            UUID var4 = var2.getServerHandler().field_147369_b.getPersistentID();
+            UUID var4 = var2.getServerHandler().player.getPersistentID();
             var7.getCurrentAction().ticksPlaying = new int[]{0, 0};
 
-            for (EntityPlayerMP var6 : FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al().func_181057_v()) {
-               if (!var4.equals(var6.getPersistentID()) && var6.func_70032_d(var7) < 100.0F) {
+            for (EntityPlayerMP var6 : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+               if (!var4.equals(var6.getPersistentID()) && var6.getDistance(var7) < 100.0F) {
                   PacketHandler.b.sendTo(new ResetControllerPacket(var1.a), var6);
                }
             }

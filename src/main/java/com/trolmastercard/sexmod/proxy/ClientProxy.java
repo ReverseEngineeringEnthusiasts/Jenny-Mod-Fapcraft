@@ -62,14 +62,14 @@ public class ClientProxy extends CommonProxy {
       NetworkRegistry.INSTANCE.registerGuiHandler(Main.instance, new GuiHandler(true));
       ForgeEventHandler.registerB(true);
       PacketHandler.register();
-      Minecraft var10 = Minecraft.func_71410_x();
-      RenderManager var11 = var10.func_175598_ae();
+      Minecraft var10 = Minecraft.getMinecraft();
+      RenderManager var11 = var10.getRenderManager();
       SexWorldClient var12 = new SexWorldClient();
       IS_PRELOADING = true;
 
       try {
          for (NpcType var8 : NpcType.values()) {
-            var11.func_188391_a((Entity)var8.npcClass.getDeclaredConstructor(World.class).newInstance(var12), 0.0, 0.0, 0.0, 0.0F, 0.0F, false);
+            var11.renderEntity((Entity)var8.npcClass.getDeclaredConstructor(World.class).newInstance(var12), 0.0, 0.0, 0.0, 0.0F, 0.0F, false);
          }
       } catch (Exception var9) {
          System.out.println("error while preloading:");
@@ -78,11 +78,11 @@ public class ClientProxy extends CommonProxy {
 
       IS_PRELOADING = false;
       GenderSwapScreen.a = new GenderSwapScreen();
-      ClientCommandHandler.instance.func_71560_a(CommandWhitelistServer.a);
-      ClientCommandHandler.instance.func_71560_a(CommandSetModelCode.a);
-      ClientCommandHandler.instance.func_71560_a(CommandFuta.b);
-      Minecraft.func_71410_x()
-         .field_71452_i
-         .func_178929_a(625115, (var0, var1x, var2, var4, var6, var8x, var10x, var12x, var14) -> new DragonBreathParticle(var1x, var2, var4, var6));
+      ClientCommandHandler.instance.registerCommand(CommandWhitelistServer.a);
+      ClientCommandHandler.instance.registerCommand(CommandSetModelCode.a);
+      ClientCommandHandler.instance.registerCommand(CommandFuta.b);
+      Minecraft.getMinecraft()
+         .effectRenderer
+         .registerParticle(625115, (var0, var1x, var2, var4, var6, var8x, var10x, var12x, var14) -> new DragonBreathParticle(var1x, var2, var4, var6));
    }
 }

@@ -15,7 +15,7 @@ public class WinchesterItem extends Item implements IAnimatable {
 
    public static void register() {
       b.setRegistryName(new ResourceLocation("sexmod", "winchester"));
-      b.func_77655_b("winchester");
+      b.setTranslationKey("winchester");
       MinecraftForge.EVENT_BUS.register(WinchesterItem.class);
    }
 

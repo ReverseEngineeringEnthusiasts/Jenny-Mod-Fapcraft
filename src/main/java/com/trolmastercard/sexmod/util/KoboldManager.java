@@ -92,8 +92,8 @@ public class KoboldManager {
       int var13 = 0;
 
       for (KoboldEntity var15 : (java.util.Collection<KoboldEntity>) (var10) ) {
-         var15.func_70107_b(var1.field_72450_a + b[var13].field_72450_a, var1.field_72448_b, var1.field_72449_c + b[var13].field_72449_c);
-         var0.func_72838_d(var15);
+         var15.setPosition(var1.x + b[var13].x, var1.y, var1.z + b[var13].z);
+         var0.spawnEntity(var15);
          var13++;
       }
    }
@@ -138,22 +138,22 @@ public class KoboldManager {
    }
 
    public static void a(KoboldEntity var0, BlockPos var1) {
-      World var2 = var0.field_70170_p;
+      World var2 = var0.world;
       BlockPos var3 = null;
-      if (var2.func_180495_p(var1.func_177978_c()).func_177230_c() instanceof BlockBed) {
-         var3 = var1.func_177978_c();
+      if (var2.getBlockState(var1.north()).getBlock() instanceof BlockBed) {
+         var3 = var1.north();
       }
 
-      if (var2.func_180495_p(var1.func_177974_f()).func_177230_c() instanceof BlockBed) {
-         var3 = var1.func_177974_f();
+      if (var2.getBlockState(var1.east()).getBlock() instanceof BlockBed) {
+         var3 = var1.east();
       }
 
-      if (var2.func_180495_p(var1.func_177968_d()).func_177230_c() instanceof BlockBed) {
-         var3 = var1.func_177968_d();
+      if (var2.getBlockState(var1.south()).getBlock() instanceof BlockBed) {
+         var3 = var1.south();
       }
 
-      if (var2.func_180495_p(var1.func_177976_e()).func_177230_c() instanceof BlockBed) {
-         var3 = var1.func_177976_e();
+      if (var2.getBlockState(var1.west()).getBlock() instanceof BlockBed) {
+         var3 = var1.west();
       }
 
       if (var3 == null) {
@@ -183,9 +183,9 @@ public class KoboldManager {
       } else {
          var2.a_clash882(var1);
          c.replace(var0, var2);
-         var1.func_184212_Q().func_187227_b(KoboldEntity.aL, Optional.of(var0));
+         var1.getDataManager().set(KoboldEntity.aL, Optional.of(var0));
          if (!var1.aA) {
-            var1.func_184212_Q().func_187227_b(KoboldEntity.N, var2.h.toString());
+            var1.getDataManager().set(KoboldEntity.N, var2.h.toString());
          }
       }
    }
@@ -196,7 +196,7 @@ public class KoboldManager {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
          KoboldEntity var2 = var1.g;
-         if (var2 == null || var2.field_70128_L) {
+         if (var2 == null || var2.isDead) {
             var1.g = var1.b_clash884();
          }
       }
@@ -209,7 +209,7 @@ public class KoboldManager {
       } else {
          var2.b_clash883(var1);
          var2.b_clash874(var1.getGirlId());
-         if (var2.g != null && var2.g.func_145782_y() == var1.func_145782_y()) {
+         if (var2.g != null && var2.g.getEntityId() == var1.getEntityId()) {
             KoboldEntity var3 = var2.b_clash884();
             if (var3 != null) {
                var2.g = var3;
@@ -234,7 +234,7 @@ public class KoboldManager {
                }
 
                PacketHandler.b.sendTo(new SendBlocksPacket(var9, false), (EntityPlayerMP)var8);
-               var8.func_145747_a(
+               var8.sendMessage(
                   new TextComponentString(
                      String.format(
                         "ur %stribe %shas been %seradicated %suwu", TextFormatting.RED, TextFormatting.WHITE, TextFormatting.RED, TextFormatting.WHITE
@@ -263,7 +263,7 @@ public class KoboldManager {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return false;
       } else {
-         return var2.g == null ? false : var2.g.func_145782_y() == var1.func_145782_y();
+         return var2.g == null ? false : var2.g.getEntityId() == var1.getEntityId();
       }
    }
 
@@ -566,7 +566,7 @@ public class KoboldManager {
          return null;
       }
 
-      String var4 = (String)((KoboldEntity)var2.get(0)).func_184212_Q().func_187225_a(BaseGirlEntity.v);
+      String var4 = (String)((KoboldEntity)var2.get(0)).getDataManager().get(BaseGirlEntity.v);
       return UUID.fromString(var4);
    }
 
@@ -600,9 +600,9 @@ public class KoboldManager {
       for (Entry var6 : (java.util.Set<Entry>) var3.entrySet()) {
          BlockPos var7 = (BlockPos)var6.getValue();
          UUID var8 = (UUID)var6.getKey();
-         if (var1.func_175697_a(var7, 5)) {
-            AxisAlignedBB var9 = new AxisAlignedBB(var7.func_177973_b(new Vec3i(-3, -3, -3)), var7.func_177982_a(3, 3, 3));
-            List var10 = var1.func_72872_a(KoboldEntity.class, var9);
+         if (var1.isAreaLoaded(var7, 5)) {
+            AxisAlignedBB var9 = new AxisAlignedBB(var7.subtract(new Vec3i(-3, -3, -3)), var7.add(3, 3, 3));
+            List var10 = var1.getEntitiesWithinAABB(KoboldEntity.class, var9);
             boolean var11 = false;
 
             for (KoboldEntity var13 : (java.util.Collection<KoboldEntity>) (var10) ) {
@@ -672,14 +672,14 @@ public class KoboldManager {
          if (this.f.contains(var1)) {
             for (KoboldEntity var3 : var1.f) {
                var3.b(fp.NULL);
-               var3.func_189654_d(false);
-               var3.field_70145_X = false;
-               var3.func_184212_Q().func_187227_b(BaseGirlEntity.G, false);
+               var3.setNoGravity(false);
+               var3.noClip = false;
+               var3.getDataManager().set(BaseGirlEntity.G, false);
             }
 
             this.f.remove(var1);
             if (!var1.b.isEmpty() && this.e != null) {
-               EntityPlayerMP var4 = FMLCommonHandler.instance().getMinecraftServerInstance().func_184103_al().func_177451_a(this.e);
+               EntityPlayerMP var4 = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(this.e);
                if (var4 != null) {
                   PacketHandler.b.sendTo(new SendBlocksPacket(var1.b, false), var4);
                }
@@ -773,12 +773,12 @@ public class KoboldManager {
          KoboldEntity var1 = null;
 
          for (KoboldEntity var3 : this.a) {
-            if (!var3.field_70128_L) {
+            if (!var3.isDead) {
                if (var1 == null) {
                   var1 = var3;
                } else {
-                  float var4 = (Float)var1.func_184212_Q().func_187225_a(KoboldEntity.aE);
-                  float var5 = (Float)var3.func_184212_Q().func_187225_a(KoboldEntity.aE);
+                  float var4 = (Float)var1.getDataManager().get(KoboldEntity.aE);
+                  float var5 = (Float)var3.getDataManager().get(KoboldEntity.aE);
                   if (var5 < var4) {
                      var1 = var3;
                   }
@@ -799,14 +799,14 @@ public class KoboldManager {
       @SubscribeEvent
       public void a(Save var1) {
          World var2 = var1.getWorld();
-         var2.func_175693_T().func_75745_a("tribes", this);
-         this.func_76185_a();
+         var2.getMapStorage().setData("tribes", this);
+         this.markDirty();
       }
 
       @SubscribeEvent
       public void a(Load var1) {
          World var2 = var1.getWorld();
-         var2.func_175693_T().func_75742_a(KoboldManager.b.class, "tribes");
+         var2.getMapStorage().getOrLoadData(KoboldManager.b.class, "tribes");
       }
 
       @SubscribeEvent
@@ -821,28 +821,28 @@ public class KoboldManager {
          BlockPos var2 = var1.getPos();
          IBlockState var3 = var1.getState();
          World var4 = var1.getWorld();
-         if (!var4.field_72995_K) {
-            if (var3.func_177230_c() instanceof BlockChest) {
-               Type var5 = ((BlockChest)var4.func_180495_p(var2).func_177230_c()).field_149956_a;
+         if (!var4.isRemote) {
+            if (var3.getBlock() instanceof BlockChest) {
+               Type var5 = ((BlockChest)var4.getBlockState(var2).getBlock()).chestType;
                BlockPos var6 = null;
-               if (var4.func_180495_p(var2.func_177978_c()).func_177230_c() instanceof BlockChest
-                  && var5.equals(((BlockChest)var4.func_180495_p(var2.func_177978_c()).func_177230_c()).field_149956_a)) {
-                  var6 = var2.func_177978_c();
+               if (var4.getBlockState(var2.north()).getBlock() instanceof BlockChest
+                  && var5.equals(((BlockChest)var4.getBlockState(var2.north()).getBlock()).chestType)) {
+                  var6 = var2.north();
                }
 
-               if (var4.func_180495_p(var2.func_177974_f()).func_177230_c() instanceof BlockChest
-                  && var5.equals(((BlockChest)var4.func_180495_p(var2.func_177974_f()).func_177230_c()).field_149956_a)) {
-                  var6 = var2.func_177974_f();
+               if (var4.getBlockState(var2.east()).getBlock() instanceof BlockChest
+                  && var5.equals(((BlockChest)var4.getBlockState(var2.east()).getBlock()).chestType)) {
+                  var6 = var2.east();
                }
 
-               if (var4.func_180495_p(var2.func_177968_d()).func_177230_c() instanceof BlockChest
-                  && var5.equals(((BlockChest)var4.func_180495_p(var2.func_177968_d()).func_177230_c()).field_149956_a)) {
-                  var6 = var2.func_177968_d();
+               if (var4.getBlockState(var2.south()).getBlock() instanceof BlockChest
+                  && var5.equals(((BlockChest)var4.getBlockState(var2.south()).getBlock()).chestType)) {
+                  var6 = var2.south();
                }
 
-               if (var4.func_180495_p(var2.func_177976_e()).func_177230_c() instanceof BlockChest
-                  && var5.equals(((BlockChest)var4.func_180495_p(var2.func_177976_e()).func_177230_c()).field_149956_a)) {
-                  var6 = var2.func_177976_e();
+               if (var4.getBlockState(var2.west()).getBlock() instanceof BlockChest
+                  && var5.equals(((BlockChest)var4.getBlockState(var2.west()).getBlock()).chestType)) {
+                  var6 = var2.west();
                }
 
                if (var6 != null) {
@@ -852,7 +852,7 @@ public class KoboldManager {
                         var9.i.add(var2);
                         UUID var10 = KoboldManager.b_clash89((UUID)var8.getKey());
                         if (var10 != null) {
-                           EntityPlayerMP var11 = (EntityPlayerMP)var4.func_152378_a(var10);
+                           EntityPlayerMP var11 = (EntityPlayerMP)var4.getPlayerEntityByUUID(var10);
                            if (var11 != null) {
                               PacketHandler.b.sendTo(new SendBlocksPacket(var2, true), var11);
                            }
@@ -869,17 +869,17 @@ public class KoboldManager {
          Entity var2 = var1.getEntity();
          if (var2 instanceof EntityZombie) {
             EntityZombie var3 = (EntityZombie)var2;
-            var3.field_70715_bh.func_75776_a(3, new NearestAttackableGirlGoal(var3, true, false));
+            var3.targetTasks.addTask(3, new NearestAttackableGirlGoal(var3, true, false));
          }
 
          if (var2 instanceof AbstractSkeleton) {
             AbstractSkeleton var4 = (AbstractSkeleton)var2;
-            var4.field_70715_bh.func_75776_a(3, new NearestAttackableGirlGoal(var4, true, false));
+            var4.targetTasks.addTask(3, new NearestAttackableGirlGoal(var4, true, false));
          }
 
          if (var2 instanceof EntitySpider) {
             EntitySpider var5 = (EntitySpider)var2;
-            var5.field_70715_bh.func_75776_a(3, new NearestAttackableGirlGoal(var5, true, true));
+            var5.targetTasks.addTask(3, new NearestAttackableGirlGoal(var5, true, true));
          }
       }
 
@@ -887,9 +887,9 @@ public class KoboldManager {
       public void a(BreakEvent var1) {
          BlockPos var2 = var1.getPos();
          World var3 = var1.getWorld();
-         if (!var3.field_72995_K) {
-            IBlockState var4 = var3.func_180495_p(var2);
-            Block var5 = var4.func_177230_c();
+         if (!var3.isRemote) {
+            IBlockState var4 = var3.getBlockState(var2);
+            Block var5 = var4.getBlock();
             if (var5 instanceof BlockChest) {
                for (Entry var7 : KoboldManager.c.entrySet()) {
                   KoboldManager.a var8 = (KoboldManager.a)var7.getValue();
@@ -897,7 +897,7 @@ public class KoboldManager {
                      var8.i.remove(var2);
                      UUID var9 = KoboldManager.b_clash89((UUID)var7.getKey());
                      if (var9 != null) {
-                        EntityPlayerMP var10 = (EntityPlayerMP)var3.func_152378_a(var9);
+                        EntityPlayerMP var10 = (EntityPlayerMP)var3.getPlayerEntityByUUID(var9);
                         if (var10 != null) {
                            PacketHandler.b.sendTo(new SendBlocksPacket(var2, false), var10);
                         }
@@ -915,7 +915,7 @@ public class KoboldManager {
                      var15.b.remove(var16);
                      UUID var17 = KoboldManager.b_clash89((UUID)var14.getKey());
                      if (var17 != null) {
-                        EntityPlayerMP var11 = (EntityPlayerMP)var3.func_152378_a(var17);
+                        EntityPlayerMP var11 = (EntityPlayerMP)var3.getPlayerEntityByUUID(var17);
                         if (var11 != null) {
                            HashSet var12 = new HashSet();
                            var12.add(var2);
@@ -930,12 +930,12 @@ public class KoboldManager {
       }
 
       String a(String var1, NBTTagCompound var2) {
-         String var3 = var2.func_74779_i(var1);
-         var2.func_74778_a(var1, "");
+         String var3 = var2.getString(var1);
+         var2.setString(var1, "");
          return var3;
       }
 
-      public void func_76184_a(NBTTagCompound var1) {
+      public void readFromNBT(NBTTagCompound var1) {
          int var2 = 0;
 
          label73:
@@ -995,7 +995,7 @@ public class KoboldManager {
                            String var32 = this.a(var4.toString() + var27 + "facing", var1);
                            EnumFacing var13 = EnumFacing.NORTH;
                            if (!"".equals(var32)) {
-                              var13 = EnumFacing.func_176739_a(var32);
+                              var13 = EnumFacing.byName(var32);
                            }
 
                            String var14 = this.a(var4.toString() + var27 + "pos", var1);
@@ -1035,30 +1035,30 @@ public class KoboldManager {
          }
       }
 
-      public NBTTagCompound func_189551_b(NBTTagCompound var1) {
+      public NBTTagCompound writeToNBT(NBTTagCompound var1) {
          int var2 = 0;
 
          for (Entry var4 : KoboldManager.c.entrySet()) {
             KoboldManager.a var5 = (KoboldManager.a)var4.getValue();
             UUID var6 = (UUID)var4.getKey();
             UUID var7 = var5.a_clash872();
-            var1.func_74778_a("tribeId" + var2, var6.toString());
-            var1.func_74778_a("tribeColor" + var2, var5.h.toString());
+            var1.setString("tribeId" + var2, var6.toString());
+            var1.setString("tribeColor" + var2, var5.h.toString());
             if (var7 != null) {
-               var1.func_74778_a("tribeMaster" + var2, var7.toString());
+               var1.setString("tribeMaster" + var2, var7.toString());
             }
 
             int var8 = 0;
             HashSet var9 = new HashSet();
 
             for (KoboldEntity var11 : var5.a) {
-               if (!var11.field_70128_L) {
-                  BlockPos var12 = var11.func_180425_c();
+               if (!var11.isDead) {
+                  BlockPos var12 = var11.getPosition();
                   UUID var13 = var11.getGirlId();
-                  var1.func_74778_a(
-                     var6.toString() + "member" + var8 + "pos", var12.func_177958_n() + "|" + var12.func_177956_o() + "|" + var12.func_177952_p()
+                  var1.setString(
+                     var6.toString() + "member" + var8 + "pos", var12.getX() + "|" + var12.getY() + "|" + var12.getZ()
                   );
-                  var1.func_74778_a(var6.toString() + "member" + var8 + "id", var13.toString());
+                  var1.setString(var6.toString() + "member" + var8 + "id", var13.toString());
                   var9.add(var13);
                   var8++;
                }
@@ -1068,10 +1068,10 @@ public class KoboldManager {
                UUID var23 = (UUID)var20.getKey();
                BlockPos var27 = (BlockPos)var20.getValue();
                if (!var9.contains(var23)) {
-                  var1.func_74778_a(
-                     var6.toString() + "member" + var8 + "pos", var27.func_177958_n() + "|" + var27.func_177956_o() + "|" + var27.func_177952_p()
+                  var1.setString(
+                     var6.toString() + "member" + var8 + "pos", var27.getX() + "|" + var27.getY() + "|" + var27.getZ()
                   );
-                  var1.func_74778_a(var6.toString() + "member" + var8 + "id", var23.toString());
+                  var1.setString(var6.toString() + "member" + var8 + "id", var23.toString());
                   var9.add(var23);
                   var8++;
                }
@@ -1080,28 +1080,28 @@ public class KoboldManager {
             int var19 = 0;
 
             for (BlockPos var24 : var5.b) {
-               var1.func_74778_a(var6.toString() + "bed" + var19, var24.func_177958_n() + "|" + var24.func_177956_o() + "|" + var24.func_177952_p());
+               var1.setString(var6.toString() + "bed" + var19, var24.getX() + "|" + var24.getY() + "|" + var24.getZ());
                var19++;
             }
 
             int var22 = 0;
 
             for (BlockPos var28 : var5.i) {
-               var1.func_74778_a(var6.toString() + "chest" + var22, var28.func_177958_n() + "|" + var28.func_177956_o() + "|" + var28.func_177952_p());
+               var1.setString(var6.toString() + "chest" + var22, var28.getX() + "|" + var28.getY() + "|" + var28.getZ());
                var22++;
             }
 
             int var26 = 0;
 
             for (KoboldTask var14 : var5.f) {
-               var1.func_74778_a(var6.toString() + var26 + "taskKind", var14.c.toString());
-               var1.func_74778_a(var6.toString() + var26 + "pos", var14.a.func_177958_n() + "|" + var14.a.func_177956_o() + "|" + var14.a.func_177952_p());
-               var1.func_74778_a(var6.toString() + var26 + "facing", var14.e.func_176610_l());
+               var1.setString(var6.toString() + var26 + "taskKind", var14.c.toString());
+               var1.setString(var6.toString() + var26 + "pos", var14.a.getX() + "|" + var14.a.getY() + "|" + var14.a.getZ());
+               var1.setString(var6.toString() + var26 + "facing", var14.e.getName());
                int var15 = 0;
 
                for (BlockPos var17 : var14.b) {
-                  var1.func_74778_a(
-                     var6.toString() + var26 + "block" + var15, var17.func_177958_n() + "|" + var17.func_177956_o() + "|" + var17.func_177952_p()
+                  var1.setString(
+                     var6.toString() + var26 + "block" + var15, var17.getX() + "|" + var17.getY() + "|" + var17.getZ()
                   );
                   var15++;
                }

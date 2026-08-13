@@ -40,8 +40,8 @@ public class GalathScreen extends GuiScreen {
       this.h = var1 instanceof GoblinEntity;
    }
 
-   public void func_146281_b() {
-      super.func_146281_b();
+   public void onGuiClosed() {
+      super.onGuiClosed();
       if (this.d != 0.0F || this.m != 0.0F || this.g != 0.0F) {
          if (this.g > 0.0F) {
             this.c_clash396();
@@ -57,12 +57,12 @@ public class GalathScreen extends GuiScreen {
 
    void a_clash394() {
       if (this.h) {
-         ((GoblinEntity)this.f).c_clash239(Minecraft.func_71410_x().field_71439_g.getPersistentID());
+         ((GoblinEntity)this.f).c_clash239(Minecraft.getMinecraft().player.getPersistentID());
       }
    }
 
    void b_clash395() {
-      ((GoblinEntity)this.f).b_clash240(Minecraft.func_71410_x().field_71439_g.getPersistentID());
+      ((GoblinEntity)this.f).b_clash240(Minecraft.getMinecraft().player.getPersistentID());
    }
 
    void c_clash396() {
@@ -71,67 +71,67 @@ public class GalathScreen extends GuiScreen {
       }
    }
 
-   public void func_146282_l() {
-      if (ClientProxy.keyBindings[0].func_151463_i() == Keyboard.getEventKey() && !Keyboard.getEventKeyState()) {
-         Minecraft.func_71410_x().field_71439_g.func_71053_j();
+   public void handleKeyboardInput() {
+      if (ClientProxy.keyBindings[0].getKeyCode() == Keyboard.getEventKey() && !Keyboard.getEventKeyState()) {
+         Minecraft.getMinecraft().player.closeScreen();
       } else {
-         super.func_146282_l();
+         super.handleKeyboardInput();
       }
    }
 
-   public void func_73863_a(int var1, int var2, float var3) {
-      super.func_73863_a(var1, var2, var3);
+   public void drawScreen(int var1, int var2, float var3) {
+      super.drawScreen(var1, var2, var3);
       GL11.glEnable(3042);
-      OpenGlHelper.func_148821_a(770, 771, 1, 0);
+      OpenGlHelper.glBlendFunc(770, 771, 1, 0);
       GL11.glBlendFunc(770, 771);
 
       try {
-         this.a = Math.min(1.0F, this.a + this.field_146297_k.func_193989_ak() / 5.0F);
+         this.a = Math.min(1.0F, this.a + this.mc.getTickLength() / 5.0F);
       } catch (NullPointerException var6) {
       }
 
       float var4 = (float)this.a_clash397(this.a);
       float var5 = (1.0F - var4) * 100.0F;
-      this.g = this.g + (var1 < this.field_146294_l / 2 ? 1 : -1) * this.field_146297_k.func_193989_ak();
-      this.e = this.e + (var1 > this.field_146294_l / 2 ? 1 : -1) * this.field_146297_k.func_193989_ak();
-      this.d = this.d + (var2 < this.field_146295_m / 2 - 1 ? 1 : -1) * this.field_146297_k.func_193989_ak();
-      this.m = this.m + (var2 > this.field_146295_m / 2 ? 1 : -1) * this.field_146297_k.func_193989_ak();
+      this.g = this.g + (var1 < this.width / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.e = this.e + (var1 > this.width / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.d = this.d + (var2 < this.height / 2 - 1 ? 1 : -1) * this.mc.getTickLength();
+      this.m = this.m + (var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
       this.g = ThreadNames.b(this.g, 0.0F, 1.0F);
       this.e = ThreadNames.b(this.e, 0.0F, 1.0F);
       this.d = ThreadNames.b(this.d, 0.0F, 1.0F);
       this.m = ThreadNames.b(this.m, 0.0F, 1.0F);
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179109_b(this.field_146294_l / 2.0F, this.field_146295_m / 2.0F, 0.0F);
-      GlStateManager.func_179152_a(var4, var4, var4);
-      this.field_146297_k.field_71446_o.func_110577_a(i);
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179152_a(1.0F + this.g * 0.5F, 1.0F + this.g * 0.5F, 1.0F);
-      this.func_175174_a(-62.0F + var5 - this.g * 15.0F, var5 - 32.0F, 0, 0, 64, 64);
-      this.func_175174_a(-62.0F + var5 - this.g * 15.0F, var5 - 32.0F, 64, 128, 64, 64);
-      GlStateManager.func_179121_F();
+      GlStateManager.pushMatrix();
+      GlStateManager.translate(this.width / 2.0F, this.height / 2.0F, 0.0F);
+      GlStateManager.scale(var4, var4, var4);
+      this.mc.renderEngine.bindTexture(i);
+      GlStateManager.pushMatrix();
+      GlStateManager.scale(1.0F + this.g * 0.5F, 1.0F + this.g * 0.5F, 1.0F);
+      this.drawTexturedModalRect(-62.0F + var5 - this.g * 15.0F, var5 - 32.0F, 0, 0, 64, 64);
+      this.drawTexturedModalRect(-62.0F + var5 - this.g * 15.0F, var5 - 32.0F, 64, 128, 64, 64);
+      GlStateManager.popMatrix();
       if (!this.h) {
-         GlStateManager.func_179121_F();
+         GlStateManager.popMatrix();
          GL11.glDisable(3042);
       } else {
-         GlStateManager.func_179094_E();
-         GlStateManager.func_179152_a(1.0F - this.e, 1.0F - this.e, 1.0F);
-         this.func_175174_a(-2.0F - var5 + this.e * 32.0F, -var5 - 32.0F, 0, 0, 64, 64);
-         this.func_175174_a(-2.0F - var5 + this.e * 32.0F, -var5 - 32.0F, 0, 128, 64, 64);
-         GlStateManager.func_179121_F();
+         GlStateManager.pushMatrix();
+         GlStateManager.scale(1.0F - this.e, 1.0F - this.e, 1.0F);
+         this.drawTexturedModalRect(-2.0F - var5 + this.e * 32.0F, -var5 - 32.0F, 0, 0, 64, 64);
+         this.drawTexturedModalRect(-2.0F - var5 + this.e * 32.0F, -var5 - 32.0F, 0, 128, 64, 64);
+         GlStateManager.popMatrix();
          if (this.e > 0.0F) {
-            GlStateManager.func_179094_E();
-            GlStateManager.func_179152_a(-1.0F + this.e + 1.0F + this.d * 0.5F, -1.0F + this.e + 1.0F + this.d * 0.5F, 1.0F);
-            this.func_175174_a(-2.0F - var5 + this.d * 5.0F, -var5 - 64.0F - this.d * 5.0F / 2.0F, 0, 0, 64, 64);
-            this.func_175174_a(-2.0F - var5 + this.d * 5.0F, -var5 - 64.0F - this.d * 5.0F / 2.0F, 128, 128, 64, 64);
-            GlStateManager.func_179121_F();
-            GlStateManager.func_179094_E();
-            GlStateManager.func_179152_a(-1.0F + this.e + 1.0F + this.m * 0.5F, -1.0F + this.e + 1.0F + this.m * 0.5F, 1.0F);
-            this.func_175174_a(-2.0F - var5 + this.m * 5.0F, -var5 + this.m * 5.0F / 2.0F, 0, 0, 64, 64);
-            this.func_175174_a(-2.0F - var5 + this.m * 5.0F, -var5 + this.m * 5.0F / 2.0F, 192, 128, 64, 64);
-            GlStateManager.func_179121_F();
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(-1.0F + this.e + 1.0F + this.d * 0.5F, -1.0F + this.e + 1.0F + this.d * 0.5F, 1.0F);
+            this.drawTexturedModalRect(-2.0F - var5 + this.d * 5.0F, -var5 - 64.0F - this.d * 5.0F / 2.0F, 0, 0, 64, 64);
+            this.drawTexturedModalRect(-2.0F - var5 + this.d * 5.0F, -var5 - 64.0F - this.d * 5.0F / 2.0F, 128, 128, 64, 64);
+            GlStateManager.popMatrix();
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(-1.0F + this.e + 1.0F + this.m * 0.5F, -1.0F + this.e + 1.0F + this.m * 0.5F, 1.0F);
+            this.drawTexturedModalRect(-2.0F - var5 + this.m * 5.0F, -var5 + this.m * 5.0F / 2.0F, 0, 0, 64, 64);
+            this.drawTexturedModalRect(-2.0F - var5 + this.m * 5.0F, -var5 + this.m * 5.0F / 2.0F, 192, 128, 64, 64);
+            GlStateManager.popMatrix();
          }
 
-         GlStateManager.func_179121_F();
+         GlStateManager.popMatrix();
          GL11.glDisable(3042);
       }
    }
@@ -142,7 +142,7 @@ public class GalathScreen extends GuiScreen {
       return 1.0 + var5 * Math.pow(var1 - 1.0, 3.0) + var3 * Math.pow(var1 - 1.0, 2.0);
    }
 
-   public boolean func_73868_f() {
+   public boolean doesGuiPauseGame() {
       return false;
    }
 

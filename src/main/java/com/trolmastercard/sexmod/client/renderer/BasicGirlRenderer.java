@@ -30,7 +30,7 @@ import org.lwjgl.opengl.GL11;
 public class BasicGirlRenderer extends Render<BasicGirlEntity> {
 
    @Override
-   protected ResourceLocation func_110775_a(BasicGirlEntity var1) {
+   protected ResourceLocation getEntityTexture(BasicGirlEntity var1) {
       return this.g;
    }
 
@@ -48,7 +48,7 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
 
    public BasicGirlRenderer(RenderManager var1) {
       super(var1);
-      this.d = Minecraft.func_71410_x();
+      this.d = Minecraft.getMinecraft();
    }
 
    @Nullable
@@ -58,37 +58,37 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
 
    public void a(BasicGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       GL11.glDisable(2896);
-      GlStateManager.func_179141_d();
-      GlStateManager.func_179147_l();
-      GlStateManager.func_187401_a(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-      OpenGlHelper.func_77475_a(OpenGlHelper.field_77476_b, 240.0F, 240.0F);
-      EntityPlayerSP var10 = this.d.field_71439_g;
-      Vec3d var11 = RotationHelper.a(new Vec3d(var1.field_70142_S, var1.field_70137_T, var1.field_70136_U), var1.func_174791_d(), var9);
-      Vec3d var12 = RotationHelper.a(new Vec3d(var10.field_70142_S, var10.field_70137_T, var10.field_70136_U), var10.func_174791_d(), var9);
-      Vec3d var13 = var11.func_178788_d(var12);
-      ResourceLocation var14 = this.a(var1, Math.abs(var13.field_72450_a) + Math.abs(var13.field_72448_b) + Math.abs(var13.field_72449_c));
-      this.d.field_71446_o.func_110577_a(var14);
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179131_c(1.0F, 1.0F, 1.0F, this.b(var1, var9));
-      GlStateManager.func_179137_b(var13.field_72450_a, var13.field_72448_b + this.a_clash808(var14), var13.field_72449_c);
-      GlStateManager.func_179114_b(180.0F - this.field_76990_c.field_78735_i, 0.0F, 1.0F, 0.0F);
+      GlStateManager.enableAlpha();
+      GlStateManager.enableBlend();
+      GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+      OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
+      EntityPlayerSP var10 = this.d.player;
+      Vec3d var11 = RotationHelper.a(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var9);
+      Vec3d var12 = RotationHelper.a(new Vec3d(var10.lastTickPosX, var10.lastTickPosY, var10.lastTickPosZ), var10.getPositionVector(), var9);
+      Vec3d var13 = var11.subtract(var12);
+      ResourceLocation var14 = this.a(var1, Math.abs(var13.x) + Math.abs(var13.y) + Math.abs(var13.z));
+      this.d.renderEngine.bindTexture(var14);
+      GlStateManager.pushMatrix();
+      GlStateManager.color(1.0F, 1.0F, 1.0F, this.b(var1, var9));
+      GlStateManager.translate(var13.x, var13.y + this.a_clash808(var14), var13.z);
+      GlStateManager.rotate(180.0F - this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
       float var15 = 1.4F + this.a(var1, var9);
-      GlStateManager.func_179152_a(var15, var15, var15);
-      Tessellator var16 = Tessellator.func_178181_a();
-      BufferBuilder var17 = var16.func_178180_c();
-      var17.func_181668_a(7, DefaultVertexFormats.field_181707_g);
-      var17.func_181662_b(-1.0, 0.0, 0.0).func_187315_a(0.0, 1.0).func_181675_d();
-      var17.func_181662_b(1.0, 0.0, 0.0).func_187315_a(1.0, 1.0).func_181675_d();
-      var17.func_181662_b(1.0, 2.0, 0.0).func_187315_a(1.0, 0.0).func_181675_d();
-      var17.func_181662_b(-1.0, 2.0, 0.0).func_187315_a(0.0, 0.0).func_181675_d();
-      var16.func_78381_a();
-      GlStateManager.func_179121_F();
+      GlStateManager.scale(var15, var15, var15);
+      Tessellator var16 = Tessellator.getInstance();
+      BufferBuilder var17 = var16.getBuffer();
+      var17.begin(7, DefaultVertexFormats.POSITION_TEX);
+      var17.pos(-1.0, 0.0, 0.0).tex(0.0, 1.0).endVertex();
+      var17.pos(1.0, 0.0, 0.0).tex(1.0, 1.0).endVertex();
+      var17.pos(1.0, 2.0, 0.0).tex(1.0, 0.0).endVertex();
+      var17.pos(-1.0, 2.0, 0.0).tex(0.0, 0.0).endVertex();
+      var16.draw();
+      GlStateManager.popMatrix();
       GL11.glEnable(2896);
-      GlStateManager.func_179118_c();
-      OpenGlHelper.func_77475_a(OpenGlHelper.field_77476_b, OpenGlHelper.lastBrightnessX, OpenGlHelper.lastBrightnessY);
+      GlStateManager.disableAlpha();
+      OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, OpenGlHelper.lastBrightnessX, OpenGlHelper.lastBrightnessY);
       long var18 = System.currentTimeMillis();
       if (this.k != f && var14 == f && var18 > this.i + 60000L) {
-         this.d.field_71439_g.func_184185_a(SoundHandler.MISC_PYRO[0], 1.0F, 1.0F);
+         this.d.player.playSound(SoundHandler.MISC_PYRO[0], 1.0F, 1.0F);
          this.i = var18;
       }
 
@@ -101,21 +101,21 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       } else if (var2 < 3.0) {
          return f;
       } else {
-         Vec3d var4 = new Vec3d(var1.field_70142_S, var1.field_70137_T, var1.field_70136_U).func_178788_d(var1.func_174791_d());
-         if (Math.abs(var4.field_72450_a) + Math.abs(var4.field_72448_b) + Math.abs(var4.field_72449_c) == 0.0) {
+         Vec3d var4 = new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ).subtract(var1.getPositionVector());
+         if (Math.abs(var4.x) + Math.abs(var4.y) + Math.abs(var4.z) == 0.0) {
             return g;
          } else {
-            return Math.sin(this.d.field_71439_g.field_70173_aa * 0.75F) > 0.0 ? a : b;
+            return Math.sin(this.d.player.ticksExisted * 0.75F) > 0.0 ? a : b;
          }
       }
    }
 
    double a_clash808(ResourceLocation var1) {
-      return !a.equals(var1) && !b.equals(var1) ? 0.0 : Math.sin(this.d.field_71439_g.field_70173_aa * 0.75F) * 0.1F;
+      return !a.equals(var1) && !b.equals(var1) ? 0.0 : Math.sin(this.d.player.ticksExisted * 0.75F) * 0.1F;
    }
 
    int b(BasicGirlEntity var1) {
-      return var1.a == -1 ? 0 : (int)ThreadNames.b(this.d.field_71439_g.field_70173_aa - var1.a, 1.0F, 30.0F);
+      return var1.a == -1 ? 0 : (int)ThreadNames.b(this.d.player.ticksExisted - var1.a, 1.0F, 30.0F);
    }
 
    float a(BasicGirlEntity var1, float var2) {
@@ -132,11 +132,11 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
          return 1.0F;
       }
 
-      if (this.d.field_71439_g.field_70173_aa - var1.a > 120) {
+      if (this.d.player.ticksExisted - var1.a > 120) {
          return 0.0F;
       }
 
-      float var4 = ThreadNames.b(this.d.field_71439_g.field_70173_aa - var1.a, 90.0F, 120.0F) - 90.0F;
+      float var4 = ThreadNames.b(this.d.player.ticksExisted - var1.a, 90.0F, 120.0F) - 90.0F;
       float var5 = (var4 + var2) / 30.0F;
       return 1.0F - var5;
    }

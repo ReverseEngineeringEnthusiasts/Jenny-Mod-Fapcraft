@@ -111,7 +111,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
 
    @Nullable
    protected f7 a_clash319(GalathEntity var1) {
-      if (var1.field_70170_p instanceof SexWorldClient) {
+      if (var1.world instanceof SexWorldClient) {
          return null;
       } else {
          return var1.bb ? null : y;
@@ -137,11 +137,11 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    protected void b_clash320(GalathEntity var1) {
       if (var1.getCurrentAction() == fp.MASTERBATE) {
          float var2 = var1.getYawRotation();
-         var1.field_70177_z = var2;
-         var1.field_70760_ar = var2;
-         var1.field_70761_aq = var2;
-         var1.field_70758_at = var2;
-         var1.field_70759_as = var2;
+         var1.rotationYaw = var2;
+         var1.prevRenderYawOffset = var2;
+         var1.renderYawOffset = var2;
+         var1.prevRotationYawHead = var2;
+         var1.rotationYawHead = var2;
       }
    }
 
@@ -164,23 +164,23 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
 
    void c_clash321(GalathEntity var1) {
       if (var1.getCurrentAction() == fp.RAPE_CHARGE) {
-         var1.field_70761_aq = var1.getYawRotation();
-         var1.field_70760_ar = var1.field_70761_aq;
+         var1.renderYawOffset = var1.getYawRotation();
+         var1.prevRenderYawOffset = var1.renderYawOffset;
       }
    }
 
    void d_clash322(GalathEntity var1) {
-      if ((Boolean)var1.func_184212_Q().func_187225_a(GalathEntity.bP)) {
-         Vec3d var2 = new Vec3d(var1.field_70142_S, var1.field_70137_T, var1.field_70136_U);
-         Vec3d var3 = var1.func_174791_d().func_178788_d(var2);
-         boolean var4 = Math.abs(var3.field_72450_a) + Math.abs(var3.field_72449_c) < 0.05F;
+      if ((Boolean)var1.getDataManager().get(GalathEntity.bP)) {
+         Vec3d var2 = new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ);
+         Vec3d var3 = var1.getPositionVector().subtract(var2);
+         boolean var4 = Math.abs(var3.x) + Math.abs(var3.z) < 0.05F;
          if (var4) {
-            var1.field_70761_aq = this.s;
-            var1.field_70760_ar = this.s;
+            var1.renderYawOffset = this.s;
+            var1.prevRenderYawOffset = this.s;
          } else {
-            float var5 = (float)(gc.b(Math.atan2(var3.field_72449_c, var3.field_72450_a)) - 90.0);
-            var1.field_70761_aq = var5;
-            var1.field_70760_ar = var5;
+            float var5 = (float)(gc.b(Math.atan2(var3.z, var3.x)) - 90.0);
+            var1.renderYawOffset = var5;
+            var1.prevRenderYawOffset = var5;
             this.s = var5;
          }
       }
@@ -200,87 +200,87 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          return null;
       }
 
-      Vec3d var4 = RotationHelper.a(new Vec3d(var3.field_70169_q, var3.field_70167_r, var3.field_70166_s), var3.func_174791_d(), var1);
+      Vec3d var4 = RotationHelper.a(new Vec3d(var3.prevPosX, var3.prevPosY, var3.prevPosZ), var3.getPositionVector(), var1);
       if (var2 == 24.0F && var0.af == -1L) {
-         var0.af = i.field_71441_e.func_82737_E();
+         var0.af = i.world.getTotalWorldTime();
          var0.aH = var0.af + 8L;
       }
 
       if (ThreadNames.a_clash164(var2, 24.0, 32.0)) {
          Vec3d var9 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 3.0), var0.getYawRotation() + 180.0F);
          Vec3d var6 = var0.B_clash642();
-         Vec3d var7 = var4.func_72441_c(0.0, var3.func_70047_e(), 0.0).func_178787_e(var9);
-         float var8 = ((float)i.field_71441_e.func_82737_E() + var1 - (float)var0.af) / (float)(var0.aH - var0.af);
+         Vec3d var7 = var4.add(0.0, var3.getEyeHeight(), 0.0).add(var9);
+         float var8 = ((float)i.world.getTotalWorldTime() + var1 - (float)var0.af) / (float)(var0.aH - var0.af);
          return RotationHelper.a(var6, var7, var8);
       } else if (ThreadNames.a_clash164(var2, 32.0, 54.0)) {
          Vec3d var5 = ck.rotateByYaw(new Vec3d(0.0, 0.0, 1.5), var0.getYawRotation() + 180.0F);
-         return var4.func_178787_e(var5);
+         return var4.add(var5);
       } else {
          return null;
       }
    }
 
    public static void a_clash324(BaseGirlEntity var0, float var1) {
-      EntityPlayerSP var2 = i.field_71439_g;
+      EntityPlayerSP var2 = i.player;
       if (var2 != null) {
-         Tessellator var3 = Tessellator.func_178181_a();
-         BufferBuilder var4 = var3.func_178180_c();
-         GlStateManager.func_179094_E();
+         Tessellator var3 = Tessellator.getInstance();
+         BufferBuilder var4 = var3.getBuffer();
+         GlStateManager.pushMatrix();
          af.a(i, var0, var1);
-         i.func_110434_K().func_110577_a(e);
-         GlStateManager.func_179129_p();
-         GlStateManager.func_179140_f();
-         a(var0, var4, var3, RotationHelper.lerp(var0.field_70760_ar, var0.field_70761_aq, var1));
+         i.getTextureManager().bindTexture(e);
+         GlStateManager.disableCull();
+         GlStateManager.disableLighting();
+         a(var0, var4, var3, RotationHelper.lerp(var0.prevRenderYawOffset, var0.renderYawOffset, var1));
          b(var0, var4, var3, var1);
          a(var0, var4, var3);
-         GlStateManager.func_179121_F();
-         GlStateManager.func_179089_o();
-         GlStateManager.func_179145_e();
+         GlStateManager.popMatrix();
+         GlStateManager.enableCull();
+         GlStateManager.enableLighting();
       }
    }
 
    static void b(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
       if (var0 instanceof GalathEntity) {
-         if ((Boolean)var0.func_184212_Q().func_187225_a(GalathEntity.bP)) {
-            if (!(Boolean)var0.func_184212_Q().func_187225_a(GalathEntity.L)) {
-               GlStateManager.func_179094_E();
+         if ((Boolean)var0.getDataManager().get(GalathEntity.bP)) {
+            if (!(Boolean)var0.getDataManager().get(GalathEntity.L)) {
+               GlStateManager.pushMatrix();
                Vec3d var4 = var0.getCachedBoneOffset("stars");
-               GlStateManager.func_179137_b(var4.field_72450_a, var4.field_72448_b, var4.field_72449_c);
-               float var5 = (float)i.field_71441_e.func_82737_E() + var3;
+               GlStateManager.translate(var4.x, var4.y, var4.z);
+               float var5 = (float)i.world.getTotalWorldTime() + var3;
                float var6 = (float)(Math.sin(var5 * 0.2) * 5.0);
                float var7 = (float)(Math.cos(var5 * 0.2) * 5.0);
                float var8 = (float)(var5 * 3.0);
-               GlStateManager.func_179114_b(var6, 1.0F, 0.0F, 0.0F);
-               GlStateManager.func_179114_b(var8, 0.0F, 1.0F, 0.0F);
-               GlStateManager.func_179114_b(var7, 0.0F, 0.0F, 1.0F);
+               GlStateManager.rotate(var6, 1.0F, 0.0F, 0.0F);
+               GlStateManager.rotate(var8, 0.0F, 1.0F, 0.0F);
+               GlStateManager.rotate(var7, 0.0F, 0.0F, 1.0F);
                float var9 = gc.c_clash745(9.0);
                f7 var10 = GalathEntity.aa;
-               i.func_110434_K().func_110577_a(e);
-               var1.func_181668_a(3, DefaultVertexFormats.field_181709_i);
-               GlStateManager.func_187441_d(a(var0, var3, 1.0F, 3.0F));
+               i.getTextureManager().bindTexture(e);
+               var1.begin(3, DefaultVertexFormats.POSITION_TEX_COLOR);
+               GlStateManager.glLineWidth(a(var0, var3, 1.0F, 3.0F));
 
                for (float var11 = 0.0F; var11 < Math.PI * 2; var11 += var9) {
                   double var12 = Math.sin(var11) * 0.3F;
                   double var14 = Math.cos(var11) * 0.3F;
-                  var1.func_181662_b(var12, 0.0, var14).func_187315_a(0.0, 0.0).func_181666_a(var10.a, var10.c, var10.b, 1.0F).func_181675_d();
+                  var1.pos(var12, 0.0, var14).tex(0.0, 0.0).color(var10.a, var10.c, var10.b, 1.0F).endVertex();
                }
 
-               var2.func_78381_a();
-               i.func_110434_K().func_110577_a(w);
-               var1.func_181668_a(7, DefaultVertexFormats.field_181709_i);
+               var2.draw();
+               i.getTextureManager().bindTexture(w);
+               var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
                var9 = gc.c_clash745(60.0);
 
                for (float var17 = 0.0F; var17 < Math.PI * 2; var17 += var9) {
                   double var18 = Math.sin(var17) * 0.3F;
                   double var19 = Math.cos(var17) * 0.3F;
-                  var1.func_181662_b(var18 - 0.1F, 0.1F, var19).func_187315_a(0.0, 0.0).func_181666_a(1.0F, 1.0F, 1.0F, 1.0F).func_181675_d();
-                  var1.func_181662_b(var18 + 0.1F, 0.1F, var19).func_187315_a(1.0, 0.0).func_181666_a(1.0F, 1.0F, 1.0F, 1.0F).func_181675_d();
-                  var1.func_181662_b(var18 + 0.1F, -0.1F, var19).func_187315_a(1.0, 1.0).func_181666_a(1.0F, 1.0F, 1.0F, 1.0F).func_181675_d();
-                  var1.func_181662_b(var18 - 0.1F, -0.1F, var19).func_187315_a(0.0, 1.0).func_181666_a(1.0F, 1.0F, 1.0F, 1.0F).func_181675_d();
+                  var1.pos(var18 - 0.1F, 0.1F, var19).tex(0.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+                  var1.pos(var18 + 0.1F, 0.1F, var19).tex(1.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+                  var1.pos(var18 + 0.1F, -0.1F, var19).tex(1.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+                  var1.pos(var18 - 0.1F, -0.1F, var19).tex(0.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
                }
 
-               var2.func_78381_a();
-               GlStateManager.func_179121_F();
+               var2.draw();
+               GlStateManager.popMatrix();
             }
          }
       }
@@ -288,18 +288,18 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
 
    static void a(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
       if (var0.getCurrentAction() != fp.GIVE_COIN || fp.GIVE_COIN.ticksPlaying[1] <= 100) {
-         var1.func_181668_a(7, DefaultVertexFormats.field_181709_i);
+         var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
          Vec3d[][] var4 = af.a(var0, var3, "hairStrandStartR", "hairStrandMidR", "hairStrandEndR", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
          Vec3d[][] var5 = af.a(var0, var3, "hairStrandStartL", "hairStrandMidL", "hairStrandEndL", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
          af.a(var1, var4, I);
          af.a(var1, var5, I);
-         var2.func_78381_a();
+         var2.draw();
       }
    }
 
    static void a(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2) {
       if (((IGalath)var0).a_clash22()) {
-         i.func_110434_K().func_110577_a(GalathNpcModel.h);
+         i.getTextureManager().bindTexture(GalathNpcModel.h);
          Vec3d[] var3 = new Vec3d[14];
          Vec3d[] var4 = new Vec3d[14];
 
@@ -314,66 +314,66 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    static void a(BufferBuilder var0, Tessellator var1, Vec3d[] var2) {
-      var0.func_181668_a(4, DefaultVertexFormats.field_181709_i);
-      var0.func_181662_b(var2[0].field_72450_a, var2[0].field_72448_b, var2[0].field_72449_c)
-         .func_187315_a(C.c, C.a)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[1].field_72450_a, var2[1].field_72448_b, var2[1].field_72449_c)
-         .func_187315_a(C.c + 0.125F, C.a)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[2].field_72450_a, var2[2].field_72448_b, var2[2].field_72449_c)
-         .func_187315_a(C.c + 0.125F, C.a + 0.125F)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[11].field_72450_a, var2[11].field_72448_b, var2[11].field_72449_c)
-         .func_187315_a(C.c, C.a)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[12].field_72450_a, var2[12].field_72448_b, var2[12].field_72449_c)
-         .func_187315_a(C.c + 0.125F, C.a)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[13].field_72450_a, var2[13].field_72448_b, var2[13].field_72449_c)
-         .func_187315_a(C.c + 0.125F, C.a + 0.125F)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var1.func_78381_a();
-      var0.func_181668_a(7, DefaultVertexFormats.field_181709_i);
-      var0.func_181662_b(var2[3].field_72450_a, var2[3].field_72448_b, var2[3].field_72449_c)
-         .func_187315_a(x.c, x.a + 0.125F)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[4].field_72450_a, var2[4].field_72448_b, var2[4].field_72449_c)
-         .func_187315_a(x.c, x.a)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[5].field_72450_a, var2[5].field_72448_b, var2[5].field_72449_c)
-         .func_187315_a(x.c + 0.125F, x.a)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[6].field_72450_a, var2[6].field_72448_b, var2[6].field_72449_c)
-         .func_187315_a(x.c + 0.125F, x.a + 0.125F)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[7].field_72450_a, var2[7].field_72448_b, var2[7].field_72449_c)
-         .func_187315_a(x.c, x.a + 0.125F)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[8].field_72450_a, var2[8].field_72448_b, var2[8].field_72449_c)
-         .func_187315_a(x.c, x.a)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[9].field_72450_a, var2[9].field_72448_b, var2[9].field_72449_c)
-         .func_187315_a(x.c + 0.125F, x.a)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var0.func_181662_b(var2[10].field_72450_a, var2[10].field_72448_b, var2[10].field_72449_c)
-         .func_187315_a(x.c + 0.125F, x.a + 0.125F)
-         .func_181669_b(255, 255, 255, 255)
-         .func_181675_d();
-      var1.func_78381_a();
+      var0.begin(4, DefaultVertexFormats.POSITION_TEX_COLOR);
+      var0.pos(var2[0].x, var2[0].y, var2[0].z)
+         .tex(C.c, C.a)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[1].x, var2[1].y, var2[1].z)
+         .tex(C.c + 0.125F, C.a)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[2].x, var2[2].y, var2[2].z)
+         .tex(C.c + 0.125F, C.a + 0.125F)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[11].x, var2[11].y, var2[11].z)
+         .tex(C.c, C.a)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[12].x, var2[12].y, var2[12].z)
+         .tex(C.c + 0.125F, C.a)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[13].x, var2[13].y, var2[13].z)
+         .tex(C.c + 0.125F, C.a + 0.125F)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var1.draw();
+      var0.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+      var0.pos(var2[3].x, var2[3].y, var2[3].z)
+         .tex(x.c, x.a + 0.125F)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[4].x, var2[4].y, var2[4].z)
+         .tex(x.c, x.a)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[5].x, var2[5].y, var2[5].z)
+         .tex(x.c + 0.125F, x.a)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[6].x, var2[6].y, var2[6].z)
+         .tex(x.c + 0.125F, x.a + 0.125F)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[7].x, var2[7].y, var2[7].z)
+         .tex(x.c, x.a + 0.125F)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[8].x, var2[8].y, var2[8].z)
+         .tex(x.c, x.a)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[9].x, var2[9].y, var2[9].z)
+         .tex(x.c + 0.125F, x.a)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var0.pos(var2[10].x, var2[10].y, var2[10].z)
+         .tex(x.c + 0.125F, x.a + 0.125F)
+         .color(255, 255, 255, 255)
+         .endVertex();
+      var1.draw();
    }
 
    protected void a(GeoModel var1, BufferBuilder var2, GalathEntity var3, float var4, float var5, float var6, float var7, float var8) {
@@ -406,19 +406,19 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       MATRIX_STACK.scale(var9);
       MATRIX_STACK.moveBackFromPivot(var9);
       this.renderRecursively(var2, var10, var4, var5, var6, var7);
-      Tessellator.func_178181_a().func_78381_a();
+      Tessellator.getInstance().draw();
       this.a(var2, var11, var3, var8);
-      var2.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+      var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
-      Minecraft.func_71410_x().field_71446_o.func_110577_a(this.func_110775_a(this.j));
+      Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.j));
 
       this.renderRecursively(var2, var12, var4, var5, var6, this.j.v_clash550());
-      Tessellator.func_178181_a().func_78381_a();
+      Tessellator.getInstance().draw();
       if (var13 != null) {
-         var2.func_181668_a(7, DefaultVertexFormats.field_181712_l);
-         Minecraft.func_71410_x().field_71446_o.func_110577_a(ManglelieNpcModel.j);
+         var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+         Minecraft.getMinecraft().renderEngine.bindTexture(ManglelieNpcModel.j);
          this.renderRecursively(var2, var13, var4, var5, var6, this.j.v_clash550());
-         Tessellator.func_178181_a().func_78381_a();
+         Tessellator.getInstance().draw();
       }
 
       MATRIX_STACK.pop();
@@ -428,7 +428,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    protected void a(BufferBuilder var1, String var2, GeoBone var3) {
       switch (var2) {
          case "hairBack":
-            if (!i.func_147113_T()) {
+            if (!i.isGamePaused()) {
                IBone var18 = this.j.getAnimationProcessor().getBone("head");
                float var19 = gc.d_clash746(var18.getRotationX());
                if (var19 < 0.0F) {
@@ -442,7 +442,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
             break;
          case "hairDownSideL":
          case "hairDownSideR":
-            if (!i.func_147113_T()) {
+            if (!i.isGamePaused()) {
                IBone var6 = this.j.getAnimationProcessor().getBone("head");
                float var7 = gc.d_clash746(var6.getRotationX());
                if (var7 < 0.0F) {
@@ -460,29 +460,29 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
             if (var8 == fp.FLY || var8 == fp.ATTACK_SWORD) {
                EntityLivingBase var22 = this.j.M_clash691();
                if (var22 != null) {
-                  float var10 = i.func_184121_ak();
-                  Vec3d var11 = RotationHelper.a(new Vec3d(this.j.field_70142_S, this.j.field_70137_T, this.j.field_70136_U), this.j.func_174791_d(), var10);
-                  Vec3d var12 = RotationHelper.a(new Vec3d(var22.field_70142_S, var22.field_70137_T, var22.field_70136_U), this.j.func_174791_d(), var10);
-                  Vec3d var24 = var11.func_178788_d(var12);
-                  float var14 = (float)ck.rotateByYaw(var24, this.j.field_70761_aq).field_72449_c;
-                  float var10000 = (float)Math.atan2(var24.field_72448_b, var14);
+                  float var10 = i.getRenderPartialTicks();
+                  Vec3d var11 = RotationHelper.a(new Vec3d(this.j.lastTickPosX, this.j.lastTickPosY, this.j.lastTickPosZ), this.j.getPositionVector(), var10);
+                  Vec3d var12 = RotationHelper.a(new Vec3d(var22.lastTickPosX, var22.lastTickPosY, var22.lastTickPosZ), this.j.getPositionVector(), var10);
+                  Vec3d var24 = var11.subtract(var12);
+                  float var14 = (float)ck.rotateByYaw(var24, this.j.renderYawOffset).z;
+                  float var10000 = (float)Math.atan2(var24.y, var14);
                }
             }
             break;
          case "weapon":
             if (this.j.ap) {
-               GlStateManager.func_179094_E();
-               Tessellator.func_178181_a().func_78381_a();
+               GlStateManager.pushMatrix();
+               Tessellator.getInstance().draw();
                com.trolmastercard.sexmod.MatrixHelper.a(MATRIX_STACK, var3);
                GL11.glEnable(2896);
-               GlStateManager.func_179139_a(1.5, 1.0, 2.0);
-               GlStateManager.func_179137_b(0.0, 0.0, 0.05);
-               GlStateManager.func_179114_b(110.0F, 1.0F, 0.0F, 0.0F);
-               Minecraft.func_71410_x().func_175597_ag().func_178099_a(this.j, new ItemStack(Items.field_151040_l), TransformType.THIRD_PERSON_RIGHT_HAND);
-               this.func_110776_a(Objects.requireNonNull(this.getEntityTexture(this.j)));
-               var1.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+               GlStateManager.scale(1.5, 1.0, 2.0);
+               GlStateManager.translate(0.0, 0.0, 0.05);
+               GlStateManager.rotate(110.0F, 1.0F, 0.0F, 0.0F);
+               Minecraft.getMinecraft().getItemRenderer().renderItem(this.j, new ItemStack(Items.IRON_SWORD), TransformType.THIRD_PERSON_RIGHT_HAND);
+               this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
+               var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
                GL11.glDisable(2896);
-               GlStateManager.func_179121_F();
+               GlStateManager.popMatrix();
             }
             break;
          case "tongue":
@@ -507,10 +507,10 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
             if (this.j.getCurrentAction() == fp.RAPE_CHARGE) {
                EntityLivingBase var9 = this.j.M_clash691();
                if (var9 != null) {
-                  float var15 = this.j.field_70761_aq;
-                  Vec3d var13 = var9.func_174791_d().func_178788_d(this.j.func_174791_d());
+                  float var15 = this.j.renderYawOffset;
+                  Vec3d var13 = var9.getPositionVector().subtract(this.j.getPositionVector());
                   var13 = ck.rotateByYaw(var13, var15);
-                  double var16 = -ThreadNames.b(var13.field_72450_a, -1.0, 1.0);
+                  double var16 = -ThreadNames.b(var13.x, -1.0, 1.0);
                   var3.setRotationZ(var3.getRotationZ() + gc.c_clash745(45.0 * var16));
                }
             }
@@ -531,23 +531,23 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
 
    void c(BufferBuilder var1, GeoBone var2) {
       if (fp.a(this.j, fp.MORNING_BLOWJOB_SLOW) || this.j.aD) {
-         float var3 = this.j.aD ? 1.0F - Math.min(0.29F, fp.a_clash718(this.j, i.func_184121_ak())) / 0.29F : 1.0F;
+         float var3 = this.j.aD ? 1.0F - Math.min(0.29F, fp.a_clash718(this.j, i.getRenderPartialTicks())) / 0.29F : 1.0F;
          this.a(var1, var2, var3);
-         this.func_110776_a(ManglelieNpcModel.j);
+         this.bindTexture(ManglelieNpcModel.j);
       }
    }
 
    void d(GeoBone var1) {
       if (fp.a(this.j, fp.MORNING_BLOWJOB_SLOW, fp.MORNING_BLOWJOB_FAST)) {
-         if (!i.func_147113_T()) {
-            float var2 = i.field_71439_g.field_70173_aa + i.func_184121_ak();
+         if (!i.isGamePaused()) {
+            float var2 = i.player.ticksExisted + i.getRenderPartialTicks();
             float var3 = (float)(Math.sin(var2 * 0.1F) * 0.1F) + 0.2F;
             float var4 = (float)Math.sin(var2 * 0.1F) * 0.1F;
             if (fp.a(this.j, fp.MORNING_BLOWJOB_SLOW)) {
                var1.setRotationY(var1.getRotationY() + var3);
                var1.setRotationZ(var1.getRotationZ() + var4);
             } else if (this.j.aD) {
-               float var5 = 1.0F - Math.min(0.5F, fp.a_clash718(this.j, i.func_184121_ak())) / 0.5F;
+               float var5 = 1.0F - Math.min(0.5F, fp.a_clash718(this.j, i.getRenderPartialTicks())) / 0.5F;
                var1.setRotationY(var1.getRotationY() + var3 * var5);
                var1.setRotationZ(var1.getRotationZ() + var4 * var5);
             }
@@ -557,15 +557,15 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
 
    void c(GeoBone var1) {
       if (fp.a(this.j, fp.MORNING_BLOWJOB_SLOW, fp.MORNING_BLOWJOB_FAST)) {
-         if (!i.func_147113_T()) {
-            float var2 = i.field_71439_g.field_70173_aa + i.func_184121_ak();
+         if (!i.isGamePaused()) {
+            float var2 = i.player.ticksExisted + i.getRenderPartialTicks();
             float var3 = (float)Math.sin(var2 * -0.1F) * 0.1F;
             float var4 = (float)Math.sin(var2 * 0.1F) * 0.1F;
             if (fp.a(this.j, fp.MORNING_BLOWJOB_SLOW)) {
                var1.setRotationY(var1.getRotationY() + var3);
                var1.setRotationZ(var1.getRotationZ() + var4);
             } else if (this.j.aD) {
-               float var5 = Math.min(0.5F, fp.a_clash718(this.j, i.func_184121_ak())) / 0.5F;
+               float var5 = Math.min(0.5F, fp.a_clash718(this.j, i.getRenderPartialTicks())) / 0.5F;
                var1.setRotationY(var1.getRotationY() + var3 * var5);
                var1.setRotationZ(var1.getRotationZ() + var4 * var5);
             }
@@ -575,8 +575,8 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
 
    void a_clash325(GeoBone var1) {
       if (fp.a(this.j, fp.MORNING_BLOWJOB_SLOW)) {
-         if (!i.func_147113_T()) {
-            float var2 = i.field_71439_g.field_70173_aa + i.func_184121_ak();
+         if (!i.isGamePaused()) {
+            float var2 = i.player.ticksExisted + i.getRenderPartialTicks();
             var1.setPositionX((float)(var1.getPositionX() + Math.sin(var2 * 0.1F) * -0.1F));
          }
       }
@@ -584,15 +584,15 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
 
    void b(GeoBone var1) {
       if (fp.a(this.j, fp.MORNING_BLOWJOB_SLOW)) {
-         if (!i.func_147113_T()) {
-            float var2 = i.field_71439_g.field_70173_aa + i.func_184121_ak();
+         if (!i.isGamePaused()) {
+            float var2 = i.player.ticksExisted + i.getRenderPartialTicks();
             var1.setPositionX((float)(var1.getPositionX() + Math.sin(var2 * 0.1F) * -0.15F));
          }
       }
    }
 
    void a(BufferBuilder var1, GeoBone var2, float var3) {
-      float var4 = fp.d(this.j, i.func_184121_ak());
+      float var4 = fp.d(this.j, i.getRenderPartialTicks());
       float var5 = var3 * (float)(0.02F * (-0.4F * Math.cos((Math.PI * 2) * var4 + 1.05) + 0.6F));
       ef.b var6 = new ef.b(
          H,
@@ -609,7 +609,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    void d(BufferBuilder var1, GeoBone var2) {
-      float var3 = fp.d(this.j, i.func_184121_ak());
+      float var3 = fp.d(this.j, i.getRenderPartialTicks());
       ef.b var4 = new ef.b(
          H,
          0.0F,
@@ -625,7 +625,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    void f(BufferBuilder var1, GeoBone var2) {
-      float var3 = this.j.b_clash696(i.func_184121_ak());
+      float var3 = this.j.b_clash696(i.getRenderPartialTicks());
       if (var3 == 0.0F) {
          this.a(var1, var2, G);
       } else if (var3 == 1.0F) {
@@ -639,22 +639,22 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    void a(BufferBuilder var1, GeoBone var2, ef.b var3) {
-      GlStateManager.func_179094_E();
-      Tessellator.func_178181_a().func_78381_a();
+      GlStateManager.pushMatrix();
+      Tessellator.getInstance().draw();
       com.trolmastercard.sexmod.MatrixHelper.a(MATRIX_STACK, var2);
-      GlStateManager.func_179129_p();
-      this.func_110776_a(e);
-      ef.a(var1, Tessellator.func_178181_a(), i, var3);
-      this.func_110776_a(Objects.requireNonNull(this.getEntityTexture(this.j)));
-      var1.func_181668_a(7, DefaultVertexFormats.field_181712_l);
-      GlStateManager.func_179089_o();
-      GlStateManager.func_179121_F();
+      GlStateManager.disableCull();
+      this.bindTexture(e);
+      ef.a(var1, Tessellator.getInstance(), i, var3);
+      this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.j)));
+      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      GlStateManager.enableCull();
+      GlStateManager.popMatrix();
    }
 
    void a(BufferBuilder var1, GeoBone var2, GalathEntity var3, float var4) {
       if (var3.getCurrentAction() == fp.GIVE_COIN) {
          n = var1;
-         var1.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+         var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          MATRIX_STACK.push();
          MATRIX_STACK.translate(var2);
          MATRIX_STACK.moveToPivot(var2);
@@ -664,17 +664,17 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          if (!this.p.contains(var2.getName())) {
             for (GeoCube var6 : var2.childCubes) {
                MATRIX_STACK.push();
-               GlStateManager.func_179094_E();
+               GlStateManager.pushMatrix();
                this.q = var2;
                this.a(var1, var6, 1.0F, 1.0F, 1.0F, 1.0F, (double)0.0);
-               GlStateManager.func_179121_F();
+               GlStateManager.popMatrix();
                MATRIX_STACK.pop();
             }
          }
 
-         Tessellator.func_178181_a().func_78381_a();
+         Tessellator.getInstance().draw();
          GeoBone var14 = var2.childBones.get(0);
-         var1.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+         var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          GL11.glDisable(2896);
          float var15 = ThreadNames.b(fp.GIVE_COIN.ticksPlaying[1] + var4, 105.0F, 125.0F);
          float var7 = (var15 - 105.0F) / 20.0F;
@@ -682,7 +682,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          f7 var9 = RotationHelper.a(GalathCoinRenderer.f, GalathCoinRenderer.e, var7);
          float var10 = OpenGlHelper.lastBrightnessX;
          float var11 = OpenGlHelper.lastBrightnessY;
-         OpenGlHelper.func_77475_a(OpenGlHelper.field_77476_b, var8, var8);
+         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, var8, var8);
          MATRIX_STACK.push();
          MATRIX_STACK.translate(var14);
          MATRIX_STACK.moveToPivot(var14);
@@ -692,30 +692,30 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          if (!this.p.contains(var14.getName())) {
             for (GeoCube var13 : var14.childCubes) {
                MATRIX_STACK.push();
-               GlStateManager.func_179094_E();
+               GlStateManager.pushMatrix();
                this.q = var14;
                this.a(var1, var13, var9.a, var9.c, var9.b, 1.0F, (double)0.0);
-               GlStateManager.func_179121_F();
+               GlStateManager.popMatrix();
                MATRIX_STACK.pop();
             }
          }
 
          MATRIX_STACK.pop();
          MATRIX_STACK.pop();
-         Tessellator.func_178181_a().func_78381_a();
+         Tessellator.getInstance().draw();
          GL11.glEnable(2896);
-         OpenGlHelper.func_77475_a(OpenGlHelper.field_77476_b, var10, var11);
+         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, var10, var11);
       }
    }
 
    protected Vec3d a(GalathEntity var1, float var2, Vec3d var3) {
       if (var1.getCurrentAction() == fp.RUN) {
          float var4 = var1.getYawRotation();
-         var1.field_70177_z = var4;
-         var1.field_70760_ar = var4;
-         var1.field_70761_aq = var4;
-         var1.field_70758_at = var4;
-         var1.field_70759_as = var4;
+         var1.rotationYaw = var4;
+         var1.prevRenderYawOffset = var4;
+         var1.renderYawOffset = var4;
+         var1.prevRotationYawHead = var4;
+         var1.rotationYawHead = var4;
       }
 
       return var3;

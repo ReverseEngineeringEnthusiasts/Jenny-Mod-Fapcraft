@@ -24,25 +24,25 @@ public class GirlInventorySlot extends SlotItemHandler {
       return a(var0, GirlInventorySlot.b.a_clash890(var1));
    }
 
-   public boolean func_75214_a(ItemStack var1) {
+   public boolean isItemValid(ItemStack var1) {
       return a(var1, this.a);
    }
 
    static boolean a(ItemStack var0, GirlInventorySlot.b var1) {
-      Item var2 = var0.func_77973_b();
+      Item var2 = var0.getItem();
       switch (var1) {
          case WEAPON:
             return var2 instanceof ItemSword || var2 instanceof ItemTool;
          case BOW:
             return var2 instanceof ItemBow;
          case HELMET:
-            return var2 instanceof ItemArmor && ((ItemArmor)var2).field_77881_a == EntityEquipmentSlot.HEAD;
+            return var2 instanceof ItemArmor && ((ItemArmor)var2).armorType == EntityEquipmentSlot.HEAD;
          case CHEST_PLATE:
-            return var2 instanceof ItemArmor && ((ItemArmor)var2).field_77881_a == EntityEquipmentSlot.CHEST;
+            return var2 instanceof ItemArmor && ((ItemArmor)var2).armorType == EntityEquipmentSlot.CHEST;
          case PANTS:
-            return var2 instanceof ItemArmor && ((ItemArmor)var2).field_77881_a == EntityEquipmentSlot.LEGS;
+            return var2 instanceof ItemArmor && ((ItemArmor)var2).armorType == EntityEquipmentSlot.LEGS;
          case SHOES:
-            return var2 instanceof ItemArmor && ((ItemArmor)var2).field_77881_a == EntityEquipmentSlot.FEET;
+            return var2 instanceof ItemArmor && ((ItemArmor)var2).armorType == EntityEquipmentSlot.FEET;
          case ROD:
             return var2 instanceof ItemFishingRod;
          default:

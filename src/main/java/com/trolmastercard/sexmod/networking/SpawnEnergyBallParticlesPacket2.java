@@ -36,9 +36,9 @@ public class SpawnEnergyBallParticlesPacket2 implements IMessage {
    }
 
    public void toBytes(ByteBuf var1) {
-      var1.writeDouble(this.a.field_72450_a);
-      var1.writeDouble(this.a.field_72448_b);
-      var1.writeDouble(this.a.field_72449_c);
+      var1.writeDouble(this.a.x);
+      var1.writeDouble(this.a.y);
+      var1.writeDouble(this.a.z);
       var1.writeBoolean(this.c);
    }
 

@@ -65,7 +65,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
 
    public DragonStaffRenderer() {
       super(new DragonStaffModel());
-      this.e = Minecraft.func_71410_x();
+      this.e = Minecraft.getMinecraft();
    }
 
    public static boolean b_clash631() {
@@ -84,29 +84,29 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
    public void a(DragonStaffItem var1, ItemStack var2) {
       EntityPlayer var3 = null;
 
-      for (EntityPlayer var5 : this.e.field_71441_e.field_73010_i) {
-         if (var5.field_71071_by.field_70462_a.contains(var2)) {
+      for (EntityPlayer var5 : this.e.world.playerEntities) {
+         if (var5.inventory.mainInventory.contains(var2)) {
             var3 = var5;
             break;
          }
 
-         if (var5.field_71071_by.field_184439_c.contains(var2)) {
+         if (var5.inventory.offHandInventory.contains(var2)) {
             var3 = var5;
             break;
          }
       }
 
       if (var3 != null) {
-         double var10 = var3.field_70165_t - var3.field_70142_S;
-         double var6 = var3.field_70161_v - var3.field_70136_U;
-         double var8 = (Math.PI / 180.0) * var3.field_70177_z;
+         double var10 = var3.posX - var3.lastTickPosX;
+         double var6 = var3.posZ - var3.lastTickPosZ;
+         double var8 = (Math.PI / 180.0) * var3.rotationYaw;
          this.j = new Vector2f((float)(var10 * Math.cos(var8) + var6 * Math.sin(var8)), (float)(-var10 * Math.sin(var8) + var6 * Math.cos(var8)));
       } else {
          this.j = new Vector2f(0.0F, 0.0F);
       }
 
-      if (!Minecraft.func_71410_x().func_147113_T()) {
-         this.b = Minecraft.func_71410_x().field_71439_g.field_70173_aa + this.e.func_184121_ak();
+      if (!Minecraft.getMinecraft().isGamePaused()) {
+         this.b = Minecraft.getMinecraft().player.ticksExisted + this.e.getRenderPartialTicks();
       }
 
       this.h = var2;
@@ -117,31 +117,31 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
    @Override
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
       if ("staff".equals(var2.getName())) {
-         GlStateManager.func_179094_E();
-         Tessellator.func_178181_a().func_78381_a();
+         GlStateManager.pushMatrix();
+         Tessellator.getInstance().draw();
          com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
-         GlStateManager.func_179137_b(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.b) + 0.001, 0.0);
+         GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.b) + 0.001, 0.0);
          Vector3f var7 = n.get(this.h);
-         GlStateManager.func_179139_a(this.d_clash636(), this.d_clash636(), this.d_clash636());
+         GlStateManager.scale(this.d_clash636(), this.d_clash636(), this.d_clash636());
          if (var7 == null) {
             var7 = new Vector3f(0.0F, 0.0F, 0.0F);
          }
 
-         var7.add(new Vector3f(this.j.x, this.k == null ? 0.0F : (float)(this.k.field_70163_u - this.k.field_70137_T), this.j.y));
-         GlStateManager.func_179114_b(var7.z * 10.0F, 1.0F, 0.0F, 0.0F);
-         GlStateManager.func_179114_b(var7.x * 10.0F, 0.0F, 1.0F, 0.0F);
-         GlStateManager.func_179114_b(-var7.y * 10.0F, 0.0F, 0.0F, 1.0F);
-         GlStateManager.func_179114_b((float)(this.b * 0.1F), 1.0F, 1.0F, 1.0F);
+         var7.add(new Vector3f(this.j.x, this.k == null ? 0.0F : (float)(this.k.posY - this.k.lastTickPosY), this.j.y));
+         GlStateManager.rotate(var7.z * 10.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.rotate(var7.x * 10.0F, 0.0F, 1.0F, 0.0F);
+         GlStateManager.rotate(-var7.y * 10.0F, 0.0F, 0.0F, 1.0F);
+         GlStateManager.rotate((float)(this.b * 0.1F), 1.0F, 1.0F, 1.0F);
          n.put(this.h, var7);
-         this.e.func_110434_K().func_110577_a(c);
-         this.q.func_78088_a(Minecraft.func_71410_x().field_71439_g, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
-         GlStateManager.func_179121_F();
+         this.e.getTextureManager().bindTexture(c);
+         this.q.render(Minecraft.getMinecraft().player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+         GlStateManager.popMatrix();
          if (this.k != null) {
             this.c_clash633();
          }
 
-         this.e.func_110434_K().func_110577_a(new DragonStaffModel().getTextureLocation((DragonStaffItem) null));
-         var1.func_181668_a(7, DefaultVertexFormats.field_181712_l);
+         this.e.getTextureManager().bindTexture(new DragonStaffModel().getTextureLocation((DragonStaffItem) null));
+         var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       }
 
       super.renderRecursively(var1, var2, var3, var4, var5, var6);
@@ -167,19 +167,19 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
 
    void a(List<Integer> var1, List<Vec3d> var2) {
       for (int var3 = 0; var3 < var1.size(); var3++) {
-         float var4 = RotationHelper.lerp(this.k.field_70758_at, this.k.field_70759_as, this.e.func_184121_ak());
-         float var5 = RotationHelper.lerp(this.k.field_70127_C, this.k.field_70125_A, this.e.func_184121_ak());
+         float var4 = RotationHelper.lerp(this.k.prevRotationYawHead, this.k.rotationYawHead, this.e.getRenderPartialTicks());
+         float var5 = RotationHelper.lerp(this.k.prevRotationPitch, this.k.rotationPitch, this.e.getRenderPartialTicks());
          Vec3d var6 = RotationHelper.a(
-            new Vec3d(this.k.field_70169_q, this.k.field_70167_r + this.k.func_70047_e(), this.k.field_70166_s),
-            this.k.func_174791_d().func_72441_c(0.0, this.k.func_70047_e(), 0.0),
-            this.e.func_184121_ak()
+            new Vec3d(this.k.prevPosX, this.k.prevPosY + this.k.getEyeHeight(), this.k.prevPosZ),
+            this.k.getPositionVector().add(0.0, this.k.getEyeHeight(), 0.0),
+            this.e.getRenderPartialTicks()
          );
-         Vec3d var7 = var6.func_178788_d((Vec3d)var2.get(var3));
+         Vec3d var7 = var6.subtract((Vec3d)var2.get(var3));
          var7 = ck.a(var7, -var5, var4);
-         double var8 = Math.abs(var7.field_72450_a) + Math.abs(var7.field_72449_c) + Math.abs(var7.field_72448_b);
-         double var10 = -var7.field_72450_a / var8;
-         double var12 = -var7.field_72448_b / var8;
-         double var14 = var7.field_72449_c / var8;
+         double var8 = Math.abs(var7.x) + Math.abs(var7.z) + Math.abs(var7.y);
+         double var10 = -var7.x / var8;
+         double var12 = -var7.y / var8;
+         double var14 = var7.z / var8;
          var10 = this.a_clash635(var10);
          var12 = this.a_clash635(var12);
          var14 = this.a_clash635(var14);
@@ -209,30 +209,30 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
    }
 
    void a(int var1, float var2, float var3, float var4) {
-      this.a(new ItemStack(Blocks.field_150325_L, 1, var1), var2, var3, var4);
+      this.a(new ItemStack(Blocks.WOOL, 1, var1), var2, var3, var4);
    }
 
    void b(int var1, float var2, float var3, float var4) {
-      this.b(new ItemStack(Blocks.field_150325_L, 1, var1), var2, var3, var4);
+      this.b(new ItemStack(Blocks.WOOL, 1, var1), var2, var3, var4);
    }
 
    void b(ItemStack var1, float var2, float var3, float var4) {
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179137_b(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.b) + 0.001, 0.0);
-      GlStateManager.func_179152_a(0.04F, 0.04F, 0.04F);
-      GlStateManager.func_179109_b(var2 * 6.0F, var3 * 6.0F, var4 * 6.0F);
-      this.e.func_175597_ag().func_178099_a(Minecraft.func_71410_x().field_71439_g, var1, TransformType.NONE);
-      GlStateManager.func_179121_F();
+      GlStateManager.pushMatrix();
+      GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.b) + 0.001, 0.0);
+      GlStateManager.scale(0.04F, 0.04F, 0.04F);
+      GlStateManager.translate(var2 * 6.0F, var3 * 6.0F, var4 * 6.0F);
+      this.e.getItemRenderer().renderItem(Minecraft.getMinecraft().player, var1, TransformType.NONE);
+      GlStateManager.popMatrix();
    }
 
    void a(ItemStack var1, float var2, float var3, float var4) {
-      GlStateManager.func_179094_E();
-      GlStateManager.func_179137_b(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.b) + 0.001, 0.0);
-      GlStateManager.func_179152_a(0.04F, 0.04F, 0.04F);
-      GlStateManager.func_179114_b((float)(this.b * 8.0 * var4), 0.0F, var2, var3);
-      GlStateManager.func_179109_b(6.0F, 0.0F, 0.0F);
-      this.e.func_175597_ag().func_178099_a(Minecraft.func_71410_x().field_71439_g, var1, TransformType.NONE);
-      GlStateManager.func_179121_F();
+      GlStateManager.pushMatrix();
+      GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.b) + 0.001, 0.0);
+      GlStateManager.scale(0.04F, 0.04F, 0.04F);
+      GlStateManager.rotate((float)(this.b * 8.0 * var4), 0.0F, var2, var3);
+      GlStateManager.translate(6.0F, 0.0F, 0.0F);
+      this.e.getItemRenderer().renderItem(Minecraft.getMinecraft().player, var1, TransformType.NONE);
+      GlStateManager.popMatrix();
    }
 
 }
