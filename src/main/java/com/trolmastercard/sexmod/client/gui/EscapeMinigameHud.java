@@ -106,7 +106,7 @@ public class EscapeMinigameHud extends Gui {
    }
 
    @SubscribeEvent
-   public void a(RenderGameOverlayEvent var1) {
+   public void onRenderGameOverlay(RenderGameOverlayEvent var1) {
       if (showHud) {
          if (var1.getType() == ElementType.TEXT) {
             int var2 = var1.getResolution().getScaledWidth();
@@ -137,14 +137,14 @@ public class EscapeMinigameHud extends Gui {
    }
 
    @SubscribeEvent
-   public void a(ClientTickEvent var1) {
+   public void onClientTick(ClientTickEvent var1) {
       if (var1.phase != Phase.END) {
          tickHud();
       }
    }
 
    @SubscribeEvent
-   public void a(KeyInputEvent var1) {
+   public void onKeyInput(KeyInputEvent var1) {
       GameSettings var2 = Minecraft.getMinecraft().gameSettings;
       if (GameSettings.isKeyDown(var2.keyBindLeft)) {
          if (currentKey == EscapeDirectionKey.A) {

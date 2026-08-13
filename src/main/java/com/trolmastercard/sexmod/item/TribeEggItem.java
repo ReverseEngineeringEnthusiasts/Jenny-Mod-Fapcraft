@@ -49,7 +49,7 @@ public class TribeEggItem extends Item {
       }
 
       if (!var1.isRemote) {
-         KoboldManager.a(var1, var8.hitVec);
+         KoboldManager.spawnKoboldAt(var1, var8.hitVec);
       }
 
       return new ActionResult(EnumActionResult.SUCCESS, var2.getHeldItem(var3));
@@ -62,13 +62,13 @@ public class TribeEggItem extends Item {
    }
 
    @SubscribeEvent
-   public static void a(Register<Item> var0) {
+   public static void registerItems(Register<Item> var0) {
       var0.getRegistry().register(TRIBE_EGG);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void a(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent var0) {
       ModelLoader.setCustomModelResourceLocation(TRIBE_EGG, 0, new ModelResourceLocation("sexmod:tribe_egg"));
    }
 

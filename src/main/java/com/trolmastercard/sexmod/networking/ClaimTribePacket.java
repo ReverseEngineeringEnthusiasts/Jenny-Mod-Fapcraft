@@ -80,7 +80,7 @@ public class ClaimTribePacket implements IMessage {
                         }
 
                         KoboldManager.setTribeFollowMode(var1.girlUUID, true);
-                        KoboldManager.a(var1.girlUUID, var2.getServerHandler().player.getPersistentID());
+                        KoboldManager.assignMaster(var1.girlUUID, var2.getServerHandler().player.getPersistentID());
                      }
                   }
                );

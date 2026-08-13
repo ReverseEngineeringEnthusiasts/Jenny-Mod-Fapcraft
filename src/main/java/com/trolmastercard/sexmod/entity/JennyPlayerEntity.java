@@ -84,7 +84,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void b(String var1, UUID var2) {
+   public void handleOwnerCommand(String var1, UUID var2) {
       if ("action.names.boobjob".equals(var1)) {
          this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
          this.setCurrentAction(Action.PAIZURI_START);

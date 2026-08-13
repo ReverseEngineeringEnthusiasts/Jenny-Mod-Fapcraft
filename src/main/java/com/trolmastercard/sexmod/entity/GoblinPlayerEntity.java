@@ -114,7 +114,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @Override
-   public void b(String var1, UUID var2) {
+   public void handleOwnerCommand(String var1, UUID var2) {
       if ("anal".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.NELSON_INTRO);
@@ -160,7 +160,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @Override
-   public Vec3d c(Vec3d var1, float var2) {
+   public Vec3d getOwnerLookVector(Vec3d var1, float var2) {
       UUID var3 = this.getOwnerUUID();
       if (var3 == null) {
          return var1;
@@ -199,7 +199,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @Override
-   protected String a(StringBuilder var1) {
+   protected String buildModelCodeDNA(StringBuilder var1) {
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, 3);
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, 2);
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, 2);
@@ -284,7 +284,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @Override
-   public Vec3d b(Vec3d var1, float var2) {
+   public Vec3d getOwnerAimVector(Vec3d var1, float var2) {
       UUID var3 = this.getOwnerUUID();
       if (var3 == null) {
          return var1;
@@ -377,7 +377,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                   HandlePlayerMovement.setMovementLock(true);
                }
 
-               Vec3d var7 = GoblinEntity.a(new Vec3d(0.0, 0.0, 1.5), var5, var6);
+               Vec3d var7 = GoblinEntity.rotateVectorPitchYaw(new Vec3d(0.0, 0.0, 1.5), var5, var6);
                var3.motionX = var7.x;
                var3.motionY = var7.y;
                var3.motionZ = var7.z;
@@ -1057,7 +1057,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(RenderHandEvent var1) {
+      public void onRenderHand(RenderHandEvent var1) {
          AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.g(Minecraft.getMinecraft().player);
          if (var2 != null) {
             if (var2 instanceof IGoblin) {
@@ -1069,7 +1069,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       }
 
       @SubscribeEvent
-      public void a(PlayerTickEvent var1) {
+      public void onPlayerTick(PlayerTickEvent var1) {
          EntityPlayer var2 = var1.player;
          if (var2 != null) {
             this.handlePlayerOwner(var2);
@@ -1078,7 +1078,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(RenderTickEvent var1) {
+      public void onRenderTickSync(RenderTickEvent var1) {
          if (var1.phase != Phase.END) {
             EntityPlayerSP var2 = Minecraft.getMinecraft().player;
             if (var2 != null) {
@@ -1114,7 +1114,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(RenderWorldLastEvent var1) {
+      public void onRenderWorldLast(RenderWorldLastEvent var1) {
          Minecraft var2 = Minecraft.getMinecraft();
          RenderManager var3 = var2.getRenderManager();
          EntityPlayerSP var4 = var2.player;
@@ -1135,7 +1135,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void b(RenderTickEvent var1) {
+      public void onRenderTick(RenderTickEvent var1) {
          if (var1.phase == Phase.START) {
             this.clearFakePlayers();
          } else {
@@ -1177,7 +1177,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       }
 
       @SubscribeEvent
-      public void a(EntityInteract var1) {
+      public void onEntityInteract(EntityInteract var1) {
          EntityPlayer var2 = var1.getEntityPlayer();
          if (var2.isSneaking()) {
             if (var1.getTarget() instanceof EntityPlayer) {

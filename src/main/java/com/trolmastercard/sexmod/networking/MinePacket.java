@@ -84,7 +84,7 @@ public class MinePacket implements IMessage {
                            }
 
                            KoboldTask var12 = new KoboldTask(var1.targetPos, KoboldTask.TaskType.MINE, var7, var1.facing);
-                           KoboldManager.b(var4, var12);
+                           KoboldManager.addTask(var4, var12);
                            PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var7, true), var2.getServerHandler().player);
                         }
                      }

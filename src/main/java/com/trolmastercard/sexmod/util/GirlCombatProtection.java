@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class GirlCombatProtection {
    @SubscribeEvent
-   public void b(LivingAttackEvent var1) {
+   public void onLivingAttack(LivingAttackEvent var1) {
       if (var1.getSource() != DamageSource.OUT_OF_WORLD) {
          if (var1.getEntity() instanceof BaseGirlEntity) {
             BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntity();
@@ -23,7 +23,7 @@ public class GirlCombatProtection {
    }
 
    @SubscribeEvent
-   public void a(LivingAttackEvent var1) {
+   public void onPlayerDamage(LivingAttackEvent var1) {
       DamageSource var2 = var1.getSource();
       if (var2 != DamageSource.OUT_OF_WORLD && !(var2 instanceof SuccubusDamageSource)) {
          if (var1.getEntity() instanceof EntityPlayer) {

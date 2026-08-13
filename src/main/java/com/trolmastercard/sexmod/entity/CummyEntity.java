@@ -26,7 +26,7 @@ public class CummyEntity {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(RenderWorldLastEvent var1) {
+   public void onRenderWorldLast(RenderWorldLastEvent var1) {
       mc.renderEngine.bindTexture(cummyTexture);
       GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
       Tessellator var2 = Tessellator.getInstance();
@@ -46,7 +46,7 @@ public class CummyEntity {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(ClientTickEvent var1) {
+   public void onClientTick(ClientTickEvent var1) {
       if (var1.phase != Phase.END) {
          for (DynamicTrailRenderer var3 : trailRenderers) {
             var3.updateTrails();

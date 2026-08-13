@@ -1123,7 +1123,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
    public static class a {
       @SubscribeEvent
-      public void a(EntityJoinWorldEvent var1) {
+      public void onEntityJoinWorld(EntityJoinWorldEvent var1) {
          Entity var2 = var1.getEntity();
          if (var2 instanceof EntityCreeper) {
             EntityCreeper var3 = (EntityCreeper)var2;

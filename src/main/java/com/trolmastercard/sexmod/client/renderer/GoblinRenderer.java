@@ -225,7 +225,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
                Vec3d var21 = mc.player.getLookVec();
                GlStateManager.pushMatrix();
                GlStateManager.translate(var21.x, var21.y + mc.player.getEyeHeight(), var21.z);
-               Vec3d var28 = GoblinEntity.b(new Vec3d(-Math.abs(mc.player.rotationPitch), 0.0, 0.0), mc.player.rotationYaw);
+               Vec3d var28 = GoblinEntity.rotateVectorYaw(new Vec3d(-Math.abs(mc.player.rotationPitch), 0.0, 0.0), mc.player.rotationYaw);
                GlStateManager.rotate(mc.player.rotationPitch, (float)var28.x, 0.0F, (float)var28.z);
                var2 = 0.0;
                var4 = 0.0;
@@ -252,7 +252,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
          } else if (this.isShoulderIdle) {
             setFirstPersonCamera(var9);
             Vec3d var24 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, mc.gameSettings.fovSetting / 110.0F), 0.0, 0.0);
-            var24 = GoblinEntity.b(var24, mc.player.rotationYaw);
+            var24 = GoblinEntity.rotateVectorYaw(var24, mc.player.rotationYaw);
             var2 = var24.x;
             var4 = var24.y;
             var6 = var24.z;
@@ -322,7 +322,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
                Vec3d var15 = mc.player.getLookVec();
                GlStateManager.pushMatrix();
                GlStateManager.translate(var15.x, var15.y + mc.player.getEyeHeight(), var15.z);
-               Vec3d var13 = GoblinEntity.b(new Vec3d(-Math.abs(mc.player.rotationPitch), 0.0, 0.0), mc.player.rotationYaw);
+               Vec3d var13 = GoblinEntity.rotateVectorYaw(new Vec3d(-Math.abs(mc.player.rotationPitch), 0.0, 0.0), mc.player.rotationYaw);
                GlStateManager.rotate(mc.player.rotationPitch, (float)var13.x, 0.0F, (float)var13.z);
                var2 = 0.0;
                var4 = 0.0;
@@ -341,7 +341,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
          } else if (this.isShoulderIdle) {
             setFirstPersonCamera(var9);
             Vec3d var17 = new Vec3d(RotationHelper.lerp(-0.1F, 0.2F, mc.gameSettings.fovSetting / 110.0F), 0.0, 0.0);
-            var17 = GoblinEntity.b(var17, mc.player.rotationYaw);
+            var17 = GoblinEntity.rotateVectorYaw(var17, mc.player.rotationYaw);
             var2 = var17.x;
             var4 = var17.y;
             var6 = var17.z;

@@ -521,7 +521,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return new Vec3d(Double.parseDouble(var1[0]), Double.parseDouble(var1[1]), Double.parseDouble(var1[2]));
    }
 
-   public void e(@Nullable Vec3d var1) {
+   public void setFlightTargetPos(@Nullable Vec3d var1) {
       this.entityDataManager.set(b8, var1.x + "|" + var1.y + "|" + var1.z);
    }
 
@@ -922,7 +922,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.bg = TrigMath.toRadians(ThreadNames.b(var2.x * 40.0, -50.0, 50.0));
    }
 
-   public void f(Vec3d var1) {
+   public void setFlightVelocity(Vec3d var1) {
       if (!(Boolean)this.entityDataManager.get(bP)) {
          this.entityDataManager.set(bP, true);
          if (this.bZ != null) {
@@ -948,7 +948,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       BaseGirlEntity.sendMessageToTrackingPlayers(this, TextFormatting.YELLOW + "Galath is paralyzed! Now it's time to corrupt her");
       BaseGirlEntity.sendMessageToTrackingPlayers(this, TextFormatting.GRAY + "(Walk to her and right click her)");
       PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(this.getPositionVector(), true), this);
-      this.f(null);
+      this.setFlightVelocity(null);
       this.entityDataManager.set(HIDE_EFFECTS_FLAG, true);
    }
 
@@ -1272,7 +1272,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
-   public void d(Vec3d var1) {
+   public void applyVelocityDelta(Vec3d var1) {
       this.motionX = this.motionX + var1.x;
       this.motionZ = this.motionZ + var1.z;
       this.motionY = var1.y / 2.0;
@@ -2776,7 +2776,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(KeyInputEvent var1) {
+      public void onKeyInput(KeyInputEvent var1) {
          Minecraft var2 = Minecraft.getMinecraft();
          if (var2.gameSettings.keyBindJump.isKeyDown()) {
             if (GalathFlightHud.canUseCharge()) {
@@ -2811,7 +2811,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
 
       @SubscribeEvent(priority = EventPriority.HIGH)
-      public void a(LivingDeathEvent var1) {
+      public void onLivingDeath(LivingDeathEvent var1) {
          Entity var2 = var1.getEntity();
          if (var2 instanceof GalathEntity) {
             if (!var1.getSource().equals(DamageSource.OUT_OF_WORLD)) {
@@ -2854,7 +2854,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(RenderWorldLastEvent var1) {
+      public void onRenderWorldLast(RenderWorldLastEvent var1) {
          Minecraft var2 = Minecraft.getMinecraft();
          RenderManager var3 = var2.getRenderManager();
          float var4 = var2.getRenderPartialTicks();

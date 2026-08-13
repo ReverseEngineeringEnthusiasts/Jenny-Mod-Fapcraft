@@ -9,7 +9,7 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class SexSceneModel extends AnimatedGeoModel<SexSceneEntity> {
    public ResourceLocation getModelLocation(SexSceneEntity var0) {
-      return var0.isItemModel ? new ResourceLocation("sexmod", "geo/cross.geo.json") : ServerWhitelistManager.k(var0.getModelCode());
+      return var0.isItemModel ? new ResourceLocation("sexmod", "geo/cross.geo.json") : ServerWhitelistManager.getModelResource(var0.getModelCode());
    }
 
    public ResourceLocation getTextureLocation(SexSceneEntity var0) {

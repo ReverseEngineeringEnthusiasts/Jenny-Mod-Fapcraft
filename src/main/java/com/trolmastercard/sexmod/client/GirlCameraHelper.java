@@ -31,7 +31,7 @@ public class GirlCameraHelper {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(Pre var1) {
+   public void onPre(Pre var1) {
       if (var1.getPartialRenderTick() != 1.2345679F) {
          AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
          AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getEntityPlayer().getPersistentID());
@@ -105,7 +105,7 @@ public class GirlCameraHelper {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(RenderTickEvent var1) {
+   public void onRenderTickEnd(RenderTickEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       if (var2.player != null) {
          if (var1.phase == Phase.END) {
@@ -124,7 +124,7 @@ public class GirlCameraHelper {
                   this.playerPos = var2.player.getPositionVector();
                   this.playerLastPos = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
                   Vec3d var4 = var3.getCachedBoneOffset("girlCam");
-                  var4 = var3.b(var4, var1.renderTickTime);
+                  var4 = var3.getOwnerAimVector(var4, var1.renderTickTime);
                   var4 = var4.add(RotationHelper.a(this.playerLastPos, this.playerPos, var1.renderTickTime));
                   var2.player.posX = var4.x;
                   var2.player.posY = var4.y - var2.player.getEyeHeight();
@@ -185,7 +185,7 @@ public class GirlCameraHelper {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(RenderWorldLastEvent var1) {
+   public void onRenderWorldLast(RenderWorldLastEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       if (this.playerPos != null) {
          if (var2.gameSettings.thirdPersonView == 0) {
@@ -205,7 +205,7 @@ public class GirlCameraHelper {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void b(RenderTickEvent var1) {
+   public void onRenderTickStart(RenderTickEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       if (var2.player != null) {
          if (var1.phase != Phase.END) {

@@ -54,13 +54,13 @@ public class LunaRodItem extends ItemFishingRod {
    }
 
    @SubscribeEvent
-   public static void a(Register<Item> var0) {
+   public static void registerItems(Register<Item> var0) {
       var0.getRegistry().register(LUNA_ROD);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void a(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent var0) {
       ModelLoader.setCustomModelResourceLocation(LUNA_ROD, 0, new ModelResourceLocation("fishing_rod"));
    }
 

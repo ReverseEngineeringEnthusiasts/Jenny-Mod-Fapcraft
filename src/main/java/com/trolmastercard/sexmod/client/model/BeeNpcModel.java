@@ -52,37 +52,37 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public String[] c() {
+   public String[] HeadArmor() {
       return new String[]{"armorHelmet"};
    }
 
    @Override
-   public String[] g() {
+   public String[] Attachments() {
       return new String[]{"band", "feeler", "feeler2", "brow", "brow2", "brow3", "brow4"};
    }
 
    @Override
-   public String[] f() {
+   public String[] TopArmor() {
       return new String[]{"armorShoulderR", "armorShoulderL", "armorChest", "armorBoobs"};
    }
 
    @Override
-   public String[] a() {
+   public String[] Top() {
       return new String[]{"boobsFlesh", "upperBodyL", "upperBodyR"};
    }
 
    @Override
-   public String[] h() {
+   public String[] BottomArmor() {
       return new String[]{"armorBootyR", "armorBootyL", "armorPantsLowL", "armorPantsLowR", "armorPantsLowR", "armorPantsUpR", "armorPantsUpL", "armorHip"};
    }
 
    @Override
-   public String[] e() {
+   public String[] Bottom() {
       return new String[]{"sideL", "sideR", "fleshL", "fleshR", "vagina", "curvesL", "curvesR", "kneeL", "kneeR"};
    }
 
    @Override
-   public String[] b() {
+   public String[] ShoesArmor() {
       return new String[]{"armorShoesL", "armorShoesR"};
    }
 

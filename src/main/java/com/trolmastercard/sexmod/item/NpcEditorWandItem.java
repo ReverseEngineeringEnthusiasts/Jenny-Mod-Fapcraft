@@ -60,7 +60,7 @@ public class NpcEditorWandItem extends Item {
    }
 
    @SubscribeEvent
-   public void a(EntityInteract var1) {
+   public void onEntityInteract(EntityInteract var1) {
       Entity var2 = var1.getTarget();
       if (var2 instanceof BaseGirlEntity) {
          if (BaseGirlEntity.isValidGirl(var2)) {
@@ -90,7 +90,7 @@ public class NpcEditorWandItem extends Item {
    }
 
    @SubscribeEvent
-   public void a(AttackEntityEvent var1) {
+   public void onAttackEntity(AttackEntityEvent var1) {
       Entity var2 = var1.getTarget();
       if (var2 != null) {
          if (var2 instanceof BaseGirlEntity) {
@@ -172,13 +172,13 @@ public class NpcEditorWandItem extends Item {
    }
 
    @SubscribeEvent
-   public static void a(Register<Item> var0) {
+   public static void registerItems(Register<Item> var0) {
       var0.getRegistry().register(EDITOR_WAND);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void a(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent var0) {
       ModelLoader.setCustomModelResourceLocation(EDITOR_WAND, 0, new ModelResourceLocation("sexmod:npc_editor_wand"));
       ModelLoader.setCustomModelResourceLocation(EDITOR_WAND, 1, new ModelResourceLocation("sexmod:npc_editor_wand_active"));
    }

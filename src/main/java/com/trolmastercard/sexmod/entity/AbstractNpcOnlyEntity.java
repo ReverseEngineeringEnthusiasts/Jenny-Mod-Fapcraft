@@ -30,7 +30,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
    protected void entityInit() {
       super.entityInit();
       if (!this.world.isRemote || !(this.world instanceof SexWorldClient)) {
-         this.entityDataManager.register(APPEARANCE_DNA, this.a(new StringBuilder()));
+         this.entityDataManager.register(APPEARANCE_DNA, this.buildModelCodeDNA(new StringBuilder()));
       }
    }
 
@@ -63,7 +63,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
 
    protected abstract void clearBoneColors();
 
-   protected abstract String a(StringBuilder var1);
+   abstract String buildModelCodeDNA(StringBuilder var1);
 
    public static void c(StringBuilder var0, int var1) {
       if (var1 < 10) {

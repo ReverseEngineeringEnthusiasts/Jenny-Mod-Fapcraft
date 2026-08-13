@@ -273,37 +273,37 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public String[] c() {
+   public String[] HeadArmor() {
       return new String[]{"armorHelmet"};
    }
 
    @Override
-   public String[] f() {
+   public String[] TopArmor() {
       return new String[]{"armorBoobL", "armorBoobR"};
    }
 
    @Override
-   public String[] a() {
+   public String[] Top() {
       return new String[]{"nippleL", "nippleR"};
    }
 
    @Override
-   public String[] h() {
+   public String[] BottomArmor() {
       return new String[]{"armorCheekR", "armorCheekL", "armorLegL", "armorLegR", "armorShinL", "armorShinR", "armorTorso"};
    }
 
    @Override
-   public String[] e() {
+   public String[] Bottom() {
       return new String[]{"fuckhole", "vagina", "meatCheekR", "meatCheekL", "meatLegL", "meatLegR", "meatShinL", "meatShinR"};
    }
 
    @Override
-   public String[] b() {
+   public String[] ShoesArmor() {
       return new String[]{"armorFootL", "armorFootR"};
    }
 
    @Override
-   public String[] d() {
+   public String[] Shoes() {
       return new String[]{"meatFootL", "meatFootR"};
    }
 

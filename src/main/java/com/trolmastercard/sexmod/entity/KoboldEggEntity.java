@@ -98,8 +98,8 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
             this.tribeId = UUID.randomUUID();
          }
 
-         KoboldEntity var8 = KoboldEntity.a(this.world, this.tribeId);
-         KoboldManager.c(this.tribeId, var8);
+         KoboldEntity var8 = KoboldEntity.createKobold(this.world, this.tribeId);
+         KoboldManager.addTribeMember(this.tribeId, var8);
          UUID var9 = KoboldManager.findTribeIdWith(this.tribeId);
          if (var9 != null) {
             var8.getDataManager().set(BaseGirlEntity.MASTER, var9.toString());

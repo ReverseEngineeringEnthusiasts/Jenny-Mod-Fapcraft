@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GoblinFirstPersonRenderer {
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(RenderWorldLastEvent var1) {
+   public void onRenderWorldLastFirstPerson(RenderWorldLastEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       if (var2.gameSettings.thirdPersonView == 0) {
          UUID var3 = var2.player.getPersistentID();
@@ -67,7 +67,7 @@ public class GoblinFirstPersonRenderer {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void b(RenderWorldLastEvent var1) {
+   public void onRenderWorldLastPlayer(RenderWorldLastEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       if (var2.player != null) {
          UUID var3 = var2.player.getPersistentID();
@@ -95,7 +95,7 @@ public class GoblinFirstPersonRenderer {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(RenderHandEvent var1) {
+   public void onRenderHand(RenderHandEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       UUID var3 = var2.player.getPersistentID();
 
@@ -119,7 +119,7 @@ public class GoblinFirstPersonRenderer {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(Pre var1) {
+   public void onPre(Pre var1) {
       UUID var2 = var1.getEntityPlayer().getPersistentID();
 
       try {

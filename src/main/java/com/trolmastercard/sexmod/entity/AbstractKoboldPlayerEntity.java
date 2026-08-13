@@ -37,11 +37,11 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
    protected void entityInit() {
       super.entityInit();
       if (!this.world.isRemote || !(this.world instanceof SexWorldClient)) {
-         this.entityDataManager.register(at, this.a(new StringBuilder()));
+         this.entityDataManager.register(at, this.buildModelCodeDNA(new StringBuilder()));
       }
    }
 
-   protected abstract String a(StringBuilder var1);
+   abstract String buildModelCodeDNA(StringBuilder var1);
 
    public static String[] getModelCodeParts(BaseGirlEntity var0) {
       return ((String)var0.getDataManager().get(at)).split("-");

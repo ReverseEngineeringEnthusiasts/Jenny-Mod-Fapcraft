@@ -319,21 +319,6 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       appendPaddedNumber(var1, 3);
       appendPaddedNumber(var1, 2);
       appendPaddedNumber(var1, 2);
-      c(var1, 7);
-      c(var1, 7);
-      appendPaddedNumber(var1, 5);
-      appendPaddedNumber(var1, HairColor.values().length - 1);
-      appendPaddedNumber(var1, SkinColor.values().length - 1);
-      appendPaddedNumber(var1, EyeColor.values().length - 1);
-      c(var1, 1);
-      return var1.toString();
-   }
-
-   @Override
-   protected String a(StringBuilder var1) {
-      appendPaddedNumber(var1, 3);
-      appendPaddedNumber(var1, 2);
-      appendPaddedNumber(var1, 2);
       appendPaddedNumber(var1, 8);
       appendPaddedNumber(var1, 8);
       appendPaddedNumber(var1, 5);
@@ -367,7 +352,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    @Override
-   public Point2D g(int var1) {
+   public Point2D getModelPartByIndex(int var1) {
       switch (var1) {
          case 0:
             return new Point2D(40, 130);
@@ -733,9 +718,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
                      List var10 = this.I_clash261();
                      float var11 = this.ac + 180.0F;
-                     Vec3d var5 = this.al.add(b(aT, var11));
-                     Vec3d var6 = this.al.add(b(ap, var11));
-                     Vec3d var7 = this.al.add(b(as, var11));
+                     Vec3d var5 = this.al.add(rotateVectorYaw(aT, var11));
+                     Vec3d var6 = this.al.add(rotateVectorYaw(ap, var11));
+                     Vec3d var7 = this.al.add(rotateVectorYaw(as, var11));
                      GoblinEntity var8 = (GoblinEntity)var10.get(0);
                      GoblinEntity var9 = (GoblinEntity)var10.get(1);
                      var8.setTargetPosition(var5);
@@ -775,7 +760,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                if (var1 != null) {
                   EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
                   if (var2 != null) {
-                     Vec3d var3 = b(new Vec3d(0.0, 0.15625 - var2.getEyeHeight(), -0.8859375), this.ac - 180.0F);
+                     Vec3d var3 = rotateVectorYaw(new Vec3d(0.0, 0.15625 - var2.getEyeHeight(), -0.8859375), this.ac - 180.0F);
                      var3 = var3.add(this.getTargetPosition());
                      var2.setPositionAndUpdate(var3.x, var3.y, var3.z);
                   }
@@ -785,11 +770,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
-   public static Vec3d b(Vec3d var0, float var1) {
-      return a(var0, 0.0F, var1);
+   public static Vec3d rotateVectorYaw(Vec3d var0, float var1) {
+      return rotateVectorPitchYaw(var0, 0.0F, var1);
    }
 
-   public static Vec3d a(Vec3d var0, float var1, float var2) {
+   public static Vec3d rotateVectorPitchYaw(Vec3d var0, float var1, float var2) {
       Vec3d var3 = new Vec3d(
          var0.x,
          var0.y * Math.cos(var1 * (Math.PI / 180.0)) - var0.z * Math.sin(var1 * (Math.PI / 180.0)),
@@ -831,7 +816,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      this.setCurrentAction(Action.BREEDING_INTRO_0);
                      this.noClip = true;
                      this.setNoGravity(true);
-                     Vec3d var4 = b(new Vec3d(0.0, 0.44375 - var3.eyeHeight, -0.7875), this.ac - 180.0F);
+                     Vec3d var4 = rotateVectorYaw(new Vec3d(0.0, 0.44375 - var3.eyeHeight, -0.7875), this.ac - 180.0F);
                      var3.noClip = true;
                      var3.setNoGravity(true);
                      var3.setPositionAndUpdate(
@@ -976,7 +961,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
             float var4 = getGoblinThrowHeight(this);
             float var5 = getGoblinThrowDistance(this);
             this.setPositionAndUpdate(var3.x, var3.y, var3.z);
-            Vec3d var6 = a(new Vec3d(0.0, 0.0, 1.5), var4, var5);
+            Vec3d var6 = rotateVectorPitchYaw(new Vec3d(0.0, 0.0, 1.5), var4, var5);
             this.motionX = var6.x;
             this.motionY = var6.y;
             this.motionZ = var6.z;
@@ -1006,7 +991,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       EntityPlayer var3 = var0.world.getPlayerEntityByUUID(var2);
       return var3 == null
          ? var0.getPositionVector()
-         : var3.getPositionVector().add(0.0, var3.getEyeHeight(), 0.0).add(a(new Vec3d(0.4F, 0.0, 0.0), getGoblinThrowHeight(var0), getGoblinThrowDistance(var0)));
+         : var3.getPositionVector().add(0.0, var3.getEyeHeight(), 0.0).add(rotateVectorPitchYaw(new Vec3d(0.4F, 0.0, 0.0), getGoblinThrowHeight(var0), getGoblinThrowDistance(var0)));
    }
 
    public static float getGoblinThrowDistance(BaseGirlEntity var0) {
@@ -1101,7 +1086,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                                  if (!(var6 > 100.0)) {
                                     ItemStack var8 = var1.inventory.getStackInSlot(var2).copy();
                                     GoblinEntity var9 = new GoblinEntity(this.world, this.getGirlId().toString(), this.getModelPartIndex());
-                                    Vec3d var10 = b(new Vec3d(0.0, 0.0, -0.2F), var1.rotationYawHead);
+                                    Vec3d var10 = rotateVectorYaw(new Vec3d(0.0, 0.0, -0.2F), var1.rotationYawHead);
                                     var9.setPosition(var1.posX + var10.x, var1.posY, var1.posZ + var10.z);
                                     var9.setCurrentAction(Action.RUN);
                                     this.world.spawnEntity(var9);
@@ -1905,7 +1890,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void a(ClientTickEvent var1) {
+      public void onClientTick(ClientTickEvent var1) {
          if (var1.phase != Phase.START) {
             ArrayList var2 = new ArrayList();
 
@@ -1934,7 +1919,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
 
       @SubscribeEvent
-      public void a(PlayerChangedDimensionEvent var1) {
+      public void onPlayerChangedDimension(PlayerChangedDimensionEvent var1) {
          EntityPlayer var2 = var1.player;
          UUID var3 = var2.getPersistentID();
          int var4 = var1.toDim;
@@ -1976,7 +1961,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
 
       @SubscribeEvent
-      public void a(LivingAttackEvent var1) {
+      public void onLivingAttack(LivingAttackEvent var1) {
          if (var1.getSource() != DamageSource.OUT_OF_WORLD) {
             EntityLivingBase var2 = var1.getEntityLiving();
             if (var2 instanceof GoblinEntity) {
@@ -1990,7 +1975,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
       @SubscribeEvent
       @SideOnly(Side.CLIENT)
-      public void a(KeyInputEvent var1) {
+      public void onKeyInput(KeyInputEvent var1) {
          if (mcUnused == null) {
             mcUnused = Minecraft.getMinecraft();
          }

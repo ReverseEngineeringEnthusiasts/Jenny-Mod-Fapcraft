@@ -80,7 +80,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    @Override
-   public void b(String var1, UUID var2) {
+   public void handleOwnerCommand(String var1, UUID var2) {
       if ("cowgirl".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.RAPE_INTRO);

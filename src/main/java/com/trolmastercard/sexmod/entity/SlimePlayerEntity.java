@@ -64,7 +64,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void b(String var1, UUID var2) {
+   public void handleOwnerCommand(String var1, UUID var2) {
       if ("action.names.blowjob".equals(var1)) {
          this.a(0, Action.SUCKBLOWJOB);
          this.setCurrentAction(Action.SUCKBLOWJOB);

@@ -30,7 +30,7 @@ public class PlayerIds {
    static final UUID girlId = UUID.fromString("adf20149-2adc-4a9d-9af5-8e9aeda019d6");
 
    @SubscribeEvent
-   public void a(PlayerLoggedInEvent var1) {
+   public void onPlayerLoggedIn(PlayerLoggedInEvent var1) {
       EntityPlayerMP var2 = var1.player.world.getMinecraftServer().getPlayerList().getPlayerByUUID(var1.player.getPersistentID());
       var2.setInvisible(false);
       var2.setNoGravity(false);

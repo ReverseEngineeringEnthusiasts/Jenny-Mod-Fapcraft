@@ -160,7 +160,7 @@ public class KoboldTask {
 
       var5.removeAll(var17);
       KoboldTask var20 = new KoboldTask(var3, KoboldTask.TaskType.FALL_TREE, var5);
-      KoboldManager.b(var2, var20);
+      KoboldManager.addTask(var2, var20);
       return var5;
    }
 

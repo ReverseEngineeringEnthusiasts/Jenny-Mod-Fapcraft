@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.eventhandler.Event.Result;
 
 public class NameTagInteractHandler {
    @SubscribeEvent
-   public void a(EntityInteractSpecific var1) {
+   public void onEntityInteractSpecific(EntityInteractSpecific var1) {
       Entity var2 = var1.getTarget();
       if (var2 instanceof BaseGirlEntity) {
          EntityPlayer var3 = var1.getEntityPlayer();

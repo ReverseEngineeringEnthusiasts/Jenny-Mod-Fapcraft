@@ -43,7 +43,7 @@ public class PlayerGirlEvents {
    static final int eventCooldown = 284453;
 
    @SubscribeEvent
-   public void a(PlayerSleepInBedEvent var1) {
+   public void onPlayerSleepInBed(PlayerSleepInBedEvent var1) {
       EntityPlayer var2 = var1.getEntityPlayer();
       AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.g(var2);
       if (var3 != null) {
@@ -54,11 +54,11 @@ public class PlayerGirlEvents {
    }
 
    @SubscribeEvent
-   public void a(GetCollisionBoxesEvent var1) {
+   public void onGetCollisionBoxes(GetCollisionBoxesEvent var1) {
    }
 
    @SubscribeEvent
-   public void a(RightClickBlock var1) {
+   public void onRightClickBlockPlace(RightClickBlock var1) {
       AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getEntityPlayer().getPersistentID());
       BlockPos var3 = var1.getPos();
       World var4 = var1.getEntityPlayer().world;
@@ -165,7 +165,7 @@ public class PlayerGirlEvents {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void b(EntityInteract var1) {
+   public void onEntityInteractOpenMenu(EntityInteract var1) {
       if (var1.getTarget() instanceof EntityPlayer) {
          if (!var1.getEntityPlayer().isSneaking()) {
             if (var1.getEntityPlayer().getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
@@ -189,7 +189,7 @@ public class PlayerGirlEvents {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(EntityInteract var1) {
+   public void onEntityInteractLesbo(EntityInteract var1) {
       if (var1.getTarget() instanceof EntityPlayer) {
          if (var1.getEntityPlayer().getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
             EntityPlayerSP var2 = Minecraft.getMinecraft().player;
@@ -211,7 +211,7 @@ public class PlayerGirlEvents {
    }
 
    @SubscribeEvent
-   public void b(RightClickBlock var1) {
+   public void onRightClickBlockSlime(RightClickBlock var1) {
       EntityPlayer var2 = var1.getEntityPlayer();
       AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.g(var2);
       if (var3 != null) {
@@ -244,7 +244,7 @@ public class PlayerGirlEvents {
    }
 
    @SubscribeEvent
-   public void a(LivingHurtEvent var1) {
+   public void onLivingHurt(LivingHurtEvent var1) {
       if (var1.getEntityLiving() instanceof EntityPlayer) {
          if (var1.getSource() == DamageSource.FALL) {
             EntityPlayer var2 = (EntityPlayer)var1.getEntityLiving();
@@ -304,7 +304,7 @@ public class PlayerGirlEvents {
    }
 
    @SubscribeEvent
-   public void a(LivingDamageEvent var1) {
+   public void onLivingDamage(LivingDamageEvent var1) {
       if (var1.getSource() == DamageSource.FALL) {
          EntityLivingBase var2 = var1.getEntityLiving();
          if (var2 instanceof EntityPlayer) {

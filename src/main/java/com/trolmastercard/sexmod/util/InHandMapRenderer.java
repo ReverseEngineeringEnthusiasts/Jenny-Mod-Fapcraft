@@ -35,7 +35,7 @@ public class InHandMapRenderer {
    float ANIM_OFFSET = 0.0F;
 
    @SubscribeEvent
-   public void a(RenderSpecificHandEvent var1) {
+   public void onRenderSpecificHand(RenderSpecificHandEvent var1) {
       AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
       AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
       if (var2 != null) {

@@ -39,7 +39,7 @@ public class DamageCalculation {
    }
 
    @SubscribeEvent
-   public void a(LivingDamageEvent var1) {
+   public void onLivingDamage(LivingDamageEvent var1) {
       if (var1.getEntity() instanceof AbstractGirlNpcEntity) {
          AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntity();
          ItemStack[] var3 = new ItemStack[]{var2.inventory.getStackInSlot(2), var2.inventory.getStackInSlot(3), var2.inventory.getStackInSlot(4), var2.inventory.getStackInSlot(5)};

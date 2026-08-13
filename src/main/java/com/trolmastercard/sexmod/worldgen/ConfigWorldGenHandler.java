@@ -230,7 +230,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
          int var6 = var4 * 16 + 8;
          int var7 = WorldUtils.a(var1, var5, var6);
          if (!var1.getBlockState(new BlockPos(var5, var7, var6)).getMaterial().isLiquid()) {
-            KoboldManager.a(var1, new Vec3d(var5, var7, var6));
+            KoboldManager.spawnKoboldAt(var1, new Vec3d(var5, var7, var6));
          }
       }
    }

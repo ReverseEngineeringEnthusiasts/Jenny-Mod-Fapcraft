@@ -18,7 +18,7 @@ public class GirlBedInteraction {
    static final int bedIndex = 3;
 
    @SubscribeEvent
-   public void a(BreakEvent var1) {
+   public void onBlockBreak(BreakEvent var1) {
       Block var2 = var1.getState().getBlock();
       if (var2 == Blocks.BED) {
          BlockPos var3 = var1.getPos();
@@ -50,7 +50,7 @@ public class GirlBedInteraction {
 
    @SubscribeEvent
    @SideOnly(Side.CLIENT)
-   public void a(PlayerSPPushOutOfBlocksEvent var1) {
+   public void onPushOutOfBlocks(PlayerSPPushOutOfBlocksEvent var1) {
       if (BaseGirlEntity.getActiveSceneInfo(var1.getEntityPlayer()) != null) {
          var1.setCanceled(true);
       }

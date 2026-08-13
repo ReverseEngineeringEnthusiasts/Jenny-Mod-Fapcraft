@@ -72,7 +72,7 @@ public class GenderSwapScreen {
    }
 
    @SubscribeEvent
-   public void a(ClientChatEvent var1) {
+   public void onClientChat(ClientChatEvent var1) {
       if (instance.getActiveButton() != null) {
          String var2 = var1.getMessage().toLowerCase();
          if (var2.equals(I18n.format("genderswap.sexpromt.accept", new Object[0]).toLowerCase())) {

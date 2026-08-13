@@ -61,7 +61,7 @@ public class GalathFlightHud extends Gui {
    }
 
    @SubscribeEvent
-   public void a(RenderGameOverlayEvent var1) {
+   public void onRenderGameOverlay(RenderGameOverlayEvent var1) {
       this.updateChargeRegen();
       if (isUIVisible) {
          ScaledResolution var2 = var1.getResolution();

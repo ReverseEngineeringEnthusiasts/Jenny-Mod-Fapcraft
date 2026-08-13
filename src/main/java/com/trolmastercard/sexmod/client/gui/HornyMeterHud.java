@@ -51,7 +51,7 @@ public class HornyMeterHud extends Gui {
    }
 
    @SubscribeEvent
-   public void a(RenderGameOverlayEvent var1) {
+   public void onRenderGameOverlay(RenderGameOverlayEvent var1) {
       if (isVisible && var1.getType() == ElementType.TEXT) {
          Minecraft var2 = Minecraft.getMinecraft();
          if (slideInProgress < 1.0F) {

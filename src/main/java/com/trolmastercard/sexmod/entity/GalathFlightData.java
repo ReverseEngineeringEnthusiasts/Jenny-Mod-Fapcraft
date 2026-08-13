@@ -241,7 +241,7 @@ public enum GalathFlightData {
       var0.setCurrentAction(Action.ATTACK_SWORD);
       var0.setVelocity(Vec3d.ZERO);
       Vec3d var1 = var0.getPositionVector();
-      var0.e(var1);
+      var0.setFlightTargetPos(var1);
       Vec3d var2 = var0.getTargetEntity().getPositionVector();
       Vector2d var3 = new Vector2d(var2.x - var1.x, var2.z - var1.z);
       double var4 = TrigMath.b(Math.atan2(var3.x, var3.y)) - 90.0;

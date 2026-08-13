@@ -38,7 +38,7 @@ public class DebugMode {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(ClientChatEvent var1) {
+   public void onDebugResetColor(ClientChatEvent var1) {
       if (isDeobfuscated()) {
          if ("resetcolor".equalsIgnoreCase(var1.getMessage())) {
             KoboldRenderer.clearBoneColors();
@@ -51,7 +51,7 @@ public class DebugMode {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void c(ClientChatEvent var1) {
+   public void onDebugSetCommand(ClientChatEvent var1) {
       if (isDeobfuscated()) {
          String var2 = var1.getOriginalMessage();
          String[] var3 = var2.split(" ");
@@ -81,7 +81,7 @@ public class DebugMode {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void b(ClientChatEvent var1) {
+   public void onDebugGetCommand(ClientChatEvent var1) {
       if (isDeobfuscated()) {
          String var2 = var1.getOriginalMessage();
          String[] var3 = var2.split(" ");
@@ -108,7 +108,7 @@ public class DebugMode {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(LivingHurtEvent var1) {
+   public void onLivingHurt(LivingHurtEvent var1) {
       if (isDeobfuscated()) {
          EntityPlayerSP var2 = Minecraft.getMinecraft().player;
          EntityLivingBase var3 = var1.getEntityLiving();
@@ -151,7 +151,7 @@ public class DebugMode {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void d(ClientChatEvent var1) {
+   public void onDebugTimeCommand(ClientChatEvent var1) {
       if (isDeobfuscated()) {
          String var2 = var1.getOriginalMessage().toLowerCase();
          EntityPlayerSP var3 = Minecraft.getMinecraft().player;

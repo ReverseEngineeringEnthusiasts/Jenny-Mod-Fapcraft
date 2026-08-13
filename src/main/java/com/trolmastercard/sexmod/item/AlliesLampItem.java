@@ -79,20 +79,20 @@ public class AlliesLampItem extends Item implements IAnimatable {
    }
 
    @SubscribeEvent
-   public static void a(Register<Item> var0) {
+   public static void registerItems(Register<Item> var0) {
       var0.getRegistry().register(ALLIES_LAMP);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void a(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent var0) {
       ModelLoader.setCustomModelResourceLocation(ALLIES_LAMP, 0, new ModelResourceLocation("sexmod:allies_lamp"));
       ALLIES_LAMP.setTileEntityItemStackRenderer(new AlliesLampRenderer());
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(Pre var1) {
+   public void onPre(Pre var1) {
       NBTTagCompound var2 = Minecraft.getMinecraft().player.getEntityData();
       if (var2.getBoolean("sexmodAllieInUse")) {
          var1.setCanceled(true);
@@ -226,7 +226,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
       }
 
       @SubscribeEvent
-      public void a(RightClickItem var1) {
+      public void onRightClickItem(RightClickItem var1) {
          EntityPlayer var2 = var1.getEntityPlayer();
          EnumHand var3 = var1.getHand();
          ItemStack var4 = var2.getHeldItem(var3);

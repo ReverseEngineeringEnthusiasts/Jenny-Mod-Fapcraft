@@ -105,7 +105,7 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
 
    public static class a {
       @SubscribeEvent
-      public void a(EnderTeleportEvent var1) {
+      public void onEnderTeleport(EnderTeleportEvent var1) {
          if (var1.getEntityLiving() instanceof BaseGirlEntity) {
             BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntityLiving();
             var2.activeEnderPearl = null;

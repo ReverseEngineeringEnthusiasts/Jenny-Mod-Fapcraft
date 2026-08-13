@@ -108,7 +108,7 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
    protected abstract void a(GirlFollowAiBase.GirlFollowAiBaseState var1);
 
    @SubscribeEvent
-   public void a(LivingDeathEvent var1) {
+   public void onLivingDeath(LivingDeathEvent var1) {
       if (var1.getEntityLiving() instanceof BaseGirlEntity) {
          BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntityLiving();
          if (!((String)var2.getDataManager().get(BaseGirlEntity.MASTER)).equals("")) {
