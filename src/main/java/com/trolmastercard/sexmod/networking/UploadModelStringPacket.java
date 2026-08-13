@@ -1,0 +1,137 @@
+package com.trolmastercard.sexmod.networking;
+
+import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
+import com.trolmastercard.sexmod.entity.BaseGirlEntity;
+import com.trolmastercard.sexmod.entity.NpcType;
+import com.trolmastercard.sexmod.util.an;
+
+
+
+
+
+
+
+import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
+
+public class UploadModelStringPacket implements IMessage {
+   boolean a = false;
+   String c;
+   List<Integer> d = new ArrayList<>();
+   UUID b;
+
+   public UploadModelStringPacket() {
+   }
+
+   public UploadModelStringPacket(String var1, UUID var2) {
+      this.c = var1;
+      this.b = var2;
+   }
+
+   public UploadModelStringPacket(String var1, UUID var2, List<Integer> var3) {
+      this.c = var1;
+      this.b = var2;
+      this.d = var3;
+   }
+
+   public void fromBytes(ByteBuf var1) {
+      this.c = ByteBufUtils.readUTF8String(var1);
+      this.b = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+      int var2 = var1.readInt();
+
+      for (int var3 = 0; var3 < var2; var3++) {
+         this.d.add(var1.readInt());
+      }
+
+      this.a = true;
+   }
+
+   public void toBytes(ByteBuf var1) {
+      ByteBufUtils.writeUTF8String(var1, this.c);
+      ByteBufUtils.writeUTF8String(var1, this.b.toString());
+      var1.writeInt(this.d.size());
+
+      for (int var3 : this.d) {
+         var1.writeInt(var3);
+      }
+   }
+
+   private static RuntimeException a(RuntimeException var0) {
+      return var0;
+   }
+
+   public static class Handler implements IMessageHandler<UploadModelStringPacket, IMessage> {
+      public IMessage onMessage(UploadModelStringPacket var1, MessageContext var2) {
+         if (var1.a && var2.side == Side.SERVER) {
+            FMLCommonHandler.instance().getMinecraftServerInstance().func_152344_a(() -> {
+               BaseGirlEntity var3 = BaseGirlEntity.a_clash523(var1.b);
+               if (var1.d.size() > 0) {
+                  boolean var5 = this.a(var3, var1.d);
+                  if (var5) {
+                     var3.a_clash245(var1.d);
+                  }
+
+                  if (!(var3 instanceof AbstractPlayerGirlEntity)) {
+                     var3.f_clash439(var1.c);
+                  } else {
+                     EntityPlayerMP var10 = var2.getServerHandler().field_147369_b;
+                     NBTTagCompound var11 = var10.getEntityData();
+                     AbstractPlayerGirlEntity var12 = AbstractPlayerGirlEntity.g(var10);
+                     if (var12 != null) {
+                        NpcType var13 = NpcType.a_clash751(var12);
+                        var11.func_74778_a("sexmod:CustomModel" + var13.toString(), var1.c);
+                        if (var5) {
+                           var11.func_74778_a("sexmod:GirlSpecific" + var13.toString(), BaseGirlEntity.c(var1.d));
+                        }
+                     }
+                  }
+               } else if (!(var3 instanceof AbstractPlayerGirlEntity)) {
+                  var3.f_clash439(var1.c);
+               } else {
+                  EntityPlayerMP var6 = var2.getServerHandler().field_147369_b;
+                  NBTTagCompound var7 = var6.getEntityData();
+                  AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.g(var6);
+                  if (var8 != null) {
+                     NpcType var9 = NpcType.a_clash751(var8);
+                     var7.func_74778_a("sexmod:CustomModel" + var9.toString(), var1.c);
+                  }
+               }
+            });
+            return null;
+         } else {
+            System.out.println("received an invalid message @UploadModelString :(");
+            return null;
+         }
+      }
+
+      boolean a(BaseGirlEntity var1, List<Integer> var2) {
+         ArrayList var3 = var1.D_clash243();
+
+         try {
+            for (int var4 = 0; var4 < var3.size(); var4++) {
+               if ((Integer)var3.get(var4) <= (Integer)var2.get(var4)) {
+                  return false;
+               }
+            }
+
+            return true;
+         } catch (IndexOutOfBoundsException var5) {
+            return false;
+         }
+      }
+
+      private static IndexOutOfBoundsException a(IndexOutOfBoundsException var0) {
+         return var0;
+      }
+   }
+}

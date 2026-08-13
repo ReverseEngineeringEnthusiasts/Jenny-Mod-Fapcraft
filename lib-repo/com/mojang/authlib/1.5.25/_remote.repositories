@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Wed Aug 12 19:58:03 BST 2026
+authlib-1.5.25.jar>=
+authlib-1.5.25.pom>=
