@@ -3,7 +3,10 @@ package com.trolmastercard.sexmod.client;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
+import com.trolmastercard.sexmod.networking.PacketHandler;
+import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
+import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
@@ -72,6 +75,18 @@ public class SexSceneKeyHandler {
                }
             }
          }
+
+         // Safety net: even if no scene was found or it cannot advance, always
+         // unlock the player and restore their physics. A scene that started but
+         // stalled (movement lock applied, girl never reached a scene action)
+         // leaves the player frozen in place with nothing responding to the key.
+         HandlePlayerMovement.setMovementLock(true);
+         net.minecraft.entity.player.EntityPlayer p = var2.player;
+         p.setNoGravity(false);
+         p.noClip = false;
+         p.setInvisible(false);
+         p.capabilities.isFlying = false;
+         PacketHandler.networkWrapper.sendToServer(new ResetGirlPacket(var3));
       }
    }
 

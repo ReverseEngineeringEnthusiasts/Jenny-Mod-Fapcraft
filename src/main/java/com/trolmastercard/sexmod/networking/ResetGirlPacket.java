@@ -71,13 +71,18 @@ public class ResetGirlPacket implements IMessage {
             var1.noClip = false;
             var0.setAnchored(false);
             var0.setCurrentAction(Action.NULL);
-            if (var0.getInteractionPlayerUUID() != null) {
-               EntityPlayer var2 = var0.world.getPlayerEntityByUUID(var0.getInteractionPlayerUUID());
-               if (var2 != null) {
-                  var2.capabilities.isFlying = false;
-                  var2.setNoGravity(false);
-                  var2.noClip = false;
-               }
+         }
+
+         // Player physics cleanup applies to EVERY girl scene, not just player
+         // forms. NPC girls (slime, goblin, bia, luna, ...) set the interacting
+         // player's noGravity/noClip when the scene starts; without this the
+         // player stays gravity-free and un-hittable after the scene ends.
+         if (var0.getInteractionPlayerUUID() != null) {
+            EntityPlayer var2 = var0.world.getPlayerEntityByUUID(var0.getInteractionPlayerUUID());
+            if (var2 != null) {
+               var2.capabilities.isFlying = false;
+               var2.setNoGravity(false);
+               var2.noClip = false;
             }
          }
 
