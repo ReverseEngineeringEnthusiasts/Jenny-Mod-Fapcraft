@@ -5,3 +5,6 @@
 Deobfuscated, decompiled and remapped reconstruction
 of the official Fapcraft mod for Minecraft 1.12.2.
 Build: SRG-reobfuscated + shaded (GeckoLib bundled).
+
+Certified by real Java developers.
+Biji Kurdistan - Long live Kurdistan.

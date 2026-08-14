@@ -1,327 +1,255 @@
-# Fapcraft 1.12.2 Remap — Engineering Log & Findings
+# Fapcraft 1.12.2 Remap -- engineering log and findings
 
-**Updated:** 2026-08-12, late session
-**Purpose:** full record of every crash, root cause, fix, and open issue discovered while
-getting the deobfuscated/restructured Fapcraft 1.12.2 working. Resume point for later work.
+**Strictly adult oriented (18+) project.** This is a reverse engineering project with a main focus on Java obfuscation.
+
+I do not claim ownership over this mod's source code or any affiliation with the original developers of this mod.
+
+All original audiovisual assets have been excluded to comply with legalities and Github TOS.
 
 ---
 
-## 0. Project layout
+# The project
+
+Full deobfuscation of the ZKM-obfuscated Fapcraft 1.12.2 v1.1 jar (modid `sexmod`, package `com.trolmastercard.sexmod`), rebuilt as a clean Maven project, then reobfuscated back to SRG names so it actually runs inside Forge 1.12.2.
+
+Two projects:
 
 | project | path | what it is |
 |---|---|---|
-| base (decompile) | `../Fapcraft-1.12.2/` | byte-faithful deobfuscation of `Fapcraft.1.12.2.v1.1.jar`, flat package `com.trolmastercard.sexmod`, Maven build |
-| remap | `../Fapcraft-1.12.2-remap/` | same code restructured into role packages (`entity/`, `client/model/`, `client/renderer/`, `networking/`, `item/`, `util/`, `proxy/`, `command/`, `worldgen/`, …) + class renames |
-| reference | `../Fapcraft-1.12.2/pipeline/reference/` | 2021 non-obfuscated source + 1.21.1 port (naming/structure blueprint) |
+| base (decompile) | `../Fapcraft-1.12.2/` | byte-faithful deobfuscation, flat package, Maven build |
+| remap (this repo) | `./` | same code restructured into role packages (`entity/`, `client/model/`, `client/renderer/`, `networking/`, `item/`, `util/`, `proxy/`, `command/`, `worldgen/`) + every obfuscated name replaced |
 
-Deployed jar (remap) → Prism instance `More FPS [FORGE]` mods folder as
-`fapcraft-1.12.2-1.1.0.jar`. Base jar staged as `fapcraft-BASE-1.1.0.jar.disabled` for A/B
-testing (swap by renaming; only ONE fap jar active at a time — same modid `sexmod`).
-
-Instance: Forge 14.23.5.2859, Java 8u202. **Forge 2859 lacks `SharedMonsterAttributes.SWIM_SPEED`
-(added in 2860)** — every SWIM_SPEED reference was removed.
+The end result: 299 source files, ~55k lines, every single-letter method, field, and class renamed to something meaningful, and a jar that builds green and runs in game.
 
 ---
 
-## 1. All crashes fixed (in order) — root causes
+# The obfuscation
 
-1. **Entity registration NPE** — `EntityRegistry.doModEntityRegistration` NPE.
-   Decompiler dropped `Main.instance`: `registerModEntity(..., null, ...)` → `findContainerFor(null)`
-   → null container. Official bytecode: `getstatic Main.instance`. Fixed in `SexModEntities`/`bi`.
-   Also `Main` was missing `@Mod.Instance instance` and `@SidedProxy proxy` fields entirely
-   (reconstruction had substituted `CommonProxy.PROXY`, which would never run `ClientProxy`
-   on the client → no renderers/keybinds/entity preloading). Restored both + `proxy.xxx` calls.
+ZKM (Zelix KlassMaster). Several layers, ordered by severity:
 
-2. **Item/block registry ClassCastException** — `AlliesLampItem cannot be cast to Block`.
-   `@SubscribeEvent` handlers used raw `Register` instead of `Register<Item>`/`Register<Block>`
-   (decompiler lost the generic). Raw `Register` subscribes to EVERY registry event (Blocks too)
-   → registering an Item into the Block registry. Fixed 7 items + 1 block in both projects.
+- exception pass-and-return wrapping
+    ```
+    try {
+        // code ...
+    } catch (RuntimeException runtimeException) {
+        throw a(new RuntimeException(runtimeException));
+    }
 
-3. **`Main.setConfigs` IOException: Stream closed** — Vineflower "could not verify finally
-   blocks" semaphore loop: `continue` inside try triggered `finally` which closed the
-   BufferedReader mid-read. Original is plain try-with-resources. Fixed in `Main.setConfigs`.
-   **Same latent bug** found + fixed in `ServerWhitelistManager.f_clash130()` and `a(File)`.
-   All `// $VF:` comments stripped from the tree.
+    public static RuntimeException a(RuntimeException runtimeException) {
+        return runtimeException;
+    }
+    ```
+- exception table mashing
+    ```
+    try {
+        try {
+            try {
+                // ... real code
+            } catch (RuntimeException runtimeException) {
+                throw a(new RuntimeException(runtimeException));
+            }
+            // code ... or fallthrough
+        } catch (RuntimeException runtimeException) {
+            throw a(new RuntimeException(runtimeException));
+        }
+        // code ... or fallthrough
+    } catch (RuntimeException runtimeException) {
+        throw a(new RuntimeException(runtimeException));
+    }
+    ```
+- dangling catch blocks
+    ```
+    int a = 5 + z;
+    // some code ...
+    catch { // dangling catch without prior try
+        throw a.b(new RuntimeException());
+    }
+    ```
+- impossible control flow (goto spaghetti)
+- local reuse (one `Object z` slot reused as Integer, HashMap, String)
+- duplicate identifiers (class `a` containing field `a`, method `a()`, inner class `a`)
+- generic stripping (`class A<B>` -> `class A` across classes, methods, params)
+- clashing signatures (`int a()`, `float a()`, `a a()` in one class)
+- synthetic fill-all wrappers and inner class helpers
 
-4. **`registerGuiHandler(null, …)` NPE** — same dropped-`Main.instance` artifact in
-   `ClientProxy`/`CommonProxy`. Official bytecode: `getstatic Main.instance`. Fixed both.
-
-5. **Kobold render NPE (`this.j` null)** — the reconstruction dropped the `doRender` bridges.
-   Original `GirlRenderer` has THREE methods: `a(T,double,double,double,float,float)` (custom
-   logic that sets `this.j`) + `func_76986_a(Entity,…)` + `doRender(EntityLivingBase,…)` that
-   dispatch to it. Without the bridges, GeckoLib's base `doRender` runs, `this.j` stays null.
-   Added bridges. **Generics clash note:** concrete `Entity`/`EntityLivingBase` params clash with
-   the lib's geckolib; the working form is `func_76986_a(T,…)` + `doRender(T,…)` (javac emits
-   the `Entity`/`EntityLivingBase` bridges). Same bug fixed in `SexSceneRenderer` via
-   `doRender(SexSceneEntity,…)`.
-
-6. **Item render NPE (`this.j.x`)** — item renderers (`DragonStaff`, `KoboldEgg`, `Summon`)
-   dropped their `render(Item,ItemStack)` bridge that dispatches to the setup method `a(item,stack)`
-   (which sets `this.j` then calls `super.render`). Fixed with `render(ConcreteItem,ItemStack)`
-   (javac emits the `render(Item,…)` bridge). `AlliesLamp`/`GalathCoin` don't need it
-   (override `render(GeoModel,…)` directly — verified against original).
-
-7. **Allie/Galath/Manglelie/Slime texture = `.geo.json` → NPE on spawn** — `getTextureLocation`
-   was left with the base model-selection logic (`c[n]` = geo json) instead of the subclass
-   texture override. Official: `c2.a(em)` returns `textures/entity/allie/allie.png` etc.
-   Fixed all 4 models to return their png. (The original base `cv.a(em)`/`getTextureLocation`
-   DOES return `c[n]`, but every NpcModel overrides it with a texture; the reconstruction had
-   put the base logic into the subclasses.)
-
-8. **Goblin crash `NumberFormatException: "variant14"`** — `GoblinRenderer` lambda called
-   `b(int,String)` with the bone NAME (`var5.getName()` = `"variant14"`). Original lambda
-   (`lambda$manageEar$1`) calls `b(GeoBone,int)` — a DIFFERENT method (inherited from
-   `GirlRendererBase`). Fixed the lambda to `b(var5, var1x)`.
-
-9. **Bee + Galath `NoSuchFieldError: SWIM_SPEED`** — the mod references Forge 2860's
-   `SWIM_SPEED`; instance has 2859. Removed from `BeeEntity` and `GalathEntity` (galath = the
-   "can't spawn galath" cause).
-
-10. **Jenny `NoClassDefFoundError: JennyEntity$1`** — NOT a code bug: the jar was replaced in
-    the mods folder while the game was running; Forge lazily loaded the synthetic switch-map
-    class from the replaced file. Class is valid + in the jar. Fix = restart the game; never
-    swap jars mid-session.
+On top of that, everything is SRG-mapped (NMS converted to SRG mappings), so there are two layers of name soup: the mod's own ZKM names AND the SRG names of every Minecraft reference.
 
 ---
 
-## 2. Visual / behavioral issues — reported, investigated, status
+# The pipeline
 
-### 2a. "in-sex-scene pose while walking" / "player character with dick following" (RESOLVED hypothesis: outfit model)
-Investigated: `fp` animation-state enum (170 constants) is byte-identical to original (order +
-values). Animation controller wiring (action/movement/eyes → same lambda) is faithful. Allie
-animation selection is faithful (movement → tail, action → state-based). Follow-goal sets
-`fp.NULL` (50 reset sites).
+## 1. Isolate and decompile
 
-**Found the actual bug:** `GirlModel.getModelLocation(BaseGirlEntity)` returned `c[0]` always
-(the NUDE model) while the outfit-based selection (`a_clash34`, = original `getModelLocation`)
-was dead code. Official `cv.getModelLocation(Object)` → `a(em)` → `c[outfitNr]` (outfit from
-DataParameter `D`, default `D=1`). Fixed: `getModelLocation → a_clash34(var0)`. **This likely
-fixed both the nude-by-default AND the "scene pose while walking"** (nude model's default pose).
+Isolate TMC-specific code (shadowed Geckolib classes stay untouched and get passed as classpath so the decompiler can resolve inheritance). Run CFR with anti-obf flags against the SRG-mapped jar.
 
-### 2b. "player model still appears alongside the characters" (OPEN)
-Mechanism verified faithful against original:
-- `GirlCameraHelper.a(RenderPlayerEvent.Pre)` cancels the player's render and renders the
-  `AbstractPlayerGirlEntity` (girl form) at the player's position with the player's pose.
-- `PositionData.a(Pre)` cancels the player render when their girl is in a `hasPlayer` scene state.
-- `GirlPlayerRenderer` (via `db`) renders the girl form; `c_clash336` maps it to the player.
-- `PlayerIds` (login), `ResetGirlPacket.Handler.a_clash10` (reset to `fp.NULL`) — faithful.
+## 2. The cleaning pre-processor
 
-Symptom persists → likely one of:
-- girl form's `al` map (`d_clash567`) empty at the wrong time → player renders normally AND
-  girl form renders separately;
-- girl stuck in a scene state (see 2c) keeps the player suppressed + the girl in scene pose;
-- `AbstractPlayerGirlEntity` spawned/positioned wrong (its `func_70619_bc` teleports it to the
-  player; if it's a real world entity it may render BOTH via entity pass and camera helper).
+A pre-deobfuscator written with the ObjectWeb ASM library that strips obfuscation artifacts from bytecode BEFORE decompiling: removes exception wrapping patterns, fixes clashing names, normalizes the garbage. This is what stops the decompiler from vomiting garbage.
 
-**Next:** trace how a normal (non-dev) player's girl form is created/spawned, and whether it is
-added to the world (`world.spawnEntity`) — PlayerIds only spawns dev-account forms.
+## 3. SRG to MCP mapping
 
-### 2c. "stuck in touch boobs scene with Luna; /kill doesn't exit; rejoin does" (OPEN)
-Scene state advances via `BaseGirlEntity.l_clash514` (tick `followUp` transitions) and player
-interaction packets. `ResetGirlPacket` resets to `fp.NULL`. `/kill` doesn't clear it — the death
-handler (`util/eo`) only removes the girl from a list; the scene-state cleanup on player death is
-missing or not firing. Rejoin works because `PlayerIds` login resets girl forms.
+Map the SRG names back to readable MCP names so the code becomes human-parseable.
 
-**Next:** find the scene-abort path (player death / disconnect) in the original bytecode vs
-reconstruction; likely a missing packet or a state not reset on `PlayerDeathEvent`.
+## 4. Manual editing
 
-### 2d. "slime / manglelie / bee right-click does nothing" (OPEN — possibly original behavior)
-Only `SexEntity`/`WildSlimeEntity` override `processInitialInteract`. The NPC interaction menu
-opens via packets (`GirlDataPacket` → `GirlScreenBase`, `PlayerActionPacket`, `BeeOpenChestPacket`).
-`PlayerInteractEvent` handlers: `fu` (player-girl), `f4` (name-tag naming), `am` (goblin render).
-Need to verify which entities are MEANT to open a menu on right-click in the original and how the
-trigger works (likely a `PlayerInteractEvent.EntityInteract` in a handler that checks NpcType).
-
-### 2e. "Can't spawn Galath" — RESOLVED: SWIM_SPEED (see crash #9).
-
-### 2f. "lamp hotbar icon shows hand" (OPEN)
-`AlliesLampItem` sets `ModelLoader.setCustomModelResourceLocation(b, 0, "sexmod:allies_lamp")`
-+ `setTileEntityItemStackRenderer(new AlliesLampRenderer())` — matches original bytecode, and
-`assets/sexmod/models/item/allies_lamp.json` is **byte-identical to the original** (parent
-`builtin/entity` → icon is rendered by the TileEntityItemStackRenderer = the 3D
-`AlliesLampRenderer`). So the "hand" on the icon comes from **`AlliesLampRenderer` / its model**
-rendering a hand (like DragonStaffRenderer renders one). Compare `AlliesLampRenderer` +
-`AlliesLampModel` against the original renderer/model classes. (All item model jsons present
-in the jar.)
-
-### 2g. "Ellie face-fuck hands swap textures" (OPEN)
-Player-model hand texture during Ellie scene — likely a render-layer/model issue; not yet traced.
-
-### 2h. "buttons positions messed up vs original" — GUI layout (INVESTIGATED)
-Exhaustively compared every `GuiButton` x/y/w/h in `GirlScreenBase` (b5), `GirlInventoryScreen`
-(m), `ClothingScreen` (a), `BeeDialogueScreen` (ch), `TribeNameScreen` (g7) against the original
-v1.1 jar bytecode (via `javap -c` **and** `krak2 dis`) — **all positions byte-identical**. Also
-cross-checked against two independent third-party reconstructions
-(`github.com/palkaline/jenny-mod-re`, `github.com/RukoBlood/jenny-mod-re-clean`) which agree.
-The interaction menu's left buttons (`GirlInventoryScreen.a_clash826`) had **empty labels until
-hovered** (`d[i] <= 14 ? "" : label` + 0–23px width) — this is the original's hover-expand design
-but reads as "text not there". **FIXED:** left buttons now always show their labels with a fixed
-100px width (both branches). The "scaling problem" is the original design's fixed left-anchored
-column (x=36, y=70–190) + right-anchored scene buttons; not a deob corruption.
-
-### 2i. "Jenny shows diamond armour by default" — the look IS the model's design
-Jenny's dressed model (`jennydressed.geo.json`) has cyan/diamond-blue body + armor bones
-(`midsection` #2fcdbb, `braLside` #2fcab9, `armorChest` #52e6d7, …) — byte-identical to the
-original jar's texture/geo. Unequipped girls show the under-mesh (lingerie) look; that is the
-original design. The armor-bone visibility logic (`GirlModel.a(T,Integer,AnimationEvent)` →
-equipment-gated `X/T/U/W`) is jar-faithful and was left untouched.
-
-### 2j. "steve renderer shows for every character" / "player model alongside characters" — **ROOT CAUSE FOUND**
-`GirlRenderer.func_110775_a` (getEntityTexture) was deobfuscated as returning `getSkinTexture`
-(the **player's** skin). Original jar: `func_110775_a(Entity)` → `invokespecial`
-`GeoEntityRenderer.getEntityTexture(EntityLivingBase)` → `getTextureLocation` → the **girl model's
-own texture** (jenny.png etc.). Consequence: EVERY girl entity rendered its model with the local
-player's skin → garbled "steve" bodies on all characters, and the player-form looked like the
-player model alongside the girls. **FIXED:** `func_110775_a(T)` now calls
-`super.getEntityTexture(var1)` (girl's own texture). `getSkinTexture` remains for the steve
-subtree render only (matches jar's `d(T)`). Applied to base + remap.
-
-### 2k. (retracted) 2i "dressed armor bones" fix — REVERTED
-The earlier fix (armor bones shown whenever `D != 0`) made EVERY unequipped girl render her
-diamond-blue armor bones → "every character has diamond armour". Reverted to the jar-faithful
-equipment-gated logic (`a(processor, X, T, U, W)`). The "diamond armour" the user saw on Jenny is
-her model's own cyan/diamond-blue outfit (verified byte-identical textures/geo vs the original
-jar) — not a code bug.
-
-### 2l. "steve body + armour/clothing overlays always visible on girls" — **ROOT CAUSE FOUND + FIXED (2026-08-13)**
-`GirlModel.setLivingAnimations` (the per-frame hook that hides the `steve` bone and gates the
-`armor*` bones) had been renamed to `a(T,Integer,AnimationEvent)` AND the compiler-generated
-bridge methods were dropped. The renderer calls `IAnimatableModel.setLivingAnimations(Object,…)`;
-with no override it dispatched to the geckolib base no-op, so the bone logic in `a(...)` was
-**dead code**. Consequences: every girl always rendered her `steve` subtree (player-skin body +
-`Head2`/cock) even idle/walking, and always rendered her `armor*` overlay bones.
-
-Verified against the original jar: `cv` (GirlModel) declares the real method `a(T,…)` plus the
-bridges `setLivingAnimations(IAnimatable,…)` and `setLivingAnimations(Object,…)` (checkcast →
-`a(em,…)`). Same for `o` (SexSceneModel).
-
-**FIXED** (base + remap): renamed `GirlModel.a(T,Integer,AnimationEvent)` →
-`setLivingAnimations(T,Integer,AnimationEvent)` and the 7 NpcModel overrides
-(`a(BaseGirlEntity,…)` → `setLivingAnimations(BaseGirlEntity,…)`, incl. their `super.a` calls),
-plus `SexSceneModel.a(SexSceneEntity,…)` → `setLivingAnimations(...)`. javac now generates the
-bridges; compiled bytecode matches the jar. Both projects build (0 errors).
-
-### 2m. Luna "touch boobs" — verified byte-faithful; expected flow is approach → PAYMENT gate (2026-08-13)
-Reported: "she walks to me, sometimes stuck in walk animation, sometimes stops but nothing happens".
-Cross-checked the whole chain against the original jar via Recaf MCP (CFR) + javap bytecode:
-`LunaEntity` (`eb`) — `a(String,UUID)`, `func_70619_bc` (ac/ay lerp + U() + PAYMENT), `b_clash158`
-(ac=true), sound-keyframe listener (paymentDone → U()), animation predicate, registerControllers
-(`E.transitionLengthTicks=10`), `func_70037_a` — all byte-faithful. `KoboldStatePacket`/`ChangeData
-ParameterPacket`/`d3` movement lock / packet registrations / cat.animation.json (json-identical to
-jar) — all faithful.
-The "walk to me" is the follow goal (walks when `ae==null`); the "stuck walk" is the ac-lerp
-glide (movement controller sees `func_70107_b` position deltas → walk anim during the ≤40t
-approach — original behavior); "stops, nothing happens" = the **PAYMENT gate**: she demands
-2 cooked fish before `TOUCH_BOOBS_INTRO`. GirlFollowGoal is an elaboration (merged the fighter
-companion goal `f`/`f$a` ATTACK/RIDE/DOWNED states) but the follow gate (`ae==null`) matches the
-jar's `h`.
-Actionable: the new R-SHIFT "Leave sex scene" keybind resets any stuck girl.
-
-### 2n. MORE dropped-bridge bugs (same class as 2l) — renderers (FIXED 2026-08-13)
-The same "renamed override + dropped compiler bridge = dead code" pattern in every geckolib/
-vanilla renderer that had a custom render entry. Each was verified against the jar bytecode
-(which has the bridge) and fixed by renaming the real method back to the interface name so
-javac regenerates the bridges:
-- `GalathCoinRenderer` — `a(GeoModel,GalathCoinItem,…)` → `render(...)`: pentagram spin/color
-  animation was dead.
-- `AlliesLampRenderer` — `a(GeoModel,AlliesLampItem,…)` → `render(...)`: lamp render dead
-  (likely the 2f "hand on icon" symptom).
-- `DragonRenderer` — `a(DragonEntity,…)` → `func_76986_a(...)`: energy-ball projectile rendered
-  NOTHING (base no-op).
-- `WildSlimeRenderer` — `a(WildSlimeEntity,…)` → `func_76986_a(...)` AND
-  `a(WildSlimeEntity,float)` → `func_77041_b(...)` (preRenderCallback): slime squish/scale was
-  dead.
-- `KoboldEggRenderer` — `a(GeoModel,…)` → `render(...)`: egg's custom render (and its `this.a`
-  field) never ran → `colorSpots` bone NPE risk.
-- `SexSceneRenderer` — `a(GeoModel,…)` → `render(...)`: sex-scene custom-part matrix processing
-  was dead.
-Applied to base + remap; both build. Compiled bridges now match the jar exactly.
-
-### 2o. ResetGirlPacket boolean INVERTED — general scene breakage (FIXED 2026-08-13)
-`ResetGirlPacket.Handler.onMessage` had `if (!var1.a) a_clash10(girl)`. Original jar bytecode:
-`getfield s.a; ifeq skip; invokestatic a(em)` → **`a==true` = full girl reset**. The deobfuscation
-flipped it, so every single-arg `ResetGirlPacket(uuid)` (a=false, sent as "unlock player, keep
-scene") instead did a FULL reset — and `ResetGirlPacket(uuid,true)` (the real "leave" path) did
-NOTHING but unlock. Effects: any scene that binds then sends ResetGirl (Luna/Jenny "sex":
-`SendGirlToSex` + `ResetGirl`) instantly died ("Ellie face-fuck launched then removed me", "all
-sex scenes broken"), and proper scene exits left girls half-reset (stuck walk/state, sex HUD bar
-stuck). FIXED: `if (var1.a)`. Keybind (2m) updated to send the `(uuid, true)` full-reset variant
-and to reset any girl bound to the player (not just non-NULL actions). Base + remap build.
-**Stale half-broken girls from earlier sessions may need R-Shift (now working) or a fresh world.**
-
-### 2p. **GENERAL scene-killer: `l_clash514` had an invented `hasPlayer` reset branch (FIXED 2026-08-13)**
-The per-tick followUp transition `BaseGirlEntity.l_clash514` (called from `onUpdate` on every
-girl) had an EXTRA branch NOT in the original jar:
-```java
-} else if (var1.hasPlayer && !isRemote) {
-   if (var1.length <= 0 || ae == null || player == null) this.b(fp.NULL);
-}
-```
-Original jar (`em`)/raw/clean: `if (followUp == null) return;` — NO hasPlayer reset. This
-invented branch made EVERY `hasPlayer` scene action with `length<=0` and no `followUp`
-(STARTBLOWJOB, MISSIONARY_START, COWGIRLSTART, TOUCH_BOOBS_INTRO, PAYMENT, …) get reset to
-`fp.NULL` on the first server tick → scenes flash then die, the girl falls back to walking while
-the `d3` movement lock (sent at scene start) never releases → "locked state of her walking".
-Explains ALL reported symptoms across every character. Removed the branch; `l_clash514` now
-matches the jar. Base + remap build.
-**This is the fix to test. Rebuild + redeploy the jar to the mods folder before judging.**
-
-### 2q. Cleanup pass (2026-08-13) — dead-code removal + meaningful renames
-- Removed 232 dead exception pass-and-return wrappers (`private static RuntimeException a(RuntimeException v){return v;}` etc.) from 209 files — leftover obfuscation boilerplate with zero call sites.
-- Renamed ~70 obfuscated methods to meaningful names across ~120 files (harvested from jennymodre-clean naming + jar semantics): `getCurrentAction`, `setInteractionPlayerUUID`, `getTargetPosition`/`setTargetPosition`, `isAnchored`/`setAnchored`, `getGirlId`, `getOutfitIndex`, `getDisplayNameText`, `isControlledByLocalPlayer`, `isLocalPlayerNearby`, `openInteractionMenu`, `sendChatMessage`, `getOwnerUserUUID`, `getPlayerGirlByUUID`, `getYawRotation`/`setYawRotation`, `getVectorTowardPlayer`, `getCachedBoneOffset`, `tickFollowUpTransitions`, `lerp`, `rotateByYaw`, `wrapDegrees`, `setMovementLock`, `randomSound`, `nextPacketId`, `showHornyMeter`/`hideHornyMeter`, `isBoneAllowedForRender`, `playRandomSound`, `setCustomModelCode`, etc.
-- Renames are token-safe (unique `a_clashNNN` identifiers); all verified with `mvn clean package` (0 errors) after each pass. Committed (`67372b4`, `06bc780`).
-- Remaining: ~765 lower-frequency obfuscated method names across entity/renderer/model/GUI classes still need per-method semantic renaming (not safe to automate blindly).
-
-### 2r. Big naming pass (2026-08-13, this session) — BaseGirlEntity + hierarchy
-Renamed every obfuscated field and ~120 methods across the `BaseGirlEntity` hierarchy (27 entity classes), all oracle-verified against `jennymodre-clean` + jar bytecode, build green after every commit (`e0fc2e5`, `1e3fefd`, `caf9e5c`, `5659f87`, `e8844a7`, `b18d37d`).
-- **Fields:** `m`→`entityDataManager`, `f`→`pathNavigator`, `l`→`homePos`, `q`→`activeEnderPearl`, `B`→`cameraOriginPos`, `r`→`cameraYaw`, `n`→`scaleFactor`, `F`→`isSpecialState`, `i`→`isLocallyRegistered`, `x`→`boneOffsetCache`, `p`→`boneTrackingList`, `d`→`customPartsData`, `H`→`cachedAnimationProcessor`, `A`→`animationVariantMap`, `C/E/s`→`action/movement/eyesController`, `g`→`animationFactory`, `z`→`wanderGoal`, `o`→`watchClosestGirlGoal`, `k`→`GLOBAL_GIRL_CACHE`, `t`→`TICK_RATE`, `I`→`TEMPTATION_ITEMS`; DataParameters `v/G/e/w/u/D/J/h/y/a/b/c`→`MASTER/IS_ANCHORED/TARGET_POS/YAW_ROTATION/GIRL_ID/OUTFIT_INDEX/CUR_ACTION/GIRL_HAND_STATES/INTERACTION_PARTNER_UUID/WALK_SPEED/CUSTOM_MODEL_KEY/CUSTOM_NAME`.
-- **Methods:** `b(fp)`→`setCurrentAction` (370 call sites); sound/state helpers `playSound`, `playRandomSound`, `playSoundAtPosition`, `playSoundAtVolume`, `playRandomSoundAtVolume`, `girlPlaySound`, `spawnParticlesAround`, `setWalkSpeed`/`getWalkType`, `setHandActiveState`/`clearHandActiveState`, `resetGirlState`, `resetAnimationControllerOffset`/`Ticks`, `resetLocalPlayerClientState`, `setItemUseCount`, `setOutfitIndex`, `updateCustomModelParts`; scene/ai `alignPlayerToGirl`, `triggerActionSync`, `doAction`, `getGirlByUUID`, `triggerFastSexAction`, `goHome`, `hasMaster`/`getMasterUUID`/`getMasterPlayer`, `openInventoryGui`, `broadcastChatAround`, `sendGirlChatMessage`, `sendChatMessageToPlayer`, `findNearestBed`/`findNearestStructureBlock`/`findBlocksInRadius`; animation `createAnimation`, `playRandomizedAnimation`, `handleActionAnimationOverrides`, `pickRandomVariant`, `animationPredicate`, `getBoneMatrixStack`, `setBoneWorldPosition`, `getBoneWorldPosition`, `renderCustomModelTransform`, `transformRenderOffset`, `getRenderScaleFactor`; custom-parts `setCustomPartsData`, `buildCustomPartsData`, `encodePartIdList`, `decodePartIdList`, `getAllPartIdsForGirl`, `getBasePartIdList`, `getCustomPartIdList`, `setCustomPartValue`, `setCustomPartListCode`; misc `getLeftArmAngle`/`getRightArmAngle` (renamed to AVOID MCP `getLeftArmRotation` collision), `setCustomNameOverride` (AVOID MCP `setCustomName`), `getEffectiveDisplayName`, `getPreviousPosition`, `getSelf`/`asGirl`, `getGeoModel`, `transformCameraPivotY`.
-- **Javadoc:** class-level + ~42 key methods on `BaseGirlEntity`.
-- Added `tools/rename_fields.py` (scoped, compiler-verified rename helper).
+The long haul. Every remaining `a_clashNNN` token gets a semantic name, verified against:
+- the original jar bytecode (`javap -c -p`)
+- a clean 2021 non-obfuscated source reference
+- a 1.21.1 port of the mod (rechenz port)
 
 ---
 
-## 3. Key architecture findings (verified against original bytecode)
+# Our own SRG tool: MCRepack
 
-- **AnimationState `fp`**: 170 constants, order byte-identical. Fields: `length`, `followUp`,
-  `hasPlayer`, `autoBlink`, `useBoyCam`, `flipGirlYaw`, `ticksPlaying`. `useBoyCam` states
-  (SITDOWN/SITDOWNIDLE/PAIZURI) teleport the player camera to the girl's `boyCam` bone via
-  `PositionData.a(RenderTickEvent)`.
-- **Player render suppression**: `PositionData`/`am` `RenderPlayerEvent.Pre` cancel the player
-  render when the player's girl is in a `hasPlayer` state. `GirlCameraHelper` renders the girl
-  form in place of the player. `GirlPlayerRenderer` only renders when `h_clash508()` or the
-  `v` flag is set (set by the camera helper).
-- **Models**: original `getModelLocation` = outfit-based `c[outfitNr]`; `getTextureLocation` =
-  per-NPC texture png; `getAnimationFileLocation` = per-NPC animation json. `c[]` arrays are
-  model locations, `D` (DataParameter, default 1) = outfit number.
-- **Scene lifecycle**: girl enters scene states via `b(fp)`; advances via tick `followUp`
-  (`l_clash514`) and interaction packets; resets via `ResetGirlPacket`/`PlayerIds` login.
-- **Girl forms (`AbstractPlayerGirlEntity`)**: `Z` list + `al` map (UUID→form), rebuilt by
-  `C_clash585()`; `func_70619_bc` positions the form at the player.
-- **Forge 2859 compat**: `SWIM_SPEED` does not exist (2860+); removed all uses.
+The build compiles against MCP-named jars, but Forge 1.12.2 at runtime expects SRG names. ForgeGradle normally does this with `reobf`; we have plain Maven, so we wrote our own.
+
+`tools/MCRepack.java` is a custom ASM-based reobfuscator:
+
+- scans the SRG minecraft jar for every declared `func_XXX` / `field_XXX` with its descriptor
+- loads the methods.csv / fields.csv mapping tables (func_XXX -> MCP name)
+- builds a reverse map (MCP name + descriptor -> SRG name)
+- rewrites the compiled mod jar, renaming every Minecraft reference back to SRG
+
+The hard part was the edge cases. Each one became a commit:
+
+- inherited MC fields written through a mod subclass owner (Item.maxStackSize -> field_77777_bU) were skipped by the naive owner guard -> NoSuchFieldError at runtime
+- duplicate SRG names in the CSV for one MCP name (getMinecraft had three: func_71410_x, func_193295_e, func_192989_b) -> wrong one picked -> NoSuchMethodError
+- calls on subclass owners (FolderResourcePack.getResourceDomains) needed the full superclass chain walked
+- JDK classes must never be remapped (BufferedReader.close() was being turned into func_76708_c, the SRG name of RegionFile.close) -> java.* owner guard
+- shadowed third-party libs (jackson under software/bernie/shadowed) must never be remapped -> strict owner allowlist
+- forge classes (net/minecraftforge) keep their own MCP method names at runtime, but inherit vanilla MC methods that ARE SRG-renamed -> hierarchy-aware resolution with a BFS over superclasses AND implemented interfaces (ICommand.getName -> func_71517_b, GeckoLibCache.onResourceManagerReload -> func_110549_a)
+- mod-declared fields that share an MCP name+desc with an MC field (TrailSegment.world) must keep their names -> walk the full chain, only remap on a hit
+
+The tool also scans extra jars (forge srg jar, MCP jar) purely for their class hierarchy so owner resolution can walk from mod subclasses up to their MC superclasses.
+
+Current state: 8878 method entries, 7846 field entries in the map, and the built jar passes a full sweep for stale or MCP-leaked names.
+
+## TinyGen
+
+`tools/TinyGen.java` generates the tiny mapping format used when building the MCP-named compile jars.
+
+## The mapping tables
+
+`tools/mappings/methods.csv` and `fields.csv` are the full MCP SRG mapping tables (searge name, MCP name, side, description). These came from the stable_39 mappings. `tools/regenerate-mcp-jar.sh` rebuilds the MCP-named compile jars.
 
 ---
 
-## 4. Tooling / scripts used (in `/tmp/opencode/jenny-deob/`)
+# The tooling
 
-- `javap -c -p` on official `Fapcraft.1.12.2.v1.1.jar` classes = ground truth.
-- Fix scripts (apply to both projects): `fix-model-location.py`, `fix-texture-methods.py`,
-  `fix-goblin-lambda.py`, `fix-galath-swim.py`, `fix-base-skin.py`, `fix-item-bridge-types.py`,
-  `fix-register-generic*.py`, `fix-guihandler.py`, `fix-swim-speed.py`, etc.
-- `deploy-fix.sh` (copy remap jar → mods), `deploy-all.sh` (+ rebuild/stage base jar).
-- Build: `mvn -q clean package` in each project → 0 errors/warnings.
+A whole toolbox grew out of this project:
+
+| tool | what it does |
+|---|---|
+| `MCRepack.java` | the SRG reobfuscator (see above) |
+| `TinyGen.java` | tiny-format mapping generator |
+| `rename_class.py` | context-aware class renames (casts, instanceof, static access, arrays, generics) |
+| `rename_methods.py` | method rename helper |
+| `rename_fields.py` | scoped field rename helper |
+| `rename_field_hierarchy.py` | inherited-field renames with subclass propagation |
+| `rename_params.py` | brace-matched parameter renames |
+| `find_single_letter_fields.py` | the survey tool that counted every obfuscated field |
+| `apply_field_renames.py` | batch field rename application |
+| `apply-renames.sh` | rename batch wrapper |
+| `fix_imports.py` | CFR header normalization |
+| `match_oracle.py` / `vote_match.py` / `oracle_methods.py` | oracle fingerprinting: match obfuscated methods to the clean reference source |
+| `add_javadoc.py` | selective javadoc helper (used sparingly, see notes) |
+| `build.sh` / `build.bat` | universal build scripts that find Java and Maven on any system (JAVA_HOME, PATH, SDKMAN, system dirs), build, and copy the jar to dist/ |
+| `push.sh` / `push.bat` | commit + push helpers |
 
 ---
 
-## 5. Deployment state (end of session)
+# The rename campaign
 
-- Remap jar freshly built (post getModelLocation + galath-swim + jenny rebuild) and deployed.
-- Base A/B jar rebuilt + `.disabled`.
-- **NEXT ACTION FOR USER:** start the game fresh (jar already current). Report:
-  - stripped/armor state of each girl (outfit model fix)
-  - player model duplication
-  - scene stuck / /kill exit
-  - right-click menus (slime/manglelie/bee)
-  - GUI button positions
-  - lamp icon
-  - Ellie hand texture
+The numbers:
+
+- 683 single-letter method declarations -> 0
+- 787 a_clash method tokens -> 0
+- 1007 single-letter fields -> 0
+- every single-letter class renamed (KoboldManager.Tribe, RibbonRenderer.WaveFunction, CustomModelList.ModelListEntry, ServerWhitelistManager.ModelData, ...)
+- ~30 classes renamed from ZKM short names to meaningful names
+
+The rename strategy was compiler-driven and paranoid:
+
+1. rename the declaration only
+2. `mvn -q clean compile`
+3. let javac report every broken call site
+4. fix each one precisely
+5. iterate to zero errors
+6. commit
+
+Blanket find-and-replace on call sites was banned after it caused more damage than it fixed. Every batch was committed separately so anything wrong could be reverted cleanly.
+
+The work happened in two days of grinding. The git history originally had 171 near-identical commits. It got rewritten down to 29: the renamer commits merged into 7 massive per-day deobfuscation commits (classes and hierarchy, all fields, a_clash tokens, single-letter methods x3, final methods and inner classes), with the non-renamer work (bug fixes, tooling, docs, MCP build step, formatting) kept as its own commits.
+
+---
+
+# The crash saga
+
+Every crash that got fixed, in rough order. Each one was a real root cause found by comparing our code against the original jar bytecode.
+
+## Mapping layer (the MCRepack fixes)
+
+- `NoSuchFieldError: maxStackSize` -- inherited MC field written through a mod subclass owner got skipped by the owner guard. Fixed in MCRepack.
+- `NoSuchMethodError: func_193295_e` -- getMinecraft had multiple SRG names in the CSV; wrong one picked. Fixed with owner-aware resolution.
+- `NoSuchMethodError: func_135055_a` (getResourceDomains) -- same duplicate-name problem, callsite on FolderResourcePack. Fixed with hierarchy-aware resolution.
+- `NoSuchMethodError: BufferedReader.func_76708_c` -- JDK class method remapped because the map had RegionFile.close -> func_76708_c. Fixed with a java.* owner guard.
+- 29 jackson classes with func_76708_c -- shadowed third-party lib remapped. Fixed with a strict owner allowlist.
+- `NoSuchFieldError: field_73235_d` (Entity.world) -- wrong SRG picked for a field with multiple declaring classes. Fixed with per-declaring-class candidate tracking.
+- mod fields (TrailSegment.world, GirlAiBase.homeVillager) mangled -- mod-declared fields sharing a name with MC fields got remapped. Fixed by walking the full chain and only remapping on a hit.
+- `NoSuchMethodError: registerCommand` -- forge owner not in the allowlist. Added net/minecraftforge.
+- `AbstractMethodError: LootTableLoadEvent.getName` / `CommandWhitelistServer.func_71517_b` -- forge classes keep their own MCP method names at runtime, but vanilla-inherited methods through forge owners are SRG. Fixed with hierarchy BFS including implemented interfaces.
+- `AbstractMethodError` on ICommand.getName overrides -- the mod's own overrides of interface methods needed the interface walk. Fixed.
+
+## Deobfuscation bugs (wrong bodies, wrong calls)
+
+- `StackOverflowError: GalathEntity.hasMaster` -- the method body was `return this.hasMaster()` (infinite recursion). The original was `k_clash637 -> J_clash526` (a delegation to the parent check). Fixed to `super.hasMaster()`.
+- `AbstractPlayerGirlEntity.isAnchored` -- a bogus self-recursive override. The original `o_clash456` was a camera scene-active check, not the anchored getter. Split into `isSceneActive()` calling the real getter.
+- `GoblinPlayerEntity.isAnchored` -- `return this.isAnchored() || ...` recursed. Fixed to `super.isAnchored() || ...`. These two corrupted AI, interaction, and camera state across all girls (stuck walking, can't interact, disappearing girls) because isAnchored is checked 25 times across 5 entity classes.
+- `NullPointerException` on player login -- PlayerIds.onPlayerLoggedIn called a client-only camera reset on the server thread. The original called the server-safe table rebuild. Fixed.
+
+## Gameplay bugs
+
+- ResetGirlPacket boolean inverted -- the deobfuscation flipped `a==true` to `!a`, so the single-arg reset (unlock player, keep scene) did a full reset and the real leave path did nothing. Every scene that binds then resets instantly died.
+- The invented hasPlayer reset branch -- `l_clash514` (the per-tick followUp transition) had an extra branch NOT in the jar that reset every hasPlayer action to NULL on the first server tick. Scenes flashed and died. Removed.
+- The R-Shift scene exit -- the keybind we added sent a hard ResetGirlPacket(true) which snapped the player out while the girl stayed anchored (the server refuses setCurrentAction(NULL) while anchored, by design). Girls got stuck standing, uninteractable. Reworked to progress the scene to its natural end (trigger the cum/ending action, then walk the action chain to completion).
+- Old-world corruption guard -- a bee saved with a corrupt ride chain by an earlier build crashed vanilla's tick every load. BaseGirlEntity.onUpdate now clears stale rides and removes corrupt entities instead of crashing the server.
+
+## Build / environment bugs
+
+- Forge 2859 lacks SWIM_SPEED (added in 2860) -- removed all references.
+- Decompiler dropped Main.instance in registry and GUI handler registration -- restored.
+- Item/block registry ClassCastException -- raw Register instead of Register<Item>/Register<Block>.
+- Stream-closed IOException in Main.setConfigs -- decompiler couldn't verify finally blocks; fixed with try-with-resources.
+- Dropped doRender bridges -- renderers dispatched to the geckolib base no-op instead of the custom render. Same bug class in 6 renderers.
+- Dropped setLivingAnimations bridges -- girl models always rendered the steve subtree and armor bones because the per-frame hook was dead code.
+- GirlRenderer.getEntityTexture returned the player's skin instead of the girl's own texture -- every girl rendered as a garbled steve.
+
+---
+
+# What runs now
+
+The game loads, worlds load, all 6 mods come up, NPCs spawn and walk, interactions and scenes work, scene exit progresses to the natural end, and old worlds with corrupt entities get cleaned instead of crashing.
+
+The remaining known rough edges:
+- the mod's own assets (geo models, textures, animations) are not bundled; the user supplies them
+- the MolangParser IndexOutOfBounds log during startup is caught and harmless
+- `Skipping bad option: lastServer:` in the log is vanilla noise
+
+---
+
+# The lessons
+
+- The compiler is the best deobfuscation tool. Rename the declaration, let javac find every call site, fix them one at a time. Never blanket-replace call sites by name.
+- `this.X()` where it should be `super.X()` is the silent killer. It compiles, it looks right, and it either recurses forever or silently breaks the override chain. Scan for self-calls in overrides.
+- Line numbers in crash reports lie after deobf. The method names in the stack are the truth; the line numbers map to a different source than you think.
+- Forge classes keep their own MCP method names at runtime; vanilla MC classes are SRG. A reobfuscator has to know which is which.
+- Deobfuscation creates bugs. Lots of them. Each one needs the original jar bytecode as ground truth.
+
+---
+
+# References
+
+- The original obfuscated jar (Fapcraft 1.12.2 v1.1)
+- https://github.com/palkaline/jenny-mod-re (independent reconstruction)
+- The rechenz 1.21.1 port (clean naming reference)
+- MCP stable_39 mappings (the SRG tables)

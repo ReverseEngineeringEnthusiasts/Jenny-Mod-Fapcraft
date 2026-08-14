@@ -3,7 +3,7 @@
     "modid": "sexmod",
     "name": "Fapcraft",
     "description": "you... probably already know what this mod does",
-    "version": "1.1.0",
+    "version": "1.1.0-dev",
     "mcversion": "${mcversion}",
     "url": "https://twitter.com/trolmastercard",
     "updateUrl": "",
