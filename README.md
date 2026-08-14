@@ -73,10 +73,31 @@ The NPC/entity/item/packet class names came from the original reconstruction
 
 ## Build
 
+One command, works on Linux/macOS/Windows, finds Java + Maven for you:
+
 ```bash
-mvn clean package
-# -> target/fapcraft-1.12.2-1.1.0.jar   (zero warnings, zero errors)
+./build.sh                 # or build.bat on Windows
+# -> dist/fapcraft-1.12.2-1.1.0.jar  (SRG-reobfuscated + shaded, GeckoLib bundled)
+```
+
+The script is smart about the toolchain:
+
+- **Java**: checks `JAVA_HOME`, then `PATH`, then SDKMAN
+  (`~/.sdkman/candidates/java`), then common system install dirs
+  (`/usr/lib/jvm`, `/Library/Java/JavaVirtualMachines`, `Program Files\Java`,
+  Eclipse Adoptium, Microsoft, Corretto, Zulu…). Prefers a modern JDK
+  (17/21/22+) because the SRG reobfuscation step (ASM-based `MCRepack`) needs
+  one. Override with `JAVA_HOME=... ./build.sh` or `PREFER_JAVA=8 ./build.sh`.
+- **Maven**: checks `PATH`, SDKMAN, `MAVEN_HOME`, common dirs.
+
+Commit + push the result:
+
+```bash
+./build.sh push "message"  # build, then git commit + push
+./push.sh "message"        # just commit + push
 ```
 
 Identical classpath setup to the parent project (`lib/`, `lib-repo/`); see
 `../Fapcraft-1.12.2/lib/README.md`.
+
+*Reverse engineered in Kurdistan <3*
