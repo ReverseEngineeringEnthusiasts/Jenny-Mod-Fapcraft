@@ -13,7 +13,20 @@ public class MCRepack {
     //       mcp2srg -> rename MCP names back to func_XXX/field_XXX (reobfuscate built mod jar)
     static Map<String, String> methodMap = new HashMap<>();   // "name\0desc" -> mappedName
     static Map<String, String> fieldMap = new HashMap<>();    // "name\0desc" -> mappedName
+    static Map<String, String> methodOwnerMap = new HashMap<>(); // "mcp\0desc" -> "owner:srgName" (for ambiguous dupes)
+    static Map<String, String> srgMethodOwner = new HashMap<>(); // "func_XXX\0desc" -> declaring class (internal name)
     static boolean reobf;
+
+    // When the same MCP (name, desc) maps to several SRG names (stale duplicates
+    // in the reference jar), prefer the SRG name declared in the class that the
+    // mod actually calls it on: net/minecraft/client/Minecraft beats a tutorial
+    // helper declaring the same method under an old name.
+    static boolean isCanonicalOwner(String owner, String priorOwnerAndName) {
+        String priorOwner = priorOwnerAndName.substring(0, priorOwnerAndName.indexOf(':'));
+        if (owner.equals("net/minecraft/client/Minecraft")) return true;
+        if (priorOwner.equals("net/minecraft/client/Minecraft")) return false;
+        return owner.compareTo(priorOwner) > 0; // arbitrary but deterministic
+    }
 
     public static void main(String[] args) throws Exception {
         String srgJar = args[0];
@@ -41,6 +54,16 @@ public class MCRepack {
             String existing = methodMap.get(mapKey);
             if (existing == null || betterSide(srgName, existing)) {
                 methodMap.put(mapKey, reobf ? srgName : mcp);
+            }
+            // remember declaring owner so we can disambiguate duplicate (mcp, desc)
+            // entries later (e.g. getMinecraft declared as func_71410_x in
+            // Minecraft.class but also as func_193295_e in stale helper classes).
+            String owner = srgMethodOwner.get(key);
+            if (owner != null) {
+                String prior = methodOwnerMap.get(mapKey);
+                if (prior == null || isCanonicalOwner(owner, prior)) {
+                    methodOwnerMap.put(mapKey, owner + ":" + srgName);
+                }
             }
         }
         for (Map.Entry<String, String> e : srgField.entrySet()) {
@@ -96,7 +119,9 @@ public class MCRepack {
             try { new ClassReader(data).accept(cn, 0); } catch (Exception ex) { continue; }
             for (org.objectweb.asm.tree.MethodNode m : cn.methods) {
                 if (m.name.startsWith("func_")) {
-                    methods.put(m.name + "\u0000" + m.desc, m.name);
+                    String key = m.name + "\u0000" + m.desc;
+                    methods.put(key, m.name);
+                    srgMethodOwner.put(key, cn.name);
                 }
             }
             for (org.objectweb.asm.tree.FieldNode f : cn.fields) {
@@ -120,14 +145,28 @@ public class MCRepack {
     static class MyRemapper extends Remapper {
         @Override
         public String mapMethodName(String owner, String name, String desc) {
-            String n = methodMap.get(name + "\u0000" + desc);
-            return n == null ? name : n;
+            String key = name + "\u0000" + desc;
+            String n = methodMap.get(key);
+            if (n == null) return name;
+            // if a duplicate (mcp, desc) exists, pick the SRG name declared by
+            // the actual owner class of this call site
+            String ownerEntry = methodOwnerMap.get(key);
+            if (ownerEntry != null && reobf) {
+                String o = ownerEntry.substring(0, ownerEntry.indexOf(':'));
+                String srg = ownerEntry.substring(ownerEntry.indexOf(':') + 1);
+                if (o.equals(owner)) return srg;
+            }
+            return n;
         }
         @Override
         public String mapFieldName(String owner, String name, String desc) {
             String n = fieldMap.get(name + "\u0000" + desc);
             if (n == null) return name;
-            if (reobf && !owner.startsWith("net/minecraft/")) return name; // fields: scope to MC owners
+            // fieldMap only contains entries scanned from the MC SRG jar, so a hit
+            // already implies the field belongs to Minecraft. The old owner-scope
+            // guard (owner.startsWith("net/minecraft/")) wrongly skipped inherited
+            // MC fields written through a mod subclass owner (e.g. Item.maxStackSize
+            // putfield with owner = the mod item class) -> NoSuchFieldError at runtime.
             return n;
         }
     }
