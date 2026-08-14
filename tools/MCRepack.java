@@ -14,18 +14,25 @@ public class MCRepack {
     static Map<String, String> methodMap = new HashMap<>();   // "name\0desc" -> mappedName
     static Map<String, String> fieldMap = new HashMap<>();    // "name\0desc" -> mappedName
     static Map<String, String> methodOwnerMap = new HashMap<>(); // "mcp\0desc" -> "owner:srgName" (for ambiguous dupes)
-    static Map<String, String> srgMethodOwner = new HashMap<>(); // "func_XXX\0desc" -> declaring class (internal name)
+    static Map<String, String> srgMethodOwner = new HashMap<>(); // "func_XXX\0desc" -> first declaring class
+    static Map<String, String> srgFieldOwner = new HashMap<>();  // "field_XXX\0desc" -> first declaring class
+    static Map<String, java.util.Set<String>> srgMethodAllOwners = new HashMap<>(); // "func_XXX\0desc" -> all declaring classes
+    static Map<String, java.util.Set<String>> srgFieldAllOwners = new HashMap<>();  // "field_XXX\0desc" -> all declaring classes
+    static Map<String, String> classParents = new HashMap<>();   // class internal name -> superName
+    static Map<String, Map<String, String>> methodOwnerCandidates = new HashMap<>(); // "mcp\0desc" -> declaringClass -> srgName
+    static Map<String, Map<String, String>> fieldOwnerCandidates = new HashMap<>();  // "mcp\0desc" -> declaringClass -> srgName
     static boolean reobf;
 
-    // When the same MCP (name, desc) maps to several SRG names (stale duplicates
-    // in the reference jar), prefer the SRG name declared in the class that the
-    // mod actually calls it on: net/minecraft/client/Minecraft beats a tutorial
-    // helper declaring the same method under an old name.
-    static boolean isCanonicalOwner(String owner, String priorOwnerAndName) {
-        String priorOwner = priorOwnerAndName.substring(0, priorOwnerAndName.indexOf(':'));
-        if (owner.equals("net/minecraft/client/Minecraft")) return true;
-        if (priorOwner.equals("net/minecraft/client/Minecraft")) return false;
-        return owner.compareTo(priorOwner) > 0; // arbitrary but deterministic
+    // classes whose methods/fields ARE SRG-renamed at runtime: Minecraft itself,
+    // the mod, Forge's MC-facing classes (net/minecraftforge/...), and GeckoLib's
+    // own API classes. Bundled third-party libs under software/bernie/shadowed
+    // (jackson etc.) must NEVER be remapped.
+    static boolean isSrgOwner(String owner) {
+        return owner != null
+                && (owner.startsWith("net/minecraft/")
+                    || owner.startsWith("net/minecraftforge/")
+                    || owner.startsWith("com/trolmastercard/")
+                    || owner.startsWith("software/bernie/geckolib3"));
     }
 
     public static void main(String[] args) throws Exception {
@@ -55,15 +62,14 @@ public class MCRepack {
             if (existing == null || betterSide(srgName, existing)) {
                 methodMap.put(mapKey, reobf ? srgName : mcp);
             }
-            // remember declaring owner so we can disambiguate duplicate (mcp, desc)
-            // entries later (e.g. getMinecraft declared as func_71410_x in
-            // Minecraft.class but also as func_193295_e in stale helper classes).
-            String owner = srgMethodOwner.get(key);
-            if (owner != null) {
-                String prior = methodOwnerMap.get(mapKey);
-                if (prior == null || isCanonicalOwner(owner, prior)) {
-                    methodOwnerMap.put(mapKey, owner + ":" + srgName);
-                }
+            // collect ALL declaring classes for this (mcp, desc) so we can resolve
+            // by the callsite owner's class hierarchy (handles stale duplicates like
+            // getResourceDomains: func_110587_b on FileResourcePack vs func_135055_a
+            // on IResourceManager).
+            java.util.Set<String> owners = srgMethodAllOwners.get(key);
+            if (owners != null) {
+                Map<String, String> byClass = methodOwnerCandidates.computeIfAbsent(mapKey, k -> new java.util.HashMap<>());
+                for (String o : owners) byClass.put(o, srgName);
             }
         }
         for (Map.Entry<String, String> e : srgField.entrySet()) {
@@ -71,7 +77,13 @@ public class MCRepack {
             String srgName = e.getValue();
             String mcp = fieldMcp.get(srgName);
             if (mcp == null || mcp.equals(srgName)) continue;
-            fieldMap.put((reobf ? mcp : srgName) + "\u0000" + key.substring(key.indexOf('\u0000') + 1), reobf ? srgName : mcp);
+            String mapKey = (reobf ? mcp : srgName) + "\u0000" + key.substring(key.indexOf('\u0000') + 1);
+            fieldMap.put(mapKey, reobf ? srgName : mcp);
+            java.util.Set<String> owners = srgFieldAllOwners.get(key);
+            if (owners != null) {
+                Map<String, String> byClass = fieldOwnerCandidates.computeIfAbsent(mapKey, k -> new java.util.HashMap<>());
+                for (String o : owners) byClass.put(o, srgName);
+            }
         }
         System.out.println("method entries: " + methodMap.size() + " field entries: " + fieldMap.size());
 
@@ -117,16 +129,21 @@ public class MCRepack {
             zin.closeEntry();
             org.objectweb.asm.tree.ClassNode cn = new org.objectweb.asm.tree.ClassNode();
             try { new ClassReader(data).accept(cn, 0); } catch (Exception ex) { continue; }
+            classParents.put(cn.name, cn.superName);
             for (org.objectweb.asm.tree.MethodNode m : cn.methods) {
                 if (m.name.startsWith("func_")) {
                     String key = m.name + "\u0000" + m.desc;
                     methods.put(key, m.name);
-                    srgMethodOwner.put(key, cn.name);
+                    srgMethodOwner.merge(key, cn.name, (a, b) -> a); // first declaring class wins (used for canonical owner)
+                    srgMethodAllOwners.computeIfAbsent(key, k -> new java.util.LinkedHashSet<>()).add(cn.name);
                 }
             }
             for (org.objectweb.asm.tree.FieldNode f : cn.fields) {
                 if (f.name.startsWith("field_")) {
-                    fields.put(f.name + "\u0000" + f.desc, f.name);
+                    String key = f.name + "\u0000" + f.desc;
+                    fields.put(key, f.name);
+                    srgFieldOwner.merge(key, cn.name, (a, b) -> a);
+                    srgFieldAllOwners.computeIfAbsent(key, k -> new java.util.LinkedHashSet<>()).add(cn.name);
                 }
             }
         }
@@ -143,35 +160,91 @@ public class MCRepack {
     }
 
     static class MyRemapper extends Remapper {
+        // Walk the callsite owner up its superclass chain looking for a class that
+        // declares a candidate SRG name for this (mcp, desc). Falls back to the
+        // generic map. Never remaps non-MC owners (java.* etc.) — those classes
+        // are not SRG-renamed at runtime (e.g. BufferedReader.close()).
+        private String resolveByOwner(Map<String, String> byClass, String owner, String name, String fallback) {
+            if (byClass == null || byClass.isEmpty()) return name;
+            if (!isSrgOwner(owner)) return name; // JDK/third-party: never remap
+            String cur = owner;
+            int depth = 0;
+            while (cur != null && depth++ < 64) {
+                String srg = byClass.get(cur);
+                if (srg != null) return srg;
+                cur = classParents.get(cur);
+            }
+            // no class in the chain declares this (mcp, desc) -> it is a mod/other
+            // declared member that only collides by name; keep the original name
+            return name;
+        }
+
         @Override
         public String mapMethodName(String owner, String name, String desc) {
             String key = name + "\u0000" + desc;
             String n = methodMap.get(key);
             if (n == null) return name;
-            // if a duplicate (mcp, desc) exists, pick the SRG name declared by
-            // the actual owner class of this call site
-            String ownerEntry = methodOwnerMap.get(key);
-            if (ownerEntry != null && reobf) {
-                String o = ownerEntry.substring(0, ownerEntry.indexOf(':'));
-                String srg = ownerEntry.substring(ownerEntry.indexOf(':') + 1);
-                if (o.equals(owner)) return srg;
+            if (reobf) {
+                Map<String, String> cands = methodOwnerCandidates.get(key);
+                if (cands != null && cands.size() > 1) {
+                    return resolveByOwner(cands, owner, name, n);
+                }
+                // even with a single candidate, refuse to remap JDK/third-party owners
+                if (!isSrgOwner(owner)) return name;
             }
             return n;
         }
+
         @Override
         public String mapFieldName(String owner, String name, String desc) {
-            String n = fieldMap.get(name + "\u0000" + desc);
+            String key = name + "\u0000" + desc;
+            String n = fieldMap.get(key);
             if (n == null) return name;
-            // fieldMap only contains entries scanned from the MC SRG jar, so a hit
-            // already implies the field belongs to Minecraft. The old owner-scope
-            // guard (owner.startsWith("net/minecraft/")) wrongly skipped inherited
-            // MC fields written through a mod subclass owner (e.g. Item.maxStackSize
-            // putfield with owner = the mod item class) -> NoSuchFieldError at runtime.
+            if (reobf) {
+                if (!isSrgOwner(owner)) return name;
+                Map<String, String> cands = fieldOwnerCandidates.get(key);
+                if (cands != null && cands.size() > 1) {
+                    return resolveByOwner(cands, owner, name, n);
+                }
+                // The callsite owner is an MC/mod/forge/geckolib class. Only remap
+                // MC-declared (inherited) fields: walk the FULL superclass chain;
+                // a cands hit means some class in the chain declares this SRG field.
+                // If NO class in the chain declares it (e.g. a mod-declared field
+                // like TrailSegment.world that merely shares an MCP name+desc with
+                // an MC field), keep the original name.
+                String cur = owner;
+                int depth = 0;
+                while (cur != null && depth++ < 64) {
+                    String srg = cands != null ? cands.get(cur) : null;
+                    if (srg != null) return srg; // declared by this class -> remap
+                    cur = classParents.get(cur);
+                }
+                return name;
+            }
             return n;
         }
     }
 
     static void rezip(File in, File out) throws Exception {
+        // pass 1: collect class hierarchy of the INPUT jar too, so owner resolution
+        // can walk from mod subclasses up to their MC superclasses (BaseGirlEntity
+        // -> ... -> Entity), which are the classes that declare the SRG names.
+        ZipInputStream scan = new ZipInputStream(new BufferedInputStream(new FileInputStream(in)));
+        ZipEntry se;
+        while ((se = scan.getNextEntry()) != null) {
+            String n = se.getName();
+            if (n.endsWith(".class")) {
+                byte[] data = readAll(scan);
+                try {
+                    org.objectweb.asm.tree.ClassNode cn = new org.objectweb.asm.tree.ClassNode();
+                    new ClassReader(data).accept(cn, 0);
+                    classParents.putIfAbsent(cn.name, cn.superName);
+                } catch (Exception ignore) { }
+            }
+            scan.closeEntry();
+        }
+        scan.close();
+
         ZipInputStream zin = new ZipInputStream(new BufferedInputStream(new FileInputStream(in)));
         ZipOutputStream zout = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(out)));
         ZipEntry e;
