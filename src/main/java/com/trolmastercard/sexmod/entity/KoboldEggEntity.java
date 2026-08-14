@@ -136,7 +136,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
          var2.sendMessage(
             new TextComponentString(
                String.format(
-                  "%s%s %shas become animationController %snew tribe member%s!",
+                  "%s%s %shas become a %snew tribe member%s!",
                   var4.getTextColor(),
                   var1.getDisplayNameText(),
                   TextFormatting.WHITE,
