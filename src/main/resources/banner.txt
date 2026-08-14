@@ -1,0 +1,7 @@
+==============================================
+  Fapcraft 1.12.2 (sexmod) — v1.1.0
+  Reverse engineered in Kurdistan <3
+==============================================
+Deobfuscated, decompiled and remapped reconstruction
+of the official Fapcraft mod for Minecraft 1.12.2.
+Build: SRG-reobfuscated + shaded (GeckoLib bundled).
