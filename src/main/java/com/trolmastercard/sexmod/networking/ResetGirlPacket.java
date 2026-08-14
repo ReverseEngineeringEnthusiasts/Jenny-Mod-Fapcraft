@@ -71,18 +71,18 @@ public class ResetGirlPacket implements IMessage {
             var1.noClip = false;
             var0.setAnchored(false);
             var0.setCurrentAction(Action.NULL);
-         }
 
-         // Player physics cleanup applies to EVERY girl scene, not just player
-         // forms. NPC girls (slime, goblin, bia, luna, ...) set the interacting
-         // player's noGravity/noClip when the scene starts; without this the
-         // player stays gravity-free and un-hittable after the scene ends.
-         if (var0.getInteractionPlayerUUID() != null) {
-            EntityPlayer var2 = var0.world.getPlayerEntityByUUID(var0.getInteractionPlayerUUID());
-            if (var2 != null) {
-               var2.capabilities.isFlying = false;
-               var2.setNoGravity(false);
-               var2.noClip = false;
+            // Jar-faithful: the interacting player's physics are restored here,
+            // inside the APGE branch only. For NPC girl scenes the player is
+            // restored by resetGirls() in onMessage, which runs whenever the
+            // girl has an interaction partner (before the resetPose check).
+            if (var0.getInteractionPlayerUUID() != null) {
+               EntityPlayer var2 = var0.world.getPlayerEntityByUUID(var0.getInteractionPlayerUUID());
+               if (var2 != null) {
+                  var2.capabilities.isFlying = false;
+                  var2.setNoGravity(false);
+                  var2.noClip = false;
+               }
             }
          }
 
@@ -128,7 +128,13 @@ public class ResetGirlPacket implements IMessage {
                         resetGirls(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(var3.getInteractionPlayerUUID()));
                      }
 
-                     if (var1.resetPose) {
+                     // Jar-faithful (verified against Fapcraft.1.12.2.v1.1.jar
+                     // bytecode): resetGirl() runs when resetPose == FALSE. The
+                     // single-arg packet is the full scene-end reset (player
+                     // physics via resetGirls + girl release via resetGirl); the
+                     // two-arg TRUE packet is the player-only reset used by
+                     // strip/doggy transitions where the girl keeps her pose.
+                     if (!var1.resetPose) {
                         resetGirl(var3);
                      }
                   }

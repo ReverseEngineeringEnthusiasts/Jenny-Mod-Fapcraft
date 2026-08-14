@@ -567,8 +567,14 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       // (stale reference to a removed entity, or a ride whose passenger chain is
       // inconsistent). Vanilla's passenger handling NPEs on such state during the
       // tick; clear it before super so old worlds load instead of crashing in
-      // EntityLivingBase. Inspections are wrapped because vanilla's own
-      // ride/passenger getters can throw on corrupt state.
+      // EntityLivingBase. This is a DISMOUNT-ONLY guard: it never removes the
+      // girl. The original jar has no setDead anywhere in onUpdate — the
+      // previous "harden onUpdate" attempt (be258ed) deleted girls on ANY tick
+      // exception, which is what made Jenny/Bia disappear and stay gone on
+      // reload. The current narrowed variant still deletes girls whenever an NPE
+      // happens while the girl is riding (which is the normal state during
+      // follow-mode riding and some scenes). Jar-faithful behavior = tick
+      // through, never setDead.
       if (!this.world.isRemote) {
          try {
             net.minecraft.entity.Entity ride = this.getRidingEntity();
@@ -580,24 +586,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
             this.dismountRidingEntity();
          }
       }
-      try {
-         super.onUpdate();
-      } catch (Throwable t) {
-         // A corrupt entity (e.g. stale ride/passenger chain saved by an older
-         // build) makes vanilla's tick NPE. ONLY remove the entity for that
-         // corruption signature (an NPE originating in vanilla entity code while
-         // the girl is in an abnormal ride state). Any other exception is a real
-         // bug and must propagate so it can be fixed, not silently delete girls
-         // mid-scene (which is what made Jenny/Bia "disappear").
-         boolean rideCorrupt = (t instanceof NullPointerException)
-            && (this.getRidingEntity() != null || this.isRiding());
-         if (!this.world.isRemote && rideCorrupt) {
-            System.out.println("[sexmod] removed corrupt entity " + this + " at " + this.getPositionVector());
-            this.setDead();
-         } else {
-            throw t;
-         }
-      }
+      super.onUpdate();
       this.tickFollowUpTransitions();
    }
 

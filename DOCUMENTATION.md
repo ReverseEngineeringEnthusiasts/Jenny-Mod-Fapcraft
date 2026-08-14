@@ -209,10 +209,11 @@ Every crash that got fixed, in rough order. Each one was a real root cause found
 
 ## Gameplay bugs
 
-- ResetGirlPacket boolean inverted -- the deobfuscation flipped `a==true` to `!a`, so the single-arg reset (unlock player, keep scene) did a full reset and the real leave path did nothing. Every scene that binds then resets instantly died.
+- ResetGirlPacket boolean inverted -- the earlier deobf flipped the branch so `resetGirl()` ran when `resetPose==true`. The jar does the opposite: the FULL reset (player physics via resetGirls + girl release via resetGirl) runs on the SINGLE-ARG packet (`resetPose==false`), which is what the natural scene end sends (cumDone sound -> resetCameraAndPhysics -> resetLocalPlayerClientState -> single-arg packet). The two-arg TRUE packet is only the player-only reset used by strip/doggy transitions. With the branch inverted, every natural scene end left the girl anchored/noGravity/noClip/interacting forever: slime/goblin "stuck against each other, can't move, both defy gravity, can't hit her" after the scene ends, "reload puts me BACK into the sex scene" (the girl's interaction partner + anchored state were never cleared server-side), goblin "stands still, invulnerable, no gravity". Fixed by matching the jar bytecode: `if (!resetPose) resetGirl(girl)`.
 - The invented hasPlayer reset branch -- `l_clash514` (the per-tick followUp transition) had an extra branch NOT in the jar that reset every hasPlayer action to NULL on the first server tick. Scenes flashed and died. Removed.
-- The R-Shift scene exit -- the keybind we added sent a hard ResetGirlPacket(true) which snapped the player out while the girl stayed anchored (the server refuses setCurrentAction(NULL) while anchored, by design). Girls got stuck standing, uninteractable. Reworked to progress the scene to its natural end (trigger the cum/ending action, then walk the action chain to completion).
-- Old-world corruption guard -- a bee saved with a corrupt ride chain by an earlier build crashed vanilla's tick every load. BaseGirlEntity.onUpdate now clears stale rides and removes corrupt entities instead of crashing the server.
+- The invented setDead catch in BaseGirlEntity.onUpdate -- NOT in the jar. The jar's onUpdate is just `super.onUpdate(); tickFollowUpTransitions();`. be258ed wrapped super.onUpdate in try/catch and setDead'd the girl on ANY tick exception; 6e489ab narrowed it to NPE+riding, but girls RIDE during follow-mode and scenes, so any benign scene-action NPE while riding still deleted the girl (Jenny/Bia "disappear + gone on reload"). Removed entirely; the ride guard stays as a dismount-only cleanup (never removes the girl).
+- The R-Shift scene exit -- the original keybind (d99f7fb) sent a single-arg ResetGirlPacket per interacting girl, which (with the jar's true semantics) IS the full reset. 49e6f87 reworked it to PROGRESS the scene (triggerCumAction/triggerFastSexAction chain), which only helps a scene that is mid-action with a valid next/cum action; a girl stuck at PAYMENT or NULL goes nowhere. 6e489ab then added a "safety net" that sent ResetGirlPacket(playerUUID) -- the PLAYER's UUID, which girlList() never matches (girl IDs are random, not the player's persistent ID), so the safety net was a no-op. Restored the original single-arg-per-girl reset using the GIRL's UUID.
+- Old-world corruption guard -- a bee saved with a corrupt ride chain by an earlier build crashed vanilla's tick every load. BaseGirlEntity.onUpdate now clears stale/dead rides before super (dismount-only; does NOT remove the entity).
 
 ## Build / environment bugs
 
@@ -228,7 +229,7 @@ Every crash that got fixed, in rough order. Each one was a real root cause found
 
 # What runs now
 
-The game loads, worlds load, all 6 mods come up, NPCs spawn and walk, interactions and scenes work, scene exit progresses to the natural end, and old worlds with corrupt entities get cleaned instead of crashing.
+The game loads, worlds load, all 6 mods come up, NPCs spawn and walk, interactions and scenes work, scenes end cleanly (the natural end releases the girl and the player: un-anchor, clear the interaction partner, restore gravity/noClip, re-add AI tasks), R-Shift leaves a scene with a full per-girl reset, and old worlds with corrupt rides get their stale rides cleared instead of crashing.
 
 The remaining known rough edges:
 - the mod's own assets (geo models, textures, animations) are not bundled; the user supplies them
