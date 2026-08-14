@@ -60,7 +60,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    public void handleOwnerCommand(String var1, UUID var2) {
       if ("action.names.touchboobs".equals(var1)) {
-         this.a(0, Action.TOUCH_BOOBS_INTRO);
+         this.sendActionPacket(0, Action.TOUCH_BOOBS_INTRO);
          this.setCurrentAction(Action.TOUCH_BOOBS_INTRO);
          this.entityDataManager.set(OUTFIT_INDEX, 0);
          this.teleportPlayerToGirl(var2);

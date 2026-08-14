@@ -71,13 +71,13 @@ public class GirlCameraHelper {
          double var13 = var1.posZ - var1.lastTickPosZ;
          double var15 = (Math.PI / 180.0) * var1.rotationYaw;
          var0.ao = new Vector2f((float)(var11 * Math.cos(var15) + var13 * Math.sin(var15)), (float)(var11 * Math.sin(var15) + var13 * Math.cos(var15)));
-         float var17 = var0.isRidingSomething() ? a(var0, var1) : 0.0F;
+         float var17 = var0.isRidingSomething() ? getCameraOffset(var0, var1) : 0.0F;
          GirlPlayerRenderer.isFirstPerson = true;
          var10.renderEntity(var0, var2, var4 + var17, var6, 90.0F, var8, false);
       }
    }
 
-   static float a(AbstractPlayerGirlEntity var0, EntityPlayer var1) {
+   static float getCameraOffset(AbstractPlayerGirlEntity var0, EntityPlayer var1) {
       if ((Boolean)var0.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
          return 0.0F;
       }
@@ -125,7 +125,7 @@ public class GirlCameraHelper {
                   this.playerLastPos = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
                   Vec3d var4 = var3.getCachedBoneOffset("girlCam");
                   var4 = var3.getOwnerAimVector(var4, var1.renderTickTime);
-                  var4 = var4.add(RotationHelper.a(this.playerLastPos, this.playerPos, var1.renderTickTime));
+                  var4 = var4.add(RotationHelper.lerpVec3dDouble(this.playerLastPos, this.playerPos, var1.renderTickTime));
                   var2.player.posX = var4.x;
                   var2.player.posY = var4.y - var2.player.getEyeHeight();
                   var2.player.posZ = var4.z;
@@ -134,7 +134,7 @@ public class GirlCameraHelper {
                   var2.player.lastTickPosZ = var4.z;
                   Action var5 = var3.getCurrentAction();
                   float var6 = var3.getYawRotation();
-                  if (!var3.a(var5, var2.player)) {
+                  if (!var3.canPerformAction(var5, var2.player)) {
                      if (var5.flipGirlYaw) {
                         var6 += 180.0F;
                      }
@@ -192,7 +192,7 @@ public class GirlCameraHelper {
             AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
             if (var3 != null) {
                Vec3d var4 = var2.player.getPositionVector();
-               Vec3d var5 = RotationHelper.a(this.playerLastPos, this.playerPos, var1.getPartialTicks());
+               Vec3d var5 = RotationHelper.lerpVec3dDouble(this.playerLastPos, this.playerPos, var1.getPartialTicks());
                Vec3d var6 = var5.subtract(var4);
                a(var3, var2.player, var6.x, var6.y, var6.z, var1.getPartialTicks());
                GlStateManager.enableLighting();

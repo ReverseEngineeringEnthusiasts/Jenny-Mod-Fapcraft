@@ -48,7 +48,7 @@ public class StructureMarkerRenderer {
    public static void renderMarkers() {
       Tessellator var0 = Tessellator.getInstance();
       BufferBuilder var1 = var0.getBuffer();
-      Vec3d var2 = RotationHelper.a(Reference.cameraPosPrevious, Reference.cameraPosCurrent, mc.getRenderPartialTicks());
+      Vec3d var2 = RotationHelper.lerpVec3dDouble(Reference.cameraPosPrevious, Reference.cameraPosCurrent, mc.getRenderPartialTicks());
       GlStateManager.pushMatrix();
       GlStateManager.disableCull();
       GlStateManager.disableDepth();

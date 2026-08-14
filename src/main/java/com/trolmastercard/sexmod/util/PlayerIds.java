@@ -57,7 +57,7 @@ public class PlayerIds {
       AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
       AbstractPlayerGirlEntity var9 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.player.getPersistentID());
       World var5 = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
-      this.a(var5, var2, var9);
+      this.registerJenny(var5, var2, var9);
       if (var9 != null) {
          var9.setAnchored(false);
          var9.setCurrentAction(Action.NULL);
@@ -66,17 +66,17 @@ public class PlayerIds {
 
       UUID var6 = var1.player.getPersistentID();
       if (var6.equals(playerId)) {
-         this.a(var5, var2, var6);
+         this.registerBia(var5, var2, var6);
       }
 
       if (var6.equals(girlId)) {
-         this.b(var5, var2, var6);
+         this.registerEllie(var5, var2, var6);
       }
 
       GalathEntity.handlePlayerJoin(var2);
    }
 
-   void a(World var1, EntityPlayer var2, UUID var3) {
+   void registerBia(World var1, EntityPlayer var2, UUID var3) {
       BiaPlayerEntity var4 = new BiaPlayerEntity(var1, var3);
       var4.setNoGravity(true);
       var4.noClip = true;
@@ -88,7 +88,7 @@ public class PlayerIds {
       var4.B_clash233();
    }
 
-   void b(World var1, EntityPlayer var2, UUID var3) {
+   void registerEllie(World var1, EntityPlayer var2, UUID var3) {
       ElliePlayerEntity var4 = new ElliePlayerEntity(var1, var3);
       var4.setNoGravity(true);
       var4.noClip = true;
@@ -100,7 +100,7 @@ public class PlayerIds {
       var4.B_clash233();
    }
 
-   void a(World var1, EntityPlayer var2, AbstractPlayerGirlEntity var3) {
+   void registerJenny(World var1, EntityPlayer var2, AbstractPlayerGirlEntity var3) {
       Predicate var4 = var0 -> true;
 
       for (AbstractPlayerGirlEntity var7 : var1.getEntities(AbstractPlayerGirlEntity.class, var4::test)) {
@@ -111,7 +111,7 @@ public class PlayerIds {
    }
 
    @SubscribeEvent
-   public void a(PlayerLoggedOutEvent var1) {
+   public void onPlayerLoggedOut(PlayerLoggedOutEvent var1) {
       EntityPlayer var2 = var1.player;
 
       try {

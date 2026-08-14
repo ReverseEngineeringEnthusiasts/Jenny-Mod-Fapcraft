@@ -61,7 +61,7 @@ public class LunaRenderer extends GirlRenderer {
             case "backHair":
                if (!this.isAnchored()) {
                   double var11 = this.rotR / TrigMath.wrapDegrees(45.0F);
-                  float var12 = (float)RotationHelper.b(0.0, 0.75, var11);
+                  float var12 = (float)RotationHelper.lerpDouble(0.0, 0.75, var11);
                   var3.setPositionZ(var12);
                   var3.setPositionY(var12);
                   var3.setRotationX(-this.rotR);
@@ -74,7 +74,7 @@ public class LunaRenderer extends GirlRenderer {
                }
 
                double var6 = this.rotR / TrigMath.wrapDegrees(45.0F);
-               float var8 = (float)RotationHelper.b(0.0, 1.3F, var6);
+               float var8 = (float)RotationHelper.lerpDouble(0.0, 1.3F, var6);
                var3.setPositionZ(-var8);
                var3.setPositionY(var8);
             case "frontHairL":
@@ -89,7 +89,7 @@ public class LunaRenderer extends GirlRenderer {
                if (!var10.equals(ItemStack.EMPTY) && var9.zFlag == 1.0F) {
                   GlStateManager.pushMatrix();
                   Tessellator.getInstance().draw();
-                  com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var3);
+                  com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var3);
                   GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
                   GlStateManager.scale(var9.aa, var9.aa, var9.aa);
                   Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, var10, TransformType.THIRD_PERSON_RIGHT_HAND);

@@ -52,7 +52,7 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
             case "backHair":
                if (!this.isLunaAnchored() && this.rotationZ > 0.0F) {
                   double var5 = this.rotationZ / TrigMath.wrapDegrees(45.0F);
-                  float var7 = (float)RotationHelper.b(0.0, 0.75, var5);
+                  float var7 = (float)RotationHelper.lerpDouble(0.0, 0.75, var5);
                   var2.setPositionZ(var7);
                   var2.setPositionY(var7);
                   var2.setRotationX(-this.rotationZ);

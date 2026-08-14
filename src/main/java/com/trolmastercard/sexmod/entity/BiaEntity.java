@@ -132,7 +132,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
             }
 
             this.setNoGravity(false);
-            Vec3d var1 = RotationHelper.a(this.getPositionVector(), this.getTargetPosition(), 40 - this.ag);
+            Vec3d var1 = RotationHelper.lerpVec3dDouble(this.getPositionVector(), this.getTargetPosition(), 40 - this.ag);
             this.setPosition(var1.x, var1.y, var1.z);
          } else {
             this.yFlag = false;
@@ -258,7 +258,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                   if (var1 == Action.ANAL_WAIT) {
                      if (!this.world.isRemote) {
                         this.setCurrentAction(Action.ANAL_START);
-                        Vec3d var7 = this.getTargetPosition().add(VectorMath.a(-0.3, -1.0, -0.5, this.getYawRotation()));
+                        Vec3d var7 = this.getTargetPosition().add(VectorMath.rotateByYaw(-0.3, -1.0, -0.5, this.getYawRotation()));
                         var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
                      } else if (this.isControlledByLocalPlayer()) {
                         HornyMeterHud.showHornyMeter();
@@ -271,9 +271,9 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                         this.setOutfitIndex(0);
                         this.setCurrentAction(Action.PRONE_DOGGY_INTRO);
                         Vec3d var4 = this.getTargetPosition();
-                        Vec3d var5 = var4.add(VectorMath.a(0.0, 0.0, 1.0, var3));
+                        Vec3d var5 = var4.add(VectorMath.rotateByYaw(0.0, 0.0, 1.0, var3));
                         this.setTargetPosition(var5);
-                        Vec3d var6 = var4.add(VectorMath.a(0.0, 1.1875 - var2.getEyeHeight(), 0.5, var3));
+                        Vec3d var6 = var4.add(VectorMath.rotateByYaw(0.0, 1.1875 - var2.getEyeHeight(), 0.5, var3));
                         var2.setPositionAndUpdate(var6.x, var6.y, var6.z);
                         this.setAnchored(true);
                      }
@@ -377,7 +377,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
             Vec3d var6 = var3.add(this.ad[var5][1]);
             Vec3d var7 = var3.subtract(this.ad[var5][1]);
             Block var8 = this.world.getBlockState(new BlockPos(var6.x, var6.y, var6.z)).getBlock();
-            if (var8 == Blocks.AIR && WorldUtils.b(this.world, new BlockPos(var7))) {
+            if (var8 == Blocks.AIR && WorldUtils.canPlaceStructure(this.world, new BlockPos(var7))) {
                if (var4 == -1) {
                   var4 = var5;
                } else {
@@ -418,14 +418,14 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    boolean isValidBed(BlockPos var1) {
       if (var1 == null) {
          return false;
-      } else if (WorldUtils.b(this.world, var1.north()) && this.world.isAirBlock(var1.south())) {
+      } else if (WorldUtils.canPlaceStructure(this.world, var1.north()) && this.world.isAirBlock(var1.south())) {
          return true;
-      } else if (WorldUtils.b(this.world, var1.east()) && this.world.isAirBlock(var1.west())) {
+      } else if (WorldUtils.canPlaceStructure(this.world, var1.east()) && this.world.isAirBlock(var1.west())) {
          return true;
       } else {
-         return WorldUtils.b(this.world, var1.south()) && this.world.isAirBlock(var1.north())
+         return WorldUtils.canPlaceStructure(this.world, var1.south()) && this.world.isAirBlock(var1.north())
             ? true
-            : WorldUtils.b(this.world, var1.west()) && this.world.isAirBlock(var1.east());
+            : WorldUtils.canPlaceStructure(this.world, var1.west()) && this.world.isAirBlock(var1.east());
       }
    }
 

@@ -102,7 +102,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    public void setLivingAnimations(T var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations((T)var1, var2, var3);
       AnimationProcessor var4 = this.getAnimationProcessor();
-      this.a((T)var1, var4);
+      this.animateGirl((T)var1, var4);
       if (!(var1.world instanceof SexWorldClient)) {
          if ((Boolean)var1.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
             var1.setPositionAndRotationDirect(
@@ -114,9 +114,9 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
             var1.actionController.transitionLengthTicks = !(var1.world instanceof SexWorldClient) && var1.getCurrentAction() != null ? var1.getCurrentAction().transitionTick : 5.0;
          }
 
-         this.a((T)var1, var4, var3);
+         this.handleAnimationEvent((T)var1, var4, var3);
          if (var1 instanceof AbstractGirlNpcEntity && !var1.isLocallyRegistered() && var1.getOutfitIndex() != 0) {
-            this.a(
+            this.applyHeldItems(
                var4,
                (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.HELMET_SLOT),
                (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.CHEST_SLOT),
@@ -124,7 +124,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
                (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.BOOTS_SLOT)
             );
          } else {
-            this.a(var4);
+            this.renderAllBones(var4);
          }
       }
    }
@@ -133,7 +133,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       return lerpPositions(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector());
    }
 
-   public static Vec3d a(BaseGirlEntity var0, Vec3d var1) {
+   public static Vec3d getBoneOffsetWorld(BaseGirlEntity var0, Vec3d var1) {
       return lerpPositions(var1, var0.getPositionVector());
    }
 
@@ -147,12 +147,12 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
          (var2.x > 0.0 ? 1 : -1) * var4, (var2.y > 0.0 ? 1 : -1) * var6, (var2.z > 0.0 ? 1 : -1) * var8
       );
       double var11 = var10.y / 2.0 + 0.5;
-      float var13 = (float)RotationHelper.b(-180.0, 0.0, var11);
+      float var13 = (float)RotationHelper.lerpDouble(-180.0, 0.0, var11);
       if (Float.isNaN(var13)) {
          var13 = -90.0F;
       }
 
-      float var14 = var11 < 0.5 ? 0.0F : (float)RotationHelper.b(0.0, 16.0, -var11);
+      float var14 = var11 < 0.5 ? 0.0F : (float)RotationHelper.lerpDouble(0.0, 16.0, -var11);
       if (Float.isNaN(var14)) {
          var14 = 0.0F;
       }
@@ -165,47 +165,47 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       return new Vec3d(TrigMath.wrapDegrees(var13), var14, var15);
    }
 
-   void a(AnimationProcessor<T> var1, ItemStack var2, ItemStack var3, ItemStack var4, ItemStack var5) {
-      this.c(var1, !var2.isEmpty());
-      this.b(var1, var3.getItem() instanceof ItemArmor);
-      this.d(var1, !var4.isEmpty());
-      this.a(var1, !var5.isEmpty());
+   void applyHeldItems(AnimationProcessor<T> var1, ItemStack var2, ItemStack var3, ItemStack var4, ItemStack var5) {
+      this.renderHeadArmor(var1, !var2.isEmpty());
+      this.renderTopArmor(var1, var3.getItem() instanceof ItemArmor);
+      this.renderBottomArmor(var1, !var4.isEmpty());
+      this.renderShoesArmor(var1, !var5.isEmpty());
    }
 
-   protected void a(AnimationProcessor<T> var1) {
-      this.c(var1, false);
-      this.b(var1, false);
-      this.d(var1, false);
-      this.a(var1, false);
+   protected void renderAllBones(AnimationProcessor<T> var1) {
+      this.renderHeadArmor(var1, false);
+      this.renderTopArmor(var1, false);
+      this.renderBottomArmor(var1, false);
+      this.renderShoesArmor(var1, false);
    }
 
-   void c(AnimationProcessor var1, boolean var2) {
-      this.a(this.HeadArmor(), var2, var1);
-      this.a(this.Attachments(), !var2, var1);
+   void renderHeadArmor(AnimationProcessor var1, boolean var2) {
+      this.renderBoneGroup(this.HeadArmor(), var2, var1);
+      this.renderBoneGroup(this.Attachments(), !var2, var1);
    }
 
-   void b(AnimationProcessor<T> var1, boolean var2) {
-      this.a(this.TopArmor(), var2, var1);
-      this.a(this.Top(), !var2, var1);
+   void renderTopArmor(AnimationProcessor<T> var1, boolean var2) {
+      this.renderBoneGroup(this.TopArmor(), var2, var1);
+      this.renderBoneGroup(this.Top(), !var2, var1);
    }
 
-   void d(AnimationProcessor<T> var1, boolean var2) {
-      this.a(this.BottomArmor(), var2, var1);
-      this.a(this.Bottom(), !var2, var1);
+   void renderBottomArmor(AnimationProcessor<T> var1, boolean var2) {
+      this.renderBoneGroup(this.BottomArmor(), var2, var1);
+      this.renderBoneGroup(this.Bottom(), !var2, var1);
    }
 
-   void a(AnimationProcessor<T> var1, boolean var2) {
-      this.a(this.ShoesArmor(), var2, var1);
-      this.a(this.Shoes(), !var2, var1);
+   void renderShoesArmor(AnimationProcessor<T> var1, boolean var2) {
+      this.renderBoneGroup(this.ShoesArmor(), var2, var1);
+      this.renderBoneGroup(this.Shoes(), !var2, var1);
    }
 
-   void a(String[] var1, boolean var2, AnimationProcessor<T> var3) {
+   void renderBoneGroup(String[] var1, boolean var2, AnimationProcessor<T> var3) {
       for (String var7 : var1) {
-         this.a(var7, var2, var3);
+         this.renderSingleBone(var7, var2, var3);
       }
    }
 
-   void a(String var1, boolean var2, AnimationProcessor<T> var3) {
+   void renderSingleBone(String var1, boolean var2, AnimationProcessor<T> var3) {
       if (var3.getBone(var1) != null) {
          var3.getBone(var1).setHidden(!var2);
       }
@@ -222,7 +222,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       return var4 == null ? true : "default".equals(var4.getSkinType());
    }
 
-   void a(T var1, AnimationProcessor<T> var2) {
+   void animateGirl(T var1, AnimationProcessor<T> var2) {
       boolean var3 = this.canRender((T)var1);
       if (var3) {
          var2.getBone("rightArmAlex").setHidden(var3);
@@ -265,7 +265,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       return true;
    }
 
-   protected void a(T var1, AnimationProcessor<T> var2, AnimationEvent var3) {
+   protected void handleAnimationEvent(T var1, AnimationProcessor<T> var2, AnimationEvent var3) {
       if (!(var1.world instanceof SexWorldClient)) {
          if (this.shouldRender(var1)) {
             if (var1.getCurrentAction() == Action.NULL || var1.getCurrentAction() == Action.ATTACK || var1.getCurrentAction() == Action.BOW) {

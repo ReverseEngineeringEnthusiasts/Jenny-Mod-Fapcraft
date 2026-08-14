@@ -36,7 +36,7 @@ public class GenderSwapScreen {
       instance.activeButton = null;
    }
 
-   public void a(@Nonnull GenderSwapScreen.a var1) {
+   public void onButtonClicked(@Nonnull GenderSwapScreen.a var1) {
       World var2 = Minecraft.getMinecraft().player.world;
       EntityPlayer var3 = var2.getPlayerEntityByUUID(var1.playerUUID);
       EntityPlayer var4 = var2.getPlayerEntityByUUID(var1.girlUUID);
@@ -77,7 +77,7 @@ public class GenderSwapScreen {
          String var2 = var1.getMessage().toLowerCase();
          if (var2.equals(I18n.format("genderswap.sexpromt.accept", new Object[0]).toLowerCase())) {
             GenderSwapScreen.a var3 = instance.getActiveButton();
-            this.a(var3.label, var3.playerUUID, var3.girlUUID);
+            this.sendSwapRequest(var3.label, var3.playerUUID, var3.girlUUID);
             this.clearActiveButton();
             var1.setCanceled(true);
          }
@@ -94,7 +94,7 @@ public class GenderSwapScreen {
       }
    }
 
-   void a(String var1, UUID var2, UUID var3) {
+   void sendSwapRequest(String var1, UUID var2, UUID var3) {
       PacketHandler.networkWrapper.sendToServer(new StartStandingSexAnimationPacket(var2, var3, var1));
    }
 

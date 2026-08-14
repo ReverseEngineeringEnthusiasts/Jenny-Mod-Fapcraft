@@ -220,7 +220,7 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
             } else {
                Vec3i var16 = this.getBoneColor(var3);
                var16 = this.passThroughColor(var16);
-               var15 = BodyParts.a(this, var3, new Vec3d(var16.getX() / 255.0F, var16.getY() / 255.0F, var16.getZ() / 255.0F), var14);
+               var15 = BodyParts.getBoneWorldPosition(this, var3, new Vec3d(var16.getX() / 255.0F, var16.getY() / 255.0F, var16.getZ() / 255.0F), var14);
             }
 
             for (GeoVertex var19 : var13.vertices) {

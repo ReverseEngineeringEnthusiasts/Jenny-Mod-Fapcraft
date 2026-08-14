@@ -60,19 +60,19 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
    }
 
    @Override
-   public HashSet<String> a() {
+   public HashSet<String> getBlacklistedBones() {
       GalathRenderer.BLACKLISTED_BONES.addAll(BodyParts.CUSTOM_PART_BONES);
       return GalathRenderer.BLACKLISTED_BONES;
    }
 
    @Override
    protected void drawOverlayLines(Tessellator var1, BufferBuilder var2, BaseGirlEntity var3, Vector3fSexmodSpecial var4, float var5) {
-      a(var1, var2, var3, var4, var5);
+      renderGirlTint(var1, var2, var3, var4, var5);
    }
 
    @Override
-   public void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      super.a(var1, var2, var4, var6, var8, var9);
+   public void doRenderEntity(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
+      super.doRenderEntity(var1, var2, var4, var6, var8, var9);
       if (mc.gameSettings.thirdPersonView != 0 || !mc.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var1).getOwnerUserUUID()) || var1.isAnchored()) {
          GalathRenderer.renderDashPov(var1, var9);
       }
@@ -164,7 +164,7 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
    }
 
    @Override
-   protected void a(GeoModel var1, BufferBuilder var2, BaseGirlEntity var3, float var4, float var5, float var6, float var7, float var8) {
+   protected void renderModelBuffer(GeoModel var1, BufferBuilder var2, BaseGirlEntity var3, float var4, float var5, float var6, float var7, float var8) {
       GeoBone var9 = var1.topLevelBones.get(0);
       GeoBone var10 = null;
       GeoBone var11 = null;

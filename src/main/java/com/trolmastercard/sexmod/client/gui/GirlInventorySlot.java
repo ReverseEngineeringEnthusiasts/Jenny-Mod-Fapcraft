@@ -19,15 +19,15 @@ public class GirlInventorySlot extends SlotItemHandler {
       this.slotType = var1;
    }
 
-   public static boolean a(ItemStack var0, int var1) {
-      return a(var0, GirlInventorySlot.b.getSlotType(var1));
+   public static boolean isSlotCompatible(ItemStack var0, int var1) {
+      return isSlotTypeCompatible(var0, GirlInventorySlot.b.getSlotType(var1));
    }
 
    public boolean isItemValid(ItemStack var1) {
-      return a(var1, this.slotType);
+      return isSlotTypeCompatible(var1, this.slotType);
    }
 
-   static boolean a(ItemStack var0, GirlInventorySlot.b var1) {
+   static boolean isSlotTypeCompatible(ItemStack var0, GirlInventorySlot.b var1) {
       Item var2 = var0.getItem();
       switch (var1) {
          case WEAPON:

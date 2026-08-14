@@ -55,7 +55,7 @@ public class DynamicTrailRenderer {
 
       GlStateManager.disableCull();
       GlStateManager.disableAlpha();
-      Vec3d var10 = RotationHelper.a(
+      Vec3d var10 = RotationHelper.lerpVec3dDouble(
          new Vec3d(var1.player.lastTickPosX, var1.player.lastTickPosY, var1.player.lastTickPosZ),
          var1.player.getPositionVector(),
          var4
@@ -65,7 +65,7 @@ public class DynamicTrailRenderer {
       Vec3d var11 = null;
 
       for (TrailSegment var8 : this.trailSegments) {
-         Vec3d var9 = RotationHelper.a(var8.offset, var8.velocity, var4);
+         Vec3d var9 = RotationHelper.lerpVec3dDouble(var8.offset, var8.velocity, var4);
          if (var11 == null) {
             var11 = var9;
          }

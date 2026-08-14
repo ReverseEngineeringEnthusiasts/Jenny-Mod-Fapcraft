@@ -59,8 +59,8 @@ public class DamageCalculation {
             int var19 = 0;
             if (!var17.isUnblockable()) {
                for (ItemArmor var10 : (java.util.Collection<ItemArmor>) (var4) ) {
-                  var18 += DamageCalculation.a.a(var10.armorType, var10.getArmorMaterial());
-                  var19 += DamageCalculation.a.b(var10.armorType, var10.getArmorMaterial());
+                  var18 += DamageCalculation.a.getArmorDamageReduction(var10.armorType, var10.getArmorMaterial());
+                  var19 += DamageCalculation.a.getArmorToughness(var10.armorType, var10.getArmorMaterial());
                }
             }
 
@@ -110,7 +110,7 @@ public class DamageCalculation {
    static class a {
       public static HashMap<String, Integer[]> a = new HashMap<>();
 
-      public static int a(EntityEquipmentSlot var0, ArmorMaterial var1) {
+      public static int getArmorDamageReduction(EntityEquipmentSlot var0, ArmorMaterial var1) {
          try {
             return a.get(var0.toString() + var1.toString())[0];
          } catch (NullPointerException var2) {
@@ -118,7 +118,7 @@ public class DamageCalculation {
          }
       }
 
-      public static int b(EntityEquipmentSlot var0, ArmorMaterial var1) {
+      public static int getArmorToughness(EntityEquipmentSlot var0, ArmorMaterial var1) {
          try {
             return a.get(var0.toString() + var1.toString())[1];
          } catch (NullPointerException var2) {

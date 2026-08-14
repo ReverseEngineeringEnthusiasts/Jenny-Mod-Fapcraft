@@ -45,7 +45,7 @@ public class PlayerGirlEvents {
    @SubscribeEvent
    public void onPlayerSleepInBed(PlayerSleepInBedEvent var1) {
       EntityPlayer var2 = var1.getEntityPlayer();
-      AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.g(var2);
+      AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2);
       if (var3 != null) {
          if (var2.isSneaking()) {
             var1.setResult(SleepResult.OTHER_PROBLEM);
@@ -65,7 +65,7 @@ public class PlayerGirlEvents {
       EntityPlayer var5 = var1.getEntityPlayer();
       if (var2 != null) {
          if (var2.canBeInteracted()) {
-            if (WorldUtils.a(var4, var3, var1.getHitVec(), var1.getFace(), var5)) {
+            if (WorldUtils.canPlaceBlock(var4, var3, var1.getHitVec(), var1.getFace(), var5)) {
                if ((Boolean)var2.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
                   var1.setCanceled(true);
                } else if (var5.isSneaking()) {
@@ -149,7 +149,7 @@ public class PlayerGirlEvents {
    }
 
    @SubscribeEvent
-   public void a(PlayerRespawnEvent var1) {
+   public void onPlayerRespawn(PlayerRespawnEvent var1) {
       EntityPlayer var2 = var1.player;
       if (var2 != null) {
          AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByOwner(var2.getPersistentID());
@@ -172,7 +172,7 @@ public class PlayerGirlEvents {
                EntityPlayerSP var2 = Minecraft.getMinecraft().player;
                AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.getPersistentID());
                EntityPlayer var4 = (EntityPlayer)var1.getTarget();
-               AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.g(var4);
+               AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var4);
                if (var5 != null) {
                   if (var3 != null) {
                      var2.sendStatusMessage(new TextComponentString("no lesbo yet owo"), true);
@@ -213,7 +213,7 @@ public class PlayerGirlEvents {
    @SubscribeEvent
    public void onRightClickBlockSlime(RightClickBlock var1) {
       EntityPlayer var2 = var1.getEntityPlayer();
-      AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.g(var2);
+      AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2);
       if (var3 != null) {
          if (var3 instanceof SlimePlayerEntity) {
             if (var2.isSneaking()) {
@@ -248,7 +248,7 @@ public class PlayerGirlEvents {
       if (var1.getEntityLiving() instanceof EntityPlayer) {
          if (var1.getSource() == DamageSource.FALL) {
             EntityPlayer var2 = (EntityPlayer)var1.getEntityLiving();
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.g(var2);
+            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2);
             if (var3 != null) {
                if (var3 instanceof AlliePlayerEntity || var3 instanceof BeePlayerEntity) {
                   var1.setCanceled(true);
@@ -260,12 +260,12 @@ public class PlayerGirlEvents {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(InitGuiEvent var1) {
+   public void onInitGui(InitGuiEvent var1) {
       GuiScreen var2 = var1.getGui();
       if (var2 instanceof GuiInventory || var2 instanceof GuiContainerCreative) {
          EntityPlayerSP var3 = Minecraft.getMinecraft().player;
          if (var3 != null) {
-            AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.g(var3);
+            AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3);
             if (var4 != null) {
                if (!var4.A_clash381()) {
                   List var5 = var1.getButtonList();
@@ -280,7 +280,7 @@ public class PlayerGirlEvents {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(ActionPerformedEvent var1) {
+   public void onActionPerformed(ActionPerformedEvent var1) {
       GuiScreen var2 = var1.getGui();
       if (var2 instanceof GuiInventory || var2 instanceof GuiContainerCreative) {
          if (var1.getButton().id == 284453) {

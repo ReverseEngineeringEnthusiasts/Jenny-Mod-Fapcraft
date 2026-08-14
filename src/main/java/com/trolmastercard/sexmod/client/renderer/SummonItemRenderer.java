@@ -59,7 +59,7 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
                var11.z *= -1.0F;
             }
 
-            Vec3d var12 = DebugMode.b[0] == 0.0F ? BodyParts.a(new Vec3d(var3, var4, var5), var11, offsetVec) : new Vec3d(var3, var4, var5);
+            Vec3d var12 = DebugMode.b[0] == 0.0F ? BodyParts.offsetBonePosition(new Vec3d(var3, var4, var5), var11, offsetVec) : new Vec3d(var3, var4, var5);
 
             for (GeoVertex var16 : var10.vertices) {
                Vector4f var17 = new Vector4f(var16.position.getX(), var16.position.getY(), var16.position.getZ(), 1.0F);

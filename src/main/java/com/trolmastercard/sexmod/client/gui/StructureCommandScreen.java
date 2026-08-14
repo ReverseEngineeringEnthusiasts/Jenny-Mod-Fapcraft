@@ -166,10 +166,10 @@ public class StructureCommandScreen extends GuiScreen {
       this.animTopLeft = this.animTopLeft + (var1 < this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
       this.animBottomRight = this.animBottomRight + (var1 > this.width / 2 && var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
       this.animTopRight = this.animTopRight + (var1 > this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.animBottomLeft = ThreadNames.b(this.animBottomLeft, 0.0F, 1.0F);
-      this.animTopLeft = ThreadNames.b(this.animTopLeft, 0.0F, 1.0F);
-      this.animBottomRight = ThreadNames.b(this.animBottomRight, 0.0F, 1.0F);
-      this.animTopRight = ThreadNames.b(this.animTopRight, 0.0F, 1.0F);
+      this.animBottomLeft = ThreadNames.clampFloat(this.animBottomLeft, 0.0F, 1.0F);
+      this.animTopLeft = ThreadNames.clampFloat(this.animTopLeft, 0.0F, 1.0F);
+      this.animBottomRight = ThreadNames.clampFloat(this.animBottomRight, 0.0F, 1.0F);
+      this.animTopRight = ThreadNames.clampFloat(this.animTopRight, 0.0F, 1.0F);
       GlStateManager.pushMatrix();
       GlStateManager.translate(this.width / 2.0F, this.height / 2.0F, 0.0F);
       GlStateManager.scale(var4, var4, var4);

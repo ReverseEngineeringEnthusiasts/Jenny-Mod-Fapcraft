@@ -72,11 +72,11 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
    @SideOnly(Side.CLIENT)
    BaseGirlEntity a(RayTraceResult var1) {
       if (var1 == null) {
-         return AbstractPlayerGirlEntity.g(Minecraft.getMinecraft().player);
+         return AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player);
       } else {
          return BaseGirlEntity.isValidGirl(var1.entityHit)
             ? (BaseGirlEntity)var1.entityHit
-            : AbstractPlayerGirlEntity.g(Minecraft.getMinecraft().player);
+            : AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player);
       }
    }
 

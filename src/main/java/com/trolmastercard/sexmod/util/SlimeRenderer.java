@@ -11,8 +11,8 @@ public class SlimeRenderer extends GirlRenderer {
    }
 
    @Override
-   public HashSet<String> a() {
-      HashSet var1 = super.a();
+   public HashSet<String> getBlacklistedBones() {
+      HashSet var1 = super.getBlacklistedBones();
       var1.add("figure");
       return var1;
    }

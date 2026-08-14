@@ -75,7 +75,7 @@ public class UploadModelStringPacket implements IMessage {
                   } else {
                      EntityPlayerMP var10 = var2.getServerHandler().player;
                      NBTTagCompound var11 = var10.getEntityData();
-                     AbstractPlayerGirlEntity var12 = AbstractPlayerGirlEntity.g(var10);
+                     AbstractPlayerGirlEntity var12 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var10);
                      if (var12 != null) {
                         NpcType var13 = NpcType.getNpcType(var12);
                         var11.setString("sexmod:CustomModel" + var13.toString(), var1.modelCode);
@@ -89,7 +89,7 @@ public class UploadModelStringPacket implements IMessage {
                } else {
                   EntityPlayerMP var6 = var2.getServerHandler().player;
                   NBTTagCompound var7 = var6.getEntityData();
-                  AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.g(var6);
+                  AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var6);
                   if (var8 != null) {
                      NpcType var9 = NpcType.getNpcType(var8);
                      var7.setString("sexmod:CustomModel" + var9.toString(), var1.modelCode);

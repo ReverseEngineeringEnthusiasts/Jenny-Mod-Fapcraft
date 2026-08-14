@@ -28,18 +28,18 @@ public class BodyParts {
    protected static HashMap<IGirlRenderer, HashMap<String, Boolean>> d = new HashMap<>();
    public static Vec3d OFFSET_VEC;
 
-   static boolean a(IGirlRenderer var0, GeoBone var1) {
+   static boolean isCustomBone(IGirlRenderer var0, GeoBone var1) {
       HashMap var2 = d.get(var0);
       if (var2 == null) {
          var2 = new HashMap();
-         boolean var6 = var0.a(var0.a(), var1);
+         boolean var6 = var0.hasParentBone(var0.getBlacklistedBones(), var1);
          var2.put(var1.getName(), var6);
          d.put(var0, var2);
          return var6;
       } else {
          Boolean var3 = (Boolean)var2.get(var1.getName());
          if (var3 == null) {
-            var3 = var0.a(var0.a(), var1);
+            var3 = var0.hasParentBone(var0.getBlacklistedBones(), var1);
             var2.put(var1.getName(), var3);
             d.put(var0, var2);
             return var3;
@@ -49,27 +49,27 @@ public class BodyParts {
       }
    }
 
-   public static Vec3d a(IGirlRenderer var0, GeoBone var1, Vec3d var2, Vector3f var3) {
-      return !a(var0, var1) ? var2 : a(var2, var3, OFFSET_VEC);
+   public static Vec3d getBoneWorldPosition(IGirlRenderer var0, GeoBone var1, Vec3d var2, Vector3f var3) {
+      return !isCustomBone(var0, var1) ? var2 : offsetBonePosition(var2, var3, OFFSET_VEC);
    }
 
-   public static Vec3d a(Vec3d var0, Vector3f var1, Vec3d var2) {
-      double var3 = VectorMath.a(var1, var2);
-      double var5 = RotationHelper.e(Math.abs(var3));
+   public static Vec3d offsetBonePosition(Vec3d var0, Vector3f var1, Vec3d var2) {
+      double var3 = VectorMath.dotProduct(var1, var2);
+      double var5 = RotationHelper.easeInOutQuad(Math.abs(var3));
       var5 *= 0.1F;
-      return RotationHelper.a(var0, var3 > 0.0 ? SKIN_COLOR : SKIN_COLOR_ALT, var5);
+      return RotationHelper.lerpVec3dDouble(var0, var3 > 0.0 ? SKIN_COLOR : SKIN_COLOR_ALT, var5);
    }
 
    public static void updateBoneOffset(EntityLivingBase var0, float var1) {
       OFFSET_VEC = WorldUtils.getEntityLookVector(var0, var1);
    }
 
-   public static void a(List<IBone> var0, HashSet<String> var1, IGirlRenderer var2) {
+   public static void updateCustomBones(List<IBone> var0, HashSet<String> var1, IGirlRenderer var2) {
       if (d.get(var2) == null) {
          HashMap var3 = new HashMap();
 
          for (IBone var5 : var0) {
-            var3.put(var5.getName(), var2.a(var1, (GeoBone)var5));
+            var3.put(var5.getName(), var2.hasParentBone(var1, (GeoBone)var5));
          }
 
          d.put(var2, var3);

@@ -88,13 +88,13 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       if ("action.names.boobjob".equals(var1)) {
          this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
          this.setCurrentAction(Action.PAIZURI_START);
-         this.a(0, Action.PAIZURI_START);
+         this.sendActionPacket(0, Action.PAIZURI_START);
          this.teleportPlayerToGirl(var2);
       }
 
       if ("action.names.blowjob".equals(var1)) {
          this.setCurrentAction(Action.STARTBLOWJOB);
-         this.a(this.getOutfitIndex(), Action.PAIZURI_START);
+         this.sendActionPacket(this.getOutfitIndex(), Action.PAIZURI_START);
          this.teleportPlayerToGirl(var2);
       }
    }

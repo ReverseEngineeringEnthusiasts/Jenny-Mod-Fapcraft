@@ -64,7 +64,7 @@ public class KoboldTask {
       this.miningTargets.remove(var1);
    }
 
-   public void b(HashSet<BlockPos> var1) {
+   public void setMiningTargets(HashSet<BlockPos> var1) {
       if (!var1.isEmpty()) {
          this.miningTargets.removeAll(var1);
       }
@@ -100,7 +100,7 @@ public class KoboldTask {
       this.workers.clear();
    }
 
-   public void c(KoboldEntity var1) {
+   public void removeWorker(KoboldEntity var1) {
       this.workers.remove(var1);
    }
 
@@ -115,13 +115,13 @@ public class KoboldTask {
    public static HashSet<BlockPos> a(World var0, BlockPos var1, UUID var2) {
       BlockPos var3 = var1;
 
-      while (!c(var0, var3)) {
+      while (!isAboveMineable(var0, var3)) {
          var3 = var1.down();
       }
 
       BlockPos var4 = var1;
 
-      while (!b(var0, var4)) {
+      while (!isMineable(var0, var4)) {
          var4 = var4.up();
       }
 
@@ -164,12 +164,12 @@ public class KoboldTask {
       return var5;
    }
 
-   static boolean b(World var0, BlockPos var1) {
+   static boolean isMineable(World var0, BlockPos var1) {
       Block var2 = var0.getBlockState(var1.up()).getBlock();
       return !(var2 instanceof BlockLog);
    }
 
-   static boolean c(World var0, BlockPos var1) {
+   static boolean isAboveMineable(World var0, BlockPos var1) {
       IBlockState var2 = var0.getBlockState(var1.down());
       return !(var2 instanceof BlockLog) && var2.getMaterial() != Material.AIR;
    }

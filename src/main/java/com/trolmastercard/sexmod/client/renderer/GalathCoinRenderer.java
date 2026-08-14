@@ -88,16 +88,16 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
          long var5 = var4.getLong("sexmod:galath_coin_activation_time");
          long var7 = var4.getLong("sexmod:galath_coin_deactivation_time");
          if (var5 != 0L) {
-            return this.a(var2, var5, var1);
+            return this.getCoinSpin(var2, var5, var1);
          } else if (var7 != 0L) {
-            return this.b(var2, var7, var1);
+            return this.getCoinFade(var2, var7, var1);
          } else {
             return GirlSavedData.debugEnabled ? 120.0F : this.getCoinBob(var1);
          }
       }
    }
 
-   float b(long var1, long var3, float var5) {
+   float getCoinFade(long var1, long var3, float var5) {
       float var6 = (float)(var1 - var3);
       if (var6 < 1000.0F) {
          return 120.0F;
@@ -106,7 +106,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       }
    }
 
-   float a(long var1, long var3, float var5) {
+   float getCoinSpin(long var1, long var3, float var5) {
       float var6 = (float)(var1 - var3);
       if (var6 < 1000.0F) {
          return 240.0F;
@@ -124,30 +124,30 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
          long var4 = var3.getLong("sexmod:galath_coin_activation_time");
          long var6 = var3.getLong("sexmod:galath_coin_deactivation_time");
          if (var4 != 0L) {
-            return this.b(var4, var1);
+            return this.getCoinColorDark(var4, var1);
          } else if (var6 != 0L) {
-            return this.a(var6, var1);
+            return this.getCoinColor(var6, var1);
          } else {
             return GirlSavedData.debugEnabled ? COIN_COLOR_DARK : COIN_COLOR;
          }
       }
    }
 
-   Vector3fSexmodSpecial a(long var1, long var3) {
+   Vector3fSexmodSpecial getCoinColor(long var1, long var3) {
       float var5 = (float)(var3 - var1);
       if (var5 < 1000.0F) {
          return COIN_COLOR_DARK;
       } else {
-         return var5 <= 3000.0F ? RotationHelper.a(COIN_COLOR_DARK, COIN_COLOR, (var5 - 1000.0F) / 2000.0F) : COIN_COLOR;
+         return var5 <= 3000.0F ? RotationHelper.lerpVector3f(COIN_COLOR_DARK, COIN_COLOR, (var5 - 1000.0F) / 2000.0F) : COIN_COLOR;
       }
    }
 
-   Vector3fSexmodSpecial b(long var1, long var3) {
+   Vector3fSexmodSpecial getCoinColorDark(long var1, long var3) {
       float var5 = (float)(var3 - var1);
       if (var5 < 1000.0F) {
          return COIN_COLOR;
       } else {
-         return var5 <= 3000.0F ? RotationHelper.a(COIN_COLOR, COIN_COLOR_DARK, (var5 - 1000.0F) / 2000.0F) : COIN_COLOR_DARK;
+         return var5 <= 3000.0F ? RotationHelper.lerpVector3f(COIN_COLOR, COIN_COLOR_DARK, (var5 - 1000.0F) / 2000.0F) : COIN_COLOR_DARK;
       }
    }
 
@@ -155,7 +155,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       return (float)(60.0 * Math.sin((mc.player.ticksExisted + var1) * 0.05F) + 180.0);
    }
 
-   void a(BufferBuilder var1, GeoCube var2) {
+   void renderCoinQuads(BufferBuilder var1, GeoCube var2) {
       for (GeoQuad var6 : var2.quads) {
          if (var6 != null) {
             for (GeoVertex var10 : var6.vertices) {
@@ -176,7 +176,7 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       MATRIX_STACK.rotate(var2);
       MATRIX_STACK.moveBackFromPivot(var2);
       if (this.isFlipping) {
-         this.a(var1, var2);
+         this.renderCoinQuads(var1, var2);
       } else {
          for (GeoQuad var10 : var2.quads) {
             if (var10 != null) {

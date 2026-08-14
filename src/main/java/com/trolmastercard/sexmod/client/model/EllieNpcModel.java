@@ -69,13 +69,13 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
                      float var9 = this.headYawOffsets.get(var7)[1];
                      float var10 = this.headYawOffsets.get(var7)[2];
                      var12 = ((float)(Math.atan2(var6.x, var6.z) + this.headYawOffsets.get(var7)[0]) + var1.getYawRotation()) * 0.8F;
-                     var12 = ThreadNames.b(var12, var9, var10);
+                     var12 = (float)ThreadNames.clampDouble(var12, var9, var10);
                      if (var12 == var9 || var12 == var10) {
                         var12 = 0.0F;
                      }
                   }
 
-                  float var14 = var12 == 0.0F ? 0.0F : ThreadNames.b((float)((var4.posY - var1.posY) * 0.5), -0.75F, 0.75F);
+                  float var14 = var12 == 0.0F ? 0.0F : ThreadNames.clampFloat((float)((var4.posY - var1.posY) * 0.5), -0.75F, 0.75F);
                   var5.setRotationY(var12);
                   var5.setRotationX(var14);
                }

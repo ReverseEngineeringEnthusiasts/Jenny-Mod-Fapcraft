@@ -167,13 +167,13 @@ public class AlliesLampItem extends Item implements IAnimatable {
                var7.setInteger("sexmodAllieInUseTicks", var9 + 1);
                if (var9 > PARTICLE_START_TICK && var9 < SUMMON_TICK) {
                   double var10 = (float)(var9 - PARTICLE_START_TICK) / (SUMMON_TICK - PARTICLE_START_TICK);
-                  var10 = RotationHelper.h(var10);
+                  var10 = RotationHelper.easeInOutQuad(var10);
                   Vec3d var12 = new Vec3d(0.0, var6.eyeHeight * (1.0 - var10), 0.0);
-                  WorldUtils.a(var2, EnumParticleTypes.CRIT_MAGIC, this.getLampOffset(var6).add(var12), (int)(var10 * 150.0), var10 * 0.75, var10);
+                  WorldUtils.spawnParticles(var2, EnumParticleTypes.CRIT_MAGIC, this.getLampOffset(var6).add(var12), (int)(var10 * 150.0), var10 * 0.75, var10);
                }
 
                if (var9 >= SUMMON_TICK) {
-                  WorldUtils.a(var2, EnumParticleTypes.CRIT_MAGIC, this.getLampOffset(var6), 150, 0.75, 2.0);
+                  WorldUtils.spawnParticles(var2, EnumParticleTypes.CRIT_MAGIC, this.getLampOffset(var6), 150, 0.75, 2.0);
                   var7.setBoolean("sexmodAllieInUse", false);
                   var7.setInteger("sexmodAllieInUseTicks", 0);
                   if (var2.isRemote) {
@@ -230,7 +230,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
          EntityPlayer var2 = var1.getEntityPlayer();
          EnumHand var3 = var1.getHand();
          ItemStack var4 = var2.getHeldItem(var3);
-         if (!AbstractPlayerGirlEntity.e(var2)) {
+         if (!AbstractPlayerGirlEntity.isOwnerPlayer(var2)) {
             if (!var2.world.isRemote || HandlePlayerMovement.isSneakingState()) {
                if (!var2.world.isRemote) {
                   try {

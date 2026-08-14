@@ -31,7 +31,7 @@ public class BeeScreen extends GuiScreen {
 
    public static void a(Runnable var0) {
       isVisible = true;
-      ThreadNames.a(1200, var0);
+      ThreadNames.createDaemonThread(1200, var0);
    }
 
    public boolean doesGuiPauseGame() {
@@ -47,11 +47,11 @@ public class BeeScreen extends GuiScreen {
             int var4 = var2.gameSettings.guiScale;
             float var3;
             if (var4 == 1) {
-               var3 = (float)RotationHelper.b(-1800.0, 1000.0, 0.5 * Math.cos(animTimer / 25.0) + 0.5);
+               var3 = (float)RotationHelper.lerpDouble(-1800.0, 1000.0, 0.5 * Math.cos(animTimer / 25.0) + 0.5);
             } else if (var4 == 2) {
-               var3 = (float)RotationHelper.b(-900.0, 750.0, 0.5 * Math.cos(animTimer / 25.0) + 0.5);
+               var3 = (float)RotationHelper.lerpDouble(-900.0, 750.0, 0.5 * Math.cos(animTimer / 25.0) + 0.5);
             } else {
-               var3 = (float)RotationHelper.b(-900.0, 600.0, 0.5 * Math.cos(animTimer / 25.0) + 0.5);
+               var3 = (float)RotationHelper.lerpDouble(-900.0, 600.0, 0.5 * Math.cos(animTimer / 25.0) + 0.5);
             }
 
             GlStateManager.pushMatrix();

@@ -140,7 +140,7 @@ public class BeeEntity extends BeeEntityBase {
                EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
                if (var1 != null) {
                   if (getActiveSceneInfo(var1) == null) {
-                     if (!AbstractPlayerGirlEntity.e(var1)) {
+                     if (!AbstractPlayerGirlEntity.isOwnerPlayer(var1)) {
                         if (var1.getDistance(this) < 1.5F) {
                            this.hornyTimer = 0.0F;
                            this.setInteractionPlayerUUID(var1.getPersistentID());

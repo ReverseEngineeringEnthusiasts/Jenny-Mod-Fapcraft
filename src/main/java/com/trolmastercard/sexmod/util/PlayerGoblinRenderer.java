@@ -98,7 +98,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
    }
 
    @Override
-   public HashSet<String> a() {
+   public HashSet<String> getBlacklistedBones() {
       return new HashSet<String>() {
          {
             this.add("boobs");
@@ -120,39 +120,39 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
       if (var3.length >= 8) {
          switch (var1) {
             case "earL":
-               GoblinRenderer.a(var2, var3[0], var3[1], var3[3]);
+               GoblinRenderer.applyBoneParts(var2, var3[0], var3[1], var3[3]);
                break;
             case "earR":
-               GoblinRenderer.a(var2, var3[0], var3[2], var3[4]);
+               GoblinRenderer.applyBoneParts(var2, var3[0], var3[2], var3[4]);
                break;
             case "hair":
-               GoblinRenderer.a(var2, var3[5]);
+               GoblinRenderer.applyBonePart(var2, var3[5]);
                break;
             case "body":
                var2.setPivotY(-0.15F);
-               GoblinRenderer.a(this.renderEntity, var2);
+               GoblinRenderer.applyBoneState(this.renderEntity, var2);
                break;
             case "LegR":
-               GoblinRenderer.a(this.isShoulderIdle, var2, 25.0F, 25.0F);
+               GoblinRenderer.applyBoneRot(this.isShoulderIdle, var2, 25.0F, 25.0F);
                break;
             case "boobR":
-               GoblinRenderer.a(this.isShoulderIdle, var2, 30.0F, 30.0F);
+               GoblinRenderer.applyBoneRot(this.isShoulderIdle, var2, 30.0F, 30.0F);
                break;
             case "boobR1":
-               GoblinRenderer.a(this.isShoulderIdle, var2, 10.0F, 15.0F);
+               GoblinRenderer.applyBoneRot(this.isShoulderIdle, var2, 10.0F, 15.0F);
                break;
             case "boobR2":
-               GoblinRenderer.a(this.isShoulderIdle, var2, 5.0F, 3.0F);
+               GoblinRenderer.applyBoneRot(this.isShoulderIdle, var2, 5.0F, 3.0F);
          }
 
          if (var1.contains("crown")) {
-            GoblinRenderer.a(this.renderEntity, var2, var3[9]);
+            GoblinRenderer.applyBoneColor(this.renderEntity, var2, var3[9]);
          }
       }
    }
 
    @Override
-   public void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderEntity(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       this.isFirstPersonView = isFirstPerson;
       this.playerGirl = (GoblinPlayerEntity)var1;
       this.isShoulderIdle = -420.69F == var8 && var1.getCurrentAction() == Action.SHOULDER_IDLE;
@@ -163,7 +163,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
       UUID var11 = this.playerGirl.getOwnerUUID();
       if (var11 != null) {
          if (var1.isLocallyRegistered()) {
-            Vec3d var19 = GoblinRenderer.a(var1.world, var1, var11, var2, var4, var6);
+            Vec3d var19 = GoblinRenderer.getThrowPosition(var1.world, var1, var11, var2, var4, var6);
             var2 = var19.x;
             var4 = var19.y;
             var6 = var19.z;
@@ -181,7 +181,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
             }
          }
 
-         if (GoblinRenderer.a(var1, var10)) {
+         if (GoblinRenderer.isThrowAction(var1, var10)) {
             if (mc.player.getPersistentID().equals(var11)) {
                if (-420.69F != var8) {
                   return;
@@ -211,7 +211,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
                   }
                }
 
-               Vec3d var23 = GoblinRenderer.a(var1, this.playerGirl.getOwnerUUID(), var9);
+               Vec3d var23 = GoblinRenderer.getThrowAim(var1, this.playerGirl.getOwnerUUID(), var9);
                var2 = var23.x;
                var4 = var23.y;
                var6 = var23.z;
@@ -254,13 +254,13 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
             }
          }
 
-         super.a(var1, (double)var2, (double)var4, (double)var6, var8, var9);
-         if (GoblinRenderer.a(var1, var10) && mc.gameSettings.thirdPersonView == 0 && mc.player.getPersistentID().equals(var11)) {
+         super.doRenderEntity(var1, (double)var2, (double)var4, (double)var6, var8, var9);
+         if (GoblinRenderer.isThrowAction(var1, var10) && mc.gameSettings.thirdPersonView == 0 && mc.player.getPersistentID().equals(var11)) {
             GlStateManager.popMatrix();
          }
       } else {
          if (var1.isLocallyRegistered()) {
-            Vec3d var12 = GoblinRenderer.a(var1.world, var1, var11, var2, var4, var6);
+            Vec3d var12 = GoblinRenderer.getThrowPosition(var1.world, var1, var11, var2, var4, var6);
             var2 = var12.x;
             var4 = var12.y;
             var6 = var12.z;
@@ -278,7 +278,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
             }
          }
 
-         if (GoblinRenderer.a(var1, var10)) {
+         if (GoblinRenderer.isThrowAction(var1, var10)) {
             if (mc.player.getPersistentID().equals(var11)) {
                if (-420.69F != var8) {
                   return;
@@ -300,7 +300,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
 
                var1.renderYawOffset = mc.player.rotationYaw;
                var1.prevRenderYawOffset = mc.player.rotationYaw;
-               Vec3d var16 = GoblinRenderer.a(var1, this.playerGirl.getOwnerUUID(), var9);
+               Vec3d var16 = GoblinRenderer.getThrowAim(var1, this.playerGirl.getOwnerUUID(), var9);
                var2 = var16.x;
                var4 = var16.y;
                var6 = var16.z;
@@ -326,8 +326,8 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
             }
          }
 
-         super.a(var1, (double)var2, (double)var4, (double)var6, var8, var9);
-         if (GoblinRenderer.a(var1, var10) && mc.gameSettings.thirdPersonView == 0 && mc.player.getPersistentID().equals(var11)) {
+         super.doRenderEntity(var1, (double)var2, (double)var4, (double)var6, var8, var9);
+         if (GoblinRenderer.isThrowAction(var1, var10) && mc.gameSettings.thirdPersonView == 0 && mc.player.getPersistentID().equals(var11)) {
             GlStateManager.popMatrix();
          }
       }
@@ -335,7 +335,7 @@ public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
 
    @Override
    protected void drawOverlayLines(Tessellator var1, BufferBuilder var2, BaseGirlEntity var3, Vector3fSexmodSpecial var4, float var5) {
-      a(var1, var2, var3, var4, var5);
+      renderGirlTint(var1, var2, var3, var4, var5);
    }
 
    @Nullable

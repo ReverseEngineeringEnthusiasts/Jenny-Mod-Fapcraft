@@ -256,7 +256,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          if (!this.getPositionVector().equals(this.getTargetPosition()) && this.aw <= 40) {
             this.rotationYaw = this.getYawRotation();
             this.setNoGravity(false);
-            Vec3d var3 = RotationHelper.a(this.getPositionVector(), this.getTargetPosition(), 40 - this.aw);
+            Vec3d var3 = RotationHelper.lerpVec3dDouble(this.getPositionVector(), this.getTargetPosition(), 40 - this.aw);
             this.setPosition(var3.x, var3.y, var3.z);
          } else {
             this.ac = false;

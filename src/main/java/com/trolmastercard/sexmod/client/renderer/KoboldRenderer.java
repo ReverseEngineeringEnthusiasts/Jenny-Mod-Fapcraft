@@ -197,7 +197,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       }
 
       this.renderOffset = new Vector3f((float)var2, (float)var4, (float)var6);
-      super.a(var1, var2, var4, var6, var8, var9);
+      super.doRenderEntity(var1, var2, var4, var6, var8, var9);
    }
 
    @Override

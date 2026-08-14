@@ -13,10 +13,10 @@ public class MatrixHelper {
    public static final FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(16);
    private static final Matrix4f matrix = new Matrix4f();
 
-   public static void a(MatrixStack var0, GeoBone var1) {
+   public static void applyBoneTransform(MatrixStack var0, GeoBone var1) {
       matrix.set(var0.getModelMatrix());
       matrix.transpose();
-      a(b, matrix);
+      toFloatArray(b, matrix);
       ((Buffer)floatBuffer).clear();
       floatBuffer.put(b);
       ((Buffer)floatBuffer).flip();
@@ -24,7 +24,7 @@ public class MatrixHelper {
       GlStateManager.translate(var1.rotationPointX / 16.0F, var1.rotationPointY / 16.0F, var1.rotationPointZ / 16.0F);
    }
 
-   public static void a(float[] var0, Matrix4f var1) {
+   public static void toFloatArray(float[] var0, Matrix4f var1) {
       var0[0] = var1.m00;
       var0[1] = var1.m01;
       var0[2] = var1.m02;
@@ -43,7 +43,7 @@ public class MatrixHelper {
       var0[15] = var1.m33;
    }
 
-   public static Matrix4f a(Matrix4f var0, Matrix4f var1) {
+   public static Matrix4f multiply(Matrix4f var0, Matrix4f var1) {
       Matrix4f var2 = (Matrix4f)var1.clone();
       var2.mul(var0);
       return var2;

@@ -79,18 +79,18 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
 
             IGoblin var16 = (IGoblin)var1;
             if (var15 == Action.AWAIT_PICK_UP || var15 == Action.VANISH) {
-               this.a(var1, var13, var14);
+               this.updateBoneLook(var1, var13, var14);
             }
 
             if (var15 == Action.SIT) {
-               this.a(var1, var14);
+               this.updateBoneLook(var1, var14);
             }
 
             if (var15 == Action.START_THROWING) {
                if (this.mc.player.getPersistentID().equals(var16.getOwnerUUID())) {
-                  this.a(var13, var4, var1, var16);
+                  this.applyGoblinBone(var13, var4, var1, var16);
                } else {
-                  this.a(var13, var4, var1);
+                  this.applyBoneState(var13, var4, var1);
                }
             } else {
                var13.setHidden(false);
@@ -104,7 +104,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             }
 
             if (var15 == Action.START_THROWING || var15 == Action.PICK_UP) {
-               this.a(var4, var16, var1);
+               this.updateThrowPose(var4, var16, var1);
             }
          } else {
             IBone var6 = var4.getBone("preggy");
@@ -118,14 +118,14 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
 
             IGoblin var10 = (IGoblin)var1;
             if (var9 == Action.VANISH) {
-               this.a(var1, var7, var8);
+               this.updateBoneLook(var1, var7, var8);
             }
 
             if (var9 == Action.START_THROWING) {
                if (this.mc.player.getPersistentID().equals(var10.getOwnerUUID())) {
-                  this.a(var7, var4, var1, var10);
+                  this.applyGoblinBone(var7, var4, var1, var10);
                } else {
-                  this.a(var7, var4, var1);
+                  this.applyBoneState(var7, var4, var1);
                }
             } else {
                var7.setHidden(false);
@@ -139,16 +139,16 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             }
 
             if (var9 == Action.START_THROWING || var9 == Action.PICK_UP) {
-               this.a(var4, var10, var1);
+               this.updateThrowPose(var4, var10, var1);
             }
 
-            this.b(var4, var1);
-            this.a(var4, var1);
+            this.updateWalkPose(var4, var1);
+            this.updateIdlePose(var4, var1);
          }
       }
    }
 
-   void a(AnimationProcessor var1, BaseGirlEntity var2) {
+   void updateIdlePose(AnimationProcessor var1, BaseGirlEntity var2) {
       if (var2.getCurrentAction() == Action.START_THROWING) {
          if (this.mc.gameSettings.thirdPersonView == 0 && this.mc.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var2).getOwnerUserUUID())) {
             IBone var3 = var1.getBone("body");
@@ -159,7 +159,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void b(AnimationProcessor var1, BaseGirlEntity var2) {
+   void updateWalkPose(AnimationProcessor var1, BaseGirlEntity var2) {
       if (var2.getCurrentAction() == Action.PICK_UP) {
          if (this.mc.gameSettings.thirdPersonView != 0 || !this.mc.player.getPersistentID().equals(((IGoblin)var2).getOwnerUUID())) {
             IBone var3 = var1.getBone("body");
@@ -174,7 +174,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void a(AnimationProcessor var1, IGoblin var2, BaseGirlEntity var3) {
+   void updateThrowPose(AnimationProcessor var1, IGoblin var2, BaseGirlEntity var3) {
       UUID var4 = var2.getOwnerUUID();
       if (var4 != null) {
          EntityPlayer var5 = var3.world.getPlayerEntityByUUID(var4);
@@ -193,7 +193,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void a(BaseGirlEntity var1, IBone var2) {
+   void updateBoneLook(BaseGirlEntity var1, IBone var2) {
       EntityPlayer var3 = var1.world.getClosestPlayerToEntity(var1, 15.0);
       if (var3 != null) {
          Vec3d var4 = var3.getPositionVector();
@@ -231,27 +231,27 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             }
 
             float var10 = (float)(-(MathHelper.atan2(var6.z, var6.x) * (180.0 / Math.PI) + var9));
-            float var11 = ThreadNames.b((float)(var3.getEyeHeight() + var4.y - (var1.getEyeHeight() + var5.y)), -0.75F, 0.75F);
+            float var11 = ThreadNames.clampFloat((float)(var3.getEyeHeight() + var4.y - (var1.getEyeHeight() + var5.y)), -0.75F, 0.75F);
             var2.setRotationY(TrigMath.wrapDegrees(var10));
             var2.setRotationX(var11);
          }
       }
    }
 
-   void a(BaseGirlEntity var1, IBone var2, IBone var3) {
+   void updateBoneLook(BaseGirlEntity var1, IBone var2, IBone var3) {
       EntityPlayer var4 = var1.world.getClosestPlayerToEntity(var1, 15.0);
       if (var4 != null) {
          Vec3d var5 = var4.getPositionVector();
          Vec3d var6 = var1.getPositionVector();
          Vec3d var7 = var5.subtract(var6);
          float var8 = (float)(-(Math.atan2(var7.z, var7.x) * (180.0 / Math.PI))) + 90.0F;
-         float var9 = ThreadNames.b((float)(var4.getEyeHeight() + var5.y - (var1.getEyeHeight() + var6.y)), -0.75F, 0.75F);
+         float var9 = ThreadNames.clampFloat((float)(var4.getEyeHeight() + var5.y - (var1.getEyeHeight() + var6.y)), -0.75F, 0.75F);
          var2.setRotationY(TrigMath.wrapDegrees(var8));
          var3.setRotationX(var9);
       }
    }
 
-   void a(IBone var1, AnimationProcessor var2, BaseGirlEntity var3) {
+   void applyBoneState(IBone var1, AnimationProcessor var2, BaseGirlEntity var3) {
       if (var3.isLocallyRegistered()) {
          var1.setHidden(true);
       } else {
@@ -260,7 +260,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void a(IBone var1, AnimationProcessor var2, BaseGirlEntity var3, IGoblin var4) {
+   void applyGoblinBone(IBone var1, AnimationProcessor var2, BaseGirlEntity var3, IGoblin var4) {
       if (var3.isLocallyRegistered()) {
          var1.setHidden(true);
       } else {

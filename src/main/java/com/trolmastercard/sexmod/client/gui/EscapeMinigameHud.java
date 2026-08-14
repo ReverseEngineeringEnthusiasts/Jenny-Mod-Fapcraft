@@ -115,7 +115,7 @@ public class EscapeMinigameHud extends Gui {
             mc.getTextureManager().bindTexture(HUD_TEXTURE);
             double var5;
             if (failed) {
-               var5 = 1.0 - RotationHelper.d((failTimer + var4) / 20.0F);
+               var5 = 1.0 - RotationHelper.easeInOutQuad((failTimer + var4) / 20.0F);
             } else {
                var5 = Math.min(1.0, RotationHelper.smoothStep((timer + var4) / 20.0F));
             }
@@ -125,12 +125,12 @@ public class EscapeMinigameHud extends Gui {
             GlStateManager.scale(0.33F, 0.33F, 0.33F);
             GlStateManager.translate(485.0F, 0.0F, 0.0F);
             int var8 = 4 * var3;
-            this.drawTexturedModalRect(var2 / 2 - 87, (int)RotationHelper.b(var8, var7, var5), 0, 104, 174, 48);
-            this.drawTexturedModalRect((int)(var2 / 2.0F - 78.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 52, blinkState && currentKey == EscapeDirectionKey.A ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 104, blinkState && currentKey == EscapeDirectionKey.S ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect((int)(var2 / 2.0F + 26.0F), (int)RotationHelper.b(var8, var7 - 52, var5), 156, blinkState && currentKey == EscapeDirectionKey.D ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.b(var8, var7 - 104, var5), 0, blinkState && currentKey == EscapeDirectionKey.W ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect(var2 / 2 - 87 + 8, (int)RotationHelper.b(var8 - 8, var7 + 8, var5), 8, 152, (int)(158.0F * progress), 32);
+            this.drawTexturedModalRect(var2 / 2 - 87, (int)RotationHelper.lerpDouble(var8, var7, var5), 0, 104, 174, 48);
+            this.drawTexturedModalRect((int)(var2 / 2.0F - 78.0F), (int)RotationHelper.lerpDouble(var8, var7 - 52, var5), 52, blinkState && currentKey == EscapeDirectionKey.A ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.lerpDouble(var8, var7 - 52, var5), 104, blinkState && currentKey == EscapeDirectionKey.S ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(var2 / 2.0F + 26.0F), (int)RotationHelper.lerpDouble(var8, var7 - 52, var5), 156, blinkState && currentKey == EscapeDirectionKey.D ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.lerpDouble(var8, var7 - 104, var5), 0, blinkState && currentKey == EscapeDirectionKey.W ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect(var2 / 2 - 87 + 8, (int)RotationHelper.lerpDouble(var8 - 8, var7 + 8, var5), 8, 152, (int)(158.0F * progress), 32);
             GlStateManager.popMatrix();
          }
       }

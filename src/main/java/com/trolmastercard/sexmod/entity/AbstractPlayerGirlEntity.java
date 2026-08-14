@@ -86,7 +86,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Nullable
-   public static AbstractPlayerGirlEntity g(@Nonnull EntityPlayer var0) {
+   public static AbstractPlayerGirlEntity getPlayerGirlByUUID(@Nonnull EntityPlayer var0) {
       return al.get(var0.getPersistentID());
    }
 
@@ -112,7 +112,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return new TargetPoint(this.dimension, this.posX, this.posY - 0.0, this.posZ, 50.0);
    }
 
-   public void a(int var1, Action var2) {
+   public void sendActionPacket(int var1, Action var2) {
       PacketHandler.networkWrapper.sendToAllTracking(new ForcePlayerGirlUpdatePacket(this.getOwnerUserUUID(), var1, var2), this.getTargetNetworkPoint());
    }
 
@@ -267,7 +267,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return false;
    }
 
-   public static boolean e(EntityPlayer var0) {
+   public static boolean isOwnerPlayer(EntityPlayer var0) {
       return var0 == null ? false : hasPlayerGirlWithUUID(var0.getPersistentID());
    }
 
@@ -440,7 +440,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return var1;
    }
 
-   public boolean a(Action var1, EntityPlayer var2) {
+   public boolean canPerformAction(Action var1, EntityPlayer var2) {
       return false;
    }
 
@@ -464,7 +464,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
-   public void f(EntityPlayer var1) {
+   public void syncArmor(EntityPlayer var1) {
       this.entityDataManager.set(HELMET_SLOT, ItemStack.EMPTY);
       this.entityDataManager.set(CHEST_SLOT, ItemStack.EMPTY);
       this.entityDataManager.set(LEGS_SLOT, ItemStack.EMPTY);
@@ -502,7 +502,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return var1 == null ? null : this.world.getPlayerEntityByUUID(var1);
    }
 
-   public void a(Optional<UUID> var1) {
+   public void setOwnerId(Optional<UUID> var1) {
       this.entityDataManager.set(ai, var1);
    }
 

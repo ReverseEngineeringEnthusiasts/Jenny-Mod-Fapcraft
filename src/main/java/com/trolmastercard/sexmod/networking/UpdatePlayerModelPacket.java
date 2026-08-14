@@ -69,7 +69,7 @@ public class UpdatePlayerModelPacket implements IMessage {
                   var5.onTickClient();
                   AbstractPlayerGirlEntity.al.remove(var4);
                   BaseGirlEntity.getGirlEntityList().remove(var5);
-                  var5.a(Optional.absent());
+                  var5.setOwnerId(Optional.absent());
                }
 
                NpcType var12 = var1.npcType;

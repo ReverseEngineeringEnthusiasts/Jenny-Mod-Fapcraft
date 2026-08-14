@@ -25,19 +25,19 @@ public class AllieWorldData extends WorldSavedData {
    }
 
    @SubscribeEvent
-   public void a(Save var1) {
+   public void onSave(Save var1) {
       World var2 = var1.getWorld();
       var2.getMapStorage().setData("sexmod:customstaticgirlnames", this);
       this.markDirty();
    }
 
    @SubscribeEvent
-   public void a(Load var1) {
+   public void onLoad(Load var1) {
       World var2 = var1.getWorld();
       var2.getMapStorage().getOrLoadData(AllieWorldData.class, "sexmod:customstaticgirlnames");
    }
 
-   public static void a(UUID var0, NpcType var1, String var2) {
+   public static void addAllie(UUID var0, NpcType var1, String var2) {
       HashMap var3 = b.get(var0);
       if (var3 == null) {
          var3 = new HashMap();

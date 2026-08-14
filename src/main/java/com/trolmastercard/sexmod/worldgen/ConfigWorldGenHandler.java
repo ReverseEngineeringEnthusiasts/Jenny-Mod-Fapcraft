@@ -86,14 +86,14 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
    }
 
    @SubscribeEvent
-   public void a(Save var1) {
+   public void onSave(Save var1) {
       World var2 = var1.getWorld();
       var2.getMapStorage().setData("sexmod:generation", this);
       this.markDirty();
    }
 
    @SubscribeEvent
-   public void a(Load var1) {
+   public void onLoad(Load var1) {
       World var2 = var1.getWorld();
       var2.getMapStorage().getOrLoadData(ConfigWorldGenHandler.class, "sexmod:generation");
    }
@@ -122,14 +122,14 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
 
       for (ConfigWorldGenHandler.a var5 : this.generatedPositions) {
          var2.setString("sexmod:name" + var3, var5.girlName);
-         var2.setString("sexmod:pos" + var3++, a(var5.pos));
+         var2.setString("sexmod:pos" + var3++, getChunkHash(var5.pos));
       }
 
       var1.setTag("sexmod:generation", var2);
       return var1;
    }
 
-   static String a(Point2D var0) {
+   static String getChunkHash(Point2D var0) {
       return var0.x + "|" + var0.y;
    }
 
@@ -141,26 +141,26 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
    public void generate(Random var1, int var2, int var3, World var4, IChunkGenerator var5, IChunkProvider var6) {
       if (GENERATION_ENABLED) {
          if (var4.getWorldType() != WorldType.FLAT) {
-            this.b(var4, var1, var2, var3);
-            this.a(var4, var1, var2, var3);
-            this.a(var1, var2, var3, var4);
+            this.spawnStructures(var4, var1, var2, var3);
+            this.generateChunk(var4, var1, var2, var3);
+            this.generateStructure(var1, var2, var3, var4);
          }
       }
    }
 
-   void a(Random var1, int var2, int var3, World var4) {
+   void generateStructure(Random var1, int var2, int var3, World var4) {
       if (IS_GENERATING) {
          IS_GENERATING = false;
 
          for (ConfigWorldGenHandler.b var6 : this.girlHouseConfigs) {
-            this.a(var6, var1, var2, var3, var4);
+            this.placeStructure(var6, var1, var2, var3, var4);
          }
 
          IS_GENERATING = true;
       }
    }
 
-   void a(ConfigWorldGenHandler.b var1, Random var2, int var3, int var4, World var5) {
+   void placeStructure(ConfigWorldGenHandler.b var1, Random var2, int var3, int var4, World var5) {
       for (ConfigWorldGenHandler.a var7 : this.generatedPositions) {
          int var8 = var7.girlName.equals(var1.girlName) ? 156 : 62;
          if (var7.pos.distanceTo(var3, var4) < var8) {
@@ -224,7 +224,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       }
    }
 
-   void b(World var1, Random var2, int var3, int var4) {
+   void spawnStructures(World var1, Random var2, int var3, int var4) {
       if (!(var2.nextDouble() > 0.004F)) {
          int var5 = var3 * 16 + 8;
          int var6 = var4 * 16 + 8;
@@ -235,7 +235,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       }
    }
 
-   void a(World var1, Random var2, int var3, int var4) {
+   void generateChunk(World var1, Random var2, int var3, int var4) {
       int var5 = 16 * var3 + 3;
       int var6 = 16 * var4 + 3;
       int var7 = var2.nextInt(255);

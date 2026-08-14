@@ -212,7 +212,7 @@ public class DebugMode {
                return;
             }
 
-            GirlSavedData.a(var3.getPersistentID(), var14);
+            GirlSavedData.saveCumTime(var3.getPersistentID(), var14);
             var3.sendMessage(new TextComponentString("set to: " + var14));
          }
       }

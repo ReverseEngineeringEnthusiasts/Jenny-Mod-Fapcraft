@@ -8,7 +8,7 @@ import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.math.BlockPos;
 
 public class PathUtils {
-   public static BlockPos a(Path var0) {
+   public static BlockPos getPathEnd(Path var0) {
       if (var0 == null) {
          return BlockPos.ORIGIN;
       }
@@ -17,10 +17,10 @@ public class PathUtils {
       return var1 == null ? BlockPos.ORIGIN : new BlockPos(var1.x, var1.y, var1.z);
    }
 
-   public static BlockPos a(EntityLiving var0) {
+   public static BlockPos getNavigatorTarget(EntityLiving var0) {
       PathNavigate var1 = var0.getNavigator();
       Path var2 = var1.getPath();
-      return a(var2);
+      return getPathEnd(var2);
    }
 
    public static boolean a(Path var0, BlockPos[] var1) {

@@ -41,8 +41,8 @@ public class DragonRenderer extends Render<DragonEntity> {
       GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
       EntityPlayerSP var10 = this.mc.player;
-      Vec3d var11 = RotationHelper.a(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var9);
-      Vec3d var12 = RotationHelper.a(new Vec3d(var10.lastTickPosX, var10.lastTickPosY, var10.lastTickPosZ), var10.getPositionVector(), var9);
+      Vec3d var11 = RotationHelper.lerpVec3dDouble(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var9);
+      Vec3d var12 = RotationHelper.lerpVec3dDouble(new Vec3d(var10.lastTickPosX, var10.lastTickPosY, var10.lastTickPosZ), var10.getPositionVector(), var9);
       Vec3d var13 = var11.subtract(var12);
       GlStateManager.pushMatrix();
       GlStateManager.translate(var13.x, var13.y, var13.z);
@@ -57,11 +57,11 @@ public class DragonRenderer extends Render<DragonEntity> {
       if (var1.SCALE_1_0 == 1.0) {
          float var18 = (float)this.mc.world.getTotalWorldTime() + this.mc.getRenderPartialTicks();
          double var19 = 0.5 * Math.sin(var18 * 0.5) + 0.5;
-         var16 = RotationHelper.a(COLOR_CYAN, COLOR_MAGENTA, var19);
-         var17 = RotationHelper.a(COLOR_MAGENTA, COLOR_CYAN, var19);
+         var16 = RotationHelper.lerpColor(COLOR_CYAN, COLOR_MAGENTA, var19);
+         var17 = RotationHelper.lerpColor(COLOR_MAGENTA, COLOR_CYAN, var19);
       } else {
-         var16 = RotationHelper.a(COLOR_WHITE_ALPHA, COLOR_CYAN, var1.SCALE_1_0);
-         var17 = RotationHelper.a(COLOR_WHITE_ALPHA, COLOR_CYAN, var1.SCALE_1_0);
+         var16 = RotationHelper.lerpColor(COLOR_WHITE_ALPHA, COLOR_CYAN, var1.SCALE_1_0);
+         var17 = RotationHelper.lerpColor(COLOR_WHITE_ALPHA, COLOR_CYAN, var1.SCALE_1_0);
       }
 
       var15.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);

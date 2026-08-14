@@ -45,13 +45,13 @@ public class SexEntityRenderer extends Render<SexEntity> {
             var10.zFlag += 60.0F / var12 * 0.01666F * 2.0F;
             var10.zFlag = Math.min(1.0F, var10.zFlag);
             EntityPlayerSP var13 = Minecraft.getMinecraft().player;
-            Vec3d var14 = RotationHelper.a(new Vec3d(var13.lastTickPosX, var13.lastTickPosY, var13.lastTickPosZ), var13.getPositionVector(), var9);
+            Vec3d var14 = RotationHelper.lerpVec3dDouble(new Vec3d(var13.lastTickPosX, var13.lastTickPosY, var13.lastTickPosZ), var13.getPositionVector(), var9);
             Vec3d var15 = new Vec3d(var2, var4, var6);
-            Vec3d var16 = RotationHelper.a(
+            Vec3d var16 = RotationHelper.lerpVec3dDouble(
                new Vec3d(var10.lastTickPosX, var10.lastTickPosY + 0.875, var10.lastTickPosZ), var10.getPositionVector().add(0.0, 0.875, 0.0), var9
             );
             var16 = var16.subtract(var14);
-            var15 = RotationHelper.a(var15, var16, var10.zFlag);
+            var15 = RotationHelper.lerpVec3dDouble(var15, var16, var10.zFlag);
             var2 = var15.x;
             var4 = var15.y;
             var6 = var15.z;

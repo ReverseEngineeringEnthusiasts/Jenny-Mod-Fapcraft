@@ -111,9 +111,9 @@ public class DragonEntity extends EntityLiving {
 
    void spawnChargedBreath() {
       this.spawnBreathParticles(
-         RotationHelper.b(this.lastTickPosX, this.posX, 0.5),
-         RotationHelper.b(this.lastTickPosY, this.posY, 0.5),
-         RotationHelper.b(this.lastTickPosZ, this.posZ, 0.5)
+         RotationHelper.lerpDouble(this.lastTickPosX, this.posX, 0.5),
+         RotationHelper.lerpDouble(this.lastTickPosY, this.posY, 0.5),
+         RotationHelper.lerpDouble(this.lastTickPosZ, this.posZ, 0.5)
       );
       this.spawnBreathParticles(this.posX, this.posY, this.posZ);
    }

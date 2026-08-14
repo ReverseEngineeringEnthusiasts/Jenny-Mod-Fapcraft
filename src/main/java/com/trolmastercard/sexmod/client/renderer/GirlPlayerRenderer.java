@@ -58,7 +58,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
    }
 
    @Override
-   public void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderEntity(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       if (this.isGirlVisible(var1)) {
          AbstractPlayerGirlEntity var10 = (AbstractPlayerGirlEntity)var1;
          if (var10.getOwnerUserUUID() != null) {
@@ -70,12 +70,12 @@ public class GirlPlayerRenderer extends GirlRenderer {
                this.isRendering = var10.ad;
                this.playerGirl = (AbstractPlayerGirlEntity)var1;
                this.partialTicks = var9;
-               var10.f(var11);
+               var10.syncArmor(var11);
                if (this.isOwnPlayer(var11, var1)) {
                   this.renderLivingLabel(var1, var11.getName(), var2, var4 + var10.getScaleFactor(), var6, 300);
                }
 
-               super.a(var1, var2, var4, var6, var8, var9);
+               super.doRenderEntity(var1, var2, var4, var6, var8, var9);
             }
          }
       }
@@ -215,7 +215,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
    public void renderOverlay(BufferBuilder var1, GeoBone var2, Color var3) {
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
-      com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
+      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
       GL11.glEnable(2896);
       this.preRenderCallback();
       new GirlLayerRenderer(this).render(this.playerGirl, this.playerGirl.limbSwing, this.playerGirl.limbSwingAmount, this.partialTicks, 0.0F, 0.0F, 0.0F, var3);
@@ -234,7 +234,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
       ItemRenderer var4 = Minecraft.getMinecraft().getItemRenderer();
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
-      com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
+      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
       GL11.glEnable(2896);
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);

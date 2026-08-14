@@ -17,12 +17,12 @@ public class GalathGeometryRender {
       BaseGirlEntity var0, float var1, String var2, String var3, String var4, float var5, float var6, float var7, float var8, String var9
    ) {
       Vec3d[] var10 = b(var0, var1, var2, var3, var4, var5, var6, var7, var8, var9);
-      return a(var10);
+      return buildBodyMesh(var10);
    }
 
    public static Vec3d[][] a(BaseGirlEntity var0, float var1, String var2, String var3, Vector3fSexmodSpecial var4, Vector3fSexmodSpecial var5) {
       Vec3d[] var6 = b(var0, var1, var2, var3, var4, var5);
-      return b(var6);
+      return buildWingMesh(var6);
    }
 
    static Vec3d[] b(BaseGirlEntity var0, float var1, String var2, String var3, Vector3fSexmodSpecial var4, Vector3fSexmodSpecial var5) {
@@ -64,7 +64,7 @@ public class GalathGeometryRender {
       return var8;
    }
 
-   static Vec3d[][] b(Vec3d[] var0) {
+   static Vec3d[][] buildWingMesh(Vec3d[] var0) {
       Vec3d[][] var1 = new Vec3d[6][4];
       var1[0][0] = var0[0];
       var1[0][1] = var0[1];
@@ -126,7 +126,7 @@ public class GalathGeometryRender {
       }
 
       for (int var19 = 0; var19 < 4; var19++) {
-         var16[var19] = VectorMath.a(var16[var19], 0.0F, var11, var12);
+         var16[var19] = VectorMath.rotateByEuler(var16[var19], 0.0F, var11, var12);
       }
 
       for (int var20 = 0; var20 < 4; var20++) {
@@ -144,7 +144,7 @@ public class GalathGeometryRender {
       return var16;
    }
 
-   static Vec3d[][] a(Vec3d[] var0) {
+   static Vec3d[][] buildBodyMesh(Vec3d[] var0) {
       Vec3d[][] var1 = new Vec3d[10][4];
       var1[0][0] = var0[0];
       var1[0][1] = var0[1];
@@ -189,7 +189,7 @@ public class GalathGeometryRender {
       return var1;
    }
 
-   public static void a(BufferBuilder var0, Vec3d[][] var1, UnknownScreen var2) {
+   public static void renderMesh(BufferBuilder var0, Vec3d[][] var1, UnknownScreen var2) {
       for (Vec3d[] var6 : var1) {
          for (Vec3d var10 : var6) {
             var0.pos(var10.x, var10.y, var10.z)
@@ -200,15 +200,15 @@ public class GalathGeometryRender {
       }
    }
 
-   public static void a(Minecraft var0, BaseGirlEntity var1, float var2) {
+   public static void renderGalathGeometry(Minecraft var0, BaseGirlEntity var1, float var2) {
       EntityPlayerSP var3 = var0.player;
       if (var3 != null) {
          GlStateManager.translate(0.0, 0.01, 0.0);
          Entity var4 = ((GirlRenderer)var0.getRenderManager().getEntityRenderObject(var1)).getRenderEntity(var1);
          Vec3d var5 = var1.isAnchored()
             ? var1.getTargetPosition()
-            : RotationHelper.a(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
-         Vec3d var6 = RotationHelper.a(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var2);
+            : RotationHelper.lerpVec3dDouble(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
+         Vec3d var6 = RotationHelper.lerpVec3dDouble(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var2);
          Vec3d var7 = var5.subtract(var6);
          var7 = var1.transformRenderOffset(var7, var2);
          GlStateManager.translate(var7.x, var7.y, var7.z);
