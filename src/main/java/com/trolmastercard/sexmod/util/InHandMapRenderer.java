@@ -75,19 +75,19 @@ public class InHandMapRenderer {
             if (var1.getHand() == EnumHand.MAIN_HAND) {
                if (var8.isEmpty() || var8.getItem() instanceof ItemMap) {
                   var1.setCanceled(true);
-                  this.a(var8, var1.getPartialTicks(), var10, this.PROGRESS_SCALE, var11);
+                  this.renderPlayerMap(var8, var1.getPartialTicks(), var10, this.PROGRESS_SCALE, var11);
                   this.isRendering = true;
                } else if (var5 < var4) {
                   if (this.isRendering) {
                      var1.setCanceled(true);
-                     this.a(var8, var1.getPartialTicks(), var10, this.PROGRESS_SCALE, var11);
+                     this.renderPlayerMap(var8, var1.getPartialTicks(), var10, this.PROGRESS_SCALE, var11);
                   }
                } else {
                   this.isRendering = false;
                }
             } else if (this.mc.player.getHeldItemOffhand().getItem() instanceof ItemMap) {
                var1.setCanceled(true);
-               this.a(EnumHandSide.LEFT, this.PROGRESS_SCALE - 1.0F, var11, this.mc.player.getHeldItemOffhand());
+               this.renderHandMap(EnumHandSide.LEFT, this.PROGRESS_SCALE - 1.0F, var11, this.mc.player.getHeldItemOffhand());
             }
 
             GlStateManager.resetColor();
@@ -95,19 +95,19 @@ public class InHandMapRenderer {
       }
    }
 
-   void a(ItemStack var1, float var2, AbstractClientPlayer var3, float var4, float var5) {
+   void renderPlayerMap(ItemStack var1, float var2, AbstractClientPlayer var3, float var4, float var5) {
       if (var1.getItem() instanceof ItemMap) {
          if (var3.getHeldItemOffhand().isEmpty()) {
-            this.a(var1, var3, var5, var2);
+            this.renderPlayerMap(var1, this.mc.getRenderPartialTicks(), var3, var5, var2);
          } else {
-            this.a(EnumHandSide.RIGHT, var4 - 1.0F, var5, var1);
+            this.renderHandMap(EnumHandSide.RIGHT, var4 - 1.0F, var5, var1);
          }
       } else {
          this.renderMapView(var5, var2);
       }
    }
 
-   void a(EnumHandSide var1, float var2, float var3, ItemStack var4) {
+   void renderHandMap(EnumHandSide var1, float var2, float var3, ItemStack var4) {
       float var5 = var1 == EnumHandSide.RIGHT ? 1.0F : -1.0F;
       GlStateManager.translate(var5 * 0.125F, -0.125F, 0.0F);
       if (!this.mc.player.isInvisible()) {
@@ -140,7 +140,7 @@ public class InHandMapRenderer {
       GlStateManager.popMatrix();
    }
 
-   void a(ItemStack var1, AbstractClientPlayer var2, float var3, float var4) {
+   void renderPlayerMap(ItemStack var1, AbstractClientPlayer var2, float var3, float var4) {
       float var5 = var2.prevRotationPitch + (var2.rotationPitch - var2.prevRotationPitch) * var4;
       float var6 = MathHelper.sqrt(var3);
       float var7 = -0.2F * MathHelper.sin(var3 * (float) Math.PI);
@@ -152,8 +152,8 @@ public class InHandMapRenderer {
       GlStateManager.disableCull();
       GlStateManager.pushMatrix();
       GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
-      this.a(EnumHandSide.RIGHT);
-      this.a(EnumHandSide.LEFT);
+      this.renderMapHand(EnumHandSide.RIGHT);
+      this.renderMapHand(EnumHandSide.LEFT);
       GlStateManager.popMatrix();
       GlStateManager.enableCull();
       float var10 = MathHelper.sin(var6 * (float) Math.PI);
@@ -188,7 +188,7 @@ public class InHandMapRenderer {
       GlStateManager.color(this.handColor.getX() / 255.0F, this.handColor.getY() / 255.0F, this.handColor.getZ() / 255.0F);
    }
 
-   private void a(EnumHandSide var1) {
+   private void renderMapHand(EnumHandSide var1) {
       GlStateManager.pushMatrix();
       float var2 = var1 == EnumHandSide.RIGHT ? 1.0F : -1.0F;
       GlStateManager.rotate(92.0F, 0.0F, 1.0F, 0.0F);

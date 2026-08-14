@@ -146,7 +146,7 @@ public class AllieEntity extends BaseGirlEntity {
    @SideOnly(Side.CLIENT)
    void resetToDefaultState() {
       this.isDefaultState = false;
-      WorldUtils.a(this.world, EnumParticleTypes.PORTAL, this.getPositionVector(), 300, 0.75, 1.5);
+      WorldUtils.spawnParticles(this.world, EnumParticleTypes.PORTAL, this.getPositionVector(), 300, 0.75, 1.5);
    }
 
    @SideOnly(Side.CLIENT)

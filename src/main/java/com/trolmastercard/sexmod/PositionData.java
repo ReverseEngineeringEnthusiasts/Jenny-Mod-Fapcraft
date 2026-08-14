@@ -42,7 +42,7 @@ public class PositionData {
    public void onRenderHand(RenderHandEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       EntityPlayerSP var3 = var2.player;
-      AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.g(var3);
+      AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3);
       if (var4 != null && var4.isAnchored()) {
          var1.setCanceled(true);
       } else {
@@ -89,7 +89,7 @@ public class PositionData {
                         ? var3.getCachedBoneOffset("boyCam").add(var3.getTargetPosition())
                         : var3.getCachedBoneOffset("boyCam")
                            .add(
-                              RotationHelper.a(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var1.renderTickTime)
+                              RotationHelper.lerpVec3dDouble(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var1.renderTickTime)
                            );
                      var2.player.posX = var4.x;
                      var2.player.posY = var4.y - var2.player.getEyeHeight();

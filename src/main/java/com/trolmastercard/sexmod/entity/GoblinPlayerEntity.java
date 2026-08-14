@@ -118,14 +118,14 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       if ("anal".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.NELSON_INTRO);
-         this.a(this.getOutfitIndex(), Action.NELSON_INTRO);
+         this.sendActionPacket(this.getOutfitIndex(), Action.NELSON_INTRO);
          this.setOutfitIndex(0);
       }
 
       if ("paizuri".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.PAIZURI_START);
-         this.a(this.getOutfitIndex(), Action.PAIZURI_START);
+         this.sendActionPacket(this.getOutfitIndex(), Action.PAIZURI_START);
          this.setOutfitIndex(0);
       }
    }
@@ -173,7 +173,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
       Vec3d var5 = var4.getPositionVector();
       Vec3d var6 = new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ);
-      return RotationHelper.a(var6, var5, var2);
+      return RotationHelper.lerpVec3dDouble(var6, var5, var2);
    }
 
    void handlePlayerThrow(EntityPlayer var1) {
@@ -251,7 +251,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @Override
-   public boolean a(Action var1, EntityPlayer var2) {
+   public boolean canPerformAction(Action var1, EntityPlayer var2) {
       UUID var3 = this.getOwnerUUID();
       if (var3 == null) {
          return false;
@@ -1058,7 +1058,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
       public void onRenderHand(RenderHandEvent var1) {
-         AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.g(Minecraft.getMinecraft().player);
+         AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player);
          if (var2 != null) {
             if (var2 instanceof IGoblin) {
                if (((IGoblin)var2).getOwnerUUID() != null) {
@@ -1088,7 +1088,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       }
 
       void handlePlayerOwner(EntityPlayer var1) {
-         AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.g(var1);
+         AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1);
          if (var2 instanceof GoblinPlayerEntity) {
             Action var3 = var2.getCurrentAction();
             if (var3 != Action.THROWN) {
@@ -1158,7 +1158,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
          if (var1.world != null) {
             for (EntityPlayer var4 : var1.world.playerEntities) {
                if (var4 != var2) {
-                  AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.g(var4);
+                  AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var4);
                   if (var5 instanceof GoblinPlayerEntity) {
                      GoblinPlayerEntity var6 = (GoblinPlayerEntity)var5;
                      if (var6.getOwnerUUID() != null) {

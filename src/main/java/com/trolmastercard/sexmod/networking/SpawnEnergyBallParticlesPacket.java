@@ -54,7 +54,7 @@ public class SpawnEnergyBallParticlesPacket implements IMessage {
                System.out.println("doesnt exit");
                return null;
             } else {
-               GalathCoinItem.a(var1.playerUUID, (GalathEntity)var3);
+               GalathCoinItem.summonGalathFor(var1.playerUUID, (GalathEntity)var3);
                return null;
             }
          } else {

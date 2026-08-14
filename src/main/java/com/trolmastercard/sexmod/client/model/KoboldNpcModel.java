@@ -51,14 +51,14 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
          }
 
          String[] var5 = AbstractNpcOnlyEntity.getModelCodeParts(var1);
-         this.b(var4, var5[0]);
-         this.e(var4, var5[1]);
-         this.a(var4, var5[2], 0.75F, 1.35F, "boobL", "boobR", "armorBoobs");
-         this.a(var4, var5[3], 1.0F, 1.2F, "eyeL", "eyeR");
-         this.a(var4, var5[3], 1.0F, 1.2F);
-         this.a(var4, var5[4]);
-         this.d(var4, var5[5]);
-         this.a(var1, var4, var5[6]);
+         this.getHornsUp(var4, var5[0]);
+         this.getHornsDown(var4, var5[1]);
+         this.setBoneRotationMulti(var4, var5[2], 0.75F, 1.35F, "boobL", "boobR", "armorBoobs");
+         this.setBoneRotationMulti(var4, var5[3], 1.0F, 1.2F, "eyeL", "eyeR");
+         this.setBoneRotation(var4, var5[3], 1.0F, 1.2F);
+         this.getBoneData(var4, var5[4]);
+         this.parseBoneColor(var4, var5[5]);
+         this.updateBonePose(var1, var4, var5[6]);
          switch (var1.getCurrentAction()) {
             case STARTBLOWJOB:
             case SUCKBLOWJOB_BLINK:
@@ -70,11 +70,11 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
                var4.getBone("tounge").setHidden(true);
          }
 
-         this.b(var1, var4);
+         this.handleSwingAnimation(var1, var4);
       }
    }
 
-   void b(BaseGirlEntity var1, AnimationProcessor var2) {
+   void handleSwingAnimation(BaseGirlEntity var1, AnimationProcessor var2) {
       if (var1.actionController.getAnimationState() == AnimationState.Transitioning) {
          float var3 = (Float)var1.getDataManager().get(KoboldEntity.aE);
          var3 = 0.25F - var3;
@@ -107,7 +107,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void a(BaseGirlEntity var1, AnimationProcessor var2, String var3) {
+   void updateBonePose(BaseGirlEntity var1, AnimationProcessor var2, String var3) {
       int var4 = Integer.parseInt(var3);
       IBone var5 = var2.getBone("backpack");
       IBone var6 = var2.getBone("tailpack");
@@ -134,7 +134,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void d(AnimationProcessor var1, String var2) {
+   void parseBoneColor(AnimationProcessor var1, String var2) {
       int var3 = Integer.parseInt(var2);
       IBone var4 = var1.getBone("frecklesHR1");
       IBone var5 = var1.getBone("frecklesHR2");
@@ -146,7 +146,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       var5.setHidden(var3 != 2);
    }
 
-   void a(AnimationProcessor var1, String var2) {
+   void getBoneData(AnimationProcessor var1, String var2) {
       int var3 = Integer.parseInt(var2);
       IBone var4 = var1.getBone("frecklesAR1");
       IBone var5 = var1.getBone("frecklesAR2");
@@ -158,7 +158,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       var5.setHidden(var3 != 2);
    }
 
-   void a(AnimationProcessor var1, String var2, float var3, float var4) {
+   void setBoneRotation(AnimationProcessor var1, String var2, float var3, float var4) {
       if (!Minecraft.getMinecraft().isGamePaused()) {
          float var5 = Float.parseFloat(var2);
          var5 /= 100.0F;
@@ -170,7 +170,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void a(AnimationProcessor var1, String var2, float var3, float var4, String... var5) {
+   void setBoneRotationMulti(AnimationProcessor var1, String var2, float var3, float var4, String... var5) {
       float var6 = Float.parseFloat(var2);
       var6 /= 100.0F;
       var6 = var3 + (var4 - var3) * var6;
@@ -185,9 +185,9 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
-   void e(AnimationProcessor var1, String var2) {
-      List var3 = this.c(var1, "hornDL");
-      List var4 = this.c(var1, "hornDR");
+   void getHornsDown(AnimationProcessor var1, String var2) {
+      List var3 = this.getHornBones(var1, "hornDL");
+      List var4 = this.getHornBones(var1, "hornDR");
       this.hideAllBones(var3);
       this.hideAllBones(var4);
       int var5 = Integer.parseInt(var2);
@@ -195,9 +195,9 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       var1.getBone("hornDR" + var5).setHidden(false);
    }
 
-   void b(AnimationProcessor var1, String var2) {
-      List var3 = this.c(var1, "hornUL");
-      List var4 = this.c(var1, "hornUR");
+   void getHornsUp(AnimationProcessor var1, String var2) {
+      List var3 = this.getHornBones(var1, "hornUL");
+      List var4 = this.getHornBones(var1, "hornUR");
       this.hideAllBones(var3);
       this.hideAllBones(var4);
       int var5 = Integer.parseInt(var2);
@@ -205,7 +205,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       var1.getBone("hornUR" + var5).setHidden(false);
    }
 
-   List<IBone> c(AnimationProcessor var1, String var2) {
+   List<IBone> getHornBones(AnimationProcessor var1, String var2) {
       ArrayList var3 = new ArrayList();
       int var4 = 0;
 
@@ -227,7 +227,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   protected void a(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
+   protected void handleAnimationEvent(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
       if (!(var1.world instanceof SexWorldClient)) {
          switch (var1.getCurrentAction()) {
             case NULL:

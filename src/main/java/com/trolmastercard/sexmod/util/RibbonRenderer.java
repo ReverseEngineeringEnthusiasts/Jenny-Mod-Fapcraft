@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.Vec3d;
 
 public class RibbonRenderer {
-   public static void a(BufferBuilder var0, Tessellator var1, Minecraft var2, RibbonRenderer.b var3) {
+   public static void renderRibbon(BufferBuilder var0, Tessellator var1, Minecraft var2, RibbonRenderer.b var3) {
       Vec3d[] var4 = new Vec3d[]{
          new Vec3d(-var3.thickness, -var3.advance, 0.0), new Vec3d(-var3.thickness, var3.advance, 0.0), new Vec3d(var3.thickness, var3.advance, 0.0), new Vec3d(var3.thickness, -var3.advance, 0.0)
       };
@@ -30,27 +30,27 @@ public class RibbonRenderer {
          }
 
          var8.add(var11);
-         var5 = VectorMath.a(var5, var3.xWaveFn.a(var10, var9), var3.yWaveFn.a(var10, var9), var3.zWaveFn.a(var10, var9));
+         var5 = VectorMath.rotateByEuler(var5, var3.xWaveFn.a(var10, var9), var3.yWaveFn.a(var10, var9), var3.zWaveFn.a(var10, var9));
          var6 = var6.add(var5);
       }
 
       var0.begin(7, DefaultVertexFormats.POSITION_COLOR);
-      a(var0, var7, (Vec3d[])var8.get(0), var3.color);
+      renderRibbonStrip(var0, var7, (Vec3d[])var8.get(0), var3.color);
 
       for (int var15 = 0; var15 < var3.segmentCount - 1; var15++) {
          Vec3d[] var16 = (Vec3d[])var8.get(var15);
          Vec3d[] var17 = (Vec3d[])var8.get(var15 + 1);
-         a(var0, var16, var17, var3.color);
+         renderRibbonStrip(var0, var16, var17, var3.color);
       }
 
       var1.draw();
    }
 
-   static float a(float var0, float var1, float var2, int var3, float var4) {
+   static float getWaveOffset(float var0, float var1, float var2, int var3, float var4) {
       return (float)(Math.sin(var0 * var1 + var2 * var3) * var4);
    }
 
-   static void a(BufferBuilder var0, Vec3d[] var1, Vec3d[] var2, UnknownScreen var3) {
+   static void renderRibbonStrip(BufferBuilder var0, Vec3d[] var1, Vec3d[] var2, UnknownScreen var3) {
       var0.pos(var1[1].x, var1[1].y, var1[1].z).color(var3.red, var3.green, var3.blue, var3.alpha).endVertex();
       var0.pos(var1[2].x, var1[2].y, var1[2].z).color(var3.red, var3.green, var3.blue, var3.alpha).endVertex();
       var0.pos(var2[2].x, var2[2].y, var2[2].z).color(var3.red, var3.green, var3.blue, var3.alpha).endVertex();

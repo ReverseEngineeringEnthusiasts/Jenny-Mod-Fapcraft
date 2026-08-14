@@ -84,11 +84,11 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
       if ("cowgirl".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.RAPE_INTRO);
-         this.a(this.getOutfitIndex(), Action.RAPE_INTRO);
+         this.sendActionPacket(this.getOutfitIndex(), Action.RAPE_INTRO);
       } else if ("mating press".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.CORRUPT_SLOW);
-         this.a(this.getOutfitIndex(), Action.CORRUPT_SLOW);
+         this.sendActionPacket(this.getOutfitIndex(), Action.CORRUPT_SLOW);
          this.handleGalathPlayerOwner();
       }
    }
@@ -437,7 +437,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                         MovementInput var15 = var14.movementInput;
                         Vec2f var16 = var15.getMoveVector();
                         if (var16.x != 0.0F || var16.y != 0.0F) {
-                           Vec3d var17 = VectorMath.a(
+                           Vec3d var17 = VectorMath.rotateByYawPitch(
                               new Vec3d(-var16.x, 0.0, var16.y),
                               RotationHelper.lerp(var14.prevRotationPitch, var14.rotationPitch, var10.getRenderPartialTicks()),
                               RotationHelper.lerp(var14.prevRotationYawHead, var14.rotationYawHead, var10.getRenderPartialTicks())

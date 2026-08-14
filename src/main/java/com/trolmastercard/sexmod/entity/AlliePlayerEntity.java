@@ -69,13 +69,13 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    public void handleOwnerCommand(String var1, UUID var2) {
       if ("action.names.deepthroat".equals(var1)) {
          this.setCurrentAction(Action.DEEPTHROAT_START);
-         this.a(this.getOutfitIndex(), Action.DEEPTHROAT_START);
+         this.sendActionPacket(this.getOutfitIndex(), Action.DEEPTHROAT_START);
          this.teleportPlayerToGirl(var2);
       }
 
       if ("Reverse cowgirl".equals(var1)) {
          this.setCurrentAction(Action.REVERSE_COWGIRL_START);
-         this.a(0, Action.REVERSE_COWGIRL_START);
+         this.sendActionPacket(0, Action.REVERSE_COWGIRL_START);
          this.teleportPlayerToGirl(var2);
       }
    }

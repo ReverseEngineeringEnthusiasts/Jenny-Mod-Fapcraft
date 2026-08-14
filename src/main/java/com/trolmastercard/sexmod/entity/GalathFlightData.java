@@ -132,7 +132,7 @@ public enum GalathFlightData {
                Vec3d var5 = var4.normalize();
                var0.motionX = var5.x * 0.6F;
                var0.motionZ = var5.z * 0.6F;
-               var0.motionY = ThreadNames.b(var4.y * 0.6F, -0.6F, 0.6F);
+               var0.motionY = (float)ThreadNames.clampDouble(var4.y * 0.6F, -0.6F, 0.6F);
             }
          }
       },
@@ -262,7 +262,7 @@ public enum GalathFlightData {
          Vec3d var8 = var0.B_clash642();
          Vec3d var9 = var3.add(var7);
          float var10 = (var2 - 24) / 8.0F;
-         Vec3d var11 = RotationHelper.a(var8, var9, var10);
+         Vec3d var11 = RotationHelper.lerpVec3dDouble(var8, var9, var10);
          var0.setTargetPosition(var11);
       } else if (ThreadNames.isBetween(var2, 32.0, 54.0)) {
          Vec3d var12 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 1.5), var0.getYawRotation() + 180.0F);
@@ -379,15 +379,15 @@ public enum GalathFlightData {
 
             if (var27) {
                var20 = new Vec3d(
-                  RotationHelper.b(var23.x, var25.x, Math.min(1.0, var28)),
-                  RotationHelper.b(var23.y, var25.y, Math.min(1.0, RotationHelper.smoothDamp(var28))),
-                  RotationHelper.b(var23.z, var25.z, Math.min(1.0, var28))
+                  RotationHelper.lerpDouble(var23.x, var25.x, Math.min(1.0, var28)),
+                  RotationHelper.lerpDouble(var23.y, var25.y, Math.min(1.0, RotationHelper.easeInCubic(var28))),
+                  RotationHelper.lerpDouble(var23.z, var25.z, Math.min(1.0, var28))
                );
             } else {
                var20 = new Vec3d(
-                  RotationHelper.b(var22.x, var23.x, var28),
-                  RotationHelper.b(var22.y, var23.y, RotationHelper.g(var28)),
-                  RotationHelper.b(var22.z, var23.z, var28)
+                  RotationHelper.lerpDouble(var22.x, var23.x, var28),
+                  RotationHelper.lerpDouble(var22.y, var23.y, RotationHelper.easeInOutQuad(var28)),
+                  RotationHelper.lerpDouble(var22.z, var23.z, var28)
                );
             }
 

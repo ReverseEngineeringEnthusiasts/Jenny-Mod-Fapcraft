@@ -105,14 +105,14 @@ public class CustomModelList extends GuiListExtended {
       var9.add(0, "cross");
       this.entries.add(new CustomModelList.a(var4 > 1));
       this.updateScrollbar();
-      this.a(var1, var2, var3);
+      this.onMouseMove(var1, var2, var3);
       if (this.needsRefresh) {
          this.scrollBy(999999);
          this.needsRefresh = false;
       }
    }
 
-   void a(int var1, int var2, float var3) {
+   void onMouseMove(int var1, int var2, float var3) {
       if (this.visible) {
          this.mouseX = var1;
          this.mouseY = var2;
@@ -178,11 +178,11 @@ public class CustomModelList extends GuiListExtended {
    }
 
    public boolean mouseClicked(int var1, int var2, int var3) {
-      this.a(var1, var2, var3);
+      this.onMouseMove(var1, var2, var3);
       return super.mouseClicked(var1, var2, var3);
    }
 
-   void a(int var1, int var2, int var3) {
+   void getSlotIndex(int var1, int var2, int var3) {
       if (var1 <= this.width) {
          int var4 = this.getAmountScrolled();
          float var5 = var4 + var2 - 5 - this.top;
@@ -190,7 +190,7 @@ public class CustomModelList extends GuiListExtended {
          int var7 = (int)Math.round((var5 / this.slotHeight - Math.floor(var5 / this.slotHeight)) * this.slotHeight);
          if (var6 >= 0) {
             if (var6 < this.entries.size()) {
-               this.entries.get(var6).a(var1, var7, var3, var6);
+               this.entries.get(var6).drawBackground(var1, var7, var3, var6);
             }
          }
       }
@@ -218,7 +218,7 @@ public class CustomModelList extends GuiListExtended {
          this.isVisible = true;
       }
 
-      boolean b(int var1, int var2, int var3, int var4, int var5, int var6) {
+      boolean isInBounds(int var1, int var2, int var3, int var4, int var5, int var6) {
          if (var1 < var3) {
             return false;
          } else if (var1 > var5) {
@@ -228,23 +228,23 @@ public class CustomModelList extends GuiListExtended {
          }
       }
 
-      void b(int var1, int var2, int var3) {
+      void getScrollY(int var1, int var2, int var3) {
          int var4 = 30;
          var1 += 5;
          CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.GUI_TEXTURE);
-         CustomModelList.this.parentScreen.drawTexturedModalRect(var4, var1, 40, this.b(var2, var3, var4, var1, 50, var1 + 20) ? 40 : 20, 20, 20);
+         CustomModelList.this.parentScreen.drawTexturedModalRect(var4, var1, 40, this.isInBounds(var2, var3, var4, var1, 50, var1 + 20) ? 40 : 20, 20, 20);
          var4 += 40;
-         CustomModelList.this.parentScreen.drawTexturedModalRect(var4, var1, this.isSelected ? 60 : 80, this.isSelected && this.b(var2, var3, var4, var1, var4 + 20, var1 + 20) ? 40 : 20, 20, 20);
+         CustomModelList.this.parentScreen.drawTexturedModalRect(var4, var1, this.isSelected ? 60 : 80, this.isSelected && this.isInBounds(var2, var3, var4, var1, var4 + 20, var1 + 20) ? 40 : 20, 20, 20);
       }
 
-      void a(int var1, int var2, int var3) {
+      void drawEntry(int var1, int var2, int var3) {
          CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.GUI_TEXTURE);
          CustomModelList.this.parentScreen.drawTexturedModalRect(5, var1, 0, 60, this.selectedIndex == 0 ? 119 : 256, 30);
          int var4 = 15;
          var1 += 5;
-         CustomModelList.this.parentScreen.a(var4, var1, this.boneType.iconXPos);
+         CustomModelList.this.parentScreen.drawPartIcon(var4, var1, this.boneType.iconXPos);
          var4 += 25;
-         var4 = this.c(var4, var1, var2, var3);
+         var4 = this.getEntryWidth(var4, var1, var2, var3);
          BaseGirlEntity var5 = CustomModelList.this.parentScreen.getPreviewGirl();
          SexSceneEntity var6;
          if (this.selectedIndex == 0) {
@@ -257,7 +257,7 @@ public class CustomModelList extends GuiListExtended {
          if (var7 != null) {
             float var8 = !var6.isItemModel ? var7.getScale() : 1.0F;
             int var27 = (int)(-var7.getXOffset());
-            CustomModelList.this.parentScreen.a(var4, var1 + 10 + (var6.isItemModel ? 0 : 6) + var27, 30.0F * var8, var6);
+            CustomModelList.this.parentScreen.drawPart(var4, var1 + 10 + (var6.isItemModel ? 0 : 6) + var27, 30.0F * var8, var6);
             if (this.selectedIndex != 0) {
                CustomModelList.this.parentScreen.drawPreviewModel(var6);
             }
@@ -268,21 +268,21 @@ public class CustomModelList extends GuiListExtended {
                int var28 = var4;
                String var29 = this.modelNames.get(this.selectedIndex);
                String var30 = var29.length() > 10 ? var29.substring(0, 7) + "..." : var29;
-               this.a(var30, var4, var1 + 10);
+               this.drawEntryLabel(var30, var4, var1 + 10);
                var4 += this.fontRenderer.getStringWidth("MMMMMMMMMM");
                int var31 = var4;
                int var32 = var4;
                String var33 = ServerWhitelistManager.getModelCode(var29);
                String var34 = var33.length() > 10 ? var33.substring(0, 7) + "..." : var33;
-               this.a(var34, var4, var1 + 10);
+               this.drawEntryLabel(var34, var4, var1 + 10);
                var4 += this.fontRenderer.getStringWidth("MMMMMMMMMM");
                int var35 = var4;
-               if (this.b(var2, var3, var28, var1 + 10, var31, var1 + 10 + this.fontRenderer.FONT_HEIGHT)) {
-                  CustomModelList.this.parentScreen.a(var29, var2, var3);
+               if (this.isInBounds(var2, var3, var28, var1 + 10, var31, var1 + 10 + this.fontRenderer.FONT_HEIGHT)) {
+                  CustomModelList.this.parentScreen.drawHoverText(var29, var2, var3);
                }
 
-               if (this.b(var2, var3, var32, var1 + 10, var35, var1 + 10 + this.fontRenderer.FONT_HEIGHT)) {
-                  CustomModelList.this.parentScreen.a(var33, var2, var3);
+               if (this.isInBounds(var2, var3, var32, var1 + 10, var35, var1 + 10 + this.fontRenderer.FONT_HEIGHT)) {
+                  CustomModelList.this.parentScreen.drawHoverText(var33, var2, var3);
                }
 
                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -293,7 +293,7 @@ public class CustomModelList extends GuiListExtended {
             }
 
             byte var9 = 0;
-            CustomModelList.this.parentScreen.a(var4, var1 + 10 + (var6.isItemModel ? 0 : 6) + var9, 30.0F, var6);
+            CustomModelList.this.parentScreen.drawPart(var4, var1 + 10 + (var6.isItemModel ? 0 : 6) + var9, 30.0F, var6);
             if (this.selectedIndex != 0) {
                CustomModelList.this.parentScreen.drawPreviewModel(var6);
             }
@@ -304,21 +304,21 @@ public class CustomModelList extends GuiListExtended {
                int var10 = var4;
                String var11 = this.modelNames.get(this.selectedIndex);
                String var12 = var11.length() > 10 ? var11.substring(0, 7) + "..." : var11;
-               this.a(var12, var4, var1 + 10);
+               this.drawEntryLabel(var12, var4, var1 + 10);
                var4 += this.fontRenderer.getStringWidth("MMMMMMMMMM");
                int var13 = var4;
                int var14 = var4;
                String var15 = ServerWhitelistManager.getModelCode(var11);
                String var16 = var15.length() > 10 ? var15.substring(0, 7) + "..." : var15;
-               this.a(var16, var4, var1 + 10);
+               this.drawEntryLabel(var16, var4, var1 + 10);
                var4 += this.fontRenderer.getStringWidth("MMMMMMMMMM");
                int var17 = var4;
-               if (this.b(var2, var3, var10, var1 + 10, var13, var1 + 10 + this.fontRenderer.FONT_HEIGHT)) {
-                  CustomModelList.this.parentScreen.a(var11, var2, var3);
+               if (this.isInBounds(var2, var3, var10, var1 + 10, var13, var1 + 10 + this.fontRenderer.FONT_HEIGHT)) {
+                  CustomModelList.this.parentScreen.drawHoverText(var11, var2, var3);
                }
 
-               if (this.b(var2, var3, var14, var1 + 10, var17, var1 + 10 + this.fontRenderer.FONT_HEIGHT)) {
-                  CustomModelList.this.parentScreen.a(var15, var2, var3);
+               if (this.isInBounds(var2, var3, var14, var1 + 10, var17, var1 + 10 + this.fontRenderer.FONT_HEIGHT)) {
+                  CustomModelList.this.parentScreen.drawHoverText(var15, var2, var3);
                }
 
                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -327,21 +327,21 @@ public class CustomModelList extends GuiListExtended {
          }
       }
 
-      int c(int var1, int var2, int var3, int var4) {
-         CustomModelList.this.parentScreen.a(var1, var2, 0, 20 * (this.b(var3, var4, var1, var2, var1 + 20, var2 + 20) ? 2 : 1));
+      int getEntryWidth(int var1, int var2, int var3, int var4) {
+         CustomModelList.this.parentScreen.drawPartBackground(var1, var2, 0, 20 * (this.isInBounds(var3, var4, var1, var2, var1 + 20, var2 + 20) ? 2 : 1));
          var1 += 20;
-         CustomModelList.this.parentScreen.a(var1, var2, 20, 20 * (this.b(var3, var4, var1, var2, var1 + 20, var2 + 20) ? 2 : 1));
+         CustomModelList.this.parentScreen.drawPartBackground(var1, var2, 20, 20 * (this.isInBounds(var3, var4, var1, var2, var1 + 20, var2 + 20) ? 2 : 1));
          return var1 + 40;
       }
 
-      void a(int var1, int var2, int var3, int var4, int var5) {
+      void onEntryClick(int var1, int var2, int var3, int var4, int var5) {
          CustomModelList.this.parentScreen.drawTexturedModalRect(var1, var2, 140, 20, 79, 20);
          var1 += 4;
          int var6 = var1;
          int var7 = var1 + 71 - 4;
          float var8 = this.getPartScale(var2, var6, var7, var3, var4, var5);
          int var9 = (int)RotationHelper.lerp(var6, var7, var8);
-         CustomModelList.this.parentScreen.drawTexturedModalRect(var9, var2, this.b(var3, var4, var9, var2, var9 + 4, var2 + 20) ? 223 : 219, 20, 4, 20);
+         CustomModelList.this.parentScreen.drawTexturedModalRect(var9, var2, this.isInBounds(var3, var4, var9, var2, var9 + 4, var2 + 20) ? 223 : 219, 20, 4, 20);
          CustomModelList.this.parentScreen.previewGirl.setCustomPartValue(var5, (int)(var8 * 100.0F));
       }
 
@@ -376,42 +376,42 @@ public class CustomModelList extends GuiListExtended {
          return ((Integer)((Entry)var2.getValue()).getValue()).intValue() / 100.0F;
       }
 
-      void b(int var1, int var2, int var3, int var4) {
+      void isEntrySelected(int var1, int var2, int var3, int var4) {
          if (CustomModelList.this.parentScreen.previewGirl.h(var4)) {
             CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.GUI_TEXTURE);
             CustomModelList.this.parentScreen.drawTexturedModalRect(5, var1, 0, 60, 119, 30);
             int var10 = 15;
             var1 += 5;
-            CustomModelList.this.parentScreen.a(var10, var1, CustomModelList.this.parentScreen.previewGirl.getModelPartByIndex(var4));
+            CustomModelList.this.parentScreen.drawPartAt(var10, var1, CustomModelList.this.parentScreen.previewGirl.getModelPartByIndex(var4));
             var10 += 25;
-            this.a(var10, var1, var2, var3, var4);
+            this.onEntryClick(var10, var1, var2, var3, var4);
          } else {
             CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.GUI_TEXTURE);
             CustomModelList.this.parentScreen.drawTexturedModalRect(5, var1, 0, 90, 95, 30);
             int var6 = 15;
             var1 += 5;
-            CustomModelList.this.parentScreen.a(var6, var1, CustomModelList.this.parentScreen.previewGirl.getModelPartByIndex(var4));
+            CustomModelList.this.parentScreen.drawPartAt(var6, var1, CustomModelList.this.parentScreen.previewGirl.getModelPartByIndex(var4));
             var6 += 25;
-            this.c(var6, var1, var2, var3);
+            this.getEntryWidth(var6, var1, var2, var3);
          }
       }
 
       public void drawEntry(int var1, int var2, int var3, int var4, int var5, int var6, int var7, boolean var8, float var9) {
          if (this.isVisible) {
-            this.b(var3, var6, var7);
+            this.getScrollY(var3, var6, var7);
          } else if (this.boneType == BoneType.GIRL_SPECIFIC) {
-            this.b(var3, var6, var7, var1);
+            this.isEntrySelected(var3, var6, var7, var1);
          } else {
-            this.a(var3, var6, var7);
+            this.drawEntry(var3, var6, var7);
          }
       }
 
-      void a(String var1, int var2, int var3) {
+      void drawEntryLabel(String var1, int var2, int var3) {
          this.fontRenderer.drawString(var1, var2, var3, 3809871);
          GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
       }
 
-      void b(int var1, int var2) {
+      void handleScrollClick(int var1, int var2) {
          int var3 = 30;
          if (var1 > var3 && var1 < 50) {
             CustomModelList.this.needsRefresh = true;
@@ -433,28 +433,28 @@ public class CustomModelList extends GuiListExtended {
 
       void handleSlotClick(int var1, int var2) {
          if (var1 > 40 && var1 < 60) {
-            CustomModelList.this.parentScreen.a(this.boneType, false, var2);
+            CustomModelList.this.parentScreen.onBoneTypeToggle(this.boneType, false, var2);
          }
 
          if (var1 > 60 && var1 < 80) {
-            CustomModelList.this.parentScreen.a(this.boneType, true, var2);
+            CustomModelList.this.parentScreen.onBoneTypeToggle(this.boneType, true, var2);
          }
       }
 
-      void c(int var1, int var2) {
+      void isGirlSpecific(int var1, int var2) {
          if (!CustomModelList.this.parentScreen.previewGirl.h(var2)) {
             this.handleSlotClick(var1, var2);
          }
       }
 
-      public void a(int var1, int var2, int var3, int var4) {
+      public void drawBackground(int var1, int var2, int var3, int var4) {
          if (var3 == 0) {
             if (var2 >= 5) {
                if (var2 <= 25) {
                   if (this.isVisible) {
-                     this.b(var1, var2);
+                     this.handleScrollClick(var1, var2);
                   } else if (this.boneType == BoneType.GIRL_SPECIFIC) {
-                     this.c(var1, var4);
+                     this.isGirlSpecific(var1, var4);
                   } else {
                      this.handleSlotClick(var1, var4);
                   }

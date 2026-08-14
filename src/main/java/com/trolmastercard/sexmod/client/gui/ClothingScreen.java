@@ -209,15 +209,15 @@ public class ClothingScreen extends GuiScreen {
       int var5 = this.guiY - 20;
       this.drawTexturedModalRect(var4, var5, 100, this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20) ? 40 : 20, 20, 20);
       if (ServerWhitelistManager.getCustomModelsKey() == null) {
-         this.b(var4, var1, var2);
+         this.drawBackground(var4, var1, var2);
       }
 
-      this.a(this.guiX, this.guiY, this.modelRotation, this.previewGirl, 1.2345679F);
+      this.drawPartRotated(this.guiX, this.guiY, this.modelRotation, this.previewGirl, 1.2345679F);
       this.previewGirl.onUpdate();
       this.modelList.drawScreen(var1, var2, var3);
    }
 
-   void b(int var1, int var2, int var3) {
+   void drawBackground(int var1, int var2, int var3) {
       int var4 = this.guiY - 40;
       this.drawTexturedModalRect(var1, var4, 120, this.isMouseOverPart(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 40 : 20, 20, 20);
       var4 -= 20;
@@ -252,7 +252,7 @@ public class ClothingScreen extends GuiScreen {
       this.mc.player.closeScreen();
    }
 
-   public void a(BoneType var1, boolean var2, int var3) {
+   public void onBoneTypeToggle(BoneType var1, boolean var2, int var3) {
       this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
       ArrayList var4 = new ArrayList();
       ArrayList var5 = new ArrayList();
@@ -311,15 +311,15 @@ public class ClothingScreen extends GuiScreen {
       }
    }
 
-   public void a(int var1, int var2, float var3, SexSceneEntity var4) {
-      this.a(var1, var2, var3, var4, 1.876945F);
+   public void drawPart(int var1, int var2, float var3, SexSceneEntity var4) {
+      this.drawPartRotated(var1, var2, var3, var4, 1.876945F);
    }
 
    public void drawPreviewModel(SexSceneEntity var1) {
-      this.a(this.guiX, this.guiY, this.modelRotation, var1, 2.876945F, var1.isItemModel ? 1 : 0);
+      this.drawPartRotatedScaled(this.guiX, this.guiY, this.modelRotation, var1, 2.876945F, var1.isItemModel ? 1 : 0);
    }
 
-   public void a(String var1, int var2, int var3) {
+   public void drawHoverText(String var1, int var2, int var3) {
       this.drawHoveringText(var1, var2, var3);
    }
 
@@ -411,24 +411,24 @@ public class ClothingScreen extends GuiScreen {
       return this.previewGirl;
    }
 
-   public void a(int var1, int var2, int var3, int var4) {
+   public void drawPartBackground(int var1, int var2, int var3, int var4) {
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
       this.drawTexturedModalRect(var1, var2, var3, var4, 20, 20);
    }
 
-   public void a(int var1, int var2, int var3) {
-      this.a(var1, var2, var3, 0);
+   public void drawPartIcon(int var1, int var2, int var3) {
+      this.drawPartBackground(var1, var2, var3, 0);
    }
 
-   public void a(int var1, int var2, Point2D var3) {
-      this.a(var1, var2, var3.x, var3.y);
+   public void drawPartAt(int var1, int var2, Point2D var3) {
+      this.drawPartBackground(var1, var2, var3.x, var3.y);
    }
 
-   void a(int var1, int var2, float var3, EntityLivingBase var4, float var5) {
-      this.a(var1, var2, var3, var4, var5, 0);
+   void drawPartRotated(int var1, int var2, float var3, EntityLivingBase var4, float var5) {
+      this.drawPartRotatedScaled(var1, var2, var3, var4, var5, 0);
    }
 
-   void a(int var1, int var2, float var3, EntityLivingBase var4, float var5, int var6) {
+   void drawPartRotatedScaled(int var1, int var2, float var3, EntityLivingBase var4, float var5, int var6) {
       float var7 = var4.renderYawOffset;
       float var8 = var4.rotationYaw;
       float var9 = var4.rotationPitch;

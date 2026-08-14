@@ -160,7 +160,7 @@ public class KoboldManager {
       a.remove(var0);
    }
 
-   public static void removeTribeMember(UUID var0, KoboldEntity var1) {
+   public static void setLeaderKobold(UUID var0, KoboldEntity var1) {
       KoboldManager.a var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -210,7 +210,7 @@ public class KoboldManager {
          }
 
          for (KoboldTask var4 : var2.tasks) {
-            var4.c(var1);
+            var4.addWorker(var1);
          }
 
          if (!var2.members.isEmpty()) {
@@ -250,7 +250,7 @@ public class KoboldManager {
       }
    }
 
-   public static boolean e(UUID var0, KoboldEntity var1) {
+   public static boolean isTribeMember(UUID var0, KoboldEntity var1) {
       KoboldManager.a var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -336,14 +336,14 @@ public class KoboldManager {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return new HashSet<>();
       } else if (var1 != null) {
-         var2.b(var1);
+         var2.removeTask(var1);
          return var1.miningTargets;
       } else {
          return new HashSet<>();
       }
    }
 
-   public static HashSet<BlockPos> c(UUID var0, BlockPos var1) {
+   public static HashSet<BlockPos> removeMiningTargetsFor(UUID var0, BlockPos var1) {
       KoboldManager.a var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -371,7 +371,7 @@ public class KoboldManager {
       }
    }
 
-   public static void setLeaderKobold(UUID var0, KoboldEntity var1) {
+   public static void removeTaskForKobold(UUID var0, KoboldEntity var1) {
       KoboldManager.a var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -387,7 +387,7 @@ public class KoboldManager {
          if (var3 == null) {
             System.out.println("task of worker " + var1.getGirlId() + " not found uwu");
          } else {
-            var2.b(var3);
+            var2.removeTask(var3);
          }
       }
    }
@@ -418,7 +418,7 @@ public class KoboldManager {
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
-         var2.a(var1);
+         var2.setState(var1);
       }
    }
 
@@ -486,7 +486,7 @@ public class KoboldManager {
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
-         var2.b(var1);
+         var2.removeCombatant(var1);
       }
    }
 
@@ -615,12 +615,12 @@ public class KoboldManager {
       return var3;
    }
 
-   public static void a(UUID var0, UUID var1, BlockPos var2) {
+   public static void setTribeHomeForMember(UUID var0, UUID var1, BlockPos var2) {
       KoboldManager.a var3 = c.get(var0);
       if (var3 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
-         var3.a(var1, var2);
+         KoboldManager.setTribeHome(var1, var2);
       }
    }
 
@@ -660,7 +660,7 @@ public class KoboldManager {
          return this.masterPlayerUUID;
       }
 
-      public void b(KoboldTask var1) {
+      public void removeTask(KoboldTask var1) {
          if (this.tasks.contains(var1)) {
             for (KoboldEntity var3 : var1.workers) {
                var3.setCurrentAction(Action.NULL);
@@ -683,7 +683,7 @@ public class KoboldManager {
          return this.k;
       }
 
-      public void a(UUID var1, BlockPos var2) {
+      public void setTribeHomePos(UUID var1, BlockPos var2) {
          this.k.put(var1, var2);
       }
 
@@ -691,7 +691,7 @@ public class KoboldManager {
          this.k.remove(var1);
       }
 
-      public void b(EntityLivingBase var1) {
+      public void removeCombatant(EntityLivingBase var1) {
          this.combatants.remove(var1);
       }
 
@@ -733,7 +733,7 @@ public class KoboldManager {
          return this.state;
       }
 
-      public void a(TribeState var1) {
+      public void setState(TribeState var1) {
          this.state = var1;
       }
 
@@ -789,14 +789,14 @@ public class KoboldManager {
       }
 
       @SubscribeEvent
-      public void a(Save var1) {
+      public void onWorldSave(Save var1) {
          World var2 = var1.getWorld();
          var2.getMapStorage().setData("tribes", this);
          this.markDirty();
       }
 
       @SubscribeEvent
-      public void a(Load var1) {
+      public void onWorldLoad(Load var1) {
          World var2 = var1.getWorld();
          var2.getMapStorage().getOrLoadData(KoboldManager.b.class, "tribes");
       }
@@ -809,7 +809,7 @@ public class KoboldManager {
       }
 
       @SubscribeEvent
-      public void a(PlaceEvent var1) {
+      public void onBlockPlace(PlaceEvent var1) {
          BlockPos var2 = var1.getPos();
          IBlockState var3 = var1.getState();
          World var4 = var1.getWorld();
@@ -921,7 +921,7 @@ public class KoboldManager {
          }
       }
 
-      String a(String var1, NBTTagCompound var2) {
+      String readNBTValue(String var1, NBTTagCompound var2) {
          String var3 = var2.getString(var1);
          var2.setString(var1, "");
          return var3;
@@ -932,15 +932,15 @@ public class KoboldManager {
 
          label73:
          while (true) {
-            String var3 = this.a("tribeId" + var2, var1);
+            String var3 = this.readNBTValue("tribeId" + var2, var1);
             if ("".equals(var3)) {
                return;
             }
 
             UUID var4 = UUID.fromString(var3);
-            EyeAndKoboldColor var5 = EyeAndKoboldColor.valueOf(this.a("tribeColor" + var2, var1));
+            EyeAndKoboldColor var5 = EyeAndKoboldColor.valueOf(this.readNBTValue("tribeColor" + var2, var1));
             KoboldManager.setTribeColor(var4, var5);
-            String var6 = this.a("tribeMaster" + var2, var1);
+            String var6 = this.readNBTValue("tribeMaster" + var2, var1);
             if (!"".equals(var6)) {
                KoboldManager.assignMaster(var4, UUID.fromString(var6));
             }
@@ -948,12 +948,12 @@ public class KoboldManager {
             int var7 = 0;
 
             while (true) {
-               String var8 = this.a(var4.toString() + "member" + var7 + "pos", var1);
+               String var8 = this.readNBTValue(var4.toString() + "member" + var7 + "pos", var1);
                if ("".equals(var8)) {
                   break;
                }
 
-               String var9 = this.a(var4.toString() + "member" + var7 + "id", var1);
+               String var9 = this.readNBTValue(var4.toString() + "member" + var7 + "id", var1);
                if ("".equals(var9)) {
                   break;
                }
@@ -961,43 +961,43 @@ public class KoboldManager {
                String[] var10 = var8.split("\\|");
                BlockPos var11 = new BlockPos(Integer.parseInt(var10[0]), Integer.parseInt(var10[1]), Integer.parseInt(var10[2]));
                UUID var12 = UUID.fromString(var9);
-               KoboldManager.a(var4, var12, var11);
+               KoboldManager.setTribeHomeForMember(var4, var12, var11);
                var7++;
             }
 
             int var22 = 0;
 
             while (true) {
-               String var23 = this.a(var4.toString() + "bed" + var22, var1);
+               String var23 = this.readNBTValue(var4.toString() + "bed" + var22, var1);
                if ("".equals(var23)) {
                   int var24 = 0;
 
                   while (true) {
-                     String var26 = this.a(var4.toString() + "chest" + var24, var1);
+                     String var26 = this.readNBTValue(var4.toString() + "chest" + var24, var1);
                      if ("".equals(var26)) {
                         int var27 = 0;
 
                         while (true) {
-                           String var30 = this.a(var4.toString() + var27 + "taskKind", var1);
+                           String var30 = this.readNBTValue(var4.toString() + var27 + "taskKind", var1);
                            if ("".equals(var30)) {
                               var2++;
                               continue label73;
                            }
 
-                           String var32 = this.a(var4.toString() + var27 + "facing", var1);
+                           String var32 = this.readNBTValue(var4.toString() + var27 + "facing", var1);
                            EnumFacing var13 = EnumFacing.NORTH;
                            if (!"".equals(var32)) {
                               var13 = EnumFacing.byName(var32);
                            }
 
-                           String var14 = this.a(var4.toString() + var27 + "pos", var1);
+                           String var14 = this.readNBTValue(var4.toString() + var27 + "pos", var1);
                            String[] var15 = var14.split("\\|");
                            BlockPos var16 = new BlockPos(Integer.parseInt(var15[0]), Integer.parseInt(var15[1]), Integer.parseInt(var15[2]));
                            HashSet var17 = new HashSet();
                            int var18 = 0;
 
                            while (true) {
-                              String var19 = this.a(var4.toString() + var27 + "block" + var18, var1);
+                              String var19 = this.readNBTValue(var4.toString() + var27 + "block" + var18, var1);
                               if ("".equals(var19)) {
                                  KoboldManager.addTask(var4, new KoboldTask(var16, KoboldTask.TaskType.valueOf(var30), var17, var13));
                                  var27++;

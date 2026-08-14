@@ -5,11 +5,11 @@ import java.util.HashSet;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 
 public interface IGirlRenderer {
-   default HashSet<String> a() {
+   default HashSet<String> getBlacklistedBones() {
       return BodyParts.CUSTOM_PART_BONES;
    }
 
-   default boolean a(HashSet<String> var1, GeoBone var2) {
+   default boolean hasParentBone(HashSet<String> var1, GeoBone var2) {
       while (var2.parent != null) {
          String var3 = var2.getName();
          if (var1.contains(var3)) {

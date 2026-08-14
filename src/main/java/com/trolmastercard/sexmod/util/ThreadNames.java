@@ -8,7 +8,7 @@ import java.util.UUID;
 import net.minecraft.util.math.Vec3d;
 
 public class ThreadNames {
-   public static float a(double var0, double var2) {
+   public static float wrapAngle(double var0, double var2) {
       var0 = (var0 + (Math.PI * 2)) % (Math.PI * 2);
       var2 = (var2 + (Math.PI * 2)) % (Math.PI * 2);
       double var4 = var2 - var0;
@@ -75,11 +75,11 @@ public class ThreadNames {
       return Reference.RANDOM.nextBoolean() ? 1 : -1;
    }
 
-   public static float b(float var0, float var1, float var2) {
+   public static float clampFloat(float var0, float var1, float var2) {
       return Math.max(var1, Math.min(var2, var0));
    }
 
-   public static double b(double var0, double var2, double var4) {
+   public static double clampDouble(double var0, double var2, double var4) {
       return Math.max(var2, Math.min(var4, var0));
    }
 
@@ -102,7 +102,7 @@ public class ThreadNames {
       return Math.round((float)var0);
    }
 
-   public static void a(int var0, Runnable var1) {
+   public static void createDaemonThread(int var0, Runnable var1) {
       String var2 = UUID.randomUUID().toString();
       new Thread(() -> {
          try {

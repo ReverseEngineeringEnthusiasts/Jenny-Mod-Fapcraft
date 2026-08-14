@@ -167,21 +167,21 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       if ("anal".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.KOBOLD_ANAL_START);
-         this.a(this.getOutfitIndex(), Action.KOBOLD_ANAL_START);
+         this.sendActionPacket(this.getOutfitIndex(), Action.KOBOLD_ANAL_START);
          this.setOutfitIndex(0);
       }
 
       if ("oral".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.STARTBLOWJOB);
-         this.a(this.getOutfitIndex(), Action.STARTBLOWJOB);
+         this.sendActionPacket(this.getOutfitIndex(), Action.STARTBLOWJOB);
          this.setOutfitIndex(0);
       }
 
       if ("mating".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.MATING_PRESS_START);
-         this.a(this.getOutfitIndex(), Action.MATING_PRESS_START);
+         this.sendActionPacket(this.getOutfitIndex(), Action.MATING_PRESS_START);
          this.setOutfitIndex(0);
       }
    }
@@ -393,7 +393,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    void b(SoundEvent var1, float var2) {
       float var3 = 0.25F - (Float)this.entityDataManager.get(aA);
       double var4 = var3 / 0.25F;
-      float var6 = (float)RotationHelper.b(0.9F, 1.1F, var4);
+      float var6 = (float)RotationHelper.lerpDouble(0.9F, 1.1F, var4);
       this.playSoundAtPosition(var1, var2, var6);
    }
 

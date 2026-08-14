@@ -76,7 +76,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       if ("action.names.headpat".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.HEAD_PAT);
-         this.a(this.getOutfitIndex(), Action.HEAD_PAT);
+         this.sendActionPacket(this.getOutfitIndex(), Action.HEAD_PAT);
       }
    }
 
@@ -178,7 +178,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                      if (var1 == Action.ANAL_WAIT) {
                         if (!this.world.isRemote) {
                            this.setCurrentAction(Action.ANAL_START);
-                           Vec3d var8 = this.getTargetPosition().add(VectorMath.a(-0.3, -1.0, -0.5, this.getYawRotation()));
+                           Vec3d var8 = this.getTargetPosition().add(VectorMath.rotateByYaw(-0.3, -1.0, -0.5, this.getYawRotation()));
                            var2.setPositionAndUpdate(var8.x, var8.y, var8.z);
                         } else if (this.isControlledByLocalPlayer()) {
                            HornyMeterHud.showHornyMeter();
@@ -191,14 +191,14 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                            this.setOutfitIndex(0);
                            this.setCurrentAction(Action.PRONE_DOGGY_INTRO);
                            Vec3d var4 = this.getTargetPosition();
-                           Vec3d var5 = var4.add(VectorMath.a(0.0, 0.0, 1.0, var3));
+                           Vec3d var5 = var4.add(VectorMath.rotateByYaw(0.0, 0.0, 1.0, var3));
                            this.setTargetPosition(var5);
                            EntityPlayer var6 = this.getOwnerPlayer();
                            if (var6 != null) {
                               var6.setPositionAndUpdate(var5.x, var5.y, var5.z);
                            }
 
-                           Vec3d var7 = var4.add(VectorMath.a(0.0, 1.1875 - var2.getEyeHeight(), 0.5, var3));
+                           Vec3d var7 = var4.add(VectorMath.rotateByYaw(0.0, 1.1875 - var2.getEyeHeight(), 0.5, var3));
                            var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
                            this.setAnchored(true);
                         }

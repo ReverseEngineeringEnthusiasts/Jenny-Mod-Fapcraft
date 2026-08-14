@@ -38,7 +38,7 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   protected void a(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
+   protected void handleAnimationEvent(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
       if (!(var1.world instanceof SexWorldClient) && (var1.getCurrentAction() == Action.NULL || var1.getCurrentAction() == Action.ATTACK || var1.getCurrentAction() == Action.BOW)) {
          EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
          IBone var5 = var2.getBone("neck");

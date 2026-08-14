@@ -98,7 +98,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
          return var5;
       } else if (var4.getLong("sexmod:galath_coin_activation_time") != 0L) {
          return var5;
-      } else if (!this.a(var1, var2)) {
+      } else if (!this.canSummon(var1, var2)) {
          var1.playSound(var2.posX, var2.posY, var2.posZ, SoundHandler.MISC_BEEW[0], SoundCategory.PLAYERS, 1.0F, 1.0F, false);
          return new ActionResult(EnumActionResult.SUCCESS, var2.getHeldItem(var3));
       } else {
@@ -108,7 +108,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
       }
    }
 
-   boolean a(World var1, EntityPlayer var2) {
+   boolean canSummon(World var1, EntityPlayer var2) {
       return !var1.isRemote ? !GirlSavedData.hasOwner(var2.getPersistentID()) : !GirlSavedData.debugEnabled;
    }
 
@@ -148,14 +148,14 @@ public class GalathCoinItem extends Item implements IAnimatable {
          }
 
          if (var2.isRemote) {
-            this.a(var6, var12, var8);
-            this.b(var6, var12, var10);
+            this.isSummonWindow(var6, var12, var8);
+            this.isCooldownElapsed(var6, var12, var10);
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
-   void b(EntityPlayer var1, long var2, long var4) {
+   void isCooldownElapsed(EntityPlayer var1, long var2, long var4) {
       if (var4 != 0L) {
          if (var2 > var4 + 1000L && var2 < var4 + 3000L) {
             GalathEntity var6 = null;
@@ -174,10 +174,10 @@ public class GalathCoinItem extends Item implements IAnimatable {
                Vec3d var13 = var6.getTargetPosition().add(0.0, 1.5, 0.0);
                Vec3d var14 = var1.getPositionVector().add(0.0, var1.getEyeHeight(), 0.0);
                Vec3d var9 = var14.add(
-                  VectorMath.a((var1.getHeldItemMainhand().getItem().equals(GALATH_COIN) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
+                  VectorMath.rotateByYaw((var1.getHeldItemMainhand().getItem().equals(GALATH_COIN) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
                );
                float var10 = (float)(var2 - var4 - 1000L) / 2000.0F;
-               Vec3d var11 = RotationHelper.a(var13, var9, var10);
+               Vec3d var11 = RotationHelper.lerpVec3dDouble(var13, var9, var10);
                DragonBreathParticle.BREATH_SCALE = 0.2F;
                Minecraft.getMinecraft().effectRenderer.addEffect(new DragonBreathParticle(var1.world, var11.x, var11.y, var11.z));
             }
@@ -193,22 +193,22 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    @SideOnly(Side.CLIENT)
-   void a(EntityPlayer var1, long var2, long var4) {
+   void isSummonWindow(EntityPlayer var1, long var2, long var4) {
       if (var2 > var4 + 1000L && var2 < var4 + 3000L) {
          Vec3d var6 = var1.getPositionVector().add(0.0, var1.getEyeHeight(), 0.0);
          Vec3d var7 = var6.add(
-            VectorMath.a((var1.getHeldItemMainhand().getItem().equals(GALATH_COIN) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
+            VectorMath.rotateByYaw((var1.getHeldItemMainhand().getItem().equals(GALATH_COIN) ? 1 : -1) * 0.1F, -0.01F + var1.rotationPitch * 0.0015F, 0.0, var1.renderYawOffset)
          );
          Vec3d var8 = var6.add(var1.getLookVec().normalize().scale(2.0));
          float var9 = (float)(var2 - var4 - 1000L) / 2000.0F;
-         Vec3d var10 = RotationHelper.a(var7, var8, var9);
+         Vec3d var10 = RotationHelper.lerpVec3dDouble(var7, var8, var9);
          DragonBreathParticle.BREATH_SCALE = 0.2F;
          Minecraft.getMinecraft().effectRenderer.addEffect(new DragonBreathParticle(var1.world, var10.x, var10.y, var10.z));
       }
    }
 
    @SubscribeEvent
-   public void a(PlayerChangedDimensionEvent var1) {
+   public void onPlayerChangedDimension(PlayerChangedDimensionEvent var1) {
       EntityPlayer var2 = var1.player;
       if (!var2.world.isRemote) {
          UUID var3 = GirlSavedData.getOwnerOf(var2);
@@ -248,7 +248,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
             } else {
                GalathEntity var11 = new GalathEntity(var1.world, var1, var8);
                var11.setPositionAndUpdate(var8.x, var8.y, var8.z);
-               GirlSavedData.a(var1, var11);
+               GirlSavedData.grantOwnership(var1, var11);
                var1.world.spawnEntity(var11);
                if (GirlSavedData.isManglelieOwned(var1.getPersistentID())) {
                   var11.canStartPussyLicking();
@@ -302,7 +302,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    @SideOnly(Side.CLIENT)
-   public static void a(UUID var0, GalathEntity var1) {
+   public static void summonGalathFor(UUID var0, GalathEntity var1) {
       World var2 = var1.world;
       Vec3d var3 = var1.isAnchored() ? var1.getTargetPosition() : var1.getPositionVector();
       Vec3d var4 = var3.add(0.0, 1.5, 0.0);
@@ -330,7 +330,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
    }
 
    public static void a(EntityPlayer var0, GalathEntity var1) {
-      a(var0.getPersistentID(), var1);
+      summonGalathFor(var0.getPersistentID(), var1);
    }
 
    void a(EntityPlayer var1, NBTTagCompound var2, long var3, long var5) {

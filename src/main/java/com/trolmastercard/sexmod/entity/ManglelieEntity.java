@@ -318,8 +318,8 @@ public class ManglelieEntity extends BaseGirlEntity {
          return super.renderCustomModelTransform(var1, var2, var3, var4);
       }
 
-      ManglelieRenderer.a(var5, var4, var2);
-      return ManglelieRenderer.b(var5, var4);
+      ManglelieRenderer.renderGalathInteract(var5, var4, var2);
+      return ManglelieRenderer.getLookVector(var5, var4);
    }
 
    public float getCorruptProgress(float var1) {
@@ -450,9 +450,9 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    @Override
    public void setCurrentAction(Action action) {
-      if (this.getCurrentAction() != Action.THREESOME_CUM || !Action.a(action, Action.THREESOME_FAST, Action.THREESOME_SLOW)) {
+      if (this.getCurrentAction() != Action.THREESOME_CUM || !Action.isAny(action, Action.THREESOME_FAST, Action.THREESOME_SLOW)) {
          if (!this.world.isRemote && action == Action.THREESOME_CUM) {
-            GirlSavedData.a(this.getInteractionPlayerUUID(), this.world.getTotalWorldTime());
+            GirlSavedData.saveCumTime(this.getInteractionPlayerUUID(), this.world.getTotalWorldTime());
          }
 
          super.setCurrentAction(action);
@@ -460,7 +460,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    void handleThreesomeState() {
-      if (this.isCorrupting() && !Action.a(this, Action.THREESOME_SLOW, Action.THREESOME_CUM, Action.THREESOME_FAST)) {
+      if (this.isCorrupting() && !Action.isAnyAction(this, Action.THREESOME_SLOW, Action.THREESOME_CUM, Action.THREESOME_FAST)) {
          GalathEntity var1 = this.getGalathPartner(true);
          if (var1 != null) {
             if (!var1.isDead && this.getGirlId().equals(var1.aF())) {
@@ -491,7 +491,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
 
       GalathEntity var3 = this.getGalathPartner(false);
-      return var3 == null ? var1 : ManglelieRenderer.b(var3, var2);
+      return var3 == null ? var1 : ManglelieRenderer.getLookVector(var3, var2);
    }
 
    void handleCorruptInit() {
@@ -552,7 +552,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    boolean a(Vec3d var1, GalathEntity var2, float var3) {
-      Vec3d var4 = VectorMath.rotateByYaw(var1, RotationHelper.b(var2.prevRotationYawHead, var2.rotationYawHead, var3));
+      Vec3d var4 = VectorMath.rotateByYaw(var1, RotationHelper.lerpFloat(var2.prevRotationYawHead, var2.rotationYawHead, var3));
       return var4.x > 0.35;
    }
 
@@ -567,7 +567,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    @SideOnly(Side.CLIENT)
    void handleParticleTick() {
       if (Minecraft.getMinecraft().player.ticksExisted % 7.0F == 0.0F) {
-         if (ManglelieRenderer.b(this)) {
+         if (ManglelieRenderer.isCorrupting(this)) {
             GalathEntity var1 = this.getGalathPartner(false);
             if (var1 != null) {
                Entity var2 = this.getCorruptTarget();
@@ -586,7 +586,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                   }
 
                   this.af = Math.abs(WorldUtils.normalizeAngleDiff(0.0F, var6)) < 80.0F ? -TrigMath.wrapDegrees(var6) : 0.0F;
-                  this.rotationLerp = this.af == 0.0F ? 0.0F : (float)ThreadNames.b(-var5.y / 2.0, -0.75, 0.75);
+                  this.rotationLerp = this.af == 0.0F ? 0.0F : (float)ThreadNames.clampDouble(-var5.y / 2.0, -0.75, 0.75);
                }
             }
          }
@@ -675,7 +675,7 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    @Override
    protected Action getCumAction(Action var1) {
-      if (Action.a(var1, Action.THREESOME_FAST, Action.THREESOME_SLOW)) {
+      if (Action.isAny(var1, Action.THREESOME_FAST, Action.THREESOME_SLOW)) {
          this.threesomeSlowStarted = true;
       }
 
@@ -707,7 +707,7 @@ public class ManglelieEntity extends BaseGirlEntity {
          }
       }
 
-      BeeWorldData.a(var1, BeeWorldData.flowerPositions);
+      BeeWorldData.addHivePosition(var1, BeeWorldData.flowerPositions);
       return true;
    }
 

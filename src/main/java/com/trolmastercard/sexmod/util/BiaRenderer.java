@@ -11,7 +11,7 @@ public class BiaRenderer extends GirlRenderer {
    }
 
    @Override
-   public HashSet<String> a() {
+   public HashSet<String> getBlacklistedBones() {
       return new HashSet<String>() {
          {
             this.add("boobs");

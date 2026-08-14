@@ -66,7 +66,7 @@ public class WildSlimeEntity extends EntityLiving {
       return false;
    }
 
-   protected void a(int var1, boolean var2) {
+   protected void setSlimeSize(int var1, boolean var2) {
       this.dataManager.set(SIZE, var1);
       this.setSize(0.51000005F * var1, 0.51000005F * var1);
       this.setPosition(this.posX, this.posY, this.posZ);
@@ -83,7 +83,7 @@ public class WildSlimeEntity extends EntityLiving {
       return (Integer)this.dataManager.get(SIZE);
    }
 
-   public static void a(DataFixer var0) {
+   public static void registerFixes(DataFixer var0) {
       EntityLiving.registerFixesMob(var0, WildSlimeEntity.class);
    }
 
@@ -101,7 +101,7 @@ public class WildSlimeEntity extends EntityLiving {
          var2 = 0;
       }
 
-      this.a(var2 + 1, false);
+      this.setSlimeSize(var2 + 1, false);
       this.wasOnGround = var1.getBoolean("wasOnGround");
       this.dataManager.set(AGE_IN_TICKS, var1.getInteger("ageInTicks"));
    }
@@ -148,7 +148,7 @@ public class WildSlimeEntity extends EntityLiving {
       return new Vec3d(this.prevPosX, this.prevPosY, this.prevPosZ);
    }
 
-   void a(EnumParticleTypes var1) {
+   void spawnParticle(EnumParticleTypes var1) {
       double var2 = Reference.RANDOM.nextGaussian() * 0.02;
       double var4 = Reference.RANDOM.nextGaussian() * 0.02;
       double var6 = Reference.RANDOM.nextGaussian() * 0.02;
@@ -169,9 +169,9 @@ public class WildSlimeEntity extends EntityLiving {
       this.dataManager.set(AGE_IN_TICKS, (Integer)this.dataManager.get(AGE_IN_TICKS) + 1);
       if (this.world.isRemote) {
          if (((Integer)this.dataManager.get(AGE_IN_TICKS)).intValue() > 7980.0) {
-            this.a(EnumParticleTypes.CLOUD);
+            this.spawnParticle(EnumParticleTypes.CLOUD);
          } else if (((Integer)this.dataManager.get(AGE_IN_TICKS)).intValue() > 5880.0 && this.ticksExisted % 10 == 0) {
-            this.a(EnumParticleTypes.VILLAGER_HAPPY);
+            this.spawnParticle(EnumParticleTypes.VILLAGER_HAPPY);
          }
       } else if ((Integer)this.dataManager.get(AGE_IN_TICKS) > 8400) {
          SlimeEntity var1 = new SlimeEntity(this.world);
@@ -255,7 +255,7 @@ public class WildSlimeEntity extends EntityLiving {
                var6.enablePersistence();
             }
 
-            var6.a(var1 / 2, true);
+            var6.setSlimeSize(var1 / 2, true);
             var6.setLocationAndAngles(this.posX + var4, this.posY + 0.5, this.posZ + var5, this.rand.nextFloat() * 360.0F, 0.0F);
             this.world.spawnEntity(var6);
          }
@@ -308,7 +308,7 @@ public class WildSlimeEntity extends EntityLiving {
 
    @Nullable
    public IEntityLivingData onInitialSpawn(DifficultyInstance var1, @Nullable IEntityLivingData var2) {
-      this.a(1, true);
+      this.setSlimeSize(1, true);
       return super.onInitialSpawn(var1, var2);
    }
 

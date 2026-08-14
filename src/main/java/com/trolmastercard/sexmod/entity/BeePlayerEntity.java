@@ -58,7 +58,7 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public void handleOwnerCommand(String var1, UUID var2) {
-      this.a(0, Action.CITIZEN_START);
+      this.sendActionPacket(0, Action.CITIZEN_START);
       this.setOutfitIndex(0);
       this.setCurrentAction(Action.CITIZEN_START);
       this.teleportPlayerToGirl(var2);

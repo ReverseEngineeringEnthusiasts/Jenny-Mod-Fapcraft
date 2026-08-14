@@ -103,7 +103,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       mc = Minecraft.getMinecraft();
    }
 
-   protected ResourceLocation a(GoblinEntity var1) {
+   protected ResourceLocation getGoblinTexture(GoblinEntity var1) {
       UUID var3 = var1.getInteractionPlayerUUID();
       if (var3 == null) {
          var3 = var1.getOwnerUUID();
@@ -144,8 +144,8 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
-   public void a(GeoModel var1, GoblinEntity var2, float var3, float var4, float var5, float var6, float var7) {
-      super.a(var1, var2, var3, var4, var5, var6, var2.ar);
+   public void renderModel(GeoModel var1, GoblinEntity var2, float var3, float var4, float var5, float var6, float var7) {
+      super.renderModel(var1, var2, var3, var4, var5, var6, var2.ar);
    }
 
    public void doRenderShadowAndFire(Entity var1, double var2, double var4, double var6, float var8, float var9) {
@@ -159,7 +159,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
-   public static Vec3d a(World var0, BaseGirlEntity var1, UUID var2, double var3, double var5, double var7) {
+   public static Vec3d getThrowPosition(World var0, BaseGirlEntity var1, UUID var2, double var3, double var5, double var7) {
       if (var0 == null) {
          return new Vec3d(var3, var5, var7);
       }
@@ -185,7 +185,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return var10.subtract(var11);
    }
 
-   public void a(GoblinEntity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderGoblin(GoblinEntity var1, double var2, double var4, double var6, float var8, float var9) {
       this.renderEntity = var1;
       this.isShoulderIdle = -420.69F == var8 && var1.getCurrentAction() == Action.SHOULDER_IDLE;
       this.isBeingPickedUp = -420.69F == var8 && var1.getCurrentAction() == Action.PICK_UP;
@@ -196,7 +196,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       UUID var11 = var1.getOwnerUUID();
       if (var11 != null) {
          if (var1.isLocallyRegistered()) {
-            Vec3d var19 = a(var1.world, var1, var11, var2, var4, var6);
+            Vec3d var19 = getThrowPosition(var1.world, var1, var11, var2, var4, var6);
             var2 = var19.x;
             var4 = var19.y;
             var6 = var19.z;
@@ -214,7 +214,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
             }
          }
 
-         if (a(var1, var10)) {
+         if (isThrowAction(var1, var10)) {
             if (mc.player.getPersistentID().equals(var11)) {
                if (-420.69F != var8) {
                   return;
@@ -244,7 +244,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
                   }
                }
 
-               Vec3d var23 = a(var1, var1.getOwnerUUID(), var9);
+               Vec3d var23 = getThrowAim(var1, var1.getOwnerUUID(), var9);
                var2 = var23.x;
                var4 = var23.y;
                var6 = var23.z;
@@ -287,13 +287,13 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
             }
          }
 
-         super.a(var1, var2, var4, var6, var8, var9);
-         if (a(var1, var10) && mc.gameSettings.thirdPersonView == 0 && mc.player.getPersistentID().equals(var11)) {
+         super.doRenderEntity(var1, var2, var4, var6, var8, var9);
+         if (isThrowAction(var1, var10) && mc.gameSettings.thirdPersonView == 0 && mc.player.getPersistentID().equals(var11)) {
             GlStateManager.popMatrix();
          }
       } else {
          if (var1.isLocallyRegistered()) {
-            Vec3d var12 = a(var1.world, var1, var11, var2, var4, var6);
+            Vec3d var12 = getThrowPosition(var1.world, var1, var11, var2, var4, var6);
             var2 = var12.x;
             var4 = var12.y;
             var6 = var12.z;
@@ -311,7 +311,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
             }
          }
 
-         if (a(var1, var10)) {
+         if (isThrowAction(var1, var10)) {
             if (mc.player.getPersistentID().equals(var11)) {
                if (-420.69F != var8) {
                   return;
@@ -333,7 +333,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
                var1.renderYawOffset = mc.player.rotationYaw;
                var1.prevRenderYawOffset = mc.player.rotationYaw;
-               Vec3d var16 = a(var1, var1.getOwnerUUID(), var9);
+               Vec3d var16 = getThrowAim(var1, var1.getOwnerUUID(), var9);
                var2 = var16.x;
                var4 = var16.y;
                var6 = var16.z;
@@ -359,14 +359,14 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
             }
          }
 
-         super.a(var1, var2, var4, var6, var8, var9);
-         if (a(var1, var10) && mc.gameSettings.thirdPersonView == 0 && mc.player.getPersistentID().equals(var11)) {
+         super.doRenderEntity(var1, var2, var4, var6, var8, var9);
+         if (isThrowAction(var1, var10) && mc.gameSettings.thirdPersonView == 0 && mc.player.getPersistentID().equals(var11)) {
             GlStateManager.popMatrix();
          }
       }
    }
 
-   public static boolean a(BaseGirlEntity var0, Action var1) {
+   public static boolean isThrowAction(BaseGirlEntity var0, Action var1) {
       if (var1 == Action.START_THROWING && !var0.isLocallyRegistered()) {
          return false;
       }
@@ -387,7 +387,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
-   public static Vec3d a(BaseGirlEntity var0, UUID var1, float var2) {
+   public static Vec3d getThrowAim(BaseGirlEntity var0, UUID var1, float var2) {
       if (var1 == null) {
          return Vec3d.ZERO;
       }
@@ -397,8 +397,8 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
          return Vec3d.ZERO;
       }
 
-      Vec3d var4 = RotationHelper.a(new Vec3d(var3.prevPosX, var3.prevPosY, var3.prevPosZ), var3.getPositionVector(), var2);
-      Vec3d var5 = RotationHelper.a(
+      Vec3d var4 = RotationHelper.lerpVec3dDouble(new Vec3d(var3.prevPosX, var3.prevPosY, var3.prevPosZ), var3.getPositionVector(), var2);
+      Vec3d var5 = RotationHelper.lerpVec3dDouble(
          new Vec3d(mc.player.prevPosX, mc.player.prevPosY, mc.player.prevPosZ), mc.player.getPositionVector(), var2
       );
       return var4.subtract(var5);
@@ -407,8 +407,8 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    public static Vector4f getFirstPersonView(EntityPlayer var0, float var1) {
       EntityPlayerSP var2 = mc.player;
       float var3 = RotationHelper.lerp(var0.prevRenderYawOffset, var0.renderYawOffset, var1);
-      Vec3d var4 = RotationHelper.a(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector(), var1);
-      Vec3d var5 = RotationHelper.a(new Vec3d(var2.lastTickPosX, var2.lastTickPosY, var2.lastTickPosZ), var2.getPositionVector(), var1);
+      Vec3d var4 = RotationHelper.lerpVec3dDouble(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector(), var1);
+      Vec3d var5 = RotationHelper.lerpVec3dDouble(new Vec3d(var2.lastTickPosX, var2.lastTickPosY, var2.lastTickPosZ), var2.getPositionVector(), var1);
       Vec3d var6 = var4.subtract(var5);
       return new Vector4f((float)var6.x, (float)var6.y, (float)var6.z, var3);
    }
@@ -452,39 +452,39 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
          if (var4.length >= 8) {
             switch (var2) {
                case "earL":
-                  a(var3, var4[0], var4[1], var4[3]);
+                  applyBoneParts(var3, var4[0], var4[1], var4[3]);
                   break;
                case "earR":
-                  a(var3, var4[0], var4[2], var4[4]);
+                  applyBoneParts(var3, var4[0], var4[2], var4[4]);
                   break;
                case "hair":
-                  a(var3, var4[5]);
+                  applyBonePart(var3, var4[5]);
                   break;
                case "body":
                   var3.setPivotY(-0.15F);
-                  a(this.renderEntity, var3);
+                  applyBoneState(this.renderEntity, var3);
                   break;
                case "LegR":
-                  a(this.isShoulderIdle, var3, 25.0F, 25.0F);
+                  applyBoneRot(this.isShoulderIdle, var3, 25.0F, 25.0F);
                   break;
                case "boobR":
-                  a(this.isShoulderIdle, var3, 30.0F, 30.0F);
+                  applyBoneRot(this.isShoulderIdle, var3, 30.0F, 30.0F);
                   break;
                case "boobR1":
-                  a(this.isShoulderIdle, var3, 10.0F, 15.0F);
+                  applyBoneRot(this.isShoulderIdle, var3, 10.0F, 15.0F);
                   break;
                case "boobR2":
-                  a(this.isShoulderIdle, var3, 5.0F, 3.0F);
+                  applyBoneRot(this.isShoulderIdle, var3, 5.0F, 3.0F);
             }
 
             if (var2.contains("crown")) {
-               a(this.renderEntity, var3, var4[9]);
+               applyBoneColor(this.renderEntity, var3, var4[9]);
             }
          }
       }
    }
 
-   public static void a(BaseGirlEntity var0, GeoBone var1, String var2) {
+   public static void applyBoneColor(BaseGirlEntity var0, GeoBone var1, String var2) {
       if (var0.isLocallyRegistered()) {
          var1.setHidden(true);
       } else if (var0 instanceof GoblinEntity) {
@@ -495,16 +495,16 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
-   public static void a(boolean var0, GeoBone var1, float var2, float var3) {
+   public static void applyBoneRot(boolean var0, GeoBone var1, float var2, float var3) {
       if (!mc.isGamePaused()) {
          if (var0) {
-            var1.setRotationX(var1.getRotationX() + TrigMath.wrapDegrees(ThreadNames.b(forwardRotation, -var2, var2)));
-            var1.setRotationZ(var1.getRotationZ() + TrigMath.wrapDegrees(ThreadNames.b(strafeRotation, -var3, var3)));
+            var1.setRotationX(var1.getRotationX() + TrigMath.wrapDegrees(ThreadNames.clampFloat(forwardRotation, -var2, var2)));
+            var1.setRotationZ(var1.getRotationZ() + TrigMath.wrapDegrees(ThreadNames.clampFloat(strafeRotation, -var3, var3)));
          }
       }
    }
 
-   public static void a(BaseGirlEntity var0, GeoBone var1) {
+   public static void applyBoneState(BaseGirlEntity var0, GeoBone var1) {
       if (currentActionValue == -420.69F && var0.getCurrentAction() == Action.SHOULDER_IDLE) {
          float var2 = -mc.getRenderManager().playerViewX;
          var1.setPivotY(8.0F);
@@ -514,7 +514,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
-   public static void a(GeoBone var0, String var1) {
+   public static void applyBonePart(GeoBone var0, String var1) {
       int var2 = Integer.parseInt(var1);
       a(var0, var2);
    }
@@ -533,18 +533,18 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
    static ArrayList<HashSet<Integer>> buildColorIndexGroups(int var0) {
       ArrayList var1 = new ArrayList();
-      a(0, new HashSet<>(), var0, var1);
+      buildColorGroups(0, new HashSet<>(), var0, var1);
       return var1;
    }
 
-   static void a(int var0, HashSet<Integer> var1, int var2, ArrayList<HashSet<Integer>> var3) {
+   static void buildColorGroups(int var0, HashSet<Integer> var1, int var2, ArrayList<HashSet<Integer>> var3) {
       if (var0 > var2) {
          var3.add(var1);
       } else {
          HashSet var4 = new HashSet(var1);
-         a(var0 + 1, var1, var2, var3);
+         buildColorGroups(var0 + 1, var1, var2, var3);
          var4.add(var0);
-         a(var0 + 1, var4, var2, var3);
+         buildColorGroups(var0 + 1, var4, var2, var3);
       }
    }
 
@@ -567,7 +567,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return var2;
    }
 
-   public static void a(GeoBone var0, String var1, String var2, String var3) {
+   public static void applyBoneParts(GeoBone var0, String var1, String var2, String var3) {
       GeoBone var4 = a(var0, Integer.parseInt(var1));
       GeoBone var5 = a(var4, Integer.parseInt(var2));
       List var6 = var5.childBones;
@@ -583,7 +583,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
          return var1;
       }
 
-      float var2 = ThreadNames.b(this.lightLevel, 2.0F, 15.0F) / 15.0F;
+      float var2 = ThreadNames.clampFloat(this.lightLevel, 2.0F, 15.0F) / 15.0F;
       return new Vec3i(var1.getX() * var2, var1.getY() * var2, var1.getZ() * var2);
    }
 
@@ -594,7 +594,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    @Override
-   public HashSet<String> a() {
+   public HashSet<String> getBlacklistedBones() {
       return new HashSet<String>() {
          {
             this.add("boobs");

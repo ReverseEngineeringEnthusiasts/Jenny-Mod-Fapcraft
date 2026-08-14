@@ -278,7 +278,7 @@ public enum Action {
       this.hideNameTag = var6;
    }
 
-   public static boolean a(Action var0, Action... var1) {
+   public static boolean isAny(Action var0, Action... var1) {
       for (Action var5 : var1) {
          if (var0 == var5) {
             return true;
@@ -288,11 +288,11 @@ public enum Action {
       return false;
    }
 
-   public static boolean a(BaseGirlEntity var0, Action... var1) {
-      return a(var0.getCurrentAction(), var1);
+   public static boolean isAnyAction(BaseGirlEntity var0, Action... var1) {
+      return isAny(var0.getCurrentAction(), var1);
    }
 
-   public static double a(AnimationController var0) {
+   public static double getActionProgress(AnimationController var0) {
       if (var0 == null) {
          return 0.0;
       }
@@ -303,7 +303,7 @@ public enum Action {
 
    @SideOnly(Side.CLIENT)
    public static float getActionLength(BaseGirlEntity var0) {
-      return (float)a(var0.actionController);
+      return (float)getActionProgress(var0.actionController);
    }
 
    @SideOnly(Side.CLIENT)
@@ -317,14 +317,14 @@ public enum Action {
    }
 
    @SideOnly(Side.CLIENT)
-   public static float d(BaseGirlEntity var0, float var1) {
+   public static float getActionTimeScale(BaseGirlEntity var0, float var1) {
       float var2 = getActionLength(var0);
-      return var2 <= 0.0F ? 0.0F : ThreadNames.b(getActionTick(var0, var1) / var2, 0.0F, 1.0F);
+      return var2 <= 0.0F ? 0.0F : (float)ThreadNames.clampDouble(getActionTick(var0, var1) / var2, 0.0F, 1.0F);
    }
 
    @SideOnly(Side.CLIENT)
    public static boolean isActionComplete(BaseGirlEntity var0, float var1) {
-      return d(var0, var1) == 1.0F;
+      return getActionTimeScale(var0, var1) == 1.0F;
    }
 
 }

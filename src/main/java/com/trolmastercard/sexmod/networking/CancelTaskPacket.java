@@ -40,7 +40,7 @@ public class CancelTaskPacket implements IMessage {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                UUID var2x = KoboldManager.getTribeUUID(var2.getServerHandler().player.getPersistentID());
                if (var2x != null) {
-                  HashSet var3 = KoboldManager.c(var2x, var1.taskPos);
+                  HashSet var3 = KoboldManager.removeMiningTargetsFor(var2x, var1.taskPos);
                   if (!var3.isEmpty()) {
                      PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var3, false), var2.getServerHandler().player);
                   }

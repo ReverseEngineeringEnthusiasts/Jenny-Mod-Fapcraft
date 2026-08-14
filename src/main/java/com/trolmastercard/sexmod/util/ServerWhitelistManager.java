@@ -283,7 +283,7 @@ public class ServerWhitelistManager {
             return -1;
          }
 
-         var9 = a(var8, var1, var0);
+         var9 = registerModel(var8, var1, var0);
          if (!"".equals(var9)) {
             logError(Level.ERROR, var9);
             return -1;
@@ -314,13 +314,13 @@ public class ServerWhitelistManager {
    }
 
    @SideOnly(Side.CLIENT)
-   static ResourceLocation a(String var0, File var1) throws IOException {
+   static ResourceLocation loadTexture(String var0, File var1) throws IOException {
       BufferedImage var2 = ImageIO.read(var1);
       return Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(var0, new DynamicTexture(var2));
    }
 
    @SideOnly(Side.CLIENT)
-   static RawGeoModel a(File var0) throws IOException {
+   static RawGeoModel loadGeoModel(File var0) throws IOException {
       StringBuilder var1 = new StringBuilder();
       BufferedReader var2 = new BufferedReader(new FileReader(var0));
       try {
@@ -336,7 +336,7 @@ public class ServerWhitelistManager {
       return Converter.fromJsonString(var11);
    }
 
-   public static String a(String var0, String var1, boolean var2) {
+   public static String registerModel(String var0, String var1, boolean var2) {
       if (modelDataMap.get(var0) != null) {
          return String.format("already registered '%s'... honestly, unsure how this could happen lol", var0);
       }
@@ -362,7 +362,7 @@ public class ServerWhitelistManager {
       ResourceLocation var9 = null;
       if (var2) {
          try {
-            var9 = a(var0, var7);
+            var9 = loadTexture(var0, var7);
          } catch (IOException var18) {
             return String.format("The texture for the custom model '%s' at '%s' appears to be corrupted. Try making a new one", var0, var8);
          } catch (Exception var19) {
@@ -382,7 +382,7 @@ public class ServerWhitelistManager {
       if (var2) {
          RawGeoModel var11;
          try {
-            var11 = a(var13);
+            var11 = loadGeoModel(var13);
          } catch (IOException var17) {
             return String.format("The geo model for the custom model '%s' at '%s' appears to be corrupted. Try replacing it.", var0, var12);
          }
@@ -397,7 +397,7 @@ public class ServerWhitelistManager {
       }
 
       if (var2) {
-         var6.b(var10);
+         var6.setFallbackTexture(var10);
          var6.setTextureLocation(var9);
       }
 
@@ -819,7 +819,7 @@ public class ServerWhitelistManager {
          return this.fallbackTexture;
       }
 
-      public void b(ResourceLocation var1) {
+      public void setFallbackTexture(ResourceLocation var1) {
          this.fallbackTexture = var1;
       }
 
@@ -827,7 +827,7 @@ public class ServerWhitelistManager {
          return this.zOffset;
       }
 
-      private static FileNotFoundException a(FileNotFoundException var0) {
+      private static FileNotFoundException wrapException(FileNotFoundException var0) {
          return var0;
       }
    }

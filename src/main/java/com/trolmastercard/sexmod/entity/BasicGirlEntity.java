@@ -97,7 +97,7 @@ public class BasicGirlEntity extends EntityLiving {
       }
 
       this.shouldStopMoving = true;
-      ThreadNames.a(6250, () -> this.world.removeEntity(this));
+      ThreadNames.createDaemonThread(6250, () -> this.world.removeEntity(this));
       return false;
    }
 

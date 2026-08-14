@@ -15,14 +15,14 @@ public class AllieRenderer extends GirlRenderer {
    }
 
    @Override
-   public void a(GeoModel var1, BaseGirlEntity var2, float var3, float var4, float var5, float var6, float var7) {
+   public void renderModel(GeoModel var1, BaseGirlEntity var2, float var3, float var4, float var5, float var6, float var7) {
       AllieEntity var8 = (AllieEntity)var2;
       if (var2.getCurrentAction() != Action.NULL || var2.isLocallyRegistered()) {
          var8.LAMP_SCALE = var8.LAMP_SCALE == 1.0F ? var8.LAMP_SCALE : var8.LAMP_SCALE - 0.01F;
          var7 = var8.LAMP_SCALE;
          GlStateManager.scale(var7, var7, var7);
          GlStateManager.translate(0.0F, var7 == 1.0F ? 0.0F : 3.0F - var7 * 3.0F, 0.0F);
-         super.a(var1, var2, var3, var4, var5, var6, var7);
+         super.renderModel(var1, var2, var3, var4, var5, var6, var7);
       }
    }
 

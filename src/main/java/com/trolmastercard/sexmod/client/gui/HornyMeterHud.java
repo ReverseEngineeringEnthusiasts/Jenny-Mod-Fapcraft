@@ -81,27 +81,27 @@ public class HornyMeterHud extends Gui {
          var2.renderEngine.bindTexture(METER_TEXTURE);
          GL11.glScalef(0.75F, 0.75F, 0.75F);
          this.drawTexturedModalRect(10, (int)RotationHelper.lerp(-200.0F, 10.0F, slideInProgress), 0, 0, 146, 175);
-         smoothedMeter = RotationHelper.b(smoothedMeter, meterValue, var2.getTickLength());
-         int var8 = (int)RotationHelper.b(0.0, 160.0, smoothedMeter);
-         int var4 = (int)RotationHelper.b(167.0, 8.0, smoothedMeter);
-         double var5 = RotationHelper.b(178.0, 18.0, smoothedMeter);
+         smoothedMeter = RotationHelper.lerpDouble(smoothedMeter, meterValue, var2.getTickLength());
+         int var8 = (int)RotationHelper.lerpDouble(0.0, 160.0, smoothedMeter);
+         int var4 = (int)RotationHelper.lerpDouble(167.0, 8.0, smoothedMeter);
+         double var5 = RotationHelper.lerpDouble(178.0, 18.0, smoothedMeter);
          if (!isExpanded) {
-            this.drawTexturedModalRect(67, (int)RotationHelper.b(-45.0, var5, slideInProgress), 159, var4, 32, var8);
+            this.drawTexturedModalRect(67, (int)RotationHelper.lerpDouble(-45.0, var5, slideInProgress), 159, var4, 32, var8);
             this.drawTexturedModalRect(
                120,
-               (int)RotationHelper.b(-58.0, RotationHelper.b(178.0, 149.0, 1.0 - smoothedMeter), slideInProgress),
+               (int)RotationHelper.lerpDouble(-58.0, RotationHelper.lerpDouble(178.0, 149.0, 1.0 - smoothedMeter), slideInProgress),
                212,
-               (int)RotationHelper.b(169.0, 141.0, 1.0 - smoothedMeter),
+               (int)RotationHelper.lerpDouble(169.0, 141.0, 1.0 - smoothedMeter),
                28,
-               (int)RotationHelper.b(1.0, 29.0, 1.0 - smoothedMeter)
+               (int)RotationHelper.lerpDouble(1.0, 29.0, 1.0 - smoothedMeter)
             );
             this.drawTexturedModalRect(
                18,
-               (int)RotationHelper.b(-58.0, RotationHelper.b(178.0, 149.0, 1.0 - smoothedMeter), slideInProgress),
+               (int)RotationHelper.lerpDouble(-58.0, RotationHelper.lerpDouble(178.0, 149.0, 1.0 - smoothedMeter), slideInProgress),
                212,
-               (int)RotationHelper.b(169.0, 141.0, 1.0 - smoothedMeter),
+               (int)RotationHelper.lerpDouble(169.0, 141.0, 1.0 - smoothedMeter),
                28,
-               (int)RotationHelper.b(1.0, 29.0, 1.0 - smoothedMeter)
+               (int)RotationHelper.lerpDouble(1.0, 29.0, 1.0 - smoothedMeter)
             );
          } else {
             slideOutProgress = slideOutProgress + var2.getTickLength() / 15.0F;

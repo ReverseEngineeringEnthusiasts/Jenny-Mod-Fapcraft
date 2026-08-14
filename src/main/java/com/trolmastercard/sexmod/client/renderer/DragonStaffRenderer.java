@@ -71,10 +71,10 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
 
    @Override
    public void render(DragonStaffItem var1, ItemStack var2) {
-      this.a(var1, var2);
+      this.renderStaffItem(var1, var2);
    }
 
-   public void a(DragonStaffItem var1, ItemStack var2) {
+   public void renderStaffItem(DragonStaffItem var1, ItemStack var2) {
       EntityPlayer var3 = null;
 
       for (EntityPlayer var5 : this.mc.world.playerEntities) {
@@ -112,7 +112,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       if ("staff".equals(var2.getName())) {
          GlStateManager.pushMatrix();
          Tessellator.getInstance().draw();
-         com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
+         com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
          GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.animationTicks) + 0.001, 0.0);
          Vector3f var7 = n.get(this.heldItem);
          GlStateManager.scale(this.getBobOffset(), this.getBobOffset(), this.getBobOffset());
@@ -151,24 +151,24 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
 
       if (var1.size() != 0) {
          if (isRendering) {
-            this.a(var1, var2);
+            this.renderParticles(var1, var2);
          } else {
             this.animateBones(var1);
          }
       }
    }
 
-   void a(List<Integer> var1, List<Vec3d> var2) {
+   void renderParticles(List<Integer> var1, List<Vec3d> var2) {
       for (int var3 = 0; var3 < var1.size(); var3++) {
          float var4 = RotationHelper.lerp(this.player.prevRotationYawHead, this.player.rotationYawHead, this.mc.getRenderPartialTicks());
          float var5 = RotationHelper.lerp(this.player.prevRotationPitch, this.player.rotationPitch, this.mc.getRenderPartialTicks());
-         Vec3d var6 = RotationHelper.a(
+         Vec3d var6 = RotationHelper.lerpVec3dDouble(
             new Vec3d(this.player.prevPosX, this.player.prevPosY + this.player.getEyeHeight(), this.player.prevPosZ),
             this.player.getPositionVector().add(0.0, this.player.getEyeHeight(), 0.0),
             this.mc.getRenderPartialTicks()
          );
          Vec3d var7 = var6.subtract((Vec3d)var2.get(var3));
-         var7 = VectorMath.a(var7, -var5, var4);
+         var7 = VectorMath.rotateByYawPitch(var7, -var5, var4);
          double var8 = Math.abs(var7.x) + Math.abs(var7.z) + Math.abs(var7.y);
          double var10 = -var7.x / var8;
          double var12 = -var7.y / var8;
@@ -179,7 +179,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
          var10 *= 1.3F;
          var12 *= 1.3F;
          var14 *= 1.3F;
-         this.b((Integer)var1.get(var3), (float)var10, (float)var12, (float)var14);
+         this.renderParticleFrom((Integer)var1.get(var3), (float)var10, (float)var12, (float)var14);
       }
    }
 
@@ -189,7 +189,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
 
       for (int var4 = 0; var4 < var1.size(); var4++) {
          var3 += var2;
-         this.a((Integer)var1.get(var4), 1.0F - var3, 0.0F + var3, (float)RotationHelper.b(0.8F, 1.2F, (double)var4 / var1.size()));
+         this.renderParticleAt((Integer)var1.get(var4), 1.0F - var3, 0.0F + var3, (float)RotationHelper.lerpDouble(0.8F, 1.2F, (double)var4 / var1.size()));
       }
    }
 
@@ -201,15 +201,15 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       return 0.175F + 0.025 * Math.sin(0.005 * this.animationTicks) + 0.025;
    }
 
-   void a(int var1, float var2, float var3, float var4) {
-      this.a(new ItemStack(Blocks.WOOL, 1, var1), var2, var3, var4);
+   void renderParticleAt(int var1, float var2, float var3, float var4) {
+      this.renderItem(new ItemStack(Blocks.WOOL, 1, var1), var2, var3, var4);
    }
 
-   void b(int var1, float var2, float var3, float var4) {
-      this.b(new ItemStack(Blocks.WOOL, 1, var1), var2, var3, var4);
+   void renderParticleFrom(int var1, float var2, float var3, float var4) {
+      this.renderItemAt(new ItemStack(Blocks.WOOL, 1, var1), var2, var3, var4);
    }
 
-   void b(ItemStack var1, float var2, float var3, float var4) {
+   void renderItemAt(ItemStack var1, float var2, float var3, float var4) {
       GlStateManager.pushMatrix();
       GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.animationTicks) + 0.001, 0.0);
       GlStateManager.scale(0.04F, 0.04F, 0.04F);
@@ -218,7 +218,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       GlStateManager.popMatrix();
    }
 
-   void a(ItemStack var1, float var2, float var3, float var4) {
+   void renderItem(ItemStack var1, float var2, float var3, float var4) {
       GlStateManager.pushMatrix();
       GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.animationTicks) + 0.001, 0.0);
       GlStateManager.scale(0.04F, 0.04F, 0.04F);

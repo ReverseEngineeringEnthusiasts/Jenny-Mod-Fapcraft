@@ -103,11 +103,11 @@ public class WorldUtils {
       return new BlockPos(var1.getX(), a(var0, var1.getX(), var1.getZ()), var1.getZ());
    }
 
-   public static boolean b(World var0, BlockPos var1) {
-      return a(var0, var1, null, null, null);
+   public static boolean canPlaceStructure(World var0, BlockPos var1) {
+      return canPlaceBlock(var0, var1, null, null, null);
    }
 
-   public static boolean a(World var0, BlockPos var1, Vec3d var2, EnumFacing var3, EntityPlayer var4) {
+   public static boolean canPlaceBlock(World var0, BlockPos var1, Vec3d var2, EnumFacing var3, EntityPlayer var4) {
       IBlockState var5 = var0.getBlockState(var1);
       Block var6 = var5.getBlock();
       if (var6.isBed(var5, var0, var1, null)) {
@@ -130,7 +130,7 @@ public class WorldUtils {
       }
    }
 
-   public static void a(World var0, EnumParticleTypes var1, Vec3d var2, int var3, double var4, double var6) {
+   public static void spawnParticles(World var0, EnumParticleTypes var1, Vec3d var2, int var3, double var4, double var6) {
       for (int var8 = 0; var8 < var3; var8++) {
          float var9 = (float)var8 / var3;
          double var10 = (Math.PI * 2) * var9;

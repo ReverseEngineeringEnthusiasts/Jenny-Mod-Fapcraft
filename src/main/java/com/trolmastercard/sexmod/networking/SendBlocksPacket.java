@@ -130,8 +130,8 @@ public class SendBlocksPacket implements IMessage {
                                  KoboldManager.removeTribeChest(var3, var6);
                                  KoboldManager.removeTribeChest(var3, var8);
                               } else {
-                                 KoboldManager.removeTribeBed(var3, var6);
-                                 KoboldManager.removeTribeBed(var3, var8);
+                                 KoboldManager.removeMiningTargetsFor(var3, var6);
+                                 KoboldManager.removeMiningTargetsFor(var3, var8);
                               }
 
                               HashSet var10 = new HashSet();

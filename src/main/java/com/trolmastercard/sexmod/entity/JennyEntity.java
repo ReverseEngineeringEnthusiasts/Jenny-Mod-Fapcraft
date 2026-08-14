@@ -154,7 +154,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
             this.rotationYaw = this.getYawRotation();
             this.setTargetPosition(this.getFrontOffsetVector());
             this.setNoGravity(false);
-            Vec3d var3 = RotationHelper.a(this.getPositionVector(), this.getTargetPosition(), 40 - this.ac);
+            Vec3d var3 = RotationHelper.lerpVec3dDouble(this.getPositionVector(), this.getTargetPosition(), 40 - this.ac);
             this.setPosition(var3.x, var3.y, var3.z);
          } else {
             this.ab = false;

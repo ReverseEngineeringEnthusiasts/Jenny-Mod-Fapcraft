@@ -84,7 +84,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       this.boneRotations.put("lowerArmL", var0 -> TrigMath.wrapDegrees(var0.getLeftArmAngle()));
    }
 
-   boolean d(SexSceneEntity var1) {
+   boolean shouldRenderItemModel(SexSceneEntity var1) {
       String var2 = var1.getModelCode();
       if (var1.isItemModel) {
          return false;
@@ -128,7 +128,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
-   public boolean a(SexSceneEntity var1, ICamera var2, double var3, double var5, double var7) {
+   public boolean shouldRender(SexSceneEntity var1, ICamera var2, double var3, double var5, double var7) {
       return super.shouldRender(var1, var2, var3, var5, var7);
    }
 
@@ -145,7 +145,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
-   void a(ServerWhitelistManager.b var1, SexSceneEntity var2, float var3) {
+   void renderModelData(ServerWhitelistManager.b var1, SexSceneEntity var2, float var3) {
       if (var1 != null && var1.getLightingType() != LightingType.DEFAULT) {
          GL11.glDisable(2896);
          this.lightingPos = var1.getLightingType() == LightingType.SEXMOD ? WorldUtils.getEntityLookVector(var2, var3) : null;
@@ -156,18 +156,18 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
    @Override
    public void doRender(SexSceneEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      this.a(var1, var2, var4, var6, var8, var9);
+      this.doRenderScene(var1, var2, var4, var6, var8, var9);
    }
 
-   public void a(SexSceneEntity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderScene(SexSceneEntity var1, double var2, double var4, double var6, float var8, float var9) {
       if (this.isRenderAngle(var9)) {
          if (!ServerWhitelistManager.isGlobalRenderingDisabled) {
-            if (!this.d(var1)) {
+            if (!this.shouldRenderItemModel(var1)) {
                var1.matrixStack = new MatrixStack();
                ServerWhitelistManager.b var10 = ServerWhitelistManager.getModelDataForGirl(var1.getModelCode());
                this.sceneEntity = var1;
                this.modelData = var10;
-               this.a(var10, var1, var9);
+               this.renderModelData(var10, var1, var9);
                if (var9 != 1.876945F && var9 != 2.876945F) {
                   UUID var11 = var1.getGirlIdFromCode();
                   if (var11 != null) {
@@ -195,7 +195,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                            );
                            int var16 = ((EntityLivingBase)var12).world.getLight(var20, true);
                            Vec3d var17 = new Vec3d(1.0, 1.0, 1.0);
-                           float var18 = ThreadNames.b(var16, 10.0F, 15.0F) / 15.0F;
+                           float var18 = ThreadNames.clampFloat(var16, 10.0F, 15.0F) / 15.0F;
                            this.colorScale = new Vec3d(var17.x * var18, var17.y * var18, var17.z * var18);
                            GlStateManager.pushMatrix();
                            GlStateManager.translate(var19.x, var19.y, var19.z);
@@ -260,11 +260,11 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
          var1.posX = var2.posX;
          var1.posY = var2.posY;
          var1.posZ = var2.posZ;
-         var5 = RotationHelper.a(new Vec3d(var2.lastTickPosX, var2.lastTickPosY, var2.lastTickPosZ), var2.getPositionVector(), var4);
+         var5 = RotationHelper.lerpVec3dDouble(new Vec3d(var2.lastTickPosX, var2.lastTickPosY, var2.lastTickPosZ), var2.getPositionVector(), var4);
       }
 
       EntityPlayerSP var8 = var0.player;
-      Vec3d var9 = RotationHelper.a(new Vec3d(var8.lastTickPosX, var8.lastTickPosY, var8.lastTickPosZ), var8.getPositionVector(), var4);
+      Vec3d var9 = RotationHelper.lerpVec3dDouble(new Vec3d(var8.lastTickPosX, var8.lastTickPosY, var8.lastTickPosZ), var8.getPositionVector(), var4);
       return var5.subtract(var9);
    }
 
@@ -277,7 +277,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
       for (GeoBone var10 : var1.topLevelBones) {
          if (var3 != 1.876945F) {
-            this.a(var2, var10, var3);
+            this.renderBone(var2, var10, var3);
          }
 
          var2.matrixStack.translate(-var10.getPivotX() / 16.0F, -var10.getPivotY() / 16.0F, -var10.getPivotZ() / 16.0F);
@@ -312,14 +312,14 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       return var3 != null ? var3 : BaseGirlEntity.getClientGirlEntity(var2);
    }
 
-   void a(SexSceneEntity var1, GeoBone var2, float var3) {
+   void renderBone(SexSceneEntity var1, GeoBone var2, float var3) {
       String var4 = this.getBoneName(var1);
       if (var4 != null) {
-         this.a(var1, var2, var3, var4);
+         this.renderBoneEffect(var1, var2, var3, var4);
       }
    }
 
-   void a(SexSceneEntity var1, GeoBone var2, float var3, String var4) {
+   void renderBoneEffect(SexSceneEntity var1, GeoBone var2, float var3, String var4) {
       BaseGirlEntity var5 = this.getRenderGirl(var1);
       this.getRenderEntityLiving(var1);
       var1.matrixStack = var5.getBoneMatrixStack(var4, false);
@@ -395,7 +395,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
             }
 
             if (this.lightingPos != null) {
-               this.colorScale = BodyParts.a(this.colorScale, var11, this.lightingPos);
+               this.colorScale = BodyParts.offsetBonePosition(this.colorScale, var11, this.lightingPos);
             }
 
             for (GeoVertex var15 : var10.vertices) {

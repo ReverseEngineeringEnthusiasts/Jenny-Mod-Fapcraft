@@ -7,17 +7,17 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Vec3d;
 
 public class EntityLookVectorHelper {
-   public static Vec3d b(Entity var0, EntityPlayer var1, float var2) {
-      Vec3d var3 = RotationHelper.a(
+   public static Vec3d getLookVectorTo(Entity var0, EntityPlayer var1, float var2) {
+      Vec3d var3 = RotationHelper.lerpVec3dDouble(
          new Vec3d(var0.lastTickPosX, var0.lastTickPosY + var1.getEyeHeight(), var0.lastTickPosZ),
          var0.getPositionVector().add(0.0, var1.getEyeHeight(), 0.0),
          var2
       );
-      Vec3d var4 = RotationHelper.a(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var2);
+      Vec3d var4 = RotationHelper.lerpVec3dDouble(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var2);
       return var3.subtract(var4);
    }
 
-   public static Vec3d a(Entity var0, EntityPlayer var1, float var2) {
+   public static Vec3d getAimVector(Entity var0, EntityPlayer var1, float var2) {
       Vec3d var3 = getEntityLookVector(var0, var2);
       if (var1 == null) {
          return var3;
@@ -29,15 +29,15 @@ public class EntityLookVectorHelper {
 
    public static Vec3d getEntityLookVector(Entity var0, float var1) {
       if (!(var0 instanceof BaseGirlEntity)) {
-         return b(var0, var1);
+         return getLookVectorYaw(var0, var1);
       }
 
       BaseGirlEntity var2 = (BaseGirlEntity)var0;
-      return !var2.isAnchored() ? b(var0, var1) : var2.getTargetPosition();
+      return !var2.isAnchored() ? getLookVectorYaw(var0, var1) : var2.getTargetPosition();
    }
 
-   static Vec3d b(Entity var0, float var1) {
-      return RotationHelper.a(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector(), var1);
+   static Vec3d getLookVectorYaw(Entity var0, float var1) {
+      return RotationHelper.lerpVec3dDouble(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector(), var1);
    }
 
    public static void setFullBrightLightmap() {

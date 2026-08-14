@@ -65,7 +65,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       if ("Face fuck".equals(var1)) {
          this.teleportPlayerToGirl(var2);
          this.setCurrentAction(Action.CARRY_INTRO);
-         this.a(this.getOutfitIndex(), Action.CARRY_INTRO);
+         this.sendActionPacket(this.getOutfitIndex(), Action.CARRY_INTRO);
       }
    }
 

@@ -60,7 +60,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static boolean isOwnerNearby(GalathEntity var0) {
-      UUID var1 = h.b(var0.getGirlId());
+      UUID var1 = h.getByValue(var0.getGirlId());
       if (var1 == null) {
          return false;
       } else {
@@ -74,8 +74,8 @@ public class GirlSavedData extends WorldSavedData {
       }
    }
 
-   public static boolean b(EntityPlayer var0, GalathEntity var1) {
-      return var1.getGirlId().equals(h.c(var0.getPersistentID()));
+   public static boolean isOwnerOf(EntityPlayer var0, GalathEntity var1) {
+      return var1.getGirlId().equals(h.getByKey(var0.getPersistentID()));
    }
 
    public static void updateMangleliePartner(GalathEntity var0) {
@@ -84,14 +84,14 @@ public class GirlSavedData extends WorldSavedData {
          var0.world.removeEntity(var1);
       }
 
-      UUID var2 = h.b(var0.getGirlId());
+      UUID var2 = h.getByValue(var0.getGirlId());
       if (var2 == null) {
          var0.world.removeEntity(var0);
       } else {
          World var3 = var0.world;
          EntityPlayer var4 = var3.getPlayerEntityByUUID(var2);
          var0.world.removeEntity(var0);
-         h.a(var2);
+         h.removeByKey(var2);
          if (var4 != null) {
             PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var4);
          }
@@ -99,11 +99,11 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static boolean hasOwner(UUID var0) {
-      return h.c(var0) != null;
+      return h.getByKey(var0) != null;
    }
 
    public static UUID getManglelieOwnerId(UUID var0) {
-      return h.b(var0);
+      return h.getByValue(var0);
    }
 
    public static UUID getManglelieOwnerOf(GalathEntity var0) {
@@ -111,27 +111,27 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static UUID getOwnerId(UUID var0) {
-      return h.c(var0);
+      return h.getByKey(var0);
    }
 
    public static UUID getOwnerOf(EntityPlayer var0) {
       return var0 == null ? null : getOwnerId(var0.getPersistentID());
    }
 
-   public static void a(UUID var0, UUID var1) {
-      h.a(var0, var1);
+   public static void setOwnerShip(UUID var0, UUID var1) {
+      h.put(var0, var1);
    }
 
-   public static void a(EntityPlayer var0, GalathEntity var1) {
+   public static void grantOwnership(EntityPlayer var0, GalathEntity var1) {
       if (var0 != null) {
          if (var1 != null) {
-            a(var0.getPersistentID(), var1.getGirlId());
+            setOwnerShip(var0.getPersistentID(), var1.getGirlId());
          }
       }
    }
 
    public static void removeOwner(UUID var0) {
-      h.a(var0);
+      h.removeByKey(var0);
    }
 
    public static void removeOwnerOf(EntityPlayer var0) {
@@ -149,7 +149,7 @@ public class GirlSavedData extends WorldSavedData {
       }
    }
 
-   public static void a(UUID var0, Long var1) {
+   public static void saveCumTime(UUID var0, Long var1) {
       if (var0 == null) {
          Main.LOGGER.log(Level.WARN, "tried to save last cum dosage time on NULL player");
       } else {
@@ -173,7 +173,7 @@ public class GirlSavedData extends WorldSavedData {
          }
 
          for (EntityPlayer var10 : (java.util.Collection<EntityPlayer>) (var3) ) {
-            h.a(var10.getPersistentID());
+            h.removeByKey(var10.getPersistentID());
             PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var10);
          }
       }
@@ -201,7 +201,7 @@ public class GirlSavedData extends WorldSavedData {
          UUID var6 = var2.getUniqueId("galath" + var4);
          long var7 = var2.getLong("lastcumdosage" + var4);
          if (var5 != null && var6 != null) {
-            h.a(var5, var6);
+            h.put(var5, var6);
             b.put(var5, var7);
          } else {
             Main.LOGGER.fatal("OMFG WHOOP WHOOP SAVING DIDNT WORK CORRECTLY AAAAAAAAAAA");

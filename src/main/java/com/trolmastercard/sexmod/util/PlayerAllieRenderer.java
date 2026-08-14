@@ -112,8 +112,8 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
       Vec2f var11 = new Vec2f((float)(var5 * Math.cos(var9) + var7 * Math.sin(var9)), (float)(-var5 * Math.sin(var9) + var7 * Math.cos(var9)));
       this.rotG = var11.y * -8.0F;
       this.rotI = var11.x * 8.0F;
-      this.rotG = ThreadNames.b(this.rotG, -1.68F, 1.68F);
-      this.rotI = ThreadNames.b(this.rotI, -1.68F, 1.68F);
+      this.rotG = ThreadNames.clampFloat(this.rotG, -1.68F, 1.68F);
+      this.rotI = ThreadNames.clampFloat(this.rotI, -1.68F, 1.68F);
       this.rotG = RotationHelper.lerp(this.prevRotX, this.rotG, this.partialTicks);
       this.rotI = RotationHelper.lerp(this.prevRotZ, this.rotI, this.partialTicks);
       var1.setRotationX(var2 + this.rotG * var4);
@@ -124,10 +124,10 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
       double var2 = this.currentPosX - this.prevPosX;
       double var4 = this.currentPosZ - this.prevPosZ;
       this.moveMagnitude = (Math.abs(var2) + Math.abs(var4)) * 5.0;
-      this.moveMagnitude = ThreadNames.b((float)this.moveMagnitude, 0.0F, 1.0F);
-      var1.setPositionY((float)RotationHelper.lerpAngle(5.0, 0.0, RotationHelper.b(this.smoothedBob, this.moveMagnitude, this.partialTicks)));
+      this.moveMagnitude = ThreadNames.clampFloat((float)this.moveMagnitude, 0.0F, 1.0F);
+      var1.setPositionY((float)RotationHelper.lerpAngle(5.0, 0.0, RotationHelper.lerpDouble(this.smoothedBob, this.moveMagnitude, this.partialTicks)));
       if (this.playerGirl instanceof AlliePlayerEntity) {
-         ((AlliePlayerEntity)this.playerGirl).aq = (float)RotationHelper.lerpAngle(0.3F, 0.0, RotationHelper.b(this.smoothedBob, this.moveMagnitude, this.partialTicks));
+         ((AlliePlayerEntity)this.playerGirl).aq = (float)RotationHelper.lerpAngle(0.3F, 0.0, RotationHelper.lerpDouble(this.smoothedBob, this.moveMagnitude, this.partialTicks));
       }
    }
 

@@ -173,7 +173,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    }
 
    float a(World var1, Vec3d var2, float var3, float var4) {
-      RayTraceResult var5 = this.a(var2, var2.add(VectorMath.a(new Vec3d(0.0, 0.0, -4.0), var3, var4)), var1);
+      RayTraceResult var5 = this.a(var2, var2.add(VectorMath.rotateByYawPitch(new Vec3d(0.0, 0.0, -4.0), var3, var4)), var1);
       if (var5 == null) {
          return 4.0F;
       }
@@ -182,7 +182,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var6 == null ? 4.0F : (float)var2.distanceTo(var6);
    }
 
-   boolean a(T var1, EntityPlayer var2) {
+   boolean canRenderPlayer(T var1, EntityPlayer var2) {
       if (var1 instanceof AbstractPlayerGirlEntity) {
          return true;
       }
@@ -249,7 +249,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return false;
    }
 
-   HashSet<String> a(Boolean var1, boolean var2) {
+   HashSet<String> getActiveBones(Boolean var1, boolean var2) {
       if (ClientProxy.IS_PRELOADING) {
          return new HashSet<>();
       }
@@ -273,20 +273,20 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var4;
    }
 
-   public void a(GeoModel var1, T var2, float var3, float var4, float var5, float var6, float var7) {
-      if (mc.player == null || var2.isLocallyRegistered() || !var2.shouldRenderModel() || this.a(var2, mc.player)) {
+   public void renderModel(GeoModel var1, T var2, float var3, float var4, float var5, float var6, float var7) {
+      if (mc.player == null || var2.isLocallyRegistered() || !var2.shouldRenderModel() || this.canRenderPlayer(var2, mc.player)) {
          GlStateManager.enableRescaleNormal();
-         this.a((T)var2, var3, var4, var5, var6, var7);
+         this.captureGlobalMatrix((T)var2, var3, var4, var5, var6, var7);
          this.renderLate((T)var2, var3, var4, var5, var6, var7);
          BufferBuilder var8 = Tessellator.getInstance().getBuffer();
          var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
          this.activeCustomPartBones.clear();
-         this.activeCustomPartBones = this.a(var2.isLocallyRegistered(), var2.getOutfitIndex() == 0);
+         this.activeCustomPartBones = this.getActiveBones(var2.isLocallyRegistered(), var2.getOutfitIndex() == 0);
          this.getSkinTexture((T) this.renderEntity);
-         BodyParts.a(var2.getAnimationProcessor().getModelRendererList(), this.a(), this);
+         BodyParts.updateCustomBones(var2.getAnimationProcessor().getModelRendererList(), this.getBlacklistedBones(), this);
          BodyParts.updateBoneOffset(var2, var3);
-         this.a(var1, var8, (T)var2, var4, var5, var6, var7, var3);
+         this.renderModelBuffer(var1, var8, (T)var2, var4, var5, var6, var7, var3);
          this.renderAfter((T)var2, var3, var4, var5, var6, var7);
          GlStateManager.disableRescaleNormal();
          GlStateManager.enableCull();
@@ -294,7 +294,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
-   protected void a(GeoModel var1, BufferBuilder var2, T var3, float var4, float var5, float var6, float var7, float var8) {
+   protected void renderModelBuffer(GeoModel var1, BufferBuilder var2, T var3, float var4, float var5, float var6, float var7, float var8) {
       GeoBone var9 = null;
 
       for (GeoBone var11 : var1.topLevelBones) {
@@ -350,14 +350,14 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       EntityLiving var3 = (EntityLiving)var1.getRidingEntity();
       EntityPlayerSP var4 = mc.player;
       Vec3d var5 = var3.getLookVec();
-      Vec3d var6 = RotationHelper.a(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var2);
-      Vec3d var7 = RotationHelper.a(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
+      Vec3d var6 = RotationHelper.lerpVec3dDouble(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var2);
+      Vec3d var7 = RotationHelper.lerpVec3dDouble(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
       var7 = var6.subtract(var7);
       this.renderEntity.renderYawOffset = var3.renderYawOffset;
       return new Vec3d(var7.x + var5.x * -0.5, var7.y + 0.15F, var7.z + var5.z * -0.5);
    }
 
-   protected Vec3d a(T var1, float var2, Vec3d var3) {
+   protected Vec3d getBoneWorldPos(T var1, float var2, Vec3d var3) {
       return var3;
    }
 
@@ -381,7 +381,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
 
       if (!(var1 instanceof AbstractPlayerGirlEntity) || !((AbstractPlayerGirlEntity)var1).hasOwnerUUID() || mc.gameSettings.thirdPersonView == 0) {
-         Vec3d var11 = RotationHelper.a(
+         Vec3d var11 = RotationHelper.lerpVec3dDouble(
             new Vec3d(mc.player.lastTickPosX, mc.player.lastTickPosY, mc.player.lastTickPosZ), mc.player.getPositionVector(), var2
          );
          var9 = var1.getTargetPosition().subtract(var11);
@@ -401,19 +401,19 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
    @Override
    public void doRender(T var1, double var2, double var4, double var6, float var8, float var9) {
-      this.a(var1, var2, var4, var6, var8, var9);
+      this.doRenderEntity(var1, var2, var4, var6, var8, var9);
    }
 
-   public void a(T var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderEntity(T var1, double var2, double var4, double var6, float var8, float var9) {
       this.renderEntity = (T)var1;
       Vec3d var10 = this.a((T)var1, var9, var2, var4, var6);
-      var10 = this.a((T)var1, var9, var10);
+      var10 = this.getBoneWorldPos((T)var1, var9, var10);
       var2 = var10.x;
       var4 = var10.y;
       var6 = var10.z;
       this.onBoneRenderStart((T)var1);
       if (var1.getLeashed()) {
-         this.a(var1, var2, var4 + this.CACHE_C, var6, var9);
+         this.renderLeash(var1, var2, var4 + this.CACHE_C, var6, var9);
       }
 
       GlStateManager.pushMatrix();
@@ -472,7 +472,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture((T)var1));
          software.bernie.geckolib3.core.util.Color var48 = this.getRenderColor((T)var1, var9);
          boolean var49 = this.setDoRenderBrightness((T)var1, var9);
-         this.a(var47, (T)var1, var9, var48.getRed() / 255.0F, var48.getBlue() / 255.0F, var48.getGreen() / 255.0F, var48.getAlpha() / 255.0F);
+         this.renderModel(var47, (T)var1, var9, var48.getRed() / 255.0F, var48.getBlue() / 255.0F, var48.getGreen() / 255.0F, var48.getAlpha() / 255.0F);
          if (var49) {
             RenderHurtColor.unset();
          }
@@ -531,7 +531,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture((T)var1));
          software.bernie.geckolib3.core.util.Color var24 = this.getRenderColor((T)var1, var9);
          boolean var25 = this.setDoRenderBrightness((T)var1, var9);
-         this.a(var23, (T)var1, var9, var24.getRed() / 255.0F, var24.getBlue() / 255.0F, var24.getGreen() / 255.0F, var24.getAlpha() / 255.0F);
+         this.renderModel(var23, (T)var1, var9, var24.getRed() / 255.0F, var24.getBlue() / 255.0F, var24.getGreen() / 255.0F, var24.getAlpha() / 255.0F);
          if (var25) {
             RenderHurtColor.unset();
          }
@@ -585,33 +585,33 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       Entity var7 = this.getRenderEntity(var1);
       Vec3d var8 = var1.isAnchored()
          ? var1.getTargetPosition()
-         : RotationHelper.a(new Vec3d(var7.lastTickPosX, var7.lastTickPosY, var7.lastTickPosZ), var7.getPositionVector(), var2);
-      Vec3d var9 = RotationHelper.a(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
+         : RotationHelper.lerpVec3dDouble(new Vec3d(var7.lastTickPosX, var7.lastTickPosY, var7.lastTickPosZ), var7.getPositionVector(), var2);
+      Vec3d var9 = RotationHelper.lerpVec3dDouble(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
       Vec3d var10 = var8.subtract(var9);
       GlStateManager.translate(var10.x, var10.y, var10.z);
       mc.getTextureManager().bindTexture(LINE_TEXTURE);
-      float var11 = a(var1, var2, 1.0F, 5.0F);
+      float var11 = getRenderOffset(var1, var2, 1.0F, 5.0F);
       this.drawOverlayLines(var5, var6, var1, var3, var11);
       GlStateManager.popMatrix();
    }
 
-   protected static float a(BaseGirlEntity var0, float var1, float var2, float var3) {
+   protected static float getRenderOffset(BaseGirlEntity var0, float var1, float var2, float var3) {
       EntityPlayerSP var4 = mc.player;
       Entity var5 = ((GirlRenderer)mc.getRenderManager().getEntityRenderObject(var0)).getRenderEntity(var0);
       Vec3d var6 = var0.isAnchored()
          ? var0.getTargetPosition()
-         : RotationHelper.a(new Vec3d(var5.lastTickPosX, var5.lastTickPosY, var5.lastTickPosZ), var5.getPositionVector(), var1);
-      Vec3d var7 = RotationHelper.a(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var1);
+         : RotationHelper.lerpVec3dDouble(new Vec3d(var5.lastTickPosX, var5.lastTickPosY, var5.lastTickPosZ), var5.getPositionVector(), var1);
+      Vec3d var7 = RotationHelper.lerpVec3dDouble(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var1);
       Vec3d var8 = ActiveRenderInfo.getCameraPosition().add(var7);
       float var9 = (float)var8.distanceTo(var6);
       float var10 = Math.abs(var9) / 5.0F;
-      return RotationHelper.lerp(var3, var2, ThreadNames.b(var10, 0.0F, 1.0F));
+      return RotationHelper.lerp(var3, var2, ThreadNames.clampFloat(var10, 0.0F, 1.0F));
    }
 
    protected void drawOverlayLines(Tessellator var1, BufferBuilder var2, BaseGirlEntity var3, Vector3fSexmodSpecial var4, float var5) {
    }
 
-   protected static void a(BufferBuilder var0, Tessellator var1, BaseGirlEntity var2, String var3, String var4, float var5, float var6, float var7, float var8) {
+   protected static void renderNameLabel(BufferBuilder var0, Tessellator var1, BaseGirlEntity var2, String var3, String var4, float var5, float var6, float var7, float var8) {
       var0.begin(1, DefaultVertexFormats.POSITION_TEX_COLOR);
       GlStateManager.glLineWidth(var8);
       Vec3d var9 = var2.getCachedBoneOffset(var3);
@@ -627,22 +627,22 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       var1.draw();
    }
 
-   protected static void a(Tessellator var0, BufferBuilder var1, BaseGirlEntity var2, Vector3fSexmodSpecial var3, float var4) {
-      a(var1, var0, var2, "braStringMidStartR", "braStringMidMid1R", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringMidMid1R", "braStringMidMid2R", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringMidMid2R", "braStringMidMid3R", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringMidMid3R", "braStringMidEndR", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringMidEndR", "braStringBackR", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringBackR", "braStringRightEndR", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringRightEndR", "braStringRightStartR", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringRightR", "braStringRightL", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringMidStartL", "braStringMidMid1L", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringMidMid1L", "braStringMidMid2L", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringMidMid2L", "braStringMidMid3L", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringMidMid3L", "braStringMidEndL", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringMidEndL", "braStringBackL", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringBackL", "braStringLeftEndL", var3.x, var3.y, var3.z, var4);
-      a(var1, var0, var2, "braStringLeftEndL", "braStringLeftStartL", var3.x, var3.y, var3.z, var4);
+   protected static void renderGirlTint(Tessellator var0, BufferBuilder var1, BaseGirlEntity var2, Vector3fSexmodSpecial var3, float var4) {
+      renderNameLabel(var1, var0, var2, "braStringMidStartR", "braStringMidMid1R", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringMidMid1R", "braStringMidMid2R", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringMidMid2R", "braStringMidMid3R", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringMidMid3R", "braStringMidEndR", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringMidEndR", "braStringBackR", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringBackR", "braStringRightEndR", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringRightEndR", "braStringRightStartR", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringRightR", "braStringRightL", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringMidStartL", "braStringMidMid1L", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringMidMid1L", "braStringMidMid2L", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringMidMid2L", "braStringMidMid3L", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringMidMid3L", "braStringMidEndL", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringMidEndL", "braStringBackL", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringBackL", "braStringLeftEndL", var3.x, var3.y, var3.z, var4);
+      renderNameLabel(var1, var0, var2, "braStringLeftEndL", "braStringLeftStartL", var3.x, var3.y, var3.z, var4);
    }
 
    protected void applyRotations(T var1, float var2, float var3, float var4) {
@@ -673,7 +673,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected void onBoneProcessing(BufferBuilder var1, String var2, GeoBone var3) {
    }
 
-   protected void a(BaseGirlEntity var1, double var2, double var4, double var6, float var8) {
+   protected void renderLeash(BaseGirlEntity var1, double var2, double var4, double var6, float var8) {
       Entity var9 = var1.getLeashHolder();
       var4 -= (1.6 - var1.height) * 0.5;
       Tessellator var10 = Tessellator.getInstance();
@@ -690,17 +690,17 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
 
       double var22 = Math.cos(var14);
-      double var24 = RotationHelper.b(var9.prevPosX, var9.posX, var8) - var16 * 0.7 - var18 * 0.5 * var22;
-      double var26 = RotationHelper.b(var9.prevPosY + var9.getEyeHeight() * 0.7, var9.posY + var9.getEyeHeight() * 0.7, var8)
+      double var24 = RotationHelper.lerpDouble(var9.prevPosX, var9.posX, var8) - var16 * 0.7 - var18 * 0.5 * var22;
+      double var26 = RotationHelper.lerpDouble(var9.prevPosY + var9.getEyeHeight() * 0.7, var9.posY + var9.getEyeHeight() * 0.7, var8)
          - var20 * 0.5
          - 0.25;
-      double var28 = RotationHelper.b(var9.prevPosZ, var9.posZ, var8) - var18 * 0.7 + var16 * 0.5 * var22;
+      double var28 = RotationHelper.lerpDouble(var9.prevPosZ, var9.posZ, var8) - var18 * 0.7 + var16 * 0.5 * var22;
       double var30 = RotationHelper.lerp(var1.prevRenderYawOffset, var1.renderYawOffset, var8) * (float) (Math.PI / 180.0) + (Math.PI / 2);
       var16 = Math.cos(var30) * var1.width * 0.4;
       var18 = Math.sin(var30) * var1.width * 0.4;
-      double var32 = RotationHelper.b(var1.prevPosX, var1.posX, var8) + var16;
-      double var34 = RotationHelper.b(var1.prevPosY, var1.posY, var8);
-      double var36 = RotationHelper.b(var1.prevPosZ, var1.posZ, var8) + var18;
+      double var32 = RotationHelper.lerpDouble(var1.prevPosX, var1.posX, var8) + var16;
+      double var34 = RotationHelper.lerpDouble(var1.prevPosY, var1.posY, var8);
+      double var36 = RotationHelper.lerpDouble(var1.prevPosZ, var1.posZ, var8) + var18;
       var2 += var16;
       var6 += var18;
       double var38 = (float)(var24 - var32);
@@ -884,7 +884,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return new Vector4f(var2, var3, var4, 72.0F * var10 / 4096.0F);
    }
 
-   public void a(T var1, float var2, float var3, float var4, float var5, float var6) {
+   public void captureGlobalMatrix(T var1, float var2, float var3, float var4, float var5, float var6) {
       this.globalModelMatrix = (Matrix4f)MATRIX_STACK.getModelMatrix().clone();
    }
 
@@ -952,7 +952,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
                var13.z *= -1.0F;
             }
 
-            Vec3d var14 = BodyParts.a(this, this.currentRenderingBone, new Vec3d(var3, var4, var5), var13);
+            Vec3d var14 = BodyParts.getBoneWorldPosition(this, this.currentRenderingBone, new Vec3d(var3, var4, var5), var13);
 
             for (GeoVertex var18 : var12.vertices) {
                Vector4f var19 = new Vector4f(var18.position.getX(), var18.position.getY(), var18.position.getZ(), 1.0F);
@@ -994,7 +994,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          for (int var5 = 0; var5 < var3.getCount(); var5++) {
             GlStateManager.pushMatrix();
             Tessellator.getInstance().draw();
-            com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
+            com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
             GL11.glEnable(2896);
             GL11.glRotated(var2.getRotationX() + 2.5, 0.0, 0.0, 1.0);
             GL11.glRotated(var2.getRotationY(), 0.0, 1.0, 0.0);
@@ -1050,7 +1050,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
                GlStateManager.pushMatrix();
                Tessellator.getInstance().draw();
-               com.trolmastercard.sexmod.MatrixHelper.a(MATRIX_STACK, var2);
+               com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, var2);
                GL11.glEnable(2896);
                if (var6.getItem() instanceof ItemBow) {
                   GL11.glRotatef(var4.holdBowRot, 1.0F, 0.0F, 0.0F);

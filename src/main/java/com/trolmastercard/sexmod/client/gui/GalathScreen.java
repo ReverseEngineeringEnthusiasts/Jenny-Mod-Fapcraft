@@ -89,10 +89,10 @@ public class GalathScreen extends GuiScreen {
       this.animRight = this.animRight + (var1 > this.width / 2 ? 1 : -1) * this.mc.getTickLength();
       this.animTop = this.animTop + (var2 < this.height / 2 - 1 ? 1 : -1) * this.mc.getTickLength();
       this.animBottom = this.animBottom + (var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.animLeft = ThreadNames.b(this.animLeft, 0.0F, 1.0F);
-      this.animRight = ThreadNames.b(this.animRight, 0.0F, 1.0F);
-      this.animTop = ThreadNames.b(this.animTop, 0.0F, 1.0F);
-      this.animBottom = ThreadNames.b(this.animBottom, 0.0F, 1.0F);
+      this.animLeft = ThreadNames.clampFloat(this.animLeft, 0.0F, 1.0F);
+      this.animRight = ThreadNames.clampFloat(this.animRight, 0.0F, 1.0F);
+      this.animTop = ThreadNames.clampFloat(this.animTop, 0.0F, 1.0F);
+      this.animBottom = ThreadNames.clampFloat(this.animBottom, 0.0F, 1.0F);
       GlStateManager.pushMatrix();
       GlStateManager.translate(this.width / 2.0F, this.height / 2.0F, 0.0F);
       GlStateManager.scale(var4, var4, var4);

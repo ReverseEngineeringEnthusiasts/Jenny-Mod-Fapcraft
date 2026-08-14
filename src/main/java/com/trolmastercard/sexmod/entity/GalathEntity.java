@@ -336,7 +336,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          } else {
             this.setCurrentAction(Action.MASTERBATE);
             this.setYawRotation(180.0F - (float)TrigMath.b(Math.atan2(var3.x - var2.posX, var3.z - var2.posZ)));
-            ThreadNames.a(8000, () -> {
+            ThreadNames.createDaemonThread(8000, () -> {
                EntityPlayer var1x = this.getMasterPlayer();
                if (var1x != null) {
                   if (!var1x.isDead) {
@@ -599,7 +599,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             DragonBreathParticle.BREATH_SCALE = 0.5F;
 
             for (float var5 = 0.0F; var5 < 1.0F; var5 += 0.2F) {
-               Vec3d var6 = RotationHelper.a(var3, var4, var5);
+               Vec3d var6 = RotationHelper.lerpVec3dDouble(var3, var4, var5);
                Minecraft.getMinecraft().effectRenderer.addEffect(new DragonBreathParticle(this.world, var6.x, var6.y, var6.z));
             }
          }
@@ -812,7 +812,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             Random var5 = this.getRNG();
 
             for (float var6 = 0.0F; var6 < 1.0F; var6 += var4) {
-               Vec3d var7 = RotationHelper.a(var2, var3, var6);
+               Vec3d var7 = RotationHelper.lerpVec3dDouble(var2, var3, var6);
 
                for (int var8 = 0; var8 < 3; var8++) {
                   this.world
@@ -918,8 +918,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.a_ = this.bg;
       Vec3d var1 = this.predictedPosition.subtract(this.bD);
       Vec3d var2 = VectorMath.rotateByYaw(var1, this.renderYawOffset + 180.0F);
-      this.a9 = TrigMath.toRadians(ThreadNames.b(var2.z * 40.0, -50.0, 50.0));
-      this.bg = TrigMath.toRadians(ThreadNames.b(var2.x * 40.0, -50.0, 50.0));
+      this.a9 = TrigMath.toRadians(ThreadNames.clampDouble(var2.z * 40.0, -50.0, 50.0));
+      this.bg = TrigMath.toRadians(ThreadNames.clampDouble(var2.x * 40.0, -50.0, 50.0));
    }
 
    public void setFlightVelocity(Vec3d var1) {
@@ -1065,12 +1065,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          return true;
       }
 
-      if (PathUtils.a(this.aq).distanceSq(var3) > 16.0) {
+      if (PathUtils.getPathEnd(this.aq).distanceSq(var3) > 16.0) {
          if (!this.onGround) {
             return true;
          }
 
-         this.aq = this.a(var2, var3);
+         this.aq = this.getPathToPlayer(var2, var3);
          if (this.aq == null) {
             this.handlePlayerRide(var2);
          } else {
@@ -1124,7 +1124,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    @Nullable
-   Path a(EntityPlayer var1, BlockPos var2) {
+   Path getPathToPlayer(EntityPlayer var1, BlockPos var2) {
       PathNavigate var3 = this.getNavigator();
       return var3.getPathToEntityLiving(var1);
    }
@@ -1268,7 +1268,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       super.setCustomNameOverride(var1);
       UUID var2 = this.getMasterUUID();
       if (var2 != null) {
-         AllieWorldData.a(var2, NpcType.GALATH, var1);
+         AllieWorldData.addAllie(var2, NpcType.GALATH, var1);
       }
    }
 
@@ -1298,7 +1298,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void ao() {
-      if (!Action.a(this, Action.MASTERBATE, Action.HUG_MANG)) {
+      if (!Action.isAnyAction(this, Action.MASTERBATE, Action.HUG_MANG)) {
          if (this.getInteractionPlayerUUID() == null) {
             this.Q_clash673();
             this.I_clash687();
@@ -1352,8 +1352,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          if (var2 != Action.CORRUPT_CUM || action != Action.CORRUPT_FAST && action != Action.CORRUPT_SLOW) {
             if (var2 != Action.RAPE_CUM || action != Action.RAPE_ON_GOING) {
                if (var2 != Action.MORNING_BLOWJOB_CUM || action != Action.MORNING_BLOWJOB_SLOW && action != Action.MORNING_BLOWJOB_FAST) {
-                  if (!this.world.isRemote && Action.a(var2, Action.CORRUPT_CUM, Action.RAPE_CUM, Action.MORNING_BLOWJOB_CUM)) {
-                     GirlSavedData.a(this.getInteractionPlayerUUID(), this.world.getTotalWorldTime());
+                  if (!this.world.isRemote && Action.isAny(var2, Action.CORRUPT_CUM, Action.RAPE_CUM, Action.MORNING_BLOWJOB_CUM)) {
+                     GirlSavedData.saveCumTime(this.getInteractionPlayerUUID(), this.world.getTotalWorldTime());
                   }
 
                   if (action == Action.CORRUPT_SLOW) {
@@ -1746,7 +1746,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             GalathFlightData var3;
             do {
                var3 = var2[this.getRNG().nextInt(var2.length)];
-            } while (!this.a(var3));
+            } while (!this.canInitFlight(var3));
 
             this.bZ = var3;
             if (var1 != null) {
@@ -1758,7 +1758,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
-   boolean a(GalathFlightData var1) {
+   boolean canInitFlight(GalathFlightData var1) {
       return var1.onlyDoThisOnPlayers && !(this.getTargetEntity() instanceof EntityPlayer) ? false : var1.canExecute(this);
    }
 
@@ -1778,7 +1778,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             AxisAlignedBB var7 = new AxisAlignedBB(
                var5.x, var5.y, var5.z, var6.x, var6.y, var6.z
             );
-            Object var8 = var1 ? this.a(var7) : this.b(var7);
+            Object var8 = var1 ? this.getPlayerInBox(var7) : this.getMobInBox(var7);
             if (var8 == null) {
                this.aI();
             } else {
@@ -1795,13 +1795,13 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
-   EntityPlayer b(AxisAlignedBB var1) {
+   EntityPlayer getPlayerInBox(AxisAlignedBB var1) {
       List var2 = this.world
-         .getEntitiesWithinAABB(EntityPlayer.class, var1, var0 -> !AbstractPlayerGirlEntity.e(var0) && !var0.isCreative() && !var0.isSpectator());
+         .getEntitiesWithinAABB(EntityPlayer.class, var1, var0 -> !AbstractPlayerGirlEntity.isOwnerPlayer(var0) && !var0.isCreative() && !var0.isSpectator());
       return var2.isEmpty() ? null : (EntityPlayer)var2.get(0);
    }
 
-   EntityMob a(AxisAlignedBB var1) {
+   EntityMob getMobInBox(AxisAlignedBB var1) {
       List var2 = this.world.getEntitiesWithinAABB(EntityMob.class, var1);
       if (var2.isEmpty()) {
          return null;
@@ -1884,15 +1884,15 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
-      return this.hasMaster() ? this.a(var1, var2) : this.b(var1, var2);
+      return this.hasMaster() ? this.processMasterInteract(var1, var2) : this.processGirlInteract(var1, var2);
    }
 
-   boolean a(EntityPlayer var1, EnumHand var2) {
+   boolean processMasterInteract(EntityPlayer var1, EnumHand var2) {
       if (!var1.getPersistentID().equals(this.getMasterUUID())) {
          return false;
       }
 
-      if (Action.a(this, Action.HUG_MANG, Action.RUN, Action.GALATH_SUMMON, Action.GALATH_DE_SUMMON, Action.MASTERBATE)) {
+      if (Action.isAnyAction(this, Action.HUG_MANG, Action.RUN, Action.GALATH_SUMMON, Action.GALATH_DE_SUMMON, Action.MASTERBATE)) {
          return false;
       }
 
@@ -1927,7 +1927,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       } else if ("anal".equals(var1)) {
          BeeScreen.enableInteraction();
          HandlePlayerMovement.setMovementLock(false);
-         ThreadNames.a(1200, () -> {
+         ThreadNames.createDaemonThread(1200, () -> {
             EntityPlayerSP var1x = Minecraft.getMinecraft().player;
             this.setTargetPosition(var1x.getPositionVector());
             this.setYawRotation(0.0F);
@@ -1938,7 +1938,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       } else if ("cowgirl".equals(var1)) {
          BeeScreen.enableInteraction();
          HandlePlayerMovement.setMovementLock(false);
-         ThreadNames.a(1200, () -> {
+         ThreadNames.createDaemonThread(1200, () -> {
             EntityPlayerSP var1x = Minecraft.getMinecraft().player;
             this.setTargetPosition(var1x.getPositionVector());
             this.setYawRotation(var1x.rotationYaw + 180.0F);
@@ -1955,7 +1955,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
             BeeScreen.enableInteraction();
             HandlePlayerMovement.setMovementLock(false);
-            ThreadNames.a(1200, () -> {
+            ThreadNames.createDaemonThread(1200, () -> {
                Minecraft var2x = Minecraft.getMinecraft();
                EntityPlayerSP var3x = var2x.player;
                var2x.gameSettings.thirdPersonView = 1;
@@ -1974,7 +1974,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
-   boolean b(EntityPlayer var1, EnumHand var2) {
+   boolean processGirlInteract(EntityPlayer var1, EnumHand var2) {
       if (!(Boolean)this.entityDataManager.get(bP)) {
          return super.processInteract(var1, var2);
       } else if (this.getCurrentAction() != Action.KNOCK_OUT_GROUND) {
@@ -2032,8 +2032,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          return null;
       }
 
-      Vec3d var4 = RotationHelper.a(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var1);
-      Vec3d var5 = RotationHelper.a(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector(), var1);
+      Vec3d var4 = RotationHelper.lerpVec3dDouble(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var1);
+      Vec3d var5 = RotationHelper.lerpVec3dDouble(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector(), var1);
       Vec3d var6 = var4.subtract(var5);
       float var7 = (float)TrigMath.b(Math.atan2(var6.z, var6.x)) - 90.0F;
       var0.renderYawOffset = var7;
@@ -2132,7 +2132,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          return Action.RAPE_CUM;
       }
 
-      if (Action.a(var1, Action.MORNING_BLOWJOB_SLOW, Action.MORNING_BLOWJOB_FAST)) {
+      if (Action.isAny(var1, Action.MORNING_BLOWJOB_SLOW, Action.MORNING_BLOWJOB_FAST)) {
          this.morningBlowjobStarted = true;
       }
 
@@ -2276,7 +2276,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          return 1.0F;
       }
 
-      float var3 = Action.d(this, var1);
+      float var3 = Action.getActionTimeScale(this, var1);
       return var2 == Action.MASTERBATE_SITTING ? var3 : 1.0F - var3;
    }
 
@@ -2698,7 +2698,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                         MovementInput var16 = var15.movementInput;
                         Vec2f var17 = var16.getMoveVector();
                         if (var17.x != 0.0F || var17.y != 0.0F) {
-                           Vec3d var18 = VectorMath.a(
+                           Vec3d var18 = VectorMath.rotateByYawPitch(
                               new Vec3d(-var17.x, 0.0, var17.y),
                               RotationHelper.lerp(var15.prevRotationPitch, var15.rotationPitch, var12.getRenderPartialTicks()),
                               RotationHelper.lerp(var15.prevRotationYawHead, var15.rotationYawHead, var12.getRenderPartialTicks())
@@ -2754,7 +2754,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
 
       @SubscribeEvent(priority = EventPriority.LOWEST)
-      public void a(CheckSpawn var1) {
+      public void canSpawn(CheckSpawn var1) {
          Result var2 = var1.getResult();
          if (var2 != Result.DENY) {
             if (!var1.isSpawner()) {
@@ -2764,7 +2764,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                   World var5 = var3.world;
                   if (GalathEntity.a(var4, var5)) {
                      var1.setResult(Result.DENY);
-                     BeeWorldData.a(var4, BeeWorldData.hivePositions);
+                     BeeWorldData.addHivePosition(var4, BeeWorldData.hivePositions);
                      GalathEntity var6 = new GalathEntity(var5);
                      var6.setPositionAndUpdate(var4.getX(), var4.getY(), var4.getZ());
                      var5.spawnEntity(var6);
@@ -2797,7 +2797,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
 
       @SubscribeEvent
-      public void a(EntityMountEvent var1) {
+      public void onMount(EntityMountEvent var1) {
          if (!var1.isMounting()) {
             Entity var2 = var1.getEntityBeingMounted();
             if (var2 instanceof GalathEntity) {
@@ -2823,7 +2823,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      } else {
                         GalathCoinItem.deSummonGalath(var3);
                         PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket(var3.getGirlId(), GirlSavedData.getManglelieOwnerOf(var3)), var3);
-                        ThreadNames.a(900, () -> GirlSavedData.updateMangleliePartner(var3));
+                        ThreadNames.createDaemonThread(900, () -> GirlSavedData.updateMangleliePartner(var3));
                         var3.bU = true;
                      }
 
@@ -2836,7 +2836,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
 
       @SubscribeEvent
-      public void a(PlayerRespawnEvent var1) {
+      public void onRespawn(PlayerRespawnEvent var1) {
          EntityPlayerMP var2 = (EntityPlayerMP)var1.player;
          BaseGirlEntity var3 = BaseGirlEntity.getGirlByUUID(var2.getPersistentID(), Boolean.valueOf(true));
          if (var3 instanceof GalathEntity) {
@@ -2864,7 +2864,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                if (var6 instanceof GalathEntity && var6.world.isRemote && var6.getCurrentAction() == Action.SUMMON_SKELETON) {
                   double var7 = ((GalathEntity)var6).ad;
                   if (!(var7 < 9.0) && !(var7 > 30.0)) {
-                     Vec3d var9 = RotationHelper.a(new Vec3d(var6.lastTickPosX, var6.lastTickPosY, var6.lastTickPosZ), var6.getPositionVector(), var4);
+                     Vec3d var9 = RotationHelper.lerpVec3dDouble(new Vec3d(var6.lastTickPosX, var6.lastTickPosY, var6.lastTickPosZ), var6.getPositionVector(), var4);
                      double var10 = (var7 - 9.0) / 21.0;
                      if ((Boolean)var6.getDataManager().get(GalathEntity.bN)) {
                         Vec3d var12 = var6.getCachedBoneOffset("energyBallR");
@@ -2898,7 +2898,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          GlStateManager.enableAlpha();
       }
 
-      boolean a(World var1, BlockPos var2, EnumFacing var3) {
+      boolean spawnStructure(World var1, BlockPos var2, EnumFacing var3) {
          if (var3 == EnumFacing.NORTH) {
             var2 = var2.west();
             if (this.isValidFlightBlock(var1, var2)) {
@@ -2954,14 +2954,14 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
 
       @SubscribeEvent
-      public void a(PlayerWakeUpEvent var1) {
+      public void onWake(PlayerWakeUpEvent var1) {
          EntityPlayer var2 = var1.getEntityPlayer();
          if (!var2.world.isRemote) {
             if (GirlSavedData.shouldDespawn(var2.getPersistentID(), var2.world)) {
                Vec3d var4 = var2.getPositionVector();
                BlockPos var5 = new BlockPos(var4);
                EnumFacing var6 = (EnumFacing)var2.world.getBlockState(var5).getValue(BlockHorizontal.FACING);
-               if (!this.a(var2.world, var5, var6)) {
+               if (!this.spawnStructure(var2.world, var5, var6)) {
                   var2.sendMessage(
                      new TextComponentString(
                         String.format(
@@ -3001,7 +3001,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                   GalathEntity var9 = new GalathEntity(var2.world, var2, var4, true);
                   var9.setPositionAndUpdate(var4.x, var4.y, var4.z);
                   var2.world.spawnEntity(var9);
-                  GirlSavedData.a(var2, var9);
+                  GirlSavedData.grantOwnership(var2, var9);
                   var9.canStartPussyLicking();
                   var9.setTargetPosition(var7);
                   var9.setYawRotation(var3);
@@ -3009,7 +3009,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                   var9.setInteractionPlayerUUID(var2.getPersistentID());
                   var9.setCurrentAction(Action.MORNING_BLOWJOB_SLOW);
                   PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var2);
-                  ThreadNames.a(500, () -> {
+                  ThreadNames.createDaemonThread(500, () -> {
                      var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
                      PacketHandler.networkWrapper.sendTo(new SetPlayerCamPacket(-10.0F, var3 + 180.0F + 5.0F, 0), (EntityPlayerMP)var2);
                   });

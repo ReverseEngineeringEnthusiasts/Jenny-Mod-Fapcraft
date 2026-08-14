@@ -56,8 +56,8 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
       EntityPlayerSP var10 = this.mc.player;
-      Vec3d var11 = RotationHelper.a(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var9);
-      Vec3d var12 = RotationHelper.a(new Vec3d(var10.lastTickPosX, var10.lastTickPosY, var10.lastTickPosZ), var10.getPositionVector(), var9);
+      Vec3d var11 = RotationHelper.lerpVec3dDouble(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var9);
+      Vec3d var12 = RotationHelper.lerpVec3dDouble(new Vec3d(var10.lastTickPosX, var10.lastTickPosY, var10.lastTickPosZ), var10.getPositionVector(), var9);
       Vec3d var13 = var11.subtract(var12);
       ResourceLocation var14 = this.getFatTexture(var1, Math.abs(var13.x) + Math.abs(var13.y) + Math.abs(var13.z));
       this.mc.renderEngine.bindTexture(var14);
@@ -108,7 +108,7 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
    }
 
    int getFatIndex(BasicGirlEntity var1) {
-      return var1.lastSoundTick == -1 ? 0 : (int)ThreadNames.b(this.mc.player.ticksExisted - var1.lastSoundTick, 1.0F, 30.0F);
+      return var1.lastSoundTick == -1 ? 0 : (int)ThreadNames.clampFloat(this.mc.player.ticksExisted - var1.lastSoundTick, 1.0F, 30.0F);
    }
 
    float getFatProgress(BasicGirlEntity var1, float var2) {
@@ -129,7 +129,7 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
          return 0.0F;
       }
 
-      float var4 = ThreadNames.b(this.mc.player.ticksExisted - var1.lastSoundTick, 90.0F, 120.0F) - 90.0F;
+      float var4 = ThreadNames.clampFloat(this.mc.player.ticksExisted - var1.lastSoundTick, 90.0F, 120.0F) - 90.0F;
       float var5 = (var4 + var2) / 30.0F;
       return 1.0F - var5;
    }

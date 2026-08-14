@@ -76,7 +76,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       if (var3 != null) {
          GlStateManager.pushMatrix();
          Tessellator.getInstance().draw();
-         com.trolmastercard.sexmod.MatrixHelper.a(IGeoRenderer.MATRIX_STACK, var2);
+         com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
          GL11.glEnable(2896);
          GlStateManager.scale(var4, var4, var4);
          GlStateManager.rotate((float)var5.x, 1.0F, 0.0F, 0.0F);
@@ -186,7 +186,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
 
             Vec3i var15 = this.getCachedBoneColor(var3);
             var15 = this.tintBoneColor(var15);
-            Vec3d var16 = BodyParts.a(
+            Vec3d var16 = BodyParts.getBoneWorldPosition(
                this, var3, new Vec3d(var15.getX() / 255.0F, var15.getY() / 255.0F, var15.getZ() / 255.0F), var14
             );
 
