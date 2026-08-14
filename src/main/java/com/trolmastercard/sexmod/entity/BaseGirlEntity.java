@@ -564,14 +564,35 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    /** Called every tick on both sides; advances scene follow-up transitions. */
    public void onUpdate() {
       // Defensive: older buggy builds could leave a girl with a corrupted ride
-      // (stale reference to a removed entity). Vanilla's ride/passenger handling
-      // NPEs on such state during the tick; clear it before super so old worlds
-      // load instead of crashing in EntityLivingBase. Only the direct ride is
-      // checked — that is a plain field read and cannot itself throw.
-      if (!this.world.isRemote && this.getRidingEntity() != null && this.getRidingEntity().isDead) {
-         this.dismountRidingEntity();
+      // (stale reference to a removed entity, or a ride whose passenger chain is
+      // inconsistent). Vanilla's passenger handling NPEs on such state during the
+      // tick; clear it before super so old worlds load instead of crashing in
+      // EntityLivingBase. Inspections are wrapped because vanilla's own
+      // ride/passenger getters can throw on corrupt state.
+      if (!this.world.isRemote) {
+         try {
+            net.minecraft.entity.Entity ride = this.getRidingEntity();
+            if (ride != null && (ride.isDead || !ride.isEntityAlive())) {
+               this.dismountRidingEntity();
+            }
+         } catch (Throwable t) {
+            // corrupt chain — force-dismount via the field-clearing path
+            this.dismountRidingEntity();
+         }
       }
-      super.onUpdate();
+      try {
+         super.onUpdate();
+      } catch (Throwable t) {
+         // A corrupt entity (e.g. stale ride/passenger chain saved by an older
+         // build) makes vanilla's tick NPE. Remove the entity rather than crash
+         // the whole server tick loop, and log so the user knows which entity.
+         if (!this.world.isRemote) {
+            System.out.println("[sexmod] removed corrupt entity " + this + " at " + this.getPositionVector());
+            this.setDead();
+         } else {
+            throw t;
+         }
+      }
       this.tickFollowUpTransitions();
    }
 
