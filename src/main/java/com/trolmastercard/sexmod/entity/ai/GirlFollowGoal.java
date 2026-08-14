@@ -74,7 +74,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    }
 
    @Override
-   protected void a(GirlFollowAiBase.GirlFollowAiBaseState var1) {
+   protected void setState(GirlFollowAiBase.GirlFollowAiBaseState var1) {
       switch (var1) {
          case ATTACK:
             this.girl.getLookHelper().setLookPositionWithEntity(this.target, 30.0F, 30.0F);

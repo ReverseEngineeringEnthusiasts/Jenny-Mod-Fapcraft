@@ -45,12 +45,12 @@ public class WildSlimeEntity extends EntityLiving {
 
    public WildSlimeEntity(World var1) {
       super(var1);
-      this.moveHelper = new WildSlimeEntity.b(this);
+      this.moveHelper = new WildSlimeEntity.SlimeMoveHelper(this);
    }
 
    protected void initEntityAI() {
-      this.tasks.addTask(1, new WildSlimeEntity.d(this));
-      this.tasks.addTask(5, new WildSlimeEntity.c(this));
+      this.tasks.addTask(1, new WildSlimeEntity.SlimeWanderAI(this));
+      this.tasks.addTask(5, new WildSlimeEntity.SlimeJumpAI(this));
    }
 
    protected void entityInit() {
@@ -320,12 +320,12 @@ public class WildSlimeEntity extends EntityLiving {
       return false;
    }
 
-   static class a extends EntityAIBase {
+   static class SlimeFloatAI extends EntityAIBase {
       private final WildSlimeEntity ownerSlime;
       private float squishAngle;
       private int floatDelay;
 
-      public a(WildSlimeEntity var1) {
+      public SlimeFloatAI(WildSlimeEntity var1) {
          this.ownerSlime = var1;
          this.setMutexBits(2);
       }
@@ -341,18 +341,18 @@ public class WildSlimeEntity extends EntityLiving {
             this.squishAngle = this.ownerSlime.getRNG().nextInt(360);
          }
 
-         ((WildSlimeEntity.b)this.ownerSlime.getMoveHelper()).setMoveHelperTarget(this.squishAngle, false);
+         ((WildSlimeEntity.SlimeMoveHelper)this.ownerSlime.getMoveHelper()).setMoveHelperTarget(this.squishAngle, false);
       }
 
    }
 
-   static class b extends EntityMoveHelper {
+   static class SlimeMoveHelper extends EntityMoveHelper {
       private float rotationYaw;
       private int squishDelay;
       private final WildSlimeEntity slime;
       private boolean wasOnGround;
 
-      public b(WildSlimeEntity var1) {
+      public SlimeMoveHelper(WildSlimeEntity var1) {
          super(var1);
          this.slime = var1;
          this.rotationYaw = 180.0F * var1.rotationYaw / (float) Math.PI;
@@ -386,7 +386,7 @@ public class WildSlimeEntity extends EntityLiving {
                   }
 
                   float var1 = Reference.RANDOM.nextInt(360);
-                  ((WildSlimeEntity.b)this.slime.getMoveHelper()).setMoveHelperTarget(var1, false);
+                  ((WildSlimeEntity.SlimeMoveHelper)this.slime.getMoveHelper()).setMoveHelperTarget(var1, false);
                   this.slime.getJumpHelper().setJumping();
                   if (this.slime.canSquish()) {
                      this.slime
@@ -410,10 +410,10 @@ public class WildSlimeEntity extends EntityLiving {
 
    }
 
-   static class c extends EntityAIBase {
+   static class SlimeJumpAI extends EntityAIBase {
       private final WildSlimeEntity squishAmount;
 
-      public c(WildSlimeEntity var1) {
+      public SlimeJumpAI(WildSlimeEntity var1) {
          this.squishAmount = var1;
          this.setMutexBits(5);
       }
@@ -423,14 +423,14 @@ public class WildSlimeEntity extends EntityLiving {
       }
 
       public void updateTask() {
-         ((WildSlimeEntity.b)this.squishAmount.getMoveHelper()).setMoveHelperSpeed(1.0);
+         ((WildSlimeEntity.SlimeMoveHelper)this.squishAmount.getMoveHelper()).setMoveHelperSpeed(1.0);
       }
    }
 
-   static class d extends EntityAIBase {
+   static class SlimeWanderAI extends EntityAIBase {
       private final WildSlimeEntity squishAmount;
 
-      public d(WildSlimeEntity var1) {
+      public SlimeWanderAI(WildSlimeEntity var1) {
          this.squishAmount = var1;
          this.setMutexBits(5);
          ((PathNavigateGround)var1.getNavigator()).setCanSwim(true);
@@ -445,7 +445,7 @@ public class WildSlimeEntity extends EntityLiving {
             this.squishAmount.getJumpHelper().setJumping();
          }
 
-         ((WildSlimeEntity.b)this.squishAmount.getMoveHelper()).setMoveHelperSpeed(1.2);
+         ((WildSlimeEntity.SlimeMoveHelper)this.squishAmount.getMoveHelper()).setMoveHelperSpeed(1.2);
       }
 
    }

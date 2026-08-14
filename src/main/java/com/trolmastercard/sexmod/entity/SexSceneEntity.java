@@ -47,7 +47,7 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
       this.dataManager.set(modelData, var3);
    }
 
-   public static SexSceneEntity a(World var0, UUID var1, BoneType var2) {
+   public static SexSceneEntity createSceneEntity(World var0, UUID var1, BoneType var2) {
       SexSceneEntity var3 = new SexSceneEntity(var0);
       var3.getDataManager().set(modelCode, var1.toString());
       var3.isItemModel = true;

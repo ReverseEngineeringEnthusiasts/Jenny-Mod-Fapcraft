@@ -19,10 +19,10 @@ public class KoboldEggItemRenderer extends GeoItemRenderer<KoboldEggItem> {
 
    @Override
    public void render(KoboldEggItem var1, ItemStack var2) {
-      this.a(var1, var2);
+      this.renderEggItem(var1, var2);
    }
 
-   public void a(KoboldEggItem var1, ItemStack var2) {
+   public void renderEggItem(KoboldEggItem var1, ItemStack var2) {
       this.eggStack = var2;
       super.render(var1, var2);
    }

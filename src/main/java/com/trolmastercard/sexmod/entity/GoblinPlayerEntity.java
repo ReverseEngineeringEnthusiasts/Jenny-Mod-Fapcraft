@@ -209,7 +209,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, HairColor.values().length - 1);
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, SkinColor.values().length - 1);
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, EyeColor.values().length - 1);
-      AbstractNpcOnlyEntity.c(var1, 0);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var1, 0);
       return var1.toString();
    }
 
@@ -331,7 +331,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       if (this.world.isRemote) {
          this.handleOwnerThrow();
          Action var1 = this.getCurrentAction();
-         this.d(var1);
+         this.handleLocalAction(var1);
          this.handleNelsonAction(var1);
          this.aw = var1;
       }
@@ -522,7 +522,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    }
 
    @SideOnly(Side.CLIENT)
-   void d(Action var1) {
+   void handleLocalAction(Action var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       if (var2.player.getPersistentID().equals(this.getInteractionPlayerUUID())) {
          if (var2.gameSettings.thirdPersonView == 0) {
@@ -542,10 +542,10 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       StringBuilder var2 = new StringBuilder();
 
       for (int var4 : var1) {
-         AbstractNpcOnlyEntity.c(var2, var4);
+         AbstractNpcOnlyEntity.appendPaddedNumber(var2, var4);
       }
 
-      AbstractNpcOnlyEntity.c(var2, 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(var2, 1);
       this.entityDataManager.set(at, var2.toString());
    }
 

@@ -65,12 +65,12 @@ public class DragonRenderer extends Render<DragonEntity> {
       }
 
       var15.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-      this.a(var15, var16, 0.0F);
+      this.renderDragonColor(var15, var16, 0.0F);
       var14.draw();
       var15.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
       GlStateManager.scale(0.75F, 0.75F, 0.75F);
       GlStateManager.translate(0.0F, 0.075F, 0.0F);
-      this.a(var15, var17, 0.001F);
+      this.renderDragonColor(var15, var17, 0.001F);
       var14.draw();
       GlStateManager.popMatrix();
       GlStateManager.disableAlpha();
@@ -78,7 +78,7 @@ public class DragonRenderer extends Render<DragonEntity> {
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, OpenGlHelper.lastBrightnessX, OpenGlHelper.lastBrightnessY);
    }
 
-   void a(BufferBuilder var1, UnknownScreen var2, float var3) {
+   void renderDragonColor(BufferBuilder var1, UnknownScreen var2, float var3) {
       var1.pos(-0.25, 0.0, var3).tex(0.0, 0.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
       var1.pos(0.25, 0.0, var3).tex(1.0, 0.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
       var1.pos(0.25, 0.5, var3).tex(1.0, 1.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();

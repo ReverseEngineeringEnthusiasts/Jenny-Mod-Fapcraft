@@ -69,7 +69,7 @@ public class FallTreePacket implements IMessage {
                         } else {
                            World var7 = var3.world;
                            BlockPos var8 = this.findGroundPos(var7, var1.treePos);
-                           HashSet var9 = KoboldTask.a(var7, var8, var4);
+                           HashSet var9 = KoboldTask.findConnectedBlocks(var7, var8, var4);
                            PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var9, true), var2.getServerHandler().player);
                         }
                      }

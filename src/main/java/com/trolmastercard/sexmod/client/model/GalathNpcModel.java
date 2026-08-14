@@ -162,8 +162,8 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
 
             MolangParser var3 = GeckoLibCache.getInstance().parser;
             Vec3d var4 = EntityLookVectorHelper.getLookVectorTo(var1, (EntityPlayer)var2, this.mc.getRenderPartialTicks()).add(var1.getCachedBoneOffset("head"));
-            float var5 = (float)TrigMath.b(Math.atan2(var4.z, var4.x)) - var1.getYawRotation();
-            float var6 = (float)TrigMath.b(
+            float var5 = (float)TrigMath.sinDegrees(Math.atan2(var4.z, var4.x)) - var1.getYawRotation();
+            float var6 = (float)TrigMath.sinDegrees(
                Math.atan2(var4.y, Math.sqrt(var4.x * var4.x + var4.z * var4.z))
             );
             double var7 = Math.abs(var4.x) + Math.abs(var4.y) + Math.abs(var4.z);

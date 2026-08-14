@@ -132,7 +132,7 @@ public class PlayerIds {
                   && var4.getInteractionPlayerUUID() != null) {
                   EntityPlayerMP var5 = (EntityPlayerMP)var1.player.world.getPlayerEntityByUUID(var4.getInteractionPlayerUUID());
                   PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), var5);
-                  ResetGirlPacket.Handler.a(var5);
+                  ResetGirlPacket.Handler.resetGirls(var5);
                   var2.setInvisible(false);
                   var4.setInteractionPlayerUUID(null);
                }

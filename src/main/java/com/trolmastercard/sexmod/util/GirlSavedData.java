@@ -158,7 +158,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    @SubscribeEvent
-   public void a(ServerTickEvent var1) {
+   public void onServerTick(ServerTickEvent var1) {
       if (var1.phase == Phase.END) {
          World var2 = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
          ArrayList var3 = new ArrayList();
@@ -180,14 +180,14 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    @SubscribeEvent
-   public void a(Save var1) {
+   public void onSave(Save var1) {
       World var2 = var1.getWorld();
       var2.getMapStorage().setData("sexmod:galath_owner_ship", this);
       this.markDirty();
    }
 
    @SubscribeEvent
-   public void a(Load var1) {
+   public void onLoad(Load var1) {
       World var2 = var1.getWorld();
       var2.getMapStorage().getOrLoadData(GirlSavedData.class, "sexmod:galath_owner_ship");
    }

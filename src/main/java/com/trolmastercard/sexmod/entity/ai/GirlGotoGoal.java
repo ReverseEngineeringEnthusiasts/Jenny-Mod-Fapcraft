@@ -33,7 +33,7 @@ public class GirlGotoGoal extends GirlFollowAiBase {
    }
 
    @Override
-   protected void a(GirlFollowAiBase.GirlFollowAiBaseState var1) {
+   protected void setState(GirlFollowAiBase.GirlFollowAiBaseState var1) {
       switch (var1) {
          case FOLLOW:
             double var2 = this.girl.getDistance(this.master);

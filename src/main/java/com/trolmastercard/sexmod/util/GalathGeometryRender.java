@@ -13,19 +13,19 @@ import net.minecraft.util.math.Vec3d;
 import software.bernie.geckolib3.core.processor.IBone;
 
 public class GalathGeometryRender {
-   public static Vec3d[][] a(
+   public static Vec3d[][] buildBodyBoneMesh(
       BaseGirlEntity var0, float var1, String var2, String var3, String var4, float var5, float var6, float var7, float var8, String var9
    ) {
-      Vec3d[] var10 = b(var0, var1, var2, var3, var4, var5, var6, var7, var8, var9);
+      Vec3d[] var10 = buildWingBoneMesh(var0, var1, var2, var3, var4, var5, var6, var7, var8, var9);
       return buildBodyMesh(var10);
    }
 
-   public static Vec3d[][] a(BaseGirlEntity var0, float var1, String var2, String var3, Vector3fSexmodSpecial var4, Vector3fSexmodSpecial var5) {
-      Vec3d[] var6 = b(var0, var1, var2, var3, var4, var5);
+   public static Vec3d[][] buildBodyMesh(BaseGirlEntity var0, float var1, String var2, String var3, Vector3fSexmodSpecial var4, Vector3fSexmodSpecial var5) {
+      Vec3d[] var6 = buildBodyMeshLine(var0, var1, var2, var3, var4, var5);
       return buildWingMesh(var6);
    }
 
-   static Vec3d[] b(BaseGirlEntity var0, float var1, String var2, String var3, Vector3fSexmodSpecial var4, Vector3fSexmodSpecial var5) {
+   static Vec3d[] buildBodyMeshLine(BaseGirlEntity var0, float var1, String var2, String var3, Vector3fSexmodSpecial var4, Vector3fSexmodSpecial var5) {
       Vec3d var6 = var0.getCachedBoneOffset(var2);
       Vec3d var7 = var0.getCachedBoneOffset(var3);
       Vec3d[] var8 = new Vec3d[8];
@@ -93,7 +93,7 @@ public class GalathGeometryRender {
       return var1;
    }
 
-   static Vec3d[] b(BaseGirlEntity var0, float var1, String var2, String var3, String var4, float var5, float var6, float var7, float var8, String var9) {
+   static Vec3d[] buildWingBoneMesh(BaseGirlEntity var0, float var1, String var2, String var3, String var4, float var5, float var6, float var7, float var8, String var9) {
       IBone var10 = var0.getAnimationProcessor().getBone(var9);
       if (var10 == null) {
          Vec3d[] var18 = new Vec3d[12];

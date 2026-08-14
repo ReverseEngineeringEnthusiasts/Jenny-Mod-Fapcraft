@@ -51,7 +51,7 @@ public class ForgeEventHandler {
       MinecraftForge.EVENT_BUS.register(SexFireBlock.FIRE);
       MinecraftForge.EVENT_BUS.register(new KoboldEntity.c());
       MinecraftForge.EVENT_BUS.register(new DragonStaffItem.a());
-      MinecraftForge.EVENT_BUS.register(new KoboldManager.b("tribes"));
+      MinecraftForge.EVENT_BUS.register(new KoboldManager.TribeWorldSavedData("tribes"));
       MinecraftForge.EVENT_BUS.register(new KoboldEggItem());
       MinecraftForge.EVENT_BUS.register(new GoblinFirstPersonRenderer());
       MinecraftForge.EVENT_BUS.register(new GoblinEntity.c());
@@ -94,7 +94,7 @@ public class ForgeEventHandler {
       MinecraftForge.EVENT_BUS.register(new StructureMarkerRenderer());
       MinecraftForge.EVENT_BUS.register(new DeprecatedCheckForUpdates());
       MinecraftForge.EVENT_BUS.register(new ClothingScreen.b());
-      MinecraftForge.EVENT_BUS.register(new ServerWhitelistManager.a());
+      MinecraftForge.EVENT_BUS.register(new ServerWhitelistManager.ChatHandler());
       MinecraftForge.EVENT_BUS.register(new EscapeMinigameHud());
       MinecraftForge.EVENT_BUS.register(new CummyEntity());
       MinecraftForge.EVENT_BUS.register(new GalathFlightHud());

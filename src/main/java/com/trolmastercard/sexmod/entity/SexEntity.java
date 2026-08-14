@@ -52,7 +52,7 @@ public class SexEntity extends Entity {
 
    public SexEntity(World var1, LunaEntity var2, double var3) {
       super(var1);
-      this.a(var2);
+      this.setOwnerLuna(var2);
       this.positionLunaAbove(var3);
    }
 
@@ -60,7 +60,7 @@ public class SexEntity extends Entity {
       super(var1);
    }
 
-   private void a(LunaEntity var1) {
+   private void setOwnerLuna(LunaEntity var1) {
       this.setSize(0.25F, 0.25F);
       this.ignoreFrustumCheck = true;
       var1.av = this;

@@ -67,22 +67,22 @@ public class GirlWorldData extends WorldSavedData {
    }
 
    @SubscribeEvent
-   public void a(Save var1) {
+   public void onSave(Save var1) {
       World var2 = var1.getWorld();
       var2.getMapStorage().setData("sexmod:static_custom_model_manager", this);
       this.markDirty();
    }
 
    @SubscribeEvent
-   public void a(Load var1) {
+   public void onLoad(Load var1) {
       World var2 = var1.getWorld();
       var2.getMapStorage().getOrLoadData(GirlWorldData.class, "sexmod:static_custom_model_manager");
    }
 
    public void readFromNBT(NBTTagCompound var1) {
       NBTTagCompound var2 = var1.getCompoundTag("sexmod:static_custom_model_manager");
-      this.a(var2.getCompoundTag("galath"), c);
-      this.a(var2.getCompoundTag("mang"), b);
+      this.writeNBT(var2.getCompoundTag("galath"), c);
+      this.writeNBT(var2.getCompoundTag("mang"), b);
    }
 
    public NBTTagCompound writeToNBT(NBTTagCompound var1) {
@@ -107,7 +107,7 @@ public class GirlWorldData extends WorldSavedData {
       return var2;
    }
 
-   void a(NBTTagCompound var1, HashMap<UUID, String> var2) {
+   void writeNBT(NBTTagCompound var1, HashMap<UUID, String> var2) {
       int var3 = 0;
 
       while (true) {

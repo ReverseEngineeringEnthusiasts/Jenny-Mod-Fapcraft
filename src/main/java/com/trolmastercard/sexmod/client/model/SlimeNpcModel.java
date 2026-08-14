@@ -45,11 +45,11 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
       }
 
       if (!(var1 instanceof AbstractPlayerGirlEntity)) {
-         this.a(new String[]{"head"}, "hat");
+         this.applyBoneName(new String[]{"head"}, "hat");
       }
    }
 
-   void a(String[] var1, String var2) {
+   void applyBoneName(String[] var1, String var2) {
       AnimationProcessor var3 = this.getAnimationProcessor();
       IBone var4 = var3.getBone(var2);
       IBone[] var5 = new IBone[var1.length];

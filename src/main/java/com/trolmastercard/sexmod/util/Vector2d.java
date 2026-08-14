@@ -8,7 +8,7 @@ public class Vector2d {
       this.x = var3;
    }
 
-   public Vector2d a(Vector2d var1) {
+   public Vector2d add(Vector2d var1) {
       return new Vector2d(this.y - var1.y, this.x - var1.x);
    }
 }

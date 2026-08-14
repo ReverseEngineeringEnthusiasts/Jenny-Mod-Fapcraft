@@ -23,7 +23,7 @@ public class PathUtils {
       return getPathEnd(var2);
    }
 
-   public static boolean a(Path var0, BlockPos[] var1) {
+   public static boolean isPathValid(Path var0, BlockPos[] var1) {
       int var2 = var0.getCurrentPathLength();
       ArrayList var3 = new ArrayList();
 

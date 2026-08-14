@@ -204,7 +204,7 @@ public class StructureCommandScreen extends GuiScreen {
          }
 
          if (var8) {
-            this.f(var5);
+            this.setBuildProgress(var5);
          }
 
          if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
@@ -221,7 +221,7 @@ public class StructureCommandScreen extends GuiScreen {
          GlStateManager.scale(1.0F + this.animTopRight * 0.5F, 1.0F + this.animTopRight * 0.5F, 1.0F);
          this.drawTexturedModalRect(-2.0F - var5 + this.animTopRight * 15.0F, -62.0F + var5 - this.animTopRight * 15.0F, 0, 0, 64, 64);
          if (var9) {
-            this.e(var5);
+            this.setEraseProgress(var5);
          }
 
          if (var10) {
@@ -247,7 +247,7 @@ public class StructureCommandScreen extends GuiScreen {
       this.drawTexturedModalRect(-62.0F + var1 - this.animTopLeft * 15.0F, -62.0F + var1 - this.animTopLeft * 15.0F, 64, 64, 64, 64);
    }
 
-   void e(float var1) {
+   void setEraseProgress(float var1) {
       this.drawTexturedModalRect(-2.0F - var1 + this.animTopRight * 15.0F, -62.0F + var1 - this.animTopRight * 15.0F, 64, 0, 64, 64);
    }
 
@@ -255,7 +255,7 @@ public class StructureCommandScreen extends GuiScreen {
       this.drawTexturedModalRect(-2.0F - var1 + this.animTopRight * 15.0F, -62.0F + var1 - this.animTopRight * 15.0F, 128, 0, 64, 64);
    }
 
-   void f(float var1) {
+   void setBuildProgress(float var1) {
       this.drawTexturedModalRect(-62.0F + var1 - this.animBottomLeft * 15.0F, -2.0F - var1 + this.animBottomLeft * 15.0F, 0, 64, 64, 64);
    }
 

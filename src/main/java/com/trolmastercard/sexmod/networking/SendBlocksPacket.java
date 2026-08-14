@@ -69,7 +69,7 @@ public class SendBlocksPacket implements IMessage {
             if (var1.isBreaking) {
                StructureMarkerRenderer.renderMarkers(var1.blockPositions);
             } else {
-               StructureMarkerRenderer.b(var1.blockPositions);
+               StructureMarkerRenderer.setMarkers(var1.blockPositions);
             }
 
             return null;
@@ -88,7 +88,7 @@ public class SendBlocksPacket implements IMessage {
                               IBlockState var7 = var4.getBlockState(var6);
                               BlockPos var8 = null;
                               if (var7.getBlock() instanceof BlockBed) {
-                                 var8 = WorldUtils.a(var6, var7);
+                                 var8 = WorldUtils.getStatePos(var6, var7);
                               }
 
                               if (var7.getBlock() instanceof BlockChest) {

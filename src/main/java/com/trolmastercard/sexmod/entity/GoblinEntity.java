@@ -325,7 +325,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       appendPaddedNumber(var1, HairColor.values().length - 1);
       appendPaddedNumber(var1, SkinColor.values().length - 1);
       appendPaddedNumber(var1, EyeColor.values().length - 1);
-      c(var1, 0);
+      appendPaddedNumber(var1, 0);
       return var1.toString();
    }
 
@@ -384,10 +384,10 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       StringBuilder var2 = new StringBuilder();
 
       for (int var4 : var1) {
-         c(var2, var4);
+         appendPaddedNumber(var2, var4);
       }
 
-      c(var2, Integer.parseInt(getModelCodeParts(this)[9]));
+      appendPaddedNumber(var2, Integer.parseInt(getModelCodeParts(this)[9]));
       this.entityDataManager.set(APPEARANCE_DNA, var2.toString());
       if (null instanceof ClientProxy) {
          GoblinRenderer.clearBoneColors();
@@ -400,10 +400,10 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
          for (Entry var3 : this.customPartsData) {
             int var4 = (Integer)((Entry)var3.getValue()).getValue();
-            c(var1, var4);
+            appendPaddedNumber(var1, var4);
          }
 
-         c(var1, Integer.parseInt(getModelCodeParts(this)[9]));
+         appendPaddedNumber(var1, Integer.parseInt(getModelCodeParts(this)[9]));
          this.entityDataManager.set(APPEARANCE_DNA, var1.toString());
          GoblinRenderer.clearBoneColors();
       }
@@ -417,9 +417,9 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       appendPaddedNumber(var1, 7);
       appendPaddedNumber(var1, 5);
       appendPaddedNumber(var1, HairColor.values().length - 1);
-      c(var1, var2);
+      appendPaddedNumber(var1, var2);
       appendPaddedNumber(var1, EyeColor.values().length - 1);
-      c(var1, 0);
+      appendPaddedNumber(var1, 0);
       return var1.toString();
    }
 
@@ -607,7 +607,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                      || this.guardPostTicks > 100) {
                      int var2 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
                      int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
-                     int var4 = WorldUtils.a(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
+                     int var4 = WorldUtils.getHeightAt(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
                      this.guardPost = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
                      this.guardPostTicks = 0;
                   }
@@ -1298,7 +1298,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    void D_clash278() {
       EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
       if (var1 != null) {
-         ResetGirlPacket.Handler.a((EntityPlayerMP)var1);
+         ResetGirlPacket.Handler.resetGirls((EntityPlayerMP)var1);
       }
 
       this.setInteractionPlayerUUID(null);

@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class GenderSwapScreen {
    public static GenderSwapScreen instance;
-   private GenderSwapScreen.a activeButton;
+   private GenderSwapScreen.SwapButton activeButton;
 
    public void tick() {
       if (instance.activeButton != null) {
@@ -28,7 +28,7 @@ public class GenderSwapScreen {
       }
    }
 
-   public GenderSwapScreen.a getActiveButton() {
+   public GenderSwapScreen.SwapButton getActiveButton() {
       return instance.activeButton;
    }
 
@@ -36,7 +36,7 @@ public class GenderSwapScreen {
       instance.activeButton = null;
    }
 
-   public void onButtonClicked(@Nonnull GenderSwapScreen.a var1) {
+   public void onButtonClicked(@Nonnull GenderSwapScreen.SwapButton var1) {
       World var2 = Minecraft.getMinecraft().player.world;
       EntityPlayer var3 = var2.getPlayerEntityByUUID(var1.playerUUID);
       EntityPlayer var4 = var2.getPlayerEntityByUUID(var1.girlUUID);
@@ -76,7 +76,7 @@ public class GenderSwapScreen {
       if (instance.getActiveButton() != null) {
          String var2 = var1.getMessage().toLowerCase();
          if (var2.equals(I18n.format("genderswap.sexpromt.accept", new Object[0]).toLowerCase())) {
-            GenderSwapScreen.a var3 = instance.getActiveButton();
+            GenderSwapScreen.SwapButton var3 = instance.getActiveButton();
             this.sendSwapRequest(var3.label, var3.playerUUID, var3.girlUUID);
             this.clearActiveButton();
             var1.setCanceled(true);
@@ -98,14 +98,14 @@ public class GenderSwapScreen {
       PacketHandler.networkWrapper.sendToServer(new StartStandingSexAnimationPacket(var2, var3, var1));
    }
 
-   public static class a {
+   public static class SwapButton {
       public String label;
       public UUID girlUUID;
       public UUID playerUUID;
       public float countdown;
       boolean isMale;
 
-      public a(String var1, UUID var2, UUID var3, boolean var4) {
+      public SwapButton(String var1, UUID var2, UUID var3, boolean var4) {
          this.label = var1;
          this.girlUUID = var2;
          this.playerUUID = var3;

@@ -239,8 +239,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    protected String buildModelCodeDNA(StringBuilder var1) {
-      b(var1, 8);
-      b(var1, 3);
+      appendPaddedLetter(var1, 8);
+      appendPaddedLetter(var1, 3);
       appendRandomGene(var1);
       appendRandomGene(var1);
       appendPaddedNumber(var1, 2);
@@ -301,7 +301,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                this.entityDataManager.set(ACTION_TARGET_POS, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
                break;
             default:
-               c(var2, var4);
+               appendPaddedNumber(var2, var4);
          }
       }
 
@@ -327,7 +327,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   this.entityDataManager.set(ACTION_TARGET_POS, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
                   break;
                default:
-                  c(var1, var4);
+                  appendPaddedNumber(var1, var4);
             }
          }
 
@@ -1218,7 +1218,7 @@ KoboldManager.assignBed(this, var4);
       int var10 = (int)((var3.getX() > 0 ? 1 : -1) * 20 * (var4 == Math.abs(var3.getX()) ? var8 : 1.0 - var8));
       int var11 = (int)((var3.getZ() > 0 ? 1 : -1) * 20 * (var4 == Math.abs(var3.getZ()) ? var8 : 1.0 - var8));
       BlockPos var12 = this.getPosition().add(var10, 0, var11);
-      return new BlockPos(var12.getX(), WorldUtils.a(this.world, var12.getX(), var12.getZ()) + 1, var12.getZ());
+      return new BlockPos(var12.getX(), WorldUtils.getHeightAt(this.world, var12.getX(), var12.getZ()) + 1, var12.getZ());
    }
 
    void checkTribeHome(UUID var1) {
@@ -1233,7 +1233,7 @@ KoboldManager.assignBed(this, var4);
             0,
             (50 + this.getRNG().nextInt(50)) * (this.getRNG().nextBoolean() ? 1 : -1)
          );
-         var5 = new BlockPos(var5.getX(), WorldUtils.a(this.world, var5.getX(), var5.getZ()), var5.getZ());
+         var5 = new BlockPos(var5.getX(), WorldUtils.getHeightAt(this.world, var5.getX(), var5.getZ()), var5.getZ());
       } while ((var5.getY() <= 0 || !this.getNavigator().canEntityStandOnPos(var5)) && var3 < 100);
 
       KoboldManager.setTribeHome(var1, var5);
@@ -1263,7 +1263,7 @@ KoboldManager.assignBed(this, var4);
       }
 
       if (var4 != null) {
-         KoboldTask.a(this.world, var4, var1);
+         KoboldTask.findConnectedBlocks(this.world, var4, var1);
          this.sendGirlChatMessage("Someone, go fall this tree!");
       }
    }
@@ -1866,7 +1866,7 @@ KoboldManager.assignBed(this, var4);
             || this.ab > 100) {
             int var2 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
             int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
-            int var4 = WorldUtils.a(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
+            int var4 = WorldUtils.getHeightAt(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
             this.ap = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
             this.ab = 0;
          }

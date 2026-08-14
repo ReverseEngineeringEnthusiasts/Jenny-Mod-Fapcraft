@@ -64,7 +64,7 @@ public class LunaRodItem extends ItemFishingRod {
       ModelLoader.setCustomModelResourceLocation(LUNA_ROD, 0, new ModelResourceLocation("fishing_rod"));
    }
 
-   public ActionResult<ItemStack> a(World var1, LunaEntity var2, EnumHand var3) {
+   public ActionResult<ItemStack> castFishingRod(World var1, LunaEntity var2, EnumHand var3) {
       ItemStack var4 = var2.getHeldItem(var3);
       if (var2.av != null) {
          int var5 = var2.av.getCatchResult();

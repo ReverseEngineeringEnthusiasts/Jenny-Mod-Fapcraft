@@ -140,8 +140,8 @@ public class GalathCoinItem extends Item implements IAnimatable {
          long var8 = var7.getLong("sexmod:galath_coin_activation_time");
          long var10 = var7.getLong("sexmod:galath_coin_deactivation_time");
          long var12 = System.currentTimeMillis();
-         this.b(var6, var7, var12, var8);
-         this.a(var6, var7, var12, var10);
+         this.writeCooldownNBT(var6, var7, var12, var8);
+         this.writeCooldownNBT(var6, var7, var12, var10);
          if (var10 != 0L && var12 > var10 + 4000L) {
             var7.setLong("sexmod:galath_coin_deactivation_time", 0L);
             var7.setBoolean("sexmod:galath_coin_de_summoning_animation_time", false);
@@ -220,7 +220,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
       }
    }
 
-   void b(EntityPlayer var1, NBTTagCompound var2, long var3, long var5) {
+   void writeCooldownNBT(EntityPlayer var1, NBTTagCompound var2, long var3, long var5) {
       if (var5 != 0L) {
          if (var3 - var5 > 4000L) {
             var2.setLong("sexmod:galath_coin_activation_time", 0L);
@@ -297,7 +297,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
       }
 
       if (var2 != null) {
-         a(var1, var2);
+         summonForPlayer(var1, var2);
       }
    }
 
@@ -329,11 +329,11 @@ public class GalathCoinItem extends Item implements IAnimatable {
       }
    }
 
-   public static void a(EntityPlayer var0, GalathEntity var1) {
+   public static void summonForPlayer(EntityPlayer var0, GalathEntity var1) {
       summonGalathFor(var0.getPersistentID(), var1);
    }
 
-   void a(EntityPlayer var1, NBTTagCompound var2, long var3, long var5) {
+   void readCooldownNBT(EntityPlayer var1, NBTTagCompound var2, long var3, long var5) {
       if (var5 != 0L) {
          long var7 = var3 - var5;
          World var9 = var1.world;

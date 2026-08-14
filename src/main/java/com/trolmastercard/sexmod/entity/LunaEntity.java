@@ -193,12 +193,12 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    public boolean openInteractionMenu(EntityPlayer var1) {
       String[] var2 = new String[]{"action.names.sex", "action.names.touchboobs", "action.names.headpat"};
       ItemStack[] var3 = new ItemStack[]{new ItemStack(Items.FISH, 3, 0), new ItemStack(Items.FISH, 2, 1), null};
-      a(var1, this, var2, var3);
+      onPlayerApproach(var1, this, var2, var3);
       return true;
    }
 
    @SideOnly(Side.CLIENT)
-   protected static void a(EntityPlayer var0, BaseGirlEntity var1, String[] var2, ItemStack[] var3) {
+   protected static void onPlayerApproach(EntityPlayer var0, BaseGirlEntity var1, String[] var2, ItemStack[] var3) {
       Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(var1, var0, var2, var3, true));
    }
 
@@ -296,7 +296,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       if (var1 != null) {
          if (!(var1.getDistance(this) > 1.25F)) {
             if (this.world.isRemote) {
-               this.a(var1, this.ab);
+               this.setFishingLevelFor(var1, this.ab);
             } else if (this.ab == 25) {
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
@@ -316,7 +316,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    @SideOnly(Side.CLIENT)
-   void a(EntityPlayer var1, int var2) {
+   void setFishingLevelFor(EntityPlayer var1, int var2) {
       if (var2 == 0) {
          EntityPlayerSP var3 = Minecraft.getMinecraft().player;
          if (var3.getPersistentID().equals(var1.getPersistentID())) {
@@ -449,7 +449,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       if (!this.hasMaster() && this.getInteractionPlayerUUID() == null && !this.ar) {
          if (!(++this.aj < 1200.0F)) {
             if (this.av != null && this.av.lureTimer == 15) {
-               ((LunaRodItem)this.ao.getItem()).a(this.world, this, EnumHand.MAIN_HAND);
+               ((LunaRodItem)this.ao.getItem()).castFishingRod(this.world, this, EnumHand.MAIN_HAND);
                this.al = this.world.getTotalWorldTime() + 20L;
                ItemStack var1 = (ItemStack)this.entityDataManager.get(ag);
                if (var1 != ItemStack.EMPTY) {

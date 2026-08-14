@@ -325,7 +325,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.entityDataManager.set(MASTER, var5.toString());
       this.aO.setVisible(false);
       this.bG = new BlockPos(this.getPositionVector());
-      String var6 = AllieWorldData.a(var5, NpcType.GALATH);
+      String var6 = AllieWorldData.getNpcName(var5, NpcType.GALATH);
       if (var6 != null) {
          super.setCustomNameOverride(var6);
       }
@@ -335,7 +335,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             this.setCurrentAction(Action.GALATH_SUMMON);
          } else {
             this.setCurrentAction(Action.MASTERBATE);
-            this.setYawRotation(180.0F - (float)TrigMath.b(Math.atan2(var3.x - var2.posX, var3.z - var2.posZ)));
+            this.setYawRotation(180.0F - (float)TrigMath.sinDegrees(Math.atan2(var3.x - var2.posX, var3.z - var2.posZ)));
             ThreadNames.createDaemonThread(8000, () -> {
                EntityPlayer var1x = this.getMasterPlayer();
                if (var1x != null) {
@@ -589,7 +589,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       if (this.getCurrentAction() == Action.GIVE_COIN) {
          int var1 = Action.GIVE_COIN.ticksPlaying[1];
          if (var1 == 95) {
-            GalathCoinItem.a(Minecraft.getMinecraft().player, this);
+            GalathCoinItem.summonForPlayer(Minecraft.getMinecraft().player, this);
          }
 
          if (var1 > 25 && var1 < 38) {
@@ -661,7 +661,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
-   static boolean a(BlockPos var0, World var1) {
+   static boolean isNearHive(BlockPos var0, World var1) {
       for (BlockPos var3 : BeeWorldData.hivePositions) {
          if (Math.sqrt(var0.distanceSq(var3)) < 1000.0) {
             return false;
@@ -926,7 +926,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       if (!(Boolean)this.entityDataManager.get(bP)) {
          this.entityDataManager.set(bP, true);
          if (this.bZ != null) {
-            this.bZ.e(this);
+            this.bZ.updateFlight(this);
          }
 
          this.bZ = null;
@@ -1048,7 +1048,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
 
       if (this.bZ != null) {
-         this.bZ.e(this);
+         this.bZ.updateFlight(this);
          this.bZ = null;
       }
 
@@ -1138,7 +1138,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.bG = null;
       this.aC = 0;
       if (this.bZ != null) {
-         this.bZ.e(this);
+         this.bZ.updateFlight(this);
          this.bZ = null;
       }
    }
@@ -1185,7 +1185,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                         Vec3d var11 = this.getPositionVector();
                         Vec3d var12 = var6.getPositionVector();
                         Vec3d var9 = var12.subtract(var11);
-                        float var10 = (float)TrigMath.b(Math.atan2(var9.z, var9.x)) - 90.0F;
+                        float var10 = (float)TrigMath.sinDegrees(Math.atan2(var9.z, var9.x)) - 90.0F;
                         this.setYawRotation(var10);
                         this.pathNavigator.clearPath();
                         this.pathNavigator.tryMoveToEntityLiving(var6, 0.65F);
@@ -1214,7 +1214,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      int var4 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
                      int var5 = this.world.provider.getDimensionType() == DimensionType.NETHER
                         ? (int)Math.ceil(this.posY)
-                        : WorldUtils.a(this.world, this.getPosition().getX() + var3, this.getPosition().getZ() + var4);
+                        : WorldUtils.getHeightAt(this.world, this.getPosition().getX() + var3, this.getPosition().getZ() + var4);
                      this.bG = new BlockPos(this.getPosition().getX() + var3, var5, this.getPosition().getZ() + var4);
                      this.aC = 0;
                   }
@@ -1324,7 +1324,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             int var1 = (Integer)this.entityDataManager.get(bq);
             if (var1 != -1) {
                if (this.bZ != null) {
-                  this.bZ.e(this);
+                  this.bZ.updateFlight(this);
                }
 
                this.bZ = null;
@@ -1359,11 +1359,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                   if (action == Action.CORRUPT_SLOW) {
                      this.aT = false;
                      if (var2 == Action.CORRUPT_INTRO) {
-                        this.d(false);
+                        this.setFlying(false);
                      }
 
                      if (this.hasMaster() && var2 == Action.NULL) {
-                        this.d(true);
+                        this.setFlying(true);
                      }
                   }
 
@@ -1389,7 +1389,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    void aE() {
       EntityPlayer var1 = this.getPlayerEntity();
       if (var1 != null) {
-         ResetGirlPacket.Handler.a((EntityPlayerMP)var1);
+         ResetGirlPacket.Handler.resetGirls((EntityPlayerMP)var1);
       }
 
       ResetGirlPacket.Handler.resetGirl(this);
@@ -1446,7 +1446,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
-   void d(boolean var1) {
+   void setFlying(boolean var1) {
       EntityPlayer var2 = this.getPlayerEntity();
       if (var2 != null) {
          Vec3d var3;
@@ -1732,12 +1732,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          GalathFlightData var1 = this.bZ;
          if (this.getInteractionPlayerUUID() != null) {
             if (var1 != null) {
-               var1.e(this);
+               var1.updateFlight(this);
             }
 
             this.bZ = null;
          } else if (var1 != null && var1.applyAttackCoolDown) {
-            var1.e(this);
+            var1.updateFlight(this);
             this.bZ = GalathFlightData.CHANGE_POSITION;
             this.bZ.executeStart(this);
          } else {
@@ -1750,7 +1750,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
             this.bZ = var3;
             if (var1 != null) {
-               var1.e(this);
+               var1.updateFlight(this);
             }
 
             this.bZ.executeStart(this);
@@ -1785,7 +1785,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                this.setTargetEntity((EntityLivingBase)var8);
                BaseGirlEntity.girlPlaySound(this, SoundHandler.GIRLS_GALATH_DIALOG[1], true);
                if (this.bZ != null) {
-                  this.bZ.e(this);
+                  this.bZ.updateFlight(this);
                }
 
                this.bZ = GalathFlightData.CHANGE_POSITION;
@@ -1818,7 +1818,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       Vec3d var7 = this.getPositionVector().add(0.0, this.getEyeHeight(), 0.0);
 
       for (EntityMob var6 : (java.util.Collection<EntityMob>) (var3) ) {
-         if (com.trolmastercard.sexmod.MobPredicates.a(this.world, var7, var6)) {
+         if (com.trolmastercard.sexmod.MobPredicates.isDaylight(this.world, var7, var6)) {
             return var6;
          }
       }
@@ -1830,7 +1830,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       if (this.getTargetEntity() != null) {
          this.setTargetEntity(null);
          if (this.bZ != null) {
-            this.bZ.e(this);
+            this.bZ.updateFlight(this);
          }
 
          this.bZ = null;
@@ -2035,7 +2035,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       Vec3d var4 = RotationHelper.lerpVec3dDouble(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var1);
       Vec3d var5 = RotationHelper.lerpVec3dDouble(new Vec3d(var0.lastTickPosX, var0.lastTickPosY, var0.lastTickPosZ), var0.getPositionVector(), var1);
       Vec3d var6 = var4.subtract(var5);
-      float var7 = (float)TrigMath.b(Math.atan2(var6.z, var6.x)) - 90.0F;
+      float var7 = (float)TrigMath.sinDegrees(Math.atan2(var6.z, var6.x)) - 90.0F;
       var0.renderYawOffset = var7;
       var0.prevRenderYawOffset = var7;
       return var7;
@@ -2196,7 +2196,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
       UUID var2 = this.getMasterUUID();
       if (var2 != null) {
-         String var3 = AllieWorldData.a(var2, NpcType.GALATH);
+         String var3 = AllieWorldData.getNpcName(var2, NpcType.GALATH);
          if (var3 != null) {
             this.setCustomNameOverride(var3);
          }
@@ -2645,7 +2645,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      break;
                   case "masterbateCumming":
                      if (CommandFuta.ENABLED) {
-                        CummyEntity.a(new DynamicTrailRenderer(90, var0 -> {
+                        CummyEntity.registerTrail(new DynamicTrailRenderer(90, var0 -> {
                            Vec3d var1xx = var0.getBoneWorldPosition("futaCockTip");
                            Vec3d var2 = var0.getBoneWorldPosition("futaCockTipDirHelp");
                            return var1xx.subtract(var2).normalize();
@@ -2653,7 +2653,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      }
                      break;
                   case "creampie":
-                     CummyEntity.a(
+                     CummyEntity.registerTrail(
                         new DynamicTrailRenderer(
                            100,
                            var1xx -> VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.6F), this.getYawRotation()),
@@ -2665,7 +2665,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                      );
                   case "creampieGalath":
                      if (CommandFuta.ENABLED) {
-                        CummyEntity.a(new DynamicTrailRenderer(130, var0 -> {
+                        CummyEntity.registerTrail(new DynamicTrailRenderer(130, var0 -> {
                            Vec3d var1xx = var0.getBoneWorldPosition("futaCockTip");
                            Vec3d var2 = var0.getBoneWorldPosition("futaCockTipDirHelp");
                            return var1xx.subtract(var2).normalize();
@@ -2762,7 +2762,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                if (var3 instanceof EntityWitherSkeleton || var3 instanceof EntityBlaze) {
                   BlockPos var4 = var3.getPosition();
                   World var5 = var3.world;
-                  if (GalathEntity.a(var4, var5)) {
+                  if (GalathEntity.isNearHive(var4, var5)) {
                      var1.setResult(Result.DENY);
                      BeeWorldData.addHivePosition(var4, BeeWorldData.hivePositions);
                      GalathEntity var6 = new GalathEntity(var5);
@@ -2846,7 +2846,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), var2);
             var3.setCurrentAction((Action)null);
             if (var4.bZ != null) {
-               var4.bZ.e(var4);
+               var4.bZ.updateFlight(var4);
                var4.bZ = null;
             }
          }

@@ -52,7 +52,7 @@ public class GirlScreenBase extends GuiScreen {
    public void drawScreen(int var1, int var2, float var3) {
       super.drawScreen(var1, var2, var3);
       this.buttonList.clear();
-      a(this.width / 2, this.height / 2 + 20, 30, this.nearbyEntities.get(this.renderIndex));
+      renderEntityPreview(this.width / 2, this.height / 2 + 20, 30, this.nearbyEntities.get(this.renderIndex));
       this.buttonList.add(new GuiButton(1, this.width / 2 + 30, this.height / 2 - 10, 20, 20, ">"));
       this.buttonList.add(new GuiButton(2, this.width / 2 - 50, this.height / 2 - 10, 20, 20, "<"));
       this.buttonList.add(new GuiButton(0, this.width / 2 - 30, this.height / 2 + 30, 60, 20, "pick"));
@@ -82,7 +82,7 @@ public class GirlScreenBase extends GuiScreen {
       return false;
    }
 
-   public static void a(int var0, int var1, int var2, EntityLivingBase var3) {
+   public static void renderEntityPreview(int var0, int var1, int var2, EntityLivingBase var3) {
       float var4 = var3.renderYawOffset;
       float var5 = var3.rotationYaw;
       float var6 = var3.rotationPitch;

@@ -96,7 +96,7 @@ public class ResetGirlPacket implements IMessage {
          var0.setPositionAndUpdate(var4.x, var4.y, var4.z);
       }
 
-      public static void a(EntityPlayerMP var0) {
+      public static void resetGirls(EntityPlayerMP var0) {
          if (var0 != null) {
             World var1 = var0.world;
             Vec3d var2 = var0.getPositionVector();
@@ -120,7 +120,7 @@ public class ResetGirlPacket implements IMessage {
                for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
                   if (!var3.world.isRemote) {
                      if (var3.getInteractionPlayerUUID() != null) {
-                        a(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(var3.getInteractionPlayerUUID()));
+                        resetGirls(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(var3.getInteractionPlayerUUID()));
                      }
 
                      if (var1.resetPose) {

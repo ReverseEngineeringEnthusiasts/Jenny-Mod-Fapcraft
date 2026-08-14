@@ -52,7 +52,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class KoboldManager {
    static final int TRIBE_SPAWN_RADIUS = 4;
-   private static final HashMap<UUID, KoboldManager.a> c = new HashMap<>();
+   private static final HashMap<UUID, KoboldManager.Tribe> c = new HashMap<>();
    static final Vec3d[] b = new Vec3d[]{
       new Vec3d(0.0, 0.0, 0.0), new Vec3d(0.5, 0.0, 0.0), new Vec3d(-0.5, 0.0, 0.0), new Vec3d(0.0, 0.0, 0.5), new Vec3d(0.0, 0.0, -0.5)
    };
@@ -80,7 +80,7 @@ public class KoboldManager {
       }
 
       EyeAndKoboldColor var11 = EyeAndKoboldColor.values()[Reference.RANDOM.nextInt(EyeAndKoboldColor.values().length)];
-      KoboldManager.a var12 = new KoboldManager.a(var2, var11, (KoboldEntity)var10.get(0), var10);
+      KoboldManager.Tribe var12 = new KoboldManager.Tribe(var2, var11, (KoboldEntity)var10.get(0), var10);
       c.put(var2, var12);
       int var13 = 0;
 
@@ -96,18 +96,18 @@ public class KoboldManager {
    }
 
    public static void assignMaster(UUID var0, UUID var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 != null) {
          var2.setMasterPlayerUUID(var1);
       }
    }
 
    public static void setTribeColor(UUID var0, EyeAndKoboldColor var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 != null) {
          System.out.println("tribe of UUID " + var0.toString() + " does already exist lol");
       } else {
-         c.put(var0, new KoboldManager.a(var0, var1));
+         c.put(var0, new KoboldManager.Tribe(var0, var1));
       }
    }
 
@@ -161,7 +161,7 @@ public class KoboldManager {
    }
 
    public static void setLeaderKobold(UUID var0, KoboldEntity var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -170,7 +170,7 @@ public class KoboldManager {
    }
 
    public static void addTribeMember(UUID var0, KoboldEntity var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -184,7 +184,7 @@ public class KoboldManager {
    }
 
    public static void triggerFastSexAction(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -196,7 +196,7 @@ public class KoboldManager {
    }
 
    public static void setTribeLeader(UUID var0, KoboldEntity var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -241,7 +241,7 @@ public class KoboldManager {
 
    @Nullable
    public static KoboldEntity getTribeLeader(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return null;
@@ -251,7 +251,7 @@ public class KoboldManager {
    }
 
    public static boolean isTribeMember(UUID var0, KoboldEntity var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return false;
@@ -261,7 +261,7 @@ public class KoboldManager {
    }
 
    public static EyeAndKoboldColor getTribeColor(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return KoboldEntity.aJ;
@@ -271,7 +271,7 @@ public class KoboldManager {
    }
 
    public static HashSet<BlockPos> getTribeBeds(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return new HashSet<>();
@@ -282,7 +282,7 @@ public class KoboldManager {
 
    public static void addTribeChest(UUID var0, BlockPos var1) {
       if (var1 != null) {
-         KoboldManager.a var2 = c.get(var0);
+         KoboldManager.Tribe var2 = c.get(var0);
          if (var2 == null) {
             System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          } else {
@@ -292,7 +292,7 @@ public class KoboldManager {
    }
 
    public static void removeTribeChest(UUID var0, BlockPos var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -301,7 +301,7 @@ public class KoboldManager {
    }
 
    public static HashSet<BlockPos> getTribeChests(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return null;
@@ -312,7 +312,7 @@ public class KoboldManager {
 
    public static void addTribeBed(UUID var0, BlockPos var1) {
       if (var1 != null) {
-         KoboldManager.a var2 = c.get(var0);
+         KoboldManager.Tribe var2 = c.get(var0);
          if (var2 == null) {
             System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          } else {
@@ -322,7 +322,7 @@ public class KoboldManager {
    }
 
    public static void removeTribeBed(UUID var0, BlockPos var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -331,7 +331,7 @@ public class KoboldManager {
    }
 
    public static HashSet<BlockPos> removeTaskAndGetBlocks(UUID var0, KoboldTask var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return new HashSet<>();
@@ -344,7 +344,7 @@ public class KoboldManager {
    }
 
    public static HashSet<BlockPos> removeMiningTargetsFor(UUID var0, BlockPos var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return new HashSet<>();
@@ -363,7 +363,7 @@ public class KoboldManager {
    }
 
    public static void addTask(UUID var0, KoboldTask var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -372,7 +372,7 @@ public class KoboldManager {
    }
 
    public static void removeTaskForKobold(UUID var0, KoboldEntity var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -394,7 +394,7 @@ public class KoboldManager {
 
    @Nullable
    public static Collection<KoboldTask> getTribeTasks(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return null;
@@ -404,7 +404,7 @@ public class KoboldManager {
    }
 
    public static TribeState getTribeState(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return TribeState.REST;
@@ -414,7 +414,7 @@ public class KoboldManager {
    }
 
    public static void setTribeState(UUID var0, TribeState var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -423,7 +423,7 @@ public class KoboldManager {
    }
 
    public static int getTribeMemberCount(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return 0;
@@ -433,7 +433,7 @@ public class KoboldManager {
    }
 
    public static List<KoboldEntity> getTribeMembersList(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return new ArrayList<>();
@@ -443,7 +443,7 @@ public class KoboldManager {
    }
 
    public static void setTribeHome(UUID var0, BlockPos var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -453,7 +453,7 @@ public class KoboldManager {
 
    @Nullable
    public static BlockPos getTribeHomePos(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return null;
@@ -463,7 +463,7 @@ public class KoboldManager {
    }
 
    public static HashSet<EntityLivingBase> getTribeTargets(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return new HashSet<>();
@@ -473,7 +473,7 @@ public class KoboldManager {
    }
 
    public static void addCombatant(UUID var0, EntityLivingBase var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -482,7 +482,7 @@ public class KoboldManager {
    }
 
    public static void removeCombatant(UUID var0, EntityLivingBase var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -491,7 +491,7 @@ public class KoboldManager {
    }
 
    public static boolean hasAssignedMaster(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return false;
@@ -507,7 +507,7 @@ public class KoboldManager {
    }
 
    public static boolean isTribeAlerted(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return false;
@@ -517,7 +517,7 @@ public class KoboldManager {
    }
 
    public static void setTribeFollowMode(UUID var0, boolean var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -532,8 +532,8 @@ public class KoboldManager {
       }
 
       for (Entry var2 : c.entrySet()) {
-         KoboldManager.a var3 = (KoboldManager.a)var2.getValue();
-         if ((var3.getSavedPositions().size() != 0 || var3.getTribeId() != 0) && var0.equals(((KoboldManager.a)var2.getValue()).getMasterPlayerUUID())) {
+         KoboldManager.Tribe var3 = (KoboldManager.Tribe)var2.getValue();
+         if ((var3.getSavedPositions().size() != 0 || var3.getTribeId() != 0) && var0.equals(((KoboldManager.Tribe)var2.getValue()).getMasterPlayerUUID())) {
             return (UUID)var2.getKey();
          }
       }
@@ -543,7 +543,7 @@ public class KoboldManager {
 
    @Nullable
    public static UUID findTribeIdWith(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return null;
@@ -564,7 +564,7 @@ public class KoboldManager {
    }
 
    public static HashSet<BlockPos> getAllTribeBlocks(UUID var0) {
-      KoboldManager.a var1 = c.get(var0);
+      KoboldManager.Tribe var1 = c.get(var0);
       HashSet var2 = new HashSet();
       if (var1 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
@@ -581,7 +581,7 @@ public class KoboldManager {
    }
 
    public static HashMap<UUID, BlockPos> getTribeSavedPositions(UUID var0, World var1) {
-      KoboldManager.a var2 = c.get(var0);
+      KoboldManager.Tribe var2 = c.get(var0);
       if (var2 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
          return new HashMap<>();
@@ -616,7 +616,7 @@ public class KoboldManager {
    }
 
    public static void setTribeHomeForMember(UUID var0, UUID var1, BlockPos var2) {
-      KoboldManager.a var3 = c.get(var0);
+      KoboldManager.Tribe var3 = c.get(var0);
       if (var3 == null) {
          System.out.println("tribe of UUID " + var0.toString() + " not found uwu");
       } else {
@@ -624,7 +624,7 @@ public class KoboldManager {
       }
    }
 
-   public static class a {
+   public static class Tribe {
       UUID tribeUUID;
       UUID masterPlayerUUID;
       KoboldEntity leaderKobold;
@@ -639,14 +639,14 @@ public class KoboldManager {
       HashMap<UUID, BlockPos> k = new HashMap<>();
       boolean followModeEnabled = false;
 
-      public a(UUID var1, EyeAndKoboldColor var2, KoboldEntity var3, List<KoboldEntity> var4) {
+      public Tribe(UUID var1, EyeAndKoboldColor var2, KoboldEntity var3, List<KoboldEntity> var4) {
          this.tribeUUID = var1;
          this.tribeColor = var2;
          this.leaderKobold = var3;
          this.members = var4;
       }
 
-      public a(UUID var1, EyeAndKoboldColor var2) {
+      public Tribe(UUID var1, EyeAndKoboldColor var2) {
          this.tribeUUID = var1;
          this.tribeColor = var2;
          this.members = new ArrayList<>();
@@ -783,8 +783,8 @@ public class KoboldManager {
 
    }
 
-   public static class b extends WorldSavedData {
-      public b(String var1) {
+   public static class TribeWorldSavedData extends WorldSavedData {
+      public TribeWorldSavedData(String var1) {
          super(var1);
       }
 
@@ -798,7 +798,7 @@ public class KoboldManager {
       @SubscribeEvent
       public void onWorldLoad(Load var1) {
          World var2 = var1.getWorld();
-         var2.getMapStorage().getOrLoadData(KoboldManager.b.class, "tribes");
+         var2.getMapStorage().getOrLoadData(KoboldManager.TribeWorldSavedData.class, "tribes");
       }
 
       @SubscribeEvent
@@ -839,7 +839,7 @@ public class KoboldManager {
 
                if (var6 != null) {
                   for (Entry var8 : KoboldManager.c.entrySet()) {
-                     KoboldManager.a var9 = (KoboldManager.a)var8.getValue();
+                     KoboldManager.Tribe var9 = (KoboldManager.Tribe)var8.getValue();
                      if (var9.tribeBeds.contains(var6)) {
                         var9.tribeBeds.add(var2);
                         UUID var10 = KoboldManager.findTribeIdWith((UUID)var8.getKey());
@@ -884,7 +884,7 @@ public class KoboldManager {
             Block var5 = var4.getBlock();
             if (var5 instanceof BlockChest) {
                for (Entry var7 : KoboldManager.c.entrySet()) {
-                  KoboldManager.a var8 = (KoboldManager.a)var7.getValue();
+                  KoboldManager.Tribe var8 = (KoboldManager.Tribe)var7.getValue();
                   if (var8.tribeBeds.contains(var2)) {
                      var8.tribeBeds.remove(var2);
                      UUID var9 = KoboldManager.findTribeIdWith((UUID)var7.getKey());
@@ -900,9 +900,9 @@ public class KoboldManager {
 
             if (var5 instanceof BlockBed) {
                for (Entry var14 : KoboldManager.c.entrySet()) {
-                  KoboldManager.a var15 = (KoboldManager.a)var14.getValue();
+                  KoboldManager.Tribe var15 = (KoboldManager.Tribe)var14.getValue();
                   if (var15.tribeChests.contains(var2)) {
-                     BlockPos var16 = WorldUtils.a(var2, var4);
+                     BlockPos var16 = WorldUtils.getStatePos(var2, var4);
                      var15.tribeChests.remove(var2);
                      var15.tribeChests.remove(var16);
                      UUID var17 = KoboldManager.findTribeIdWith((UUID)var14.getKey());
@@ -1031,7 +1031,7 @@ public class KoboldManager {
          int var2 = 0;
 
          for (Entry var4 : KoboldManager.c.entrySet()) {
-            KoboldManager.a var5 = (KoboldManager.a)var4.getValue();
+            KoboldManager.Tribe var5 = (KoboldManager.Tribe)var4.getValue();
             UUID var6 = (UUID)var4.getKey();
             UUID var7 = var5.getMasterPlayerUUID();
             var1.setString("tribeId" + var2, var6.toString());

@@ -172,8 +172,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected void renderRightEye() {
    }
 
-   float a(World var1, Vec3d var2, float var3, float var4) {
-      RayTraceResult var5 = this.a(var2, var2.add(VectorMath.rotateByYawPitch(new Vec3d(0.0, 0.0, -4.0), var3, var4)), var1);
+   float rayTraceBoneDistance(World var1, Vec3d var2, float var3, float var4) {
+      RayTraceResult var5 = this.rayTraceBlocks(var2, var2.add(VectorMath.rotateByYawPitch(new Vec3d(0.0, 0.0, -4.0), var3, var4)), var1);
       if (var5 == null) {
          return 4.0F;
       }
@@ -231,7 +231,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       };
 
       for (Vec3d var20 : var16) {
-         RayTraceResult var21 = this.a(var7, var20, var3);
+         RayTraceResult var21 = this.rayTraceBlocks(var7, var20, var3);
          if (var21 == null) {
             return true;
          }
@@ -264,7 +264,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       HashSet var4 = new HashSet();
 
       for (String var6 : (java.util.Collection<String>) (var3) ) {
-         ServerWhitelistManager.b var7 = ServerWhitelistManager.getModelDataForGirl(var6);
+         ServerWhitelistManager.ModelData var7 = ServerWhitelistManager.getModelDataForGirl(var6);
          if (var7 != null && (var7.isDisabled() || !var2)) {
             var4.addAll(var7.getCustomPartBones());
          }
@@ -361,7 +361,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var3;
    }
 
-   Vec3d a(T var1, float var2, double var3, double var5, double var7) {
+   Vec3d getBoneWorldPos(T var1, float var2, double var3, double var5, double var7) {
       Vec3d var9 = new Vec3d(var3, var5, var7);
       if (var1.world instanceof SexWorldClient) {
          return var9;
@@ -406,7 +406,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
    public void doRenderEntity(T var1, double var2, double var4, double var6, float var8, float var9) {
       this.renderEntity = (T)var1;
-      Vec3d var10 = this.a((T)var1, var9, var2, var4, var6);
+      Vec3d var10 = this.getBoneWorldPos((T)var1, var9, var2, var4, var6);
       var10 = this.getBoneWorldPos((T)var1, var9, var10);
       var2 = var10.x;
       var4 = var10.y;
@@ -490,7 +490,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          SexSceneRenderer.renderSexSceneEffects(var1, var9);
          Vector3fSexmodSpecial var52 = this.getAdditionalOverlayColor((T)var1);
          if (var52 != null) {
-            this.a(var1, var9, var52);
+            this.renderGirlColor(var1, var9, var52);
          }
       } else {
          EntityModelData var12 = new EntityModelData();
@@ -549,7 +549,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          SexSceneRenderer.renderSexSceneEffects(var1, var9);
          Vector3fSexmodSpecial var50 = this.getAdditionalOverlayColor((T)var1);
          if (var50 != null) {
-            this.a(var1, var9, var50);
+            this.renderGirlColor(var1, var9, var50);
          }
       }
    }
@@ -575,7 +575,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var1;
    }
 
-   void a(BaseGirlEntity var1, float var2, Vector3fSexmodSpecial var3) {
+   void renderGirlColor(BaseGirlEntity var1, float var2, Vector3fSexmodSpecial var3) {
       EntityPlayerSP var4 = mc.player;
       var3 = new Vector3fSexmodSpecial(var3.x / 255.0F, var3.y / 255.0F, var3.z / 255.0F);
       Tessellator var5 = Tessellator.getInstance();
@@ -1071,7 +1071,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
-   RayTraceResult a(Vec3d var1, Vec3d var2, World var3) {
+   RayTraceResult rayTraceBlocks(Vec3d var1, Vec3d var2, World var3) {
       if (Double.isNaN(var1.x) || Double.isNaN(var1.y) || Double.isNaN(var1.z)) {
          return null;
       }

@@ -41,7 +41,7 @@ public class TrigMath {
       return (float)((180.0 / Math.PI) * var0);
    }
 
-   public static double b(double var0) {
+   public static double sinDegrees(double var0) {
       return (180.0 / Math.PI) * var0;
    }
 

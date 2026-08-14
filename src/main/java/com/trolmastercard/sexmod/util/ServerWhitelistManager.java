@@ -52,11 +52,11 @@ public class ServerWhitelistManager {
    public static final String CUSTOM_MODELS_DIR = "sexmod/custom_models";
    static final String WHITELIST_FILE = "sexmod/custom_models/whitelisted_servers.txt";
    public static final String CUSTOM_MODELS_KEY = "sexmod_custom_models";
-   static Map<String, ServerWhitelistManager.b> modelDataMap = new HashMap<>();
+   static Map<String, ServerWhitelistManager.ModelData> modelDataMap = new HashMap<>();
    public static boolean isGlobalRenderingDisabled = false;
    public static boolean isLoaded = false;
 
-   public static Map<String, ServerWhitelistManager.b> getModelDataMap() {
+   public static Map<String, ServerWhitelistManager.ModelData> getModelDataMap() {
       return modelDataMap;
    }
 
@@ -187,14 +187,14 @@ public class ServerWhitelistManager {
    }
 
    public static float getModelZOffset(String var0) {
-      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
+      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
       return var1 == null ? 0.0F : var1.getZOffset();
    }
 
    @SideOnly(Side.CLIENT)
    static void syncModelData() {
       for (Entry var1 : modelDataMap.entrySet()) {
-         ServerWhitelistManager.b var2 = (ServerWhitelistManager.b)var1.getValue();
+         ServerWhitelistManager.ModelData var2 = (ServerWhitelistManager.ModelData)var1.getValue();
          if (var2 != null) {
             ResourceLocation var3 = var2.getFallbackTexture();
             ResourceLocation var4 = var2.getTextureLocation();
@@ -348,7 +348,7 @@ public class ServerWhitelistManager {
          return String.format("couldn't find cfg File for '%s'. It should have been at '%s'. Are you sure it exists?", var0, var4);
       }
 
-      ServerWhitelistManager.b var6 = new ServerWhitelistManager.b(var5, var0);
+      ServerWhitelistManager.ModelData var6 = new ServerWhitelistManager.ModelData(var5, var0);
       if (var6.errorMessage != null) {
          return var6.errorMessage;
       }
@@ -407,7 +407,7 @@ public class ServerWhitelistManager {
    }
 
    public static ResourceLocation getModelResource(String var0) {
-      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
+      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The custom model for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -420,7 +420,7 @@ public class ServerWhitelistManager {
    }
 
    public static ResourceLocation getModelTexture(String var0) {
-      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
+      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The custom texture for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -437,7 +437,7 @@ public class ServerWhitelistManager {
    }
 
    public static BoneType getBoneType(String var0) {
-      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
+      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The ClothingType for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -450,7 +450,7 @@ public class ServerWhitelistManager {
    }
 
    public static HashSet<NpcType> getAllowedNpcTypes(String var0) {
-      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
+      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The HashSet<GirlType> for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -463,7 +463,7 @@ public class ServerWhitelistManager {
    }
 
    public static HashSet<String> getCustomPartBones(String var0) {
-      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
+      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The HashSet<String> for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -476,7 +476,7 @@ public class ServerWhitelistManager {
    }
 
    public static String getModelCode(String var0) {
-      ServerWhitelistManager.b var1 = modelDataMap.get(var0);
+      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
       if (var1 == null) {
          if (!var0.equals("cross")) {
             System.out.printf("The author for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
@@ -489,7 +489,7 @@ public class ServerWhitelistManager {
    }
 
    @Nullable
-   public static ServerWhitelistManager.b getModelDataForGirl(String var0) {
+   public static ServerWhitelistManager.ModelData getModelDataForGirl(String var0) {
       return modelDataMap.get(var0);
    }
 
@@ -502,7 +502,7 @@ public class ServerWhitelistManager {
 
       for (Entry var9 : modelDataMap.entrySet()) {
          String var10 = (String)var9.getKey();
-         ServerWhitelistManager.b var11 = (ServerWhitelistManager.b)var9.getValue();
+         ServerWhitelistManager.ModelData var11 = (ServerWhitelistManager.ModelData)var9.getValue();
          BoneType var6 = var11.boneType;
          List var7 = (List)var1.get(var6);
          if (var11.allowedNpcTypes.isEmpty() || var11.allowedNpcTypes.contains(NpcType.getNpcType(var0))) {
@@ -518,14 +518,14 @@ public class ServerWhitelistManager {
       HashMap var0 = new HashMap();
 
       for (Entry var2 : getModelDataMap().entrySet()) {
-         var0.put(var2.getKey(), ((ServerWhitelistManager.b)var2.getValue()).getZOffset());
+         var0.put(var2.getKey(), ((ServerWhitelistManager.ModelData)var2.getValue()).getZOffset());
       }
 
       return var0;
    }
 
    @SideOnly(Side.CLIENT)
-   public static class a {
+   public static class ChatHandler {
       boolean hasSentId = false;
 
       @SideOnly(Side.CLIENT)
@@ -582,7 +582,7 @@ public class ServerWhitelistManager {
 
    }
 
-   public static class b {
+   public static class ModelData {
       BoneType boneType;
       HashSet<NpcType> allowedNpcTypes = new HashSet<>();
       HashSet<String> customPartBones = new HashSet<>();
@@ -597,7 +597,7 @@ public class ServerWhitelistManager {
       public String errorMessage = null;
       float zOffset;
 
-      public b(File var1, String var2) {
+      public ModelData(File var1, String var2) {
          if (var2.contains(" ") || var2.contains("#") || var2.contains("$")) {
             this.errorMessage = String.format("You cannot call your custom model '%s'. '#', '$' and spaces are illegal characters", var2);
          } else if ("cross".equalsIgnoreCase(var2)) {

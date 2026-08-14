@@ -59,7 +59,7 @@ public class StructureMarkerRenderer {
       try {
          for (BlockPos var4 : markerPositions) {
             Vec3i var5 = getBlockColor(var4);
-            a(var1, var4, var5.getX(), var5.getY(), var5.getZ());
+            drawMarkerFace(var1, var4, var5.getX(), var5.getY(), var5.getZ());
          }
       } catch (ConcurrentModificationException var6) {
       }
@@ -79,7 +79,7 @@ public class StructureMarkerRenderer {
       }
    }
 
-   static void a(BufferBuilder var0, BlockPos var1, int var2, int var3, int var4) {
+   static void drawMarkerFace(BufferBuilder var0, BlockPos var1, int var2, int var3, int var4) {
       var0.pos(var1.getX(), var1.getY() + 1, var1.getZ())
          .tex(0.0, 1.0)
          .color(var2, var3, var4, 255)
@@ -182,7 +182,7 @@ public class StructureMarkerRenderer {
       markerPositions.addAll(var0);
    }
 
-   public static void b(HashSet<BlockPos> var0) {
+   public static void setMarkers(HashSet<BlockPos> var0) {
       markerPositions.removeAll(var0);
    }
 

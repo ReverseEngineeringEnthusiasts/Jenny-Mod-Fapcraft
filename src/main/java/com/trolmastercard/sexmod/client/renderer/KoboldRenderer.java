@@ -185,7 +185,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       }
    }
 
-   public void a(KoboldEntity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderKobold(KoboldEntity var1, double var2, double var4, double var6, float var8, float var9) {
       String var10 = (String)var1.getDataManager().get(AbstractNpcOnlyEntity.CURRENT_ACTION);
       if (var1.as == null) {
          var1.as = var10;

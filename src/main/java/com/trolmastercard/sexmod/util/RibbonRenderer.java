@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.Vec3d;
 
 public class RibbonRenderer {
-   public static void renderRibbon(BufferBuilder var0, Tessellator var1, Minecraft var2, RibbonRenderer.b var3) {
+   public static void renderRibbon(BufferBuilder var0, Tessellator var1, Minecraft var2, RibbonRenderer.RibbonConfig var3) {
       Vec3d[] var4 = new Vec3d[]{
          new Vec3d(-var3.thickness, -var3.advance, 0.0), new Vec3d(-var3.thickness, var3.advance, 0.0), new Vec3d(var3.thickness, var3.advance, 0.0), new Vec3d(var3.thickness, -var3.advance, 0.0)
       };
@@ -30,7 +30,7 @@ public class RibbonRenderer {
          }
 
          var8.add(var11);
-         var5 = VectorMath.rotateByEuler(var5, var3.xWaveFn.a(var10, var9), var3.yWaveFn.a(var10, var9), var3.zWaveFn.a(var10, var9));
+         var5 = VectorMath.rotateByEuler(var5, var3.xWaveFn.getPoint(var10, var9), var3.yWaveFn.getPoint(var10, var9), var3.zWaveFn.getPoint(var10, var9));
          var6 = var6.add(var5);
       }
 
@@ -70,22 +70,22 @@ public class RibbonRenderer {
    }
 
    @FunctionalInterface
-   public interface a {
-      float a(int var1, float var2);
+   public interface WaveFunction {
+      float getPoint(int var1, float var2);
    }
 
-   public static class b {
+   public static class RibbonConfig {
       public UnknownScreen color;
       public float width;
       public int segmentCount;
       public float length;
-      public RibbonRenderer.a xWaveFn;
-      public RibbonRenderer.a yWaveFn;
-      public RibbonRenderer.a zWaveFn;
+      public RibbonRenderer.WaveFunction xWaveFn;
+      public RibbonRenderer.WaveFunction yWaveFn;
+      public RibbonRenderer.WaveFunction zWaveFn;
       public float thickness;
       public float advance;
 
-      public b(UnknownScreen var1, float var2, int var3, float var4, RibbonRenderer.a var5, RibbonRenderer.a var6, RibbonRenderer.a var7, float var8, float var9) {
+      public RibbonConfig(UnknownScreen var1, float var2, int var3, float var4, RibbonRenderer.WaveFunction var5, RibbonRenderer.WaveFunction var6, RibbonRenderer.WaveFunction var7, float var8, float var9) {
          this.color = var1;
          this.width = var2;
          this.segmentCount = var3;
@@ -97,8 +97,8 @@ public class RibbonRenderer {
          this.advance = var9;
       }
 
-      public RibbonRenderer.b copy() {
-         return new RibbonRenderer.b(this.color, this.width, this.segmentCount, this.length, this.xWaveFn, this.yWaveFn, this.zWaveFn, this.thickness, this.advance);
+      public RibbonRenderer.RibbonConfig copy() {
+         return new RibbonRenderer.RibbonConfig(this.color, this.width, this.segmentCount, this.length, this.xWaveFn, this.yWaveFn, this.zWaveFn, this.thickness, this.advance);
       }
    }
 }

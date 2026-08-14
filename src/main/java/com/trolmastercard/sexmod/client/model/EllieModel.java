@@ -19,7 +19,7 @@ public class EllieModel extends ModelBase implements IVanillaModel {
       this.childPart = new ModelRenderer(this);
       this.childPart.setRotationPoint(-1.0F, -3.0F, 1.0F);
       this.rootPart.addChild(this.childPart);
-      this.a(this.childPart, 0.0F, 1.5708F, 0.0F);
+      this.setRotation(this.childPart, 0.0F, 1.5708F, 0.0F);
       this.childPart.cubeList.add(new ModelBox(this.childPart, 0, 0, -1.0F, -3.0F, -1.0F, 2, 6, 2, 0.0F, false));
       this.emptyPart = new ModelRenderer(this);
       this.emptyPart.setRotationPoint(0.0F, 0.0F, 0.0F);
@@ -30,7 +30,7 @@ public class EllieModel extends ModelBase implements IVanillaModel {
       this.emptyPart.render(var7);
    }
 
-   public void a(ModelRenderer var1, float var2, float var3, float var4) {
+   public void setRotation(ModelRenderer var1, float var2, float var3, float var4) {
       var1.rotateAngleX = var2;
       var1.rotateAngleY = var3;
       var1.rotateAngleZ = var4;

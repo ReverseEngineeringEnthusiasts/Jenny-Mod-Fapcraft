@@ -29,7 +29,7 @@ public class BeeScreen extends GuiScreen {
       isVisible = true;
    }
 
-   public static void a(Runnable var0) {
+   public static void runOnMainThread(Runnable var0) {
       isVisible = true;
       ThreadNames.createDaemonThread(1200, var0);
    }

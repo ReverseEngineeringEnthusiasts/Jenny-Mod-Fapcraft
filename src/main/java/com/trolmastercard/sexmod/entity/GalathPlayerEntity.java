@@ -405,12 +405,12 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      }
                      break;
                   case "creampie":
-                     CummyEntity.a(new DynamicTrailRenderer(130, var0 -> {
+                     CummyEntity.registerTrail(new DynamicTrailRenderer(130, var0 -> {
                         Vec3d var1xx = var0.getBoneWorldPosition("futaCockTip");
                         Vec3d var2 = var0.getBoneWorldPosition("futaCockTipDirHelp");
                         return var1xx.subtract(var2).normalize();
                      }, var0 -> var0.getCachedBoneOffset("futaCockTip").add(var0.getTargetPosition()), this, 0.3F, 0.3F));
-                     CummyEntity.a(
+                     CummyEntity.registerTrail(
                         new DynamicTrailRenderer(
                            100,
                            var1xx -> VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.6F), this.getYawRotation()),

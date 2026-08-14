@@ -84,7 +84,7 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
    protected void onBoneRenderStart(String var1, GeoBone var2) {
       if (!(Boolean)this.playerGirl.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
          if ("tail".equals(var1)) {
-            this.a(var2, 0.0F, 0.0F, 1.0F);
+            this.applyBoneRotation(var2, 0.0F, 0.0F, 1.0F);
          }
 
          if ("body".equals(var1)) {
@@ -93,19 +93,19 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
 
          if (this.playerGirl.getCurrentAction() != Action.BOW) {
             if ("armL".equals(var1)) {
-               this.a(var2, 0.0F, (float) (-Math.PI / 9), 0.15F);
+               this.applyBoneRotation(var2, 0.0F, (float) (-Math.PI / 9), 0.15F);
             }
 
             if (this.playerGirl.getCurrentAction() != Action.ATTACK) {
                if ("armR".equals(var1)) {
-                  this.a(var2, 0.0F, (float) (Math.PI / 9), 0.15F);
+                  this.applyBoneRotation(var2, 0.0F, (float) (Math.PI / 9), 0.15F);
                }
             }
          }
       }
    }
 
-   void a(GeoBone var1, float var2, float var3, float var4) {
+   void applyBoneRotation(GeoBone var1, float var2, float var3, float var4) {
       double var5 = this.currentPosX - this.prevPosX;
       double var7 = this.currentPosZ - this.prevPosZ;
       double var9 = (Math.PI / 180.0) * this.playerGirl.rotationYaw;

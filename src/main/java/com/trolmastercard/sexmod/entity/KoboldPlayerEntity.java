@@ -99,7 +99,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.entityDataManager.set(au, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
                break;
             default:
-               AbstractNpcOnlyEntity.c(var2, var4);
+               AbstractNpcOnlyEntity.appendPaddedNumber(var2, var4);
          }
       }
 
@@ -120,8 +120,8 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    @Override
    protected String buildModelCodeDNA(StringBuilder var1) {
-      AbstractNpcOnlyEntity.b(var1, 8);
-      AbstractNpcOnlyEntity.b(var1, 3);
+      AbstractNpcOnlyEntity.appendPaddedLetter(var1, 8);
+      AbstractNpcOnlyEntity.appendPaddedLetter(var1, 3);
       AbstractNpcOnlyEntity.appendRandomGene(var1);
       AbstractNpcOnlyEntity.appendRandomGene(var1);
       AbstractNpcOnlyEntity.appendPaddedNumber(var1, 2);
@@ -378,19 +378,20 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       return PlayState.CONTINUE;
    }
 
-   void b(SoundEvent var1) {
-      this.b(var1, 1.0F);
+   @Override
+   public void playSound(SoundEvent var1) {
+      this.playSoundAtVolume(var1, 1.0F);
    }
 
-   void b(SoundEvent[] var1) {
-      this.b(var1, 1.0F);
+   void playRandomSounds(SoundEvent[] var1) {
+      this.playRandomSound(var1, 1.0F);
    }
 
-   void b(SoundEvent[] var1, float var2) {
-      this.b(var1[this.getRNG().nextInt(var1.length)], var2);
+   void playRandomSound(SoundEvent[] var1, float var2) {
+      this.playSoundAtVolume(var1[this.getRNG().nextInt(var1.length)], var2);
    }
 
-   void b(SoundEvent var1, float var2) {
+   public void playSoundAtVolume(SoundEvent var1, float var2) {
       float var3 = 0.25F - (Float)this.entityDataManager.get(aA);
       double var4 = var3 / 0.25F;
       float var6 = (float)RotationHelper.lerpDouble(0.9F, 1.1F, var4);
@@ -542,46 +543,46 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
                break;
             case "giggle":
-               this.b(SoundHandler.GIRLS_KOBOLD_GIGGLE);
+               this.playRandomSounds(SoundHandler.GIRLS_KOBOLD_GIGGLE);
                break;
             case "moan":
-               this.b(SoundHandler.GIRLS_KOBOLD_MOAN);
+               this.playRandomSounds(SoundHandler.GIRLS_KOBOLD_MOAN);
                break;
             case "moanMating":
                this.ax--;
                if (this.ax <= 0) {
                   this.ax = 3;
-                  this.b(SoundHandler.GIRLS_KOBOLD_MOAN);
+                  this.playRandomSounds(SoundHandler.GIRLS_KOBOLD_MOAN);
                }
                break;
             case "analHardMSG1":
                this.ax--;
                if (this.ax <= 0) {
                   this.ax = 4;
-                  this.b(SoundHandler.GIRLS_KOBOLD_MOAN);
+                  this.playRandomSounds(SoundHandler.GIRLS_KOBOLD_MOAN);
                }
                break;
             case "orgasm":
-               this.b(SoundHandler.GIRLS_KOBOLD_ORGASM);
+               this.playRandomSounds(SoundHandler.GIRLS_KOBOLD_ORGASM);
                break;
             case "breath":
-               this.b(SoundHandler.GIRLS_KOBOLD_LIGHTBREATHING, 0.5F);
+               this.playRandomSound(SoundHandler.GIRLS_KOBOLD_LIGHTBREATHING, 0.5F);
                break;
             case "haa":
-               this.b(SoundHandler.GIRLS_KOBOLD_HAA, 0.7F);
+               this.playRandomSound(SoundHandler.GIRLS_KOBOLD_HAA, 0.7F);
                break;
             case "interested":
-               this.b(SoundHandler.GIRLS_KOBOLD_INTERESTED);
+               this.playRandomSounds(SoundHandler.GIRLS_KOBOLD_INTERESTED);
                break;
             case "yep":
-               this.b(SoundHandler.GIRLS_KOBOLD_YEP);
+               this.playRandomSounds(SoundHandler.GIRLS_KOBOLD_YEP);
                break;
             case "bjmoan":
-               this.b(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_BJMOAN));
+               this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_BJMOAN));
                break;
             case "blowjobStartbreath":
                int var6 = this.getRNG().nextInt(3);
-               this.b(SoundHandler.GIRLS_KOBOLD_LIGHTBREATHING[var6]);
+               this.playSound(SoundHandler.GIRLS_KOBOLD_LIGHTBREATHING[var6]);
                break;
             case "matingCam":
                if (this.isControlledByLocalPlayer()) {
@@ -630,7 +631,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
                break;
             case "cumMsg":
                this.sendChatMessage("I.. hope I am satisfying you sir");
-               this.b(SoundHandler.GIRLS_KOBOLD_SAD[this.getRNG().nextInt(1)]);
+               this.playSound(SoundHandler.GIRLS_KOBOLD_SAD[this.getRNG().nextInt(1)]);
                break;
             case "mating_press_cumDone":
                if (this.isControlledByLocalPlayer()) {

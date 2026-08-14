@@ -55,7 +55,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
 
    protected abstract Vec3i getBoneColor(String var1);
 
-   protected static void b(GeoBone var0, int var1) {
+   protected static void setBoneHidden(GeoBone var0, int var1) {
       List var2 = var0.childBones;
 
       for (int var4 = 0; var4 < var2.size(); var4++) {
@@ -98,7 +98,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       return new Vec3d(-90.0, 0.0, 0.0);
    }
 
-   protected static GeoBone a(GeoBone var0, int var1) {
+   protected static GeoBone getChildBone(GeoBone var0, int var1) {
       List var2 = var0.childBones;
       GeoBone var3 = null;
       var2.sort(Comparator.comparingDouble(GeoBone::getPivotY));
