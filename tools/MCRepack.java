@@ -19,6 +19,7 @@ public class MCRepack {
     static Map<String, java.util.Set<String>> srgMethodAllOwners = new HashMap<>(); // "func_XXX\0desc" -> all declaring classes
     static Map<String, java.util.Set<String>> srgFieldAllOwners = new HashMap<>();  // "field_XXX\0desc" -> all declaring classes
     static Map<String, String> classParents = new HashMap<>();   // class internal name -> superName
+    static Map<String, java.util.List<String>> classInterfaces = new HashMap<>(); // class internal name -> interfaces
     static Map<String, Map<String, String>> methodOwnerCandidates = new HashMap<>(); // "mcp\0desc" -> declaringClass -> srgName
     static Map<String, Map<String, String>> fieldOwnerCandidates = new HashMap<>();  // "mcp\0desc" -> declaringClass -> srgName
     static boolean reobf;
@@ -130,6 +131,9 @@ public class MCRepack {
             org.objectweb.asm.tree.ClassNode cn = new org.objectweb.asm.tree.ClassNode();
             try { new ClassReader(data).accept(cn, 0); } catch (Exception ex) { continue; }
             classParents.put(cn.name, cn.superName);
+            if (cn.interfaces != null && !cn.interfaces.isEmpty()) {
+                classInterfaces.put(cn.name, cn.interfaces);
+            }
             for (org.objectweb.asm.tree.MethodNode m : cn.methods) {
                 if (m.name.startsWith("func_")) {
                     String key = m.name + "\u0000" + m.desc;
@@ -167,15 +171,22 @@ public class MCRepack {
         private String resolveByOwner(Map<String, String> byClass, String owner, String name, String fallback) {
             if (byClass == null || byClass.isEmpty()) return name;
             if (!isSrgOwner(owner)) return name; // JDK/third-party: never remap
-            String cur = owner;
+            java.util.ArrayDeque<String> queue = new java.util.ArrayDeque<>();
+            java.util.HashSet<String> seen = new java.util.HashSet<>();
+            queue.add(owner);
             int depth = 0;
-            while (cur != null && depth++ < 64) {
+            while (!queue.isEmpty() && depth++ < 256) {
+                String cur = queue.poll();
+                if (cur == null || !seen.add(cur)) continue;
                 String srg = byClass.get(cur);
                 if (srg != null) return srg;
-                cur = classParents.get(cur);
+                String parent = classParents.get(cur);
+                if (parent != null) queue.add(parent);
+                java.util.List<String> ifaces = classInterfaces.get(cur);
+                if (ifaces != null) queue.addAll(ifaces);
             }
-            // no class in the chain declares this (mcp, desc) -> it is a mod/other
-            // declared member that only collides by name; keep the original name
+            // no class/interface in the chain declares this (mcp, desc) -> it is a
+            // mod/other declared member that only collides by name; keep original
             return name;
         }
 
@@ -239,6 +250,9 @@ public class MCRepack {
                     org.objectweb.asm.tree.ClassNode cn = new org.objectweb.asm.tree.ClassNode();
                     new ClassReader(data).accept(cn, 0);
                     classParents.putIfAbsent(cn.name, cn.superName);
+                    if (cn.interfaces != null && !cn.interfaces.isEmpty()) {
+                        classInterfaces.putIfAbsent(cn.name, cn.interfaces);
+                    }
                 } catch (Exception ignore) { }
             }
             scan.closeEntry();
