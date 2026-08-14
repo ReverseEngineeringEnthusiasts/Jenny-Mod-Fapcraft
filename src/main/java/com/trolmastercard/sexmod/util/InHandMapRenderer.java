@@ -36,7 +36,7 @@ public class InHandMapRenderer {
 
    @SubscribeEvent
    public void onRenderSpecificHand(RenderSpecificHandEvent var1) {
-      AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
+      AbstractPlayerGirlEntity.rebuildPlayerGirlTableFromWorld();
       AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
       if (var2 != null) {
          int var3 = var2.getOutfitIndex();
