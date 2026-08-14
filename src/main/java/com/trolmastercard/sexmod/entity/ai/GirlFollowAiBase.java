@@ -100,12 +100,12 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
          this.girl.watchClosestGirlGoal.isWatching = this.state == GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
       }
 
-      this.a(this.state);
+      this.setState(this.state);
    }
 
    protected abstract GirlFollowAiBase.GirlFollowAiBaseState getCurrentState();
 
-   protected abstract void a(GirlFollowAiBase.GirlFollowAiBaseState var1);
+   protected abstract void setState(GirlFollowAiBase.GirlFollowAiBaseState var1);
 
    @SubscribeEvent
    public void onLivingDeath(LivingDeathEvent var1) {

@@ -38,7 +38,7 @@ public class TrailSegment {
          BlockPos var1 = new BlockPos(this.offset);
          BlockPos var2 = null;
 
-         for (BlockPos var4 : a(new BlockPos(this.offset), new BlockPos(this.velocity))) {
+         for (BlockPos var4 : bresenhamLine(new BlockPos(this.offset), new BlockPos(this.velocity))) {
             if (this.world.getBlockState(var4).getBlock() != Blocks.AIR) {
                var2 = var4;
                break;
@@ -93,7 +93,7 @@ public class TrailSegment {
       }
    }
 
-   static List<BlockPos> a(BlockPos var0, BlockPos var1) {
+   static List<BlockPos> bresenhamLine(BlockPos var0, BlockPos var1) {
       ArrayList var2 = new ArrayList();
       var2.add(var0);
       int var3 = var0.getX();

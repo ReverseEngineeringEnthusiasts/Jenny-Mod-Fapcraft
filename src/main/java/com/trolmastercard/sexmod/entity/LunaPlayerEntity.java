@@ -112,7 +112,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       if (var1 != null) {
          if (!(var1.getDistance(this.posX, this.getPositionVec3d().y, this.posZ) > 1.25)) {
             if (this.world.isRemote) {
-               this.a(var1, this.ar);
+               this.setFishingLevelFor(var1, this.ar);
             } else if (this.ar == 25) {
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
@@ -132,7 +132,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @SideOnly(Side.CLIENT)
-   void a(EntityPlayer var1, int var2) {
+   void setFishingLevelFor(EntityPlayer var1, int var2) {
       if (var2 == 0) {
          EntityPlayerSP var3 = Minecraft.getMinecraft().player;
          if (var3.getPersistentID().equals(var1.getPersistentID())) {

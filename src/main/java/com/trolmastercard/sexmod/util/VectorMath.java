@@ -86,7 +86,7 @@ public class VectorMath {
       return (var4 - var0) / (var2 - var0);
    }
 
-   public static double a(Vec3d var0, Vec3d var1, Vec3d var2) {
+   public static double getLinearFactor(Vec3d var0, Vec3d var1, Vec3d var2) {
       return getLinearFactor(var0.x, var1.x, var2.x);
    }
 }

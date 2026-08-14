@@ -45,11 +45,11 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
    }
 
    @Nullable
-   protected ResourceLocation a(BasicGirlEntity var1) {
+   protected ResourceLocation getGirlTexture(BasicGirlEntity var1) {
       return null;
    }
 
-   public void a(BasicGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderBasicGirl(BasicGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       GL11.glDisable(2896);
       GlStateManager.enableAlpha();
       GlStateManager.enableBlend();

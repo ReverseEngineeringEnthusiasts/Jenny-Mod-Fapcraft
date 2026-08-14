@@ -44,7 +44,7 @@ public class CatActivateFishingPacket implements IMessage {
                      LunaEntity var5 = (LunaEntity)var4;
                      ItemStack var6 = var5.ao;
                      LunaRodItem var7 = (LunaRodItem)var6.getItem();
-                     var7.a(var2.getServerHandler().player.world, var5, EnumHand.MAIN_HAND);
+                     var7.castFishingRod(var2.getServerHandler().player.world, var5, EnumHand.MAIN_HAND);
                   }
                }
             });

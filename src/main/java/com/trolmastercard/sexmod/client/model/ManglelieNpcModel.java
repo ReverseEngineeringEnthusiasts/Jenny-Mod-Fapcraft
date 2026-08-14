@@ -142,7 +142,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                         if (var2.VELOCITY_0 == 0.0F) {
                            var15 = this.updateCorruptPose(var3, var6, var5, var7, var8);
                         } else {
-                           var15 = ManglelieNpcModel.RotationData.a(
+                           var15 = ManglelieNpcModel.RotationData.lerpRotationData(
                               this.updateCorruptPose(var3, var6, var5, var7, var8),
                               this.updateRidePose(var2, var3, var8, var7, var4),
                               (float)(var2.aj ? RotationHelper.smoothStep(var2.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(var2.VELOCITY_0))
@@ -187,7 +187,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                         if (var2.VELOCITY_0 == 0.0F) {
                            var13 = this.updateRidePose(var2, var3, var8, var7, var4);
                         } else {
-                           var13 = ManglelieNpcModel.RotationData.a(
+                           var13 = ManglelieNpcModel.RotationData.lerpRotationData(
                               this.updateCorruptPose(var3, var6, var5, var7, var8),
                               this.updateRidePose(var2, var3, var8, var7, var4),
                               (float)(var2.aj ? RotationHelper.smoothStep(var2.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(var2.VELOCITY_0))
@@ -409,7 +409,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       private RotationData() {
       }
 
-      static ManglelieNpcModel.RotationData a(ManglelieNpcModel.RotationData var0, ManglelieNpcModel.RotationData var1, float var2) {
+      static ManglelieNpcModel.RotationData lerpRotationData(ManglelieNpcModel.RotationData var0, ManglelieNpcModel.RotationData var1, float var2) {
          ManglelieNpcModel.RotationData var3 = new ManglelieNpcModel.RotationData();
          var3.armRRotation = RotationHelper.lerpVector3f(var0.armRRotation, var1.armRRotation, var2);
          var3.armLRotation = RotationHelper.lerpVector3f(var0.armLRotation, var1.armLRotation, var2);

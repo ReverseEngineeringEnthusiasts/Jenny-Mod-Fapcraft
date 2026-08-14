@@ -54,14 +54,14 @@ public class CommandFuta extends CommandBase implements IClientCommand {
 
    public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
       if (var3.length < 1) {
-         this.a(var2);
+         this.executeFuta(var2);
       } else {
          String var4 = var3[0].toLowerCase();
          if ("true".equals(var4)) {
             ENABLED = true;
          } else {
             if (!"false".equals(var4)) {
-               this.a(var2);
+               this.executeFuta(var2);
                return;
             }
 
@@ -102,7 +102,7 @@ public class CommandFuta extends CommandBase implements IClientCommand {
       }
    }
 
-   void a(ICommandSender var1) {
+   void executeFuta(ICommandSender var1) {
       var1.sendMessage(
          new TextComponentString(
             String.format(

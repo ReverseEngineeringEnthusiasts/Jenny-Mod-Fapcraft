@@ -34,7 +34,7 @@ public class DynamicTrailRenderer {
       this.maxDistance = var6;
    }
 
-   public void a(Minecraft var1, Tessellator var2, BufferBuilder var3, float var4) {
+   public void renderTrail(Minecraft var1, Tessellator var2, BufferBuilder var3, float var4) {
       if (this.trailSegments.size() < this.maxSegmentsCount) {
          for (int var5 = 0; var5 < 6; var5++) {
             Vec3d var6 = this.sourcePositionProvider.getPosition(this.ownerEntity);

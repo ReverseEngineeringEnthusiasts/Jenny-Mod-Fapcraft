@@ -48,7 +48,7 @@ public class AllieWorldData extends WorldSavedData {
    }
 
    @Nullable
-   public static String a(UUID var0, NpcType var1) {
+   public static String getNpcName(UUID var0, NpcType var1) {
       HashMap var2 = b.get(var0);
       return var2 == null ? null : (String)var2.get(var1);
    }

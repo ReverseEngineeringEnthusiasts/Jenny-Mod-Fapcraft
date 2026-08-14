@@ -100,7 +100,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
    }
 
    @SubscribeEvent
-   public void a(LootTableLoadEvent var1) {
+   public void onLootTableLoad(LootTableLoadEvent var1) {
       HashSet var2 = new HashSet();
       var2.add(LootTableList.CHESTS_ABANDONED_MINESHAFT);
       var2.add(LootTableList.CHESTS_DESERT_PYRAMID);
@@ -221,7 +221,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
 
    public static class a {
       @SubscribeEvent
-      public void a(PlayerLoggedOutEvent var1) {
+      public void onPlayerLoggedOut(PlayerLoggedOutEvent var1) {
          var1.player.getEntityData().setBoolean("sexmodAllieInUse", false);
       }
 

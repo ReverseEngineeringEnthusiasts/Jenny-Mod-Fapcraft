@@ -84,7 +84,7 @@ public class WorldUtils {
       return var10.normalize();
    }
 
-   public static int a(World var0, int var1, int var2) {
+   public static int getHeightAt(World var0, int var1, int var2) {
       HashSet var3 = Sets.newHashSet(
          new Block[]{Blocks.GRASS, Blocks.SAND, Blocks.RED_SANDSTONE, Blocks.WATER, Blocks.STONE, Blocks.COBBLESTONE}
       );
@@ -100,7 +100,7 @@ public class WorldUtils {
    }
 
    public static BlockPos getSurfaceBlockPos(World var0, BlockPos var1) {
-      return new BlockPos(var1.getX(), a(var0, var1.getX(), var1.getZ()), var1.getZ());
+      return new BlockPos(var1.getX(), getHeightAt(var0, var1.getX(), var1.getZ()), var1.getZ());
    }
 
    public static boolean canPlaceStructure(World var0, BlockPos var1) {
@@ -144,7 +144,7 @@ public class WorldUtils {
       }
    }
 
-   public static BlockPos a(BlockPos var0, IBlockState var1) {
+   public static BlockPos getStatePos(BlockPos var0, IBlockState var1) {
       ImmutableMap var2 = var1.getProperties();
       EnumFacing var3 = null;
       EnumPartType var4 = null;

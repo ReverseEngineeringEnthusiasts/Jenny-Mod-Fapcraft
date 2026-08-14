@@ -224,7 +224,7 @@ public class SexNetworkManager extends NetworkManager {
             return false;
          }
 
-         public int a(Channel var1) {
+         public int getNextPacketId(Channel var1) {
             return 0;
          }
       };

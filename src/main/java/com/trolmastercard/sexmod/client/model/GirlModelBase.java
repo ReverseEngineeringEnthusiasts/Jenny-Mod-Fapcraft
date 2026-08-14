@@ -35,7 +35,7 @@ public abstract class GirlModelBase<T extends IAnimatable> extends AnimatedGeoMo
       return var2;
    }
 
-   private static GeoModelException a(GeoModelException var0) {
+   private static GeoModelException wrapException(GeoModelException var0) {
       return var0;
    }
 }

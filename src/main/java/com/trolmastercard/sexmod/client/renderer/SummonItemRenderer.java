@@ -25,10 +25,10 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
 
    @Override
    public void render(WinchesterItem var1, ItemStack var2) {
-      this.a(var1, var2);
+      this.renderSummonItem(var1, var2);
    }
 
-   public void a(WinchesterItem var1, ItemStack var2) {
+   public void renderSummonItem(WinchesterItem var1, ItemStack var2) {
       if (DebugMode.b[0] == 0.0F) {
          GL11.glDisable(2896);
       }

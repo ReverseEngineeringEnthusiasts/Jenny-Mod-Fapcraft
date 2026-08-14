@@ -244,7 +244,7 @@ public enum GalathFlightData {
       var0.setFlightTargetPos(var1);
       Vec3d var2 = var0.getTargetEntity().getPositionVector();
       Vector2d var3 = new Vector2d(var2.x - var1.x, var2.z - var1.z);
-      double var4 = TrigMath.b(Math.atan2(var3.x, var3.y)) - 90.0;
+      double var4 = TrigMath.sinDegrees(Math.atan2(var3.x, var3.y)) - 90.0;
       var0.setAnchored(true);
       var0.setTargetPosition(var1);
       var0.setYawRotation((float)var4);
@@ -256,7 +256,7 @@ public enum GalathFlightData {
       if (ThreadNames.isBetween(var2, 24.0, 32.0)) {
          Vec3d var3 = var1.getPositionVector().add(0.0, var1.getEyeHeight(), 0.0);
          Vector2d var4 = new Vector2d(var3.x - var0.posX, var3.z - var0.posZ);
-         double var5 = TrigMath.b(Math.atan2(var4.x, var4.y)) - 90.0;
+         double var5 = TrigMath.sinDegrees(Math.atan2(var4.x, var4.y)) - 90.0;
          var0.setYawRotation((float)var5);
          Vec3d var7 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 3.0), (float)(var5 + 180.0));
          Vec3d var8 = var0.B_clash642();
@@ -311,7 +311,7 @@ public enum GalathFlightData {
                var0.flightTargetPosition = var1.getPositionVector().add(0.0, var1.getEyeHeight() / 2.0F, 0.0);
                var0.bd = var0.getPositionVector();
                Vec3d var2 = var1.getPositionVector().subtract(var0.getPositionVector()).normalize();
-               var0.setYawRotation((float)(TrigMath.b(Math.atan2(var2.z, var2.x)) - 90.0));
+               var0.setYawRotation((float)(TrigMath.sinDegrees(Math.atan2(var2.z, var2.x)) - 90.0));
             }
 
             Vec3d var20 = var0.getPositionVector();
@@ -363,10 +363,10 @@ public enum GalathFlightData {
             double var28;
             double var31;
             if (var27) {
-               var28 = VectorMath.a(var23, var25, var20);
+               var28 = VectorMath.getLinearFactor(var23, var25, var20);
                var31 = var23.distanceTo(var25);
             } else {
-               var28 = VectorMath.a(var22, var23, var20);
+               var28 = VectorMath.getLinearFactor(var22, var23, var20);
                var31 = var22.distanceTo(var23);
             }
 
@@ -454,7 +454,7 @@ public enum GalathFlightData {
       this.finishAction.finish(var1);
    }
 
-   public void e(GalathEntity var1) {
+   public void updateFlight(GalathEntity var1) {
       this.stopAction.stop(var1);
    }
 

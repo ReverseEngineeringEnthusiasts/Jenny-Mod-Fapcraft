@@ -73,7 +73,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    static final float RIBBON_SCALE_B = 0.06484375F;
    static final float RIBBON_SCALE_C = 0.026124999F;
    static final float RIBBON_SCALE_D = 0.0570625F;
-   static final RibbonRenderer.b RIBBON_CONFIG_A = new RibbonRenderer.b(
+   static final RibbonRenderer.RibbonConfig RIBBON_CONFIG_A = new RibbonRenderer.RibbonConfig(
       RIBBON_COLOR_A,
       0.1F,
       12,
@@ -84,7 +84,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       0.03F,
       0.005F
    );
-   static final RibbonRenderer.b RIBBON_CONFIG_B = new RibbonRenderer.b(
+   static final RibbonRenderer.RibbonConfig RIBBON_CONFIG_B = new RibbonRenderer.RibbonConfig(
       RIBBON_COLOR_A,
       0.0F,
       12,
@@ -171,7 +171,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
             var1.renderYawOffset = this.animationProgress;
             var1.prevRenderYawOffset = this.animationProgress;
          } else {
-            float var5 = (float)(TrigMath.b(Math.atan2(var3.z, var3.x)) - 90.0);
+            float var5 = (float)(TrigMath.sinDegrees(Math.atan2(var3.z, var3.x)) - 90.0);
             var1.renderYawOffset = var5;
             var1.prevRenderYawOffset = var5;
             this.animationProgress = var5;
@@ -282,8 +282,8 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    static void renderWingEffect(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
       if (var0.getCurrentAction() != Action.GIVE_COIN || Action.GIVE_COIN.ticksPlaying[1] <= 100) {
          var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-         Vec3d[][] var4 = GalathGeometryRender.a(var0, var3, "hairStrandStartR", "hairStrandMidR", "hairStrandEndR", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
-         Vec3d[][] var5 = GalathGeometryRender.a(var0, var3, "hairStrandStartL", "hairStrandMidL", "hairStrandEndL", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
+         Vec3d[][] var4 = GalathGeometryRender.buildBodyBoneMesh(var0, var3, "hairStrandStartR", "hairStrandMidR", "hairStrandEndR", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
+         Vec3d[][] var5 = GalathGeometryRender.buildBodyBoneMesh(var0, var3, "hairStrandStartL", "hairStrandMidL", "hairStrandEndL", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
          GalathGeometryRender.renderMesh(var1, var4, RIBBON_COLOR_B);
          GalathGeometryRender.renderMesh(var1, var5, RIBBON_COLOR_B);
          var2.draw();
@@ -587,7 +587,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    void renderBoneAction(BufferBuilder var1, GeoBone var2, float var3) {
       float var4 = Action.getActionTimeScale(this.renderEntity, mc.getRenderPartialTicks());
       float var5 = var3 * (float)(0.02F * (-0.4F * Math.cos((Math.PI * 2) * var4 + 1.05) + 0.6F));
-      RibbonRenderer.b var6 = new RibbonRenderer.b(
+      RibbonRenderer.RibbonConfig var6 = new RibbonRenderer.RibbonConfig(
          RIBBON_COLOR_A,
          0.0F,
          12,
@@ -603,7 +603,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
 
    void renderBoneBlowjob(BufferBuilder var1, GeoBone var2) {
       float var3 = Action.getActionTimeScale(this.renderEntity, mc.getRenderPartialTicks());
-      RibbonRenderer.b var4 = new RibbonRenderer.b(
+      RibbonRenderer.RibbonConfig var4 = new RibbonRenderer.RibbonConfig(
          RIBBON_COLOR_A,
          0.0F,
          12,
@@ -624,14 +624,14 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       } else if (var3 == 1.0F) {
          this.renderBoneRibbon(var1, var2, RIBBON_CONFIG_B);
       } else {
-         RibbonRenderer.b var4 = RIBBON_CONFIG_A.copy();
+         RibbonRenderer.RibbonConfig var4 = RIBBON_CONFIG_A.copy();
          var4.length = RotationHelper.lerp(RIBBON_CONFIG_A.length, 0.0F, var3);
          var4.width = RotationHelper.lerp(RIBBON_CONFIG_A.width, 0.0F, var3);
          this.renderBoneRibbon(var1, var2, var4);
       }
    }
 
-   void renderBoneRibbon(BufferBuilder var1, GeoBone var2, RibbonRenderer.b var3) {
+   void renderBoneRibbon(BufferBuilder var1, GeoBone var2, RibbonRenderer.RibbonConfig var3) {
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
       com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, var2);

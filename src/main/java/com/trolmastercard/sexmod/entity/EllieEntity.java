@@ -125,7 +125,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       return this.getCurrentAction() != Action.CARRY_INTRO;
    }
 
-   public boolean a(EntityPlayer var1, boolean var2) {
+   public boolean canJoinPlayer(EntityPlayer var1, boolean var2) {
       if (var2) {
          openInventoryGui(var1, this, new String[]{"action.names.cowgirl", "action.names.missionary"}, false);
          return true;
@@ -198,7 +198,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    public void onUpdate() {
       super.onUpdate();
       if (this.ae) {
-         this.a(Minecraft.getMinecraft().player, true);
+         this.canJoinPlayer(Minecraft.getMinecraft().player, true);
          this.ae = false;
       }
 
@@ -518,7 +518,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       }
 
       if (this.world.isRemote) {
-         this.a(var1, false);
+         this.canJoinPlayer(var1, false);
       }
 
       return true;
@@ -705,7 +705,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                break;
             case "hugDone":
                if (this.isControlledByLocalPlayer()) {
-                  this.a(Minecraft.getMinecraft().player, true);
+                  this.canJoinPlayer(Minecraft.getMinecraft().player, true);
                }
                break;
             case "hugselectedMSG1":

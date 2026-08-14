@@ -52,7 +52,7 @@ public class SexPromptPacket implements IMessage {
             System.out.println("received an invalid message @SexPrompt :(");
             return null;
          } else if (var2.side.equals(Side.CLIENT)) {
-            GenderSwapScreen.instance.onButtonClicked(new GenderSwapScreen.a(var1.actionName, var1.playerUUID, var1.girlUUID, var1.accepted));
+            GenderSwapScreen.instance.onButtonClicked(new GenderSwapScreen.SwapButton(var1.actionName, var1.playerUUID, var1.girlUUID, var1.accepted));
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {

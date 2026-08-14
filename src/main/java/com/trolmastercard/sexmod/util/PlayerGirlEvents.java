@@ -93,10 +93,10 @@ public class PlayerGirlEvents {
                         var7 = var9;
                      } else {
                         Vec3d var10 = var5.getPositionVector();
-                        double var11 = this.a(
+                        double var11 = this.interpolate(
                            var9.getX(), var9.getY(), var9.getZ(), var10.x, var10.y, var10.z
                         );
-                        double var13 = this.a(
+                        double var13 = this.interpolate(
                            var7.getX(), var7.getY(), var7.getZ(), var10.x, var10.y, var10.z
                         );
                         if (var11 < var13) {
@@ -141,7 +141,7 @@ public class PlayerGirlEvents {
       }
    }
 
-   double a(double var1, double var3, double var5, double var7, double var9, double var11) {
+   double interpolate(double var1, double var3, double var5, double var7, double var9, double var11) {
       double var13 = var1 - var7;
       double var15 = var3 - var9;
       double var17 = var5 - var11;

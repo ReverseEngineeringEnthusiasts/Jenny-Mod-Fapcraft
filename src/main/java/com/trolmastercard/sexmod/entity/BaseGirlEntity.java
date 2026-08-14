@@ -707,7 +707,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       if (this.world.isRemote) {
          PacketHandler.networkWrapper.sendToServer(new KoboldStatePacket(this.getGirlId(), playerUUID, flag1, flag2));
       } else {
-         KoboldStatePacket.Handler.a(this.getGirlId(), playerUUID, flag1, flag2);
+         KoboldStatePacket.Handler.sendState(this.getGirlId(), playerUUID, flag1, flag2);
       }
    }
 
@@ -1005,7 +1005,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
          this.cameraOriginPos = null;
          PacketHandler.networkWrapper.sendToServer(new ResetGirlPacket(this.getGirlId(), true));
       } else if (!this.world.isRemote) {
-         ResetGirlPacket.Handler.a((EntityPlayerMP)this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID()));
+         ResetGirlPacket.Handler.resetGirls((EntityPlayerMP)this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID()));
       }
    }
 
@@ -1015,7 +1015,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    public Vec3d renderCustomModelTransform(Minecraft var1, SexSceneEntity var2, EntityLivingBase var3, float var4) {
-      return SexSceneRenderer.a(var1, var2, var3, this, var4);
+      return SexSceneRenderer.getSceneEntityPosition(var1, var2, var3, this, var4);
    }
 
    public static BaseGirlEntity getGirlByUUID(@Nonnull UUID var0) {
@@ -1519,7 +1519,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return this.getGeoModel().getAnimationProcessor();
    }
 
-   public boolean h(int var1) {
+   public boolean isPartEnabled(int var1) {
       ArrayList var2 = this.getCustomPartIdList();
       return var2.size() - 1 < var1 ? false : (Integer)var2.get(var1) == 101;
    }
@@ -1533,7 +1533,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
          StringBuilder var2 = new StringBuilder();
 
          for (int var4 : var1) {
-            AbstractNpcOnlyEntity.c(var2, var4);
+            AbstractNpcOnlyEntity.appendPaddedNumber(var2, var4);
          }
 
          this.entityDataManager.set(AbstractNpcOnlyEntity.APPEARANCE_DNA, var2.toString());
@@ -1597,7 +1597,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       List var4 = getAllPartIdsForGirl(var1);
 
       for (int var5 = 0; var5 < var2.size(); var5++) {
-         var3.add(new SimpleEntry<>(BoneType.GIRL_SPECIFIC, new SimpleEntry<>(this.e((Integer)var2.get(var5)), var4.get(var5))));
+         var3.add(new SimpleEntry<>(BoneType.GIRL_SPECIFIC, new SimpleEntry<>(this.getPartNames((Integer)var2.get(var5)), var4.get(var5))));
       }
 
       this.customPartsData = var3;
@@ -1624,7 +1624,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   private List<String> e(int var1) {
+   private List<String> getPartNames(int var1) {
       ArrayList var2 = new ArrayList();
 
       for (int var3 = 0; var3 < var1; var3++) {

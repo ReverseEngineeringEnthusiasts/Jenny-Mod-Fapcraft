@@ -48,11 +48,11 @@ public class RotationHelper {
    }
 
    public static Vector3fSexmodSpecial lerpVector3f(Vector3fSexmodSpecial var0, Vector3fSexmodSpecial var1, double var2) {
-      Vector3fSexmodSpecial var4 = var1.b(var0);
-      return var0.a(var4.scale((float)var2));
+      Vector3fSexmodSpecial var4 = var1.add(var0);
+      return var0.subtract(var4.scale((float)var2));
    }
 
-   public static Vec3i a(Vec3i var0, Vec3i var1, double var2) {
+   public static Vec3i lerpVec3i(Vec3i var0, Vec3i var1, double var2) {
       Vec3d var4 = new Vec3d(
          var1.getX() - var0.getX(), var1.getY() - var0.getY(), var1.getZ() - var0.getZ()
       );

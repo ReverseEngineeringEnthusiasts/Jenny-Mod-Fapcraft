@@ -65,7 +65,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
 
    abstract String buildModelCodeDNA(StringBuilder var1);
 
-   public static void c(StringBuilder var0, int var1) {
+   public static void appendPaddedNumber(StringBuilder var0, int var1) {
       if (var1 < 10) {
          var0.append(0);
       }
@@ -74,7 +74,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
       var0.append("-");
    }
 
-   public static void appendPaddedNumber(StringBuilder var0, int var1) {
+   public static void appendRandomSegment(StringBuilder var0, int var1) {
       int var2 = Reference.RANDOM.nextInt(var1 + 1);
       if (var2 < 10) {
          var0.append(0);
@@ -97,7 +97,7 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
       var0.append(var5).append("-");
    }
 
-   public static void b(StringBuilder var0, int var1) {
+   public static void appendPaddedLetter(StringBuilder var0, int var1) {
       int var2 = Reference.RANDOM.nextInt(var1);
       if (var2 < 10) {
          var0.append(0);

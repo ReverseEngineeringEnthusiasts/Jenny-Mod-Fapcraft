@@ -36,8 +36,8 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
    static final int spacing = 6;
    final double KOBOBLIN_SPAWN_CHANCE = 0.004F;
    public static boolean GENERATION_ENABLED = true;
-   final List<ConfigWorldGenHandler.b> girlHouseConfigs = new ArrayList<>();
-   final List<ConfigWorldGenHandler.a> generatedPositions = new ArrayList<>();
+   final List<ConfigWorldGenHandler.BiomeRule> girlHouseConfigs = new ArrayList<>();
+   final List<ConfigWorldGenHandler.StructureData> generatedPositions = new ArrayList<>();
    private static ConfigWorldGenHandler INSTANCE = null;
    static boolean IS_GENERATING = true;
 
@@ -58,7 +58,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       INSTANCE = this;
       this.girlHouseConfigs
          .add(
-            new ConfigWorldGenHandler.b(
+            new ConfigWorldGenHandler.BiomeRule(
                "ellie",
                new HashSet<>(Arrays.asList(Biomes.REDWOOD_TAIGA, Biomes.COLD_TAIGA, Biomes.TAIGA, Biomes.ROOFED_FOREST)),
                new Vec3i(30, 27, 26),
@@ -66,10 +66,10 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
                true
             )
          );
-      this.girlHouseConfigs.add(new ConfigWorldGenHandler.b("jenny", new HashSet<>(Arrays.asList(Biomes.PLAINS, Biomes.FOREST)), new Vec3i(9, 4, 9), 1, true));
+      this.girlHouseConfigs.add(new ConfigWorldGenHandler.BiomeRule("jenny", new HashSet<>(Arrays.asList(Biomes.PLAINS, Biomes.FOREST)), new Vec3i(9, 4, 9), 1, true));
       this.girlHouseConfigs
          .add(
-            new ConfigWorldGenHandler.b(
+            new ConfigWorldGenHandler.BiomeRule(
                "ellie",
                new HashSet<>(Arrays.asList(Biomes.REDWOOD_TAIGA, Biomes.COLD_TAIGA, Biomes.TAIGA, Biomes.ROOFED_FOREST)),
                new Vec3i(30, 27, 26),
@@ -77,8 +77,8 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
                true
             )
          );
-      this.girlHouseConfigs.add(new ConfigWorldGenHandler.b("bia", new HashSet<>(Arrays.asList(Biomes.MUTATED_BIRCH_FOREST, Biomes.BIRCH_FOREST)), new Vec3i(11, 9, 15), 2, true));
-      this.girlHouseConfigs.add(new ConfigWorldGenHandler.b("luna", new HashSet<>(Arrays.asList(Biomes.OCEAN, Biomes.DEEP_OCEAN)), new Vec3i(3, 7, 10), 0, false));
+      this.girlHouseConfigs.add(new ConfigWorldGenHandler.BiomeRule("bia", new HashSet<>(Arrays.asList(Biomes.MUTATED_BIRCH_FOREST, Biomes.BIRCH_FOREST)), new Vec3i(11, 9, 15), 2, true));
+      this.girlHouseConfigs.add(new ConfigWorldGenHandler.BiomeRule("luna", new HashSet<>(Arrays.asList(Biomes.OCEAN, Biomes.DEEP_OCEAN)), new Vec3i(3, 7, 10), 0, false));
    }
 
    public void clear() {
@@ -110,7 +110,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
             return;
          }
 
-         this.generatedPositions.add(new ConfigWorldGenHandler.a(parseSpawnEntry(var5), var4));
+         this.generatedPositions.add(new ConfigWorldGenHandler.StructureData(parseSpawnEntry(var5), var4));
          var3++;
       }
    }
@@ -120,7 +120,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       NBTTagCompound var2 = new NBTTagCompound();
       int var3 = 0;
 
-      for (ConfigWorldGenHandler.a var5 : this.generatedPositions) {
+      for (ConfigWorldGenHandler.StructureData var5 : this.generatedPositions) {
          var2.setString("sexmod:name" + var3, var5.girlName);
          var2.setString("sexmod:pos" + var3++, getChunkHash(var5.pos));
       }
@@ -152,7 +152,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       if (IS_GENERATING) {
          IS_GENERATING = false;
 
-         for (ConfigWorldGenHandler.b var6 : this.girlHouseConfigs) {
+         for (ConfigWorldGenHandler.BiomeRule var6 : this.girlHouseConfigs) {
             this.placeStructure(var6, var1, var2, var3, var4);
          }
 
@@ -160,8 +160,8 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       }
    }
 
-   void placeStructure(ConfigWorldGenHandler.b var1, Random var2, int var3, int var4, World var5) {
-      for (ConfigWorldGenHandler.a var7 : this.generatedPositions) {
+   void placeStructure(ConfigWorldGenHandler.BiomeRule var1, Random var2, int var3, int var4, World var5) {
+      for (ConfigWorldGenHandler.StructureData var7 : this.generatedPositions) {
          int var8 = var7.girlName.equals(var1.girlName) ? 156 : 62;
          if (var7.pos.distanceTo(var3, var4) < var8) {
             return;
@@ -179,7 +179,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
 
          for (int var13 = var23; var13 < var23 + var21; var13++) {
             for (int var14 = var9; var14 < var9 + var22; var14++) {
-               int var15 = WorldUtils.a(var5, var13, var14);
+               int var15 = WorldUtils.getHeightAt(var5, var13, var14);
                if (var1.flattenGround && var5.getBlockState(new BlockPos(var13, var15, var14)).getBlock() == Blocks.WATER) {
                   return;
                }
@@ -196,7 +196,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
 
          if (var11 - var12 <= var1.maxHeightDiff) {
             int var24 = var11;
-            this.generatedPositions.add(new ConfigWorldGenHandler.a(new Point2D(var3, var4), var1.girlName));
+            this.generatedPositions.add(new ConfigWorldGenHandler.StructureData(new Point2D(var3, var4), var1.girlName));
             var1.generator.generate(var5, var2, new BlockPos(var23, var24, var9));
             if (var1.flattenGround) {
                boolean var25 = true;
@@ -228,7 +228,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       if (!(var2.nextDouble() > 0.004F)) {
          int var5 = var3 * 16 + 8;
          int var6 = var4 * 16 + 8;
-         int var7 = WorldUtils.a(var1, var5, var6);
+         int var7 = WorldUtils.getHeightAt(var1, var5, var6);
          if (!var1.getBlockState(new BlockPos(var5, var7, var6)).getMaterial().isLiquid()) {
             KoboldManager.spawnKoboldAt(var1, new Vec3d(var5, var7, var6));
          }
@@ -315,17 +315,17 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       }
    }
 
-   static class a {
+   static class StructureData {
       Point2D pos;
       String girlName;
 
-      public a(Point2D var1, String var2) {
+      public StructureData(Point2D var1, String var2) {
          this.pos = var1;
          this.girlName = var2;
       }
    }
 
-   static class b {
+   static class BiomeRule {
       public final String girlName;
       public final GirlHouseGenerator generator;
       public final HashSet<Biome> biomes;
@@ -333,7 +333,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       public final boolean flattenGround;
       public final int maxHeightDiff;
 
-      public b(String var1, HashSet<Biome> var2, Vec3i var3, int var4, boolean var5) {
+      public BiomeRule(String var1, HashSet<Biome> var2, Vec3i var3, int var4, boolean var5) {
          this.girlName = var1;
          this.biomes = var2;
          this.size = var3;

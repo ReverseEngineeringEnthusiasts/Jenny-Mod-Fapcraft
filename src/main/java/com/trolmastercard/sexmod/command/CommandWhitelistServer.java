@@ -53,7 +53,7 @@ public class CommandWhitelistServer extends CommandBase implements IClientComman
       }
    }
 
-   private static CommandException a(CommandException var0) {
+   private static CommandException wrapException(CommandException var0) {
       return var0;
    }
 }

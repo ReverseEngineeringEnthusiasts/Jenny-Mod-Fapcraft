@@ -50,7 +50,7 @@ public class BasicGirlEntity extends EntityLiving {
                int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
                int var4 = this.world.provider.getDimensionType() == DimensionType.NETHER
                   ? (int)Math.ceil(this.posY)
-                  : WorldUtils.a(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
+                  : WorldUtils.getHeightAt(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
                this.wanderTarget = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
                this.wanderTicks = 0;
             }

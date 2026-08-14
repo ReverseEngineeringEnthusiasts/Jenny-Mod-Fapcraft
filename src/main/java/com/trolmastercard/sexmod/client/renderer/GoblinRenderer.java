@@ -516,10 +516,10 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
    public static void applyBonePart(GeoBone var0, String var1) {
       int var2 = Integer.parseInt(var1);
-      a(var0, var2);
+      getChildBone(var0, var2);
    }
 
-   static HashSet<Integer> b(int var0, String var1) {
+   static HashSet<Integer> buildColorIndexGroups(int var0, String var1) {
       int var2 = Integer.parseInt(var1);
       int var3 = var0 - 1;
       ArrayList var4 = buildColorIndexGroups(var3);
@@ -548,7 +548,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
-   static HashSet<Integer> a(int var0, String var1) {
+   static HashSet<Integer> parseColorGroup(int var0, String var1) {
       HashSet var2 = new HashSet();
       int var3 = Integer.parseInt(var1);
       var3 = (int)(0.01F * var3 * var3);
@@ -568,13 +568,13 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    public static void applyBoneParts(GeoBone var0, String var1, String var2, String var3) {
-      GeoBone var4 = a(var0, Integer.parseInt(var1));
-      GeoBone var5 = a(var4, Integer.parseInt(var2));
+      GeoBone var4 = getChildBone(var0, Integer.parseInt(var1));
+      GeoBone var5 = getChildBone(var4, Integer.parseInt(var2));
       List var6 = var5.childBones;
       int var7 = var6.size();
-      HashSet<Integer> var8 = b(var7, var3);
+      HashSet<Integer> var8 = parseColorGroup(var7, var3);
       var5.childBones.forEach(var0x -> var0x.setHidden(true));
-      var8.forEach(var1x -> b(var5, var1x));
+      var8.forEach(var1x -> getChildBone(var5, var1x));
    }
 
    @Override

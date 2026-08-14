@@ -52,7 +52,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    public static final float ANGLE_2_87 = 2.876945F;
    Minecraft mc;
    SexSceneEntity sceneEntity = null;
-   ServerWhitelistManager.b modelData = null;
+   ServerWhitelistManager.ModelData modelData = null;
    HashMap<String, String> legBoneMap = new HashMap<>();
    HashMap<String, String> bodyBoneMap = new HashMap<>();
    HashMap<String, IBoneRotationSupplier> boneRotations = new HashMap<>();
@@ -145,7 +145,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
-   void renderModelData(ServerWhitelistManager.b var1, SexSceneEntity var2, float var3) {
+   void renderModelData(ServerWhitelistManager.ModelData var1, SexSceneEntity var2, float var3) {
       if (var1 != null && var1.getLightingType() != LightingType.DEFAULT) {
          GL11.glDisable(2896);
          this.lightingPos = var1.getLightingType() == LightingType.SEXMOD ? WorldUtils.getEntityLookVector(var2, var3) : null;
@@ -164,7 +164,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
          if (!ServerWhitelistManager.isGlobalRenderingDisabled) {
             if (!this.shouldRenderItemModel(var1)) {
                var1.matrixStack = new MatrixStack();
-               ServerWhitelistManager.b var10 = ServerWhitelistManager.getModelDataForGirl(var1.getModelCode());
+               ServerWhitelistManager.ModelData var10 = ServerWhitelistManager.getModelDataForGirl(var1.getModelCode());
                this.sceneEntity = var1;
                this.modelData = var10;
                this.renderModelData(var10, var1, var9);
@@ -219,7 +219,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
-   public static Vec3d a(Minecraft var0, SexSceneEntity var1, EntityLivingBase var2, BaseGirlEntity var3, float var4) {
+   public static Vec3d getSceneEntityPosition(Minecraft var0, SexSceneEntity var1, EntityLivingBase var2, BaseGirlEntity var3, float var4) {
       Vec3d var5;
       if (var3.isAnchored()) {
          Vec3d var6 = var3.getTargetPosition();
@@ -333,7 +333,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       if (var1.isItemModel) {
          return var1.boneType.boneName;
       } else {
-         ServerWhitelistManager.b var2 = ServerWhitelistManager.getModelDataForGirl(var1.getModelCode());
+         ServerWhitelistManager.ModelData var2 = ServerWhitelistManager.getModelDataForGirl(var1.getModelCode());
          if (var2 == null) {
             return null;
          } else {

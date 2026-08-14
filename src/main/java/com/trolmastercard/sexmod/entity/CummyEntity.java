@@ -36,7 +36,7 @@ public class CummyEntity {
       GlStateManager.enableAlpha();
       if (mc.player != null) {
          for (DynamicTrailRenderer var6 : trailRenderers) {
-            var6.a(mc, var2, var3, var4);
+            var6.renderTrail(mc, var2, var3, var4);
          }
 
          GlStateManager.enableDepth();
@@ -54,11 +54,11 @@ public class CummyEntity {
       }
    }
 
-   public static void a(DynamicTrailRenderer var0) {
+   public static void registerTrail(DynamicTrailRenderer var0) {
       trailRenderers.add(var0);
    }
 
-   public static void a(int var0, IPositionProvider var1, ITargetProvider var2, BaseGirlEntity var3, float var4, float var5) {
+   public static void createTrail(int var0, IPositionProvider var1, ITargetProvider var2, BaseGirlEntity var3, float var4, float var5) {
       trailRenderers.add(new DynamicTrailRenderer(var0, var1, var2, var3, var4, var5));
    }
 

@@ -65,7 +65,7 @@ public class UploadModelStringPacket implements IMessage {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                BaseGirlEntity var3 = BaseGirlEntity.getServerGirlEntity(var1.girlUUID);
                if (var1.partIds.size() > 0) {
-                  boolean var5 = this.a(var3, var1.partIds);
+                  boolean var5 = this.isValidModelCode(var3, var1.partIds);
                   if (var5) {
                      var3.setCustomPartList(var1.partIds);
                   }
@@ -103,7 +103,7 @@ public class UploadModelStringPacket implements IMessage {
          }
       }
 
-      boolean a(BaseGirlEntity var1, List<Integer> var2) {
+      boolean isValidModelCode(BaseGirlEntity var1, List<Integer> var2) {
          ArrayList var3 = var1.getCustomPartIdList();
 
          try {

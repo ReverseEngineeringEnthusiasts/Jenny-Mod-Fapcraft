@@ -32,7 +32,7 @@ public class CustomModelList extends GuiListExtended {
    static final List<BoneType> boneTypes = Arrays.asList(BoneType.values());
    static final String PLACEHOLDER_NAME = "MMMMMMMMMM";
    protected static int SCROLL_SPEED = 200;
-   private List<CustomModelList.a> entries = new ArrayList<>();
+   private List<CustomModelList.ModelListEntry> entries = new ArrayList<>();
    ClothingScreen parentScreen;
    boolean needsRefresh = false;
    float scrollOffset = 0.0F;
@@ -94,7 +94,7 @@ public class CustomModelList extends GuiListExtended {
       for (Entry var6 : ClothingScreen.m) {
          BoneType var7 = (BoneType)var6.getKey();
          Entry var8 = (Entry)var6.getValue();
-         this.entries.add(new CustomModelList.a(var7, (List<String>)var8.getKey(), (Integer)var8.getValue()));
+         this.entries.add(new CustomModelList.ModelListEntry(var7, (List<String>)var8.getKey(), (Integer)var8.getValue()));
          if (BoneType.CUSTOM_BONE.equals(var6.getKey())) {
             var4++;
          }
@@ -103,7 +103,7 @@ public class CustomModelList extends GuiListExtended {
       this.entries.sort(Comparator.comparingInt(var0 -> boneTypes.indexOf(var0.boneType)));
       List var9 = ServerWhitelistManager.getModelParts(this.parentScreen.previewGirl).get(BoneType.CUSTOM_BONE);
       var9.add(0, "cross");
-      this.entries.add(new CustomModelList.a(var4 > 1));
+      this.entries.add(new CustomModelList.ModelListEntry(var4 > 1));
       this.updateScrollbar();
       this.onMouseMove(var1, var2, var3);
       if (this.needsRefresh) {
@@ -197,7 +197,7 @@ public class CustomModelList extends GuiListExtended {
    }
 
    @SideOnly(Side.CLIENT)
-   public class a implements IGuiListEntry {
+   public class ModelListEntry implements IGuiListEntry {
       static final int ICON_SIZE = 4;
       public BoneType boneType;
       public List<String> modelNames;
@@ -206,14 +206,14 @@ public class CustomModelList extends GuiListExtended {
       boolean isVisible = false;
       boolean isSelected = false;
 
-      public a(BoneType var2, List<String> var3, int var4) {
+      public ModelListEntry(BoneType var2, List<String> var3, int var4) {
          this.boneType = var2;
          this.modelNames = var3;
          this.selectedIndex = var4;
          this.fontRenderer = CustomModelList.this.mc.fontRenderer;
       }
 
-      public a(boolean var2) {
+      public ModelListEntry(boolean var2) {
          this.isSelected = var2;
          this.isVisible = true;
       }
@@ -248,12 +248,12 @@ public class CustomModelList extends GuiListExtended {
          BaseGirlEntity var5 = CustomModelList.this.parentScreen.getPreviewGirl();
          SexSceneEntity var6;
          if (this.selectedIndex == 0) {
-            var6 = SexSceneEntity.a(CustomModelList.this.mc.world, var5.getGirlId(), this.boneType);
+            var6 = SexSceneEntity.createSceneEntity(CustomModelList.this.mc.world, var5.getGirlId(), this.boneType);
          } else {
             var6 = new SexSceneEntity(var5.world, var5.getGirlId(), this.modelNames.get(this.selectedIndex));
          }
 
-         ServerWhitelistManager.b var7 = ServerWhitelistManager.getModelDataForGirl(var6.getModelCode());
+         ServerWhitelistManager.ModelData var7 = ServerWhitelistManager.getModelDataForGirl(var6.getModelCode());
          if (var7 != null) {
             float var8 = !var6.isItemModel ? var7.getScale() : 1.0F;
             int var27 = (int)(-var7.getXOffset());
@@ -377,7 +377,7 @@ public class CustomModelList extends GuiListExtended {
       }
 
       void isEntrySelected(int var1, int var2, int var3, int var4) {
-         if (CustomModelList.this.parentScreen.previewGirl.h(var4)) {
+         if (CustomModelList.this.parentScreen.previewGirl.isPartEnabled(var4)) {
             CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.GUI_TEXTURE);
             CustomModelList.this.parentScreen.drawTexturedModalRect(5, var1, 0, 60, 119, 30);
             int var10 = 15;
@@ -442,7 +442,7 @@ public class CustomModelList extends GuiListExtended {
       }
 
       void isGirlSpecific(int var1, int var2) {
-         if (!CustomModelList.this.parentScreen.previewGirl.h(var2)) {
+         if (!CustomModelList.this.parentScreen.previewGirl.isPartEnabled(var2)) {
             this.handleSlotClick(var1, var2);
          }
       }

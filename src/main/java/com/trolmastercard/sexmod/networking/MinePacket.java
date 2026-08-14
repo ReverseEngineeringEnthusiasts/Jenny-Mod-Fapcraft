@@ -72,7 +72,7 @@ public class MinePacket implements IMessage {
                            );
                            var3.sendMessage(new TextComponentString(String.format("%s%d/%d Beds", TextFormatting.YELLOW, var6, var5)));
                         } else {
-                           HashSet var7 = this.a(var1.targetPos, var1.facing);
+                           HashSet var7 = this.getMineableBlocks(var1.targetPos, var1.facing);
                            World var8 = var2.getServerHandler().player.world;
 
                            for (BlockPos var10 : (java.util.Collection<BlockPos>) (var7) ) {
@@ -97,27 +97,27 @@ public class MinePacket implements IMessage {
          }
       }
 
-      HashSet<BlockPos> a(BlockPos var1, EnumFacing var2) {
+      HashSet<BlockPos> getMineableBlocks(BlockPos var1, EnumFacing var2) {
          HashSet var3 = new HashSet();
          BlockPos var4 = var1;
 
          for (int var5 = 0; var5 < 30; var5++) {
-            var3.add(var4.subtract(this.a(var2)));
-            var3.add(var4.subtract(this.a(var2)).up());
-            var3.add(var4.subtract(this.a(var2)).up().up());
+            var3.add(var4.subtract(this.getNextBlock(var2)));
+            var3.add(var4.subtract(this.getNextBlock(var2)).up());
+            var3.add(var4.subtract(this.getNextBlock(var2)).up().up());
             var3.add(var4);
             var3.add(var4.up());
             var3.add(var4.up().up());
-            var3.add(var4.add(this.a(var2)));
-            var3.add(var4.add(this.a(var2)).up());
-            var3.add(var4.add(this.a(var2)).up().up());
+            var3.add(var4.add(this.getNextBlock(var2)));
+            var3.add(var4.add(this.getNextBlock(var2)).up());
+            var3.add(var4.add(this.getNextBlock(var2)).up().up());
             var4 = var4.add(var2.getDirectionVec());
          }
 
          return var3;
       }
 
-      BlockPos a(EnumFacing var1) {
+      BlockPos getNextBlock(EnumFacing var1) {
          Vec3i var2 = var1.getDirectionVec();
          return new BlockPos(var2.getZ(), var2.getY(), -var2.getX());
       }

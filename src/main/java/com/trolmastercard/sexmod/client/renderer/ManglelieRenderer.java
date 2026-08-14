@@ -369,9 +369,9 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
 
    static void renderManglelieRibbonMesh(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
       var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-      Vec3d[][] var4 = GalathGeometryRender.a(var0, var3, "clothBoobLconStart", "clothBoobLconEnd", OFFSET_BODY, OFFSET_ARM);
-      Vec3d[][] var5 = GalathGeometryRender.a(var0, var3, "clothBoobRconStart", "clothBoobRconEnd", OFFSET_BODY, OFFSET_ARM);
-      Vec3d[][] var6 = GalathGeometryRender.a(var0, var3, "clothBoobMidconStart", "clothBoobMidconEnd", OFFSET_LEG, OFFSET_LEG);
+      Vec3d[][] var4 = GalathGeometryRender.buildBodyMesh(var0, var3, "clothBoobLconStart", "clothBoobLconEnd", OFFSET_BODY, OFFSET_ARM);
+      Vec3d[][] var5 = GalathGeometryRender.buildBodyMesh(var0, var3, "clothBoobRconStart", "clothBoobRconEnd", OFFSET_BODY, OFFSET_ARM);
+      Vec3d[][] var6 = GalathGeometryRender.buildBodyMesh(var0, var3, "clothBoobMidconStart", "clothBoobMidconEnd", OFFSET_LEG, OFFSET_LEG);
       GalathGeometryRender.renderMesh(var1, var4, CORRUPTION_COLOR_MAIN);
       GalathGeometryRender.renderMesh(var1, var5, CORRUPTION_COLOR_MAIN);
       GalathGeometryRender.renderMesh(var1, var6, CORRUPTION_COLOR_MAIN);

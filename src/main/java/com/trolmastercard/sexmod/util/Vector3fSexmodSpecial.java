@@ -11,11 +11,11 @@ public class Vector3fSexmodSpecial {
       this.z = var3;
    }
 
-   public Vector3fSexmodSpecial b(Vector3fSexmodSpecial var1) {
+   public Vector3fSexmodSpecial add(Vector3fSexmodSpecial var1) {
       return new Vector3fSexmodSpecial(this.x - var1.x, this.y - var1.y, this.z - var1.z);
    }
 
-   public Vector3fSexmodSpecial a(Vector3fSexmodSpecial var1) {
+   public Vector3fSexmodSpecial subtract(Vector3fSexmodSpecial var1) {
       return new Vector3fSexmodSpecial(this.x + var1.x, this.y + var1.y, this.z + var1.z);
    }
 

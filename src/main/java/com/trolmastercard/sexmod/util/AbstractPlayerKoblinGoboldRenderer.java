@@ -49,7 +49,7 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
 
    protected abstract Vec3i resolveBoneColor(String var1);
 
-   protected void b(GeoBone var1, int var2) {
+   protected void hideBone(GeoBone var1, int var2) {
       List var3 = var1.childBones;
 
       for (int var5 = 0; var5 < var3.size(); var5++) {
@@ -70,7 +70,7 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
       return new Vec3d(-90.0, 0.0, 0.0);
    }
 
-   protected GeoBone a(GeoBone var1, int var2) {
+   protected GeoBone getChildBone(GeoBone var1, int var2) {
       List var3 = var1.childBones;
       GeoBone var4 = null;
       var3.sort(Comparator.comparingDouble(GeoBone::getPivotY));

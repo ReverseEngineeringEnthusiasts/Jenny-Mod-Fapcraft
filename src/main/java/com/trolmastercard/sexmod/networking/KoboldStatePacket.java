@@ -51,7 +51,7 @@ public class KoboldStatePacket implements IMessage {
    }
 
    public static class Handler implements IMessageHandler<KoboldStatePacket, IMessage> {
-      public static void a(UUID var0, UUID var1, boolean var2, boolean var3) {
+      public static void sendState(UUID var0, UUID var1, boolean var2, boolean var3) {
          try {
             for (BaseGirlEntity var5 : BaseGirlEntity.girlList(var0)) {
                if (!var5.world.isRemote) {
@@ -91,7 +91,7 @@ public class KoboldStatePacket implements IMessage {
 
       public IMessage onMessage(KoboldStatePacket var1, MessageContext var2) {
          if (var1.isValid && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> a(var1.tribeId, var1.girlId, var1.isSneaking, var1.followMode));
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> sendState(var1.tribeId, var1.girlId, var1.isSneaking, var1.followMode));
          }
 
          return null;

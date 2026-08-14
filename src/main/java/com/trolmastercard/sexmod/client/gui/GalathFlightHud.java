@@ -87,20 +87,20 @@ public class GalathFlightHud extends Gui {
 
             var8 = ThreadNames.clampFloat(var8, 0.0F, 1.0F);
             GlStateManager.color(1.0F, 1.0F, 1.0F, var8);
-            this.a(BACKGROUND_BOUNDS, var5 - BACKGROUND_BOUNDS.width / 2, var4 - 70);
-            this.a(ICON_SHADOWS_BOUNDS, (int)(var5 - 1.5F * CHARGE_ACTIVE_BOUNDS.width + 1.0F), var4 - 70 + 3);
-            this.a(ICON_SHADOWS_BOUNDS, var5 - CHARGE_ACTIVE_BOUNDS.width / 2 + 1, var4 - 70 + 3);
-            this.a(ICON_SHADOWS_BOUNDS, var5 + CHARGE_ACTIVE_BOUNDS.width / 2 + 1, var4 - 70 + 3);
+            this.drawChargeText(BACKGROUND_BOUNDS, var5 - BACKGROUND_BOUNDS.width / 2, var4 - 70);
+            this.drawChargeText(ICON_SHADOWS_BOUNDS, (int)(var5 - 1.5F * CHARGE_ACTIVE_BOUNDS.width + 1.0F), var4 - 70 + 3);
+            this.drawChargeText(ICON_SHADOWS_BOUNDS, var5 - CHARGE_ACTIVE_BOUNDS.width / 2 + 1, var4 - 70 + 3);
+            this.drawChargeText(ICON_SHADOWS_BOUNDS, var5 + CHARGE_ACTIVE_BOUNDS.width / 2 + 1, var4 - 70 + 3);
             float var9 = (float)RotationHelper.easeInOutQuad(Math.min(1.0F, (float)(var6 - lastChargeUsedTime) / 150.0F));
             float var10 = var9 == 1.0F ? ThreadNames.clampFloat(1.0F - (float)(var6 - lastRegenTime) / 500.0F, 0.0F, 1.0F) : 0.0F;
-            this.a(1, -1.5F * CHARGE_ACTIVE_BOUNDS.width, var10, var9, var5, var4, var8);
-            this.a(2, -CHARGE_ACTIVE_BOUNDS.width / 2.0F, var10, var9, var5, var4, var8);
-            this.a(3, CHARGE_ACTIVE_BOUNDS.width / 2.0F, var10, var9, var5, var4, var8);
+            this.drawChargeBar(1, -1.5F * CHARGE_ACTIVE_BOUNDS.width, var10, var9, var5, var4, var8);
+            this.drawChargeBar(2, -CHARGE_ACTIVE_BOUNDS.width / 2.0F, var10, var9, var5, var4, var8);
+            this.drawChargeBar(3, CHARGE_ACTIVE_BOUNDS.width / 2.0F, var10, var9, var5, var4, var8);
          }
       }
    }
 
-   void a(int var1, float var2, float var3, float var4, int var5, int var6, float var7) {
+   void drawChargeBar(int var1, float var2, float var3, float var4, int var5, int var6, float var7) {
       float var8;
       if (availableCharges >= var1) {
          var8 = 0.0F;
@@ -122,10 +122,10 @@ public class GalathFlightHud extends Gui {
       GlStateManager.scale(var10, var10, var10);
       GlStateManager.translate(var8 * x[var1 - 1] + var9 * t[var1 - 1], var8 * -11.25F + var9 * 37.5F, 0.0F);
       GlStateManager.color(1.0F, 1.0F, 1.0F, var7 - var8 - var9);
-      this.a(CHARGE_ACTIVE_BOUNDS, (int)(var5 + var2), var6 - 70);
+      this.drawChargeText(CHARGE_ACTIVE_BOUNDS, (int)(var5 + var2), var6 - 70);
       GlStateManager.resetColor();
       GlStateManager.color(1.0F, 1.0F, 1.0F, (float)Math.sin(Math.PI * var8) * 0.5F);
-      this.a(CHARGE_BLINK_BOUNDS, (int)(var5 + var2), var6 - 70);
+      this.drawChargeText(CHARGE_BLINK_BOUNDS, (int)(var5 + var2), var6 - 70);
       GlStateManager.popMatrix();
       GlStateManager.resetColor();
    }
@@ -148,7 +148,7 @@ public class GalathFlightHud extends Gui {
       uiFadeInStartTime = 0L;
    }
 
-   void a(Rectangle var1, int var2, int var3) {
+   void drawChargeText(Rectangle var1, int var2, int var3) {
       this.drawTexturedModalRect(var2, var3, var1.x, var1.y, var1.width, var1.height);
    }
 

@@ -47,7 +47,7 @@ public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
       return this.lampTexture;
    }
 
-   public ResourceLocation a(AlliesLampItem var1) {
+   public ResourceLocation getLampTexture(AlliesLampItem var1) {
       return new ResourceLocation("sexmod", "animations/allie/lamp.animation.json");
    }
 

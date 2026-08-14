@@ -51,7 +51,7 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
       }
 
       RayTraceResult var10 = Minecraft.getMinecraft().objectMouseOver;
-      BaseGirlEntity var9 = this.a(var10);
+      BaseGirlEntity var9 = this.getTargetGirl(var10);
       if (var9 == null) {
          var5.sendStatusMessage(new TextComponentString("You gotta transform into the girl you want to apply the model-code to"), true);
       } else if ("".equals(var7)) {
@@ -70,7 +70,7 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
    }
 
    @SideOnly(Side.CLIENT)
-   BaseGirlEntity a(RayTraceResult var1) {
+   BaseGirlEntity getTargetGirl(RayTraceResult var1) {
       if (var1 == null) {
          return AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player);
       } else {

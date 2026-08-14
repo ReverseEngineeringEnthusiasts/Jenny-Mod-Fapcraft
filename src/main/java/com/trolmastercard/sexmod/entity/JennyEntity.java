@@ -70,7 +70,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
       this.swordOffsetStab = new Vec3d(0.0, -0.029999997854232782, -0.2);
    }
 
-   public static JennyEntity a(World var0) {
+   public static JennyEntity createJenny(World var0) {
       JennyEntity var1 = new JennyEntity(var0);
       var1.isSpecialState = true;
       return var1;
@@ -232,22 +232,22 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
       super.doAction(var1, var2);
       if ("action.names.blowjob".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", "blowjob");
-         this.a(true, var2);
+         this.setOwner(true, var2);
       } else if ("action.names.boobjob".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", "boobjob");
-         this.a(true, var2);
+         this.setOwner(true, var2);
       } else if ("action.names.doggy".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", "doggy");
-         this.a(true, var2);
+         this.setOwner(true, var2);
       } else if ("action.names.strip".equals(var1)) {
          this.changeDataParameterFromClient("animationFollowUp", "strip");
-         this.a(true, var2);
+         this.setOwner(true, var2);
       } else if ("action.names.dressup".equals(var1)) {
          this.setCurrentAction(Action.STRIP);
       }
    }
 
-   protected void a(boolean var1, UUID var2) {
+   protected void setOwner(boolean var1, UUID var2) {
       super.triggerActionSync(var1, true, var2);
       HandlePlayerMovement.setMovementLock(false);
    }

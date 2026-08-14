@@ -21,7 +21,7 @@ public class JennyModel extends ModelBase implements IVanillaModel {
       this.rootPart.render(var7);
    }
 
-   public void a(ModelRenderer var1, float var2, float var3, float var4) {
+   public void setRotation(ModelRenderer var1, float var2, float var3, float var4) {
       var1.rotateAngleX = var2;
       var1.rotateAngleY = var3;
       var1.rotateAngleZ = var4;

@@ -37,13 +37,13 @@ public class GirlCameraHelper {
          AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getEntityPlayer().getPersistentID());
          if (var2 != null) {
             var1.setCanceled(true);
-            a(var2, var1.getEntityPlayer(), var1.getX(), var1.getY(), var1.getZ(), var1.getPartialRenderTick());
+            applyCameraTransform(var2, var1.getEntityPlayer(), var1.getX(), var1.getY(), var1.getZ(), var1.getPartialRenderTick());
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
-   public static void a(AbstractPlayerGirlEntity var0, EntityPlayer var1, double var2, double var4, double var6, float var8) {
+   public static void applyCameraTransform(AbstractPlayerGirlEntity var0, EntityPlayer var1, double var2, double var4, double var6, float var8) {
       Minecraft var9 = Minecraft.getMinecraft();
       var1 = var0.resolvePlayerEntity(var1);
       if (!var1.isInvisibleToPlayer(var9.player) || var0.E_clash458()) {
@@ -167,7 +167,7 @@ public class GirlCameraHelper {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void a(CameraSetup var1) {
+   public void onCameraSetup(CameraSetup var1) {
       Minecraft var2 = Minecraft.getMinecraft();
       if (var2.player != null) {
          AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
@@ -194,7 +194,7 @@ public class GirlCameraHelper {
                Vec3d var4 = var2.player.getPositionVector();
                Vec3d var5 = RotationHelper.lerpVec3dDouble(this.playerLastPos, this.playerPos, var1.getPartialTicks());
                Vec3d var6 = var5.subtract(var4);
-               a(var3, var2.player, var6.x, var6.y, var6.z, var1.getPartialTicks());
+               applyCameraTransform(var3, var2.player, var6.x, var6.y, var6.z, var1.getPartialTicks());
                GlStateManager.enableLighting();
                GlStateManager.enableDepth();
                GlStateManager.enableAlpha();
@@ -222,7 +222,7 @@ public class GirlCameraHelper {
                }
             } else {
                if (this.currentGirl != var3) {
-                  a(var3, var2.player, 0.0, 500.0, 0.0, var1.renderTickTime);
+                  applyCameraTransform(var3, var2.player, 0.0, 500.0, 0.0, var1.renderTickTime);
                   this.currentGirl = var3;
                }
 

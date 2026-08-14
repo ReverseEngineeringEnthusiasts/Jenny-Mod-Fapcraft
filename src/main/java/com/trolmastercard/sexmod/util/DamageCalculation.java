@@ -16,26 +16,26 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class DamageCalculation {
    public DamageCalculation() {
-      DamageCalculation.a.a(EntityEquipmentSlot.HEAD, ArmorMaterial.LEATHER, 1, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.HEAD, ArmorMaterial.GOLD, 2, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.HEAD, ArmorMaterial.CHAIN, 2, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.HEAD, ArmorMaterial.IRON, 2, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.HEAD, ArmorMaterial.DIAMOND, 3, 3);
-      DamageCalculation.a.a(EntityEquipmentSlot.CHEST, ArmorMaterial.LEATHER, 3, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.CHEST, ArmorMaterial.GOLD, 5, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.CHEST, ArmorMaterial.CHAIN, 5, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.CHEST, ArmorMaterial.IRON, 6, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.CHEST, ArmorMaterial.DIAMOND, 8, 3);
-      DamageCalculation.a.a(EntityEquipmentSlot.LEGS, ArmorMaterial.LEATHER, 2, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.LEGS, ArmorMaterial.GOLD, 3, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.LEGS, ArmorMaterial.CHAIN, 4, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.LEGS, ArmorMaterial.IRON, 5, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.LEGS, ArmorMaterial.DIAMOND, 6, 3);
-      DamageCalculation.a.a(EntityEquipmentSlot.FEET, ArmorMaterial.LEATHER, 1, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.FEET, ArmorMaterial.GOLD, 1, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.FEET, ArmorMaterial.CHAIN, 1, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.FEET, ArmorMaterial.IRON, 2, 0);
-      DamageCalculation.a.a(EntityEquipmentSlot.FEET, ArmorMaterial.DIAMOND, 3, 3);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.LEATHER, 1, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.GOLD, 2, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.CHAIN, 2, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.IRON, 2, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.DIAMOND, 3, 3);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.LEATHER, 3, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.GOLD, 5, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.CHAIN, 5, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.IRON, 6, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.DIAMOND, 8, 3);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.LEATHER, 2, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.GOLD, 3, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.CHAIN, 4, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.IRON, 5, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.DIAMOND, 6, 3);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.LEATHER, 1, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.GOLD, 1, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.CHAIN, 1, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.IRON, 2, 0);
+      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.DIAMOND, 3, 3);
    }
 
    @SubscribeEvent
@@ -126,7 +126,7 @@ public class DamageCalculation {
          }
       }
 
-      public static void a(EntityEquipmentSlot var0, ArmorMaterial var1, int var2, int var3) {
+      public static void calculateDamage(EntityEquipmentSlot var0, ArmorMaterial var1, int var2, int var3) {
          a.put(var0.toString() + var1.toString(), new Integer[]{var2, var3});
       }
    }

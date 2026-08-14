@@ -113,7 +113,7 @@ public class InHandMapRenderer {
       if (!this.mc.player.isInvisible()) {
          GlStateManager.pushMatrix();
          GlStateManager.rotate(var5 * 10.0F, 0.0F, 0.0F, 1.0F);
-         this.a(var2, var3, var1);
+         this.renderMapPlane(var2, var3, var1);
          GlStateManager.translate(-0.5F, -1.1F, 0.0F);
          if (var1 == EnumHandSide.RIGHT) {
             GlStateManager.translate(0.48F, 0.15F, 0.0F);
@@ -215,7 +215,7 @@ public class InHandMapRenderer {
    void renderMapView(float var1, float var2) {
       GlStateManager.disableCull();
       GlStateManager.pushMatrix();
-      this.a(this.PROGRESS_SCALE, var1, EnumHandSide.RIGHT);
+      this.renderMapPlane(this.PROGRESS_SCALE, var1, EnumHandSide.RIGHT);
       Minecraft.getMinecraft().getTextureManager().bindTexture(this.handTexture);
       this.handModel.getModel().render(0.175F);
       GlStateManager.disableBlend();
@@ -223,7 +223,7 @@ public class InHandMapRenderer {
       GlStateManager.popMatrix();
    }
 
-   private void a(float var1, float var2, EnumHandSide var3) {
+   private void renderMapPlane(float var1, float var2, EnumHandSide var3) {
       boolean var4 = var3 != EnumHandSide.LEFT;
       float var5 = var4 ? 1.0F : -1.0F;
       float var6 = MathHelper.sqrt(var2);

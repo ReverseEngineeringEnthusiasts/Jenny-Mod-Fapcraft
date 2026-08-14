@@ -373,7 +373,7 @@ public class ManglelieEntity extends BaseGirlEntity {
          return true;
       }
 
-      if (!com.trolmastercard.sexmod.MobPredicates.a(var1.world, var1.getTargetPosition().add(0.0, var1.getEyeHeight(), 0.0), var0)) {
+      if (!com.trolmastercard.sexmod.MobPredicates.isDaylight(var1.world, var1.getTargetPosition().add(0.0, var1.getEyeHeight(), 0.0), var0)) {
          return true;
       }
 
@@ -521,7 +521,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                Vec3d var11 = this.getPositionVector();
                Vec3d var12 = var6.getPositionVector();
                Vec3d var9 = var12.subtract(var11);
-               float var10 = (float)TrigMath.b(Math.atan2(var9.z, var9.x)) - 90.0F;
+               float var10 = (float)TrigMath.sinDegrees(Math.atan2(var9.z, var9.x)) - 90.0F;
                this.setYawRotation(var10);
                this.pathNavigator = this.getNavigator();
                this.pathNavigator.clearPath();
@@ -538,7 +538,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
 
       Vec3d var4 = com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(this, var2);
-      return this.a(com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(var1, var2).subtract(var4), var3, var2);
+      return this.isThrowBlocked(com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(var1, var2).subtract(var4), var3, var2);
    }
 
    public boolean isLookingAtGalathPoint(Vec3d var1, float var2) {
@@ -548,10 +548,10 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
 
       Vec3d var4 = com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(this, var2);
-      return this.a(var1.subtract(var4), var3, var2);
+      return this.isThrowBlocked(var1.subtract(var4), var3, var2);
    }
 
-   boolean a(Vec3d var1, GalathEntity var2, float var3) {
+   boolean isThrowBlocked(Vec3d var1, GalathEntity var2, float var3) {
       Vec3d var4 = VectorMath.rotateByYaw(var1, RotationHelper.lerpFloat(var2.prevRotationYawHead, var2.rotationYawHead, var3));
       return var4.x > 0.35;
    }
@@ -578,7 +578,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                   Vec3d var3 = var2.getPositionVector().add(0.0, var2.getEyeHeight(), 0.0);
                   Vec3d var4 = var1.getPositionVector().add(var1.getCachedBoneOffset("mangPos")).add(this.getCachedBoneOffset("head"));
                   Vec3d var5 = var4.subtract(var3);
-                  float var6 = (float)(TrigMath.b(Math.atan2(var5.z, var5.x)) + 90.0);
+                  float var6 = (float)(TrigMath.sinDegrees(Math.atan2(var5.z, var5.x)) + 90.0);
                   Float var7 = GalathEntity.getAimYaw(var1, 0.0F);
                   var6 -= var1.rotationYawHead;
                   if (var7 != null) {
@@ -868,7 +868,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                this.playRandomSoundAtVolume(SoundHandler.MISC_INSERTS, 6.0F);
                this.playRandomSound(SoundHandler.MISC_POUNDING);
             case "doubleSemen":
-               CummyEntity.a(new DynamicTrailRenderer(10, var0 -> {
+               CummyEntity.registerTrail(new DynamicTrailRenderer(10, var0 -> {
                   Vec3d var1xx = var0.getBoneWorldPosition("semenEmitter");
                   Vec3d var2 = var0.getBoneWorldPosition("semenDir");
                   return var1xx.subtract(var2).normalize();

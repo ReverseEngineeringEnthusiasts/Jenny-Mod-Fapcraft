@@ -77,7 +77,7 @@ public class GirlInventoryScreen extends GuiScreen {
                && var3.getCount() >= this.actionCosts[var1.id - 5].getCount()
                && var3.getMetadata() == this.actionCosts[var1.id - 5].getMetadata()) {
                PacketHandler.networkWrapper.sendToServer(new RemoveItemsPacket(this.player.getPersistentID(), this.actionCosts[var1.id - 5]));
-               this.a(var1);
+               this.onButtonClick(var1);
                return;
             }
          }
@@ -85,11 +85,11 @@ public class GirlInventoryScreen extends GuiScreen {
          this.player.sendMessage(new TextComponentString("<" + this.girl.getName() + "> you cannot afford that..."));
          this.girl.playSound(SoundHandler.GIRLS_JENNY_SADOH[1]);
       } else {
-         this.a(var1);
+         this.onButtonClick(var1);
       }
    }
 
-   void a(GuiButton var1) {
+   void onButtonClick(GuiButton var1) {
       String var2;
       if (var1.id < 5) {
          var2 = this.labelIds[var1.id];
@@ -123,7 +123,7 @@ public class GirlInventoryScreen extends GuiScreen {
          if (this.animProgress2 > 0.0F && this.actionCosts != null && this.actionCosts[var13 - 5] != null && this.actionCosts[var13 - 5].getCount() != 0) {
             this.zLevel = -300.0F;
             this.itemRender.zLevel = -300.0F;
-            this.a(Arrays.asList(this.actionCosts[var13 - 5].getCount() + "x    "), var5 - var7, var6 - var11, this.fontRenderer);
+            this.drawTooltip(Arrays.asList(this.actionCosts[var13 - 5].getCount() + "x    "), var5 - var7, var6 - var11, this.fontRenderer);
             this.itemRender.renderItemIntoGUI(this.actionCosts[var13 - 5], var5 - var8, var6 - var12);
             this.zLevel = 0.0F;
             this.itemRender.zLevel = 0.0F;
@@ -215,7 +215,7 @@ public class GirlInventoryScreen extends GuiScreen {
       }
    }
 
-   void a(List<String> var1, int var2, int var3, FontRenderer var4) {
+   void drawTooltip(List<String> var1, int var2, int var3, FontRenderer var4) {
       GlStateManager.disableRescaleNormal();
       RenderHelper.disableStandardItemLighting();
       GlStateManager.disableLighting();

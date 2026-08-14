@@ -40,14 +40,14 @@ public class NpcEditorWandItem extends Item {
 
    public void onUpdate(ItemStack var1, World var2, Entity var3, int var4, boolean var5) {
       if (var2.isRemote) {
-         this.a(var3, var1);
+         this.applyEditor(var3, var1);
       }
 
       super.onUpdate(var1, var2, var3, var4, var5);
    }
 
    @SideOnly(Side.CLIENT)
-   void a(Entity var1, ItemStack var2) {
+   void applyEditor(Entity var1, ItemStack var2) {
       if (var1 instanceof EntityPlayer) {
          EntityPlayer var3 = (EntityPlayer)var1;
          if (!var2.equals(var3.getHeldItemMainhand()) && !var2.equals(var3.getHeldItemOffhand())) {
@@ -120,18 +120,18 @@ public class NpcEditorWandItem extends Item {
    }
 
    @SubscribeEvent
-   public void a(LeftClickBlock var1) {
-      if (this.a(var1.getEntityPlayer(), var1.getWorld())) {
+   public void onLeftClickBlock(LeftClickBlock var1) {
+      if (this.canEdit(var1.getEntityPlayer(), var1.getWorld())) {
          var1.setCanceled(true);
       }
    }
 
    @SubscribeEvent
-   public void a(LeftClickEmpty var1) {
-      this.a(var1.getEntityPlayer(), var1.getWorld());
+   public void onLeftClickEmpty(LeftClickEmpty var1) {
+      this.canEdit(var1.getEntityPlayer(), var1.getWorld());
    }
 
-   boolean a(EntityPlayer var1, World var2) {
+   boolean canEdit(EntityPlayer var1, World var2) {
       if (var1 == null) {
          return false;
       }

@@ -112,7 +112,7 @@ public class KoboldTask {
       return this.workers.contains(var1);
    }
 
-   public static HashSet<BlockPos> a(World var0, BlockPos var1, UUID var2) {
+   public static HashSet<BlockPos> findConnectedBlocks(World var0, BlockPos var1, UUID var2) {
       BlockPos var3 = var1;
 
       while (!isAboveMineable(var0, var3)) {
@@ -175,81 +175,81 @@ public class KoboldTask {
    }
 
    static HashSet<BlockPos> findConnectedLogs(World var0, BlockPos var1) {
-      return a(var0, var1, new HashSet<>());
+      return findMineableBlocks(var0, var1, new HashSet<>());
    }
 
-   static HashSet<BlockPos> a(World var0, BlockPos var1, HashSet<BlockPos> var2) {
+   static HashSet<BlockPos> findMineableBlocks(World var0, BlockPos var1, HashSet<BlockPos> var2) {
       if (var2.contains(var1)) {
          return new HashSet<>();
       }
 
       var2.add(var1);
       if (var0.getBlockState(var1.add(1, 0, 0)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(1, 0, 0), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(1, 0, 0), var2));
       }
 
       if (var0.getBlockState(var1.add(-1, 0, 0)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(-1, 0, 0), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(-1, 0, 0), var2));
       }
 
       if (var0.getBlockState(var1.add(0, 0, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(0, 0, 1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(0, 0, 1), var2));
       }
 
       if (var0.getBlockState(var1.add(0, 0, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(0, 0, -1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(0, 0, -1), var2));
       }
 
       if (var0.getBlockState(var1.add(1, 0, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(1, 0, 1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(1, 0, 1), var2));
       }
 
       if (var0.getBlockState(var1.add(-1, 0, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(-1, 0, -1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(-1, 0, -1), var2));
       }
 
       if (var0.getBlockState(var1.add(-1, 0, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(-1, 0, 1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(-1, 0, 1), var2));
       }
 
       if (var0.getBlockState(var1.add(1, 0, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(1, 0, -1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(1, 0, -1), var2));
       }
 
       if (var0.getBlockState(var1.add(0, 1, 0)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(0, 1, 0), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(0, 1, 0), var2));
       }
 
       if (var0.getBlockState(var1.add(1, 1, 0)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(1, 1, 0), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(1, 1, 0), var2));
       }
 
       if (var0.getBlockState(var1.add(-1, 1, 0)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(-1, 1, 0), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(-1, 1, 0), var2));
       }
 
       if (var0.getBlockState(var1.add(0, 1, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(0, 1, 1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(0, 1, 1), var2));
       }
 
       if (var0.getBlockState(var1.add(0, 1, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(0, 1, -1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(0, 1, -1), var2));
       }
 
       if (var0.getBlockState(var1.add(1, 1, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(1, 1, 1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(1, 1, 1), var2));
       }
 
       if (var0.getBlockState(var1.add(-1, 1, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(-1, 1, -1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(-1, 1, -1), var2));
       }
 
       if (var0.getBlockState(var1.add(-1, 1, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(-1, 1, 1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(-1, 1, 1), var2));
       }
 
       if (var0.getBlockState(var1.add(1, 1, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(a(var0, var1.add(1, 1, -1), var2));
+         var2.addAll(findMineableBlocks(var0, var1.add(1, 1, -1), var2));
       }
 
       return var2;

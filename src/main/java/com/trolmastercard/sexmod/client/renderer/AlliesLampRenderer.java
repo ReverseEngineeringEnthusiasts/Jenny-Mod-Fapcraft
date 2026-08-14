@@ -87,7 +87,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
       var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
       for (GeoBone var10 : var1.topLevelBones) {
-         this.a(var8, var2, var10, var4, var5, var6, var7);
+         this.renderLampBone(var8, var2, var10, var4, var5, var6, var7);
       }
 
       Tessellator.getInstance().draw();
@@ -96,7 +96,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
       GlStateManager.enableCull();
    }
 
-   public void a(BufferBuilder var1, AlliesLampItem var2, GeoBone var3, float var4, float var5, float var6, float var7) {
+   public void renderLampBone(BufferBuilder var1, AlliesLampItem var2, GeoBone var3, float var4, float var5, float var6, float var7) {
       MATRIX_STACK.push();
       MATRIX_STACK.translate(var3);
       MATRIX_STACK.moveToPivot(var3);
@@ -105,7 +105,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
       MATRIX_STACK.moveBackFromPivot(var3);
       this.mc.renderEngine.bindTexture(this.getSkin());
       if (this.isNotArmBone(var3.getName())) {
-         this.b(var1, var2, var3, var4, var5, var6, var7);
+         this.renderLampEffect(var1, var2, var3, var4, var5, var6, var7);
       }
 
       MATRIX_STACK.pop();
@@ -117,7 +117,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
          : this.mc.player.getEntityData().getBoolean("sexmodAllieInUse") && this.mc.gameSettings.thirdPersonView == 0;
    }
 
-   void b(BufferBuilder var1, AlliesLampItem var2, GeoBone var3, float var4, float var5, float var6, float var7) {
+   void renderLampEffect(BufferBuilder var1, AlliesLampItem var2, GeoBone var3, float var4, float var5, float var6, float var7) {
       if (!var3.isHidden) {
          for (GeoCube var9 : var3.childCubes) {
             MATRIX_STACK.push();
@@ -128,7 +128,7 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
          }
 
          for (GeoBone var11 : var3.childBones) {
-            this.a(var1, var2, var11, var4, var5, var6, var7);
+            this.renderLampBone(var1, var2, var11, var4, var5, var6, var7);
          }
       }
    }
