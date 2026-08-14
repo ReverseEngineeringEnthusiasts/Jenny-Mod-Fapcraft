@@ -24,16 +24,34 @@ public class SexSceneKeyHandler {
 
          UUID var3 = var2.player.getPersistentID();
 
+         // "Leave sex scene" should PROGRESS the scene to its natural end, not
+         // snap the player out. The original mod has no exit key: scenes end when
+         // the action chain completes. triggerCumAction jumps to the ending (cum)
+         // animation if the current action has one; triggerFastSexAction advances
+         // the chain one step (getNextAction). When no cum action exists we walk
+         // the chain to its end, after which the girl releases the player through
+         // the normal machinery. Never resetCameraAndPhysics here: on an anchored
+         // girl the server refuses the NULL action ("prevented a potential
+         // animation break"), which left girls stuck standing with the player
+         // already snapped out.
          try {
             for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {
-               if (var5.world.isRemote && !var5.isDead && var5.getInteractionPlayerUUID() != null) {
+               if (!var5.isDead && var5.world.isRemote && var5.getInteractionPlayerUUID() != null) {
                   UUID var6 = var5.getInteractionPlayerUUID();
                   if (var3.equals(var6) || var2.player.getUniqueID().equals(var6)) {
-                     // Progress the scene to its natural end through the standard
-                     // machinery (action -> null, player released, ResetGirlPacket
-                     // with resetPose=false) instead of the hard full reset
-                     // (resetPose=true) which snapped girls out of their state.
-                     var5.resetCameraAndPhysics();
+                     Action before = var5.getCurrentAction();
+                     BaseGirlEntity.triggerCumAction(var3);
+                     // if the cum action did not apply (no cum for this action),
+                     // walk the chain to its end
+                     if (var5.getCurrentAction() == before) {
+                        for (int i = 0; i < 32; i++) {
+                           Action prev = var5.getCurrentAction();
+                           BaseGirlEntity.triggerFastSexAction(var3);
+                           if (var5.getCurrentAction() == prev) {
+                              break; // chain end reached
+                           }
+                        }
+                     }
                   }
                }
             }
@@ -42,7 +60,17 @@ public class SexSceneKeyHandler {
 
          AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3);
          if (var8 != null && var8.getCurrentAction() != Action.NULL) {
-            var8.resetCameraAndPhysics();
+            Action before = var8.getCurrentAction();
+            BaseGirlEntity.triggerCumAction(var3);
+            if (var8.getCurrentAction() == before) {
+               for (int i = 0; i < 32; i++) {
+                  Action prev = var8.getCurrentAction();
+                  BaseGirlEntity.triggerFastSexAction(var3);
+                  if (var8.getCurrentAction() == prev) {
+                     break;
+                  }
+               }
+            }
          }
       }
    }
