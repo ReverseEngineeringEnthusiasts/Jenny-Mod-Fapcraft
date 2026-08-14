@@ -377,7 +377,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public boolean hasMaster() {
-      return this.hasMaster();
+      return super.hasMaster();
    }
 
    public boolean isPushedByWater() {
