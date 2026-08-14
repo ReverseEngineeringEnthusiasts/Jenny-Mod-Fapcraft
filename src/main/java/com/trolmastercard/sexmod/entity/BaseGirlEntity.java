@@ -584,9 +584,14 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
          super.onUpdate();
       } catch (Throwable t) {
          // A corrupt entity (e.g. stale ride/passenger chain saved by an older
-         // build) makes vanilla's tick NPE. Remove the entity rather than crash
-         // the whole server tick loop, and log so the user knows which entity.
-         if (!this.world.isRemote) {
+         // build) makes vanilla's tick NPE. ONLY remove the entity for that
+         // corruption signature (an NPE originating in vanilla entity code while
+         // the girl is in an abnormal ride state). Any other exception is a real
+         // bug and must propagate so it can be fixed, not silently delete girls
+         // mid-scene (which is what made Jenny/Bia "disappear").
+         boolean rideCorrupt = (t instanceof NullPointerException)
+            && (this.getRidingEntity() != null || this.isRiding());
+         if (!this.world.isRemote && rideCorrupt) {
             System.out.println("[sexmod] removed corrupt entity " + this + " at " + this.getPositionVector());
             this.setDead();
          } else {
