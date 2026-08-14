@@ -44,6 +44,18 @@ public class MCRepack {
         String in = args[4];
         String out = args[5];
         reobf = mode.equals("mcp2srg");
+        // optional extra jars (comma-separated) whose class HIERARCHY (superclass +
+        // interfaces) we learn for owner-resolution, WITHOUT adding their members to
+        // the remap tables. Used for forge classes (net/minecraftforge/*), which keep
+        // their own MCP method names at runtime but inherit vanilla MC methods that
+        // ARE SRG-renamed.
+        if (args.length > 6 && !args[6].isEmpty()) {
+            for (String extra : args[6].split(",")) {
+                if (!extra.trim().isEmpty()) {
+                    scanHierarchy(new java.io.File(extra.trim()));
+                }
+            }
+        }
 
         // 1. scan the SRG jar for method/field (name, desc)
         Map<String, String> srgMethod = new HashMap<>();  // "func_XXX\0desc" -> "func_XXX"
@@ -118,6 +130,26 @@ public class MCRepack {
         }
         r.close();
         return map;
+    }
+
+    static void scanHierarchy(File jar) throws Exception {
+        ZipInputStream zin = new ZipInputStream(new BufferedInputStream(new FileInputStream(jar)));
+        ZipEntry e;
+        while ((e = zin.getNextEntry()) != null) {
+            String n = e.getName();
+            if (!n.endsWith(".class")) { zin.closeEntry(); continue; }
+            byte[] data = readAll(zin);
+            zin.closeEntry();
+            try {
+                org.objectweb.asm.tree.ClassNode cn = new org.objectweb.asm.tree.ClassNode();
+                new ClassReader(data).accept(cn, 0);
+                classParents.putIfAbsent(cn.name, cn.superName);
+                if (cn.interfaces != null && !cn.interfaces.isEmpty()) {
+                    classInterfaces.putIfAbsent(cn.name, cn.interfaces);
+                }
+            } catch (Exception ignore) { }
+        }
+        zin.close();
     }
 
     static void scanJar(String jar, Map<String, String> methods, Map<String, String> fields) throws Exception {
@@ -196,12 +228,18 @@ public class MCRepack {
             String n = methodMap.get(key);
             if (n == null) return name;
             if (reobf) {
-                Map<String, String> cands = methodOwnerCandidates.get(key);
-                if (cands != null && cands.size() > 1) {
-                    return resolveByOwner(cands, owner, name, n);
-                }
-                // even with a single candidate, refuse to remap JDK/third-party owners
                 if (!isSrgOwner(owner)) return name;
+                Map<String, String> cands = methodOwnerCandidates.get(key);
+                String resolved = resolveByOwner(cands, owner, name, n);
+                // resolveByOwner returns the original name when nothing in the
+                // hierarchy declares it. For MC/mod/geckolib owners a cands hit is
+                // authoritative. For FORGE owners (net/minecraftforge) the runtime
+                // keeps the MCP names of Forge's OWN methods (e.g.
+                // LootTableLoadEvent.getName()), so we must ONLY remap calls that
+                // resolve to a VANILLA net/minecraft class in the hierarchy (e.g.
+                // ClientCommandHandler.registerCommand -> CommandHandler.func_71560_a).
+                // If the walk found nothing (name returned), keep the MCP name.
+                return resolved;
             }
             return n;
         }

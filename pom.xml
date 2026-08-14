@@ -197,6 +197,7 @@
                   <arg value="mcp2srg" />
                   <arg value="${project.build.directory}/${project.build.finalName}.jar" />
                   <arg value="${project.build.directory}/${project.build.finalName}.jar" />
+                  <arg value="${project.basedir}/lib-repo/local/forge-1.12.2-srg/14.23.5.2860/forge-1.12.2-srg-14.23.5.2860.jar,${project.basedir}/lib-repo/local/mc-1.12.2-mcp/1.0/mc-1.12.2-mcp-1.0.jar" />
                 </java>
               </target>
             </configuration>
