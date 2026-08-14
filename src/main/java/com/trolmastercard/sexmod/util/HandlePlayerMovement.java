@@ -26,7 +26,7 @@ public class HandlePlayerMovement {
       isInAction = input.jump;
       if (!isSneaking) {
          if (input.jump) {
-            AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
+            AbstractPlayerGirlEntity.resetPlayerGirlCamera();
          }
 
          if (input.sneak) {

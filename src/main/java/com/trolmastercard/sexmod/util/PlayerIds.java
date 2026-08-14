@@ -54,7 +54,7 @@ public class PlayerIds {
          PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var8, true), var2);
       }
 
-      AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
+      AbstractPlayerGirlEntity.rebuildPlayerGirlTableFromWorld();
       AbstractPlayerGirlEntity var9 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.player.getPersistentID());
       World var5 = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
       this.registerJenny(var5, var2, var9);

@@ -33,7 +33,7 @@ public class GirlCameraHelper {
    @SubscribeEvent
    public void onPre(Pre var1) {
       if (var1.getPartialRenderTick() != 1.2345679F) {
-         AbstractPlayerGirlEntity.rebuildPlayerGirlTable();
+         AbstractPlayerGirlEntity.rebuildPlayerGirlTableFromWorld();
          AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getEntityPlayer().getPersistentID());
          if (var2 != null) {
             var1.setCanceled(true);

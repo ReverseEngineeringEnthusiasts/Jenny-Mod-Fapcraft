@@ -201,7 +201,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @SideOnly(Side.CLIENT)
-   public static void rebuildPlayerGirlTable() {
+   public static void resetPlayerGirlCamera() {
       AbstractPlayerGirlEntity var0 = getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
       if (var0 != null) {
          var0.resetCameraAndPhysics();
@@ -255,7 +255,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public static boolean hasPlayerGirlWithUUID(UUID var0) {
-      rebuildPlayerGirlTable();
+      rebuildPlayerGirlTableFromWorld();
 
       for (Entry var2 : al.entrySet()) {
          UUID var3 = (UUID)var2.getKey();
@@ -374,7 +374,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @Override
    public void updateAITasks() {
-      rebuildPlayerGirlTable();
+      rebuildPlayerGirlTableFromWorld();
       this.tickFollowUpTransitions();
       this.updateCustomModelParts();
       UUID var1 = this.getOwnerUserUUID();
