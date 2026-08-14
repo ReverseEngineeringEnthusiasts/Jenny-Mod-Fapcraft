@@ -432,7 +432,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
-   public boolean isAnchored() {
+   public boolean isSceneActive() {
       return this.isAnchored();
    }
 

@@ -247,7 +247,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
    @Override
    public boolean isAnchored() {
-      return this.isAnchored() || this.getOwnerUUID() != null;
+      return super.isAnchored() || this.getOwnerUUID() != null;
    }
 
    @Override

@@ -120,7 +120,7 @@ public class GirlCameraHelper {
          } else if (var2.gameSettings.thirdPersonView == 0) {
             AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
             if (var3 != null) {
-               if (var3.isAnchored()) {
+               if (var3.isSceneActive()) {
                   this.playerPos = var2.player.getPositionVector();
                   this.playerLastPos = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
                   Vec3d var4 = var3.getCachedBoneOffset("girlCam");
