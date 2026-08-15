@@ -2,7 +2,6 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.AllieEntity;
 import com.trolmastercard.sexmod.entity.Action;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;

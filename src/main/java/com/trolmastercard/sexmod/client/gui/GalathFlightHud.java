@@ -37,15 +37,8 @@ public class GalathFlightHud extends Gui {
    static final Rectangle ICON_SHADOWS_BOUNDS = new Rectangle(23, 2, 20, 31);
    static final long FADE_DURATION = 500L;
    static final float ANIMATION_SPEED = 150.0F;
-   static final float PIP_SCALE_ACTIVE = 0.075F;
-   static final float PIP_SCALE_SPENT = -11.25F;
    static final float[] x = new float[]{-14.25F, -15.5F, -16.875F};
-   static final float PIP_FADE_DURATION = 500.0F;
-   static final float PIP_SCALE_IDLE = -0.15F;
-   static final float PIP_OFFSET_REGEN = 37.5F;
    static final float[] t = new float[]{37.5F, 43.0F, 45.0F};
-   static final int UI_Y_OFFSET = 70;
-   static final int CHARGE_Y_OFFSET = 70;
    static boolean isUIVisible = false;
    static Minecraft mc = Minecraft.getMinecraft();
    static int availableCharges = 3;

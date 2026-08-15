@@ -8,7 +8,6 @@ import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.BodyParts;
 import com.trolmastercard.sexmod.entity.api.IGalath;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import javax.annotation.Nullable;

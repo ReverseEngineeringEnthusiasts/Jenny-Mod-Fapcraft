@@ -1,7 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.IGalathFinish;
-import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.GirlInventoryScreen;
@@ -21,12 +19,6 @@ import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.ThreadNames;
 import com.trolmastercard.sexmod.util.SceneDebug;
-import com.trolmastercard.sexmod.util.DebugMode;
-import com.trolmastercard.sexmod.util.GalathGeometryRender;
-import com.trolmastercard.sexmod.util.GirlCombatProtection;
-import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
-import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.IBeddableSexGirl;
@@ -297,7 +289,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          } else {
             this.ac = false;
             this.aw = 0;
-            this.setYawRotation(this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID()).rotationYaw + 180.0F);
+            EntityPlayer lerpPlayer = this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID());
+            if (lerpPlayer != null) {
+               this.setYawRotation(lerpPlayer.rotationYaw + 180.0F);
+            }
+
             this.entityDataManager.set(IS_ANCHORED, true);
             this.getNavigator().clearPath();
             this.U();

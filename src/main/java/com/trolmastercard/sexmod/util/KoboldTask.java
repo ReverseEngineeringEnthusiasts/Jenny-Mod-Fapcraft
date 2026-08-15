@@ -30,7 +30,6 @@ import net.minecraft.world.World;
  * up and registers the FALL_TREE task itself — callers must not double-register.
  */
 public class KoboldTask {
-   public static final int maxWorkers = 30;
    BlockPos targetPos;
    KoboldTask.TaskType taskType;
    HashSet<BlockPos> miningTargets;
@@ -130,7 +129,10 @@ public class KoboldTask {
       BlockPos groundPos = startPos;
 
       while (!isAboveMineable(world, groundPos)) {
-         groundPos = startPos.down();
+         // jar-faithful intent: walk down to the ground; the original jar had
+         // `startPos.down()` here (never advances) -> infinite loop on floating
+         // logs / air below the tree
+         groundPos = groundPos.down();
       }
 
       BlockPos topPos = startPos;
@@ -277,10 +279,6 @@ public class KoboldTask {
 
       TaskType(int id) {
          this.targetPos = id;
-      }
-
-      int getMaxWorkers() {
-         return this.targetPos;
       }
    }
 }

@@ -1,7 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.IGalathFinish;
-import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
@@ -11,12 +9,6 @@ import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.potion.HornyPotion;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.DebugMode;
-import com.trolmastercard.sexmod.util.GalathGeometryRender;
-import com.trolmastercard.sexmod.util.GirlCombatProtection;
-import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
-import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.LootTableHandler;

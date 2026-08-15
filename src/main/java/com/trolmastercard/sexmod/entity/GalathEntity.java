@@ -1,12 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.Main;
-import com.trolmastercard.sexmod.api.IGalathFinish;
-import com.trolmastercard.sexmod.api.IPositionProvider;
-import com.trolmastercard.sexmod.api.IGalathStart;
-import com.trolmastercard.sexmod.api.ITargetProvider;
-import com.trolmastercard.sexmod.api.KoboldNames;
-import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.EscapeMinigameHud;
 import com.trolmastercard.sexmod.client.gui.GalathFlightHud;
@@ -41,15 +35,6 @@ import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.SuccubusDamageSource;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.DebugMode;
-import com.trolmastercard.sexmod.util.GalathGeometryRender;
-import com.trolmastercard.sexmod.util.GirlCombatProtection;
-import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
-import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
-import com.trolmastercard.sexmod.util.TrailSegment;
-import com.trolmastercard.sexmod.util.Rectangle;
-import com.trolmastercard.sexmod.util.Vector2f;
-import com.trolmastercard.sexmod.util.GuiOpenHandler;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;

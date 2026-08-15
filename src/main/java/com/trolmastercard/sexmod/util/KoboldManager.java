@@ -1,7 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.Main;
-import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
@@ -296,7 +295,9 @@ public class KoboldManager {
          System.out.println("tribe of UUID " + tribeId.toString() + " not found uwu");
          return new HashSet<>();
       } else {
-         return tribe.tribeChests;
+         // jar-verified: the deobf once returned the chest set here (and vice versa
+         // in getTribeChests), crossing the whole bed/chest bookkeeping
+         return tribe.tribeBeds;
       }
    }
 
@@ -326,7 +327,7 @@ public class KoboldManager {
          System.out.println("tribe of UUID " + tribeId.toString() + " not found uwu");
          return null;
       } else {
-         return tribe.tribeBeds;
+         return tribe.tribeChests;
       }
    }
 
@@ -658,7 +659,6 @@ public class KoboldManager {
  * stale entries with the same girl id (a kobold re-joining after a reload).
  */
 public static class Tribe {
-      UUID tribeUUID;
       UUID masterPlayerUUID;
       KoboldEntity leaderKobold;
       List<KoboldEntity> members;
@@ -673,14 +673,12 @@ public static class Tribe {
       boolean followModeEnabled = false;
 
       public Tribe(UUID tribeUUID, EyeAndKoboldColor tribeColor, KoboldEntity leaderKobold, List<KoboldEntity> members) {
-         this.tribeUUID = tribeUUID;
          this.tribeColor = tribeColor;
          this.leaderKobold = leaderKobold;
          this.members = members;
       }
 
       public Tribe(UUID tribeUUID, EyeAndKoboldColor tribeColor) {
-         this.tribeUUID = tribeUUID;
          this.tribeColor = tribeColor;
          this.members = new ArrayList<>();
       }
@@ -1058,8 +1056,8 @@ public static class TribeWorldSavedData extends WorldSavedData {
                      }
 
                      String[] chestParts = chestStr.split("\\|");
-                     BlockPos bedPos = new BlockPos(Integer.parseInt(chestParts[0]), Integer.parseInt(chestParts[1]), Integer.parseInt(chestParts[2]));
-                     KoboldManager.addTribeBed(tribeUuid, bedPos);
+                     BlockPos chestPos = new BlockPos(Integer.parseInt(chestParts[0]), Integer.parseInt(chestParts[1]), Integer.parseInt(chestParts[2]));
+                     KoboldManager.addTribeChest(tribeUuid, chestPos);
                      i4++;
                   }
                }
@@ -1116,15 +1114,18 @@ public static class TribeWorldSavedData extends WorldSavedData {
 
             int i3 = 0;
 
-            for (BlockPos chestPos : tribe.tribeChests) {
-               nbt.setString(tribeUuid.toString() + "bed" + i3, chestPos.getX() + "|" + chestPos.getY() + "|" + chestPos.getZ());
+            // jar-verified: the deobf wrote chests under "bed" keys and beds under
+            // "chest" keys (crossed); the original writes the addTribeBed set as
+            // "bed" and the addTribeChest set as "chest"
+            for (BlockPos bedPos : tribe.tribeBeds) {
+               nbt.setString(tribeUuid.toString() + "bed" + i3, bedPos.getX() + "|" + bedPos.getY() + "|" + bedPos.getZ());
                i3++;
             }
 
             int i4 = 0;
 
-            for (BlockPos bedPos : tribe.tribeBeds) {
-               nbt.setString(tribeUuid.toString() + "chest" + i4, bedPos.getX() + "|" + bedPos.getY() + "|" + bedPos.getZ());
+            for (BlockPos chestPos : tribe.tribeChests) {
+               nbt.setString(tribeUuid.toString() + "chest" + i4, chestPos.getX() + "|" + chestPos.getY() + "|" + chestPos.getZ());
                i4++;
             }
 

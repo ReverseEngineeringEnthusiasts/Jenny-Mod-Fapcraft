@@ -2,7 +2,6 @@ package com.trolmastercard.sexmod.client.gui;
 
 import com.trolmastercard.sexmod.networking.ClaimTribePacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
-import java.io.IOException;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -17,9 +16,6 @@ import net.minecraft.client.gui.GuiTextField;
  * CLIENT-side only. Nothing is sent when the field is empty.
  */
 public class TribeNameScreen extends GuiScreen {
-   static final int MAX_NAME_LENGTH = 15;
-   static final int WIDTH_100 = 100;
-   static final int HEIGHT_20 = 20;
    UUID koboldId;
    GuiTextField nameField;
 
@@ -50,7 +46,7 @@ public class TribeNameScreen extends GuiScreen {
    }
 
    /**
-    * Clamps the tribe name to {@value #MAX_NAME_LENGTH} characters while
+    * Clamps the tribe name to 15 characters while
     * typing.
     */
    protected void keyTyped(char typedChar, int keyCode) {

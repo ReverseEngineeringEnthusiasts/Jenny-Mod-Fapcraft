@@ -16,8 +16,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class BeeWorldData extends WorldSavedData {
    public static final List<BlockPos> hivePositions = new ArrayList<>();
    public static final List<BlockPos> flowerPositions = new ArrayList<>();
-   static final String DATA_KEY = "sexmod:galath_spawn_list";
-   static final String SAVE_KEY = "sexmod:galath_spawn_list";
 
    public BeeWorldData() {
       super("sexmod:galath_spawn_list");

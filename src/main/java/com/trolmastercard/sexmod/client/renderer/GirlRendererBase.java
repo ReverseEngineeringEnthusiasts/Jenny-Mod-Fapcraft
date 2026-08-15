@@ -81,22 +81,6 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
    protected abstract Vec3i getBoneColor(String boneName);
 
    /**
-    * Hides all children of a bone except the one at the given index.
-    */
-   protected static void setBoneHidden(GeoBone bone, int keepIndex) {
-      List children = bone.childBones;
-
-      for (int i = 0; i < children.size(); i++) {
-         GeoBone child = (GeoBone)children.get(i);
-         if (keepIndex == i) {
-            GeoBone keptBone = child;
-            keptBone.setHidden(false);
-            return;
-         }
-      }
-   }
-
-   /**
     * Renders the girl's held item on the {@code weapon} bone: flushes pending
     * vertices, applies the bone transform, scales by
     * {@link #getDefaultScale()}, rotates by {@link #getItemRenderOffset()},

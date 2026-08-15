@@ -49,7 +49,6 @@ public class GirlSavedData extends WorldSavedData {
    public static final String GALATH_OWNERSHIP_KEY = "sexmod:galath_owner_ship";
    public static final String OWNERSHIP_DATA_KEY = "sexmod:ownershipdata";
    public static final String MANG_OWNERSHIP_DATA_KEY = "sexmod:mangownershipdata";
-   static final long lastSaveTime = 0L;
    static BiDirectionalMap<UUID, UUID> h = new BiDirectionalMap<>();
    static HashMap<UUID, Long> b = new HashMap<>();
    static HashSet<UUID> mangOwnershipSet = new HashSet<>();
@@ -164,7 +163,10 @@ public class GirlSavedData extends WorldSavedData {
       if (!isManglelieOwned(girlUuid)) {
          return false;
       } else {
-         return lastCumTime == null ? true : world.getTotalWorldTime() - lastCumTime > 0L;
+         // jar-intent: only despawn within the CUM_TIMEOUT window; the original
+         // compared against 0L, making the 60s constant dead and the check
+         // always-true after any cum
+         return lastCumTime == null ? true : world.getTotalWorldTime() - lastCumTime > CUM_TIMEOUT;
       }
    }
 

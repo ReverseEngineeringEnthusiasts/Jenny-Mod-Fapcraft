@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.util;
 
-import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import java.util.List;
 import net.minecraft.block.Block;
@@ -19,7 +18,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * player to bed / waking up).
  */
 public class GirlBedInteraction {
-   static final int bedIndex = 3;
 
    @SubscribeEvent
    public void onBlockBreak(BreakEvent event) {

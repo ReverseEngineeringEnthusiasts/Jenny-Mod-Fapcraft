@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.IGalathFinish;
 import com.trolmastercard.sexmod.client.gui.GenderSwapScreen;
 import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.networking.ForcePlayerGirlUpdatePacket;
@@ -8,12 +7,6 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.networking.SexPromptPacket;
-import com.trolmastercard.sexmod.util.DebugMode;
-import com.trolmastercard.sexmod.util.GalathGeometryRender;
-import com.trolmastercard.sexmod.util.GirlCombatProtection;
-import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
-import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.google.common.base.Optional;
 import java.util.ArrayList;

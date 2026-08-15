@@ -10,10 +10,6 @@ import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
 import com.trolmastercard.sexmod.networking.SendGirlToSexPacket;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.DebugMode;
-import com.trolmastercard.sexmod.util.GalathGeometryRender;
-import com.trolmastercard.sexmod.util.GirlCombatProtection;
-import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
 import com.trolmastercard.sexmod.util.SceneDebug;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.VectorMath;
@@ -183,7 +179,11 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          } else {
             this.yFlag = false;
             this.ag = 0;
-            this.setYawRotation(this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID()).rotationYaw + 180.0F);
+            EntityPlayer lerpPlayer = this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID());
+            if (lerpPlayer != null) {
+               this.setYawRotation(lerpPlayer.rotationYaw + 180.0F);
+            }
+
             this.entityDataManager.set(IS_ANCHORED, true);
             this.getNavigator().clearPath();
             this.U();

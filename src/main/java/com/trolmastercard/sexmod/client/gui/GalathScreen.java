@@ -30,11 +30,6 @@ import org.lwjgl.opengl.GL11;
  * exactly once.
  */
 public class GalathScreen extends GuiScreen {
-   static final float SIZE_100 = 100.0F;
-   static final float OFFSET_15 = 15.0F;
-   static final float OFFSET_5 = 5.0F;
-   static final float SCALE_0_5 = 0.5F;
-   static final float SCALE_B = 0.5F;
    static final ResourceLocation GUI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/command.png");
    float animProgress = 0.0F;
    float animLeft = 0.0F;

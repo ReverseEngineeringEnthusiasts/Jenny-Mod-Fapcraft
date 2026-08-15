@@ -39,9 +39,6 @@ import net.minecraft.util.math.Vec3d;
  * {@link RotationHelper#lerpVec3dDouble} (PROGRESS lerp — correct here).
  */
 public class SexEntityRenderer extends Render<SexEntity> {
-   static final double PARTICLE_OFFSET_B = 0.1896224320030116;
-   static final double PARTICLE_OFFSET_D = -0.5;
-   static final double PARTICLE_OFFSET_C = 0.08742380916962415;
    private static final ResourceLocation PARTICLE_TEXTURE = new ResourceLocation("textures/particle/particles.png");
 
    public SexEntityRenderer(RenderManager renderManager) {

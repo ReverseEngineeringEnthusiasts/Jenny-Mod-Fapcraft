@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.networking;
 
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -49,7 +48,12 @@ public class RemoveItemsPacket implements IMessage {
       public IMessage onMessage(RemoveItemsPacket packet, MessageContext ctx) {
          if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               InventoryPlayer inventory = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(packet.girlUUID).inventory;
+               net.minecraft.entity.player.EntityPlayerMP target = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(packet.girlUUID);
+               if (target == null) {
+                  return;
+               }
+
+               InventoryPlayer inventory = target.inventory;
 
                for (int i = 0; i < inventory.getSizeInventory(); i++) {
                   ItemStack stack = inventory.getStackInSlot(i);

@@ -1660,7 +1660,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    public static List<Integer> getAllPartIdsForGirl(UUID uuid) {
-      BaseGirlEntity girl = null instanceof ClientProxy ? getClientGirlEntity(uuid) : getServerGirlEntity(uuid);
+      BaseGirlEntity girl = Main.proxy instanceof ClientProxy ? getClientGirlEntity(uuid) : getServerGirlEntity(uuid);
       ArrayList parts = new ArrayList<>(girl.getBasePartIdList());
       if (girl instanceof AbstractNpcOnlyEntity || girl instanceof AbstractKoboldPlayerEntity) {
          parts.addAll(decodePartIdList((String)girl.getDataManager().get(AbstractNpcOnlyEntity.APPEARANCE_DNA)));

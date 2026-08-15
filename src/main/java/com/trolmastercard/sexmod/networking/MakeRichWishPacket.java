@@ -1,7 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.util.Reference;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Items;

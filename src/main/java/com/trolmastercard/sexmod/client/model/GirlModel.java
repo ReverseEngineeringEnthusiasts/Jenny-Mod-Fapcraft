@@ -6,7 +6,6 @@ import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.RotationHelper;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.TrigMath;
 import java.util.Arrays;
 import java.util.List;
@@ -107,7 +106,8 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    public ResourceLocation getSexWorldTexture(BaseGirlEntity entity) {
       if (entity.world instanceof SexWorldClient) {
          return this.modelLocations[0];
-      } else if ((Integer)entity.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) > this.modelLocations.length) {
+      } else if ((Integer)entity.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) >= this.modelLocations.length) {
+         // original jar had '>' here — OOB at index == length; '>=' guards the last index
          System.out.println("Girl doesn't have an outfit Nr." + entity.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) + " so im just making her nude lol");
          return this.modelLocations[0];
       } else {

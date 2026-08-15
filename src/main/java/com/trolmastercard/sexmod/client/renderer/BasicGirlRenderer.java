@@ -4,7 +4,6 @@ import com.trolmastercard.sexmod.entity.BasicGirlEntity;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.ThreadNames;
-import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -58,11 +57,6 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
    public BasicGirlRenderer(RenderManager renderManager) {
       super(renderManager);
       this.mc = Minecraft.getMinecraft();
-   }
-
-   @Nullable
-   protected ResourceLocation getGirlTexture(BasicGirlEntity girl) {
-      return null;
    }
 
    /**

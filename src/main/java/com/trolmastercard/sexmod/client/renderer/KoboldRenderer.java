@@ -9,7 +9,6 @@ import com.trolmastercard.sexmod.entity.KoboldPlayerEntity;
 import java.util.Arrays;
 import java.util.HashSet;
 import javax.annotation.Nullable;
-import javax.vecmath.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -121,7 +120,6 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       )
    );
    Minecraft mc = Minecraft.getMinecraft();
-   Vector3f renderOffset;
 
    public KoboldRenderer(RenderManager renderManager, AnimatedGeoModel model, double shadowSize) {
       super(renderManager, model, shadowSize);
@@ -241,7 +239,6 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
          kobold.as = actionString;
       }
 
-      this.renderOffset = new Vector3f((float)x, (float)y, (float)z);
       super.doRenderEntity(kobold, x, y, z, entityYaw, partialTicks);
    }
 

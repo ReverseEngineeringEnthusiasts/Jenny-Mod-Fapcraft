@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.client.model;
 
-import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.command.CommandFuta;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;

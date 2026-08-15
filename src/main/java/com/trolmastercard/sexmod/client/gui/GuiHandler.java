@@ -2,7 +2,6 @@ package com.trolmastercard.sexmod.client.gui;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.LunaEntity;
-import java.io.File;
 import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,9 +27,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * {@link ConcurrentModificationException} while scanning the shared girl list.
  */
 public class GuiHandler implements IGuiHandler {
-   File configFile;
-   File dataFile;
-   boolean isInitialized = false;
 
    public GuiHandler() {
    }

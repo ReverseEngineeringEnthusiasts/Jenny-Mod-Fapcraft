@@ -1,8 +1,8 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -73,7 +73,7 @@ public class DownloadServerModelPacket implements IMessage {
    }
 
    public void fromBytes(ByteBuf buf) {
-      if (null instanceof ClientProxy) {
+      if (Main.proxy instanceof ClientProxy) {
          if (ServerWhitelistManager.isGlobalRenderingDisabled()) {
             this.modelName = ByteBufUtils.readUTF8String(buf);
             this.packetType = DownloadServerModelPacket.DownloadServerModelPacketType.valueOf(ByteBufUtils.readUTF8String(buf));
@@ -99,7 +99,7 @@ public class DownloadServerModelPacket implements IMessage {
    }
 
    public void toBytes(ByteBuf buf) {
-      if (null instanceof ClientProxy) {
+      if (Main.proxy instanceof ClientProxy) {
          buf.writeInt(this.modelNames.size());
 
          for (String name : this.modelNames) {
@@ -246,6 +246,13 @@ public class DownloadServerModelPacket implements IMessage {
                   "%sdownloading custom model '%s%s%s' (%s/%s)...", TextFormatting.GRAY, TextFormatting.YELLOW, modelName, TextFormatting.GRAY, downloadedCount, totalTypes
                )
             );
+         }
+
+         // guard: a stale counter from a previous (interrupted) batch would trip
+         // the completion check early — restart the batch count when the server
+         // starts a new one
+         if (packetCounter >= packet.modelIndex) {
+            packetCounter = 0;
          }
 
          if (++packetCounter < packet.modelIndex) {

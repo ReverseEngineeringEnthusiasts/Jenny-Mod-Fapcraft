@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.util;
 
-import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;

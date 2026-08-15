@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;

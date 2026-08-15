@@ -1,7 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.util.KoboldManager;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.StructureMarkerRenderer;
 import io.netty.buffer.ByteBuf;
@@ -147,8 +146,10 @@ public class SendBlocksPacket implements IMessage {
                                     KoboldManager.addTribeChest(tribeUuid, pairedPos);
                                  }
                               } else if (state.getBlock() instanceof BlockBed) {
-                                 KoboldManager.removeTribeChest(tribeUuid, pos);
-                                 KoboldManager.removeTribeChest(tribeUuid, pairedPos);
+                                 // jar-verified pairing: beds are added via addTribeBed,
+                                 // so removal must use removeTribeBed (was removeTribeChest)
+                                 KoboldManager.removeTribeBed(tribeUuid, pos);
+                                 KoboldManager.removeTribeBed(tribeUuid, pairedPos);
                               } else {
                                  KoboldManager.removeMiningTargetsFor(tribeUuid, pos);
                                  KoboldManager.removeMiningTargetsFor(tribeUuid, pairedPos);

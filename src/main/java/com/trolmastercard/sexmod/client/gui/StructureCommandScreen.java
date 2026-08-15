@@ -50,9 +50,6 @@ import org.lwjgl.opengl.GL11;
  * CLIENT-side only; any mouse release closes the screen.
  */
 public class StructureCommandScreen extends GuiScreen {
-   static final float SIZE_100 = 100.0F;
-   static final float OFFSET_15 = 15.0F;
-   static final float SCALE_0_5 = 0.5F;
    static final ResourceLocation GUI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/command.png");
    static final HashSet<Material> breakableMaterials = new HashSet<>(
       Arrays.asList(Material.CLAY, Material.ROCK, Material.SAND, Material.GROUND)

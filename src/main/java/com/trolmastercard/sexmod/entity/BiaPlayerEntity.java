@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.JennyModel;
@@ -8,7 +7,6 @@ import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import java.util.UUID;

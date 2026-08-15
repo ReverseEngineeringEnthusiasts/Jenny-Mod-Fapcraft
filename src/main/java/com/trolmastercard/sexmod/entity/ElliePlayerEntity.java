@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.EllieModel;
@@ -194,11 +193,15 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
          this.entityDataManager.set(BaseGirlEntity.GIRL_HAND_STATES, "");
          this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
          this.setInteractionPlayerUUID(player.getPersistentID());
-         EntityPlayerMP playerMP = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
+         Optional ownerOpt = (Optional)this.entityDataManager.get(ai);
+         EntityPlayerMP playerMP = ownerOpt.isPresent() ? (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)ownerOpt.get()) : null;
          PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)player);
-         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), playerMP);
+         if (playerMP != null) {
+            PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), playerMP);
+            playerMP.capabilities.isFlying = true;
+         }
+
          player.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
-         playerMP.capabilities.isFlying = true;
          player.capabilities.isFlying = true;
          playerMP.noClip = true;
          player.noClip = true;
