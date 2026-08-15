@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -61,8 +62,21 @@ public class Main {
 
    @EventHandler
    public void preInit(FMLPreInitializationEvent event) {
+      printBanner();
       GeckoLib.initialize();
       proxy.preInitRegistries(event);
+   }
+
+   private static void printBanner() {
+      try (java.io.InputStream in = Main.class.getResourceAsStream("/banner.txt");
+           BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"))) {
+         String line;
+         while ((line = reader.readLine()) != null) {
+            LOGGER.info(line);
+         }
+      } catch (Exception e) {
+         LOGGER.warn("Could not read banner.txt: {}", e.toString());
+      }
    }
 
    @EventHandler

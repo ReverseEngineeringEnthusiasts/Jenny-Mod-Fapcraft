@@ -1,0 +1,77 @@
+name: Build
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build fapcraft jar
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'microsoft'
+          cache: maven
+
+      - name: Build
+        run: bash build.sh
+
+      - name: Generate checksum
+        run: sha256sum dist/*.jar > dist/fapcraft-1.12.2.jar.sha256
+
+      - name: Generate changelog since last release
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          {
+            echo "## Fapcraft 1.12.2 Build ${{ github.run_number }}"
+            echo ""
+            echo "SRG-reobfuscated + shaded (GeckoLib bundled). Drop into mods/ of a 1.12.2 instance."
+            echo ""
+            echo "### Changes"
+            if [ -z "$LAST_TAG" ]; then
+              echo "_Initial build_"
+              git log --pretty=format:"- %s (%h)"
+            else
+              echo "_Since $LAST_TAG_"
+              git log $LAST_TAG..HEAD --pretty=format:"- %s (%h)"
+            fi
+            echo ""
+            echo ""
+            echo "### SHA256"
+            echo '```'
+            cat dist/fapcraft-1.12.2.jar.sha256
+            echo '```'
+          } > release-body.md
+
+      - name: Upload jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: fapcraft-1.12.2-jar
+          path: dist/*.jar
+          if-no-files-found: error
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Fapcraft Build ${{ github.run_number }}
+          body_path: release-body.md
+          files: |
+            dist/*.jar
+            dist/fapcraft-1.12.2.jar.sha256
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
