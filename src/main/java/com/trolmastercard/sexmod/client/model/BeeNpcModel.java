@@ -9,6 +9,11 @@ import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.model.provider.data.EntityModelData;
 
+/**
+ * Geckolib model for the bee NPC: bee geo (nude/armored variants) with a
+ * chest-bone visibility toggle driven by the current animation name, plus the
+ * standard head-look and armor/nude bone groups.
+ */
 public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
    @Override
    protected ResourceLocation[] getModelLocations() {
@@ -25,6 +30,10 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
       return new ResourceLocation("sexmod", "animations/bee/bee.animation.json");
    }
 
+   /**
+    * Hides the {@code chest} bone unless the movement controller's current
+    * animation is a chest animation (e.g. the chest-opening scene).
+    */
    @Override
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations(var1, var2, var3);

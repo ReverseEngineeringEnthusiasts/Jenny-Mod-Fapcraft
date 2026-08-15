@@ -17,11 +17,30 @@ import java.net.SocketAddress;
 import net.minecraft.network.EnumPacketDirection;
 import net.minecraft.network.NetworkManager;
 
+/**
+ * Dummy {@link NetworkManager} used only to construct
+ * {@link ClientNetHandlerOverride} (which in turn is required by
+ * {@link SexWorldClient}'s super constructor). The overridden
+ * {@link #channel()} returns a stub {@link Channel} whose every method is a
+ * no-op or returns {@code null}/{@code false}.
+ * <p>
+ * <b>Pitfall:</b> this manager is never actually connected to a server — it
+ * exists so the client-only preload world can be created without a live
+ * network stack. Do not route real packet traffic through it, and do not
+ * "improve" {@code channel()} to return a working channel: the preload world
+ * must never send or receive anything.
+ */
 public class SexNetworkManager extends NetworkManager {
    public SexNetworkManager(EnumPacketDirection var1) {
       super(var1);
    }
 
+   /**
+    * Returns a fully inert {@link Channel} stub so the base
+    * {@link NetworkManager} construction succeeds. Every channel method returns
+    * a neutral value (see class javadoc — nothing may ever actually flow
+    * through this channel).
+    */
    public Channel channel() {
       return new Channel() {
          public int compareTo(Channel var1) { return 0; }

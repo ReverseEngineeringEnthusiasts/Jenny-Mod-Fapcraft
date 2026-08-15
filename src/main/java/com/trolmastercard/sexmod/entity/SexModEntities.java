@@ -8,6 +8,19 @@ import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import com.trolmastercard.sexmod.Main;
 
+/**
+ * <b>Role.</b> One-shot entity registration for the whole mod: every NPC,
+ * player-form, egg/projectile and filler entity plus the natural spawn rules
+ * (slimes in swamps, bees in forests, pyrocinical/Manglelie in the Nether).
+ * Entity ids come from {@link NpcType}; the id literals here for the
+ * non-NpcType entities (kobold_egg, custom_model, friendly_slime, luna_hook,
+ * energy_ball, pyrocinical) must never collide with each other.
+ * <p>
+ * <b>Pitfalls.</b> Registration order is irrelevant to Forge but the ids
+ * must stay stable across versions (they are stored in the world/entities).
+ * Player-form entities register with {@code sendVelocityUpdates = false};
+ * spawn-able entities use a 50-block tracking range and egg colors.
+ */
 public class SexModEntities {
    public static void registerEntities() {
       registerSpawnEntity("jenny", JennyEntity.class, NpcType.JENNY.npcID, 3286592, 12655237);

@@ -18,10 +18,40 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * CLIENT-side scene camera manager. Drives the first-person "boyCam" camera
+ * while the local player is involved in a girl's action: it cancels the vanilla
+ * player render (the girl scene is drawn instead), cancels the first-person hand
+ * model, and on each render tick repositions the client player at the girl's
+ * {@code boyCam} bone so the scene is viewed from the girl's perspective.
+ * <p>
+ * <b>State flow.</b> On a render tick with {@code thirdPersonView == 0} and an
+ * active action with {@code useBoyCam}, the player's position and last-tick
+ * position are captured (fields {@code position}/{@code rotation}) and the
+ * player is teleported to the bone offset. On the matching {@code Phase.END}
+ * tick the captured position is written back, restoring the player to where he
+ * was before the camera snap — so world physics/packets keep seeing a stable
+ * position.
+ * <p>
+ * <b>Pitfalls.</b> When the girl is anchored, the bone offset is taken from
+ * {@code getCachedBoneOffset("boyCam")} relative to her target position;
+ * otherwise it is interpolated from last-tick to current position with
+ * {@link RotationHelper#lerpVec3dDouble} (PROGRESS lerp — correct here, render
+ * interpolation must NOT use the INT step variant). Both {@code onPre} and
+ * {@code onRenderHand} iterate {@link BaseGirlEntity#getGirlEntityList()} and
+ * swallow {@link ConcurrentModificationException} — do not remove that guard.
+ */
 public class PositionData {
    Vec3d position = null;
    Vec3d rotation = null;
 
+   /**
+    * Cancels the vanilla player-body render when the rendered player is the
+    * interaction partner of an active girl action that has a player, so the
+    * girl scene renderer is the only thing drawn for that player.
+    * CLIENT-side render event; iterates the shared girl list, so concurrent
+    * modification is tolerated (see class javadoc).
+    */
    @SubscribeEvent
    public void onPre(Pre var1) {
       try {
@@ -38,6 +68,12 @@ public class PositionData {
       }
    }
 
+   /**
+    * Hides the first-person hand/held item while the local player is the
+    * interaction partner of an active girl action, or while the local player
+    * itself is an anchored {@link AbstractPlayerGirlEntity} (potion-transformed
+    * girl). Without this the player's own arm would clip through the scene.
+    */
    @SubscribeEvent
    public void onRenderHand(RenderHandEvent var1) {
       Minecraft var2 = Minecraft.getMinecraft();
@@ -64,6 +100,20 @@ public class PositionData {
       }
    }
 
+   /**
+    * Render-tick camera hook (CLIENT-side).
+    * <p>
+    * <b>Phase.BEGIN:</b> if the local player is the boy of an active
+    * {@code useBoyCam} action with a non-custom girl, capture the player's
+    * position + last-tick position, then snap the player to the girl's
+    * {@code boyCam} bone (anchored: relative to {@code getTargetPosition()};
+    * otherwise lerped with partial ticks via {@code lerpVec3dDouble}).
+    * <p>
+    * <b>Phase.END:</b> write the captured position back (position and
+    * lastTickPos) and clear the capture. Ordering matters — END restores what
+    * BEGIN saved, and the two fields must be nulled exactly once per pair or
+    * the player gets stuck at the girl's position.
+    */
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public void onRenderTick(RenderTickEvent var1) {

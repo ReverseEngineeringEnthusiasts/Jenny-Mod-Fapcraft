@@ -9,6 +9,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER toggle of the tribe "follow/alerted" mode from the
+ * dragon-staff UI.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Resolves the
+ * sender's tribe and flips
+ * {@link KoboldManager#setTribeFollowMode(UUID, boolean)}; the flag is read by
+ * {@link KoboldManager#isTribeAlerted} and the kobold AI (follow the master vs.
+ * idle). No tribe -> no-op.
+ */
 public class SetTribeFollowModePacket implements IMessage {
    boolean isValid = false;
    boolean followMode;

@@ -82,6 +82,42 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> The Goblin NPC (implements {@link IGoblin}) — the tamed
+ * shoulder-rider/throwable goblin and the queen system. A goblin can be picked
+ * up (PICK_UP -&gt; SHOULDER_IDLE on the owner's shoulder), thrown
+ * (START_THROWING -&gt; THROWN -&gt; STAND_UP), or be a queen (SIT on a throne,
+ * guards, breeding scenes, stolen gold). Scenes: paizuri, nelson, breeding.
+ * <p>
+ * <b>State.</b> Own data keys (do not reorder): {@code OWNER_UUID} (122) =
+ * carrying player, {@code aK} (123) = queen goblin's girl id, {@code a0}
+ * (124) = stolen item stack, {@code aC} (125) = tamed flag, {@code aV} (126) =
+ * queen pregnant flag. Appearance comes from the {@link AbstractNpcOnlyEntity}
+ * DNA (119/120/121) with the trailing segment (index 9) holding the model
+ * part index. {@code aX} = is queen, {@code al}/{@code ac} = throne
+ * pos/rotation, {@code ab} = guard list, {@code aR} = throw progress (-1
+ * idle), {@code aQ} = held-player countdown (45).
+ * <p>
+ * <b>Flow.</b> Pickup: {@link #processInteract(EntityPlayer, EnumHand)} sets
+ * the owner + PICK_UP; {@link #handlePickUpState(BaseGirlEntity)} glues her to
+ * the owner and, after 45 ticks, reaches SHOULDER_IDLE. Throw:
+ * {@link #updateThrowProgress()} launches her at tick 15 (velocity from the
+ * owner's aim via {@link #getGoblinThrowPos(BaseGirlEntity)} +
+ * {@link #getGoblinThrowHeight(BaseGirlEntity)}) and THROWN at tick 39.
+ * Queen: {@link #B_clash269()} sends a RUN goblin to steal gold from a nearby
+ * player, {@link #E_clash260()} starts the breeding intro when a player stands
+ * in the throne zone, {@link #handleJumpThrow()} throws the guards onto the
+ * player and {@link #handleThrowCooldown()} releases two AWAIT_PICK_UP guards
+ * after breeding.
+ * <p>
+ * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} guards the cum loops,
+ * fires {@link #handlePlayerInteract()}/{@link #handlePlayerLook()}/
+ * {@link #L_clash281()} on the server for PAIZURI_START/NELSON_INTRO/
+ * START_THROWING, marks {@code aV} on BREEDING_CUM_0/NELSON_CUM and calls
+ * {@link #D_clash278()} (reset + despawn) when PAIZURI_CUM leaves for NULL.
+ * {@code getModelPartIndex()} reads DNA index 7. Dead goblins drop their
+ * stolen item on the server.
+ */
 public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    public static final SkinColor ax = SkinColor.DARK_GREEN;
    public static final Vec3i ah = new Vec3i(11, 6, 11);
@@ -241,6 +277,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
+   /**
+    * CLIENT: action dispatch from the goblin's GUI — {@code take ur stuff
+    * back} starts the throw, {@code use her} binds the acting player as the
+    * throw/pickup target.
+    */
    @Override
    public void doAction(String var1, UUID var2) {
       if ("take ur stuff back".equals(var1)) {
@@ -252,6 +293,10 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
+   /**
+    * CLIENT: arms the "use her" timer ({@code aY} = 0) — after 15 ticks the
+    * paizuri scene starts (see {@link #handleHoldTick()}).
+    */
    public void setThrowTarget(UUID var1) {
       this.aY = 0;
       BeeScreen.enableInteraction();
@@ -259,6 +304,10 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       this.setInteractionPlayerUUID(var1);
    }
 
+   /**
+    * CLIENT: arms the nelson "pickup" timer ({@code az} = 0) — after 15 ticks
+    * the nelson scene starts (see {@link #A_clash277()}).
+    */
    public void setPickupTarget(UUID var1) {
       this.az = 0;
       BeeScreen.enableInteraction();
@@ -550,6 +599,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       this.tasks.addTask(5, this.watchClosestGirlGoal);
    }
 
+   /**
+    * BOTH sides, every AI tick: dispatches every goblin subsystem —
+    * gravity/despawn guard, pickup glue, throw progression, queen AI
+    * (steal/breeding), held-state guarding, cooldowns and particle cycles.
+    * Ordering is significant; see the individual handlers.
+    */
    @Override
    public void updateAITasks() {
       super.updateAITasks();
@@ -697,6 +752,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
+   /**
+    * SERVER: ends the breeding — after 100 ticks the queen unbinds the
+    * player, releases both guards anchored as AWAIT_PICK_UP (rewards) and
+    * restores the player's physics.
+    */
    void handleThrowCooldown() {
       if (this.aX) {
          if (this.throwCooldown != -1) {
@@ -787,6 +847,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       );
    }
 
+   /**
+    * SERVER: throws the guards onto the breeding player — after 26 ticks in
+    * {@link Action#JUMP_0} the queen repositions (per throne rotation) and
+    * starts the breeding intro for herself and both guards; the 205-tick hold
+    * cooldown ({@code an}) then positions the player.
+    */
    void handleJumpThrow() {
       if (this.aX) {
          if (this.getCurrentAction() == Action.JUMP_0) {
@@ -853,6 +919,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       return new AxisAlignedBB(var1.x, var1.y, var1.z, var2.x, var2.y, var2.z);
    }
 
+   /**
+    * SERVER: queen breeding — scans the throne zone in front of the queen
+    * (per throne rotation) for a grounded player; when found (and not
+    * pregnant) locks them in and starts the breeding intro
+    * ({@link Action#JUMP_0}, guards get JUMP_1/JUMP_2).
+    */
    void E_clash260() {
       if (this.aX) {
          if (this.getInteractionPlayerUUID() == null) {
@@ -918,6 +990,10 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
+   /**
+    * SERVER: returns the queen's two guard goblins, respawning them (same
+    * model part, her girl id as queen key) when fewer than two exist.
+    */
    List<GoblinEntity> I_clash261() {
       if (this.ab.size() > 1) {
          return this.ab;
@@ -951,6 +1027,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
+   /**
+    * SERVER: throw flight — advances the throw progress; at tick 15 the
+    * goblin is launched from the owner's eye with the owner's aim
+    * (pitch/yaw), at tick 39 she lands (THROWN) and unbinds owner +
+    * interaction player.
+    */
    void updateThrowProgress() {
       GoblinEntity var1 = this;
       int var2 = var1.getThrowProgress();
@@ -1067,6 +1149,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
+   /**
+    * SERVER: the queen's gold-steal cycle — every 32000 ticks while sitting
+    * and unowned she spawns a RUN goblin that grabs a random gold item from
+    * the nearest grounded player's inventory and brings it home.
+    */
    void B_clash269() {
       if (this.aX) {
          if (!(Boolean)this.entityDataManager.get(aC)) {
@@ -1248,6 +1335,14 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
+   /**
+    * SERVER: the goblin state machine core — guards the cum actions
+    * (paizuri/nelson/breeding), and on the server fires the per-action setup
+    * hooks (START_THROWING returns the stolen item, PAIZURI_START/
+    * NELSON_INTRO position the player, BREEDING_CUM_0 marks pregnant and
+    * arms the release cooldown, NELSON_CUM toggles the pregnancy flag, and
+    * leaving PAIZURI_CUM runs {@link #D_clash278()}).
+    */
    @Override
    public void setCurrentAction(Action action) {
       Action var2 = this.getCurrentAction();
@@ -1295,6 +1390,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
+   /**
+    * SERVER: paizuri scene teardown — resets the bound player, unbinds,
+    * un-anchors, restores physics, drops the stolen item and (untamed) sends
+    * her home and despawns her.
+    */
    void D_clash278() {
       EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
       if (var1 != null) {
@@ -1345,6 +1445,10 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
+   /**
+    * SERVER: returns the stolen item stack to the interaction player's
+    * inventory and clears the stolen-item key.
+    */
    void L_clash281() {
       ItemStack var1 = (ItemStack)this.entityDataManager.get(a0);
       if (var1 != ItemStack.EMPTY) {
@@ -1356,6 +1460,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       }
    }
 
+   /**
+    * SERVER: pickup glue — while PICK_UP with a bound owner, sticks the goblin
+    * to the owner's position, counts down {@code aQ} (45) and reaches
+    * SHOULDER_IDLE (noClip) at 0. Falls back to NULL when the owner vanishes
+    * or exceeds 10 blocks.
+    */
    public static void handlePickUpState(BaseGirlEntity var0) {
       if (var0.getCurrentAction() == Action.PICK_UP) {
          IGoblin var1 = (IGoblin)var0;
@@ -1633,6 +1743,17 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * catch dialogue, paizuri, nelson and breeding scenes. Key transitions:
+    * {@code catchDone} -&gt; {@link Action#CATCH_BJ} when the catch was a
+    * blowjob, {@code paizuri_startDone} -&gt; {@link Action#PAIZURI_IDLE},
+    * {@code neslon_introDone} -&gt; {@link Action#NELSON_SLOW},
+    * {@code breedingIntroDone} -&gt; {@link Action#BREEDING_SLOW_0}, jump on
+    * the ready keyframes switches fast/hard, {@code paizuriCumDone}/
+    * {@code nelson_cumDone} -&gt; {@code resetCameraAndPhysics()} + NULL.
+    * Movement controller uses a 2-tick transition.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {

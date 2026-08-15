@@ -15,6 +15,19 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * HUD showing Galath's flight boost charges (up to 3 pips). Rendered while
+ * Galath is being ridden/flying; each pip has an animated charge bar that
+ * slides up when a charge is spent and blinks while it regenerates.
+ * <p>
+ * <b>State.</b> {@link #canUseCharge()} gates charge consumption (3s cooldown
+ * between uses); spent charges regenerate one per 5s
+ * ({@link #updateChargeRegen()}, driven from the overlay render). UI fades in
+ * on {@link #showHud()} and out 500ms after {@link #startFadeOut()}.
+ * <p>
+ * CLIENT-side only; static state, single instance. Timing is wall-clock
+ * ({@code System.currentTimeMillis()}), not game ticks.
+ */
 @SideOnly(Side.CLIENT)
 public class GalathFlightHud extends Gui {
    static final ResourceLocation UI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/galath_flight_ui.png");
@@ -50,6 +63,10 @@ public class GalathFlightHud extends Gui {
       lastChargeUsedTime = System.currentTimeMillis();
    }
 
+   /**
+    * Regenerates one charge every 5 seconds, measured from the later of the
+    * last use and the last regeneration. No-op while at max charges.
+    */
    void updateChargeRegen() {
       if (availableCharges != 3) {
          long var1 = System.currentTimeMillis();
@@ -60,6 +77,12 @@ public class GalathFlightHud extends Gui {
       }
    }
 
+   /**
+    * Draws the flight HUD (bottom-center): background bar, three pip shadows,
+    * and the three charge bars. The whole UI fades in/out with a 500ms window
+    * and auto-hides once the fade-out completes. Charge bar animations use
+    * {@code easeInOutQuad} over 150ms per pip.
+    */
    @SubscribeEvent
    public void onRenderGameOverlay(RenderGameOverlayEvent var1) {
       this.updateChargeRegen();
@@ -100,6 +123,12 @@ public class GalathFlightHud extends Gui {
       }
    }
 
+   /**
+    * Renders one charge pip: active icon for an available charge, a
+    * scale/translate animated "refill" pip while regenerating, and a
+    * sine-blinking empty pip otherwise. Positions are computed per pip index
+    * so the animation offsets never collide.
+    */
    void drawChargeBar(int var1, float var2, float var3, float var4, int var5, int var6, float var7) {
       float var8;
       if (availableCharges >= var1) {
@@ -138,6 +167,10 @@ public class GalathFlightHud extends Gui {
       }
    }
 
+   /**
+    * Begins the fade-out; the HUD disappears 500ms later (checked in the
+    * overlay render).
+    */
    public static void startFadeOut() {
       uiFadeOutStartTime = System.currentTimeMillis();
    }

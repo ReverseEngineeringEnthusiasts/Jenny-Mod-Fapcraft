@@ -29,6 +29,25 @@ import net.minecraft.world.storage.loot.LootContext.Builder;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> The "luna hook" — Luna's fishing-rod bobber entity
+ * ({@link LunaEntity#av}). Vanilla fishing-fight simulation: flies from the
+ * rod, hooks entities or the ground, bobs in water, rolls loot
+ * ({@link LootTableList#GAMEPLAY_FISHING}) and hands the catch to Luna.
+ * <p>
+ * <b>State.</b> Data keys 111 ({@code CAUGHT_ENTITY_ID}, entity id + 1,
+ * 0 = none) and 110 ({@code OWNER_UUID} = Luna's girl id). {@code hookState}
+ * cycles FLYING -&gt; HOOKED_IN_ENTITY/BOBBING; {@code caughtEntity} is
+ * mirrored from the data key via {@link #notifyDataManagerChange(DataParameter)}.
+ * <p>
+ * <b>Pitfalls.</b> {@link #canCatch()} always returns false — the catch check
+ * runs from {@link #checkCatch()} in the FLYING state instead. The hook
+ * despawns 1200 ticks after being hooked. NBT is intentionally empty
+ * ({@code writeEntityToNBT}/{@code readEntityFromNBT} no-ops) — the hook
+ * never persists. {@link #getCatchResult()} resolves the catch outcome on the
+ * SERVER (entity -&gt; 5/3, lure -&gt; 1, hooked -&gt; 2) and is the link back
+ * into Luna's catch UI.
+ */
 public class SexEntity extends Entity {
    public static final int MAX_HOOK_RANGE = 15;
    private static final DataParameter<Integer> CAUGHT_ENTITY_ID = EntityDataManager.createKey(SexEntity.class, DataSerializers.VARINT)
@@ -166,6 +185,11 @@ public class SexEntity extends Entity {
    public void setPositionAndRotationDirect(double var1, double var3, double var5, float var7, float var8, int var9, boolean var10) {
    }
 
+   /**
+    * SERVER: the fishing flight/bob simulation — flies while FLYING (catch
+    * checks, water bob transition, hook despawn timer), rides the caught
+    * entity when HOOKED_IN_ENTITY, and bobs + spawns loot when BOBBING.
+    */
    public void onUpdate() {
       super.onUpdate();
       if (this.getOwnerLunaInternal() == null) {
@@ -290,6 +314,10 @@ public class SexEntity extends Entity {
       this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
    }
 
+   /**
+    * SERVER: ray-traces the hook's motion and locks onto the nearest
+    * collidable entity (or the ground) ahead of it.
+    */
    private void checkCatch() {
       Vec3d var1 = new Vec3d(this.posX, this.posY, this.posZ);
       Vec3d var2 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
@@ -337,6 +365,11 @@ public class SexEntity extends Entity {
       this.getDataManager().set(CAUGHT_ENTITY_ID, this.caughtEntity.getEntityId() + 1);
    }
 
+   /**
+    * SERVER: the bobbing fight — lure timer, bubble/wake particles, splash
+    * sounds and the randomized catch-delay chain (scaled by the fishing
+    * level). Vanilla bobber mechanics, adapted for Luna.
+    */
    private void spawnLootBlocks(BlockPos var1) {
       WorldServer var2 = (WorldServer)this.world;
       int var3 = 1;
@@ -451,6 +484,12 @@ public class SexEntity extends Entity {
    public void readEntityFromNBT(NBTTagCompound var1) {
    }
 
+   /**
+    * SERVER: resolves the catch — converts the caught entity into its result
+    * code (entity item 3 / entity 5 via {@link #handleCatch()}), rolls a
+    * fishing loot table into Luna's held stack ({@code lureTimer = 9999}) or
+    * reports the hooked state (2). 0 = nothing.
+    */
    public int getCatchResult() {
       if (!this.world.isRemote && this.getOwnerLunaInternal() != null) {
          byte var1 = 0;

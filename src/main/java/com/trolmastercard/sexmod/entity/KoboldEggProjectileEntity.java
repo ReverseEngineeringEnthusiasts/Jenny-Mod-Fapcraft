@@ -15,6 +15,16 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * <b>Role.</b> The ender-pearl projectile thrown by kobold girls
+ * ({@link Action#THROW_PEARL}). Like a vanilla pearl it teleports the thrower
+ * to the impact point — but only if the impact is within 5 blocks of the
+ * girl's home position (pearls near home), with end-gateway support.
+ * <p>
+ * <b>Pitfalls.</b> The thrower is expected to be a {@link BaseGirlEntity}
+ * (cast directly). The inner class {@code a} clears the girl's active pearl
+ * and resets her scene state on every ender-teleport event.
+ */
 public class KoboldEggProjectileEntity extends EntityEnderPearl {
    public KoboldEggProjectileEntity(World var1) {
       super(var1);
@@ -24,6 +34,12 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
       super(var1, var2);
    }
 
+   /**
+    * SERVER/CLIENT: impact handling — end gateways teleport the thrower
+    * directly; otherwise portal particles spawn and (SERVER, only within
+    * 5 blocks of the girl's home) the thrower is teleported via the
+    * ender-teleport event and dismounted.
+    */
    protected void onImpact(RayTraceResult var1) {
       EntityLivingBase var2 = this.getThrower();
       if (var2 != null) {

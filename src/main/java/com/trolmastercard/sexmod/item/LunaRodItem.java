@@ -27,6 +27,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> The Luna rod — a fishing rod for the cat-girl Luna with a
+ * {@code cast} model override driven by her data manager. {@link #castFishingRod}
+ * is invoked by {@link CatActivateFishingPacket} server-side: it retrieves the
+ * existing {@code SexEntity} bobber or spawns a new one aimed at her fishing
+ * target, applying fishing-speed/luck enchantments from the rod.
+ */
 public class LunaRodItem extends ItemFishingRod {
    public static final LunaRodItem LUNA_ROD = new LunaRodItem();
 

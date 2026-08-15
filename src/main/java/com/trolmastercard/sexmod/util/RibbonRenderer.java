@@ -8,6 +8,16 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.Vec3d;
 
+/**
+ * <b>Role.</b> CLIENT-side renderer for animated ribbons (scene effects, editor
+ * previews). Builds a wavy quad strip whose per-segment rotation is driven by
+ * three {@link WaveFunction}s evaluated over time, then draws it as a colored
+ * triangle strip.
+ * <p>
+ * <b>Pitfall.</b> {@code renderRibbonStrip} draws 4 faces per segment pair and
+ * assumes the caller began a {@code POSITION_COLOR} buffer — do not change the
+ * vertex format or the strip tears.
+ */
 public class RibbonRenderer {
    public static void renderRibbon(BufferBuilder var0, Tessellator var1, Minecraft var2, RibbonRenderer.RibbonConfig var3) {
       Vec3d[] var4 = new Vec3d[]{

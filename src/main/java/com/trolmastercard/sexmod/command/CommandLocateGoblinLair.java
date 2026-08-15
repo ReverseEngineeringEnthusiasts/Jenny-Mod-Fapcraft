@@ -11,6 +11,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
+/**
+ * <b>Role.</b> {@code /locatenearestgoblinlair} — finds the closest goblin lair
+ * (a {@link GoblinEntity} flagged {@code aX}) to the sender and prints its
+ * coordinates; rejects the Nether/End outright. Registered by
+ * {@link Main#onWorldStart}.
+ */
 public class CommandLocateGoblinLair extends CommandBase {
    public static final CommandLocateGoblinLair LOCATE_GOBLIN_LAIR_COMMAND = new CommandLocateGoblinLair();
 

@@ -11,6 +11,19 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * <b>Role.</b> Two-way animation-controller reset for a girl.
+ * <p>
+ * CLIENT->SERVER: the interacting player leaves a scene / disconnects; the
+ * SERVER-side handler resets the girl's action tick counters and forwards the
+ * packet to every *other* player within 100 blocks so their client-side
+ * animation controller is reset too (the girl's client animation must restart
+ * identically for all observers).
+ * <p>
+ * CLIENT-side handler: calls
+ * {@link BaseGirlEntity#resetAnimationControllerTicks()} on the local client
+ * entity to restart her animation cycle.
+ */
 public class ResetControllerPacket implements IMessage {
    public static final int controllerIndex = 100;
    boolean isValid;

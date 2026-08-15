@@ -12,6 +12,14 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 
+/**
+ * Entity renderer for the thrown/spawned kobold egg: geckolib egg model with
+ * the {@code shell} bone in the static egg color and the {@code colorSpots}
+ * bone in the egg's stored color (data-manager {@code EGG_COLOR}), so each egg
+ * entity shows its own wool-color variant.
+ * <p>
+ * CLIENT-side render thread only.
+ */
 public class KoboldEggRenderer extends GeoEntityRenderer<KoboldEggEntity> {
    public static final Color eggColor = new Color(223, 206, 155);
    KoboldEggEntity eggEntity;
@@ -30,6 +38,10 @@ public class KoboldEggRenderer extends GeoEntityRenderer<KoboldEggEntity> {
       super.render(var1, var2, var3, var4, var5, var6, var7);
    }
 
+   /**
+    * Per-bone tint pass: {@code shell} -> static egg color, {@code colorSpots}
+    * -> the entity's {@code EGG_COLOR} data-manager value (safe lookup).
+    */
    @Override
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
       String var7 = var2.getName();

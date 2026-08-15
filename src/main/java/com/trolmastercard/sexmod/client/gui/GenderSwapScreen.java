@@ -13,10 +13,30 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * Client-side consent prompt for the gender-swap (standing sex) action: when a
+ * player requests a swap action on another player, that player receives a chat
+ * prompt with accept/decline lines and answers by typing the corresponding
+ * word into chat.
+ * <p>
+ * <b>Flow.</b> {@link #onButtonClicked(SwapButton)} installs the pending
+ * {@link SwapButton} and prints the purple prompt (with a 1200-tick countdown
+ * shown by {@link #tick()}). {@link #onClientChat(ClientChatEvent)} intercepts
+ * the reply: "accept" sends {@link StartStandingSexAnimationPacket} to the
+ * server, "decline" just confirms; both cancel the chat event and clear the
+ * pending button.
+ * <p>
+ * CLIENT-side only, singleton ({@link #instance}); only one prompt can be
+ * pending at a time.
+ */
 public class GenderSwapScreen {
    public static GenderSwapScreen instance;
    private GenderSwapScreen.SwapButton activeButton;
 
+   /**
+    * Decrements the pending prompt's countdown and clears it with a timeout
+    * message when it reaches zero. Call once per CLIENT tick.
+    */
    public void tick() {
       if (instance.activeButton != null) {
          if (--instance.activeButton.countdown <= 0.0F) {
@@ -36,6 +56,12 @@ public class GenderSwapScreen {
       instance.activeButton = null;
    }
 
+   /**
+    * Installs {@code var1} as the pending swap button and prints the prompt
+    * (who asked whom for which action, accept/decline line, auto-deletion
+    * notice) to the asked player. No-op unless both involved players are
+    * present in the world.
+    */
    public void onButtonClicked(@Nonnull GenderSwapScreen.SwapButton var1) {
       World var2 = Minecraft.getMinecraft().player.world;
       EntityPlayer var3 = var2.getPlayerEntityByUUID(var1.playerUUID);
@@ -71,6 +97,12 @@ public class GenderSwapScreen {
       }
    }
 
+   /**
+    * Chat interception for the prompt reply: "accept" sends the swap request
+    * packet, "decline" confirms in chat; both clear the pending button and
+    * swallow the message. Matching is case-insensitive against the localized
+    * accept/decline strings.
+    */
    @SubscribeEvent
    public void onClientChat(ClientChatEvent var1) {
       if (instance.getActiveButton() != null) {
@@ -94,10 +126,22 @@ public class GenderSwapScreen {
       }
    }
 
+   /**
+    * Sends the standing-sex animation request to the server.
+    *
+    * @param var1 the localized action label, e.g. {@code genderswap.sexpromt.missionary}
+    * @param var2 the asked player's UUID (the girl side)
+    * @param var3 the requesting player's UUID (the boy side)
+    */
    void sendSwapRequest(String var1, UUID var2, UUID var3) {
       PacketHandler.networkWrapper.sendToServer(new StartStandingSexAnimationPacket(var2, var3, var1));
    }
 
+   /**
+    * A pending consent prompt: the requested action label, the two involved
+    * UUIDs, whether the requester is male, and the remaining validity time
+    * (starts at 1200 ticks, drained by {@link GenderSwapScreen#tick()}).
+    */
    public static class SwapButton {
       public String label;
       public UUID girlUUID;

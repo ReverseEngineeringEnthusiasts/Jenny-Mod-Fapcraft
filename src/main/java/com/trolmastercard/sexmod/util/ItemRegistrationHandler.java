@@ -10,6 +10,9 @@ import com.trolmastercard.sexmod.item.NpcEditorWandItem;
 import com.trolmastercard.sexmod.item.TribeEggItem;
 import com.trolmastercard.sexmod.potion.HornyPotion;
 
+/**
+ * Registers the mod's items (girl wand, dragon staff, tribe egg, ...).
+ */
 public class ItemRegistrationHandler {
    public static void registerAll() {
       HornyPotion.register();

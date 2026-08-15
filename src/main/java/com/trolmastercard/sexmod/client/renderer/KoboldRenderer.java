@@ -22,6 +22,25 @@ import net.minecraft.util.math.Vec3i;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Renderer for the kobold NPC (and kobold-player): a {@link GirlRendererBase}
+ * whose bone colors encode the kobold's color scheme and whose held items
+ * follow the current action.
+ * <p>
+ * <b>Coloring.</b> {@link #getBoneColor} maps bones from the static
+ * {@link #hideBones} (main color) / {@link #showBones} (secondary color) sets
+ * to the kobold's {@link EyeAndKoboldColor} palette; the iris bones use the
+ * action target position as an RGB color. The color cache is invalidated on
+ * action changes ({@link #doRenderKobold} watches the action string).
+ * <p>
+ * <b>Held items.</b> {@link #resolveHeldItemStack} switches the held item by
+ * action: iron axe/pickaxe while mining, sword while attacking or when the
+ * guard flag is set. Payment items (pickaxe / 3 gold) come from the hand
+ * states during the blowjob/anal trade actions.
+ * <p>
+ * CLIENT-side render thread only. In the {@link SexWorldClient} preload world
+ * the custom-bone pass is skipped.
+ */
 public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    public static final HashSet<String> hideBones = new HashSet<>(
       Arrays.asList(
@@ -108,6 +127,11 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       super(var1, var2, var3);
    }
 
+   /**
+    * Bone tint by name: hide-list bones use the kobold color's main color,
+    * show-list bones its secondary color, iris bones encode the action-target
+    * position as RGB; everything else stays white.
+    */
    @Override
    protected Vec3i getBoneColor(String var1) {
       EntityDataManager var2 = this.renderEntity.getDataManager();
@@ -122,6 +146,11 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       }
    }
 
+   /**
+    * Held item by action: axe or pickaxe while mining (flag chooses), sword
+    * while attacking or when the guard flag is set; otherwise the default
+    * stack.
+    */
    @Override
    protected ItemStack resolveHeldItemStack(@Nullable ItemStack var1) {
       switch (this.renderEntity.getCurrentAction()) {
@@ -142,6 +171,12 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       }
    }
 
+   /**
+    * Custom-bone pass tweaks: the {@code blowOpening} bone disables the
+    * texture V offset; the {@code mouth} bone shifts V by -1/128 when the
+    * model code selects the open-mouth variant. Otherwise delegates to
+    * {@link GirlRendererBase#renderCustomBones}.
+    */
    @Override
    public void renderCustomBones(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
       if (!(this.renderEntity.world instanceof SexWorldClient)) {
@@ -162,6 +197,11 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       }
    }
 
+   /**
+    * Eye-squint pair: the left eye shrinks by the squint value (from the
+    * player-kobold's data manager) — the right eye compensates with the
+    * inverse scale so the face stays closed/open correctly.
+    */
    @Override
    protected void renderLeftEye() {
       float var1 = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
@@ -185,6 +225,11 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       }
    }
 
+   /**
+    * Main render: detects action changes and clears the cached bone colors
+    * (colors depend on the action), stores the render offset for the eye
+    * scaling, then delegates to the normal pipeline.
+    */
    public void doRenderKobold(KoboldEntity var1, double var2, double var4, double var6, float var8, float var9) {
       String var10 = (String)var1.getDataManager().get(AbstractNpcOnlyEntity.CURRENT_ACTION);
       if (var1.as == null) {
@@ -200,6 +245,10 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
       super.doRenderEntity(var1, var2, var4, var6, var8, var9);
    }
 
+   /**
+    * Name tag: tribed kobolds (custom name tag, not "null") show the tribe
+    * name in the kobold color's text color below their display name.
+    */
    @Override
    protected void renderNameTag(double var1, double var3, double var5) {
       EntityDataManager var7 = this.renderEntity.getDataManager();

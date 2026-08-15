@@ -28,6 +28,21 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
+/**
+ * <b>Role.</b> CLIENT-only overlay markers for tribe-managed blocks: the
+ * dragon-staff UI and the {@link SendBlocksPacket} flow add/remove {@link BlockPos}s
+ * from {@code markerPositions}; while the player holds the dragon staff, every
+ * marked position gets a colored marker quad drawn in world space (blue = bed,
+ * green = chest, red = mine target).
+ * <p>
+ * <b>State.</b> {@link Reference#cameraPosPrevious/Current} are advanced in
+ * {@link #onClientTick} and consumed for render interpolation —
+ * {@code StructureMarkerRenderer} is the only writer of those fields.
+ * <p>
+ * <b>Pitfall.</b> {@link #renderMarkers()} iterates the shared set during
+ * world render; the concurrent-modification guard is required because
+ * {@link SendBlocksPacket} handlers can mutate the set from the netty thread.
+ */
 public class StructureMarkerRenderer {
    static final Vec3i COLOR_RED = new Vec3i(255, 0, 0);
    static final Vec3i COLOR_GREEN = new Vec3i(0, 255, 0);

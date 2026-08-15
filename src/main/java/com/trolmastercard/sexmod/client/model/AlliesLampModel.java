@@ -12,6 +12,12 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Geckolib model for the Allies Lamp item: the lamp geo with a skin-based
+ * dynamic texture — the local player's fetched skin repainted with the lamp's
+ * cyan/white/black face pixels. Falls back to the plain lamp texture on skin
+ * fetch failure. Texture cached after first load.
+ */
 public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
    ResourceLocation lampTexture = null;
 
@@ -23,6 +29,10 @@ public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
    public ResourceLocation getAnimationFileLocation(AlliesLampItem var1) {
       return new ResourceLocation("sexmod", "animations/allie/lamp.animation.json");
    }
+   /**
+    * Lazily builds and caches the skin-blended lamp texture (see class
+    * javadoc). Synchronous {@link SkinFetcher} network call on first use.
+    */
    public ResourceLocation getTextureLocation(AlliesLampItem var1) {
       if (this.lampTexture != null) {
          return this.lampTexture;

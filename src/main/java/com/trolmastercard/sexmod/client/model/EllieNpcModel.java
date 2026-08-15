@@ -12,6 +12,12 @@ import net.minecraft.util.math.Vec3d;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.processor.IBone;
 
+/**
+ * Geckolib model for the Ellie NPC: nude/dressed outfit geo files, plus a
+ * custom sitting pose — while Ellie sits idle, her head tracks the nearest
+ * player within 15 blocks (yaw clamped per facing, pitch by height
+ * difference). Outfit bone lists define the armor/nude variants.
+ */
 public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
    HashMap<Integer, float[]> headYawOffsets = new HashMap<Integer, float[]>() {
       {
@@ -40,6 +46,12 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
       return new ResourceLocation("sexmod", "animations/ellie/ellie.animation.json");
    }
 
+   /**
+    * Sitting head-tracking: only for the plain NPC (not player-girls) in the
+    * SITDOWNIDLE action; the head yaw aims at the nearest player with
+    * per-facing clamps (180-degree back-facing has its own arc), pitch from
+    * the player's height difference.
+    */
    @Override
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations(var1, var2, var3);

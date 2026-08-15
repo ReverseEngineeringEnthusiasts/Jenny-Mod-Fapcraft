@@ -9,6 +9,9 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 
+/**
+ * Handles name-tag naming of girls on right-click (sets CUSTOM_NAME).
+ */
 public class NameTagInteractHandler {
    @SubscribeEvent
    public void onEntityInteractSpecific(EntityInteractSpecific var1) {

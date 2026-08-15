@@ -25,6 +25,18 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * <b>Role.</b> Renderer for the player-controlled Galath (owner's own galath
+ * when transformed / summoned). Extends {@link GirlPlayerRenderer} with galath
+ * specifics: a bone blacklist so armor/clothing overlays don't double-draw,
+ * per-armor overlay colors (gold/iron/leather dye), the dash point-of-view
+ * overlay, and a two-pass body/steve-bone render with separate textures.
+ * <p>
+ * <b>Pitfalls.</b> {@link #getBlacklistedBones()} mutates the shared
+ * {@code GalathRenderer.BLACKLISTED_BONES} set — repeated calls must stay
+ * idempotent. {@link #doRenderEntity} skips the dash POV only for the owner in
+ * first person; anchored girls always render it.
+ */
 public class PlayerGalathRenderer extends GirlPlayerRenderer {
    static final HashSet<String> blacklistBones = new HashSet<>(
       Arrays.asList(

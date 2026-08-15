@@ -11,6 +11,10 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraft.world.gen.structure.template.TemplateManager;
 
+/**
+ * Generates the girls' houses in the overworld — the structures where NPC
+ * girls spawn and call home ({@code homePos}).
+ */
 public class GirlHouseGenerator extends WorldGenerator implements IWorldGen {
    public String structureName;
 

@@ -3,6 +3,17 @@ package com.trolmastercard.sexmod.entity;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextFormatting;
 
+/**
+ * <b>Role.</b> The shared kobold/goblin color palette: each entry packs a
+ * main and secondary skin color, the matching wool metadata id and a chat
+ * color. Used by the kobold/goblin entities for body/eye colors (stored as
+ * {@link Vec3i} in data keys or by name) and by the tribe chat messages.
+ * <p>
+ * <b>Pitfalls.</b> The enum order IS the persisted part-index order for
+ * kobold/goblin customization (see {@link KoboldPlayerEntity#setCustomPartList})
+ * — never reorder. All "safe" lookups fall back to {@link KoboldEntity#aJ}
+ * (the PURPLE kobold default) on unknown input.
+ */
 public enum EyeAndKoboldColor {
    GREEN(69, 141, 113, 91, 167, 128, 9, TextFormatting.DARK_GREEN),
    YELLOW(241, 177, 77, 255, 226, 170, 4, TextFormatting.YELLOW),

@@ -9,6 +9,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> SERVER->CLIENT dragon breath-effect trigger for
+ * {@link DragonEntity} — spawns a targeted or randomized dragon-breath particle
+ * burst at a world position.
+ * <p>
+ * <b>Handler.</b> CLIENT-side. {@code isValid=true} ->
+ * {@link DragonEntity#spawnDragonBreath(Vec3d)}, otherwise
+ * {@link DragonEntity#spawnDragonBreathRandom(Vec3d)}.
+ */
 public class SpawnEnergyBallParticlesPacket2 implements IMessage {
    Vec3d energyPos;
    boolean isValid;

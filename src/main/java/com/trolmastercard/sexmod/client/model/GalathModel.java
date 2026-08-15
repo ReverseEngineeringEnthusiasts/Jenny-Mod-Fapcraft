@@ -5,6 +5,12 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 
+/**
+ * Simple vanilla "glass crystal" model: three nested transparent cubes with
+ * scale/rotation offsets. Used by {@code DragonStaffRenderer} as the spinning
+ * end-crystal on the dragon staff. Renders with the caller-bound texture
+ * (e.g. the ender-crystal texture); the rotation parameter spins the crystal.
+ */
 public class GalathModel extends ModelBase {
    private final ModelRenderer wingModel;
    private final ModelRenderer bodyModel = new ModelRenderer(this, "glass");

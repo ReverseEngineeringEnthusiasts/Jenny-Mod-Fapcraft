@@ -20,6 +20,22 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
+/**
+ * Billboard renderer for {@link BasicGirlEntity} (the "pyrocinical" girl): a
+ * flat textured quad that always faces the player, with a multi-stage texture
+ * state machine — idle, walking (two-frame bob), praising/practice, and a
+ * 30-tick "fat" morph animation driven by the girl's {@code lastSoundTick}.
+ * <p>
+ * <b>Texture selection.</b> {@link #getFatTexture} picks: the fat morph frame
+ * when the girl recently made a sound, the practice texture when the player is
+ * nearly stationary, idle when the girl isn't moving, or alternating walk
+ * frames otherwise. Scale grows 1.4x.. and alpha fades over the morph, then
+ * shrinks back after 120 ticks.
+ * <p>
+ * CLIENT-side render thread only. Positions are interpolated with
+ * {@link RotationHelper#lerpVec3dDouble} (PROGRESS lerp — correct for render
+ * interpolation, do not switch to the INT step variant).
+ */
 public class BasicGirlRenderer extends Render<BasicGirlEntity> {
 
    @Override
@@ -49,6 +65,13 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       return null;
    }
 
+   /**
+    * Renders the girl as a player-facing quad relative to the local player
+    * (lerped positions, billboard rotation, scale from the morph progress,
+    * alpha from the morph shrink), and fires the praising sound once per
+    * minute when the practice texture first appears. Resets lighting/alpha GL
+    * state afterwards.
+    */
    public void doRenderBasicGirl(BasicGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       GL11.glDisable(2896);
       GlStateManager.enableAlpha();
@@ -88,6 +111,14 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       this.cachedTexture = var14;
    }
 
+   /**
+    * Texture state machine (see class javadoc): fat morph frame when
+    * {@code lastSoundTick} is active, practice texture when the player is
+    * nearly still (distance < 3), idle when the girl hasn't moved, otherwise
+    * alternating walk frames.
+    *
+    * @param var2 the player-relative distance to the girl
+    */
    ResourceLocation getFatTexture(BasicGirlEntity var1, double var2) {
       if (var1.lastSoundTick != -1) {
          return new ResourceLocation("sexmod", String.format("%s%s.png", "textures/entity/pyrocinical/fat/", this.getFatIndex(var1)));
@@ -107,10 +138,18 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       return !WALK_TEXTURE_1.equals(var1) && !WALK_TEXTURE_2.equals(var1) ? 0.0 : Math.sin(this.mc.player.ticksExisted * 0.75F) * 0.1F;
    }
 
+   /**
+    * Morph frame index 1..30, clamped from the time since the girl's last
+    * sound.
+    */
    int getFatIndex(BasicGirlEntity var1) {
       return var1.lastSoundTick == -1 ? 0 : (int)ThreadNames.clampFloat(this.mc.player.ticksExisted - var1.lastSoundTick, 1.0F, 30.0F);
    }
 
+   /**
+    * Scale multiplier of the morph animation: 0 idle, ramps 0..1 over 30 ticks
+    * after a sound, then holds.
+    */
    float getFatProgress(BasicGirlEntity var1, float var2) {
       if (var1.lastSoundTick == -1) {
          return 0.0F;
@@ -120,6 +159,10 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       return var3 == 30 ? 1.0F : (var3 + var2) / 30.0F;
    }
 
+   /**
+    * Alpha multiplier for the morph: 1 normally, fades to 0 between 90 and 120
+    * ticks after the sound (the girl "un-morphs" back to normal).
+    */
    float getFatShrink(BasicGirlEntity var1, float var2) {
       if (var1.lastSoundTick == -1) {
          return 1.0F;

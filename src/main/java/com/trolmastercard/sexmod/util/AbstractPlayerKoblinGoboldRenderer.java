@@ -22,6 +22,9 @@ import software.bernie.geckolib3.geo.render.built.GeoQuad;
 import software.bernie.geckolib3.geo.render.built.GeoVertex;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Base geckolib renderer for player-form kobolds/goblins.
+ */
 public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRenderer {
    protected static final Vec3i tintColor = new Vec3i(255, 255, 255);
    static HashMap<Integer, Vec3i> A = new HashMap<>();

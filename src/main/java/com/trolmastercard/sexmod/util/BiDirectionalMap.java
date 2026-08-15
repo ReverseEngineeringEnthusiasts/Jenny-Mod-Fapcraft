@@ -4,6 +4,16 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.Map.Entry;
 
+/**
+ * <b>Role.</b> Minimal two-way map (K->V and V->K) with consistent mutation
+ * invariants: every {@link #put} keeps both directions in sync, {@link #removeByKey}
+ * removes both entries. Used by {@link GirlSavedData} for player<->galath
+ * ownership pairs.
+ * <p>
+ * <b>Invariant.</b> {@link #put} with an existing value silently drops the old
+ * reverse mapping (the value is re-bound to the new key) — callers relying on
+ * multi-mapping must not use this class.
+ */
 public class BiDirectionalMap<K, V> {
    private final HashMap<K, V> b = new HashMap<>();
    private final HashMap<V, K> a = new HashMap<>();

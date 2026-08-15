@@ -2,6 +2,19 @@ package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.util.Reference;
 
+/**
+ * <b>Role.</b> Classifies girl model bones for the custom-model system:
+ * which bones are part-specific (head, feet, hands) and which are fully
+ * custom ({@link #CUSTOM_BONE}). Also owns the icon sprite X positions used by
+ * the wardrobe GUI and allocates the +/- button ids via
+ * {@link Reference#BUTTON_ID_COUNTER}.
+ * <p>
+ * <b>Pitfalls.</b> The enum declaration ORDER matters: {@link #GIRL_SPECIFIC}
+ * must stay first (it has no bone name) and {@link #getCustomBoneCount()}
+ * assumes the last two entries are the custom ones. The button ids are
+ * allocated at class-load time — do not reorder the enum or existing saves
+ * map to different buttons.
+ */
 public enum BoneType {
    GIRL_SPECIFIC,
    HEAD(0, "customHead"),

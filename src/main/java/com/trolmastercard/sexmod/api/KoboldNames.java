@@ -1,4 +1,7 @@
 package com.trolmastercard.sexmod.api;
+/**
+ * Kobold name generator / registry (tribe member names).
+ */
 public enum KoboldNames {
    Vags,
    Snis,

@@ -18,6 +18,19 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> CLIENT-only helper that renders the "cummy" cum-trail
+ * overlays: holds a list of {@link DynamicTrailRenderer}s, updates them every
+ * client tick and renders the bound texture in the world render pass. Girls
+ * register trails from their animation sound listeners (e.g. the creampie
+ * and masterbate keyframes in {@link GalathEntity#registerControllers} and
+ * the threesome in {@link ManglelieEntity}); {@link #spawnCummyTrails(BaseGirlEntity)}
+ * clears all trails of a girl (scene end).
+ * <p>
+ * <b>Pitfalls.</b> The render list is static and never cleared except via
+ * {@code spawnCummyTrails} — trails leak if a girl despawns without a cum
+ * reset path.
+ */
 @SideOnly(Side.CLIENT)
 public class CummyEntity {
    static final ResourceLocation cummyTexture = new ResourceLocation("sexmod", "textures/cummy.png");
@@ -62,6 +75,10 @@ public class CummyEntity {
       trailRenderers.add(new DynamicTrailRenderer(var0, var1, var2, var3, var4, var5));
    }
 
+   /**
+    * Removes every cum trail owned by the given girl (called on scene end so
+    * trails do not persist into the next scene).
+    */
    public static void spawnCummyTrails(@Nonnull BaseGirlEntity var0) {
       ArrayList var1 = new ArrayList();
 

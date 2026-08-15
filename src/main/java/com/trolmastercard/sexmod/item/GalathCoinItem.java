@@ -48,6 +48,25 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+/**
+ * <b>Role.</b> The Galath coin — binds a defeated succubus to her victor
+ * (ownership via {@link GirlSavedData}) and summons/dismisses her.
+ * <p>
+ * <b>Flow.</b> Right-click starts a 4-second summon window (activation time in
+ * the player's entity data); on the client, energy particles stream from the
+ * coin to the summon point; after the window the server spawns the
+ * {@link GalathEntity} ({@link #writeCooldownNBT} SERVER branch) and grants
+ * ownership. Right-clicking the owned Galath starts the de-summon animation;
+ * the summon/de-summon particle visuals run client-side while the timestamps
+ * advance on both sides.
+ * <p>
+ * <b>Pitfalls.</b> The timing keys ({@code sexmod:galath_coin_activation_time},
+ * {@code ..._deactivation_time}, {@code ..._de_summoning_animation_time}) are
+ * the single source of truth for the animation state machine — both sides must
+ * agree on the 4000/1000/3000 ms windows or the girl desyncs. The client-side
+ * {@link GirlSavedData#debugEnabled} mirrors ownership; see
+ * {@link InformOfOwnershipPacket}.
+ */
 public class GalathCoinItem extends Item implements IAnimatable {
    public static final GalathCoinItem GALATH_COIN = new GalathCoinItem();
    public static final long SUMMON_DURATION = 4000L;

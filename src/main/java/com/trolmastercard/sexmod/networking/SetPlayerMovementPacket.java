@@ -10,6 +10,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> SERVER->CLIENT movement lock while a girl scene is active. The
+ * server freezes the player (velocity zeroed, input locked via
+ * {@link HandlePlayerMovement#setMovementLock}) so the player cannot walk away
+ * mid-scene; on scene end the server sends {@code isSprinting=false} to unlock.
+ * <p>
+ * <b>Handler.</b> CLIENT-side. Locks/unlocks movement and zeroes the local
+ * player's velocity; on lock also hides the horny meter HUD
+ * ({@link HornyMeterHud#hideHornyMeter()}).
+ */
 public class SetPlayerMovementPacket implements IMessage {
    boolean isValid;
    boolean isSprinting;

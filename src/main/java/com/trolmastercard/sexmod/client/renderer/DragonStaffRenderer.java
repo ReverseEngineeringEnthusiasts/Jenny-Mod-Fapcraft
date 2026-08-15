@@ -28,6 +28,21 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
+/**
+ * Item renderer for the dragon staff: renders the geckolib staff model plus a
+ * spinning end-crystal on the {@code staff} bone, with a bob animation, a
+ * screen-space sway from the holder's movement, and an orbiting
+ * colored-wool-particle ring driven by {@link KoboldEntity#aY} bone data.
+ * <p>
+ * <b>Dual mode.</b> When {@code isRendering} (toggled from the
+ * {@code StructureCommandScreen}) the particles are spread in the player's
+ * view direction (ease-in-out toward the eye); otherwise they animate along
+ * the bone chain. Wool colors encode particle ids.
+ * <p>
+ * CLIENT-side render thread only. {@link #renderRecursively} interrupts the
+ * vanilla geckolib buffer (draws pending vertices) before applying the custom
+ * bone transform — do not reorder the push/draw/transform sequence.
+ */
 public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
    private static final ResourceLocation CRYSTAL_TEXTURE = new ResourceLocation("textures/entity/endercrystal/endercrystal.png");
    private final GalathModel crystalModel = new GalathModel();
@@ -74,6 +89,12 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       this.renderStaffItem(var1, var2);
    }
 
+   /**
+    * Entry point: locates the player holding this exact staff stack (main or
+    * off hand), computes his screen-space movement vector, advances the
+    * animation clock (paused when the game is paused) and delegates to the
+    * geckolib pipeline. Stores the holder/stack for the recursive pass.
+    */
    public void renderStaffItem(DragonStaffItem var1, ItemStack var2) {
       EntityPlayer var3 = null;
 
@@ -107,6 +128,13 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       super.render(var1, var2);
    }
 
+   /**
+    * Custom pass for the {@code staff} bone: flush pending geckolib vertices,
+    * apply the bone transform, then draw the bobbing crystal (rotation
+    * accumulates the holder's movement per frame in the static map {@code n}
+    * keyed by ItemStack) and the orbiting wool particles. Re-binds the staff
+    * texture and restarts the buffer for the remaining bones.
+    */
    @Override
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
       if ("staff".equals(var2.getName())) {
@@ -140,6 +168,12 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       super.renderRecursively(var1, var2, var3, var4, var5, var6);
    }
 
+   /**
+    * Reads the particle chain from {@link KoboldEntity#aY} (id + position
+    * tuples) and either spreads the particles toward the player's view
+    * (rendering mode, {@link #renderParticles}) or staggers them along the
+    * bone order (animation mode, {@link #animateBones}).
+    */
    void collectAnimationBones() {
       ArrayList var1 = new ArrayList();
       ArrayList var2 = new ArrayList();
@@ -158,6 +192,12 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       }
    }
 
+   /**
+    * Rendering-mode particle placement: for each chain particle, rotates its
+    * offset into the holder's head-view space and eases each axis
+    * ({@code easeInOut}) so the wool cubes stream toward the player's eye,
+    * scaled by 1.3.
+    */
    void renderParticles(List<Integer> var1, List<Vec3d> var2) {
       for (int var3 = 0; var3 < var1.size(); var3++) {
          float var4 = RotationHelper.lerp(this.player.prevRotationYawHead, this.player.rotationYawHead, this.mc.getRenderPartialTicks());
@@ -183,6 +223,11 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       }
    }
 
+   /**
+    * Animation-mode placement: staggers the chain particles evenly along a
+    * spinning arc (rotation axis per particle, speed scaled by an index
+    * lerp 0.8..1.2).
+    */
    void animateBones(List<Integer> var1) {
       float var2 = 1.0F / var1.size();
       float var3 = 0.0F;
@@ -209,6 +254,11 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       this.renderItemAt(new ItemStack(Blocks.WOOL, 1, var1), var2, var3, var4);
    }
 
+   /**
+    * Draws one wool-cube particle (color = particle id) translated by the
+    * given offset from the crystal anchor. Tiny 0.04 scale, vanilla item
+    * rendering.
+    */
    void renderItemAt(ItemStack var1, float var2, float var3, float var4) {
       GlStateManager.pushMatrix();
       GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.animationTicks) + 0.001, 0.0);
@@ -218,6 +268,10 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       GlStateManager.popMatrix();
    }
 
+   /**
+    * Draws one wool-cube particle rotating around the given axis with speed
+    * scaled by {@code var4}, offset by 6 units along X.
+    */
    void renderItem(ItemStack var1, float var2, float var3, float var4) {
       GlStateManager.pushMatrix();
       GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.animationTicks) + 0.001, 0.0);

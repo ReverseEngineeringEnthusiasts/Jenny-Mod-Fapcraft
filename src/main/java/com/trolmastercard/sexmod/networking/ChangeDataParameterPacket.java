@@ -3,6 +3,7 @@ package com.trolmastercard.sexmod.networking;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.SlimeEntity;
 import com.trolmastercard.sexmod.entity.Action;
+import com.trolmastercard.sexmod.util.SceneDebug;
 import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -13,6 +14,33 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * CLIENT -&gt; SERVER bridge that writes a single entity data-manager entry on
+ * the server girl identified by {@link #girlUUID}.
+ * <p>
+ * This is how every client-side scene mutation reaches the server. Supported
+ * parameter names:
+ * <ul>
+ *   <li>{@code "currentAction"} — sets {@link BaseGirlEntity#CUR_ACTION}
+ *       (guarded: ATTACK only allowed from NULL).</li>
+ *   <li>{@code "animationFollowUp"} — sets {@link BaseGirlEntity#GIRL_HAND_STATES},
+ *       the scene-entry hand-state consumed by each girl's {@code U()}.</li>
+ *   <li>{@code "playerSheHasSexWith"} — sets/clears
+ *       {@link BaseGirlEntity#INTERACTION_PARTNER_UUID}.</li>
+ *   <li>{@code "targetPos"} — sets {@link BaseGirlEntity#TARGET_POS}
+ *       (value is {@code xfyfz}-formatted).</li>
+ *   <li>{@code "shouldbeattargetpos"} — sets {@link BaseGirlEntity#IS_ANCHORED}.</li>
+ *   <li>{@code "currentModel"} — sets {@link BaseGirlEntity#OUTFIT_INDEX}.</li>
+ *   <li>{@code "master"}, {@code "walk speed"}, {@code "pregnant"} — master
+ *       UUID, walk state, slime horny level respectively.</li>
+ * </ul>
+ * <p>
+ * <b>Scene flow position:</b> the entry chain is
+ * {@code doAction} (client) -&gt; this packet (animationFollowUp) -&gt;
+ * {@link KoboldStatePacket} (dismount/position) -&gt; {@code updateAITasks}
+ * lerp -&gt; anchored -&gt; {@code U()} reads GIRL_HAND_STATES and starts the
+ * scene action.
+ */
 public class ChangeDataParameterPacket implements IMessage {
    boolean isValid;
    UUID girlUUID;
@@ -52,6 +80,7 @@ public class ChangeDataParameterPacket implements IMessage {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                BaseGirlEntity var1x = BaseGirlEntity.getServerGirlEntity(var1.girlUUID);
                if (var1x != null) {
+                  SceneDebug.log(SceneDebug.PACKETS, "ChangeDataParameter: %s param=%s value=%s (remote=%s)", var1x.getDisplayNameText(), var1.parameterName, var1.value, var1x.world.isRemote);
                   switch (var1.parameterName) {
                      case "pregnant":
                         var1x.getDataManager().set(SlimeEntity.HORNY_LEVEL, Integer.valueOf(var1.value));

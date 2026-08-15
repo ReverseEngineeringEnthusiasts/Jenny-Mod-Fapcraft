@@ -89,6 +89,42 @@ import software.bernie.geckolib3.renderers.geo.RenderHurtColor;
 import software.bernie.geckolib3.util.MatrixStack;
 import software.bernie.shadowed.eliotlash.mclib.utils.Interpolations;
 
+/**
+ * Core geckolib renderer for every girl entity ({@link BaseGirlEntity} +
+ * {@link IAnimatable}): Jenny, Ellie, Bee, Manglelie, and via
+ * {@link GirlRendererBase} the NPC-only girls. Owns skin textures, render
+ * gating, the custom-bone pass (held items, payment overlay), camera-bone
+ * world positions, anchored-scene positioning and armor tinting.
+ * <p>
+ * <b>Anchored rendering.</b> {@link #getBoneWorldPos(BaseGirlEntity, float, double, double, double)}
+ * is where the anchored-scene pose lives: an anchored girl is rendered at
+ * {@code getTargetPosition()} (relative to the local player) with her yaw
+ * pinned to {@code getYawRotation()} — this is what places the girl correctly
+ * during sex scenes. Do NOT remove the anchored offset or yaw-pinning, and
+ * keep the {@code lerpVec3dDouble} partial-tick interpolation (PROGRESS lerp,
+ * correct for render code).
+ * <p>
+ * <b>Render gating.</b> {@link #canRenderPlayer} hides the girl when a solid
+ * block occludes every corner of her bounding box from the player's eye
+ * (first person) so she cannot be seen through walls; {@link #renderModel}
+ * additionally skips locally registered / non-renderable entities.
+ * <p>
+ * <b>Custom bones.</b> {@code weapon} draws the held item
+ * ({@link #renderHeldItem}, bow-pull and sword-stab poses), {@code itemRenderer}
+ * draws the payment item while the action is {@code PAYMENT}
+ * ({@link #renderTradeOverlay}); {@code ballL/ballR/cock} are forced opaque;
+ * {@code Head2} is hidden in first person; {@code armor*} bones get armor
+ * material tinting ({@link #calculateBoneArmorColor}).
+ * <p>
+ * <b>Scene hooks.</b> After every render {@link #applyCameraBone} publishes
+ * world positions for {@link GirlModel#CAMERA_PLACEMENTS} + tracked bones
+ * (read by camera code), and
+ * {@link SexSceneRenderer#renderSexSceneEffects} draws scene parts.
+ * <p>
+ * CLIENT-side render thread only. Skin textures are fetched once per UUID via
+ * {@link SkinFetcher} and cached; the {@link SexWorldClient} preload world
+ * skips the custom pass entirely.
+ */
 public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> extends GeoEntityRenderer<T> implements IGirlRenderer {
    protected static final ResourceLocation LINE_TEXTURE = new ResourceLocation("sexmod", "textures/line.png");
    static final float LINE_SCALE = 1.5F;
@@ -120,6 +156,11 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return super.getEntityTexture(var1);
    }
 
+   /**
+    * Skin texture for the girl: the interaction player's cached skin, or a
+    * freshly tinted one; in the preload world / without an interaction player
+    * the local player's profile id is used. Cache lives in the static map.
+    */
    protected ResourceLocation getSkinTexture(T var1) {
       ResourceLocation var2;
       if (!(var1.world instanceof SexWorldClient) && var1.getInteractionPlayerUUID() != null) {
@@ -137,6 +178,12 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var2;
    }
 
+   /**
+    * Fetches the player skin for {@code var1} ({@link SkinFetcher}), repaints
+    * the head-top/face pixels with the mod's skin-tone colors, registers it as
+    * a dynamic texture and caches it. On any fetch error falls back to the
+    * bundled steve texture (or an empty 64x64 image) and still caches.
+    */
    protected ResourceLocation getTintedSkinTexture(UUID var1, World var2) {
       BufferedImage var3;
       try {
@@ -162,6 +209,10 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return l.get(var1);
    }
 
+   /**
+    * Yaw for rendering: the pinned scene yaw when anchored, else the
+    * interpolated render-yaw-offset (partial ticks).
+    */
    protected static float getInterpolatedYaw(BaseGirlEntity var0, float var1) {
       return var0.isAnchored() ? var0.getYawRotation() : RotationHelper.lerp(var0.prevRenderYawOffset, var0.renderYawOffset, var1);
    }
@@ -182,6 +233,14 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var6 == null ? 4.0F : (float)var2.distanceTo(var6);
    }
 
+   /**
+    * First-person occlusion gate: the girl is only rendered when at least one
+    * corner of her bounding box has an unobstructed (or translucent/non-solid)
+    * ray from the player's eye. Player-girls always render. In third person
+    * the camera position is moved behind a solid block when needed.
+    *
+    * @return {@code true} if the girl may be drawn
+    */
    boolean canRenderPlayer(T var1, EntityPlayer var2) {
       if (var1 instanceof AbstractPlayerGirlEntity) {
          return true;
@@ -249,6 +308,12 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return false;
    }
 
+   /**
+    * The set of bones currently replaced by custom parts: from the
+    * {@link ClothingScreen} preview (locally registered) or the girl's own
+    * custom-part set; disabled models' bones are added regardless of
+    * {@code var2}. Empty while {@code ClientProxy.IS_PRELOADING}.
+    */
    HashSet<String> getActiveBones(Boolean var1, boolean var2) {
       if (ClientProxy.IS_PRELOADING) {
          return new HashSet<>();
@@ -273,6 +338,13 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var4;
    }
 
+   /**
+    * Model render entry: gated by {@link #canRenderPlayer} / local-registration
+    * / {@code shouldRenderModel()}, then captures the global matrix, binds the
+    * entity texture, resolves active custom-part bones, updates custom bones +
+    * bone offsets ({@code BodyParts.updateCustomBones/updateBoneOffset}) and
+    * renders the buffer with early/late hooks.
+    */
    public void renderModel(GeoModel var1, T var2, float var3, float var4, float var5, float var6, float var7) {
       if (mc.player == null || var2.isLocallyRegistered() || !var2.shouldRenderModel() || this.canRenderPlayer(var2, mc.player)) {
          GlStateManager.enableRescaleNormal();
@@ -294,6 +366,11 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
+   /**
+    * Renders all top-level bones except the {@code steve} bone (the player
+    * skin body), flushes, then renders the steve bone in a second pass with
+    * the girl's skin texture and {@code getRenderScaleFactor()}.
+    */
    protected void renderModelBuffer(GeoModel var1, BufferBuilder var2, T var3, float var4, float var5, float var6, float var7, float var8) {
       GeoBone var9 = null;
 
@@ -346,6 +423,11 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
+   /**
+    * Render offset while the girl's master rides a saddled horse: positions
+    * the girl behind the horse's head (relative to the local player) and
+    * copies the ridden entity's yaw onto her.
+    */
    Vec3d getRidingOffset(EntityPlayer var1, float var2) {
       EntityLiving var3 = (EntityLiving)var1.getRidingEntity();
       EntityPlayerSP var4 = mc.player;
@@ -357,10 +439,27 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return new Vec3d(var7.x + var5.x * -0.5, var7.y + 0.15F, var7.z + var5.z * -0.5);
    }
 
+   /**
+    * Hook for subclasses to override the final bone world position.
+    */
    protected Vec3d getBoneWorldPos(T var1, float var2, Vec3d var3) {
       return var3;
    }
 
+   /**
+    * Computes the render position for the girl (CLIENT-side).
+    * <p>
+    * <b>Anchored girls render at {@code getTargetPosition()},</b> relative to
+    * the lerped local player position, with every yaw field pinned to
+    * {@code getYawRotation()} — this is the scene pose; player-girls owned by
+    * another player only do this in third person. Unanchored girls render at
+    * their world position. Also: name-tag rendering, horse-riding offset, and
+    * a no-op for the {@link SexWorldClient} preload world.
+    * <p>
+    * <b>Pitfall:</b> the partial-tick lerp here uses
+    * {@link RotationHelper#lerpVec3dDouble} (PROGRESS) — correct for render
+    * interpolation; do not switch to the INT step variant.
+    */
    Vec3d getBoneWorldPos(T var1, float var2, double var3, double var5, double var7) {
       Vec3d var9 = new Vec3d(var3, var5, var7);
       if (var1.world instanceof SexWorldClient) {
@@ -404,6 +503,19 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       this.doRenderEntity(var1, var2, var4, var6, var8, var9);
    }
 
+   /**
+    * The full girl render pipeline (CLIENT-side): resolves the bone world
+    * position (anchored/target-position logic, see {@link #getBoneWorldPos}),
+    * draws the leash, then — with lighting off, alpha 0.5, blend on — builds
+    * the geckolib {@link AnimationEvent} (head yaw/pitch, limb swing, sitting
+    * pose with vanilla riding clamps), renders the model, layers, camera-bone
+    * positions, scene effects ({@link SexSceneRenderer#renderSexSceneEffects})
+    * and the optional girl overlay color. Restores lighting/blend state.
+    * <p>
+    * <b>Ordering matters:</b> model -> layers -> camera bone -> scene effects.
+    * The camera bone pass must run after the model is drawn so
+    * {@code GirlModel.CAMERA_PLACEMENTS} reflect this frame's pose.
+    */
    public void doRenderEntity(T var1, double var2, double var4, double var6, float var8, float var9) {
       this.renderEntity = (T)var1;
       Vec3d var10 = this.getBoneWorldPos((T)var1, var9, var2, var4, var6);
@@ -554,6 +666,12 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
+   /**
+    * Publishes the world positions of every camera/attachment bone
+    * ({@link GirlModel#CAMERA_PLACEMENTS} + the girl's own tracking list) from
+    * the model matrices into the girl's bone-position cache — consumed by the
+    * scene camera and effect renderers. Must run after the model render.
+    */
    void applyCameraBone(T var1) {
       ArrayList var2 = new ArrayList<>(GirlModel.CAMERA_PLACEMENTS);
       var2.addAll(var1.boneTrackingList);
@@ -575,6 +693,11 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var1;
    }
 
+   /**
+    * Draws the colored line overlay (e.g. corrupted girl tint) anchored to the
+    * girl (target position when anchored, else lerped) relative to the local
+    * player, with line width from {@link #getRenderOffset}.
+    */
    void renderGirlColor(BaseGirlEntity var1, float var2, Vector3fSexmodSpecial var3) {
       EntityPlayerSP var4 = mc.player;
       var3 = new Vector3fSexmodSpecial(var3.x / 255.0F, var3.y / 255.0F, var3.z / 255.0F);
@@ -595,6 +718,10 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       GlStateManager.popMatrix();
    }
 
+   /**
+    * Line width scaled by the girl's distance from the camera (5 blocks = max
+    * width, closer = thinner), clamped 0..1 progress.
+    */
    protected static float getRenderOffset(BaseGirlEntity var0, float var1, float var2, float var3) {
       EntityPlayerSP var4 = mc.player;
       Entity var5 = ((GirlRenderer)mc.getRenderManager().getEntityRenderObject(var0)).getRenderEntity(var0);
@@ -611,6 +738,9 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected void drawOverlayLines(Tessellator var1, BufferBuilder var2, BaseGirlEntity var3, Vector3fSexmodSpecial var4, float var5) {
    }
 
+   /**
+    * Draws a single colored line segment between two cached bone offsets.
+    */
    protected static void renderNameLabel(BufferBuilder var0, Tessellator var1, BaseGirlEntity var2, String var3, String var4, float var5, float var6, float var7, float var8) {
       var0.begin(1, DefaultVertexFormats.POSITION_TEX_COLOR);
       GlStateManager.glLineWidth(var8);
@@ -627,6 +757,10 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       var1.draw();
    }
 
+   /**
+    * Draws the bra-string tint chain (all {@code braString*} segments) in the
+    * given color — used by the corruption/buff overlay renderers.
+    */
    protected static void renderGirlTint(Tessellator var0, BufferBuilder var1, BaseGirlEntity var2, Vector3fSexmodSpecial var3, float var4) {
       renderNameLabel(var1, var0, var2, "braStringMidStartR", "braStringMidMid1R", var3.x, var3.y, var3.z, var4);
       renderNameLabel(var1, var0, var2, "braStringMidMid1R", "braStringMidMid2R", var3.x, var3.y, var3.z, var4);
@@ -645,6 +779,11 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       renderNameLabel(var1, var0, var2, "braStringLeftEndL", "braStringLeftStartL", var3.x, var3.y, var3.z, var4);
    }
 
+   /**
+    * Rotation overrides for player-girls: while the owner elytra-flies, the
+    * girl pitches nose-down (clamped by flight time) and banks into the turn
+    * like the owner.
+    */
    protected void applyRotations(T var1, float var2, float var3, float var4) {
       super.applyRotations((T)var1, var2, var3, var4);
       if (var1 instanceof AbstractPlayerGirlEntity) {
@@ -673,6 +812,10 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected void onBoneProcessing(BufferBuilder var1, String var2, GeoBone var3) {
    }
 
+   /**
+    * Vanilla-style leash render (two brown strip passes with a sagging curve)
+    * between the girl and her leash holder.
+    */
    protected void renderLeash(BaseGirlEntity var1, double var2, double var4, double var6, float var8) {
       Entity var9 = var1.getLeashHolder();
       var4 -= (1.6 - var1.height) * 0.5;
@@ -766,6 +909,13 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       GlStateManager.enableCull();
    }
 
+   /**
+    * Recursive bone render: per bone — held-item / trade-overlay hooks,
+    * forced opacity for {@code ballL/ballR/cock}, {@link #onBoneProcessing},
+    * armor tinting, and skipping (Head2 in first person, disallowed bones,
+    * custom-part-replaced bones). Children switch to {@link #renderCustomBones}
+    * when the bone carries an armor overlay (nonzero overlay alpha).
+    */
    @Override
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
       if (!(this.renderEntity.world instanceof SexWorldClient)) {
@@ -831,10 +981,20 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return new Vector4f(var1, var2, var3, 0.0F);
    }
 
+   /**
+    * Armor bones only render on NPC girls (the player's own armor is drawn by
+    * the vanilla player renderer).
+    */
    boolean isBoneAllowedForRender(String var1) {
       return !var1.startsWith("armor") ? true : this.renderEntity instanceof AbstractGirlNpcEntity;
    }
 
+   /**
+    * Armor tint for {@code armor*} bones of NPC girls with an outfit: gold
+    * (alpha 72/4096), iron/chain (144/4096), or leather tinted by the armor's
+    * dye color. Returns the unchanged base color otherwise. The alpha encodes
+    * the armor overlay strength.
+    */
    protected Vector4f calculateBoneArmorColor(String var1, float var2, float var3, float var4) {
       if (!var1.startsWith("armor")) {
          return this.createOverlayColor(var2, var3, var4);
@@ -884,10 +1044,20 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return new Vector4f(var2, var3, var4, 72.0F * var10 / 4096.0F);
    }
 
+   /**
+    * Captures the current model matrix for custom-part world-position
+    * computation later in the frame.
+    */
    public void captureGlobalMatrix(T var1, float var2, float var3, float var4, float var5, float var6) {
       this.globalModelMatrix = (Matrix4f)MATRIX_STACK.getModelMatrix().clone();
    }
 
+   /**
+    * Custom-bone recursion (used for armor-overlay children and by
+    * {@link GirlRendererBase}): like {@link #renderRecursively} minus the
+    * armor tinting, with per-cube GL pushes and forced opacity on the genital
+    * bones. Skipped in the {@link SexWorldClient} preload world.
+    */
    public void renderCustomBones(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
       if (!(this.renderEntity.world instanceof SexWorldClient)) {
          String var9 = var2.getName();
@@ -927,6 +1097,10 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
+   /**
+    * The {@code Head2} bone is hidden in first person while the girl is
+    * controlled by the local player (it would clip into the view).
+    */
    protected boolean shouldRenderHead2() {
       return !this.renderEntity.isControlledByLocalPlayer() ? true : mc.gameSettings.thirdPersonView != 0;
    }
@@ -967,6 +1141,12 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
+   /**
+    * Payment item shown on the {@code itemRenderer} bone during a
+    * {@code PAYMENT} action, keyed by the girl's current hand state:
+    * doggy=2 diamonds, blowjob=3 emeralds, strip=1 gold ingot,
+    * boobjob=2 ender pearls, touch_boobs=2 fish(1), sex=3 fish, else none.
+    */
    protected ItemStack getPaymentItemStack() {
       switch ((String)this.renderEntity.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES)) {
          case "doggy":
@@ -986,6 +1166,12 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
+   /**
+    * Renders the payment items fanned in front of the girl on the
+    * {@code itemRenderer} bone: per item, flush pending vertices, apply the
+    * bone transform + rotations, fan 2nd/3rd items sideways, then re-bind the
+    * entity texture and restart the buffer.
+    */
    protected void renderTradeOverlay(BufferBuilder var1, GeoBone var2) {
       ItemStack var3 = this.getPaymentItemStack();
       if (var3 != null) {
@@ -1023,6 +1209,13 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return var1;
    }
 
+   /**
+    * Renders the held weapon/bow on the {@code weapon} bone for NPC girls:
+    * weapon (attack mode 1) or bow (mode 2); a drawn bow gets an increasing
+    * pull progress (item-use count) and bow-hold rotation, attacks get stab
+    * (thrust offset + rotation) or slash rotations from the entity's swing
+    * state. Resets the buffer + texture binding afterwards.
+    */
    protected void renderHeldItem(BufferBuilder var1, GeoBone var2) {
       if (this.renderEntity != null) {
          if (this.renderEntity instanceof AbstractGirlNpcEntity) {
@@ -1071,6 +1264,11 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
+   /**
+    * Block ray-trace (voxel DDA, mirrors vanilla semantics) with NaN guards —
+    * used for the occlusion check. Returns the first solid block hit or
+    * {@code null} (NaN inputs or no hit within 200 steps).
+    */
    RayTraceResult rayTraceBlocks(Vec3d var1, Vec3d var2, World var3) {
       if (Double.isNaN(var1.x) || Double.isNaN(var1.y) || Double.isNaN(var1.z)) {
          return null;

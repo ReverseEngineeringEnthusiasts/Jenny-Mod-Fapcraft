@@ -16,6 +16,23 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER "send my girl home" command from the interaction
+ * menu. Sends the girl home via an ender-pearl-style teleport.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread — a 3-phase state
+ * machine on the girl:
+ * <ol>
+ * <li>{@code Action != THROW_PEARL}: start phase — set
+ *     {@code THROW_PEARL}, face her {@code homePos}, anchor her.</li>
+ * <li>no active pearl yet: spawn the {@link KoboldEggProjectileEntity} aimed at
+ *     {@code homePos}.</li>
+ * <li>pearl exists: burst PORTAL particles, snap her to {@code homePos},
+ *     un-anchor, {@code Action.NULL} and {@code goHome()}.</li>
+ * </ol>
+ * Re-sending the packet advances the machine; the girl must be a bed-scene
+ * capable girl ({@link IBeddableSexGirl} style flow) for a clean home return.
+ */
 public class SendCompanionHomePacket implements IMessage {
    boolean isValid;
    UUID girlUUID;

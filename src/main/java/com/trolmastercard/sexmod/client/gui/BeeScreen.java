@@ -12,6 +12,21 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Shared transition overlay / black-screen effect used by the girls' scenes
+ * (not only bees): when visible it covers the whole screen with an animated
+ * scrolling texture for about a second, then hides itself. While animating it
+ * also hides the {@link HornyMeterHud}.
+ * <p>
+ * <b>Usage contract.</b> Scene code calls {@link #runOnMainThread(Runnable)}
+ * (which makes the overlay visible and schedules the given action) or
+ * {@link #enableInteraction()}; the overlay auto-resets after {@code animTimer}
+ * exceeds 69 ticks of animation. {@code isVisible} is a static flag — exactly
+ * one transition can play at a time.
+ * <p>
+ * CLIENT-side only, rendered via the game-overlay event (it never takes input
+ * focus; {@code doesGuiPauseGame} returns {@code false}).
+ */
 @SideOnly(Side.CLIENT)
 public class BeeScreen extends GuiScreen {
    public static final int TRADE_TIMEOUT = 1200;
@@ -29,6 +44,12 @@ public class BeeScreen extends GuiScreen {
       isVisible = true;
    }
 
+   /**
+    * Shows the overlay and runs {@code var0} on a daemon thread with a
+    * {@value #TRADE_TIMEOUT} ms delay (see {@code ThreadNames.createDaemonThread}),
+    * so the screen covers a scene transition while the action executes. Do not
+    * call from the render thread expecting immediate execution.
+    */
    public static void runOnMainThread(Runnable var0) {
       isVisible = true;
       ThreadNames.createDaemonThread(1200, var0);
@@ -38,6 +59,14 @@ public class BeeScreen extends GuiScreen {
       return false;
    }
 
+   /**
+    * Renders the animated transition: three tiled strips of the trade texture
+    * slide horizontally (speed depends on gui scale) followed by the mirrored
+    * strip and a solid black band, all translated by a cosine-lerped offset.
+    * After 30 animation ticks the horny meter is hidden; after 69 the overlay
+    * resets and un-visibilizes itself. Runs on the CLIENT game-overlay event
+    * (ElementType.TEXT).
+    */
    @SubscribeEvent
    public void onRenderGameOverlay(RenderGameOverlayEvent var1) {
       if (isVisible) {

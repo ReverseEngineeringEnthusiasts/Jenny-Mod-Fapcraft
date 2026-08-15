@@ -8,6 +8,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> SERVER->CLIENT ownership-status notification for Galath/Manglelie.
+ * Sent whenever the server-side ownership state of the player changes (owner
+ * granted, removed, girl despawned, dimension change) so the client can mirror
+ * it in {@link GirlSavedData#debugEnabled} — which gates the Galath coin UI and
+ * "already owned" logic.
+ * <p>
+ * <b>Handler.</b> CLIENT-side; writes {@link GirlSavedData#debugEnabled} directly
+ * (static field, thread-safe enough for the client thread).
+ */
 public class InformOfOwnershipPacket implements IMessage {
    boolean isValid = false;
    boolean isOwned;

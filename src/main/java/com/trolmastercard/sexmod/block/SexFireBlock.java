@@ -11,6 +11,12 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * <b>Role.</b> Inert fire block registered as {@code sexmod:fire} — its
+ * {@link #updateTick} is deliberately empty so the block never spreads or
+ * burns. Used by the galath/dragon effects that place a non-spreading fire
+ * block. {@link #register()} wires it into the block registry event.
+ */
 public class SexFireBlock extends BlockFire {
    public static final Block FIRE = new SexFireBlock();
 

@@ -25,6 +25,25 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 
+/**
+ * <b>Role.</b> Login/logout handling for the horny-potion player-girl
+ * transformation: on login the player is restored to vanilla state, his
+ * player-girl (if any) is released from scenes, and the special fixed-UUID
+ * players (Bia, Ellie) get their permanent player-girl re-registered; on logout
+ * all girls he interacted with are reset so no scene is left half-open.
+ * <p>
+ * <b>Login flow (SERVER-side events):</b> invisible/gravity/clip flags cleared,
+ * flight disabled outside creative; movement lock + ownership status sent to the
+ * client ({@link SetPlayerMovementPacket}, {@link InformOfOwnershipPacket});
+ * Allies lamp NBT re-keyed; tribe markers resent ({@link SendBlocksPacket});
+ * player-girl table rebuilt, any existing girl un-anchored and fully reset via
+ * {@link ResetGirlPacket.Handler#resetGirl}; fixed-UUID girls re-spawned
+ * ({@link #registerBia}, {@link #registerEllie}).
+ * <p>
+ * <b>Logout flow:</b> every girl with the leaving player as interaction partner
+ * is reset (single-arg full reset) and un-anchored; the girl's owner gets a
+ * movement unlock. Concurrent-modification guards on the girl list must stay.
+ */
 public class PlayerIds {
    static final UUID playerId = UUID.fromString("b91e6484-8911-4def-ab04-9fa3452fca5f");
    static final UUID girlId = UUID.fromString("adf20149-2adc-4a9d-9af5-8e9aeda019d6");

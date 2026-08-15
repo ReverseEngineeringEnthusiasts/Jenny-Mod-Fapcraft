@@ -14,6 +14,7 @@ import com.trolmastercard.sexmod.util.DebugMode;
 import com.trolmastercard.sexmod.util.GalathGeometryRender;
 import com.trolmastercard.sexmod.util.GirlCombatProtection;
 import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
+import com.trolmastercard.sexmod.util.SceneDebug;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
@@ -44,14 +45,59 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * Bia NPC — the catgirl with talk, headpat, strip, and bed scenes
+ * (anal + prone doggy).
+ * <p>
+ * <b>Scene entry</b> (shared with Jenny/Luna/Kobold): client {@code doAction}
+ * sets {@code animationFollowUp} (GIRL_HAND_STATES) via
+ * {@code ChangeDataParameterPacket} and sends {@code KoboldStatePacket}; the
+ * server calls {@code setDismounted()} ({@link #yFlag}), then
+ * {@link #updateAITasks()} lerps her to {@code TARGET_POS} for ~40 ticks
+ * ({@code ag} counter), anchors her and calls {@link #U()} which dispatches
+ * on GIRL_HAND_STATES: talk -> TALK_HORNY dialogue, then the anal/doggy menu;
+ * strip -> STRIP animation.
+ * <p>
+ * <b>Bed scenes</b> (anal/doggy): {@link #U()} sends
+ * {@code SendGirlToSexPacket} -&gt; {@link #goToSexBed()} walks her to the
+ * nearest bed ({@link #af}/{@code zFlag} walk state), anchors her, and
+ * {@link #handleAnalState()} runs the scene pickup: when the player stands
+ * within 1 block, a <b>jar-verified 22-tick countdown</b> ({@link #ac})
+ * runs before the scene action (ANAL_START / PRONE_DOGGY_INTRO) begins.
+ * <p>
+ * <b>Pitfall:</b> {@link #handleAnalState()} MUST assign {@code ac = 22} on
+ * first contact — the original static field was {@code j = 22} on
+ * {@code BaseGirlEntity}. A deobf regression set {@code ac = -1} instead,
+ * which permanently stalled every Bia bed scene at ANAL_WAIT/SITDOWNIDLE.
+ * The player-girl twin {@code BiaPlayerEntity.handleBiaAnalState} kept the
+ * correct {@code ar = 22} — use it as the reference.
+ */
 public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddableSexGirl {
    static final int ae = 3;
+   /** Set by {@code setDismounted()}: true while the scene-entry lerp runs (40 ticks). */
    public boolean yFlag = false;
+
+   /** Dismount-lerp tick counter (0..40). */
    int ag = 0;
+
+   /** Bed-walk state: true while walking to the bed (re-path at 60/120). */
    boolean af = false;
+
+   /** Bed-walk tick counter. */
    int zFlag = 0;
+
+   /** One-shot no-gravity cleanup guard. */
    boolean ab = true;
+
+   /**
+    * Scene-pickup countdown for {@code handleAnalState()}: -1 = waiting for
+    * first player contact, 22 = counting down to the scene action, 0 = start.
+    * <b>Must be set to 22 on first contact</b> (jar-verified; the original
+    * static field was {@code j = 22}).
+    */
    int ac = -1;
+
+   /** Set while a bed scene transition is in flight (suppresses the camera reset). */
    boolean aa = false;
    final int[] ai = new int[]{0, 180, -90, 90};
    final Vec3d[][] ad = new Vec3d[][]{
@@ -132,7 +178,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
             }
 
             this.setNoGravity(false);
-            Vec3d var1 = RotationHelper.lerpVec3dDouble(this.getPositionVector(), this.getTargetPosition(), 40 - this.ag);
+            Vec3d var1 = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.ag);
             this.setPosition(var1.x, var1.y, var1.z);
          } else {
             this.yFlag = false;
@@ -243,6 +289,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          if (var2 != null) {
             if (!(var2.getDistance(this) > 1.0F)) {
                if (this.ac == -1) {
+                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState action=%s ac==-1 (world remote=%s)", var1, this.world.isRemote);
                   if (this.world.isRemote) {
                      BeeScreen.enableInteraction();
                      HandlePlayerMovement.setMovementLock(false);
@@ -250,9 +297,12 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                      this.setInteractionPlayerUUID(var2.getPersistentID());
                   }
 
-                  this.ac = -1;
+                  // jar-faithful countdown: BaseGirlEntity's static j == 22 ticks
+                  this.ac = 22;
+                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: ac set to 22");
                } else if (--this.ac <= 0) {
                   this.ac = -1;
+                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: countdown done, starting scene action=%s (remote=%s)", var1, this.world.isRemote);
                   var2.noClip = true;
                   var2.setNoGravity(true);
                   if (var1 == Action.ANAL_WAIT) {
@@ -278,6 +328,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                         this.setAnchored(true);
                      }
                   }
+               } else if (this.ac % 5 == 0) {
+                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: counting down ac=%d", this.ac);
                }
             }
          }
@@ -307,6 +359,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
    @Override
    public void doAction(String var1, UUID var2) {
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.doAction %s player=%s (remote=%s)", var1, var2, this.world.isRemote);
       super.doAction(var1, var2);
       switch (var1) {
          case "action.names.talk":
@@ -514,6 +567,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
    @Override
    protected void U() {
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.U() handState=%s action=%s remote=%s", this.entityDataManager.get(GIRL_HAND_STATES), this.getCurrentAction(), this.world.isRemote);
       switch ((String)this.entityDataManager.get(GIRL_HAND_STATES)) {
          case "talkHorny":
             this.setCurrentAction(Action.TALK_HORNY);
@@ -722,6 +776,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                this.playSound(SoundHandler.GIRLS_BIA_HUH[0]);
                break;
             case "talk_hornyDone":
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.sound talk_hornyDone (remote=%s, controlled=%s)", this.world.isRemote, this.isControlledByLocalPlayer());
                this.setCurrentAction(Action.TALK_IDLE);
                if (this.isControlledByLocalPlayer()) {
                   this.openBiaInventory(Minecraft.getMinecraft().player);
@@ -740,6 +795,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                this.playSound(SoundHandler.GIRLS_BIA_GIGGLE[0]);
                break;
             case "talk_responseDone":
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.sound talk_responseDone (remote=%s, controlled=%s, handState=%s)", this.world.isRemote, this.isControlledByLocalPlayer(), this.entityDataManager.get(GIRL_HAND_STATES));
                if (this.isControlledByLocalPlayer()) {
                   this.resetGirlState();
                }
@@ -753,6 +809,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                this.playSound(SoundHandler.MISC_BEDRUSTLE[0]);
                break;
             case "anal_prepareDone":
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.sound anal_prepareDone (remote=%s)", this.world.isRemote);
                this.setCurrentAction(Action.ANAL_WAIT);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
@@ -796,6 +853,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                break;
             case "doggy_cumDone":
             case "anal_cumDone":
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.sound %s (remote=%s, controlled=%s)", var1x.sound, this.world.isRemote, this.isControlledByLocalPlayer());
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                   this.resetCameraAndPhysics();

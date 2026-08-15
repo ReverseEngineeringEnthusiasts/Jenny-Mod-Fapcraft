@@ -13,6 +13,17 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
+/**
+ * Container wiring the girl's equipment inventory (weapon, bow, helmet,
+ * chestplate, pants, shoes — {@link GirlInventorySlot}s bound to the girl's
+ * forge {@code ITEM_HANDLER_CAPABILITY} at slot ids 0..5) together with the
+ * player's own inventory. Every open instance registers itself in the static
+ * {@link #containers} list, which {@link ChestContainerGui#onGuiClosed} uses to
+ * snapshot the contents back to the server on close.
+ * <p>
+ * Rendered on the CLIENT side; the slot transfer logic in
+ * {@link #transferStackInSlot} runs on both sides (vanilla container sync).
+ */
 public class ChestContainer extends Container {
    BaseGirlEntity girl;
    public Slot[] d;
@@ -55,6 +66,12 @@ public class ChestContainer extends Container {
       }
    }
 
+   /**
+    * Standard shift-click transfer between the girl's equipment slots (first
+    * {@code d.length} slots) and the player's inventory. Merges girl->player
+    * backwards and player->girl forwards; returns the copied stack or
+    * {@code EMPTY} when nothing moved.
+    */
    public ItemStack transferStackInSlot(EntityPlayer var1, int var2) {
       ItemStack var3 = ItemStack.EMPTY;
       Slot var4 = (Slot)this.inventorySlots.get(var2);

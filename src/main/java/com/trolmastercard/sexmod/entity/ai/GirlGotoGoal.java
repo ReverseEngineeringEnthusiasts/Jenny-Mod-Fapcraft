@@ -2,6 +2,11 @@ package com.trolmastercard.sexmod.entity.ai;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 
+/**
+ * <b>Role.</b> Simplified follow goal for the Bee NPC — follows the master
+ * (walking, no combat/ride states) and raises her air-jump factor with
+ * distance so she can hop terrain. Only FOLLOW/IDLE states are used.
+ */
 public class GirlGotoGoal extends GirlFollowAiBase {
    int gotoTicks = 0;
    int retryTicks = 0;
@@ -52,6 +57,10 @@ public class GirlGotoGoal extends GirlFollowAiBase {
       }
    }
 
+   /**
+    * Scales the girl's jump-movement factor with the distance to the master
+    * (0.02 + up to 0.07) so closer follows are more stable.
+    */
    @Override
    protected double getFollowDistance() {
       float var1 = this.girl.getDistance(this.master);

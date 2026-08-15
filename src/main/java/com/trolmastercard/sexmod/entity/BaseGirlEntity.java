@@ -25,6 +25,7 @@ import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.LootTableHandler;
 import com.trolmastercard.sexmod.util.Point2D;
 import com.trolmastercard.sexmod.util.GirlRegistry;
+import com.trolmastercard.sexmod.util.SceneDebug;
 import com.trolmastercard.sexmod.util.ClientServerCheck;
 import com.mojang.realmsclient.util.Pair;
 import java.util.ArrayList;
@@ -100,21 +101,66 @@ import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 import software.bernie.geckolib3.util.MatrixStack;
 
 /**
- * Base class for every Fapcraft girl (NPC and player-form variants).
- *
- * Holds the shared girl state via the vanilla {@link EntityDataManager}:
- * girl UUID, current {@link fp} scene action, outfit index, interaction
- * partner UUID, anchor/target position, master UUID, custom name and custom
- * model code. Owns the geckolib animation controllers (action / movement /
- * eyes) and the scene-lifecycle machinery: {@link #setCurrentAction(fp)}
- * transitions, per-tick {@link #tickFollowUpTransitions()} follow-up states,
- * {@link #resetGirlState()} / {@link ResetGirlPacket} scene exit, and the
- * client/server helpers that position the camera, play sounds, and open the
- * interaction GUI.
- *
- * Scene lifecycle: approach -> PAYMENT gate (Luna/Jenny demand items unless
- * the player is flying) -> intro -> slow/fast -> cum -> reset. See
- * DOCUMENTATION.md for the verified behavior notes.
+ * Base class for every Fapcraft girl — NPCs (Jenny, Bia, Luna, Ellie, Slime,
+ * Bee, Goblin, Allie, Kobold, Galath, Manglelie) and the horny-potion
+ * player-form variants (subclasses of {@link AbstractPlayerGirlEntity}).
+ * <p>
+ * <b>Shared state</b> lives in the vanilla {@link EntityDataManager}. The
+ * {@link Action} keys below use <b>explicit serializer IDs 99..110</b>
+ * (created via {@code getSerializer().createKey(...)}) so the same keys are
+ * compatible across the whole girl hierarchy — including
+ * {@link AbstractNpcOnlyEntity}'s keys 119..121. <b>Never renumber these
+ * IDs</b>: they are baked into the built jar and into worlds saved by it.
+ * <p>
+ * <b>Key semantics</b> (all synced to the client automatically):
+ * <ul>
+ *   <li>{@link #GIRL_ID} — persistent girl UUID, minted on first access.</li>
+ *   <li>{@link #CUR_ACTION} — the current {@link Action}, advanced by
+ *       {@link #setCurrentAction(Action)} (client writes route via
+ *       {@code ChangeDataParameterPacket}).</li>
+ *   <li>{@link #GIRL_HAND_STATES} — the scene-entry hand-state, written by the
+ *       client as {@code "animationFollowUp"} and consumed by each girl's
+ *       {@code U()} dispatcher after the dismount lerp completes.</li>
+ *   <li>{@link #INTERACTION_PARTNER_UUID} — the player bound to the current
+ *       scene ("null" string when unset).</li>
+ *   <li>{@link #IS_ANCHORED} / {@link #TARGET_POS} / {@link #YAW_ROTATION} —
+ *       anchor lock: while anchored the girl is held at target position/yaw
+ *       every tick in {@link #updateAITasks()}.</li>
+ *   <li>{@link #MASTER} — the owning player's UUID (follow mode).</li>
+ *   <li>{@link #OUTFIT_INDEX} — 0 = nude, 1 = dressed.</li>
+ *   <li>{@link #WALK_SPEED}, {@link #CUSTOM_MODEL_KEY}, {@link #CUSTOM_NAME} —
+ *       walk state, whitelisted custom-model code, custom display name.</li>
+ * </ul>
+ * <p>
+ * <b>Scene lifecycle</b> (see {@link Action} for the state machine):
+ * <ol>
+ *   <li>Entry: client {@code doAction} sets {@code GIRL_HAND_STATES} via
+ *       {@code ChangeDataParameterPacket} and sends {@code KoboldStatePacket};
+ *       the server calls {@code setDismounted()} (per-girl flag) and the girl
+ *       lerps ~40 ticks to {@code TARGET_POS} (see
+ *       {@code RotationHelper.lerpVec3d} — INT variant!), then anchors and
+ *       calls {@code U()} to pick the scene action.</li>
+ *   <li>Progression: sound-keyframe transitions in {@code registerControllers}
+ *       (primary) + SERVER-side follow-ups in {@link #tickFollowUpTransitions()}
+ *       + input (sneak/jump via {@code HandlePlayerMovement}).</li>
+ *   <li>End: the cum action's {@code xxx_cumDone} keyframe calls
+ *       {@link #resetCameraAndPhysics()} -&gt; {@code resetLocalPlayerClientState()}
+ *       -&gt; single-arg {@code ResetGirlPacket} = FULL reset (player physics +
+ *       girl release, {@code reinitTasks()}).</li>
+ * </ol>
+ * <p>
+ * <b>Pitfalls:</b>
+ * <ul>
+ *   <li>On the client, data-manager writes MUST go through
+ *       {@link #changeDataParameterFromClient(String, String)} — writing the
+ *       data manager directly on the client never reaches the server.</li>
+ *   <li>{@link #onUpdate()} must never {@code setDead} the girl — the original
+ *       jar has no removal there; a deobf-regression did and made girls
+ *       vanish on benign tick exceptions.</li>
+ *   <li>{@link #resetGirlState()} (R-Shift) sends the two-arg TRUE packet
+ *       (player-only reset); the natural scene end uses the single-arg packet.
+ *       See {@code ResetGirlPacket}.</li>
+ * </ul>
  */
 public abstract class BaseGirlEntity extends EntityCreature implements IAnimatable {
    protected static final long TICK_RATE = 20L;
@@ -203,7 +249,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   /** @return the current scene action ({@link fp} state stored in the data manager) */
+   /** @return the current scene action (state stored in the data manager) */
    public Action getCurrentAction() {
       return Action.valueOf((String)this.entityDataManager.get(CUR_ACTION));
    }
@@ -211,11 +257,12 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    /**
     * Sets the girl's current scene action (CLIENT: routed through a
     * ChangeDataParameterPacket; SERVER: applied directly, resetting the
-    * action's tick counter). ATTACK is only allowed from {@link fp#NULL}.
-    * @param action the target state; null is treated as {@link fp#NULL}
+    * action's tick counter). ATTACK is only allowed from {@link Action#NULL}.
+    * @param action the target state; null is treated as {@link Action#NULL}
     */
    public void setCurrentAction(Action action) {
       Action previousAction = this.getCurrentAction();
+      SceneDebug.log(SceneDebug.ACTIONS, "setCurrentAction %s -> %s (%s, remote=%s, anchored=%s)", this.getDisplayNameText(), previousAction, action, this.world.isRemote, this.isAnchored());
       if (previousAction != action) {
          if (action != Action.ATTACK || previousAction == Action.NULL) {
             action = action == null ? Action.NULL : action;
@@ -548,6 +595,12 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    /** Holds the girl at her anchor position when anchored, then re-applies custom parts. */
    public void updateAITasks() {
+      if (this.getInteractionPlayerUUID() != null || this.isAnchored()) {
+         SceneDebug.log(SceneDebug.AI_TICK, "AI %s remote=%s dead=%s tick=%d anchored=%s action=%s target=%s interact=%s", this.getDisplayNameText(), this.world.isRemote, this.isDead, this.ticksExisted, this.entityDataManager.get(IS_ANCHORED), this.getCurrentAction(), this.getTargetPosition(), this.getInteractionPlayerUUID());
+      } else if (this.ticksExisted % 40 == 0) {
+         SceneDebug.log(SceneDebug.AI_TICK, "updateAITasks %s remote=%s anchored=%s action=%s target=%s interact=%s", this.getDisplayNameText(), this.world.isRemote, this.entityDataManager.get(IS_ANCHORED), this.getCurrentAction(), this.getTargetPosition(), this.getInteractionPlayerUUID());
+      }
+
       if ((Boolean)this.entityDataManager.get(IS_ANCHORED)) {
          this.setRotationYawHead(this.getYawRotation());
          this.setPositionAndRotation(this.getTargetPosition().x, this.getTargetPosition().y, this.getTargetPosition().z, this.getYawRotation(), 0.0F);
@@ -563,6 +616,13 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    /** Called every tick on both sides; advances scene follow-up transitions. */
    public void onUpdate() {
+      // Scene-state heartbeat: bounded logging while a scene is active so the
+      // tick continuity of the girl can be verified in the built jar.
+      if (this.getInteractionPlayerUUID() != null || this.isAnchored()) {
+         if (this.ticksExisted % 5 == 0) {
+            SceneDebug.log(SceneDebug.HEARTBEAT, "HEARTBEAT %s remote=%s dead=%s tick=%d action=%s anchored=%s interact=%s", this.getDisplayNameText(), this.world.isRemote, this.isDead, this.ticksExisted, this.getCurrentAction(), this.isAnchored(), this.getInteractionPlayerUUID());
+         }
+      }
       // Defensive: older buggy builds could leave a girl with a corrupted ride
       // (stale reference to a removed entity, or a ride whose passenger chain is
       // inconsistent). Vanilla's passenger handling NPEs on such state during the
@@ -630,6 +690,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       Action action = this.getCurrentAction();
       if (++action.ticksPlaying[this.world.isRemote ? 1 : 0] >= action.length) {
          if (action.followUp != null && !this.world.isRemote) {
+            SceneDebug.log(SceneDebug.ACTIONS, "tickFollowUp %s: followUp %s -> %s", this.getDisplayNameText(), action, action.followUp);
             this.setCurrentAction(action.followUp);
          }
       }
@@ -693,6 +754,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    public BaseGirlEntity getSelf() {
       return this;
+   }
+
+   public void setDead() {
+      SceneDebug.log(SceneDebug.SET_DEAD, "setDead %s remote=%s tick=%d action=%s anchored=%s interact=%s riding=%s pos=%s", this.getDisplayNameText(), this.world.isRemote, this.ticksExisted, this.getCurrentAction(), this.isAnchored(), this.getInteractionPlayerUUID(), this.getRidingEntity(), this.getPositionVector());
+      super.setDead();
    }
 
    /** Clears the master binding and walk state back to WALK (client routed through a packet). */
@@ -1097,6 +1163,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    public void resetCameraAndPhysics() {
+      SceneDebug.log(SceneDebug.RESET, "resetCameraAndPhysics %s (remote=%s, action=%s, anchored=%s)", this.getDisplayNameText(), this.world.isRemote, this.getCurrentAction(), this.isAnchored());
       this.cameraOriginPos = null;
       this.setNoGravity(false);
       this.setCurrentAction((Action)null);
@@ -1108,6 +1175,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    @SideOnly(Side.CLIENT)
    /** CLIENT: unlocks player movement, un-hides the player and tells the server to reset the girl. */
    protected void resetLocalPlayerClientState() {
+      SceneDebug.log(SceneDebug.RESET, "resetLocalPlayerClientState %s (controlled=%s)", this.getDisplayNameText(), this.isControlledByLocalPlayer());
       if (this.isControlledByLocalPlayer()) {
          HandlePlayerMovement.setMovementLock(true);
          Minecraft.getMinecraft().player.setInvisible(false);

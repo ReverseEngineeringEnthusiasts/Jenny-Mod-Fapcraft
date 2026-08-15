@@ -30,6 +30,18 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.loot.LootTableList;
 
+/**
+ * <b>Role.</b> The wild slime — the mob a pregnant {@link SlimeEntity} births
+ * after its horny countdown. It hops around with vanilla slime AI (jump/
+ * wander/float helpers), grows over 8400 ticks, and then matures back into a
+ * Slime girl at its position. Tracked in the static {@link #ALL_SLIMES} list
+ * used by {@link #findSlimesNear(Vec3d)} (e.g. for egg-laying checks).
+ * <p>
+ * <b>Pitfalls.</b> {@code SIZE} (110) and {@code AGE_IN_TICKS} (111) are the
+ * only data keys. Dying splits it into two smaller slimes (vanilla behavior,
+ * see {@link #setDead()}). Keep the maturation timing (8400) in sync with the
+ * Slime pregnancy lifecycle.
+ */
 public class WildSlimeEntity extends EntityLiving {
    public static List<WildSlimeEntity> ALL_SLIMES = new ArrayList<>();
    private static final DataParameter<Integer> AGE_IN_TICKS = EntityDataManager.createKey(WildSlimeEntity.class, DataSerializers.VARINT)
@@ -165,6 +177,12 @@ public class WildSlimeEntity extends EntityLiving {
          );
    }
 
+   /**
+    * SERVER/CLIENT: the maturation lifecycle — ages every tick; CLIENT spawns
+    * cloud (7980+) and happy (5880+) particles, SERVER converts to a
+    * {@link SlimeEntity} at 8400 ticks. Also runs the vanilla squish
+    * animation states.
+    */
    public void onUpdate() {
       this.dataManager.set(AGE_IN_TICKS, (Integer)this.dataManager.get(AGE_IN_TICKS) + 1);
       if (this.world.isRemote) {

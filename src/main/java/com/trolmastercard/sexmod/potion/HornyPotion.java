@@ -21,6 +21,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
+/**
+ * The horny potion — the item/effect that transforms the player into a girl
+ * (spawns the XxxPlayerEntity form, hides the vanilla player). Girls check
+ * {@code getActivePotionEffect(HORNY_POTION)} to decide whether scenes skip
+ * the PAYMENT gate (Kobold U(), Jenny's menu) and to track the transformed
+ * state (Jenny's {@code yFlag}, Luna's menu behavior).
+ */
 public class HornyPotion extends Potion {
    public static final Potion HORNY_POTION = new HornyPotion("horny potion", false, 16736968, 0, 0);
    public static final PotionType POTION_TYPE = (PotionType)new PotionType(

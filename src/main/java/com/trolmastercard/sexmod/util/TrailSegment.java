@@ -7,6 +7,18 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+/**
+ * <b>Role.</b> One particle segment of a {@link DynamicTrailRenderer} trail:
+ * integrates velocity/position with gravity + air resistance
+ * ({@link #onUpdate}) and resolves block collisions by sliding along the
+ * blocking axis (Bresenham line check), then parks the segment until reset.
+ * <p>
+ * <b>Pitfalls.</b> {@link #onUpdate} does NOTHING while {@code position} is
+ * zero (parked state) — that is the collision stop, not a bug. The 0.95 decay /
+ * 0.4905 gravity constants are tuned together; changing one without the other
+ * alters trail length and bounce behavior. {@link #bresenhamLine} must include
+ * both endpoints for the collision slide to be exact.
+ */
 public class TrailSegment {
    public static final float GRAVITY = 9.81F;
    public static final float TIME_DELTA = 0.05F;

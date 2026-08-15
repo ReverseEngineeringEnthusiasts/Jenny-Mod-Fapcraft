@@ -33,6 +33,23 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Player-form Ellie — the transformation with the same scene set
+ * as the NPC (carry "Face fuck", cowgirl, missionary) plus the sit-down
+ * interaction flow.
+ * <p>
+ * <b>Scene flow.</b> {@code Face fuck} starts the carry via owner command;
+ * cowgirl/missionary are chosen in {@link #doAction(String, UUID)} which
+ * stores the choice in {@code GIRL_HAND_STATES} ({@code animationFollowUp}
+ * packet). {@link #updateAITasks()} then waits in
+ * {@link Action#SITDOWNIDLE} until the nearest player is within 1 block,
+ * locks both players in and starts {@link Action#MISSIONARY_START} or
+ * {@link Action#COWGIRLSTART} (rotating/positioning the player).
+ * <p>
+ * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} forbids re-entering loop
+ * phases while the cum animation plays. {@code hasNoOwner()} (ceiling check
+ * over the owner's head) selects the crouched animations and the eye height.
+ */
 public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
    boolean ar = false;
    boolean aq = false;
@@ -60,6 +77,10 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       this.setCurrentAction(Action.SITDOWN);
    }
 
+   /**
+    * SERVER: owner command {@code Face fuck} — teleports the acting player in
+    * and starts the carry intro, broadcasting it to tracking players.
+    */
    @Override
    public void handleOwnerCommand(String var1, UUID var2) {
       if ("Face fuck".equals(var1)) {
@@ -84,6 +105,12 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       return true;
    }
 
+   /**
+    * CLIENT: scene chooser — stores the cowgirl/missionary choice in
+    * {@code GIRL_HAND_STATES} via the {@code animationFollowUp} packet (the
+    * server-side {@link #updateAITasks()} consumes it), and forwards any other
+    * action to the server as a {@link SexPromptPacket}.
+    */
    @Override
    public void doAction(String var1, UUID var2) {
       if ("action.names.cowgirl".equals(var1)) {
@@ -143,6 +170,13 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * SERVER (and CLIENT mirror): waits in {@link Action#SITDOWNIDLE} for a
+    * scene choice ({@code GIRL_HAND_STATES} = "Missionary"/"Cowgirl") AND a
+    * nearby player within 1 block, then locks both players into the scene
+    * (movement lock, noClip, noGravity, flying) and starts the chosen intro
+    * action with the player positioned and rotated to match.
+    */
    @Override
    public void updateAITasks() {
       super.updateAITasks();
@@ -321,6 +355,19 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * carry/cowgirl/missionary scenes. Key transitions:
+    * {@code sitdownDone} -&gt; {@link Action#SITDOWNIDLE} + scene menu,
+    * {@code hugDone} -&gt; {@link Action#HUGIDLE} + menu,
+    * {@code cowgirlStartDone}/{@code missionary_startDone} -&gt; slow loops,
+    * {@code cowgirlfastReady}/{@code missionary_fastDone} gate fast on jump,
+    * {@code carry_slowDone} re-rolls the variant suffix ({@code ap}),
+    * {@code missionary_cumDone}/{@code cowgirlcumDone}/{@code carry_cumDone}
+    * -&gt; {@code resetCameraAndPhysics()}. {@code hugselectedDone} targets
+    * the girl's position via {@code targetPos} packet and sends
+    * {@link SendGirlToSexPacket}.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {

@@ -1,4 +1,7 @@
 package com.trolmastercard.sexmod.util;
+/**
+ * 4D double vector value type (used e.g. for bed target + yaw).
+ */
 public class Vector4d {
    public double x;
    public double y;

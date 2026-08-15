@@ -6,6 +6,10 @@ import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 
+/**
+ * Vanilla model for the Ellie NPC's vanilla render path: a rotated two-cube
+ * placeholder plus an empty part (structure only, no geometry).
+ */
 public class EllieModel extends ModelBase implements IVanillaModel {
    private final ModelRenderer rootPart;
    private final ModelRenderer childPart;

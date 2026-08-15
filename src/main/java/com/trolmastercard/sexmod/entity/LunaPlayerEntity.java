@@ -24,6 +24,28 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Player-form Luna — the catgirl with touch-boobs
+ * (intro/slow/fast/cum), cowgirl-sitting (intro/slow/fast/cum) and headpat
+ * scenes. Her {@link #handleLunaOwner()} drives the cowgirl sitting scene with
+ * a 25-tick approach countdown ({@code ar}) instead of the Bia-style contact
+ * countdown.
+ * <p>
+ * <b>Scene flow.</b> {@code touchboobs}/{@code headpat} come in via
+ * {@link #handleOwnerCommand(String, UUID)}; the interaction menu also offers
+ * them. The cowgirl scene starts from {@link #handleInteraction()} -&gt;
+ * {@link Action#WAIT_CAT}; {@link #handleLunaOwner()} then counts ticks while
+ * the nearest player stays within 1.25 blocks — at tick 25 (SERVER) the
+ * player is locked in, rotated to face her and {@link Action#COWGIRL_SITTING_INTRO}
+ * starts; the CLIENT mirrors the countdown with
+ * {@link #setFishingLevelFor(EntityPlayer, int)} (unlock movement at 0,
+ * third-person at 25).
+ * <p>
+ * <b>Pitfalls.</b> {@code ar} resets to 0 whenever the action leaves
+ * {@code WAIT_CAT} (see {@link #onUpdate()}). {@link #setCurrentAction(Action)}
+ * forbids re-entering loop phases while the cum animation plays. The
+ * movement controller uses a 10-tick transition length.
+ */
 public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    int ar = 0;
    boolean aq = false;
@@ -57,6 +79,11 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       return "textures/entity/cat/hand.png";
    }
 
+   /**
+    * SERVER: owner commands — {@code touchboobs} strips, broadcasts and starts
+    * {@link Action#TOUCH_BOOBS_INTRO}; {@code headpat} plays the headpat
+    * animation. Both teleport the acting player into the scene.
+    */
    @Override
    public void handleOwnerCommand(String var1, UUID var2) {
       if ("action.names.touchboobs".equals(var1)) {
@@ -72,6 +99,9 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * CLIENT: starts the cowgirl-sitting approach ({@link Action#WAIT_CAT}).
+    */
    @Override
    public void handleInteraction() {
       this.setCurrentAction(Action.WAIT_CAT);
@@ -97,6 +127,13 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * BOTH sides: while in {@link Action#WAIT_CAT} runs the 25-tick sitting
+    * countdown ({@code ar}); any other action resets the counter to 0.
+    * SERVER starts {@link Action#COWGIRL_SITTING_INTRO} at tick 25; CLIENT
+    * mirrors the UI unlock at tick 0 and third-person switch at tick 25 via
+    * {@link #setFishingLevelFor(EntityPlayer, int)}.
+    */
    @Override
    public void onUpdate() {
       super.onUpdate();
@@ -107,6 +144,12 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * The cowgirl sitting countdown body (see {@link #onUpdate()}). SERVER:
+    * at tick 25 binds the interaction player, locks their movement, rotates
+    * them to face the girl and starts the intro. CLIENT: unlocks movement at
+    * tick 0 and forces third-person at tick 25.
+    */
    void handleLunaOwner() {
       EntityPlayer var1 = this.getNearestPlayer();
       if (var1 != null) {
@@ -131,6 +174,11 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * CLIENT: per-tick mirror of the sitting countdown for the local player —
+    * at tick 0 enables interaction and unlocks movement, at tick 25 switches
+    * to third-person view.
+    */
    @SideOnly(Side.CLIENT)
    void setFishingLevelFor(EntityPlayer var1, int var2) {
       if (var2 == 0) {
@@ -277,6 +325,17 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener that drives
+    * the touch-boobs/sitting/headpat scenes. Key transitions:
+    * {@code touch_boobs_introDone} -&gt; {@link Action#TOUCH_BOOBS_SLOW},
+    * {@code sitting_introDone} -&gt; {@link Action#COWGIRL_SITTING_SLOW},
+    * {@code fastDone}/{@code sitting_fastDone} -&gt; slow (jump keeps fast),
+    * {@code touch_boobs_cumDone}/{@code resetGirl} -&gt;
+    * {@code resetCameraAndPhysics()}, {@code paymentDone} -&gt; {@link #U()}.
+    * {@code sitting_fastTp}/{@code sitting_fastDone} reposition the local
+    * player relative to the girl's target position.
+    */
    @Override
    public void registerControllers(AnimationData var1) {
       if (this.actionController == null) {

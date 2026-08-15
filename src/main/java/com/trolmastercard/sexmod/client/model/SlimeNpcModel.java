@@ -13,6 +13,12 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
 
+/**
+ * Geckolib model for the slime NPC: three outfit geo variants (nude, armored,
+ * dressed) plus the bed-scene slime body — the {@code bedSlime}/
+ * {@code bedSlimeLayer} bones are only visible during the doggy bed actions —
+ * and a hat bone that mirrors the head's pose for plain NPCs.
+ */
 public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
    Action[] bedSlimeActions = new Action[]{Action.STARTDOGGY, Action.DOGGYCUM, Action.DOGGYSLOW, Action.DOGGYFAST, Action.DOGGYCUM, Action.DOGGYSTART, Action.WAITDOGGY};
 
@@ -35,6 +41,10 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
       return new ResourceLocation("sexmod", "animations/slime/slime.animation.json");
    }
 
+   /**
+    * Toggles the bed-slime bones by action (visible only for the doggy bed
+    * actions) and copies the head pose onto the hat bone for plain NPCs.
+    */
    @Override
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations(var1, var2, var3);
@@ -49,6 +59,10 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Sums the named bones' rotations/positions into the target bone — used to
+    * bind the hat to the head's current pose.
+    */
    void applyBoneName(String[] var1, String var2) {
       AnimationProcessor var3 = this.getAnimationProcessor();
       IBone var4 = var3.getBone(var2);

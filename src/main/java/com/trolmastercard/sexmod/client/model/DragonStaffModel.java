@@ -4,6 +4,10 @@ import com.trolmastercard.sexmod.item.DragonStaffItem;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Geckolib model for the dragon staff item (geo/texture/animation locations
+ * only).
+ */
 public class DragonStaffModel extends AnimatedGeoModel<DragonStaffItem> {
    public ResourceLocation getModelLocation(DragonStaffItem var0) { return new ResourceLocation("sexmod", "geo/kobold/staff.geo.json"); }
 

@@ -3,6 +3,10 @@ package com.trolmastercard.sexmod.client.model;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * Geckolib model for the Jenny NPC: nude/dressed geo variants, shared texture,
+ * standard armor/nude bone groups (no attachments).
+ */
 public class JennyNpcModel extends GirlModel<BaseGirlEntity> {
    @Override
    protected ResourceLocation[] getModelLocations() {

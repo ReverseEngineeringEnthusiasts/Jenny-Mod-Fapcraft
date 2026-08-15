@@ -12,6 +12,9 @@ import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * WorldSavedData for Allie companions (tamed Allie state per world).
+ */
 public class AllieWorldData extends WorldSavedData {
    static final String DATA_KEY = "sexmod:customstaticgirlnames";
    static final HashMap<UUID, HashMap<NpcType, String>> b = new HashMap<>();

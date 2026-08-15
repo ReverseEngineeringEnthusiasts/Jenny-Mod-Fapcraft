@@ -47,6 +47,32 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 import software.bernie.geckolib3.util.MatrixStack;
 
+/**
+ * Renders {@link SexSceneEntity} — the custom model parts (dildos, outfits,
+ * scene props) attached to a girl's bones. Used in three places: the
+ * {@link ClothingScreen} preview, the {@code ClothingScreen} customization
+ * list previews, and — critically — {@link #renderSexSceneEffects}, which
+ * renders the girl's active custom parts at scene render time.
+ * <p>
+ * <b>Attachment.</b> A part model's root bone is replaced by the girl's bone
+ * matrix stack for the mapped bone ({@link #renderBoneEffect}: custom leg/arm
+ * names map to the girl's vanilla bone names via {@link #initBoneMaps}), so
+ * the part follows the girl's animation. Item models additionally rotate with
+ * {@code ClothingScreen.currentModelYaw}.
+ * <p>
+ * <b>Sentinel angles.</b> The render yaw sentinels {@value #ANGLE_1_87} and
+ * {@value #ANGLE_2_87} (1.876945 / 2.876945) select "render at world
+ * position" (free-standing preview) instead of bone attachment; {@code isCustom}
+ * flags the per-part scene-effect renders. Anchored girls render the part at
+ * their target position with their yaw. Do not change these sentinels.
+ * <p>
+ * <b>Lighting.</b> {@link ServerWhitelistManager.ModelData} may declare
+ * SEXMOD lighting (fake shading from the entity look vector) or FULLBRIGHT
+ * (GL lighting off); otherwise the part is tinted by the host girl's block
+ * light level.
+ * <p>
+ * CLIENT-side render thread only.
+ */
 public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    public static final float ANGLE_1_87 = 1.876945F;
    public static final float ANGLE_2_87 = 2.876945F;
@@ -70,6 +96,12 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       this.initBoneMaps();
    }
 
+   /**
+    * Maps custom part bone names onto the girl's vanilla bone names
+    * (customLegL->legL, customArmL->armL, top->upperBody, ...) and registers
+    * the lower-arm rotation suppliers (the parts' forearm bends follow the
+    * girl's arm angles).
+    */
    void initBoneMaps() {
       this.legBoneMap.put("customLegL", "legL");
       this.legBoneMap.put("customShinL", "shinL");
@@ -84,6 +116,12 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       this.boneRotations.put("lowerArmL", var0 -> TrigMath.wrapDegrees(var0.getLeftArmAngle()));
    }
 
+   /**
+    * Whether the part model should be drawn at all: item models and disabled
+    * models are skipped; when no server whitelist exists yet, the part is
+    * removed from the girl's custom-part set (and the new set uploaded to the
+    * server) so stale parts don't linger client-side.
+    */
    boolean shouldRenderItemModel(SexSceneEntity var1) {
       String var2 = var1.getModelCode();
       if (var1.isItemModel) {
@@ -111,6 +149,13 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       return true;
    }
 
+   /**
+    * Static hook called from {@link GirlRenderer#doRenderEntity} after each
+    * girl render: spawns a temporary {@link SexSceneEntity} per active custom
+    * part and renders it at the origin (bone attachment happens via the
+    * sentinel-angle path). The temporary entities must never be added to the
+    * world — they exist only for the render call. CLIENT-side.
+    */
    @SideOnly(Side.CLIENT)
    public static void renderSexSceneEffects(BaseGirlEntity var0, float var1) {
       if (!var0.isDead) {
@@ -132,6 +177,11 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       return super.shouldRender(var1, var2, var3, var5, var7);
    }
 
+   /**
+    * The sentinel-angle gate: yaws 2.876945/1.876945 and the one-shot
+    * {@code isCustom} flag (consumed on read) admit the render — all other
+    * angles are ignored. See class javadoc for the sentinel semantics.
+    */
    boolean isRenderAngle(float var1) {
       if (var1 == 2.876945F) {
          return true;
@@ -145,6 +195,11 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
+   /**
+    * Resolves the part's lighting mode from its {@link LightingType}:
+    * SEXMOD lights the part from the entity's look vector (fake shading),
+    * FULLBRIGHT disables GL lighting, DEFAULT keeps world lighting.
+    */
    void renderModelData(ServerWhitelistManager.ModelData var1, SexSceneEntity var2, float var3) {
       if (var1 != null && var1.getLightingType() != LightingType.DEFAULT) {
          GL11.glDisable(2896);
@@ -159,6 +214,13 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       this.doRenderScene(var1, var2, var4, var6, var8, var9);
    }
 
+   /**
+    * Main dispatch: gated by {@link #isRenderAngle} and the global rendering
+    * switch. Bone-attached parts are rendered relative to the host girl (or
+    * her owner player) with the anchored yaw rotation; free-standing parts
+    * (sentinel angles) render at their world position. Tint = the host's
+    * block light level (clamped 10..15).
+    */
    public void doRenderScene(SexSceneEntity var1, double var2, double var4, double var6, float var8, float var9) {
       if (this.isRenderAngle(var9)) {
          if (!ServerWhitelistManager.isGlobalRenderingDisabled) {
@@ -219,6 +281,12 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
+   /**
+    * Computes the part's render position relative to the local player:
+    * anchored girls pin the part to their target position + yaw (all pos/yaw
+    * fields of the temp entity are overwritten — the entity code tolerates
+    * this); otherwise the host entity's lerped position is used.
+    */
    public static Vec3d getSceneEntityPosition(Minecraft var0, SexSceneEntity var1, EntityLivingBase var2, BaseGirlEntity var3, float var4) {
       Vec3d var5;
       if (var3.isAnchored()) {
@@ -268,6 +336,11 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       return var5.subtract(var9);
    }
 
+   /**
+    * Renders the part model: bone-attach pass (unless the yaw sentinel
+    * 1.876945, which is world-space), then the normal geckolib recursion with
+    * the entity's own matrix stack.
+    */
    @Override
    public void render(GeoModel var1, SexSceneEntity var2, float var3, float var4, float var5, float var6, float var7) {
       GlStateManager.disableCull();
@@ -289,6 +362,10 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       GlStateManager.enableCull();
    }
 
+   /**
+    * The host entity whose pose the part follows: the owning player for
+    * player-girls, else the girl itself.
+    */
    EntityLivingBase getRenderEntityLiving(SexSceneEntity var1) {
       BaseGirlEntity var3 = this.getRenderGirl(var1);
       if (var3 == null) {
@@ -306,6 +383,10 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       return (EntityLivingBase)var2;
    }
 
+   /**
+    * The host girl for the part (registry lookup, fallback to the client girl
+    * list).
+    */
    BaseGirlEntity getRenderGirl(SexSceneEntity var1) {
       UUID var2 = var1.getGirlIdFromCode();
       BaseGirlEntity var3 = GirlRegistry.getGirl(var2);
@@ -319,6 +400,11 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
+   /**
+    * Attaches the part to the girl's bone: the part's root matrix is replaced
+    * by the girl's bone matrix stack for the mapped bone name; item models
+    * are scaled 0.5 and rotated by {@code ClothingScreen.currentModelYaw}.
+    */
    void renderBoneEffect(SexSceneEntity var1, GeoBone var2, float var3, String var4) {
       BaseGirlEntity var5 = this.getRenderGirl(var1);
       this.getRenderEntityLiving(var1);
@@ -342,6 +428,10 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
+   /**
+    * Bone recursion with the entity's matrix stack: transform push, cube
+    * render, children (unless hidden), pop (with IllegalStateException guard).
+    */
    @Override
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
       this.sceneEntity.matrixStack.push();
@@ -372,6 +462,11 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       }
    }
 
+   /**
+    * Cube pass for the part: transformed normals (mirrored on zero-size
+    * faces), optional SEXMOD fake lighting applied to the tint, and vertices
+    * emitted through the entity matrix stack.
+    */
    @Override
    public void renderCube(BufferBuilder var1, GeoCube var2, float var3, float var4, float var5, float var6) {
       this.sceneEntity.matrixStack.moveToPivot(var2);

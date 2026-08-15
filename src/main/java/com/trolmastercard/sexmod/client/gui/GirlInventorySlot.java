@@ -11,6 +11,14 @@ import net.minecraft.item.ItemTool;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
+/**
+ * A girl-equipment slot bound to the girl's forge item handler, enforcing
+ * per-slot item types: swords/tools, bows, armor by body part, or the fishing
+ * rod (Luna only).
+ * <p>
+ * Runs on both sides; {@link #isItemValid} is what keeps e.g. food out of the
+ * weapon slot. The enum {@link b} maps slot ids 0..6 to their types.
+ */
 public class GirlInventorySlot extends SlotItemHandler {
    GirlInventorySlot.b slotType;
 
@@ -19,6 +27,13 @@ public class GirlInventorySlot extends SlotItemHandler {
       this.slotType = var1;
    }
 
+   /**
+    * Whether the stack fits the slot type for the given slot id.
+    *
+    * @param var1 the stack to test
+    * @param var2 the girl slot id (0=weapon, 1=bow, 2=helmet, 3=chestplate,
+    *             4=pants, 5=shoes, 6=rod)
+    */
    public static boolean isSlotCompatible(ItemStack var0, int var1) {
       return isSlotTypeCompatible(var0, GirlInventorySlot.b.getSlotType(var1));
    }
@@ -27,6 +42,10 @@ public class GirlInventorySlot extends SlotItemHandler {
       return isSlotTypeCompatible(var1, this.slotType);
    }
 
+   /**
+    * The canonical slot-type test: the item class must match the slot type
+    * (weapon = sword/tool, bow, armor matching the body part, rod).
+    */
    static boolean isSlotTypeCompatible(ItemStack var0, GirlInventorySlot.b var1) {
       Item var2 = var0.getItem();
       switch (var1) {

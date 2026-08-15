@@ -39,6 +39,25 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
+/**
+ * Renderer for Manglelie (the corrupted girl). Beyond the standard
+ * {@link GirlRenderer} pipeline it adds: a first-person "POV" view of the wing
+ * mesh while Manglelie looks at Galath ({@link #renderMangleliePov}), a
+ * hand-rendered corruption skirt/ribbon mesh built from cached skirt bone
+ * offsets, held-bow rendering on the weapon/offhand bones with corruption
+ * progress, and pose coupling to her Galath partner (aim yaw, ride/head
+ * actions, threesome mode).
+ * <p>
+ * <b>Rendering gates.</b> {@link #doRenderManglelie} skips the standard render
+ * while Manglelie is being looked at, riding mommy, or corrupting — those
+ * poses are drawn by the POV/interaction paths instead. The shadow pass is
+ * also skipped while she looks at Galath or corrupts.
+ * <p>
+ * <b>Threesome.</b> {@link #renderModelBuffer} switches to a two-bone pass
+ * ({@code body2} + {@code steve}) instead of the normal recursion.
+ * <p>
+ * CLIENT-side render thread only.
+ */
 public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
    static final UnknownScreen CORRUPTION_COLOR_MAIN = new UnknownScreen(115, 108, 188, 255);
    static final Vector3fSexmodSpecial OFFSET_BODY = new Vector3fSexmodSpecial(0.05F, 0.04F, 0.0F);
@@ -65,6 +84,11 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       super(var1, var2, var3);
    }
 
+   /**
+    * Merges the mod's custom-part bones into the static blacklist on first
+    * use (single-init guard), so the corruption bones + custom parts are never
+    * drawn twice.
+    */
    @Override
    public HashSet<String> getBlacklistedBones() {
       if (!this.initialized) {
@@ -75,6 +99,12 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       return BLACKLISTED_BONES;
    }
 
+   /**
+    * Gate for the standard render: skipped while Manglelie is being looked at
+    * by Galath, ready to ride mommy's head, being looked at (distance pose),
+    * or already riding mommy — those cases render through the POV/interaction
+    * paths (see class javadoc).
+    */
    public void doRenderManglelie(ManglelieEntity var1, double var2, double var4, double var6, float var8, float var9) {
       if (!this.isManglelieLooking(var1)) {
          if (!this.canRideMommy(var1)) {
@@ -119,6 +149,10 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
+   /**
+    * Skips the shadow/fire pass while Manglelie looks at Galath or corrupts
+    * (the POV render draws her differently).
+    */
    public void doRenderShadowAndFire(Entity var1, double var2, double var4, double var6, float var8, float var9) {
       if (!(var1 instanceof ManglelieEntity)) {
          super.doRenderShadowAndFire(var1, var2, var4, var6, var8, var9);
@@ -132,6 +166,10 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
+   /**
+    * Whether the girl is close enough to her Galath partner for the
+    * look/interact pose (partner's proximity value below {@code var1}).
+    */
    static boolean isManglelieLooking(BaseGirlEntity var0, float var1) {
       if (!(var0 instanceof ManglelieEntity)) {
          return false;
@@ -141,6 +179,13 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       return var2 == null ? false : var2.bm < var1;
    }
 
+   /**
+    * First-person POV pass: draws the Galath geometry and the corruption
+    * ribbon at the girl's position (or a small offset for locally registered
+    * previews), then the wing mesh, with culling/lighting disabled and
+    * re-enabled around the pass. Only when the girl is NOT in the close-look
+    * pose and the local player exists.
+    */
    public static void renderMangleliePov(BaseGirlEntity var0, float var1) {
       EntityPlayerSP var2 = mc.player;
       if (var2 != null) {
@@ -166,6 +211,10 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
+   /**
+    * Counter-rotates the corruption ribbon by Manglelie's interpolated yaw so
+    * it stays screen-aligned while she corrupts (skipped in threesome mode).
+    */
    static void renderManglelieRibbon(BaseGirlEntity var0, float var1) {
       if (var0 instanceof ManglelieEntity) {
          ManglelieEntity var2 = (ManglelieEntity)var0;
@@ -180,6 +229,10 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
+   /**
+    * True while the girl (Galath or her Manglelie partner) is NOT in a
+    * threesome action — i.e. the look/interact poses are active.
+    */
    public static boolean isGalathLooking(BaseGirlEntity var0) {
       if (var0 instanceof GalathEntity) {
          var0 = ((GalathEntity)var0).getMangleliePartner(false);
@@ -188,6 +241,11 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       return var0 == null ? false : !Action.isAnyAction(var0, Action.THREESOME_SLOW, Action.THREESOME_FAST, Action.THREESOME_CUM);
    }
 
+   /**
+    * Builds the 40-strip skirt mesh (dark/light alternating colors) from the
+    * girl's cached {@code skirt_<i>_<j>} bone offsets; only drawn while the
+    * look pose is active.
+    */
    static void renderManglelieMesh(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2) {
       if (isGalathLooking(var0)) {
          var1.begin(7, DefaultVertexFormats.POSITION_COLOR);
@@ -201,6 +259,10 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
+   /**
+    * Emits one 8-vertex double quad (outer + inner skirt face) between the two
+    * strip indices, tinted with the corruption color for the strip parity.
+    */
    static void renderManglelieStrip(BaseGirlEntity var0, BufferBuilder var1, int var2, int var3) {
       Vec3d var4 = var0.getCachedBoneOffset("skirt_" + var2 + "_0");
       Vec3d var5 = var0.getCachedBoneOffset("skirt_" + var2 + "_1");
@@ -219,6 +281,12 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       var1.pos(var6.x, var6.y, var6.z).color(var10.red, var10.green, var10.blue, var10.alpha).endVertex();
    }
 
+   /**
+    * Per-bone processing: applies the skirt-follow transform (see
+    * {@link #applyBoneTransform}) and, while the girl looks at her corrupt
+    * entity, swaps the held-bow rendering between the weapon bone (looking)
+    * and the offhand bone (not looking).
+    */
    @Override
    protected void onBoneProcessing(BufferBuilder var1, String var2, GeoBone var3) {
       applyBoneTransform(this.renderEntity, var2, var3, false);
@@ -234,6 +302,14 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
+   /**
+    * Renders the corruption bow at the given bone: applies the bone transform
+    * (flushing pending vertices first), poses the bow, and drives the entity's
+    * hand-active state from the corruption progress — charging the bow (11
+    * item-use ticks, ease-in-out) while corrupting below 1.0, otherwise
+    * clearing the hand. Re-binds the entity texture and restarts the buffer
+    * afterwards.
+    */
    public void renderEquippedItem(BufferBuilder var1, GeoBone var2, boolean var3) {
       ItemRenderer var4 = Minecraft.getMinecraft().getItemRenderer();
       GlStateManager.pushMatrix();
@@ -273,6 +349,13 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
    }
 
+   /**
+    * Skirt-follow bone logic: skirt bones 17..35 track the cheek rotation
+    * (raised positionY by the cheek's rotation), skirt bones 1..11 (suffix
+    * "1") copy the leg rotationX into rotationX/positionY — so the skirt
+    * segments follow Manglelie's legs/cheeks while animating. No-op when the
+    * game is paused or the driver bone's rotation is negative.
+    */
    public static void applyBoneTransform(BaseGirlEntity var0, String var1, GeoBone var2, boolean var3) {
       if (var1.contains("skirt_")) {
          int var4 = parseBoneIndex(var1);
@@ -331,6 +414,11 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
+   /**
+    * Threesome render pass: instead of the normal recursion, only the
+    * {@code body2} bone is drawn normally and the {@code steve} bone is drawn
+    * with the girl's render-scale factor, each in its own buffer flush.
+    */
    protected void renderModelBuffer(GeoModel var1, BufferBuilder var2, ManglelieEntity var3, float var4, float var5, float var6, float var7, float var8) {
       if (!ManglelieNpcModel.isInThreesome(var3)) {
          super.renderModelBuffer(var1, var2, var3, var4, var5, var6, var7, var8);
@@ -367,6 +455,10 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
+   /**
+    * Renders the corruption ribbon body mesh (three cloth-body segments
+    * between the cached cloth bones) in the main corruption color.
+    */
    static void renderManglelieRibbonMesh(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
       var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
       Vec3d[][] var4 = GalathGeometryRender.buildBodyMesh(var0, var3, "clothBoobLconStart", "clothBoobLconEnd", OFFSET_BODY, OFFSET_ARM);
@@ -378,6 +470,11 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       var2.draw();
    }
 
+   /**
+    * Parent-chain rule for the corruption cloth bones: bones under
+    * {@code clothBoob*} are always renderable (they are part of the custom
+    * mesh), everything else follows {@link IGirlRenderer#hasParentBone}.
+    */
    @Override
    public boolean hasParentBone(HashSet var1, GeoBone var2) {
       while (var2.parent != null) {
@@ -400,6 +497,12 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       return true;
    }
 
+   /**
+    * Render-position override: while running, pins the girl's yaw to her
+    * movement yaw; while corrupting (not in threesome), aims her at the Galath
+    * partner and returns the partner-relative look position (the corruption
+    * pose renders at Galath's location).
+    */
    protected Vec3d getBoneWorldPosManglelie(ManglelieEntity var1, float var2, Vec3d var3) {
       if (var1.getCurrentAction() == Action.RUN) {
          float var5 = var1.getYawRotation();
@@ -422,6 +525,10 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       return var3;
    }
 
+   /**
+    * Points the girl's head/body yaw at Galath (anchored: aim yaw; else the
+    * head yaw + aim), so the corruption look-pose faces her correctly.
+    */
    public static void renderGalathInteract(GalathEntity var0, float var1, EntityLivingBase var2) {
       if (var0.isAnchored()) {
          float var7 = var0.getYawRotation();
@@ -454,6 +561,10 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
+   /**
+    * Whether Manglelie is in her corruption state and NOT in a threesome (the
+    * only state where the corruption render paths apply).
+    */
    public static boolean isCorrupting(ManglelieEntity var0) {
       return var0.isCorrupting() && !ManglelieNpcModel.isInThreesome(var0);
    }

@@ -12,6 +12,19 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER request to cancel a tribe mining task. Sent by the
+ * dragon-staff UI when the player erases a highlighted mining target (block
+ * marker) — the server responds with a {@link SendBlocksPacket} to un-highlight
+ * the removed blocks on the client.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Resolves the
+ * sender's tribe via {@link KoboldManager#getTribeUUID}, removes the task that
+ * contained {@code taskPos}
+ * ({@link KoboldManager#removeMiningTargetsFor}) and replies to the sender with
+ * the removed blocks so the markers disappear ({@code SendBlocksPacket} with
+ * {@code isBreaking=false}).
+ */
 public class CancelTaskPacket implements IMessage {
    boolean isValid = false;
    BlockPos taskPos;

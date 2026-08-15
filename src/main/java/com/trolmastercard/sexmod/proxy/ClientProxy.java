@@ -25,6 +25,19 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
+/**
+ * <b>Role.</b> Client-side half of the mod bootstrap
+ * ({@link CommonProxy} subclass): registers the render handler, keybindings
+ * (goblin interact / customization / leave scene), client commands, sounds, the
+ * GUI handler and {@link PacketHandler}. Also pre-renders every NPC type into a
+ * {@link SexWorldClient} preload world (with {@link #IS_PRELOADING} set) so
+ * first-contact rendering has no load hitch, and registers the dragon-breath
+ * particle.
+ * <p>
+ * <b>Pitfall.</b> {@code IS_PRELOADING} gates render code that must not run
+ * against a real world (see {@link WorldUtils#getEntityLookVector}) — keep the
+ * flag around the whole preload loop.
+ */
 public class ClientProxy extends CommonProxy {
    public static boolean IS_PRELOADING = false;
    public static KeyBinding[] keyBindings;

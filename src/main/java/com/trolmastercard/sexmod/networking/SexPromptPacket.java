@@ -14,6 +14,20 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> Sex-prompt routing between a girl's owner (female) and the male
+ * player for girl-girl pair scenes. The action name travels with the prompt so
+ * the recipient's {@link GenderSwapScreen} can render the accept/decline
+ * buttons.
+ * <p>
+ * CLIENT->SERVER: either player's answer to a prompt. SERVER-side handler
+ * (scheduled on the main thread) validates that both players exist and forwards
+ * the prompt to the *other* participant — {@code accepted=true} is sent to the
+ * female (owner), {@code accepted=false} to the male.
+ * <p>
+ * CLIENT-side handler: feeds the button click into
+ * {@link GenderSwapScreen#onButtonClicked}.
+ */
 public class SexPromptPacket implements IMessage {
    boolean isValid = false;
    String actionName;

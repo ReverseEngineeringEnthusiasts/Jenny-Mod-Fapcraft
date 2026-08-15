@@ -22,6 +22,27 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.io.FileUtils;
 
+/**
+ * <b>Role.</b> Bidirectional custom-model transfer for whitelisted servers.
+ * <p>
+ * CLIENT->SERVER: the client sends the list of model names it still wants
+ * (missing model dirs). The SERVER-side handler (scheduled on the main thread)
+ * reads each model's {@code .cfg}/{@code .png}/{@code .geo.json} trio from
+ * {@code sexmod_custom_models/<name>/} and sends one SERVER->CLIENT packet per
+ * file, tagging each with a {@code modelIndex} = total number of packets to
+ * expect.
+ * <p>
+ * CLIENT-side handler: writes the received file into
+ * {@code sexmod/custom_models/<server>/<name>/} and prints download progress;
+ * after the last file ({@code packetCounter} reaching {@code modelIndex}) it
+ * reloads the custom-model registry
+ * ({@link ServerWhitelistManager#getModelCount(boolean)}). The whole exchange is
+ * gated by {@link ServerWhitelistManager#isGlobalRenderingDisabled()} — a server
+ * the player did not whitelist never triggers or accepts downloads.
+ * <p>
+ * <b>Pitfall.</b> {@code fromBytes}/{@code toBytes} branch on the *sender's*
+ * side being a client vs. a server — keep those two wire formats distinct.
+ */
 public class DownloadServerModelPacket implements IMessage {
    boolean isValid;
    List<String> modelNames = new ArrayList<>();

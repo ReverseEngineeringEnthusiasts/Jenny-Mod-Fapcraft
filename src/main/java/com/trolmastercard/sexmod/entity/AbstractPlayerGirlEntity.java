@@ -48,6 +48,38 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> Base class for the player-form girls — the entity the player
+ * turns INTO when drinking the horny potion. Subclasses (Jenny, Bia, Luna,
+ * Ellie, Slime, Bee, Allie, Kobold, Goblin, Galath) mirror their NPC twin's
+ * scenes but bind a real player ({@code ai}, data-manager id 118) whose model,
+ * camera and abilities are replaced by the girl's while the transformation is
+ * active. Registered statically in {@link #playerGirlList}/{@link #al}.
+ * <p>
+ * <b>Scene flow.</b> Same machinery as {@link BaseGirlEntity}: actions are
+ * dispatched from {@link #doAction(String, UUID)} (which routes unknown
+ * actions to the server via {@link SexPromptPacket}), the owner command GUI
+ * calls {@link #handleOwnerCommand(String, UUID)}, and scene entry funnels
+ * through {@link #teleportPlayerToGirl(UUID)} (snaps both players in, anchors
+ * the girl, sets {@code IS_ANCHORED}). Scene exit goes through
+ * {@link #resetCameraAndPhysics()} -&gt; {@link #resetLocalPlayerClientState()}
+ * which unlocks movement, un-hides the player and sends
+ * {@link ResetGirlPacket}.
+ * <p>
+ * <b>State.</b> {@code ai} (118) = owner player UUID; {@code ab} = "new player"
+ * flag consumed by {@link SexPromptPacket}; {@code yFlag} = strip-phase tick
+ * threshold (65); {@code an} = STRIP countdown (-1 = inactive, toggles the
+ * outfit at 65 and ends the strip on the client at 100).
+ * <p>
+ * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} refuses
+ * {@code NULL} while anchored (the "prevented a potential animation break"
+ * guard) — do not remove; {@link #resetCameraAndPhysics()} only resets
+ * physics locally and delegates the player reset to the server. The camera
+ * origin is stored in {@code cameraOriginPos} and must be cleared on every
+ * reset path or the next scene repositions the player from a stale anchor.
+ * Player girls are {@code noClip} + no-gravity and never collide
+ * ({@code canBeCollidedWith} = false).
+ */
 public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public static final String aa = "sexmod:CustomModel";
    public static final String ae = "sexmod:GirlSpecific";
@@ -112,6 +144,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return new TargetPoint(this.dimension, this.posX, this.posY - 0.0, this.posZ, 50.0);
    }
 
+   /**
+    * Broadcasts an action change to every entity tracking this girl
+    * (50-block radius) via {@link ForcePlayerGirlUpdatePacket}, so clients
+    * other than the owner see the scene action too. SERVER-side.
+    */
    public void sendActionPacket(int var1, Action var2) {
       PacketHandler.networkWrapper.sendToAllTracking(new ForcePlayerGirlUpdatePacket(this.getOwnerUserUUID(), var1, var2), this.getTargetNetworkPoint());
    }
@@ -200,6 +237,10 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       this.entityDataManager.register(ai, Optional.absent());
    }
 
+   /**
+    * CLIENT-side entry point used by the camera/escape handlers: looks up the
+    * local player's girl entity and resets it.
+    */
    @SideOnly(Side.CLIENT)
    public static void resetPlayerGirlCamera() {
       AbstractPlayerGirlEntity var0 = getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
@@ -208,6 +249,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
+   /**
+    * Ends the transformation locally: clears the camera origin, re-enables
+    * gravity, and (CLIENT) hands off to {@link #resetLocalPlayerClientState()}.
+    * The player-side state (visibility, movement lock, abilities) is only
+    * restored when the server processes the resulting {@link ResetGirlPacket}.
+    */
    @Override
    public void resetCameraAndPhysics() {
       this.cameraOriginPos = null;
@@ -217,6 +264,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
+   /**
+    * CLIENT: unlocks player movement, un-hides the player and tells the
+    * server to reset the girl. Note the single-arg {@link ResetGirlPacket}
+    * here — that is the FULL reset form ({@code resetPose=false}); the
+    * two-arg form is only used for player-only resets.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    protected void resetLocalPlayerClientState() {
@@ -238,6 +291,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return !this.hasOwnerUUID() || var1.gameSettings.thirdPersonView != 0;
    }
 
+   /**
+    * Grants/revokes flight on the owning player (SERIOUS: uses the player's
+    * abilities and sends them to the client). {@code ag} is a global kill
+    * switch. Called by subclasses' {@code B_clash233}/{@code onTickClient}
+    * pairs on transformation enter/exit.
+    */
    protected void handleOwnerUUID(boolean var1) {
       if (ag) {
          if (this.getOwnerUserUUID() != null) {
@@ -307,6 +366,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return new Vec3d(this.posX, this.posY - 0.0, this.posZ);
    }
 
+   /**
+    * SERVER: snaps both the acting player and the girl's owner into the scene
+    * around the girl's position, locks their movement (SetPlayerMovementPacket),
+    * anchors the girl and records the target position/yaw. This is the standard
+    * scene-entry funnel for every owner-command action.
+    */
    protected void teleportPlayerToGirl(UUID var1) {
       EntityPlayerMP var2 = (EntityPlayerMP)this.world.getPlayerEntityByUUID(var1);
       EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
@@ -337,6 +402,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return var1.getEntityBoundingBox();
    }
 
+   /**
+    * Runs every tick on both sides: forces noClip + no gravity, keeps the
+    * girl glued to the owner player's position when not anchored, mirrors the
+    * player's swing into the {@link Action#ATTACK} scene action, and ticks the
+    * gender-swap screen client-side.
+    */
    @Override
    public void onUpdate() {
       this.noClip = true;
@@ -403,6 +474,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
+   /**
+    * Ticks the strip sequence: at tick 65 the outfit index toggles (server),
+    * at tick 100 the client ends the strip (camera/third-person reset) and
+    * the server returns the girl to {@link Action#NULL}. {@code an} is -1
+    * while no strip is running.
+    */
    void D_clash581() {
       if (this.an != -1) {
          this.an++;
@@ -422,6 +499,10 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
+   /**
+    * CLIENT: forces first-person view, reloads the entity shader and locks
+    * movement at the end of the strip animation.
+    */
    @SideOnly(Side.CLIENT)
    void handleClientOwner() {
       if (this.hasOwnerUUID()) {
@@ -451,6 +532,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public void onOwnerInteract(EntityPlayer var1) {
    }
 
+   /**
+    * Guards the action state machine: never allows a transition into
+    * {@link Action#NULL} while the girl is anchored (would desync the scene),
+    * and arms the strip countdown ({@code an}) when entering
+    * {@link Action#STRIP}. CLIENT writes are routed through
+    * {@code changeDataParameterFromClient} by the super implementation.
+    */
    @Override
    public void setCurrentAction(Action action) {
       if (!this.world.isRemote && action == Action.NULL && this.isAnchored()) {
@@ -464,6 +552,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       }
    }
 
+   /**
+    * Mirrors the owner player's equipped armor into the girl's data-manager
+    * armor slots (elytra maps to the chest slot), so the transformed model
+    * renders the same equipment. SERVER or CLIENT; writes are direct data-manager
+    * sets.
+    */
    public void syncArmor(EntityPlayer var1) {
       this.entityDataManager.set(HELMET_SLOT, ItemStack.EMPTY);
       this.entityDataManager.set(CHEST_SLOT, ItemStack.EMPTY);
@@ -512,6 +606,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public void B_clash233() {
    }
 
+   /**
+    * Maintains the static UUID-&gt;girl tables: moves girls with a bound owner
+    * from {@link #playerGirlList} into {@link #al}, then prunes dead girls.
+    * Called from {@link #updateAITasks()} every tick; tolerates concurrent
+    * modification during world teardown.
+    */
    public static void rebuildPlayerGirlTableFromWorld() {
       ArrayList var0 = new ArrayList();
 
@@ -555,6 +655,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return var2 != null;
    }
 
+   /**
+    * CLIENT-side action dispatch: first asks {@link #handleActionRequest(String)},
+    * and if unhandled forwards the action to the server as a
+    * {@link SexPromptPacket} carrying the owner UUID and the {@code ab}
+    * "first interaction" flag. The flag is consumed (reset to true) on send.
+    */
    @Override
    public void doAction(String var1, UUID var2) {
       if (!this.handleActionRequest(var1)) {
@@ -578,6 +684,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       playerGirlList.add(this);
    }
 
+   /**
+    * Plays a sound at the girl's position; on the client it is a local world
+    * sound ({@link SoundCategory#NEUTRAL}), on the server a broadcast to all
+    * players ({@link SoundCategory#PLAYERS}).
+    */
    @Override
    public void playSoundAtPosition(SoundEvent var1, float var2, float var3) {
       Vec3d var4 = this.getPositionVec3d();

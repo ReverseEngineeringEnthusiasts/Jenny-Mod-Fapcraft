@@ -43,6 +43,32 @@ import software.bernie.geckolib3.geo.render.built.GeoCube;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Renderer for Galath (the demon/dragon girl). Beyond the standard girl
+ * pipeline it renders: a flight dash trajectory
+ * ({@link #getDashPosition} + first-person dash POV), animated wing meshes and
+ * star rings, hair ribbons, the coin on the coin bone during GIVE_COIN, sword
+ * / pussy-licking / morning-blowjob ribbon effects, and Manglelie interaction
+ * poses.
+ * <p>
+ * <b>Dash.</b> {@link #doRenderGalath} resolves the dash target position
+ * (lerped to the target entity, 24..32 ticks of approach then a hold at 1.5
+ * blocks) and pins it as the render target before the normal render; the POV
+ * wing meshes are drawn in a second pass. This is what makes the rape/dash
+ * scene look like Galath flying at the player.
+ * <p>
+ * <b>Custom passes.</b> {@link #renderModelBuffer} renders body, coin
+ * (GIVE_COIN effect), steve (player skin) and body2 (Manglelie texture) bones
+ * in separate buffer flushes; wing meshes are built from cached
+ * {@code wingRV...}/{@code wingLV...} bone offsets with the mod's line texture.
+ * <p>
+ * <b>Pose bones.</b> {@link #onBoneProcessing} adds hair-follow, blowjob
+ * oscillation, rape-charge arm aim and sword/tongue ribbons (see the ribbon
+ * helpers). Position interpolation uses {@link RotationHelper#lerpVec3dDouble}
+ * (PROGRESS lerp — correct here).
+ * <p>
+ * CLIENT-side render thread only.
+ */
 public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlRenderer {
    public static final int WING_VERTICES_COUNT = 14;
    public static final HashSet<String> BLACKLISTED_BONES = new HashSet<String>() {
@@ -102,6 +128,11 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       super(var1, var2, var3);
    }
 
+   /**
+    * Wing color while Galath is corrupted ({@code bb} flag): {@code null} in
+    * the preload world or when corrupted (use default), else black
+    * ({@link #ZERO_OFFSET}).
+    */
    @Nullable
    protected Vector3fSexmodSpecial getWingColor(GalathEntity var1) {
       if (var1.world instanceof SexWorldClient) {
@@ -111,6 +142,10 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Merges the mod's custom-part bones + Manglelie's blacklist into the
+    * static blacklist once (single-init guard), so no bone is drawn twice.
+    */
    @Override
    public HashSet<String> getBlacklistedBones() {
       if (!this.initialized) {
@@ -138,6 +173,12 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Main render: resolves the dash target position (see
+    * {@link #getDashPosition}) and flight/rape-charge yaw effects, then runs
+    * the normal girl pipeline followed by the dash POV (wing meshes + Galath
+    * geometry) and, while hugging Manglelie, her POV render.
+    */
    public void doRenderGalath(GalathEntity var1, double var2, double var4, double var6, float var8, float var9) {
       Vec3d var10 = getDashPosition(var1, var9);
       if (var10 != null) {
@@ -162,6 +203,11 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Flight yaw effect: when the flight flag is set and Galath is moving, the
+    * yaw follows her movement direction (atan2 of the delta); when hovering
+    * it holds the last direction, so she doesn't spin while bobbing.
+    */
    void renderFlightEffect(GalathEntity var1) {
       if ((Boolean)var1.getDataManager().get(GalathEntity.bP)) {
          Vec3d var2 = new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ);
@@ -179,6 +225,12 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Dash trajectory: for dash progress 24..32 lerps from the current position
+    * to a point 3 blocks behind the target's eyes (8-tick window), for 32..54
+    * holds 1.5 blocks behind the target; otherwise {@code null}. Also arms
+    * the dash timing fields. {@code az()} == -1 resets and disables the dash.
+    */
    @Nullable
    public static Vec3d getDashPosition(GalathEntity var0, float var1) {
       float var2 = var0.az();
@@ -213,6 +265,11 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * First-person dash POV: draws the Galath geometry, wing effect, wing
+    * geometry and wing mesh at the local player (culling/lighting disabled
+    * around the pass). This is what the player sees during the dash scene.
+    */
    public static void renderDashPov(BaseGirlEntity var0, float var1) {
       EntityPlayerSP var2 = mc.player;
       if (var2 != null) {
@@ -232,6 +289,11 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Renders the wing star ring (line circle + star quads at the {@code stars}
+    * bone) rotating with world time — the visual effect of the wing
+    * animation. Skipped when the effects flag is hidden.
+    */
    static void renderWingGeometry(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
       if (var0 instanceof GalathEntity) {
          if ((Boolean)var0.getDataManager().get(GalathEntity.bP)) {
@@ -279,6 +341,11 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Renders the hair-strand ribbon mesh (two 3-point ribbons along the head's
+    * hair bones) — the trailing hair effect while flying. Skipped during the
+    * coin-giving action past its first 100 ticks.
+    */
    static void renderWingEffect(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
       if (var0.getCurrentAction() != Action.GIVE_COIN || Action.GIVE_COIN.ticksPlaying[1] <= 100) {
          var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
@@ -290,6 +357,11 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Renders the animated wing mesh: two 14-point line strips built from the
+    * cached {@code wingRV<0..13>}/{@code wingLV<0..13>} bone offsets, drawn
+    * with the Galath texture. Only when wings are animated.
+    */
    static void renderWingMesh(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2) {
       if (((IGalath)var0).areWingsAnimated()) {
          mc.getTextureManager().bindTexture(GalathNpcModel.GALATH_TEXTURE);
@@ -306,6 +378,10 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Emits the two wing strip triangles (quads 0-1-2-11-12-13 and 3..10) with
+    * the ribbon texture UVs.
+    */
    static void renderLineStrip(BufferBuilder var0, Tessellator var1, Vec3d[] var2) {
       var0.begin(4, DefaultVertexFormats.POSITION_TEX_COLOR);
       var0.pos(var2[0].x, var2[0].y, var2[0].z)
@@ -369,6 +445,11 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       var1.draw();
    }
 
+   /**
+    * Galath's model pass: renders body, then the coin bone effect (GIVE_COIN),
+    * then the steve (skin) bone and the body2 bone with Manglelie's texture —
+    * each in its own buffer flush.
+    */
    protected void renderModelBuffer(GeoModel var1, BufferBuilder var2, GalathEntity var3, float var4, float var5, float var6, float var7, float var8) {
       GeoBone var9 = var1.topLevelBones.get(0);
       GeoBone var10 = null;
@@ -417,6 +498,13 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       MATRIX_STACK.pop();
    }
 
+   /**
+    * Pose-bone processing: hair follows the head pitch (hairBack,
+    * hairDownSideL/R), blowjob/morning-pose oscillations on head/head3/iris
+    * bones, the sword held during sword actions ({@code weapon} bone when
+    * {@code ap}), tongue/mangTongue ribbon effects, rape-charge arm aim at the
+    * target, and — while hugging Manglelie — her skirt-follow transform.
+    */
    @Override
    protected void onBoneProcessing(BufferBuilder var1, String var2, GeoBone var3) {
       switch (var2) {
@@ -514,6 +602,11 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Tongue-bone effect: pussy-licking/masturbating actions draw the sword
+    * ribbon; the morning-blowjob draws its own ribbon (with fade-out while
+    * {@code aD} is active).
+    */
    void renderPussyLickingBone(BufferBuilder var1, GeoBone var2) {
       if (Action.isAnyAction(this.renderEntity, Action.PUSSY_LICKING, Action.MASTERBATE_SITTING)) {
          this.renderSwordBone(var1, var2);
@@ -530,6 +623,10 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Sway for the morning-blowjob head pose: slow sine on yaw/pitch, scaled
+    * down while the intro ({@code aD}) fades in.
+    */
    void handleMorningPose(GeoBone var1) {
       if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW, Action.MORNING_BLOWJOB_FAST)) {
          if (!mc.isGamePaused()) {
@@ -548,6 +645,9 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Head sway for the morning-blowjob (counter-sine to the head3 pose).
+    */
    void handleBlowjobBone(GeoBone var1) {
       if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW, Action.MORNING_BLOWJOB_FAST)) {
          if (!mc.isGamePaused()) {
@@ -584,6 +684,10 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Ribbon animation driven by the action's time scale: length/width pulse
+    * with a phase-offset cosine (used for the sword/licking effects).
+    */
    void renderBoneAction(BufferBuilder var1, GeoBone var2, float var3) {
       float var4 = Action.getActionTimeScale(this.renderEntity, mc.getRenderPartialTicks());
       float var5 = var3 * (float)(0.02F * (-0.4F * Math.cos((Math.PI * 2) * var4 + 1.05) + 0.6F));
@@ -617,6 +721,10 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       this.renderBoneRibbon(var1, var2, var4);
    }
 
+   /**
+    * Sword ribbon: full config at progress 0, shrunk to nothing at progress 1,
+    * interpolated in between — matches the sword attack swing.
+    */
    void renderSwordBone(BufferBuilder var1, GeoBone var2) {
       float var3 = this.renderEntity.getSwordAttackProgress(mc.getRenderPartialTicks());
       if (var3 == 0.0F) {
@@ -631,6 +739,10 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Renders a ribbon at the bone: flush pending vertices, apply the bone
+    * transform, disable culling, draw the ribbon mesh, restore texture/buffer.
+    */
    void renderBoneRibbon(BufferBuilder var1, GeoBone var2, RibbonRenderer.RibbonConfig var3) {
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
@@ -644,6 +756,12 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       GlStateManager.popMatrix();
    }
 
+   /**
+    * GIVE_COIN effect on the coin bone: renders the coin cubes, then its child
+    * with a full-bright lightmap that lerps 120->240 over the action's
+    * 105..125-tick window while the coin color lerps dark->bright, then
+    * restores the lightmap.
+    */
    void renderBoneEffect(BufferBuilder var1, GeoBone var2, GalathEntity var3, float var4) {
       if (var3.getCurrentAction() == Action.GIVE_COIN) {
          tempBuffer = var1;
@@ -701,6 +819,10 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
    }
 
+   /**
+    * Pins all yaw fields to the movement yaw while running, so Galath faces
+    * her travel direction.
+    */
    protected Vec3d getBoneWorldPosGalath(GalathEntity var1, float var2, Vec3d var3) {
       if (var1.getCurrentAction() == Action.RUN) {
          float var4 = var1.getYawRotation();

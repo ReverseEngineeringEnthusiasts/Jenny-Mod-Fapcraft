@@ -8,6 +8,15 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 
+/**
+ * <b>Role.</b> Leftover vanilla villager-breeding AI (an unused side effect of
+ * the deobf that is still registered nowhere for girls). Makes a villager
+ * mate with a nearby villager, then breeds a child through the
+ * {@link BabyEntitySpawnEvent}.
+ * <p>
+ * <b>Pitfalls.</b> Nothing in the mod attaches this goal — it is dead code
+ * kept jar-faithful. Do not wire it to any girl.
+ */
 public class GirlAiBase extends EntityAIBase {
    private final EntityVillager targetVillager;
    private EntityVillager homeVillager;

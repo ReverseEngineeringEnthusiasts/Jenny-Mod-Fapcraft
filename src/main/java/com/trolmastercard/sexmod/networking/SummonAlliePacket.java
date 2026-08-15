@@ -14,6 +14,17 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER "summon my Allie" request from the Allies lamp's
+ * first use. Spawns an {@link AllieEntity} two blocks in front of the player,
+ * facing away from him.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Creates the Allie
+ * from the player's held item, sets her as the player's interaction partner,
+ * disables gravity/clip (she hovers while being summoned) and picks her summon
+ * action: {@code SUMMON_SAND} if standing on sand, {@code SUMMON} if she holds a
+ * lamp, otherwise {@code SUMMON_NORMAL}.
+ */
 public class SummonAlliePacket implements IMessage {
    boolean isValid = false;
 

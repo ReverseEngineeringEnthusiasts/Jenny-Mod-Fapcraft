@@ -28,6 +28,26 @@ import software.bernie.geckolib3.geo.render.built.GeoVertex;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
+/**
+ * Base class for NPC-only girl renderers (goblins etc.): extends
+ * {@link GirlRenderer} with per-bone coloring from the girl's model code and
+ * the custom-bone render pipeline (held items, trade overlay, model-code bone
+ * processing).
+ * <p>
+ * <b>Coloring.</b> {@link #getCachedBoneColor} resolves each bone's tint via
+ * {@link #getBoneColor} and caches it keyed by (bone name hash + entity
+ * UUID); {@link #clearBoneColors()} resets the cache (e.g. after a model-code
+ * change). {@link #tintBoneColor} is the per-frame hook for lighting.
+ * <p>
+ * <b>Custom-bone pass.</b> {@link #renderCustomBones} recurses the whole
+ * skeleton and, per bone: renders the held item on {@code weapon}, the trade
+ * overlay on {@code itemRenderer} while the action is {@code PAYMENT}, applies
+ * {@link #onBoneProcessing} hooks, then pushes the bone transform and renders
+ * cubes (tinted) and children. Skipped entirely in the {@link SexWorldClient}
+ * preload world.
+ * <p>
+ * CLIENT-side render thread only.
+ */
 public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends GirlRenderer<G> {
    protected static final Vec3i defaultColor = new Vec3i(255, 255, 255);
    static HashMap<Integer, Vec3i> s = new HashMap<>();
@@ -40,6 +60,11 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       s.clear();
    }
 
+   /**
+    * Bone tint lookup with per-entity caching (bone name hash + entity UUID);
+    * recomputed only when absent. Call after any model-code change must go
+    * through {@link #clearBoneColors()}.
+    */
    protected Vec3i getCachedBoneColor(GeoBone var1) {
       String var2 = var1.getName();
       int var3 = var2.hashCode() + this.renderEntity.getPersistentID().hashCode();
@@ -55,6 +80,9 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
 
    protected abstract Vec3i getBoneColor(String var1);
 
+   /**
+    * Hides all children of a bone except the one at the given index.
+    */
    protected static void setBoneHidden(GeoBone var0, int var1) {
       List var2 = var0.childBones;
 
@@ -68,6 +96,12 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       }
    }
 
+   /**
+    * Renders the girl's held item on the {@code weapon} bone: flushes pending
+    * vertices, applies the bone transform, scales by
+    * {@link #getDefaultScale()}, rotates by {@link #getItemRenderOffset()},
+    * then renders the third-person item and re-binds the entity texture.
+    */
    @Override
    protected void renderHeldItem(BufferBuilder var1, GeoBone var2) {
       ItemStack var3 = this.resolveHeldItemStack(null);
@@ -98,6 +132,12 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       return new Vec3d(-90.0, 0.0, 0.0);
    }
 
+   /**
+    * Selects one child of a bone by index: sorts children by pivot Y (stable
+    * part order), un-hides the chosen one and hides the rest.
+    *
+    * @return the chosen child bone
+    */
    protected static GeoBone getChildBone(GeoBone var0, int var1) {
       List var2 = var0.childBones;
       GeoBone var3 = null;
@@ -120,6 +160,12 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       return var1;
    }
 
+   /**
+    * Full custom-bone render pass (see class javadoc). Recurses the skeleton,
+    * per bone: held item / trade overlay hooks, {@link #onBoneProcessing},
+    * bone transform push, cube + child rendering. Skipped for entities living
+    * in the {@link SexWorldClient} preload world.
+    */
    @Override
    public void renderCustomBones(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
       if (!(this.renderEntity.world instanceof SexWorldClient)) {
@@ -163,6 +209,12 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       this.renderCustomBones(var1, var2, var3, var4, var5, var6, 0.0);
    }
 
+   /**
+    * Emits a cube's quads with per-vertex tint from the bone color (cached,
+    * then light-tinted) and transformed normals (mirrored on zero-size faces).
+    * {@code var8} shifts the texture V coordinate (used by custom-part texture
+    * variants).
+    */
    public void renderCubeGeometry(BufferBuilder var1, GeoCube var2, GeoBone var3, float var4, float var5, float var6, float var7, double var8) {
       MATRIX_STACK.moveToPivot(var2);
       MATRIX_STACK.rotate(var2);

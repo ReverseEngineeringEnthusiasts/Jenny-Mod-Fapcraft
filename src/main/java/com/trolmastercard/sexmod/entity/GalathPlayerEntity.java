@@ -35,6 +35,19 @@ import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Player-form Galath — the transformation with the rape
+ * (intro/ongoing/cum) and corrupt (slow/fast/cum) scenes. The owner gets
+ * flight while transformed ({@code B_clash233}/{@code onTickClient} pair).
+ * <p>
+ * <b>Scene flow.</b> Owner commands {@code cowgirl}/{@code mating press}
+ * start the scenes via {@link #handleOwnerCommand(String, UUID)};
+ * {@code handleCumState()} keeps the wings animated during the scenes
+ * ({@code ap} flag), {@code handlePlayerAction()} hides the horny meter during
+ * the rape intro. Rape variant cycling ({@code ar}) and scene end
+ * ({@code reset} -&gt; {@code resetCameraAndPhysics()}) run in the sound
+ * listener.
+ */
 public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGalath {
    boolean ap = false;
    int ar = 0;
@@ -79,6 +92,12 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
       return 2.3F;
    }
 
+   /**
+    * SERVER: owner commands — {@code cowgirl} starts {@link Action#RAPE_INTRO},
+    * {@code mating press} starts {@link Action#CORRUPT_SLOW} and repositions
+    * the player via {@link #handleGalathPlayerOwner()}. Both broadcast and
+    * teleport the acting player into the scene.
+    */
    @Override
    public void handleOwnerCommand(String var1, UUID var2) {
       if ("cowgirl".equals(var1)) {
@@ -93,6 +112,11 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
       }
    }
 
+   /**
+    * Guards the state machine: refuses re-entry into loop phases while the
+    * corrupt/rape cum animations play and resets the hard-variant flag
+    * ({@code as}) when entering {@link Action#CORRUPT_SLOW}.
+    */
    @Override
    public void setCurrentAction(Action action) {
       Action var2 = this.getCurrentAction();
@@ -166,6 +190,11 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
       this.handleOwnerUUID(true);
    }
 
+   /**
+    * BOTH sides: keeps the wing-animation flag ({@code ap}) set while any
+    * rape/corrupt action plays, and CLIENT-side hides the horny meter during
+    * the rape intro.
+    */
    @Override
    public void onUpdate() {
       super.onUpdate();
@@ -292,6 +321,14 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * rape/corrupt scenes — {@code rapeIntroDone} -&gt;
+    * {@link Action#RAPE_ON_GOING}, {@code rape_switch} re-rolls the variant
+    * ({@code ar}), jump toggles corrupt hard, {@code reset} -&gt;
+    * {@code resetCameraAndPhysics()}, and the creampie trails spawn on
+    * {@code creampie}.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {

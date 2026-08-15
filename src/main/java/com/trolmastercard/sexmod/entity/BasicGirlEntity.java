@@ -17,6 +17,17 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> The "pyrocinical" ambient entity — a generic girl-shaped
+ * filler mob (NOT a {@link BaseGirlEntity}) that spawns rarely in the Nether,
+ * wanders/follows players and despawns 60 seconds after being hit by a
+ * player. Minimal implementation: procedural wander AI, no inventory, no
+ * scenes.
+ * <p>
+ * <b>Pitfalls.</b> {@link #attackEntityFrom(DamageSource, float)} never deals
+ * damage — player hits only stop it and schedule the 6.25 s removal;
+ * out-of-world damage removes it instantly.
+ */
 public class BasicGirlEntity extends EntityLiving {
    public static final long LIFETIME_MS = 60000L;
    public static final float FOLLOW_DISTANCE = 3.0F;
@@ -37,6 +48,11 @@ public class BasicGirlEntity extends EntityLiving {
       this.updateWanderAndFollowAI();
    }
 
+   /**
+    * BOTH sides: wander/follow — picks a random ground point (respecting the
+    * Nether ceiling) within 30 blocks and paths there; stays put when a
+    * player is within 3 blocks or when stopped by a player hit.
+    */
    void updateWanderAndFollowAI() {
       if (this.shouldStopMoving) {
          this.getNavigator().clearPath();
@@ -82,6 +98,11 @@ public class BasicGirlEntity extends EntityLiving {
       }
    }
 
+   /**
+    * Player hits never damage: they stop the mob, play the spawn sound
+    * (CLIENT) and schedule its removal 6250 ms later; out-of-world damage
+    * removes it immediately.
+    */
    public boolean attackEntityFrom(DamageSource var1, float var2) {
       if (var1 == DamageSource.OUT_OF_WORLD) {
          this.world.removeEntity(this);

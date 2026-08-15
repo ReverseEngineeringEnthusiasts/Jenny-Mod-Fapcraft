@@ -13,6 +13,17 @@ import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * <b>Role.</b> Persistence of custom model codes for Galath and Manglelie —
+ * a {@link WorldSavedData} ("sexmod:static_custom_model_manager") storing
+ * UUID -> model-code maps (one for galaths, one for manglelies) so a girl's
+ * custom outfit survives world reloads. Lookups fall back to the girl's own
+ * UUID when she has no owner.
+ * <p>
+ * <b>Who uses it.</b> {@link BaseGirlEntity}/{@link GalathEntity} model-code
+ * resolution and the clothing editor. Keep the two maps ({@code c} = galath,
+ * {@code b} = manglelie) distinct — mixing them garbles outfits on reload.
+ */
 public class GirlWorldData extends WorldSavedData {
    static final String DATA_KEY = "sexmod:static_custom_model_manager";
    static final String SAVE_KEY = "sexmod:static_custom_model_manager";

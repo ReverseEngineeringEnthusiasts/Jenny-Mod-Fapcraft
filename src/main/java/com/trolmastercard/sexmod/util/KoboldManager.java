@@ -50,6 +50,26 @@ import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * <b>Role.</b> The kobold tribe system — all tribe state lives here:
+ * tribes keyed by UUID ({@link KoboldManager.Tribe}), each holding members,
+ * leader, color, state ({@link TribeState}), tasks ({@link KoboldTask}),
+ * combatants, beds/chests, saved positions and the follow-mode flag. Used by
+ * {@link KoboldEntity}/{@link KoboldPlayerEntity} AI and the dragon-staff
+ * networking packets (Mine/FallTree/Claim/GetTribeUiValues/...).
+ * <p>
+ * <b>Persistence.</b> {@link KoboldManager.TribeWorldSavedData} serializes all
+ * tribes (members, saved positions, beds, chests, tasks with mining targets)
+ * into the "tribes" world data and also reacts to block place/break (bed/chest
+ * tracking) and hostile spawns (girl-targeting AI). {@link #clearAll} on world
+ * close.
+ * <p>
+ * <b>Pitfalls.</b> Many lookups print "tribe not found" and return neutral
+ * values — that is the intended fallback, not an error path to fix. Task
+ * removal releases workers (gravity/clip/anchor restored) and re-sends the
+ * block markers. The bed-count check (members <= beds/2) gates all work
+ * commands.
+ */
 public class KoboldManager {
    static final int TRIBE_SPAWN_RADIUS = 4;
    private static final HashMap<UUID, KoboldManager.Tribe> c = new HashMap<>();
@@ -624,7 +644,20 @@ public class KoboldManager {
       }
    }
 
-   public static class Tribe {
+   /**
+ * <b>Role.</b> A single tribe's mutable state inside {@link KoboldManager}:
+ * master player, leader kobold, members, color, {@link TribeState}, tasks,
+ * combatants (hostile mobs the tribe is fighting), registered beds/chests and
+ * saved member positions. Methods are only called through {@link KoboldManager}
+ * statics.
+ * <p>
+ * <b>Pitfalls.</b> {@link #getTribeId()} counts *distinct girl UUIDs* (members +
+ * saved positions) — it is the value used by the bed-count gate, not the member
+ * list size. {@link #removeTask} restores every worker's physics and re-sends
+ * the removed mining targets as un-highlight markers. {@link #addMember} drops
+ * stale entries with the same girl id (a kobold re-joining after a reload).
+ */
+public static class Tribe {
       UUID tribeUUID;
       UUID masterPlayerUUID;
       KoboldEntity leaderKobold;
@@ -783,7 +816,19 @@ public class KoboldManager {
 
    }
 
-   public static class TribeWorldSavedData extends WorldSavedData {
+   /**
+ * <b>Role.</b> World persistence + tribe block/combat events for
+ * {@link KoboldManager}: saves/loads all tribes under the "tribes" world-data
+ * key, blocks players from sleeping in assigned kobold beds, tracks bed/chest
+ * placement and breaking against the tribe sets (with marker echoes to the
+ * master), and gives zombies/skeletons/spiders a girl-targeting AI goal.
+ * <p>
+ * <b>Pitfall.</b> The NBT layout is string-indexed ({@code tribeId0},
+ * {@code <tribeId>member0pos}, {@code <tribeId>0taskKind}, ...) — read and write
+ * must stay in lockstep; {@link #readNBTValue} consumes (empties) keys as it
+ * reads, so a re-read of the same compound returns nothing.
+ */
+public static class TribeWorldSavedData extends WorldSavedData {
       public TribeWorldSavedData(String var1) {
          super(var1);
       }

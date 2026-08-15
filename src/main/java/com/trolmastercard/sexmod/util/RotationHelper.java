@@ -4,7 +4,36 @@ import com.trolmastercard.sexmod.client.gui.UnknownScreen;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
+/**
+ * Math/lerp helpers shared across the mod.
+ * <p>
+ * <b>CRITICAL — two different lerp families:</b>
+ * <ul>
+ *   <li>{@link #lerpVec3d(Vec3d, Vec3d, int)} — <b>STEP lerp</b>: takes one
+ *       step of the remaining distance ({@code a + (b-a)/t}). The girls'
+ *       40-tick dismount/walk lerps call this with {@code t = 40 - counter}
+ *       (int). Do NOT switch those call sites to the double variant — the
+ *       deobfuscation once did and every girl got flung 40&times; the
+ *       distance on the first tick, their chunk unloaded, and they vanished
+ *       (destroy packet -> client setDead, gone on reload).</li>
+ *   <li>{@link #lerpVec3dDouble(Vec3d, Vec3d, double)} — <b>PROGRESS lerp</b>:
+ *       interpolates by a factor in 0..1 ({@code a + (b-a)*t}). Used by
+ *       render code with partial ticks — that is correct there.</li>
+ * </ul>
+ * Both variants existed in the original jar with distinct descriptors
+ * ({@code (Vec3d, Vec3d, int)} vs {@code (Vec3d, Vec3d, double)}); the int
+ * arguments auto-widen, which is how the wrong-variant bug slipped in.
+ */
 public class RotationHelper {
+   /**
+    * STEP lerp: one step of the remaining distance ({@code a + (b-a)/t}).
+    * Returns {@code b} unchanged when {@code t == 0}.
+    * <p>
+    * Used by the girls' 40-tick dismount/walk lerps with {@code t = 40 - counter}.
+    * <b>Do not reroute those call sites to
+    * {@link #lerpVec3dDouble(Vec3d, Vec3d, double)}</b> — int arguments
+    * auto-widen and the multiply version flings the girl 40x (see class doc).
+    */
    public static Vec3d lerpVec3d(Vec3d var0, Vec3d var1, int var2) {
       if (var2 == 0) {
          return var1;
@@ -42,6 +71,11 @@ public class RotationHelper {
       return (float)Math.toDegrees(lerpAngleDegrees((float)var4, (float)var6, var2));
    }
 
+   /**
+    * PROGRESS lerp: interpolates by factor {@code t} in 0..1
+    * ({@code a + (b-a)*t}). Used by render interpolation with partial ticks.
+    * Do NOT use for the girls' step lerps (see class doc).
+    */
    public static Vec3d lerpVec3dDouble(Vec3d var0, Vec3d var1, double var2) {
       Vec3d var4 = var1.subtract(var0);
       return var0.add(new Vec3d(var4.x * var2, var4.y * var2, var4.z * var2));

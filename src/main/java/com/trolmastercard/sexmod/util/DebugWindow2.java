@@ -18,6 +18,9 @@ import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.io.FileUtils;
 
+/**
+ * Second developer debug overlay window (leftover, largely dormant).
+ */
 public class DebugWindow2 extends JFrame {
    private JPanel panel;
    static DebugWindow2 instance;

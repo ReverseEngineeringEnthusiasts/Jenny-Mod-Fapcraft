@@ -11,6 +11,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> SERVER->CLIENT particle burst around a girl (used by scenes and
+ * item effects, e.g. heart/heal particles).
+ * <p>
+ * <b>Handler.</b> CLIENT-side. For the client-side entity matching the UUID,
+ * spawns {@code count} particles of the named type around her via
+ * {@link BaseGirlEntity#spawnParticlesAround}.
+ */
 public class SpawnParticlePacket implements IMessage {
    boolean isValid = false;
    UUID girlUUID;

@@ -12,6 +12,23 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
+/**
+ * CLIENT cum meter HUD ("the balls"). Visible during scenes; shows a slide-in
+ * meter that fills as the player performs actions
+ * ({@link #addToHornyMeter(double)}), and expands when full
+ * ({@code meterValue >= 1.0}) to indicate the ending input is available —
+ * {@code HandlePlayerMovement} maps jump + full meter to
+ * {@code triggerCumAction}.
+ * <p>
+ * Key API: {@link #showHornyMeter()} (scene start), {@link #resetHornyMeter()}
+ * (scene end / between actions), {@link #addToHornyMeter(double)} (per action
+ * sound keyframe, e.g. 0.02 slow / 0.04 fast), {@link #hideHornyMeter()}.
+ * The meter state is static/global — one meter per client, not per girl.
+ * <p>
+ * <b>Pitfall:</b> {@link #resetHornyMeter()} must also reset
+ * {@link #isExpanded} or the meter stays in its expanded "ending ready" state
+ * after the scene ends.
+ */
 @SideOnly(Side.CLIENT)
 public class HornyMeterHud extends Gui {
    static ResourceLocation BUTTON_TEXTURE = new ResourceLocation("sexmod", "textures/gui/buttons.png");

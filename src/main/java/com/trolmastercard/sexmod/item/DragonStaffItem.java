@@ -33,6 +33,15 @@ import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+/**
+ * <b>Role.</b> The dragon staff — the tribe-command tool. Right-clicking opens
+ * the {@link StructureCommandScreen} (requesting tribe UI values via
+ * {@link GetTribeUiValuesPacket}); right-clicking a bed/chest while holding it
+ * is blocked so tribe blocks can only be managed through the staff UI. The
+ * in-hand model and markers are handled by {@code DragonStaffRenderer} and
+ * {@link StructureMarkerRenderer}. Right-click on air/block never places —
+ * {@link #onItemRightClick} always fails.
+ */
 public class DragonStaffItem extends Item implements IAnimatable {
    public static final DragonStaffItem DRAGON_STAFF = new DragonStaffItem();
    private final AnimationFactory animationFactory = new AnimationFactory(this);

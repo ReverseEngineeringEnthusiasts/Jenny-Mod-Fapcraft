@@ -44,6 +44,34 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> The Bee NPC — a flying girl with a citizen sex scene
+ * (start/slow/fast/cum) and a taming/chest mechanic: once tamed
+ * ({@code HORNY_FLAG}, id 112) she carries a 27-slot chest inventory and opens
+ * the bee dialogue/chest GUIs; wild bees get horny over time
+ * ({@code hornyTimer}, 4800 ticks) and approach the nearest player to start
+ * the scene by themselves.
+ * <p>
+ * <b>State.</b> {@code HORNY_FLAG} (112) doubles as tamed/chest flag AND
+ * pregnancy-heart flag (see {@link #doParticleStuff()}); {@code eggState} is
+ * a particle-cycle counter; {@code hornyTimer} counts up while unbounded
+ * (0 = freshly interested). Flying is vanilla {@link EntityFlyHelper} +
+ * {@link PathNavigateFlying}; fall damage is disabled.
+ * <p>
+ * <b>Scene flow.</b> {@link #handleBeeIdle()} (server, AI tick) drives the
+ * wild approach: at 4800 ticks she locks the nearest non-owner player within
+ * 1.5 blocks into the scene (anchor + {@link Action#CITIZEN_START}).
+ * Progression and end run in the sound listener
+ * ({@code sex_startDone}/{@code sex_fastDone} -&gt;
+ * {@link Action#CITIZEN_SLOW}, jump keeps fast, {@code sex_cumDone} -&gt;
+ * {@code resetCameraAndPhysics()}).
+ * <p>
+ * <b>Pitfalls.</b> {@code processInteract} has a dead condition
+ * ({@code HORNY_FLAG && !HORNY_FLAG}`) — jar-faithful, the chest-give branch
+ * never fires; do not "fix" it into an active chest-consume path without
+ * testing the taming flow. NBT write/read uses the {@code isTamed} and
+ * {@code hasChest} keys, both mapped onto {@code HORNY_FLAG}.
+ */
 public class BeeEntity extends BeeEntityBase {
    public float hornyTimer = 3200.0F;
    int eggState = 0;
@@ -108,6 +136,11 @@ public class BeeEntity extends BeeEntityBase {
       this.tasks.addTask(3, new EntityAIWanderAvoidWaterFlying(this, 1.0));
    }
 
+   /**
+    * SERVER, every AI tick: removes a stale horny potion, ticks the wild
+    * approach ({@link #handleBeeIdle()}), latches the cum-flag for the
+    * particle cycle, spawns particles and applies the flight ceiling.
+    */
    @Override
    public void updateAITasks() {
       super.updateAITasks();
@@ -132,6 +165,12 @@ public class BeeEntity extends BeeEntityBase {
       }
    }
 
+   /**
+    * SERVER: the wild-bee horny timer — counts up while unbounded and
+    * masterless; at 4800 ticks she approaches the nearest free player and,
+    * within 1.5 blocks, locks them into the citizen scene (anchor + yaw +
+    * {@link Action#CITIZEN_START}).
+    */
    void handleBeeIdle() {
       if (this.getInteractionPlayerUUID() == null) {
          if (!this.hasMaster()) {
@@ -164,6 +203,10 @@ public class BeeEntity extends BeeEntityBase {
       }
    }
 
+   /**
+    * SERVER: ray-traces straight down and cancels upward motion once more
+    * than 3 blocks above ground — the bee's flight ceiling.
+    */
    void rayTraceFlower() {
       RayTraceResult var1 = this.world.rayTraceBlocks(this.getPositionVector(), new Vec3d(this.posX, 0.0, this.posZ));
       if (var1 != null) {
@@ -175,6 +218,11 @@ public class BeeEntity extends BeeEntityBase {
       }
    }
 
+   /**
+    * SERVER: the post-cum particle cycle ({@code eggState}) — heart/anger
+    * particles around the bee, then a coin-flip (at tick 200) that sets
+    * {@code HORNY_FLAG} and drives the "accepted/rejected" particle outcome.
+    */
    void doParticleStuff() {
       if (this.eggState != 0) {
          this.eggState++;
@@ -388,6 +436,12 @@ public class BeeEntity extends BeeEntityBase {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * citizen scene; {@code sex_startDone}/{@code sex_fastDone} -&gt;
+    * {@link Action#CITIZEN_SLOW} (jump keeps fast), {@code sex_cumDone} -&gt;
+    * {@code resetCameraAndPhysics()}.
+    */
    @Override
    public void registerControllers(AnimationData var1) {
       if (this.actionController == null) {

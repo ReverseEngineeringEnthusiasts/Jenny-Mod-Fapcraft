@@ -14,6 +14,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER wish item from the Allies lamp's third use —
+ * spawns diamonds, emeralds and gold ingots at the requested position.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Spawns three
+ * {@link EntityItem}s (1-2 of each, via {@link Reference#RANDOM}) at
+ * {@code wishPos} in the sender's world. Trusted client input — the position is
+ * whatever the client sent; the handler does not re-validate distance or
+ * ownership.
+ */
 public class MakeRichWishPacket implements IMessage {
    boolean isValid;
    Vec3d wishPos;

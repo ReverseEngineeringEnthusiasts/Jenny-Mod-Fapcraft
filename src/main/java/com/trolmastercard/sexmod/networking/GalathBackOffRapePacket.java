@@ -10,6 +10,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER input for the Galath rape scene — the player pressed
+ * the "back off" key during the pounce/dash phase.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Resolves the girl
+ * currently in a scene with the sending player
+ * ({@link BaseGirlEntity#getGirlByUUID(playerId, true)}) and, if she is a
+ * {@link GalathEntity}, calls {@code handleRapeState()} to abort the pounce and
+ * transition the scene state. No girl in scene -> no-op.
+ */
 public class GalathBackOffRapePacket implements IMessage {
    boolean isValid = false;
 

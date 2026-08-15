@@ -20,6 +20,21 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER request to claim (form) a kobold tribe. Sent from
+ * the dragon-staff UI when a player who found an unclaimed tribe enters a name.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. For every kobold of
+ * the tribe that has no master yet it writes {@code MASTER} (player UUID) and the
+ * tribe name ({@code aU}) into the data manager; then it announces the tribe
+ * formation in chat to all players and enables follow mode +
+ * {@link KoboldManager#assignMaster}. {@code CURRENT_ACTION} of the leader
+ * (parsed as {@link EyeAndKoboldColor}) determines the chat color.
+ * <p>
+ * <b>Ordering.</b> Must be sent only for a tribe that exists on the server
+ * (i.e. after the tribe was spawned and synced); the handler no-ops on unknown
+ * tribes because {@link KoboldManager} lookups return empty data.
+ */
 public class ClaimTribePacket implements IMessage {
    boolean isValid = false;
    UUID girlUUID;

@@ -24,6 +24,29 @@ import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.model.provider.data.EntityModelData;
 
+/**
+ * Base geckolib model for the girl entities. Handles: outfit-index texture
+ * selection, per-frame animation events (head look, anchored position pinning,
+ * action-transition timing), the steve/Alex arm-skin variants, outfit armor
+ * bone visibility, and the static camera-bone placement list.
+ * <p>
+ * <b>Camera placements.</b> {@link #CAMERA_PLACEMENTS} ({@code boyCam},
+ * {@code girlCam}) names the bones whose world positions the renderer
+ * publishes each frame — the scene camera attaches to these; keep the list in
+ * sync with the geo models.
+ * <p>
+ * <b>Anchored pinning.</b> {@link #setLivingAnimations} repositions an
+ * anchored girl directly to her target position (client-side render smoothing)
+ * and drives the animation controller's transition length from the current
+ * {@code Action}. Skipped in the {@link SexWorldClient} preload world.
+ * <p>
+ * <b>Outfit bones.</b> {@link #applyHeldItems} toggles armor vs. nude bone
+ * groups from the girl's armor slots ({@link IGirlModelInfo} bone lists);
+ * {@link #getItemStackForBone} maps armor bones back to their slots (used for
+ * armor tinting).
+ * <p>
+ * CLIENT-side only.
+ */
 public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<T> implements IGirlModelInfo {
    public static final List<String> BRA_STRING_BONES = Arrays.asList(
       "braStringMidStartR",
@@ -76,6 +99,11 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       return this.getTextureLocation(var1);
    }
 
+   /**
+    * Model location by outfit index: the preload world always uses outfit 0;
+    * an out-of-range index falls back to outfit 0 (nude) with a console
+    * notice.
+    */
    public ResourceLocation getSexWorldTexture(BaseGirlEntity var1) {
       if (var1.world instanceof SexWorldClient) {
          return this.modelLocations[0];
@@ -98,6 +126,14 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       }
    }
 
+   /**
+    * Per-frame animation entry (CLIENT-side): runs the standard geckolib
+    * molang/animation pass, then the arm-skin variant + outfit bone handling,
+    * pins anchored girls to their target position, syncs the controller's
+    * transition length to the current action, and dispatches the
+    * {@link #handleAnimationEvent} head-look. Skipped entirely in the
+    * {@link SexWorldClient} preload world.
+    */
    @Override
    public void setLivingAnimations(T var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations((T)var1, var2, var3);
@@ -137,6 +173,12 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       return lerpPositions(var1, var0.getPositionVector());
    }
 
+   /**
+    * Direction-dependent pose math used to aim camera/bone offsets: maps the
+    * vector between two positions onto a yaw (-180..0), a head-roll and a
+    * bob/offset value, with NaN guards. Used by
+    * {@link #getInterpolatedPosition}/{@link #getBoneOffsetWorld}.
+    */
    public static Vec3d lerpPositions(Vec3d var0, Vec3d var1) {
       Vec3d var2 = var1.subtract(var0);
       Vec3d var3 = new Vec3d(Math.abs(var2.x), Math.abs(var2.y), Math.abs(var2.z));
@@ -165,6 +207,10 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       return new Vec3d(TrigMath.wrapDegrees(var13), var14, var15);
    }
 
+   /**
+    * Applies the girl's armor visibility from her equipped armor slots:
+    * each armor slot toggles the armor bone group on and the nude variant off.
+    */
    void applyHeldItems(AnimationProcessor<T> var1, ItemStack var2, ItemStack var3, ItemStack var4, ItemStack var5) {
       this.renderHeadArmor(var1, !var2.isEmpty());
       this.renderTopArmor(var1, var3.getItem() instanceof ItemArmor);
@@ -211,6 +257,10 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       }
    }
 
+   /**
+    * Whether the girl's skin variant is the vanilla default (Steve) — the
+    * Alex-variant arms are hidden otherwise.
+    */
    protected boolean canRender(T var1) {
       UUID var2 = var1.getInteractionPlayerUUID();
       if (var2 == null) {
@@ -222,6 +272,11 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       return var4 == null ? true : "default".equals(var4.getSkinType());
    }
 
+   /**
+    * Arm-skin variant bones: shows the Steve (or Alex) arm set depending on
+    * the interaction player's skin type, and hides the whole {@code steve}
+    * body bone while the current action has no player.
+    */
    void animateGirl(T var1, AnimationProcessor<T> var2) {
       boolean var3 = this.canRender((T)var1);
       if (var3) {
@@ -265,6 +320,11 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       return true;
    }
 
+   /**
+    * Head-look bones for the idle/attack/bow actions: neck takes half the
+    * head yaw, head takes full yaw + pitch, body straightens. Other actions
+    * (scenes) drive the head via the animation controller instead.
+    */
    protected void handleAnimationEvent(T var1, AnimationProcessor<T> var2, AnimationEvent var3) {
       if (!(var1.world instanceof SexWorldClient)) {
          if (this.shouldRender(var1)) {
@@ -282,6 +342,10 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
       }
    }
 
+   /**
+    * Maps an armor bone name back to the girl's armor slot (helmet/chest/
+    * legs/boots) — used by the renderer's armor tinting.
+    */
    public ItemStack getItemStackForBone(BaseGirlEntity var1, String var2) {
       if (Arrays.asList(this.HeadArmor()).contains(var2)) {
          return (ItemStack)var1.entityDataManager.get(AbstractGirlNpcEntity.HELMET_SLOT);

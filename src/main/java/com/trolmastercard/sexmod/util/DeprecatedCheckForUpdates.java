@@ -6,6 +6,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
+/**
+ * Legacy update checker — no longer used (kept for reference).
+ */
 public class DeprecatedCheckForUpdates {
    final String versionUrl = new String(
       new byte[]{

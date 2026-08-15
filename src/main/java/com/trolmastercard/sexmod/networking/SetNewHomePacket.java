@@ -12,6 +12,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER "set this girl's home" command from the dragon-staff
+ * UI. Sets the girl's respawn point ({@code homePos}) — the y coordinate is
+ * floored to the block grid.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread; applies to all
+ * entities matching the girl UUID in {@link BaseGirlEntity#girlList}. Used by
+ * {@code goHome()}, {@link SendCompanionHomePacket} and general girl AI.
+ */
 public class SetNewHomePacket implements IMessage {
    boolean isValid;
    UUID girlUUID;

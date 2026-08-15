@@ -7,6 +7,14 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+/**
+ * Dragon-breath particle for the dragon staff's breath effect: a
+ * {@link ParticleDragonBreath} whose scale is pinned to the static
+ * {@link #BREATH_SCALE} (so callers can tune the breath size globally) and
+ * whose quad is rendered with the standard billboard math.
+ * <p>
+ * CLIENT-side render thread only (vanilla particle system).
+ */
 public class DragonBreathParticle extends ParticleDragonBreath {
    public static final float motionX = 0.2F;
    public static final float motionY = 0.5F;
@@ -16,6 +24,11 @@ public class DragonBreathParticle extends ParticleDragonBreath {
       super(var1, var2, var4, var6, 0.0, 0.0, 0.0);
    }
 
+   /**
+    * Renders the camera-facing quad at the interpolated position with the
+    * current particle texture frame (copied from vanilla so the breath scale
+    * override stays applied). CLIENT-side render thread.
+    */
    public void renderParticle(BufferBuilder var1, Entity var2, float var3, float var4, float var5, float var6, float var7, float var8) {
       this.particleScale = BREATH_SCALE;
       float var9 = this.particleTextureIndexX / 16.0F;

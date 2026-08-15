@@ -28,6 +28,20 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> The dragon charge projectile fired by Galath's energy-ball
+ * attack ({@link GalathFlightData#SUMMON_SKELETON}). A no-clip projectile that
+ * flies in a fixed direction; on CLIENT it spawns dragon-breath particles
+ * along its path. When it hits a block it converts into a wither skeleton
+ * guard (once) or, if charging, explodes on contact with a
+ * {@link GalathEntity} and flings her into the knockout state
+ * ({@link GalathEntity#setFlightVelocity(Vec3d)}).
+ * <p>
+ * <b>Pitfalls.</b> {@code attackEntityFrom} by a player turns the charge back
+ * onto the attacker ({@code isCharging} + direction = attacker's look);
+ * arrows destroy it. Fall/water NBT is intentionally empty
+ * ({@code readEntityFromNBT} despawns it).
+ */
 public class DragonEntity extends EntityLiving {
    public static final float SCALE_0_4 = 0.4F;
    public static final float SCALE_0_3 = 0.3F;
@@ -66,6 +80,12 @@ public class DragonEntity extends EntityLiving {
    protected void collideWithEntity(Entity var1) {
    }
 
+   /**
+    * BOTH sides: no-clip flight along {@code direction} with breath
+    * particles; the SERVER charges explode against Galaths
+    * ({@link #tickChargeState()}) and block hits trigger
+    * {@link #tickDragonLife()} (explode or spawn the skeleton guard).
+    */
    public void onUpdate() {
       if (!this.isDead) {
          this.noClip = true;
@@ -86,6 +106,11 @@ public class DragonEntity extends EntityLiving {
       }
    }
 
+   /**
+    * SERVER: the charging hit — when a charged dragon overlaps a Galath it
+    * explodes, flings her away ({@link GalathEntity#setFlightVelocity(Vec3d)})
+    * and despawns.
+    */
    void tickChargeState() {
       if (!this.world.isRemote) {
          if (this.isCharging) {
@@ -133,6 +158,11 @@ public class DragonEntity extends EntityLiving {
          );
    }
 
+   /**
+    * SERVER: the block-impact outcome — near the Galath's target she spawns
+    * a wither-skeleton guard (sword-wielding, tracked in
+    * {@code GalathEntity#bI}), otherwise she explodes.
+    */
    void tickDragonLife() {
       if (!this.world.isRemote) {
          if (!this.isDead) {
@@ -163,6 +193,10 @@ public class DragonEntity extends EntityLiving {
       return var2 == null ? true : var2.getDistance(var1.x, var1.y, var1.z) < 15.0;
    }
 
+   /**
+    * CLIENT: renders a smoke ring burst at the given position (used for the
+    * energy-ball despawn effects).
+    */
    @SideOnly(Side.CLIENT)
    public static void spawnDragonBreath(Vec3d var0) {
       WorldClient var1 = Minecraft.getMinecraft().world;

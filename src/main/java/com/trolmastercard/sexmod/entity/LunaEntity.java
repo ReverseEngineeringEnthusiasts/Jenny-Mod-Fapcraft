@@ -20,6 +20,7 @@ import com.trolmastercard.sexmod.networking.SendGirlToSexPacket;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.ThreadNames;
+import com.trolmastercard.sexmod.util.SceneDebug;
 import com.trolmastercard.sexmod.util.DebugMode;
 import com.trolmastercard.sexmod.util.GalathGeometryRender;
 import com.trolmastercard.sexmod.util.GirlCombatProtection;
@@ -74,6 +75,39 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * Luna NPC — the catgirl who fishes, eats, and has touch-boobs and sitting
+ * cowgirl scenes.
+ * <p>
+ * <b>Scene entry</b> (shared with Jenny/Bia/Kobold): client {@code doAction}
+ * sets {@code animationFollowUp} (GIRL_HAND_STATES) via
+ * {@code ChangeDataParameterPacket} and sends {@code KoboldStatePacket}; the
+ * server calls {@code setDismounted()} ({@link #ac}), then
+ * {@link #updateAITasks()} lerps her to {@code TARGET_POS} for ~40 ticks
+ * ({@code aw} counter), anchors her and calls {@link #U()}:
+ * touch_boobs -> PAYMENT (fish!) -> TOUCH_BOOBS_INTRO; sex ->
+ * PAYMENT -> {@code SendGirlToSexPacket} + full {@code ResetGirlPacket}
+ * (jar-faithful order) -&gt; {@link #goToSexBed()} walks her to the nearest
+ * bed ({@link #ay}/{@code ak}), anchors, enters {@link Action#WAIT_CAT},
+ * and {@link #handleNearbyPlayer()} starts COWGIRL_SITTING_INTRO once the
+ * player stands within 1.25 blocks (25-tick counter {@code ab}).
+ * <p>
+ * <b>Idle behavior:</b> without a master/interaction she periodically fishes
+ * (finds water via {@link #findFishingSpot()}, casts her rod, may eat the
+ * catch; {@link #av} is the hook entity, {@link #al} schedules its removal).
+ * <p>
+ * <b>Pitfalls:</b>
+ * <ul>
+ *   <li>The dismount/bed lerps MUST use
+ *       {@code RotationHelper.lerpVec3d(pos, target, 40 - counter)} (INT
+ *       step variant) — the double variant flings her and she vanishes.</li>
+ *   <li>{@link #readEntityFromNBT} forcing {@code setNoGravity(false)} on
+ *       load is an invented (non-jar) band-aid; keep only if the float-on-
+ *       reload symptom reappears.</li>
+ *   <li>Data-parameter IDs 118-121 on this hierarchy are explicit — never
+ *       renumber (see {@code BaseGirlEntity} class doc).</li>
+ * </ul>
+ */
 public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddableSexGirl {
    public ItemStack ao = new ItemStack(LunaRodItem.LUNA_ROD);
    public static final DataParameter<Float> yFlag = EntityDataManager.createKey(LunaEntity.class, DataSerializers.FLOAT)
@@ -235,10 +269,12 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          double var1 = this.getTargetPosition().distanceTo(this.getPositionVector());
          if (!(var1 < 0.5) && this.ak <= 200) {
             if (++this.ak == 60 || this.ak == 120) {
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna: walking to bed ak=%d dist=%.2f", this.ak, var1);
                this.getNavigator().clearPath();
                this.getNavigator().tryMoveToXYZ(this.getTargetPosition().x, this.getTargetPosition().y, this.getTargetPosition().z, 0.2);
             }
          } else {
+            SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna: arrived at bed, WAIT_CAT (dist=%.2f ak=%d)", var1, this.ak);
             this.ay = false;
             this.ak = 0;
             this.entityDataManager.set(IS_ANCHORED, true);
@@ -256,7 +292,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          if (!this.getPositionVector().equals(this.getTargetPosition()) && this.aw <= 40) {
             this.rotationYaw = this.getYawRotation();
             this.setNoGravity(false);
-            Vec3d var3 = RotationHelper.lerpVec3dDouble(this.getPositionVector(), this.getTargetPosition(), 40 - this.aw);
+            Vec3d var3 = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.aw);
             this.setPosition(var3.x, var3.y, var3.z);
          } else {
             this.ac = false;
@@ -295,9 +331,13 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
       if (var1 != null) {
          if (!(var1.getDistance(this) > 1.25F)) {
+            if (this.ab % 10 == 0) {
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.handleNearbyPlayer remote=%s ab=%d playerDist=%.2f", this.world.isRemote, this.ab, var1.getDistance(this));
+            }
             if (this.world.isRemote) {
                this.setFishingLevelFor(var1, this.ab);
             } else if (this.ab == 25) {
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.handleNearbyPlayer SERVER: ab==25 -> COWGIRL_SITTING_INTRO");
                this.setInteractionPlayerUUID(var1.getPersistentID());
                var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
                var1.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVector().y, this.getPositionVector().z);
@@ -623,6 +663,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
    @Override
    public void doAction(String var1, UUID var2) {
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.doAction %s player=%s (remote=%s)", var1, var2, this.world.isRemote);
       super.doAction(var1, var2);
       if ("action.names.touchboobs".equals(var1)) {
          this.setInteractionPlayerUUID(var2);
@@ -667,6 +708,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
    @Override
    protected void U() {
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.U() handState=%s action=%s remote=%s", this.entityDataManager.get(GIRL_HAND_STATES), this.getCurrentAction(), this.world.isRemote);
       switch ((String)this.entityDataManager.get(GIRL_HAND_STATES)) {
          case "touch_boobs":
             if (this.getCurrentAction() != Action.PAYMENT) {
@@ -911,6 +953,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                this.playRandomSound(SoundHandler.GIRLS_LUNA_OWO);
                break;
             case "paymentDone":
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.sound paymentDone (remote=%s, action=%s, nearby=%s)", this.world.isRemote, this.getCurrentAction(), this.isLocalPlayerNearby());
                if (this.isLocalPlayerNearby()) {
                   this.U();
                }
@@ -966,6 +1009,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                break;
             case "touch_boobs_introDone":
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.sound touch_boobs_introDone (remote=%s, action=%s, controlled=%s)", this.world.isRemote, this.getCurrentAction(), this.isControlledByLocalPlayer());
                this.setCurrentAction(Action.TOUCH_BOOBS_SLOW);
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
@@ -1008,6 +1052,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                }
                break;
             case "touch_boobs_cumDone":
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.sound touch_boobs_cumDone (remote=%s, action=%s, controlled=%s)", this.world.isRemote, this.getCurrentAction(), this.isControlledByLocalPlayer());
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                   this.resetCameraAndPhysics();

@@ -30,6 +30,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> NPC editor wand — the customization tool. Right-clicking a girl
+ * opens the {@link ClothingScreen} (model-code editor); attacking a girl or
+ * left-clicking copies her model-code + part-ids to the clipboard (as
+ * {@code code$parts}); while held, its damage value switches the held model
+ * between normal/active ({@code applyEditor}).
+ */
 public class NpcEditorWandItem extends Item {
    public static final NpcEditorWandItem EDITOR_WAND = new NpcEditorWandItem();
 

@@ -29,6 +29,10 @@ import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.IWorldGenerator;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * Forge world-gen event handler that routes structure generation to the
+ * configured generators (girl houses etc.) — see GirlHouseGenerator.
+ */
 public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGenerator {
    static final String DATA_NAME = "sexmod:generation";
    static final int ELLIE_MIN_DISTANCE = 156;

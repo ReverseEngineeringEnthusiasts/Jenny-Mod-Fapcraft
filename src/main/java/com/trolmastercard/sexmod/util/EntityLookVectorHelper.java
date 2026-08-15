@@ -6,6 +6,16 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Vec3d;
 
+/**
+ * <b>Role.</b> CLIENT-side look/aim vector helpers for girl renderers and item
+ * aiming. Computes entity-to-player and aim direction vectors with partial-tick
+ * interpolation; anchored girls aim at their {@code TARGET_POS} instead of their
+ * yaw so scene animations look at the correct spot.
+ * <p>
+ * <b>Pitfall.</b> All lerps here use
+ * {@link RotationHelper#lerpVec3dDouble} (PROGRESS lerp by partial tick) — the
+ * correct choice for render interpolation.
+ */
 public class EntityLookVectorHelper {
    public static Vec3d getLookVectorTo(Entity var0, EntityPlayer var1, float var2) {
       Vec3d var3 = RotationHelper.lerpVec3dDouble(

@@ -13,6 +13,22 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
+/**
+ * Direction-pad control screen for Galath (and goblin throw/pickup): the
+ * player holds the mouse in one of four quadrants around the screen center and
+ * closes the screen (release key or Escape) to commit the action.
+ * <p>
+ * <b>Action decision.</b> While open, per-frame mouse position accumulates
+ * quadrant indicators ({@code animLeft/Right/Top/Bottom}, clamped to 0..1).
+ * {@link #onGuiClosed()} then picks: left = start throwing
+ * ({@code Action.START_THROWING}), top = throw the goblin at the player,
+ * bottom = pick the goblin up. For non-goblin targets only the left action is
+ * meaningful.
+ * <p>
+ * CLIENT-side only. Closing the screen is what commits the action — if a
+ * future editor makes closing conditional, the action must still be dispatched
+ * exactly once.
+ */
 public class GalathScreen extends GuiScreen {
    static final float SIZE_100 = 100.0F;
    static final float OFFSET_15 = 15.0F;
@@ -33,6 +49,10 @@ public class GalathScreen extends GuiScreen {
       this.isGoblinTarget = var1 instanceof GoblinEntity;
    }
 
+   /**
+    * Commits the chosen action from the accumulated quadrant indicators (see
+    * class javadoc). Must fire exactly once per screen lifetime.
+    */
    public void onGuiClosed() {
       super.onGuiClosed();
       if (this.animTop != 0.0F || this.animBottom != 0.0F || this.animLeft != 0.0F) {
@@ -48,22 +68,38 @@ public class GalathScreen extends GuiScreen {
       }
    }
 
+   /**
+    * Marks the goblin to be thrown at the local player (entity-side flag set
+    * via {@code setThrowTarget}).
+    */
    void throwGoblin() {
       if (this.isGoblinTarget) {
          ((GoblinEntity)this.targetEntity).setThrowTarget(Minecraft.getMinecraft().player.getPersistentID());
       }
    }
 
+   /**
+    * Marks the goblin to be picked up by the local player
+    * ({@code setPickupTarget}).
+    */
    void pickupGoblin() {
       ((GoblinEntity)this.targetEntity).setPickupTarget(Minecraft.getMinecraft().player.getPersistentID());
    }
 
+   /**
+    * Starts the throw sequence ({@code Action.START_THROWING}) — only valid
+    * while the target girl is not already interacting with another player.
+    */
    void startGoblinThrow() {
       if (this.targetEntity.getInteractionPlayerUUID() == null) {
          this.targetEntity.setCurrentAction(Action.START_THROWING);
       }
    }
 
+   /**
+    * Closes the screen when the pad toggle key (ClientProxy key binding 0) is
+    * released; everything else is handled by the parent.
+    */
    public void handleKeyboardInput() {
       if (ClientProxy.keyBindings[0].getKeyCode() == Keyboard.getEventKey() && !Keyboard.getEventKeyState()) {
          Minecraft.getMinecraft().player.closeScreen();
@@ -72,6 +108,13 @@ public class GalathScreen extends GuiScreen {
       }
    }
 
+   /**
+    * Draws the animated control pad: four directional buttons scale/translate
+    * toward the mouse position with an ease-out-back entrance, plus a
+    * goblin-specific throw/pickup layout. Mouse-side accumulation
+    * (animLeft/Right/Top/Bottom) happens here, which {@link #onGuiClosed()}
+    * reads when the screen closes.
+    */
    public void drawScreen(int var1, int var2, float var3) {
       super.drawScreen(var1, var2, var3);
       GL11.glEnable(3042);

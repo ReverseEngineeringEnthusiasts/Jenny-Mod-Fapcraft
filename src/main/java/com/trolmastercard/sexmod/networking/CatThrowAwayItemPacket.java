@@ -12,6 +12,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER request to make the cat-girl Luna drop whatever she
+ * is holding (e.g. a caught fish she is chewing on).
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Calls
+ * {@link LunaEntity#dropHeldItem()} on the matching {@link LunaEntity} — the
+ * held item becomes a world {@code EntityItem} on the server.
+ */
 public class CatThrowAwayItemPacket implements IMessage {
    boolean isValid = false;
    UUID catUUID;

@@ -9,6 +9,15 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+/**
+ * Vanilla 3x9 girl chest container: 27 girl inventory slots on top, the
+ * player's 27+9 inventory below. Used by {@link GirlInventoryContainerGui} for
+ * Luna's chest. Instances self-register in the static {@link #containers} list
+ * so the GUI can locate the right container when saving on close.
+ * <p>
+ * Runs on both sides (vanilla container sync); shift-click moves items between
+ * the girl's 27 slots and the player inventory.
+ */
 public class GirlInventoryContainer extends Container {
    private final IInventory inventory;
    private final int slotIndex;
@@ -44,6 +53,11 @@ public class GirlInventoryContainer extends Container {
       return this.inventory.isUsableByPlayer(var1);
    }
 
+   /**
+    * Standard shift-click between the girl's 27 slots (indices 0..26) and the
+    * player's inventory; backwards-merge into the player side, forward-merge
+    * into the girl side.
+    */
    public ItemStack transferStackInSlot(EntityPlayer var1, int var2) {
       ItemStack var3 = ItemStack.EMPTY;
       Slot var4 = (Slot)this.inventorySlots.get(var2);

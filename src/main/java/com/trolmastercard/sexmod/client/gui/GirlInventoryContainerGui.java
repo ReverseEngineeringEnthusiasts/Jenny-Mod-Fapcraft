@@ -11,6 +11,15 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * GUI screen for Luna's 7-slot equipment chest ({@link GirlInventoryContainer2}
+ * with the rod slot). Draws the mod's {@code girlinventory.png} texture.
+ * <p>
+ * <b>Save flow.</b> On close, finds the matching container in
+ * {@link GirlInventoryContainer2#containers} and sends a 43-slot snapshot
+ * (player main inventory 0..35, Luna's 7 slots 36..42) to the server as
+ * {@link UploadInventoryToServerPacket}. CLIENT-side only.
+ */
 public class GirlInventoryContainerGui extends GuiContainer {
    static final ResourceLocation GUI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/girlinventory.png");
    UUID girlUUID;
@@ -30,6 +39,11 @@ public class GirlInventoryContainerGui extends GuiContainer {
       this.renderHoveredToolTip(var1, var2);
    }
 
+   /**
+    * Serializes Luna's 7 equipment slots + the player's main inventory into a
+    * 43-element array and uploads it via {@link UploadInventoryToServerPacket}.
+    * Fires exactly once per container lifetime (on GUI close).
+    */
    public void onGuiClosed() {
       super.onGuiClosed();
 

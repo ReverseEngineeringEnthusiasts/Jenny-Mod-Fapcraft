@@ -4,6 +4,21 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * Registers every mod packet on the {@code "sexmodchannel"} simple channel.
+ * <p>
+ * <b>CRITICAL:</b> packet IDs are assigned sequentially by
+ * {@link #nextPacketId()} at registration time. The ID order IS the wire
+ * protocol — it is shared with the built (SRG-reobfuscated) jar and any
+ * saved/connected session. Never reorder, insert, or remove registrations
+ * without a full client+server redeploy, and never change the channel name.
+ * <p>
+ * The scene-critical packets (see their class docs): {@link KoboldStatePacket}
+ * (scene entry), {@link ChangeDataParameterPacket} (data-manager bridge),
+ * {@link ResetGirlPacket} (scene end), {@link SendGirlToSexPacket} (bed
+ * scenes), {@link TeleportPlayerPacket} (scene camera positioning),
+ * {@link SetPlayerMovementPacket} (movement lock restore).
+ */
 public class PacketHandler {
    public static SimpleNetworkWrapper networkWrapper;
    private static int nextId = 0;

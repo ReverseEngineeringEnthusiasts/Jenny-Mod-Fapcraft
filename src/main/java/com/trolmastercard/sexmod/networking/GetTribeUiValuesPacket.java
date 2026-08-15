@@ -21,6 +21,20 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * <b>Role.</b> Tribe-overview request/response for the dragon-staff
+ * {@link StructureCommandScreen}.
+ * <p>
+ * CLIENT->SERVER: sent when the staff UI opens ({@code isTribeLeader=false}).
+ * The SERVER-side handler (scheduled on the main thread) collects the tribe's
+ * alerted state, saved positions, member positions (one {@link Vector4d} per
+ * member, w = wool color meta) and replies SERVER->CLIENT. If the sender has no
+ * tribe it replies with an empty packet.
+ * <p>
+ * CLIENT-side handler: stores the reply in {@code KoboldEntity.aY} and the
+ * alerted flag in {@code StructureCommandScreen.isErasing} — the UI reads those
+ * statics to draw the tribe overview.
+ */
 public class GetTribeUiValuesPacket implements IMessage {
    boolean isTribeLeader = false;
    boolean isValid;

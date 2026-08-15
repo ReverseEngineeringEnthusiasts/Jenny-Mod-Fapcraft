@@ -8,6 +8,12 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 
+/**
+ * <b>Role.</b> {@code /reloadcustommodels} (op level 2) — reloads the server's
+ * custom-model registry and pushes the fresh model scales to every connected
+ * player via {@link UnknownPacket} so client-side rendering matches the new
+ * registry without a rejoin.
+ */
 public class CommandReloadCustomModels extends CommandBase {
    public static final CommandReloadCustomModels RELOAD_CUSTOM_MODELS_COMMAND = new CommandReloadCustomModels();
 

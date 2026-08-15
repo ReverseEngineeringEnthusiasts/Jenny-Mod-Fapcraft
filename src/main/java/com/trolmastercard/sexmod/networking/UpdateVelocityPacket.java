@@ -13,6 +13,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * SERVER-bound packet: applies a velocity to a girl entity (impulses/knockback
+ * from items and abilities).
+ */
 public class UpdateVelocityPacket implements IMessage {
    boolean isValid = false;
    Vec3d velocity;

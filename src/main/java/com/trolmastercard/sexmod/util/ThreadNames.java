@@ -7,6 +7,17 @@ import java.util.Random;
 import java.util.UUID;
 import net.minecraft.util.math.Vec3d;
 
+/**
+ * <b>Role.</b> General math/utility helpers despite the name — angle wrapping,
+ * look-angle computation, clipboard, weighted random indices, clamps,
+ * sign/float helpers and {@link #createDaemonThread(int, Runnable)} for
+ * delayed background work (e.g. particle/cleanup timers) named after the side
+ * it runs on (see {@link ClientServerCheck}).
+ * <p>
+ * <b>Pitfall.</b> {@link #moveToward} implements *step* movement (one step of
+ * {@code var2} toward the target), not progress lerp — call sites rely on the
+ * stepping semantics.
+ */
 public class ThreadNames {
    public static float wrapAngle(double var0, double var2) {
       var0 = (var0 + (Math.PI * 2)) % (Math.PI * 2);

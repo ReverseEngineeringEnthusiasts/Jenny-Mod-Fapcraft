@@ -22,6 +22,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> Tribe egg — right-clicking spawns a whole new kobold tribe
+ * (4 kobolds, random color) at the targeted block via
+ * {@link KoboldManager#spawnKoboldAt}. Consumed on use unless creative.
+ */
 public class TribeEggItem extends Item {
    public static final TribeEggItem TRIBE_EGG = new TribeEggItem();
 

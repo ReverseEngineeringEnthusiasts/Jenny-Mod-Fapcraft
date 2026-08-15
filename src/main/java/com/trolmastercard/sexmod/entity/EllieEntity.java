@@ -42,6 +42,40 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> The Ellie NPC (implements {@link IEllie}) — a tall girl with a
+ * couch/bed sit-down state machine (sitdown/sitdownidle), a hug
+ * (hug/hugselected/hugidle) dialogue phase and three scenes: cowgirl,
+ * missionary (both on a bed) and the carried "Face fuck" (carry intro/slow/
+ * fast/cum).
+ * <p>
+ * <b>Scene entry.</b> {@link #setDismounted()} (invoked by
+ * {@link KoboldStatePacket.Handler#sendState} — see the packet) binds the
+ * interaction player, faces her by {@code playerYaw - 180}, and starts
+ * {@link Action#CARRY_INTRO} anchored. {@link #doAction(String, UUID)} is the
+ * client-side scene chooser: it sets {@link Action#HUGSELECTED} and writes the
+ * chosen scene into {@code GIRL_HAND_STATES} via
+ * {@code changeDataParameterFromClient("animationFollowUp", ...)}; once the
+ * hug dialogue finishes, the server-side {@link #U()} dispatches on that value
+ * ({@code "Missionary"} -&gt; {@link Action#MISSIONARY_START}, {@code "cowgirl"}
+ * -&gt; {@link Action#COWGIRLSTART}) and positions the player.
+ * <p>
+ * <b>Bed flow.</b> After the scene, {@code handleSitUpTimer} walks her off the
+ * bed to a random sit pose (see {@link #getRandomSitPose()}), anchors her and
+ * enters {@link Action#SITDOWN}; {@code handleSitDownTimer} (110 ticks) leads
+ * to {@link Action#SITDOWNIDLE} where {@link #handleSitIdle()} waits for a
+ * nearby player. The horny potion route ({@link #handleHornyPotion()}) makes
+ * her dash to the player and start the hug chain instead.
+ * <p>
+ * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} refuses re-entry into
+ * loop phases while the cum animation plays and arms the carry timer
+ * ({@code ak} = 0) on {@link Action#CARRY_INTRO}. The sit-state timers are
+ * obfuscated counters: {@code yFlag} (hugidle, 150), {@code al} (sitdown,
+ * 109), {@code ai} (sit-up, 79) and {@code zFlag} (dash, 16) — reset them all
+ * in {@link #resetSitState()}. {@link #U()} must only run after the hug
+ * dialogue; {@code GIRL_HAND_STATES} carries the scene choice from the
+ * client packet.
+ */
 public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    static final float ad = 10.0F;
    static final int ao = 16;
@@ -102,6 +136,13 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       return 0.4F;
    }
 
+   /**
+    * SERVER: the dismount/scene-entry hook called by {@link KoboldStatePacket}
+    * when the player's carry request is accepted. Binds the interaction
+    * player, faces her toward him (player yaw - 180) and starts the
+    * {@link Action#CARRY_INTRO} scene anchored; falls back to
+    * {@link #resetSitState()} when no player is bound.
+    */
    @Override
    public void setDismounted() {
       UUID var1 = this.getInteractionPlayerUUID();
@@ -125,6 +166,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       return this.getCurrentAction() != Action.CARRY_INTRO;
    }
 
+   /**
+    * CLIENT: the interaction-menu gate. With the sex flag ({@code var2})
+    * offers cowgirl/missionary; otherwise opens the dress-up strip menu when
+    * already nude, or the "Face fuck" dialogue when dressed.
+    */
    public boolean canJoinPlayer(EntityPlayer var1, boolean var2) {
       if (var2) {
          openInventoryGui(var1, this, new String[]{"action.names.cowgirl", "action.names.missionary"}, false);
@@ -145,6 +191,14 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       this.playSoundAtVolume(SoundHandler.GIRLS_ELLIE_SIGH[1], 6.0F);
    }
 
+   /**
+    * CLIENT: scene chooser. Delegates to the NPC defaults (follow/equipment/
+    * home), then for the scene actions sets {@link Action#HUGSELECTED} and
+    * writes the follow-up choice into {@code GIRL_HAND_STATES} via the
+    * {@code animationFollowUp} data-parameter packet; {@code Face fuck}
+    * instead triggers the carry sync through {@link #triggerActionSync(boolean, boolean, UUID)}.
+    * {@link #U()} reads the stored choice server-side.
+    */
    @Override
    public void doAction(String var1, UUID var2) {
       super.doAction(var1, var2);
@@ -173,6 +227,12 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    protected void alignPlayerToGirl(EntityPlayerMP var1, boolean var2) {
    }
 
+   /**
+    * Guards the state machine: refuses re-entry into loop phases while the
+    * corresponding cum animation plays, arms the carry timer ({@code ak} = 0)
+    * on {@link Action#CARRY_INTRO}, and records the sit-up delay ({@code ai} =
+    * 79) when {@link Action#HUGSELECTED} is set SERVER-side.
+    */
    @Override
    public void setCurrentAction(Action action) {
       Action var2 = this.getCurrentAction();
@@ -193,6 +253,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       }
    }
 
+   /**
+    * CLIENT: per-tick scene UI hooks — reopens the sex menu when the
+    * {@code ae} one-shot flag is set (hug dialogue done) and shows the horny
+    * meter during the carry loop.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void onUpdate() {
@@ -214,6 +279,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       }
    }
 
+   /**
+    * Ticks the carry-intro timer ({@code ak}, 110 ticks): when it expires,
+    * repositions the interacting player in front of Ellie so the carry scene
+    * can start.
+    */
    void handleSitTimer() {
       if (this.ak != -1) {
          if (++this.ak >= 110) {
@@ -267,6 +337,12 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       }
    }
 
+   /**
+    * SERVER: the scene dispatcher — reads the scene choice the client stored
+    * in {@code GIRL_HAND_STATES} (the {@code animationFollowUp} packet) and
+    * starts {@link Action#MISSIONARY_START} or {@link Action#COWGIRLSTART},
+    * stripping her and locking the interacting player into position.
+    */
    @Override
    protected void U() {
       String var1 = (String)this.entityDataManager.get(GIRL_HAND_STATES);
@@ -349,6 +425,13 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       }
    }
 
+   /**
+    * SERVER: the sit-up state machine. When the sit-up delay ({@code ai}, 79
+    * ticks) expires or the {@code ah} one-shot is armed, un-anchors Ellie,
+    * walks her to a random bed sit pose ({@link #getRandomSitPose()}), then
+    * anchors her and starts {@link Action#SITDOWN} (110 ticks via
+    * {@code al}) which flows into {@link Action#SITDOWNIDLE}.
+    */
    void handleSitUpTimer() {
       if (--this.ai == 0 || this.ah) {
          this.ah = true;
@@ -398,6 +481,12 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       this.yFlag = -1;
    }
 
+   /**
+    * SERVER: scans the beds around Ellie (expanding radius) and picks the
+    * nearest bed side with free space to sit on. Returns a
+    * {@code {position, yaw}} pair or null when no usable bed exists within
+    * range.
+    */
    Object[] getRandomSitPose() {
       int var1 = -1;
       int var2 = 0;
@@ -451,6 +540,12 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       return new Object[]{var16, var5[var1]};
    }
 
+   /**
+    * SERVER: the horny-potion route — when Ellie is dosed she locks onto the
+    * nearest player, anchors herself, starts the dash ({@link Action#DASH},
+    * {@code zFlag} = 16) and removes her wander/watch AI so nothing
+    * interrupts the approach.
+    */
    void handleHornyPotion() {
       if (this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null) {
          EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
@@ -472,6 +567,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       }
    }
 
+   /**
+    * SERVER: completes the dash ({@code zFlag} countdown, 16 ticks) by
+    * anchoring Ellie in front of the interacting player and starting the hug
+    * ({@link Action#HUG}, {@code yFlag} = 150).
+    */
    void handleSitUpFinish() {
       if (--this.zFlag == 0) {
          UUID var1 = this.getInteractionPlayerUUID();
@@ -495,6 +595,12 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       }
    }
 
+   /**
+    * SERVER: full sit-state teardown — un-anchors, resets the action to
+    * {@link Action#NULL}, unbinds the interaction player and re-enables
+    * physics. Resets every sit timer ({@code ah}, {@code yFlag}, {@code zFlag},
+    * {@code ai}, {@code am}).
+    */
    void resetSitState() {
       this.entityDataManager.set(IS_ANCHORED, false);
       this.setCurrentAction(Action.NULL);
@@ -508,6 +614,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       this.am = null;
    }
 
+   /**
+    * CLIENT: interaction gate — refuses interaction while Ellie is already in
+    * a scene (bound to a player or the caller is in one), otherwise opens
+    * {@link #canJoinPlayer(EntityPlayer, boolean)}.
+    */
    protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
       if (getActiveSceneInfo(var1) != null) {
          return false;
@@ -668,6 +779,16 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener that advances
+    * the hug dialogue, carry, cowgirl and missionary scenes. Key transitions:
+    * {@code hugDone} reopens the scene menu, {@code stripDone} exits the
+    * strip, {@code cowgirlStartDone}/{@code missionary_startDone} -&gt; slow
+    * loops, jump on the fast-done keyframes keeps the fast loop,
+    * {@code carry_slowDone} re-rolls the variant suffix ({@code aa}), and
+    * {@code missionary_cumDone}/{@code cowgirlcumDone}/{@code carry_cumDone}
+    * -&gt; {@code resetCameraAndPhysics()}.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {

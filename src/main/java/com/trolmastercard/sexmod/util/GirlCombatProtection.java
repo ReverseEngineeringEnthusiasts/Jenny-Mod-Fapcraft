@@ -7,6 +7,17 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * <b>Role.</b> Combat protection for girls: girls in an active scene (interaction
+ * partner set) and player-girls cannot be hurt by normal sources; a player
+ * standing within 1 block of the girl he owns is likewise invulnerable (except
+ * void/succubus damage). Prevents scene-breaking damage and griefing during
+ * animations.
+ * <p>
+ * <b>Invariants.</b> {@code DamageSource.OUT_OF_WORLD} is never cancelled (girls
+ * must still die to the void). Player-girls are unconditionally protected;
+ * NPC girls only while an interaction partner is bound.
+ */
 public class GirlCombatProtection {
    @SubscribeEvent
    public void onLivingAttack(LivingAttackEvent var1) {

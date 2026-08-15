@@ -14,6 +14,19 @@ import net.minecraft.util.EntityDamageSource;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * <b>Role.</b> Custom armor damage reduction for NPC girls
+ * ({@link AbstractGirlNpcEntity}). The constructor precomputes the vanilla
+ * armor/toughness table per slot+material into {@code DamageCalculation.a};
+ * {@link #onLivingDamage} then applies the full armor formula (reduction,
+ * toughness, Protection/Thorns/Fire/Blast/Feather-Falling/Projectile
+ * enchantments) to damage dealt to NPC girls, and reflects Thorns damage back
+ * to the attacker.
+ * <p>
+ * <b>Pitfall.</b> The table is keyed by {@code slot+material} strings and
+ * defaulted to {@code 3} reduction / {@code 0} toughness on a miss — an
+ * unseeded entry silently weakens/strengthens armor instead of failing.
+ */
 public class DamageCalculation {
    public DamageCalculation() {
       DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.LEATHER, 1, 0);

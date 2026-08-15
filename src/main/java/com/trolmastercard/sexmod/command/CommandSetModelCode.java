@@ -18,6 +18,13 @@ import net.minecraftforge.client.IClientCommand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> {@code /setmodelcode} — client-side upload of a custom model code
+ * (and optional {@code $}-separated part-id list) for the targeted girl; without
+ * a valid girl target it applies to the sender's own player-girl. The payload is
+ * sent via {@link UploadModelStringPacket} to the server for validation and
+ * persistence.
+ */
 public class CommandSetModelCode extends CommandBase implements IClientCommand {
    public static final CommandSetModelCode SET_MODEL_CODE_COMMAND = new CommandSetModelCode();
 

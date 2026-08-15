@@ -7,6 +7,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
+/**
+ * <b>Role.</b> The Manglelie player-avoidance goal — flees from nearby
+ * players, but only while no Galath "mommy" with a master is within
+ * {@code distance} blocks (a mommied Mang never runs away).
+ * <p>
+ * <b>Pitfalls.</b> Also sets the data-manager "scared" flag
+ * ({@link ManglelieEntity#ar}, key 115) while executing so the movement
+ * animation switches to the scared run.
+ */
 public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
    final ManglelieEntity manglelieEntity;
    final float distance;
@@ -17,6 +26,10 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
       this.distance = var2;
    }
 
+   /**
+    * True while the Mang is bound to a corrupting Galath (never flees then)
+    * or no unbound master-Galath is near enough to protect her.
+    */
    boolean shouldAvoid() {
       if (this.manglelieEntity.getCorruptPlayerUUID() != null) {
          return true;

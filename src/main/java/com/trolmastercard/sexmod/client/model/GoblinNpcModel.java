@@ -21,6 +21,18 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
 
+/**
+ * Geckolib model for the goblin: nude/armored geo variants whose per-frame
+ * pass drives the throw/pick-up/vanishing/breeding poses — pregnancy bone,
+ * first-person body hiding, throw-leg swing from the owner's limb motion,
+ * head look-at for awaiting players, and the body offset during breeding
+ * scenes in first person.
+ * <p>
+ * <b>Pose matrix.</b> Body/head bones are hidden or repositioned per action
+ * and per perspective (owner in first person vs. onlookers); the goblin
+ * renderer relies on these exact hidden states for the shoulder/pick-up
+ * views — keep the action switch intact.
+ */
 public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    final float legSwingAngle = 60.0F;
    Minecraft mc = Minecraft.getMinecraft();
@@ -62,6 +74,12 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       return var5 == null ? true : "default".equals(var5.getSkinType());
    }
 
+   /**
+    * Per-frame pose pass (see class javadoc): pregnancy bone, breeding body
+    * offset, look/throw/vanish bone states, throw leg swing and walk/idle
+    * poses. Two near-identical branches cover owned goblins vs. other
+    * entities — keep them in sync.
+    */
    @Override
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations(var1, var2, var3);
@@ -148,6 +166,10 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Hides the body entirely when the owner's own goblin is being thrown in
+    * first person (the POV path renders it instead).
+    */
    void updateIdlePose(AnimationProcessor var1, BaseGirlEntity var2) {
       if (var2.getCurrentAction() == Action.START_THROWING) {
          if (this.mc.gameSettings.thirdPersonView == 0 && this.mc.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var2).getOwnerUserUUID())) {
@@ -159,6 +181,10 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * While the goblin is picked up, onlookers see it lowered by 32 px (dangling
+    * in the owner's hands); the owner in first person keeps the POV placement.
+    */
    void updateWalkPose(AnimationProcessor var1, BaseGirlEntity var2) {
       if (var2.getCurrentAction() == Action.PICK_UP) {
          if (this.mc.gameSettings.thirdPersonView != 0 || !this.mc.player.getPersistentID().equals(((IGoblin)var2).getOwnerUUID())) {
@@ -174,6 +200,11 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Throw/catch leg swing: the goblin's legs swing opposite the owner's
+    * interpolated limb swing (60-degree amplitude) while throwing or being
+    * picked up.
+    */
    void updateThrowPose(AnimationProcessor var1, IGoblin var2, BaseGirlEntity var3) {
       UUID var4 = var2.getOwnerUUID();
       if (var4 != null) {
@@ -193,6 +224,10 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Head-only look at the nearest player within 15 blocks, gated by the
+    * goblin's facing (only looks when the player is in front of it).
+    */
    void updateBoneLook(BaseGirlEntity var1, IBone var2) {
       EntityPlayer var3 = var1.world.getClosestPlayerToEntity(var1, 15.0);
       if (var3 != null) {
@@ -238,6 +273,10 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Body+head look at the nearest player (vanishing pose): body yaw + head
+    * pitch, clamped by the height difference.
+    */
    void updateBoneLook(BaseGirlEntity var1, IBone var2, IBone var3) {
       EntityPlayer var4 = var1.world.getClosestPlayerToEntity(var1, 15.0);
       if (var4 != null) {
@@ -251,6 +290,10 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Start-throw body state for non-owners: locally registered goblins hide
+    * the body; real ones show it with the steve skin hidden.
+    */
    void applyBoneState(IBone var1, AnimationProcessor var2, BaseGirlEntity var3) {
       if (var3.isLocallyRegistered()) {
          var1.setHidden(true);
@@ -260,6 +303,11 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Start-throw body state for the owner: body hidden for locally registered
+    * previews, else hidden until the throw progress passes 15 ticks; steve
+    * skin always hidden during the throw.
+    */
    void applyGoblinBone(IBone var1, AnimationProcessor var2, BaseGirlEntity var3, IGoblin var4) {
       if (var3.isLocallyRegistered()) {
          var1.setHidden(true);

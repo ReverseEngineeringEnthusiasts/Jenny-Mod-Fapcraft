@@ -2,6 +2,9 @@ package com.trolmastercard.sexmod.util;
 
 import net.minecraft.util.math.Vec3d;
 
+/**
+ * Trigonometry helpers (wrapDegrees etc.).
+ */
 public class TrigMath {
    public static double calculatePitchAngle(Vec3d var0, Vec3d var1) {
       double var2 = var1.x - var0.x;

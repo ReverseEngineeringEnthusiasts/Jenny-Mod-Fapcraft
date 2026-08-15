@@ -13,6 +13,20 @@ import net.minecraft.util.math.Vec3d;
 import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 
+/**
+ * <b>Role.</b> Static helpers for the girl renderers that compute the world
+ * offset of "custom" bones (boobs/booty/vagina/fuckhole) so render layers and
+ * effects can target them. Per-renderer bone classification is cached in
+ * {@code d} to keep the parent-bone walk cheap.
+ * <p>
+ * <b>Pitfalls.</b> {@link #offsetBonePosition(Vec3d, Vector3f, Vec3d)} is
+ * misnamed by the deobf — it does NOT add the offset; it progress-lerps the
+ * position toward the skin-color vector ({@code SKIN_COLOR}/
+ * {@code SKIN_COLOR_ALT}) by an eased dot-product factor (0.1 max). The
+ * renderer's look vector must be refreshed via
+ * {@link #updateBoneOffset(EntityLivingBase, float)} every frame before
+ * {@link #getBoneWorldPosition(IGirlRenderer, GeoBone, Vec3d, Vector3f)}.
+ */
 public class BodyParts {
    public static final Vec3d SKIN_COLOR = new Vec3d(0.95, 0.65, 0.85);
    public static final Vec3d SKIN_COLOR_ALT = new Vec3d(0.0, 0.2, 0.3);

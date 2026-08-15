@@ -16,6 +16,19 @@ import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.model.provider.data.EntityModelData;
 
+/**
+ * Geckolib model for the kobold NPC: kobold geo (nude/armored variants) whose
+ * per-frame pass applies the owner's model code — horn variants (up/down),
+ * boob/eye scales, freckle variants, backpack/tailpack pose, crown/egg
+ * visibility — plus action-specific body positioning during the
+ * blowjob/anal/mating-press scenes (transition-time interpolation) and a
+ * tongue bone shown only for blowjob actions.
+ * <p>
+ * <b>Pitfall:</b> the scene body offsets in {@link #handleSwingAnimation}
+ * depend on the action controller being in {@code Transitioning} state and
+ * the {@code aE} data value (0.25 - value); changing either breaks the scene
+ * positioning.
+ */
 public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    static final float swingProgress = 1.2F;
    static final float legSwing = 1.0F;
@@ -37,6 +50,12 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       return new ResourceLocation("sexmod", "animations/kobold/kobold.animation.json");
    }
 
+   /**
+    * Per-frame pass: crown/egg visibility (real kobolds only), model-code
+    * part application (horns, scales, freckles, packs, colors), tongue
+    * visibility by action, then the scene swing animation. Skipped in the
+    * {@link SexWorldClient} preload world.
+    */
    @Override
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations(var1, var2, var3);
@@ -74,6 +93,12 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Scene body positioning while the controller transitions into a scene
+    * action: blowjob actions drive the body forward (positionZ), anal actions
+    * lower+shift it, mating-press actions raise it — all interpolated from
+    * the {@code aE} transition value. See class javadoc pitfall.
+    */
    void handleSwingAnimation(BaseGirlEntity var1, AnimationProcessor var2) {
       if (var1.actionController.getAnimationState() == AnimationState.Transitioning) {
          float var3 = (Float)var1.getDataManager().get(KoboldEntity.aE);
@@ -107,6 +132,10 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Backpack/tailpack pose from the model code (0..3 combinations of
+    * visible/hidden), with the backpack forced visible during PAYMENT.
+    */
    void updateBonePose(BaseGirlEntity var1, AnimationProcessor var2, String var3) {
       int var4 = Integer.parseInt(var3);
       IBone var5 = var2.getBone("backpack");
@@ -134,6 +163,10 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Freckle-head variant selection from the model code (1 = variant 1 pair,
+    * 2 = variant 2 pair, else hidden).
+    */
    void parseBoneColor(AnimationProcessor var1, String var2) {
       int var3 = Integer.parseInt(var2);
       IBone var4 = var1.getBone("frecklesHR1");
@@ -146,6 +179,9 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       var5.setHidden(var3 != 2);
    }
 
+   /**
+    * Freckle-arm variant selection (same 1/2 semantics as the head variant).
+    */
    void getBoneData(AnimationProcessor var1, String var2) {
       int var3 = Integer.parseInt(var2);
       IBone var4 = var1.getBone("frecklesAR1");
@@ -158,6 +194,10 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       var5.setHidden(var3 != 2);
    }
 
+   /**
+    * Eye-spacing from the model code: shifts both eyes apart/symmetrically by
+    * the normalized value (0..1 lerp between the given bounds minus 1).
+    */
    void setBoneRotation(AnimationProcessor var1, String var2, float var3, float var4) {
       if (!Minecraft.getMinecraft().isGamePaused()) {
          float var5 = Float.parseFloat(var2);
@@ -170,6 +210,10 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Uniform scale for the named bones from the model code (0..1 lerp between
+    * the given bounds) — used for boobs and eyes.
+    */
    void setBoneRotationMulti(AnimationProcessor var1, String var2, float var3, float var4, String... var5) {
       float var6 = Float.parseFloat(var2);
       var6 /= 100.0F;
@@ -185,6 +229,10 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Horn part selection: hides every down-horn variant bone and shows the
+    * one chosen by the model code.
+    */
    void getHornsDown(AnimationProcessor var1, String var2) {
       List var3 = this.getHornBones(var1, "hornDL");
       List var4 = this.getHornBones(var1, "hornDR");
@@ -195,6 +243,9 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       var1.getBone("hornDR" + var5).setHidden(false);
    }
 
+   /**
+    * Up-horn variant selection (mirror of {@link #getHornsDown}).
+    */
    void getHornsUp(AnimationProcessor var1, String var2) {
       List var3 = this.getHornBones(var1, "hornUL");
       List var4 = this.getHornBones(var1, "hornUR");
@@ -205,6 +256,10 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       var1.getBone("hornUR" + var5).setHidden(false);
    }
 
+   /**
+    * Collects all bones sharing the given prefix (numbered suffixes until a
+    * null bone) — used for the horn variants.
+    */
    List<IBone> getHornBones(AnimationProcessor var1, String var2) {
       ArrayList var3 = new ArrayList();
       int var4 = 0;
@@ -226,6 +281,10 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Head-look for the idle action, skipped while the kobold is blocked by a
+    * ceiling or on an unstable surface (the scene poses take over).
+    */
    @Override
    protected void handleAnimationEvent(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
       if (!(var1.world instanceof SexWorldClient)) {

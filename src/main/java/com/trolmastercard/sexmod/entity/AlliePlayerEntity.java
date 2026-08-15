@@ -24,6 +24,19 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Player-form Allie — the transformation with the deepthroat and
+ * reverse-cowgirl scenes of the NPC, minus the summon/wish flow. The owner
+ * gets flight while transformed ({@code B_clash233}/{@code onTickClient}
+ * pair).
+ * <p>
+ * <b>Scene flow.</b> Owner commands {@code deepthroat}/{@code Reverse cowgirl}
+ * start the scenes; {@code deepthroat_prepareDone} (sound listener) sends
+ * {@link KoboldStatePacket} to lock the player in and repositions the camera.
+ * Scene end via {@code cowgirl_cumDone}/{@code deepthroat_cumDone} -&gt;
+ * {@code resetCameraAndPhysics()}. {@link #F_clash231()} marks the deepthroat
+ * actions for first-person rendering.
+ */
 public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    static final double au = 4.0;
    static final double at = 4.0;
@@ -181,6 +194,13 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * deepthroat/reverse-cowgirl scenes; {@code deepthroat_prepareDone} sends
+    * the {@link KoboldStatePacket} lock-in, {@code cowgirlSlowDone} re-rolls
+    * the variant counter ({@code ar}), {@code cowgirl_cumDone}/
+    * {@code deepthroat_cumDone} -&gt; {@code resetCameraAndPhysics()}.
+    */
    @Override
    public void registerControllers(AnimationData var1) {
       if (this.actionController == null) {

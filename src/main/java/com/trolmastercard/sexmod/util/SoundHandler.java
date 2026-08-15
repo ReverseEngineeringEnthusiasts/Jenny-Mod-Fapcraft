@@ -7,6 +7,18 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
+/**
+ * <b>Role.</b> Sound-event arrays for every girl/effect, registered into
+ * {@link ForgeRegistries.SOUND_EVENTS} by {@link #registerSounds()} via
+ * reflection over the class fields. {@link #randomSound(SoundEvent[])} picks a
+ * random variant without repeating the same one twice in a row (per-array
+ * history in {@code lastRandomSound}).
+ * <p>
+ * <b>Pitfall.</b> The registry-name derivation ({@code FIELD_NAME.toLowerCase()
+ * with '_'->'.'} plus the field's own name as the suffix) is load-bearing —
+ * renaming a field changes the sound path and breaks the sound files. Array
+ * sizes must match the number of audio files per sound.
+ */
 public class SoundHandler {
    public static final SoundEvent[] MISC_PLOB = new SoundEvent[1];
    public static final SoundEvent[] MISC_BELLJINGLE = new SoundEvent[1];

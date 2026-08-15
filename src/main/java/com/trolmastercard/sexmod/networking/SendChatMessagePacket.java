@@ -14,6 +14,19 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * <b>Role.</b> Proximity chat for girls — a girl's line is broadcast to all
+ * players within 40 blocks of her.
+ * <p>
+ * CLIENT->SERVER: the sender is the girl's client (her speech line); the
+ * SERVER-side handler (scheduled on the main thread) re-broadcasts the message
+ * SERVER->CLIENT via {@code sendToAllAround} centered on the girl's previous
+ * position with a 40-block radius. CLIENT-side handler: prints the message into
+ * the receiving player's chat.
+ * <p>
+ * <b>Note.</b> {@code channel} is repurposed as the TargetPoint dimension id;
+ * keep it consistent with the dimension the girl is in.
+ */
 public class SendChatMessagePacket implements IMessage {
    boolean isValid;
    String message;

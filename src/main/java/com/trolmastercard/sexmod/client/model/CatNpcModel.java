@@ -3,6 +3,10 @@ package com.trolmastercard.sexmod.client.model;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * Geckolib model for the cat NPC: cat geo (both outfit slots map to the same
+ * file), shared texture, standard armor/nude bone groups.
+ */
 public class CatNpcModel extends GirlModel<BaseGirlEntity> {
    @Override
    protected ResourceLocation[] getModelLocations() {
