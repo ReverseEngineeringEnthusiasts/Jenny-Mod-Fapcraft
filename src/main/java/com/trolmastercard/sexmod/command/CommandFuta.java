@@ -33,19 +33,19 @@ public class CommandFuta extends CommandBase implements IClientCommand {
    public static final CommandFuta FUTA_COMMAND = new CommandFuta();
 
    public CommandFuta() {
-      String var1 = "";
+      String line = "";
 
       try {
-         var1 = new BufferedReader(new FileReader("sexmod/futa")).readLine().toLowerCase();
-      } catch (Exception var2) {
+         line = new BufferedReader(new FileReader("sexmod/futa")).readLine().toLowerCase();
+      } catch (Exception e) {
       }
 
-      if (!"".equals(var1)) {
-         if ("true".equals(var1)) {
+      if (!"".equals(line)) {
+         if ("true".equals(line)) {
             ENABLED = true;
          }
 
-         if ("false".equals(var1)) {
+         if ("false".equals(line)) {
             ENABLED = false;
          }
       }
@@ -55,20 +55,20 @@ public class CommandFuta extends CommandBase implements IClientCommand {
       return "futa";
    }
 
-   public String getUsage(ICommandSender var1) {
+   public String getUsage(ICommandSender sender) {
       return "/futa <true|false>";
    }
 
-   public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
-      if (var3.length < 1) {
-         this.executeFuta(var2);
+   public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+      if (args.length < 1) {
+         this.executeFuta(sender);
       } else {
-         String var4 = var3[0].toLowerCase();
-         if ("true".equals(var4)) {
+         String arg = args[0].toLowerCase();
+         if ("true".equals(arg)) {
             ENABLED = true;
          } else {
-            if (!"false".equals(var4)) {
-               this.executeFuta(var2);
+            if (!"false".equals(arg)) {
+               this.executeFuta(sender);
                return;
             }
 
@@ -76,41 +76,41 @@ public class CommandFuta extends CommandBase implements IClientCommand {
          }
 
          try {
-            FileWriter var5 = new FileWriter("sexmod/futa");
-            var5.write(var4);
-            var5.close();
-         } catch (IOException var10) {
-            var10.printStackTrace();
+            FileWriter writer = new FileWriter("sexmod/futa");
+            writer.write(arg);
+            writer.close();
+         } catch (IOException ioe) {
+            ioe.printStackTrace();
          }
 
          try {
-            for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
-               if (!var6.isDead && var6.world.isRemote && var6 instanceof GalathEntity) {
-                  Vec3d var7 = var6.getCachedBoneOffset("cockParticles").add(var6.getPositionVector());
-                  Random var8 = var6.getRNG();
+            for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+               if (!girl.isDead && girl.world.isRemote && girl instanceof GalathEntity) {
+                  Vec3d bonePos = girl.getCachedBoneOffset("cockParticles").add(girl.getPositionVector());
+                  Random random = girl.getRNG();
 
-                  for (int var9 = 0; var9 < 10; var9++) {
-                     var6.world
+                  for (int i = 0; i < 10; i++) {
+                     girl.world
                         .spawnParticle(
                            EnumParticleTypes.DRAGON_BREATH,
-                           var7.x,
-                           var7.y,
-                           var7.z,
-                           var8.nextFloat() * 0.025F * ThreadNames.randomSign(),
-                           var8.nextFloat() * 0.025F * ThreadNames.randomSign(),
-                           var8.nextFloat() * 0.025F * ThreadNames.randomSign(),
+                           bonePos.x,
+                           bonePos.y,
+                           bonePos.z,
+                           random.nextFloat() * 0.025F * ThreadNames.randomSign(),
+                           random.nextFloat() * 0.025F * ThreadNames.randomSign(),
+                           random.nextFloat() * 0.025F * ThreadNames.randomSign(),
                            new int[0]
                         );
                   }
                }
             }
-         } catch (ConcurrentModificationException var11) {
+         } catch (ConcurrentModificationException cme) {
          }
       }
    }
 
-   void executeFuta(ICommandSender var1) {
-      var1.sendMessage(
+   void executeFuta(ICommandSender sender) {
+      sender.sendMessage(
          new TextComponentString(
             String.format(
                "%sYou can either do %s/futa true %sor %s/futa false", TextFormatting.YELLOW, TextFormatting.GRAY, TextFormatting.YELLOW, TextFormatting.GRAY
@@ -119,7 +119,7 @@ public class CommandFuta extends CommandBase implements IClientCommand {
       );
    }
 
-   public boolean allowUsageWithoutPrefix(ICommandSender var1, String var2) {
+   public boolean allowUsageWithoutPrefix(ICommandSender sender, String args) {
       return false;
    }
 

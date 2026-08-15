@@ -18,5 +18,5 @@ public interface GalathActionListener {
     * CLIENT-side; invoked from the entity's update loop, so implementations must not
     * re-enter entity updates or throw.
     */
-   void stop(GalathEntity var1);
+   void stop(GalathEntity galath);
 }

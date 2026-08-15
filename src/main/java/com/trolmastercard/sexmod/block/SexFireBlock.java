@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class SexFireBlock extends BlockFire {
    public static final Block FIRE = new SexFireBlock();
 
-   public void updateTick(World var1, BlockPos var2, IBlockState var3, Random var4) {
+   public void updateTick(World world, BlockPos pos, IBlockState state, Random random) {
    }
 
    public static void register() {
@@ -30,7 +30,7 @@ public class SexFireBlock extends BlockFire {
    }
 
    @SubscribeEvent
-   public static void registerBlocks(Register<Block> var0) {
-      var0.getRegistry().register(FIRE);
+   public static void registerBlocks(Register<Block> event) {
+      event.getRegistry().register(FIRE);
    }
 }

@@ -30,40 +30,40 @@ public class DoorInteractAiGoal extends EntityAIBase {
    float approachZ;
    int ticksRemaining = 10;
 
-   public DoorInteractAiGoal(EntityLiving var1) {
-      this.entity = var1;
-      if (!(var1.getNavigator() instanceof PathNavigateGround)) {
+   public DoorInteractAiGoal(EntityLiving entity) {
+      this.entity = entity;
+      if (!(entity.getNavigator() instanceof PathNavigateGround)) {
          throw new IllegalArgumentException("Unsupported mob type for DoorInteractGoal");
       }
    }
 
    public boolean shouldExecute() {
-      boolean var1 = true;
+      boolean found = true;
 
-      for (int var2 = -3; var2 < 5; var2++) {
-         for (int var3 = -3; var3 < 5; var3++) {
-            IBlockState var4 = this.entity.world.getBlockState(this.entity.getPosition().add(var2, 0, var3));
-            if (var4.getBlock() instanceof BlockDoor && var4.getMaterial() == Material.WOOD) {
-               var1 = false;
+      for (int x = -3; x < 5; x++) {
+         for (int z = -3; z < 5; z++) {
+            IBlockState state = this.entity.world.getBlockState(this.entity.getPosition().add(x, 0, z));
+            if (state.getBlock() instanceof BlockDoor && state.getMaterial() == Material.WOOD) {
+               found = false;
                break;
             }
          }
 
-         if (!var1) {
+         if (!found) {
             break;
          }
       }
 
-      if (var1) {
+      if (found) {
          return false;
       }
 
-      PathNavigateGround var6 = (PathNavigateGround)this.entity.getNavigator();
-      Path var7 = var6.getPath();
-      if (var7 != null && !var7.isFinished() && var6.getEnterDoors()) {
-         for (int var8 = 0; var8 < Math.min(var7.getCurrentPathIndex() + 2, var7.getCurrentPathLength()); var8++) {
-            PathPoint var5 = var7.getPathPointFromIndex(var8);
-            this.doorPosition = new BlockPos(var5.x, var5.y + 1, var5.z);
+      PathNavigateGround navigator = (PathNavigateGround)this.entity.getNavigator();
+      Path path = navigator.getPath();
+      if (path != null && !path.isFinished() && navigator.getEnterDoors()) {
+         for (int i = 0; i < Math.min(path.getCurrentPathIndex() + 2, path.getCurrentPathLength()); i++) {
+            PathPoint point = path.getPathPointFromIndex(i);
+            this.doorPosition = new BlockPos(point.x, point.y + 1, point.z);
             if (this.entity.getDistanceSq(this.doorPosition.getX(), this.entity.posY, this.doorPosition.getZ()) <= 2.25) {
                this.doorBlock = this.findDoorBlock(this.doorPosition);
                if (this.doorBlock != null) {
@@ -92,10 +92,10 @@ public class DoorInteractAiGoal extends EntityAIBase {
    }
 
    public void updateTask() {
-      float var1 = (float)(this.doorPosition.getX() + 0.5F - this.entity.posX);
-      float var2 = (float)(this.doorPosition.getZ() + 0.5F - this.entity.posZ);
-      float var3 = this.approachX * var1 + this.approachZ * var2;
-      if (var3 < 0.0F && --this.ticksRemaining <= 0) {
+      float dx = (float)(this.doorPosition.getX() + 0.5F - this.entity.posX);
+      float dz = (float)(this.doorPosition.getZ() + 0.5F - this.entity.posZ);
+      float dot = this.approachX * dx + this.approachZ * dz;
+      if (dot < 0.0F && --this.ticksRemaining <= 0) {
          this.doorBlock.toggleDoor(this.entity.world, this.doorPosition, false);
          this.hasOpenedDoor = true;
       }
@@ -105,10 +105,10 @@ public class DoorInteractAiGoal extends EntityAIBase {
       this.ticksRemaining = 10;
    }
 
-   private BlockDoor findDoorBlock(BlockPos var1) {
-      IBlockState var2 = this.entity.world.getBlockState(var1);
-      Block var3 = var2.getBlock();
-      return var3 instanceof BlockDoor && var2.getMaterial() == Material.WOOD ? (BlockDoor)var3 : null;
+   private BlockDoor findDoorBlock(BlockPos pos) {
+      IBlockState state = this.entity.world.getBlockState(pos);
+      Block block = state.getBlock();
+      return block instanceof BlockDoor && state.getMaterial() == Material.WOOD ? (BlockDoor)block : null;
    }
 
 }

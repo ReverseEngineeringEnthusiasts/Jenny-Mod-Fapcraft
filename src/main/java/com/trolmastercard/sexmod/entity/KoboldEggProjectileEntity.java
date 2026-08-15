@@ -26,12 +26,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * and resets her scene state on every ender-teleport event.
  */
 public class KoboldEggProjectileEntity extends EntityEnderPearl {
-   public KoboldEggProjectileEntity(World var1) {
-      super(var1);
+   public KoboldEggProjectileEntity(World world) {
+      super(world);
    }
 
-   public KoboldEggProjectileEntity(World var1, EntityLivingBase var2) {
-      super(var1, var2);
+   public KoboldEggProjectileEntity(World world, EntityLivingBase thrower) {
+      super(world, thrower);
    }
 
    /**
@@ -40,25 +40,25 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
     * 5 blocks of the girl's home) the thrower is teleported via the
     * ender-teleport event and dismounted.
     */
-   protected void onImpact(RayTraceResult var1) {
-      EntityLivingBase var2 = this.getThrower();
-      if (var2 != null) {
-         if (var1.typeOfHit == Type.BLOCK) {
-            BlockPos var7 = var1.getBlockPos();
-            TileEntity var10 = this.world.getTileEntity(var7);
-            if (var10 instanceof TileEntityEndGateway) {
-               TileEntityEndGateway var12 = (TileEntityEndGateway)var10;
-               if (var2 instanceof EntityPlayerMP) {
-                  CriteriaTriggers.ENTER_BLOCK.trigger((EntityPlayerMP)var2, this.world.getBlockState(var7));
+   protected void onImpact(RayTraceResult rayTrace) {
+      EntityLivingBase thrower = this.getThrower();
+      if (thrower != null) {
+         if (rayTrace.typeOfHit == Type.BLOCK) {
+            BlockPos blockPos = rayTrace.getBlockPos();
+            TileEntity tileEntity = this.world.getTileEntity(blockPos);
+            if (tileEntity instanceof TileEntityEndGateway) {
+               TileEntityEndGateway gateway = (TileEntityEndGateway)tileEntity;
+               if (thrower instanceof EntityPlayerMP) {
+                  CriteriaTriggers.ENTER_BLOCK.trigger((EntityPlayerMP)thrower, this.world.getBlockState(blockPos));
                }
 
-               var12.teleportEntity(var2);
+               gateway.teleportEntity(thrower);
                this.setDead();
                return;
             }
          }
 
-         for (int var8 = 0; var8 < 32; var8++) {
+         for (int i = 0; i < 32; i++) {
             this.world
                .spawnParticle(
                   EnumParticleTypes.PORTAL,
@@ -73,33 +73,33 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
          }
 
          if (!this.world.isRemote) {
-            BaseGirlEntity var9 = (BaseGirlEntity)var2;
-            if (var9.homePos.distanceTo(this.getPositionVector()) < 5.0) {
-               EnderTeleportEvent var11 = new EnderTeleportEvent(var2, this.posX, this.posY, this.posZ, 5.0F);
-               if (!MinecraftForge.EVENT_BUS.post(var11)) {
-                  if (var2.isRiding()) {
-                     var2.dismountRidingEntity();
+            BaseGirlEntity girl = (BaseGirlEntity)thrower;
+            if (girl.homePos.distanceTo(this.getPositionVector()) < 5.0) {
+               EnderTeleportEvent teleportEvent = new EnderTeleportEvent(thrower, this.posX, this.posY, this.posZ, 5.0F);
+               if (!MinecraftForge.EVENT_BUS.post(teleportEvent)) {
+                  if (thrower.isRiding()) {
+                     thrower.dismountRidingEntity();
                   }
 
-                  var2.setPositionAndUpdate(this.posX, this.posY, this.posZ);
-                  var2.fallDistance = 0.0F;
+                  thrower.setPositionAndUpdate(this.posX, this.posY, this.posZ);
+                  thrower.fallDistance = 0.0F;
                }
             }
 
             this.setDead();
          }
       } else {
-         if (var1.typeOfHit == Type.BLOCK) {
-            BlockPos var3 = var1.getBlockPos();
-            TileEntity var4 = this.world.getTileEntity(var3);
-            if (var4 instanceof TileEntityEndGateway) {
-               TileEntityEndGateway var5 = (TileEntityEndGateway)var4;
-               var5.teleportEntity(this);
+         if (rayTrace.typeOfHit == Type.BLOCK) {
+            BlockPos blockPos = rayTrace.getBlockPos();
+            TileEntity tileEntity = this.world.getTileEntity(blockPos);
+            if (tileEntity instanceof TileEntityEndGateway) {
+               TileEntityEndGateway gateway = (TileEntityEndGateway)tileEntity;
+               gateway.teleportEntity(this);
                return;
             }
          }
 
-         for (int var6 = 0; var6 < 32; var6++) {
+         for (int i = 0; i < 32; i++) {
             this.world
                .spawnParticle(
                   EnumParticleTypes.PORTAL,
@@ -121,13 +121,13 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
 
    public static class a {
       @SubscribeEvent
-      public void onEnderTeleport(EnderTeleportEvent var1) {
-         if (var1.getEntityLiving() instanceof BaseGirlEntity) {
-            BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntityLiving();
-            var2.activeEnderPearl = null;
-            var2.setCurrentAction(Action.NULL);
-            var2.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
-            var2.goHome();
+      public void onEnderTeleport(EnderTeleportEvent event) {
+         if (event.getEntityLiving() instanceof BaseGirlEntity) {
+            BaseGirlEntity girl = (BaseGirlEntity)event.getEntityLiving();
+            girl.activeEnderPearl = null;
+            girl.setCurrentAction(Action.NULL);
+            girl.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
+            girl.goHome();
          }
       }
    }

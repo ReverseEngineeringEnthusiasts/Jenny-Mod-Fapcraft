@@ -58,7 +58,7 @@ public class GirlSavedData extends WorldSavedData {
       super("sexmod:galath_owner_ship");
    }
 
-   public GirlSavedData(String var1) {
+   public GirlSavedData(String dataId) {
       super("sexmod:galath_owner_ship");
    }
 
@@ -67,205 +67,205 @@ public class GirlSavedData extends WorldSavedData {
       h.clear();
    }
 
-   public static void markAsManglelieOwned(UUID var0) {
-      UUID var1 = getManglelieOwnerId(var0);
-      if (var1 != null) {
-         mangOwnershipSet.add(var1);
+   public static void markAsManglelieOwned(UUID girlUuid) {
+      UUID ownerId = getManglelieOwnerId(girlUuid);
+      if (ownerId != null) {
+         mangOwnershipSet.add(ownerId);
       }
    }
 
-   public static boolean isManglelieOwned(UUID var0) {
-      return mangOwnershipSet.contains(var0);
+   public static boolean isManglelieOwned(UUID girlUuid) {
+      return mangOwnershipSet.contains(girlUuid);
    }
 
-   public static boolean isOwnerNearby(GalathEntity var0) {
-      UUID var1 = h.getByValue(var0.getGirlId());
-      if (var1 == null) {
+   public static boolean isOwnerNearby(GalathEntity galath) {
+      UUID ownerId = h.getByValue(galath.getGirlId());
+      if (ownerId == null) {
          return false;
       } else {
-         World var2 = var0.world;
-         EntityPlayer var3 = var2.getPlayerEntityByUUID(var1);
-         if (var3 == null) {
+         World world = galath.world;
+         EntityPlayer owner = world.getPlayerEntityByUUID(ownerId);
+         if (owner == null) {
             return true;
          } else {
-            return var3.dimension != var0.dimension ? false : !(var3.getDistance(var0) > 60.0F);
+            return owner.dimension != galath.dimension ? false : !(owner.getDistance(galath) > 60.0F);
          }
       }
    }
 
-   public static boolean isOwnerOf(EntityPlayer var0, GalathEntity var1) {
-      return var1.getGirlId().equals(h.getByKey(var0.getPersistentID()));
+   public static boolean isOwnerOf(EntityPlayer player, GalathEntity galath) {
+      return galath.getGirlId().equals(h.getByKey(player.getPersistentID()));
    }
 
-   public static void updateMangleliePartner(GalathEntity var0) {
-      ManglelieEntity var1 = var0.getMangleliePartner(true);
-      if (var1 != null) {
-         var0.world.removeEntity(var1);
+   public static void updateMangleliePartner(GalathEntity galath) {
+      ManglelieEntity partner = galath.getMangleliePartner(true);
+      if (partner != null) {
+         galath.world.removeEntity(partner);
       }
 
-      UUID var2 = h.getByValue(var0.getGirlId());
-      if (var2 == null) {
-         var0.world.removeEntity(var0);
+      UUID ownerId = h.getByValue(galath.getGirlId());
+      if (ownerId == null) {
+         galath.world.removeEntity(galath);
       } else {
-         World var3 = var0.world;
-         EntityPlayer var4 = var3.getPlayerEntityByUUID(var2);
-         var0.world.removeEntity(var0);
-         h.removeByKey(var2);
-         if (var4 != null) {
-            PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var4);
+         World world = galath.world;
+         EntityPlayer owner = world.getPlayerEntityByUUID(ownerId);
+         galath.world.removeEntity(galath);
+         h.removeByKey(ownerId);
+         if (owner != null) {
+            PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)owner);
          }
       }
    }
 
-   public static boolean hasOwner(UUID var0) {
-      return h.getByKey(var0) != null;
+   public static boolean hasOwner(UUID uuid) {
+      return h.getByKey(uuid) != null;
    }
 
-   public static UUID getManglelieOwnerId(UUID var0) {
-      return h.getByValue(var0);
+   public static UUID getManglelieOwnerId(UUID uuid) {
+      return h.getByValue(uuid);
    }
 
-   public static UUID getManglelieOwnerOf(GalathEntity var0) {
-      return var0 == null ? null : getManglelieOwnerId(var0.getGirlId());
+   public static UUID getManglelieOwnerOf(GalathEntity galath) {
+      return galath == null ? null : getManglelieOwnerId(galath.getGirlId());
    }
 
-   public static UUID getOwnerId(UUID var0) {
-      return h.getByKey(var0);
+   public static UUID getOwnerId(UUID uuid) {
+      return h.getByKey(uuid);
    }
 
-   public static UUID getOwnerOf(EntityPlayer var0) {
-      return var0 == null ? null : getOwnerId(var0.getPersistentID());
+   public static UUID getOwnerOf(EntityPlayer player) {
+      return player == null ? null : getOwnerId(player.getPersistentID());
    }
 
-   public static void setOwnerShip(UUID var0, UUID var1) {
-      h.put(var0, var1);
+   public static void setOwnerShip(UUID playerUuid, UUID girlUuid) {
+      h.put(playerUuid, girlUuid);
    }
 
-   public static void grantOwnership(EntityPlayer var0, GalathEntity var1) {
-      if (var0 != null) {
-         if (var1 != null) {
-            setOwnerShip(var0.getPersistentID(), var1.getGirlId());
+   public static void grantOwnership(EntityPlayer player, GalathEntity galath) {
+      if (player != null) {
+         if (galath != null) {
+            setOwnerShip(player.getPersistentID(), galath.getGirlId());
          }
       }
    }
 
-   public static void removeOwner(UUID var0) {
-      h.removeByKey(var0);
+   public static void removeOwner(UUID uuid) {
+      h.removeByKey(uuid);
    }
 
-   public static void removeOwnerOf(EntityPlayer var0) {
-      if (var0 != null) {
-         removeOwner(var0.getPersistentID());
+   public static void removeOwnerOf(EntityPlayer player) {
+      if (player != null) {
+         removeOwner(player.getPersistentID());
       }
    }
 
-   public static boolean shouldDespawn(UUID var0, World var1) {
-      Long var2 = b.get(var0);
-      if (!isManglelieOwned(var0)) {
+   public static boolean shouldDespawn(UUID girlUuid, World world) {
+      Long lastCumTime = b.get(girlUuid);
+      if (!isManglelieOwned(girlUuid)) {
          return false;
       } else {
-         return var2 == null ? true : var1.getTotalWorldTime() - var2 > 0L;
+         return lastCumTime == null ? true : world.getTotalWorldTime() - lastCumTime > 0L;
       }
    }
 
-   public static void saveCumTime(UUID var0, Long var1) {
-      if (var0 == null) {
+   public static void saveCumTime(UUID playerUuid, Long time) {
+      if (playerUuid == null) {
          Main.LOGGER.log(Level.WARN, "tried to save last cum dosage time on NULL player");
       } else {
-         b.put(var0, var1);
+         b.put(playerUuid, time);
       }
    }
 
    @SubscribeEvent
-   public void onServerTick(ServerTickEvent var1) {
-      if (var1.phase == Phase.END) {
-         World var2 = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
-         ArrayList var3 = new ArrayList();
+   public void onServerTick(ServerTickEvent event) {
+      if (event.phase == Phase.END) {
+         World world = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
+         ArrayList playersToNotify = new ArrayList();
 
-         for (Entry var5 : h.entrySet()) {
-            UUID var6 = (UUID)var5.getKey();
-            UUID var7 = (UUID)var5.getValue();
-            EntityPlayer var8 = var2.getPlayerEntityByUUID(var6);
-            if (var8 != null && BaseGirlEntity.getServerGirlEntity(var7) == null) {
-               var3.add(var8);
+         for (Entry entry : h.entrySet()) {
+            UUID ownerUuid = (UUID)entry.getKey();
+            UUID girlUuid = (UUID)entry.getValue();
+            EntityPlayer owner = world.getPlayerEntityByUUID(ownerUuid);
+            if (owner != null && BaseGirlEntity.getServerGirlEntity(girlUuid) == null) {
+               playersToNotify.add(owner);
             }
          }
 
-         for (EntityPlayer var10 : (java.util.Collection<EntityPlayer>) (var3) ) {
-            h.removeByKey(var10.getPersistentID());
-            PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)var10);
+         for (EntityPlayer player : (java.util.Collection<EntityPlayer>) (playersToNotify) ) {
+            h.removeByKey(player.getPersistentID());
+            PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)player);
          }
       }
    }
 
    @SubscribeEvent
-   public void onSave(Save var1) {
-      World var2 = var1.getWorld();
-      var2.getMapStorage().setData("sexmod:galath_owner_ship", this);
+   public void onSave(Save event) {
+      World world = event.getWorld();
+      world.getMapStorage().setData("sexmod:galath_owner_ship", this);
       this.markDirty();
    }
 
    @SubscribeEvent
-   public void onLoad(Load var1) {
-      World var2 = var1.getWorld();
-      var2.getMapStorage().getOrLoadData(GirlSavedData.class, "sexmod:galath_owner_ship");
+   public void onLoad(Load event) {
+      World world = event.getWorld();
+      world.getMapStorage().getOrLoadData(GirlSavedData.class, "sexmod:galath_owner_ship");
    }
 
-   public void readFromNBT(NBTTagCompound var1) {
-      NBTTagCompound var2 = var1.getCompoundTag("sexmod:ownershipdata");
-      int var3 = var2.getInteger("amount");
+   public void readFromNBT(NBTTagCompound nbt) {
+      NBTTagCompound tag = nbt.getCompoundTag("sexmod:ownershipdata");
+      int count = tag.getInteger("amount");
 
-      for (int var4 = 0; var4 < var3; var4++) {
-         UUID var5 = var2.getUniqueId("master" + var4);
-         UUID var6 = var2.getUniqueId("galath" + var4);
-         long var7 = var2.getLong("lastcumdosage" + var4);
-         if (var5 != null && var6 != null) {
-            h.put(var5, var6);
-            b.put(var5, var7);
+      for (int i = 0; i < count; i++) {
+         UUID masterUuid = tag.getUniqueId("master" + i);
+         UUID galathUuid = tag.getUniqueId("galath" + i);
+         long lastCumTime = tag.getLong("lastcumdosage" + i);
+         if (masterUuid != null && galathUuid != null) {
+            h.put(masterUuid, galathUuid);
+            b.put(masterUuid, lastCumTime);
          } else {
             Main.LOGGER.fatal("OMFG WHOOP WHOOP SAVING DIDNT WORK CORRECTLY AAAAAAAAAAA");
          }
       }
 
-      NBTTagCompound var9 = var1.getCompoundTag("sexmod:mangownershipdata");
+      NBTTagCompound mangTag = nbt.getCompoundTag("sexmod:mangownershipdata");
 
-      for (int var10 = 0; var9.hasUniqueId("mang" + var10); var10++) {
-         mangOwnershipSet.add(var9.getUniqueId("mang" + var10));
+      for (int i2 = 0; mangTag.hasUniqueId("mang" + i2); i2++) {
+         mangOwnershipSet.add(mangTag.getUniqueId("mang" + i2));
       }
 
-      var1.setTag("sexmod:mangownershipdata", new NBTTagCompound());
-      var1.setTag("sexmod:ownershipdata", new NBTTagCompound());
+      nbt.setTag("sexmod:mangownershipdata", new NBTTagCompound());
+      nbt.setTag("sexmod:ownershipdata", new NBTTagCompound());
    }
 
-   public NBTTagCompound writeToNBT(NBTTagCompound var1) {
-      NBTTagCompound var2 = new NBTTagCompound();
-      var2.setInteger("amount", h.size());
-      int var3 = 0;
+   public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+      NBTTagCompound tag = new NBTTagCompound();
+      tag.setInteger("amount", h.size());
+      int i = 0;
 
-      for (Entry var5 : h.entrySet()) {
-         UUID var6 = (UUID)var5.getKey();
-         UUID var7 = (UUID)var5.getValue();
-         Long var8 = b.get(var6);
-         if (var8 == null) {
-            var8 = 0L;
+      for (Entry entry : h.entrySet()) {
+         UUID masterUuid = (UUID)entry.getKey();
+         UUID galathUuid = (UUID)entry.getValue();
+         Long cumTime = b.get(masterUuid);
+         if (cumTime == null) {
+            cumTime = 0L;
          }
 
-         var2.setUniqueId("galath" + var3, var7);
-         var2.setUniqueId("master" + var3, var6);
-         var2.setLong("lastcumdosage" + var3, var8);
-         var3++;
+         tag.setUniqueId("galath" + i, galathUuid);
+         tag.setUniqueId("master" + i, masterUuid);
+         tag.setLong("lastcumdosage" + i, cumTime);
+         i++;
       }
 
-      NBTTagCompound var10 = new NBTTagCompound();
-      var3 = 0;
+      NBTTagCompound mangTag = new NBTTagCompound();
+      i = 0;
 
-      for (UUID var12 : mangOwnershipSet) {
-         var10.setUniqueId("mang" + var3++, var12);
+      for (UUID uuid : mangOwnershipSet) {
+         mangTag.setUniqueId("mang" + i++, uuid);
       }
 
-      var1.setTag("sexmod:ownershipdata", var2);
-      var1.setTag("sexmod:mangownershipdata", var10);
-      return var1;
+      nbt.setTag("sexmod:ownershipdata", tag);
+      nbt.setTag("sexmod:mangownershipdata", mangTag);
+      return nbt;
    }
 
 }

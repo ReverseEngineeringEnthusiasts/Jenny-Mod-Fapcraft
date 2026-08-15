@@ -21,14 +21,14 @@ public class BiaModel extends ModelBase implements IVanillaModel {
       this.rootPart.cubeList.add(new ModelBox(this.rootPart, 0, 0, -2.0F, -6.0F, 0.0F, 2, 6, 2, 0.0F, false));
    }
 
-   public void render(Entity var1, float var2, float var3, float var4, float var5, float var6, float var7) {
-      this.rootPart.render(var7);
+   public void render(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+      this.rootPart.render(scale);
    }
 
-   public void setRotation(ModelRenderer var1, float var2, float var3, float var4) {
-      var1.rotateAngleX = var2;
-      var1.rotateAngleY = var3;
-      var1.rotateAngleZ = var4;
+   public void setRotation(ModelRenderer modelRenderer, float x, float y, float z) {
+      modelRenderer.rotateAngleX = x;
+      modelRenderer.rotateAngleY = y;
+      modelRenderer.rotateAngleZ = z;
    }
 
    @Override

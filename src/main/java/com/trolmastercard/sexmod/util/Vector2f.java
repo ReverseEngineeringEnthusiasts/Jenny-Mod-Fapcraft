@@ -7,8 +7,8 @@ public class Vector2f {
    public float x;
    public float y;
 
-   public Vector2f(float var1, float var2) {
-      this.x = var1;
-      this.y = var2;
+   public Vector2f(float x, float y) {
+      this.x = x;
+      this.y = y;
    }
 }

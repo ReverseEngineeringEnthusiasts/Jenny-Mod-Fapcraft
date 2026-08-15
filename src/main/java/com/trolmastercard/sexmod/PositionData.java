@@ -53,18 +53,18 @@ public class PositionData {
     * modification is tolerated (see class javadoc).
     */
    @SubscribeEvent
-   public void onPre(Pre var1) {
+   public void onPre(Pre event) {
       try {
-         for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
-            if (!var3.isDead && var3.getInteractionPlayerUUID() != null && var3.getCurrentAction() != Action.NULL) {
-               EntityPlayer var4 = var1.getEntityPlayer();
-               if (var3.getCurrentAction().hasPlayer && (var3.getInteractionPlayerUUID().equals(var4.getPersistentID()) || var3.getInteractionPlayerUUID().equals(var4.getUniqueID()))) {
-                  var1.setCanceled(true);
+         for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+            if (!girl.isDead && girl.getInteractionPlayerUUID() != null && girl.getCurrentAction() != Action.NULL) {
+               EntityPlayer player = event.getEntityPlayer();
+               if (girl.getCurrentAction().hasPlayer && (girl.getInteractionPlayerUUID().equals(player.getPersistentID()) || girl.getInteractionPlayerUUID().equals(player.getUniqueID()))) {
+                  event.setCanceled(true);
                   return;
                }
             }
          }
-      } catch (ConcurrentModificationException var5) {
+      } catch (ConcurrentModificationException cme) {
       }
    }
 
@@ -75,27 +75,27 @@ public class PositionData {
     * girl). Without this the player's own arm would clip through the scene.
     */
    @SubscribeEvent
-   public void onRenderHand(RenderHandEvent var1) {
-      Minecraft var2 = Minecraft.getMinecraft();
-      EntityPlayerSP var3 = var2.player;
-      AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3);
-      if (var4 != null && var4.isAnchored()) {
-         var1.setCanceled(true);
+   public void onRenderHand(RenderHandEvent event) {
+      Minecraft mc = Minecraft.getMinecraft();
+      EntityPlayerSP player = mc.player;
+      AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player);
+      if (playerGirl != null && playerGirl.isAnchored()) {
+         event.setCanceled(true);
       } else {
          try {
-            for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
-               UUID var7 = var6.getInteractionPlayerUUID();
-               Action var8 = var6.getCurrentAction();
-               if (!var6.isDead
-                  && var7 != null
-                  && var8 != null
-                  && var8.hasPlayer
-                  && (var7.equals(var3.getUniqueID()) || var7.equals(var3.getPersistentID()))) {
-                  var1.setCanceled(true);
+            for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+               UUID partnerUuid = girl.getInteractionPlayerUUID();
+               Action action = girl.getCurrentAction();
+               if (!girl.isDead
+                  && partnerUuid != null
+                  && action != null
+                  && action.hasPlayer
+                  && (partnerUuid.equals(player.getUniqueID()) || partnerUuid.equals(player.getPersistentID()))) {
+                  event.setCanceled(true);
                   return;
                }
             }
-         } catch (ConcurrentModificationException var9) {
+         } catch (ConcurrentModificationException cme) {
          }
       }
    }
@@ -116,37 +116,37 @@ public class PositionData {
     */
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onRenderTick(RenderTickEvent var1) {
-      Minecraft var2 = Minecraft.getMinecraft();
-      if (var2.player != null) {
-         if (var1.phase == Phase.END) {
+   public void onRenderTick(RenderTickEvent event) {
+      Minecraft mc = Minecraft.getMinecraft();
+      if (mc.player != null) {
+         if (event.phase == Phase.END) {
             if (this.position != null) {
-               var2.player.setPosition(this.position.x, this.position.y, this.position.z);
-               var2.player.lastTickPosX = this.rotation.x;
-               var2.player.lastTickPosY = this.rotation.y;
-               var2.player.lastTickPosZ = this.rotation.z;
+               mc.player.setPosition(this.position.x, this.position.y, this.position.z);
+               mc.player.lastTickPosX = this.rotation.x;
+               mc.player.lastTickPosY = this.rotation.y;
+               mc.player.lastTickPosZ = this.rotation.z;
                this.position = null;
                this.rotation = null;
             }
-         } else if (var2.gameSettings.thirdPersonView == 0) {
-            BaseGirlEntity var3 = BaseGirlEntity.getGirlByUUID(var2.player.getPersistentID(), Boolean.valueOf(false));
-            if (var3 != null) {
-               if (var3.getCurrentAction().useBoyCam) {
-                  if (!var3.isCustomType()) {
-                     this.position = var2.player.getPositionVector();
-                     this.rotation = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
-                     Vec3d var4 = var3.isAnchored()
-                        ? var3.getCachedBoneOffset("boyCam").add(var3.getTargetPosition())
-                        : var3.getCachedBoneOffset("boyCam")
+         } else if (mc.gameSettings.thirdPersonView == 0) {
+            BaseGirlEntity girl = BaseGirlEntity.getGirlByUUID(mc.player.getPersistentID(), Boolean.valueOf(false));
+            if (girl != null) {
+               if (girl.getCurrentAction().useBoyCam) {
+                  if (!girl.isCustomType()) {
+                     this.position = mc.player.getPositionVector();
+                     this.rotation = new Vec3d(mc.player.lastTickPosX, mc.player.lastTickPosY, mc.player.lastTickPosZ);
+                     Vec3d bonePos = girl.isAnchored()
+                        ? girl.getCachedBoneOffset("boyCam").add(girl.getTargetPosition())
+                        : girl.getCachedBoneOffset("boyCam")
                            .add(
-                              RotationHelper.lerpVec3dDouble(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var1.renderTickTime)
+                              RotationHelper.lerpVec3dDouble(new Vec3d(girl.lastTickPosX, girl.lastTickPosY, girl.lastTickPosZ), girl.getPositionVector(), event.renderTickTime)
                            );
-                     var2.player.posX = var4.x;
-                     var2.player.posY = var4.y - var2.player.getEyeHeight();
-                     var2.player.posZ = var4.z;
-                     var2.player.lastTickPosX = var4.x;
-                     var2.player.lastTickPosY = var4.y - var2.player.getEyeHeight();
-                     var2.player.lastTickPosZ = var4.z;
+                     mc.player.posX = bonePos.x;
+                     mc.player.posY = bonePos.y - mc.player.getEyeHeight();
+                     mc.player.posZ = bonePos.z;
+                     mc.player.lastTickPosX = bonePos.x;
+                     mc.player.lastTickPosY = bonePos.y - mc.player.getEyeHeight();
+                     mc.player.lastTickPosZ = bonePos.z;
                   }
                }
             }

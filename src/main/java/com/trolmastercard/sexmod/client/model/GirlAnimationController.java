@@ -15,15 +15,15 @@ import software.bernie.geckolib3.core.easing.EasingType;
  * custom logic) — keep them in sync if geckolib's API changes.
  */
 public class GirlAnimationController<T extends IAnimatable> extends AnimationController<T> {
-   public GirlAnimationController(T var1, String var2, float var3, AnimationController.IAnimationPredicate<T> var4) {
-      super((T)var1, var2, var3, var4);
+   public GirlAnimationController(T animatable, String name, float transitionLengthTicks, AnimationController.IAnimationPredicate<T> animationPredicate) {
+      super((T)animatable, name, transitionLengthTicks, animationPredicate);
    }
 
-   public GirlAnimationController(T var1, String var2, float var3, EasingType var4, AnimationController.IAnimationPredicate<T> var5) {
-      super((T)var1, var2, var3, var4, var5);
+   public GirlAnimationController(T animatable, String name, float transitionLengthTicks, EasingType easingType, AnimationController.IAnimationPredicate<T> animationPredicate) {
+      super((T)animatable, name, transitionLengthTicks, easingType, animationPredicate);
    }
 
-   public GirlAnimationController(T var1, String var2, float var3, Function<Double, Double> var4, AnimationController.IAnimationPredicate<T> var5) {
-      super((T)var1, var2, var3, var4, var5);
+   public GirlAnimationController(T animatable, String name, float transitionLengthTicks, Function<Double, Double> easingFunction, AnimationController.IAnimationPredicate<T> animationPredicate) {
+      super((T)animatable, name, transitionLengthTicks, easingFunction, animationPredicate);
    }
 }

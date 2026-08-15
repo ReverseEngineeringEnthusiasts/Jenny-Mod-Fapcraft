@@ -7,5 +7,5 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
  * Supplies a bone rotation value (render-time hook for bone animation).
  */
 public interface IBoneRotationSupplier {
-   float getRotation(BaseGirlEntity var1);
+   float getRotation(BaseGirlEntity girl);
 }

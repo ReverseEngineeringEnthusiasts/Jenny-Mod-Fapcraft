@@ -33,43 +33,43 @@ public class MatrixHelper {
     * responsible for {@code glPushMatrix}/{@code glPopMatrix} around it. Side
     * effect: clobbers the shared static {@code b} and {@code floatBuffer}.
     */
-   public static void applyBoneTransform(MatrixStack var0, GeoBone var1) {
-      matrix.set(var0.getModelMatrix());
+   public static void applyBoneTransform(MatrixStack stack, GeoBone bone) {
+      matrix.set(stack.getModelMatrix());
       matrix.transpose();
       toFloatArray(b, matrix);
       ((Buffer)floatBuffer).clear();
       floatBuffer.put(b);
       ((Buffer)floatBuffer).flip();
       GlStateManager.multMatrix(floatBuffer);
-      GlStateManager.translate(var1.rotationPointX / 16.0F, var1.rotationPointY / 16.0F, var1.rotationPointZ / 16.0F);
+      GlStateManager.translate(bone.rotationPointX / 16.0F, bone.rotationPointY / 16.0F, bone.rotationPointZ / 16.0F);
    }
 
    /**
     * Flattens a {@link Matrix4f} into a 16-element column-major float array.
     * {@code target} must have length >= 16.
     */
-   public static void toFloatArray(float[] var0, Matrix4f var1) {
-      var0[0] = var1.m00;
-      var0[1] = var1.m01;
-      var0[2] = var1.m02;
-      var0[3] = var1.m03;
-      var0[4] = var1.m10;
-      var0[5] = var1.m11;
-      var0[6] = var1.m12;
-      var0[7] = var1.m13;
-      var0[8] = var1.m20;
-      var0[9] = var1.m21;
-      var0[10] = var1.m22;
-      var0[11] = var1.m23;
-      var0[12] = var1.m30;
-      var0[13] = var1.m31;
-      var0[14] = var1.m32;
-      var0[15] = var1.m33;
+   public static void toFloatArray(float[] target, Matrix4f matrix) {
+      target[0] = matrix.m00;
+      target[1] = matrix.m01;
+      target[2] = matrix.m02;
+      target[3] = matrix.m03;
+      target[4] = matrix.m10;
+      target[5] = matrix.m11;
+      target[6] = matrix.m12;
+      target[7] = matrix.m13;
+      target[8] = matrix.m20;
+      target[9] = matrix.m21;
+      target[10] = matrix.m22;
+      target[11] = matrix.m23;
+      target[12] = matrix.m30;
+      target[13] = matrix.m31;
+      target[14] = matrix.m32;
+      target[15] = matrix.m33;
    }
 
-   public static Matrix4f multiply(Matrix4f var0, Matrix4f var1) {
-      Matrix4f var2 = (Matrix4f)var1.clone();
-      var2.mul(var0);
-      return var2;
+   public static Matrix4f multiply(Matrix4f left, Matrix4f right) {
+      Matrix4f copy = (Matrix4f)right.clone();
+      copy.mul(left);
+      return copy;
    }
 }

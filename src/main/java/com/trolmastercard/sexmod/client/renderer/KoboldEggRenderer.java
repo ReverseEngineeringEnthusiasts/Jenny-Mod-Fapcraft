@@ -25,17 +25,17 @@ public class KoboldEggRenderer extends GeoEntityRenderer<KoboldEggEntity> {
    KoboldEggEntity eggEntity;
 
    @Override
-   public ResourceLocation getEntityTexture(KoboldEggEntity var1) {
+   public ResourceLocation getEntityTexture(KoboldEggEntity egg) {
       return new ResourceLocation("sexmod", "textures/entity/kobold/egg.png");
    }
-   public KoboldEggRenderer(RenderManager var1, AnimatedGeoModel<?> var2) {
-      super(var1, (AnimatedGeoModel<KoboldEggEntity>) (AnimatedGeoModel) var2);
+   public KoboldEggRenderer(RenderManager renderManager, AnimatedGeoModel<?> model) {
+      super(renderManager, (AnimatedGeoModel<KoboldEggEntity>) (AnimatedGeoModel) model);
    }
 
    @Override
-   public void render(GeoModel var1, KoboldEggEntity var2, float var3, float var4, float var5, float var6, float var7) {
-      this.eggEntity = var2;
-      super.render(var1, var2, var3, var4, var5, var6, var7);
+   public void render(GeoModel model, KoboldEggEntity egg, float r, float g, float b, float a, float ticks) {
+      this.eggEntity = egg;
+      super.render(model, egg, r, g, b, a, ticks);
    }
 
    /**
@@ -43,21 +43,21 @@ public class KoboldEggRenderer extends GeoEntityRenderer<KoboldEggEntity> {
     * -> the entity's {@code EGG_COLOR} data-manager value (safe lookup).
     */
    @Override
-   public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
-      String var7 = var2.getName();
-      if ("shell".equals(var7)) {
-         var3 = eggColor.getRed() / 255.0F;
-         var4 = eggColor.getGreen() / 255.0F;
-         var5 = eggColor.getBlue() / 255.0F;
+   public void renderRecursively(BufferBuilder buffer, GeoBone bone, float r, float g, float b, float alpha) {
+      String boneName = bone.getName();
+      if ("shell".equals(boneName)) {
+         r = eggColor.getRed() / 255.0F;
+         g = eggColor.getGreen() / 255.0F;
+         b = eggColor.getBlue() / 255.0F;
       }
 
-      if ("colorSpots".equals(var7)) {
-         Vec3i var8 = EyeAndKoboldColor.safeValueOf((String)this.eggEntity.getDataManager().get(KoboldEggEntity.EGG_COLOR)).getMainColor();
-         var3 = var8.getX() / 255.0F;
-         var4 = var8.getY() / 255.0F;
-         var5 = var8.getZ() / 255.0F;
+      if ("colorSpots".equals(boneName)) {
+         Vec3i eggColor = EyeAndKoboldColor.safeValueOf((String)this.eggEntity.getDataManager().get(KoboldEggEntity.EGG_COLOR)).getMainColor();
+         r = eggColor.getX() / 255.0F;
+         g = eggColor.getY() / 255.0F;
+         b = eggColor.getZ() / 255.0F;
       }
 
-      super.renderRecursively(var1, var2, var3, var4, var5, var6);
+      super.renderRecursively(buffer, bone, r, g, b, alpha);
    }
 }

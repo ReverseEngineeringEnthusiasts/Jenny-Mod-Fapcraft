@@ -30,45 +30,45 @@ public class SkinFetcher {
    public static final int maxCacheSize = 3;
 
    /**
-    * Fetches the skin for {@code var0} by querying the Mojang session profile
+    * Fetches the skin for {@code uuid} by querying the Mojang session profile
     * endpoint, base64-decoding the skin {@code value}, extracting the texture
     * URL and downloading the PNG.
     *
-    * @param var0 the player UUID (hyphens stripped for the API call)
+    * @param uuid the player UUID (hyphens stripped for the API call)
     * @return the skin image, the bundled steve texture on any failure, or
     *         {@code null} if even the fallback is unavailable
     */
    @SideOnly(Side.CLIENT)
-   public static BufferedImage fetchSkin(UUID var0) {
+   public static BufferedImage fetchSkin(UUID uuid) {
       try {
-         URL var1 = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + var0.toString().replace("-", ""));
-         BufferedReader var2 = new BufferedReader(new InputStreamReader(var1.openStream()));
-         String var3 = var2.lines().collect(Collectors.joining());
-         int var4 = var3.indexOf("\"value\" : ");
-         int var5 = var4 + 11;
-         StringBuilder var6 = new StringBuilder();
+         URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString().replace("-", ""));
+         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+         String profileJson = reader.lines().collect(Collectors.joining());
+         int valueStart = profileJson.indexOf("\"value\" : ");
+         int valueIdx = valueStart + 11;
+         StringBuilder value = new StringBuilder();
 
-         for (int var7 = 0; var3.charAt(var5 + var7) != '"'; var7++) {
-            var6.append(var3.charAt(var5 + var7));
+         for (int i = 0; profileJson.charAt(valueIdx + i) != '"'; i++) {
+            value.append(profileJson.charAt(valueIdx + i));
          }
 
-         String var13 = new String(Base64.getDecoder().decode(var6.toString()));
-         int var8 = var13.indexOf("\"url\" : ");
-         int var9 = var8 + 9;
-         StringBuilder var10 = new StringBuilder();
+         String decoded = new String(Base64.getDecoder().decode(value.toString()));
+         int urlStart = decoded.indexOf("\"url\" : ");
+         int urlIdx = urlStart + 9;
+         StringBuilder urlBuilder = new StringBuilder();
 
-         for (int var11 = 0; var13.charAt(var9 + var11) != '"'; var11++) {
-            var10.append(var13.charAt(var9 + var11));
+         for (int i2 = 0; decoded.charAt(urlIdx + i2) != '"'; i2++) {
+            urlBuilder.append(decoded.charAt(urlIdx + i2));
          }
 
-         URL var14 = new URL(var10.toString());
-         return ImageIO.read(var14);
-      } catch (Exception var12) {
+         URL textureUrl = new URL(urlBuilder.toString());
+         return ImageIO.read(textureUrl);
+      } catch (Exception e) {
          try {
             return ImageIO.read(
                Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("sexmod", "textures/player/steve.png")).getInputStream()
             );
-         } catch (java.io.IOException var13) {
+         } catch (java.io.IOException ioe) {
             return null;
          }
       }

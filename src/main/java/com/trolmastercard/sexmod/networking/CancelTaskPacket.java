@@ -32,30 +32,30 @@ public class CancelTaskPacket implements IMessage {
    public CancelTaskPacket() {
    }
 
-   public CancelTaskPacket(BlockPos var1) {
-      this.taskPos = var1;
+   public CancelTaskPacket(BlockPos taskPos) {
+      this.taskPos = taskPos;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.taskPos = new BlockPos(var1.readInt(), var1.readInt(), var1.readInt());
+   public void fromBytes(ByteBuf buf) {
+      this.taskPos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeInt(this.taskPos.getX());
-      var1.writeInt(this.taskPos.getY());
-      var1.writeInt(this.taskPos.getZ());
+   public void toBytes(ByteBuf buf) {
+      buf.writeInt(this.taskPos.getX());
+      buf.writeInt(this.taskPos.getY());
+      buf.writeInt(this.taskPos.getZ());
    }
 
    public static class Handler implements IMessageHandler<CancelTaskPacket, IMessage> {
-      public IMessage onMessage(CancelTaskPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.SERVER)) {
+      public IMessage onMessage(CancelTaskPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               UUID var2x = KoboldManager.getTribeUUID(var2.getServerHandler().player.getPersistentID());
-               if (var2x != null) {
-                  HashSet var3 = KoboldManager.removeMiningTargetsFor(var2x, var1.taskPos);
-                  if (!var3.isEmpty()) {
-                     PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var3, false), var2.getServerHandler().player);
+               UUID tribeUuid = KoboldManager.getTribeUUID(ctx.getServerHandler().player.getPersistentID());
+               if (tribeUuid != null) {
+                  HashSet targets = KoboldManager.removeMiningTargetsFor(tribeUuid, packet.taskPos);
+                  if (!targets.isEmpty()) {
+                     PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(targets, false), ctx.getServerHandler().player);
                   }
                }
             });

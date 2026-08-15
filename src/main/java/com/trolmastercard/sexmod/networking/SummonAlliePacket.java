@@ -28,36 +28,36 @@ import net.minecraftforge.fml.relauncher.Side;
 public class SummonAlliePacket implements IMessage {
    boolean isValid = false;
 
-   public void fromBytes(ByteBuf var1) {
+   public void fromBytes(ByteBuf buf) {
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
+   public void toBytes(ByteBuf buf) {
    }
 
    public static class Handler implements IMessageHandler<SummonAlliePacket, IMessage> {
-      public IMessage onMessage(SummonAlliePacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(SummonAlliePacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     EntityPlayerMP var1x = var2.getServerHandler().player;
-                     Vec3d var2x = var1x.getPositionVector()
-                        .add(-Math.sin(var1x.rotationYawHead * (Math.PI / 180.0)) * 2.0, 0.0, Math.cos(var1x.rotationYawHead * (Math.PI / 180.0)) * 2.0);
-                     AllieEntity var3 = new AllieEntity(var1x.world, var1x.getHeldItemMainhand());
-                     var3.setInteractionPlayerUUID(var1x.getPersistentID());
-                     var3.setPositionAndRotation(var2x.x, var2x.y, var2x.z, var1x.rotationYawHead + 180.0F, var1x.rotationPitch);
-                     var3.setTargetPosition(var3.getPositionVector());
-                     var3.setYawRotation(var1x.rotationYawHead + 180.0F);
-                     var3.setNoGravity(true);
-                     var3.noClip = true;
-                     var1x.world.spawnEntity(var3);
-                     BlockPos var4 = var3.getPosition().add(0, -1, 0);
-                     if (var3.world.getBlockState(var4).getBlock().equals(Blocks.SAND)) {
-                        var3.setCurrentAction(Action.SUMMON_SAND);
+                     EntityPlayerMP player = ctx.getServerHandler().player;
+                     Vec3d spawnPos = player.getPositionVector()
+                        .add(-Math.sin(player.rotationYawHead * (Math.PI / 180.0)) * 2.0, 0.0, Math.cos(player.rotationYawHead * (Math.PI / 180.0)) * 2.0);
+                     AllieEntity allie = new AllieEntity(player.world, player.getHeldItemMainhand());
+                     allie.setInteractionPlayerUUID(player.getPersistentID());
+                     allie.setPositionAndRotation(spawnPos.x, spawnPos.y, spawnPos.z, player.rotationYawHead + 180.0F, player.rotationPitch);
+                     allie.setTargetPosition(allie.getPositionVector());
+                     allie.setYawRotation(player.rotationYawHead + 180.0F);
+                     allie.setNoGravity(true);
+                     allie.noClip = true;
+                     player.world.spawnEntity(allie);
+                     BlockPos blockPos = allie.getPosition().add(0, -1, 0);
+                     if (allie.world.getBlockState(blockPos).getBlock().equals(Blocks.SAND)) {
+                        allie.setCurrentAction(Action.SUMMON_SAND);
                      } else {
-                        var3.setCurrentAction(var3.hasLampItem() ? Action.SUMMON : Action.SUMMON_NORMAL);
+                        allie.setCurrentAction(allie.hasLampItem() ? Action.SUMMON : Action.SUMMON_NORMAL);
                      }
                   }
                );

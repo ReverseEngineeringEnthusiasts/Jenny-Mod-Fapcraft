@@ -18,12 +18,12 @@ public class BiaNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public ResourceLocation getTextureLocation(BaseGirlEntity var0) {
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/bia/bia.png");
    }
 
    @Override
-   public ResourceLocation getAnimationFileLocation(BaseGirlEntity var0) { return new ResourceLocation("sexmod", "animations/bia/bia.animation.json");
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) { return new ResourceLocation("sexmod", "animations/bia/bia.animation.json");
    }
 
    @Override

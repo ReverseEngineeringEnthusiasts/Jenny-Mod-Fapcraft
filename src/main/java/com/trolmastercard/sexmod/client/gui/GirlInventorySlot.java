@@ -22,47 +22,47 @@ import net.minecraftforge.items.SlotItemHandler;
 public class GirlInventorySlot extends SlotItemHandler {
    GirlInventorySlot.b slotType;
 
-   public GirlInventorySlot(GirlInventorySlot.b var1, IItemHandler var2, int var3, int var4, int var5) {
-      super(var2, var3, var4, var5);
-      this.slotType = var1;
+   public GirlInventorySlot(GirlInventorySlot.b slotType, IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+      super(itemHandler, index, xPosition, yPosition);
+      this.slotType = slotType;
    }
 
    /**
     * Whether the stack fits the slot type for the given slot id.
     *
-    * @param var1 the stack to test
-    * @param var2 the girl slot id (0=weapon, 1=bow, 2=helmet, 3=chestplate,
-    *             4=pants, 5=shoes, 6=rod)
+    * @param stack the stack to test
+    * @param slotId the girl slot id (0=weapon, 1=bow, 2=helmet, 3=chestplate,
+    *              4=pants, 5=shoes, 6=rod)
     */
-   public static boolean isSlotCompatible(ItemStack var0, int var1) {
-      return isSlotTypeCompatible(var0, GirlInventorySlot.b.getSlotType(var1));
+   public static boolean isSlotCompatible(ItemStack stack, int slotId) {
+      return isSlotTypeCompatible(stack, GirlInventorySlot.b.getSlotType(slotId));
    }
 
-   public boolean isItemValid(ItemStack var1) {
-      return isSlotTypeCompatible(var1, this.slotType);
+   public boolean isItemValid(ItemStack stack) {
+      return isSlotTypeCompatible(stack, this.slotType);
    }
 
    /**
     * The canonical slot-type test: the item class must match the slot type
     * (weapon = sword/tool, bow, armor matching the body part, rod).
     */
-   static boolean isSlotTypeCompatible(ItemStack var0, GirlInventorySlot.b var1) {
-      Item var2 = var0.getItem();
-      switch (var1) {
+   static boolean isSlotTypeCompatible(ItemStack stack, GirlInventorySlot.b slotType) {
+      Item item = stack.getItem();
+      switch (slotType) {
          case WEAPON:
-            return var2 instanceof ItemSword || var2 instanceof ItemTool;
+            return item instanceof ItemSword || item instanceof ItemTool;
          case BOW:
-            return var2 instanceof ItemBow;
+            return item instanceof ItemBow;
          case HELMET:
-            return var2 instanceof ItemArmor && ((ItemArmor)var2).armorType == EntityEquipmentSlot.HEAD;
+            return item instanceof ItemArmor && ((ItemArmor)item).armorType == EntityEquipmentSlot.HEAD;
          case CHEST_PLATE:
-            return var2 instanceof ItemArmor && ((ItemArmor)var2).armorType == EntityEquipmentSlot.CHEST;
+            return item instanceof ItemArmor && ((ItemArmor)item).armorType == EntityEquipmentSlot.CHEST;
          case PANTS:
-            return var2 instanceof ItemArmor && ((ItemArmor)var2).armorType == EntityEquipmentSlot.LEGS;
+            return item instanceof ItemArmor && ((ItemArmor)item).armorType == EntityEquipmentSlot.LEGS;
          case SHOES:
-            return var2 instanceof ItemArmor && ((ItemArmor)var2).armorType == EntityEquipmentSlot.FEET;
+            return item instanceof ItemArmor && ((ItemArmor)item).armorType == EntityEquipmentSlot.FEET;
          case ROD:
-            return var2 instanceof ItemFishingRod;
+            return item instanceof ItemFishingRod;
          default:
             return false;
       }
@@ -79,8 +79,8 @@ public class GirlInventorySlot extends SlotItemHandler {
 
       public int id;
 
-      public static GirlInventorySlot.b getSlotType(int var0) {
-         switch (var0) {
+      public static GirlInventorySlot.b getSlotType(int slotId) {
+         switch (slotId) {
             case 0:
                return WEAPON;
             case 1:
@@ -96,12 +96,12 @@ public class GirlInventorySlot extends SlotItemHandler {
             case 6:
                return ROD;
             default:
-               throw new NullPointerException("Girls don't have a slot nr. " + var0);
+               throw new NullPointerException("Girls don't have a slot nr. " + slotId);
          }
       }
 
-      b(int var3) {
-         this.id = var3;
+      b(int id) {
+         this.id = id;
       }
 
    }

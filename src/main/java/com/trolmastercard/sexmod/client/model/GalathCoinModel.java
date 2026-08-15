@@ -9,13 +9,13 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  * only; the render animations live in {@code GalathCoinRenderer}).
  */
 public class GalathCoinModel extends AnimatedGeoModel<GalathCoinItem> {
-   public ResourceLocation getModelLocation(GalathCoinItem var0) { return new ResourceLocation("sexmod", "geo/galath/galath_coin.geo.json"); }
+   public ResourceLocation getModelLocation(GalathCoinItem item) { return new ResourceLocation("sexmod", "geo/galath/galath_coin.geo.json"); }
 
-   public ResourceLocation getTextureLocation(GalathCoinItem var0) {
+   public ResourceLocation getTextureLocation(GalathCoinItem item) {
       return new ResourceLocation("sexmod", "textures/items/galath_coin/galath_coin.png");
    }
 
-   public ResourceLocation getAnimationFileLocation(GalathCoinItem var0) {
+   public ResourceLocation getAnimationFileLocation(GalathCoinItem item) {
       return new ResourceLocation("sexmod", "animations/galath/galath_coin.animation.json");
    }
 }

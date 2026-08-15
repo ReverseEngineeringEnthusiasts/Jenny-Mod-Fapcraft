@@ -41,73 +41,73 @@ public class UploadModelStringPacket implements IMessage {
    public UploadModelStringPacket() {
    }
 
-   public UploadModelStringPacket(String var1, UUID var2) {
-      this.modelCode = var1;
-      this.girlUUID = var2;
+   public UploadModelStringPacket(String modelCode, UUID girlUUID) {
+      this.modelCode = modelCode;
+      this.girlUUID = girlUUID;
    }
 
-   public UploadModelStringPacket(String var1, UUID var2, List<Integer> var3) {
-      this.modelCode = var1;
-      this.girlUUID = var2;
-      this.partIds = var3;
+   public UploadModelStringPacket(String modelCode, UUID girlUUID, List<Integer> partIds) {
+      this.modelCode = modelCode;
+      this.girlUUID = girlUUID;
+      this.partIds = partIds;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.modelCode = ByteBufUtils.readUTF8String(var1);
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      int var2 = var1.readInt();
+   public void fromBytes(ByteBuf buf) {
+      this.modelCode = ByteBufUtils.readUTF8String(buf);
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      int count = buf.readInt();
 
-      for (int var3 = 0; var3 < var2; var3++) {
-         this.partIds.add(var1.readInt());
+      for (int i = 0; i < count; i++) {
+         this.partIds.add(buf.readInt());
       }
 
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.modelCode);
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      var1.writeInt(this.partIds.size());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.modelCode);
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      buf.writeInt(this.partIds.size());
 
-      for (int var3 : this.partIds) {
-         var1.writeInt(var3);
+      for (int partId : this.partIds) {
+         buf.writeInt(partId);
       }
    }
 
    public static class Handler implements IMessageHandler<UploadModelStringPacket, IMessage> {
-      public IMessage onMessage(UploadModelStringPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(UploadModelStringPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               BaseGirlEntity var3 = BaseGirlEntity.getServerGirlEntity(var1.girlUUID);
-               if (var1.partIds.size() > 0) {
-                  boolean var5 = this.isValidModelCode(var3, var1.partIds);
-                  if (var5) {
-                     var3.setCustomPartList(var1.partIds);
+               BaseGirlEntity girl = BaseGirlEntity.getServerGirlEntity(packet.girlUUID);
+               if (packet.partIds.size() > 0) {
+                  boolean valid = this.isValidModelCode(girl, packet.partIds);
+                  if (valid) {
+                     girl.setCustomPartList(packet.partIds);
                   }
 
-                  if (!(var3 instanceof AbstractPlayerGirlEntity)) {
-                     var3.setCustomModelCode(var1.modelCode);
+                  if (!(girl instanceof AbstractPlayerGirlEntity)) {
+                     girl.setCustomModelCode(packet.modelCode);
                   } else {
-                     EntityPlayerMP var10 = var2.getServerHandler().player;
-                     NBTTagCompound var11 = var10.getEntityData();
-                     AbstractPlayerGirlEntity var12 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var10);
-                     if (var12 != null) {
-                        NpcType var13 = NpcType.getNpcType(var12);
-                        var11.setString("sexmod:CustomModel" + var13.toString(), var1.modelCode);
-                        if (var5) {
-                           var11.setString("sexmod:GirlSpecific" + var13.toString(), BaseGirlEntity.encodePartIdList(var1.partIds));
+                     EntityPlayerMP player = ctx.getServerHandler().player;
+                     NBTTagCompound entityData = player.getEntityData();
+                     AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player);
+                     if (playerGirl != null) {
+                        NpcType npcType = NpcType.getNpcType(playerGirl);
+                        entityData.setString("sexmod:CustomModel" + npcType.toString(), packet.modelCode);
+                        if (valid) {
+                           entityData.setString("sexmod:GirlSpecific" + npcType.toString(), BaseGirlEntity.encodePartIdList(packet.partIds));
                         }
                      }
                   }
-               } else if (!(var3 instanceof AbstractPlayerGirlEntity)) {
-                  var3.setCustomModelCode(var1.modelCode);
+               } else if (!(girl instanceof AbstractPlayerGirlEntity)) {
+                  girl.setCustomModelCode(packet.modelCode);
                } else {
-                  EntityPlayerMP var6 = var2.getServerHandler().player;
-                  NBTTagCompound var7 = var6.getEntityData();
-                  AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var6);
-                  if (var8 != null) {
-                     NpcType var9 = NpcType.getNpcType(var8);
-                     var7.setString("sexmod:CustomModel" + var9.toString(), var1.modelCode);
+                  EntityPlayerMP player2 = ctx.getServerHandler().player;
+                  NBTTagCompound entityData2 = player2.getEntityData();
+                  AbstractPlayerGirlEntity playerGirl2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player2);
+                  if (playerGirl2 != null) {
+                     NpcType npcType2 = NpcType.getNpcType(playerGirl2);
+                     entityData2.setString("sexmod:CustomModel" + npcType2.toString(), packet.modelCode);
                   }
                }
             });
@@ -119,22 +119,22 @@ public class UploadModelStringPacket implements IMessage {
       }
 
       /**
-    * True if every part id in {@code var2} is strictly smaller than the
+    * True if every part id in {@code partIds} is strictly smaller than the
     * corresponding current id of the girl. SERVER-side validation for the custom
     * part list; a mismatched list size is invalid.
     */
-   boolean isValidModelCode(BaseGirlEntity var1, List<Integer> var2) {
-         ArrayList var3 = var1.getCustomPartIdList();
+   boolean isValidModelCode(BaseGirlEntity girl, List<Integer> partIds) {
+         ArrayList currentIds = girl.getCustomPartIdList();
 
          try {
-            for (int var4 = 0; var4 < var3.size(); var4++) {
-               if ((Integer)var3.get(var4) <= (Integer)var2.get(var4)) {
+            for (int i = 0; i < currentIds.size(); i++) {
+               if ((Integer)currentIds.get(i) <= (Integer)partIds.get(i)) {
                   return false;
                }
             }
 
             return true;
-         } catch (IndexOutOfBoundsException var5) {
+         } catch (IndexOutOfBoundsException exception) {
             return false;
          }
       }

@@ -123,8 +123,8 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    Minecraft mc = Minecraft.getMinecraft();
    Vector3f renderOffset;
 
-   public KoboldRenderer(RenderManager var1, AnimatedGeoModel var2, double var3) {
-      super(var1, var2, var3);
+   public KoboldRenderer(RenderManager renderManager, AnimatedGeoModel model, double shadowSize) {
+      super(renderManager, model, shadowSize);
    }
 
    /**
@@ -133,16 +133,16 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
     * position as RGB; everything else stays white.
     */
    @Override
-   protected Vec3i getBoneColor(String var1) {
-      EntityDataManager var2 = this.renderEntity.getDataManager();
-      EyeAndKoboldColor var3 = EyeAndKoboldColor.valueOf((String)var2.get(KoboldEntity.CURRENT_ACTION));
-      BlockPos var4 = (BlockPos)var2.get(KoboldEntity.ACTION_TARGET_POS);
-      if (hideBones.contains(var1)) {
-         return var3.getMainColor();
-      } else if (showBones.contains(var1)) {
-         return var3.getSecondaryColor();
+   protected Vec3i getBoneColor(String boneName) {
+      EntityDataManager dataManager = this.renderEntity.getDataManager();
+      EyeAndKoboldColor koboldColor = EyeAndKoboldColor.valueOf((String)dataManager.get(KoboldEntity.CURRENT_ACTION));
+      BlockPos targetPos = (BlockPos)dataManager.get(KoboldEntity.ACTION_TARGET_POS);
+      if (hideBones.contains(boneName)) {
+         return koboldColor.getMainColor();
+      } else if (showBones.contains(boneName)) {
+         return koboldColor.getSecondaryColor();
       } else {
-         return (Vec3i)(!"irisR".equals(var1) && !"irisL".equals(var1) ? defaultColor : var4);
+         return (Vec3i)(!"irisR".equals(boneName) && !"irisL".equals(boneName) ? defaultColor : targetPos);
       }
    }
 
@@ -152,7 +152,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
     * stack.
     */
    @Override
-   protected ItemStack resolveHeldItemStack(@Nullable ItemStack var1) {
+   protected ItemStack resolveHeldItemStack(@Nullable ItemStack defaultStack) {
       switch (this.renderEntity.getCurrentAction()) {
          case MINE:
             if ((Boolean)this.renderEntity.getDataManager().get(KoboldEntity.at)) {
@@ -165,7 +165,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
                return new ItemStack(Items.IRON_SWORD);
             }
          default:
-            return var1;
+            return defaultStack;
          case ATTACK:
             return new ItemStack(Items.IRON_SWORD);
       }
@@ -178,22 +178,22 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
     * {@link GirlRendererBase#renderCustomBones}.
     */
    @Override
-   public void renderCustomBones(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
+   public void renderCustomBones(BufferBuilder buffer, GeoBone bone, float r, float g, float b, float a, double overlayAlpha) {
       if (!(this.renderEntity.world instanceof SexWorldClient)) {
-         String var9 = var2.getName();
-         if ("blowOpening".equals(var9)) {
-            var7 = 0.0;
+         String boneName = bone.getName();
+         if ("blowOpening".equals(boneName)) {
+            overlayAlpha = 0.0;
          }
 
-         if ("mouth".equals(var9)) {
-            String[] var10 = AbstractNpcOnlyEntity.getModelCodeParts(this.renderEntity);
-            int var11 = Integer.parseInt(var10[7]);
-            if (var11 == 1) {
-               var7 = -0.078125;
+         if ("mouth".equals(boneName)) {
+            String[] modelCodeParts = AbstractNpcOnlyEntity.getModelCodeParts(this.renderEntity);
+            int mouthVariant = Integer.parseInt(modelCodeParts[7]);
+            if (mouthVariant == 1) {
+               overlayAlpha = -0.078125;
             }
          }
 
-         super.renderCustomBones(var1, var2, var3, var4, var5, var6, var7);
+         super.renderCustomBones(buffer, bone, r, g, b, a, overlayAlpha);
       }
    }
 
@@ -204,24 +204,24 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
     */
    @Override
    protected void renderLeftEye() {
-      float var1 = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
-      GlStateManager.scale(1.0F - var1, 1.0F - var1, 1.0F - var1);
+      float squint = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
+      GlStateManager.scale(1.0F - squint, 1.0F - squint, 1.0F - squint);
    }
 
    @Override
    protected void renderRightEye() {
-      float var1 = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
-      double var2 = 1.0 / (1.0 - var1);
-      GlStateManager.scale(var2, var2, var2);
+      float squint = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
+      double inverseScale = 1.0 / (1.0 - squint);
+      GlStateManager.scale(inverseScale, inverseScale, inverseScale);
    }
 
    @Override
    protected ItemStack getPaymentItemStack() {
-      String var1 = (String)this.renderEntity.getDataManager().get(BaseGirlEntity.GIRL_HAND_STATES);
-      if ("STARTBLOWJOB".equals(var1)) {
+      String handState = (String)this.renderEntity.getDataManager().get(BaseGirlEntity.GIRL_HAND_STATES);
+      if ("STARTBLOWJOB".equals(handState)) {
          return new ItemStack(Items.IRON_PICKAXE);
       } else {
-         return "ANAL_START".equals(var1) ? new ItemStack(Items.GOLD_INGOT, 3) : null;
+         return "ANAL_START".equals(handState) ? new ItemStack(Items.GOLD_INGOT, 3) : null;
       }
    }
 
@@ -230,19 +230,19 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
     * (colors depend on the action), stores the render offset for the eye
     * scaling, then delegates to the normal pipeline.
     */
-   public void doRenderKobold(KoboldEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      String var10 = (String)var1.getDataManager().get(AbstractNpcOnlyEntity.CURRENT_ACTION);
-      if (var1.as == null) {
-         var1.as = var10;
+   public void doRenderKobold(KoboldEntity kobold, double x, double y, double z, float entityYaw, float partialTicks) {
+      String actionString = (String)kobold.getDataManager().get(AbstractNpcOnlyEntity.CURRENT_ACTION);
+      if (kobold.as == null) {
+         kobold.as = actionString;
       }
 
-      if (!var1.as.equals(var10)) {
+      if (!kobold.as.equals(actionString)) {
          clearBoneColors();
-         var1.as = var10;
+         kobold.as = actionString;
       }
 
-      this.renderOffset = new Vector3f((float)var2, (float)var4, (float)var6);
-      super.doRenderEntity(var1, var2, var4, var6, var8, var9);
+      this.renderOffset = new Vector3f((float)x, (float)y, (float)z);
+      super.doRenderEntity(kobold, x, y, z, entityYaw, partialTicks);
    }
 
    /**
@@ -250,15 +250,15 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
     * name in the kobold color's text color below their display name.
     */
    @Override
-   protected void renderNameTag(double var1, double var3, double var5) {
-      EntityDataManager var7 = this.renderEntity.getDataManager();
-      String var8 = (String)var7.get(KoboldEntity.aU);
-      if ("null".equals(var8)) {
-         super.renderNameTag(var1, var3, var5);
+   protected void renderNameTag(double x, double y, double z) {
+      EntityDataManager dataManager = this.renderEntity.getDataManager();
+      String tribeName = (String)dataManager.get(KoboldEntity.aU);
+      if ("null".equals(tribeName)) {
+         super.renderNameTag(x, y, z);
       } else {
-         EyeAndKoboldColor var9 = EyeAndKoboldColor.valueOf((String)var7.get(KoboldEntity.CURRENT_ACTION));
-         var8 = var9.getTextColor() + " -" + var8 + "-";
-         this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName() + var8, var1, var3 + this.renderEntity.getScaleFactor(), var5, 300);
+         EyeAndKoboldColor koboldColor = EyeAndKoboldColor.valueOf((String)dataManager.get(KoboldEntity.CURRENT_ACTION));
+         tribeName = koboldColor.getTextColor() + " -" + tribeName + "-";
+         this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName() + tribeName, x, y + this.renderEntity.getScaleFactor(), z, 300);
       }
    }
 

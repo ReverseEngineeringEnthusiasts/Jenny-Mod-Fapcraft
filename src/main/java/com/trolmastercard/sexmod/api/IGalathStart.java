@@ -7,5 +7,5 @@ import com.trolmastercard.sexmod.entity.GalathEntity;
  * Callback fired when a galath scene/fight starts.
  */
 public interface IGalathStart {
-   void start(GalathEntity var1);
+   void start(GalathEntity galath);
 }

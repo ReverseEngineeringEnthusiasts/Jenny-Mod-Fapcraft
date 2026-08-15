@@ -21,11 +21,11 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 public abstract class GirlModelBase<T extends IAnimatable> extends AnimatedGeoModel<T> {
    protected GirlModelBase() {
       try {
-         Field var1 = Class.forName("software.bernie.geckolib3.model.AnimatedGeoModel").getDeclaredField("animationProcessor");
-         var1.setAccessible(true);
-         var1.set(this, new GirlAnimationProcessor(this));
-      } catch (Exception var2) {
-         var2.printStackTrace();
+         Field animationProcessorField = Class.forName("software.bernie.geckolib3.model.AnimatedGeoModel").getDeclaredField("animationProcessor");
+         animationProcessorField.setAccessible(true);
+         animationProcessorField.set(this, new GirlAnimationProcessor(this));
+      } catch (Exception e) {
+         e.printStackTrace();
       }
    }
 
@@ -34,22 +34,22 @@ public abstract class GirlModelBase<T extends IAnimatable> extends AnimatedGeoMo
     * bone (the {@link GirlAnimationProcessor} cache is populated here).
     */
    @Override
-   public GeoModel getModel(ResourceLocation var1) {
-      GeoModel var2 = super.getModel(var1);
-      if (var2 == null) {
-         throw new GeoModelException(var1, "Could not find model.");
+   public GeoModel getModel(ResourceLocation location) {
+      GeoModel model = super.getModel(location);
+      if (model == null) {
+         throw new GeoModelException(location, "Could not find model.");
       }
 
       this.getAnimationProcessor().clearModelRendererList();
 
-      for (GeoBone var4 : var2.topLevelBones) {
-         this.registerBone(var4);
+      for (GeoBone bone : model.topLevelBones) {
+         this.registerBone(bone);
       }
 
-      return var2;
+      return model;
    }
 
-   private static GeoModelException wrapException(GeoModelException var0) {
-      return var0;
+   private static GeoModelException wrapException(GeoModelException exception) {
+      return exception;
    }
 }

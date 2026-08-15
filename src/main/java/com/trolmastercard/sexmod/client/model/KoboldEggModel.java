@@ -9,13 +9,13 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  * animation locations only).
  */
 public class KoboldEggModel extends AnimatedGeoModel<KoboldEggEntity> {
-   public ResourceLocation getModelLocation(KoboldEggEntity var0) { return new ResourceLocation("sexmod", "geo/kobold/koboldegg.geo.json"); }
+   public ResourceLocation getModelLocation(KoboldEggEntity egg) { return new ResourceLocation("sexmod", "geo/kobold/koboldegg.geo.json"); }
 
-   public ResourceLocation getTextureLocation(KoboldEggEntity var0) {
+   public ResourceLocation getTextureLocation(KoboldEggEntity egg) {
       return new ResourceLocation("sexmod", "textures/entity/kobold/koboldegg.png");
    }
 
-   public ResourceLocation getAnimationFileLocation(KoboldEggEntity var0) {
+   public ResourceLocation getAnimationFileLocation(KoboldEggEntity egg) {
       return new ResourceLocation("sexmod", "animations/kobold/egg.animation.json");
    }
 }

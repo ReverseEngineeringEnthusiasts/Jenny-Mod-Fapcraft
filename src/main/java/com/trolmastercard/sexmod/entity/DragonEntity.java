@@ -56,28 +56,28 @@ public class DragonEntity extends EntityLiving {
    boolean shouldSpawnSkeleton = true;
    GalathEntity ownerGalath;
 
-   public DragonEntity(World var1) {
-      super(var1);
+   public DragonEntity(World world) {
+      super(world);
       this.setSize(0.5F, 0.5F);
    }
 
-   public DragonEntity(World var1, GalathEntity var2) {
-      super(var1);
+   public DragonEntity(World world, GalathEntity galath) {
+      super(world);
       this.setSize(0.5F, 0.5F);
-      this.ownerGalath = var2;
+      this.ownerGalath = galath;
    }
 
-   public DragonEntity(World var1, GalathEntity var2, Vec3d var3) {
-      this(var1);
-      this.direction = var3;
-      this.ownerGalath = var2;
+   public DragonEntity(World world, GalathEntity galath, Vec3d direction) {
+      this(world);
+      this.direction = direction;
+      this.ownerGalath = galath;
    }
 
    protected boolean canTriggerWalking() {
       return false;
    }
 
-   protected void collideWithEntity(Entity var1) {
+   protected void collideWithEntity(Entity entity) {
    }
 
    /**
@@ -114,18 +114,18 @@ public class DragonEntity extends EntityLiving {
    void tickChargeState() {
       if (!this.world.isRemote) {
          if (this.isCharging) {
-            Vec3d var1 = this.getPositionVector();
-            Vec3d var2 = var1.subtract(0.75, 0.75, 0.75);
-            Vec3d var3 = var1.add(0.75, 0.75, 0.75);
-            AxisAlignedBB var4 = new AxisAlignedBB(
-               var2.x, var2.y, var2.z, var3.x, var3.y, var3.z
+            Vec3d pos = this.getPositionVector();
+            Vec3d min = pos.subtract(0.75, 0.75, 0.75);
+            Vec3d max = pos.add(0.75, 0.75, 0.75);
+            AxisAlignedBB aabb = new AxisAlignedBB(
+               min.x, min.y, min.z, max.x, max.y, max.z
             );
-            List var5 = this.world.getEntitiesWithinAABB(GalathEntity.class, var4);
-            if (!var5.isEmpty()) {
+            List entities = this.world.getEntitiesWithinAABB(GalathEntity.class, aabb);
+            if (!entities.isEmpty()) {
                this.world.createExplosion(this, this.posX, this.posY, this.posZ, 1.0F, true);
 
-               for (GalathEntity var7 : (java.util.Collection<GalathEntity>) (var5) ) {
-                  var7.setFlightVelocity(this.getPositionVector());
+               for (GalathEntity galath : (java.util.Collection<GalathEntity>) (entities) ) {
+                  galath.setFlightVelocity(this.getPositionVector());
                }
 
                this.world.removeEntity(this);
@@ -143,14 +143,14 @@ public class DragonEntity extends EntityLiving {
       this.spawnBreathParticles(this.posX, this.posY, this.posZ);
    }
 
-   void spawnBreathParticles(double var1, double var3, double var5) {
-      Random var7 = this.getRNG();
+   void spawnBreathParticles(double x, double y, double z) {
+      Random random = this.getRNG();
       this.world
          .spawnParticle(
             EnumParticleTypes.DRAGON_BREATH,
-            var1 + var7.nextDouble() * 0.3F,
-            var3 + 0.25 + var7.nextDouble() * 0.3F,
-            var5 + var7.nextDouble() * 0.3F,
+            x + random.nextDouble() * 0.3F,
+            y + 0.25 + random.nextDouble() * 0.3F,
+            z + random.nextDouble() * 0.3F,
             0.0,
             0.0,
             0.0,
@@ -167,30 +167,30 @@ public class DragonEntity extends EntityLiving {
       if (!this.world.isRemote) {
          if (!this.isDead) {
             if (this.shouldSpawnSkeleton) {
-               Vec3d var1 = new Vec3d(this.posX, this.getPosition().getY() + 1, this.posZ);
-               if (!this.isInRangeOfTarget(var1)) {
+               Vec3d pos = new Vec3d(this.posX, this.getPosition().getY() + 1, this.posZ);
+               if (!this.isInRangeOfTarget(pos)) {
                   this.world.createExplosion(this, this.posX, this.posY, this.posZ, 2.0F, true);
                   this.shouldSpawnSkeleton = false;
                } else {
-                  EntityWitherSkeleton var2 = new EntityWitherSkeleton(this.world);
-                  var2.setHeldItem(EnumHand.MAIN_HAND, new ItemStack(Items.STONE_SWORD));
-                  var2.setPositionAndUpdate(var1.x, var1.y, var1.z);
-                  this.world.spawnEntity(var2);
-                  PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(var1, true), this);
-                  this.ownerGalath.bI.add(var2);
+                  EntityWitherSkeleton skeleton = new EntityWitherSkeleton(this.world);
+                  skeleton.setHeldItem(EnumHand.MAIN_HAND, new ItemStack(Items.STONE_SWORD));
+                  skeleton.setPositionAndUpdate(pos.x, pos.y, pos.z);
+                  this.world.spawnEntity(skeleton);
+                  PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(pos, true), this);
+                  this.ownerGalath.bI.add(skeleton);
                }
             }
          }
       }
    }
 
-   boolean isInRangeOfTarget(Vec3d var1) {
+   boolean isInRangeOfTarget(Vec3d pos) {
       if (this.ownerGalath == null) {
          return true;
       }
 
-      EntityLivingBase var2 = this.ownerGalath.getTargetEntity();
-      return var2 == null ? true : var2.getDistance(var1.x, var1.y, var1.z) < 15.0;
+      EntityLivingBase target = this.ownerGalath.getTargetEntity();
+      return target == null ? true : target.getDistance(pos.x, pos.y, pos.z) < 15.0;
    }
 
    /**
@@ -198,77 +198,77 @@ public class DragonEntity extends EntityLiving {
     * energy-ball despawn effects).
     */
    @SideOnly(Side.CLIENT)
-   public static void spawnDragonBreath(Vec3d var0) {
-      WorldClient var1 = Minecraft.getMinecraft().world;
-      float var2 = TrigMath.wrapDegrees(1.8F);
-      Random var3 = Reference.RANDOM;
+   public static void spawnDragonBreath(Vec3d pos) {
+      WorldClient world = Minecraft.getMinecraft().world;
+      float step = TrigMath.wrapDegrees(1.8F);
+      Random random = Reference.RANDOM;
 
-      for (float var4 = 0.0F; var4 < Math.PI * 2; var4 += var2) {
-         double var5 = Math.sin(var4);
-         double var7 = Math.cos(var4);
-         double var9 = var0.x + var5 * 0.5;
-         double var11 = var5 * 0.15F;
-         double var13 = var0.z + var7 * 0.5;
-         double var15 = var7 * 0.15F;
-         double var17 = var0.y;
-         double var19 = var3.nextDouble() * 0.15F;
-         var1.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, var9, var17, var13, var11, var19, var15, new int[0]);
+      for (float angle = 0.0F; angle < Math.PI * 2; angle += step) {
+         double sin = Math.sin(angle);
+         double cos = Math.cos(angle);
+         double x = pos.x + sin * 0.5;
+         double vx = sin * 0.15F;
+         double z = pos.z + cos * 0.5;
+         double vz = cos * 0.15F;
+         double y = pos.y;
+         double vy = random.nextDouble() * 0.15F;
+         world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, x, y, z, vx, vy, vz, new int[0]);
       }
    }
 
    @SideOnly(Side.CLIENT)
-   public static void spawnDragonBreathRandom(Vec3d var0) {
-      WorldClient var1 = Minecraft.getMinecraft().world;
-      Random var2 = Reference.RANDOM;
+   public static void spawnDragonBreathRandom(Vec3d pos) {
+      WorldClient world = Minecraft.getMinecraft().world;
+      Random random = Reference.RANDOM;
 
-      for (int var3 = 0; var3 < 100; var3++) {
-         var1.spawnParticle(
+      for (int i = 0; i < 100; i++) {
+         world.spawnParticle(
             EnumParticleTypes.DRAGON_BREATH,
-            var0.x,
-            var0.y,
-            var0.z,
-            var2.nextDouble() * 0.15F,
-            var2.nextDouble() * 0.15F,
-            var2.nextDouble() * 0.15F,
+            pos.x,
+            pos.y,
+            pos.z,
+            random.nextDouble() * 0.15F,
+            random.nextDouble() * 0.15F,
+            random.nextDouble() * 0.15F,
             new int[0]
          );
       }
 
-      var1.playSound(var0.x, var0.y, var0.z, SoundHandler.MISC_SHATTER[0], SoundCategory.AMBIENT, 0.7F, 1.0F, false);
+      world.playSound(pos.x, pos.y, pos.z, SoundHandler.MISC_SHATTER[0], SoundCategory.AMBIENT, 0.7F, 1.0F, false);
    }
 
-   public boolean attackEntityFrom(DamageSource var1, float var2) {
-      if (DamageSource.OUT_OF_WORLD.equals(var1)) {
+   public boolean attackEntityFrom(DamageSource source, float amount) {
+      if (DamageSource.OUT_OF_WORLD.equals(source)) {
          this.setHealth(0.0F);
          this.shouldSpawnSkeleton = false;
          this.world.removeEntity(this);
          return true;
       }
 
-      if (!this.world.isRemote && "arrow".equals(var1.damageType)) {
+      if (!this.world.isRemote && "arrow".equals(source.damageType)) {
          this.setHealth(0.0F);
          this.shouldSpawnSkeleton = false;
          PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(this.getPositionVector(), false), this);
-         Entity var4 = var1.getImmediateSource();
-         if (var4 != null) {
-            this.world.removeEntity(var4);
+         Entity immediateSource = source.getImmediateSource();
+         if (immediateSource != null) {
+            this.world.removeEntity(immediateSource);
          }
 
          this.world.removeEntity(this);
          return true;
       } else {
-         Entity var3 = var1.getTrueSource();
-         if (!(var3 instanceof EntityPlayer)) {
+         Entity trueSource = source.getTrueSource();
+         if (!(trueSource instanceof EntityPlayer)) {
             return false;
          }
 
-         this.direction = var3.getLookVec();
+         this.direction = trueSource.getLookVec();
          this.isCharging = true;
          return true;
       }
    }
 
-   public void readEntityFromNBT(NBTTagCompound var1) {
+   public void readEntityFromNBT(NBTTagCompound nbt) {
       this.world.removeEntity(this);
    }
 

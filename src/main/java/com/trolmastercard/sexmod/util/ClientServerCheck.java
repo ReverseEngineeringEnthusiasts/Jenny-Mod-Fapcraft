@@ -15,23 +15,23 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
  */
 public class ClientServerCheck {
    public static boolean getInstance() {
-      String var0 = Thread.currentThread().getName().toLowerCase();
-      if (var0.contains("server")) {
+      String threadName = Thread.currentThread().getName().toLowerCase();
+      if (threadName.contains("server")) {
          return true;
       }
 
-      if (var0.contains("client")) {
+      if (threadName.contains("client")) {
          return false;
       }
 
-      MinecraftServer var1 = FMLCommonHandler.instance().getMinecraftServerInstance();
-      if (var1 == null) {
+      MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+      if (server == null) {
          return false;
       }
 
-      boolean var2 = var1.isCallingFromMinecraftThread();
-      Main.LOGGER.warn("couldn't clarify if is running on a server or client thread. Came to the solution onServer=" + var2);
-      return var2;
+      boolean onServerThread = server.isCallingFromMinecraftThread();
+      Main.LOGGER.warn("couldn't clarify if is running on a server or client thread. Came to the solution onServer=" + onServerThread);
+      return onServerThread;
    }
 
 }

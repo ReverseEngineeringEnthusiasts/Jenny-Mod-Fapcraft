@@ -17,14 +17,14 @@ public class SuccubusDamageSource extends DamageSource {
    GalathEntity galathEntity;
    Vec3d sourcePos;
 
-   public SuccubusDamageSource(GalathEntity var1) {
+   public SuccubusDamageSource(GalathEntity galath) {
       super("galath");
-      this.galathEntity = var1;
-      this.sourcePos = var1.getPositionVector();
+      this.galathEntity = galath;
+      this.sourcePos = galath.getPositionVector();
    }
 
-   public ITextComponent getDeathMessage(EntityLivingBase var1) {
-      return new TextComponentString(var1.getName() + " got his cum drained by a Succubus");
+   public ITextComponent getDeathMessage(EntityLivingBase victim) {
+      return new TextComponentString(victim.getName() + " got his cum drained by a Succubus");
    }
 
    public boolean isUnblockable() {

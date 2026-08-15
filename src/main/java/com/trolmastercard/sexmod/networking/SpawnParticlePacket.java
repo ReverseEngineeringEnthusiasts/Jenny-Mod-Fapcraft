@@ -28,38 +28,38 @@ public class SpawnParticlePacket implements IMessage {
    public SpawnParticlePacket() {
    }
 
-   public SpawnParticlePacket(UUID var1, String var2) {
-      this.girlUUID = var1;
-      this.particleType = var2;
+   public SpawnParticlePacket(UUID girlUUID, String particleType) {
+      this.girlUUID = girlUUID;
+      this.particleType = particleType;
       this.count = 1;
    }
 
-   public SpawnParticlePacket(UUID var1, String var2, int var3) {
-      this.girlUUID = var1;
-      this.particleType = var2;
-      this.count = var3;
+   public SpawnParticlePacket(UUID girlUUID, String particleType, int count) {
+      this.girlUUID = girlUUID;
+      this.particleType = particleType;
+      this.count = count;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.particleType = ByteBufUtils.readUTF8String(var1);
-      this.count = var1.readInt();
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.particleType = ByteBufUtils.readUTF8String(buf);
+      this.count = buf.readInt();
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      ByteBufUtils.writeUTF8String(var1, this.particleType);
-      var1.writeInt(this.count);
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(buf, this.particleType);
+      buf.writeInt(this.count);
    }
 
    public static class Handler implements IMessageHandler<SpawnParticlePacket, IMessage> {
-      public IMessage onMessage(SpawnParticlePacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.CLIENT)) {
-            for (BaseGirlEntity var5 : BaseGirlEntity.girlList(var1.girlUUID)) {
-               if (var5.world.isRemote) {
-                  for (int var6 = 0; var6 < var1.count; var6++) {
-                     BaseGirlEntity.spawnParticlesAround(EnumParticleTypes.getByName(var1.particleType), var5);
+      public IMessage onMessage(SpawnParticlePacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.CLIENT)) {
+            for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.girlUUID)) {
+               if (girl.world.isRemote) {
+                  for (int i = 0; i < packet.count; i++) {
+                     BaseGirlEntity.spawnParticlesAround(EnumParticleTypes.getByName(packet.particleType), girl);
                   }
                   break;
                }

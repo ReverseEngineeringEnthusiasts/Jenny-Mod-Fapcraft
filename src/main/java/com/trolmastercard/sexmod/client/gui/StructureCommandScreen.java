@@ -68,19 +68,19 @@ public class StructureCommandScreen extends GuiScreen {
    EnumFacing targetFacing;
 
    public StructureCommandScreen() {
-      Minecraft var1 = Minecraft.getMinecraft();
-      this.targetBlockPos = var1.objectMouseOver.getBlockPos();
-      if (var1.objectMouseOver.sideHit == null) {
+      Minecraft mc = Minecraft.getMinecraft();
+      this.targetBlockPos = mc.objectMouseOver.getBlockPos();
+      if (mc.objectMouseOver.sideHit == null) {
          this.targetFacing = EnumFacing.NORTH;
       } else {
-         this.targetFacing = var1.objectMouseOver.sideHit.getOpposite();
+         this.targetFacing = mc.objectMouseOver.sideHit.getOpposite();
       }
 
       if (this.targetBlockPos == null) {
          this.targetBlockPos = BlockPos.ORIGIN;
       }
 
-      this.targetBlockState = var1.world.getBlockState(this.targetBlockPos);
+      this.targetBlockState = mc.world.getBlockState(this.targetBlockPos);
    }
 
    /**
@@ -89,22 +89,22 @@ public class StructureCommandScreen extends GuiScreen {
     */
    public void onGuiClosed() {
       super.onGuiClosed();
-      List var1 = Arrays.asList(this.animBottomLeft, this.animTopLeft, this.animBottomRight, this.animTopRight);
-      float var2 = (Float) Collections.max((List<Float>) (List) var1);
-      if (var2 != 0.0F) {
-         if (this.animBottomLeft == var2) {
+      List animations = Arrays.asList(this.animBottomLeft, this.animTopLeft, this.animBottomRight, this.animTopRight);
+      float maxAnim = (Float) Collections.max((List<Float>) (List) animations);
+      if (maxAnim != 0.0F) {
+         if (this.animBottomLeft == maxAnim) {
             this.updateTargetState();
          }
 
-         if (this.animTopLeft == var2) {
+         if (this.animTopLeft == maxAnim) {
             this.toggleFollowMode();
          }
 
-         if (this.animBottomRight == var2) {
+         if (this.animBottomRight == maxAnim) {
             this.toggleStaffView();
          }
 
-         if (this.animTopRight == var2) {
+         if (this.animTopRight == maxAnim) {
             this.handleLogBlock();
          }
       }
@@ -116,8 +116,8 @@ public class StructureCommandScreen extends GuiScreen {
     * {@link StructureMarkerRenderer} mark. Only valid for beds and chests.
     */
    void updateTargetState() {
-      IBlockState var1 = this.mc.world.getBlockState(this.targetBlockPos);
-      if (var1.getBlock() instanceof BlockBed || var1.getBlock() instanceof BlockChest) {
+      IBlockState state = this.mc.world.getBlockState(this.targetBlockPos);
+      if (state.getBlock() instanceof BlockBed || state.getBlock() instanceof BlockChest) {
          PacketHandler.networkWrapper.sendToServer(new SendBlocksPacket(this.targetBlockPos, !StructureMarkerRenderer.isMarked(this.targetBlockPos)));
       }
    }
@@ -143,8 +143,8 @@ public class StructureCommandScreen extends GuiScreen {
     * minable material via {@link MinePacket}. Exactly one packet per close.
     */
    void handleLogBlock() {
-      Block var1 = this.targetBlockState.getBlock();
-      if (var1 instanceof BlockLog) {
+      Block block = this.targetBlockState.getBlock();
+      if (block instanceof BlockLog) {
          if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
             PacketHandler.networkWrapper.sendToServer(new CancelTaskPacket(this.targetBlockPos));
             return;
@@ -153,14 +153,14 @@ public class StructureCommandScreen extends GuiScreen {
          PacketHandler.networkWrapper.sendToServer(new FallTreePacket(this.targetBlockPos));
       }
 
-      Object[] var2 = this.getTargetMaterial();
-      if (var2 != null) {
+      Object[] materialTarget = this.getTargetMaterial();
+      if (materialTarget != null) {
          if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
             PacketHandler.networkWrapper.sendToServer(new CancelTaskPacket(this.targetBlockPos));
             return;
          }
 
-         PacketHandler.networkWrapper.sendToServer(new MinePacket((BlockPos)var2[0], (EnumFacing)var2[1]));
+         PacketHandler.networkWrapper.sendToServer(new MinePacket((BlockPos)materialTarget[0], (EnumFacing)materialTarget[1]));
       }
    }
 
@@ -173,26 +173,26 @@ public class StructureCommandScreen extends GuiScreen {
     */
    @Nullable
    Object[] getTargetMaterial() {
-      Material var1 = this.mc.world.getBlockState(this.targetBlockPos).getMaterial();
-      EntityPlayerSP var2 = this.mc.player;
-      if (!breakableMaterials.contains(var1)) {
+      Material material = this.mc.world.getBlockState(this.targetBlockPos).getMaterial();
+      EntityPlayerSP player = this.mc.player;
+      if (!breakableMaterials.contains(material)) {
          return null;
       }
 
-      if (var2.getPosition().getY() > this.targetBlockPos.getY()) {
+      if (player.getPosition().getY() > this.targetBlockPos.getY()) {
          return null;
       }
 
-      BlockPos var3 = this.targetBlockPos;
+      BlockPos groundPos = this.targetBlockPos;
 
       while (
-         this.mc.world.getBlockState(var3.down().add(this.targetFacing.getOpposite().getDirectionVec())).getBlock()
+         this.mc.world.getBlockState(groundPos.down().add(this.targetFacing.getOpposite().getDirectionVec())).getBlock()
             == Blocks.AIR
       ) {
-         var3 = var3.down();
+         groundPos = groundPos.down();
       }
 
-      return this.targetBlockPos.getY() - var3.getY() > 3 ? null : new Object[]{var3, this.targetFacing};
+      return this.targetBlockPos.getY() - groundPos.getY() > 3 ? null : new Object[]{groundPos, this.targetFacing};
    }
 
    /**
@@ -201,87 +201,87 @@ public class StructureCommandScreen extends GuiScreen {
     * quadrants valid for the targeted block are offered, and active states
     * (erasing/staff rendering/marked) overlay a highlight icon.
     */
-   public void drawScreen(int var1, int var2, float var3) {
-      super.drawScreen(var1, var2, var3);
+   public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+      super.drawScreen(mouseX, mouseY, partialTicks);
       GL11.glEnable(3042);
       OpenGlHelper.glBlendFunc(770, 771, 1, 0);
       GL11.glBlendFunc(770, 771);
 
       try {
          this.animProgress = Math.min(1.0F, this.animProgress + this.mc.getTickLength() / 5.0F);
-      } catch (NullPointerException var11) {
+      } catch (NullPointerException npe) {
       }
 
-      float var4 = (float)this.easeOutBack(this.animProgress);
-      float var5 = (1.0F - var4) * 100.0F;
-      this.animBottomLeft = this.animBottomLeft + (var1 < this.width / 2 && var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.animTopLeft = this.animTopLeft + (var1 < this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.animBottomRight = this.animBottomRight + (var1 > this.width / 2 && var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.animTopRight = this.animTopRight + (var1 > this.width / 2 && var2 < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      float scale = (float)this.easeOutBack(this.animProgress);
+      float offset = (1.0F - scale) * 100.0F;
+      this.animBottomLeft = this.animBottomLeft + (mouseX < this.width / 2 && mouseY > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animTopLeft = this.animTopLeft + (mouseX < this.width / 2 && mouseY < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animBottomRight = this.animBottomRight + (mouseX > this.width / 2 && mouseY > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animTopRight = this.animTopRight + (mouseX > this.width / 2 && mouseY < this.height / 2 ? 1 : -1) * this.mc.getTickLength();
       this.animBottomLeft = ThreadNames.clampFloat(this.animBottomLeft, 0.0F, 1.0F);
       this.animTopLeft = ThreadNames.clampFloat(this.animTopLeft, 0.0F, 1.0F);
       this.animBottomRight = ThreadNames.clampFloat(this.animBottomRight, 0.0F, 1.0F);
       this.animTopRight = ThreadNames.clampFloat(this.animTopRight, 0.0F, 1.0F);
       GlStateManager.pushMatrix();
       GlStateManager.translate(this.width / 2.0F, this.height / 2.0F, 0.0F);
-      GlStateManager.scale(var4, var4, var4);
+      GlStateManager.scale(scale, scale, scale);
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
       GlStateManager.pushMatrix();
       GlStateManager.scale(1.0F + this.animTopLeft * 0.5F, 1.0F + this.animTopLeft * 0.5F, 1.0F);
-      this.drawTexturedModalRect(-62.0F + var5 - this.animTopLeft * 15.0F, -62.0F + var5 - this.animTopLeft * 15.0F, 0, 0, 64, 64);
-      this.drawTopLeft(var5);
+      this.drawTexturedModalRect(-62.0F + offset - this.animTopLeft * 15.0F, -62.0F + offset - this.animTopLeft * 15.0F, 0, 0, 64, 64);
+      this.drawTopLeft(offset);
       if (isErasing) {
-         this.drawTexturedModalRect(-62.0F + var5 - this.animTopLeft * 15.0F, -62.0F + var5 - this.animTopLeft * 15.0F, 128, 64, 64, 64);
+         this.drawTexturedModalRect(-62.0F + offset - this.animTopLeft * 15.0F, -62.0F + offset - this.animTopLeft * 15.0F, 128, 64, 64, 64);
       }
 
       GlStateManager.popMatrix();
       GlStateManager.pushMatrix();
       GlStateManager.scale(1.0F + this.animBottomRight * 0.5F, 1.0F + this.animBottomRight * 0.5F, 1.0F);
-      this.drawTexturedModalRect(-2.0F - var5 + this.animBottomRight * 15.0F, -2.0F - var5 + this.animBottomRight * 15.0F, 0, 0, 64, 64);
-      this.drawBottomRight(var5);
+      this.drawTexturedModalRect(-2.0F - offset + this.animBottomRight * 15.0F, -2.0F - offset + this.animBottomRight * 15.0F, 0, 0, 64, 64);
+      this.drawBottomRight(offset);
       if (DragonStaffRenderer.isRenderingStaff()) {
-         this.drawTexturedModalRect(-2.0F - var5 + this.animBottomRight * 15.0F, -2.0F - var5 + this.animBottomRight * 15.0F, 128, 64, 64, 64);
+         this.drawTexturedModalRect(-2.0F - offset + this.animBottomRight * 15.0F, -2.0F - offset + this.animBottomRight * 15.0F, 128, 64, 64, 64);
       }
 
       GlStateManager.popMatrix();
-      Block var6 = this.targetBlockState.getBlock();
-      boolean var7 = var6 instanceof BlockChest;
-      boolean var8 = var6 instanceof BlockBed;
-      if (var7 || var8) {
+      Block block = this.targetBlockState.getBlock();
+      boolean isChest = block instanceof BlockChest;
+      boolean isBed = block instanceof BlockBed;
+      if (isChest || isBed) {
          GlStateManager.pushMatrix();
          GlStateManager.scale(1.0F + this.animBottomLeft * 0.5F, 1.0F + this.animBottomLeft * 0.5F, 1.0F);
-         this.drawTexturedModalRect(-62.0F + var5 - this.animBottomLeft * 15.0F, -2.0F - var5 + this.animBottomLeft * 15.0F, 0, 0, 64, 64);
-         if (var7) {
-            this.drawBottomLeft(var5);
+         this.drawTexturedModalRect(-62.0F + offset - this.animBottomLeft * 15.0F, -2.0F - offset + this.animBottomLeft * 15.0F, 0, 0, 64, 64);
+         if (isChest) {
+            this.drawBottomLeft(offset);
          }
 
-         if (var8) {
-            this.setBuildProgress(var5);
+         if (isBed) {
+            this.setBuildProgress(offset);
          }
 
          if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
-            this.drawTexturedModalRect(-62.0F + var5 - this.animBottomLeft * 15.0F, -2.0F - var5 + this.animBottomLeft * 15.0F, 128, 64, 64, 64);
+            this.drawTexturedModalRect(-62.0F + offset - this.animBottomLeft * 15.0F, -2.0F - offset + this.animBottomLeft * 15.0F, 128, 64, 64, 64);
          }
 
          GlStateManager.popMatrix();
       }
 
-      boolean var9 = var6 instanceof BlockLog;
-      boolean var10 = this.getTargetMaterial() != null;
-      if (var9 || var10) {
+      boolean isLog = block instanceof BlockLog;
+      boolean hasMaterialTarget = this.getTargetMaterial() != null;
+      if (isLog || hasMaterialTarget) {
          GlStateManager.pushMatrix();
          GlStateManager.scale(1.0F + this.animTopRight * 0.5F, 1.0F + this.animTopRight * 0.5F, 1.0F);
-         this.drawTexturedModalRect(-2.0F - var5 + this.animTopRight * 15.0F, -62.0F + var5 - this.animTopRight * 15.0F, 0, 0, 64, 64);
-         if (var9) {
-            this.setEraseProgress(var5);
+         this.drawTexturedModalRect(-2.0F - offset + this.animTopRight * 15.0F, -62.0F + offset - this.animTopRight * 15.0F, 0, 0, 64, 64);
+         if (isLog) {
+            this.setEraseProgress(offset);
          }
 
-         if (var10) {
-            this.drawTopRight(var5);
+         if (hasMaterialTarget) {
+            this.drawTopRight(offset);
          }
 
          if (StructureMarkerRenderer.isMarked(this.targetBlockPos)) {
-            this.drawTexturedModalRect(-2.0F - var5 + this.animTopRight * 15.0F, -62.0F + var5 - this.animTopRight * 15.0F, 128, 64, 64, 64);
+            this.drawTexturedModalRect(-2.0F - offset + this.animTopRight * 15.0F, -62.0F + offset - this.animTopRight * 15.0F, 128, 64, 64, 64);
          }
 
          GlStateManager.popMatrix();
@@ -291,43 +291,43 @@ public class StructureCommandScreen extends GuiScreen {
       GL11.glDisable(3042);
    }
 
-   void drawBottomRight(float var1) {
-      this.drawTexturedModalRect(-2.0F - var1 + this.animBottomRight * 15.0F, -2.0F - var1 + this.animBottomRight * 15.0F, 192, 64, 64, 64);
+   void drawBottomRight(float offset) {
+      this.drawTexturedModalRect(-2.0F - offset + this.animBottomRight * 15.0F, -2.0F - offset + this.animBottomRight * 15.0F, 192, 64, 64, 64);
    }
 
-   void drawTopLeft(float var1) {
-      this.drawTexturedModalRect(-62.0F + var1 - this.animTopLeft * 15.0F, -62.0F + var1 - this.animTopLeft * 15.0F, 64, 64, 64, 64);
+   void drawTopLeft(float offset) {
+      this.drawTexturedModalRect(-62.0F + offset - this.animTopLeft * 15.0F, -62.0F + offset - this.animTopLeft * 15.0F, 64, 64, 64, 64);
    }
 
-   void setEraseProgress(float var1) {
-      this.drawTexturedModalRect(-2.0F - var1 + this.animTopRight * 15.0F, -62.0F + var1 - this.animTopRight * 15.0F, 64, 0, 64, 64);
+   void setEraseProgress(float offset) {
+      this.drawTexturedModalRect(-2.0F - offset + this.animTopRight * 15.0F, -62.0F + offset - this.animTopRight * 15.0F, 64, 0, 64, 64);
    }
 
-   void drawTopRight(float var1) {
-      this.drawTexturedModalRect(-2.0F - var1 + this.animTopRight * 15.0F, -62.0F + var1 - this.animTopRight * 15.0F, 128, 0, 64, 64);
+   void drawTopRight(float offset) {
+      this.drawTexturedModalRect(-2.0F - offset + this.animTopRight * 15.0F, -62.0F + offset - this.animTopRight * 15.0F, 128, 0, 64, 64);
    }
 
-   void setBuildProgress(float var1) {
-      this.drawTexturedModalRect(-62.0F + var1 - this.animBottomLeft * 15.0F, -2.0F - var1 + this.animBottomLeft * 15.0F, 0, 64, 64, 64);
+   void setBuildProgress(float offset) {
+      this.drawTexturedModalRect(-62.0F + offset - this.animBottomLeft * 15.0F, -2.0F - offset + this.animBottomLeft * 15.0F, 0, 64, 64, 64);
    }
 
-   void drawBottomLeft(float var1) {
-      this.drawTexturedModalRect(-62.0F + var1 - this.animBottomLeft * 15.0F, -2.0F - var1 + this.animBottomLeft * 15.0F, 192, 0, 64, 64);
+   void drawBottomLeft(float offset) {
+      this.drawTexturedModalRect(-62.0F + offset - this.animBottomLeft * 15.0F, -2.0F - offset + this.animBottomLeft * 15.0F, 192, 0, 64, 64);
    }
 
-   double easeOutBack(double var1) {
-      double var3 = 1.70158;
-      double var5 = 2.70158;
-      return 1.0 + var5 * Math.pow(var1 - 1.0, 3.0) + var3 * Math.pow(var1 - 1.0, 2.0);
+   double easeOutBack(double t) {
+      double c1 = 1.70158;
+      double c3 = 2.70158;
+      return 1.0 + c3 * Math.pow(t - 1.0, 3.0) + c1 * Math.pow(t - 1.0, 2.0);
    }
 
    /**
     * Any mouse release closes the screen, committing the held quadrant's
     * command ({@link #onGuiClosed()}).
     */
-   protected void mouseReleased(int var1, int var2, int var3) {
+   protected void mouseReleased(int mouseX, int mouseY, int mouseButton) {
       this.mc.player.closeScreen();
-      super.mouseReleased(var1, var2, var3);
+      super.mouseReleased(mouseX, mouseY, mouseButton);
    }
 
    public boolean doesGuiPauseGame() {

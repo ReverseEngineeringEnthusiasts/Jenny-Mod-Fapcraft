@@ -21,12 +21,12 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public ResourceLocation getTextureLocation(BaseGirlEntity var0) {
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/bee/bee.png");
    }
 
    @Override
-   public ResourceLocation getAnimationFileLocation(BaseGirlEntity var1) {
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "animations/bee/bee.animation.json");
    }
 
@@ -35,28 +35,28 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
     * animation is a chest animation (e.g. the chest-opening scene).
     */
    @Override
-   public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
-      super.setLivingAnimations(var1, var2, var3);
-      if (!(var1.world instanceof SexWorldClient)) {
-         AnimationProcessor var4 = this.getAnimationProcessor();
-         IBone var5 = var4.getBone("chest");
-         if (var5 != null) {
-            var5.setHidden(var1.movementController.getCurrentAnimation() == null || !var1.movementController.getCurrentAnimation().animationName.contains("chest"));
+   public void setLivingAnimations(BaseGirlEntity entity, Integer uniqueID, AnimationEvent event) {
+      super.setLivingAnimations(entity, uniqueID, event);
+      if (!(entity.world instanceof SexWorldClient)) {
+         AnimationProcessor processor = this.getAnimationProcessor();
+         IBone chestBone = processor.getBone("chest");
+         if (chestBone != null) {
+            chestBone.setHidden(entity.movementController.getCurrentAnimation() == null || !entity.movementController.getCurrentAnimation().animationName.contains("chest"));
          }
       }
    }
 
    @Override
-   protected void handleAnimationEvent(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
-      if (!(var1.world instanceof SexWorldClient) && (var1.getCurrentAction() == Action.NULL || var1.getCurrentAction() == Action.ATTACK || var1.getCurrentAction() == Action.BOW)) {
-         EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
-         IBone var5 = var2.getBone("neck");
-         var5.setRotationY(var4.netHeadYaw * 0.5F * (float) (Math.PI / 180.0));
-         IBone var6 = var2.getBone("head");
-         var6.setRotationY(var4.netHeadYaw * (float) (Math.PI / 180.0));
-         var6.setRotationX(1.0F + var4.headPitch * (float) (Math.PI / 180.0));
-         IBone var7 = var2.getBone("body") == null ? var2.getBone("dd") : var2.getBone("body");
-         var7.setRotationY(0.0F);
+   protected void handleAnimationEvent(BaseGirlEntity entity, AnimationProcessor processor, AnimationEvent event) {
+      if (!(entity.world instanceof SexWorldClient) && (entity.getCurrentAction() == Action.NULL || entity.getCurrentAction() == Action.ATTACK || entity.getCurrentAction() == Action.BOW)) {
+         EntityModelData modelData = (EntityModelData) event.getExtraDataOfType(EntityModelData.class).get(0);
+         IBone neckBone = processor.getBone("neck");
+         neckBone.setRotationY(modelData.netHeadYaw * 0.5F * (float) (Math.PI / 180.0));
+         IBone headBone = processor.getBone("head");
+         headBone.setRotationY(modelData.netHeadYaw * (float) (Math.PI / 180.0));
+         headBone.setRotationX(1.0F + modelData.headPitch * (float) (Math.PI / 180.0));
+         IBone bodyBone = processor.getBone("body") == null ? processor.getBone("dd") : processor.getBone("body");
+         bodyBone.setRotationY(0.0F);
       }
    }
 

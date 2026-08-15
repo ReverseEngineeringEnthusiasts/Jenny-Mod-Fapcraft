@@ -52,12 +52,12 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    boolean ap = false;
    boolean as = false;
 
-   protected LunaPlayerEntity(World var1) {
-      super(var1);
+   protected LunaPlayerEntity(World world) {
+      super(world);
    }
 
-   public LunaPlayerEntity(World var1, UUID var2) {
-      super(var1, var2);
+   public LunaPlayerEntity(World world, UUID uuid) {
+      super(world, uuid);
    }
 
    @Override
@@ -70,12 +70,12 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public IVanillaModel getHandModel(int var1) {
+   public IVanillaModel getHandModel(int index) {
       return new LunaModel();
    }
 
    @Override
-   public String getHandTexture(int var1) {
+   public String getHandTexture(int index) {
       return "textures/entity/cat/hand.png";
    }
 
@@ -85,17 +85,17 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
     * animation. Both teleport the acting player into the scene.
     */
    @Override
-   public void handleOwnerCommand(String var1, UUID var2) {
-      if ("action.names.touchboobs".equals(var1)) {
+   public void handleOwnerCommand(String command, UUID uuid) {
+      if ("action.names.touchboobs".equals(command)) {
          this.sendActionPacket(0, Action.TOUCH_BOOBS_INTRO);
          this.setCurrentAction(Action.TOUCH_BOOBS_INTRO);
          this.entityDataManager.set(OUTFIT_INDEX, 0);
-         this.teleportPlayerToGirl(var2);
+         this.teleportPlayerToGirl(uuid);
       }
 
-      if ("action.names.headpat".equals(var1)) {
+      if ("action.names.headpat".equals(command)) {
          this.setCurrentAction(Action.HEAD_PAT);
-         this.teleportPlayerToGirl(var2);
+         this.teleportPlayerToGirl(uuid);
       }
    }
 
@@ -113,8 +113,8 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean openInteractionMenu(EntityPlayer var1) {
-      openInventoryGui(var1, this, new String[]{"action.names.touchboobs", "action.names.headpat"}, false);
+   public boolean openInteractionMenu(EntityPlayer player) {
+      openInventoryGui(player, this, new String[]{"action.names.touchboobs", "action.names.headpat"}, false);
       return true;
    }
 
@@ -151,19 +151,19 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
     * tick 0 and forces third-person at tick 25.
     */
    void handleLunaOwner() {
-      EntityPlayer var1 = this.getNearestPlayer();
-      if (var1 != null) {
-         if (!(var1.getDistance(this.posX, this.getPositionVec3d().y, this.posZ) > 1.25)) {
+      EntityPlayer player = this.getNearestPlayer();
+      if (player != null) {
+         if (!(player.getDistance(this.posX, this.getPositionVec3d().y, this.posZ) > 1.25)) {
             if (this.world.isRemote) {
-               this.setFishingLevelFor(var1, this.ar);
+               this.setFishingLevelFor(player, this.ar);
             } else if (this.ar == 25) {
-               this.setInteractionPlayerUUID(var1.getPersistentID());
-               var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
-               var1.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVec3d().y, this.getPositionVector().z);
+               this.setInteractionPlayerUUID(player.getPersistentID());
+               player.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
+               player.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVec3d().y, this.getPositionVector().z);
                this.setCurrentAction(Action.COWGIRL_SITTING_INTRO);
-               var1.setRotationYawHead(this.getYawRotation() + 180.0F);
-               var1.rotationYaw = this.getYawRotation() + 180.0F;
-               var1.prevRotationYaw = this.getYawRotation() + 180.0F;
+               player.setRotationYawHead(this.getYawRotation() + 180.0F);
+               player.rotationYaw = this.getYawRotation() + 180.0F;
+               player.prevRotationYaw = this.getYawRotation() + 180.0F;
                this.cameraYaw = this.getYawRotation() + 180.0F;
                this.positionPlayerRelative(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
                this.entityDataManager.set(OUTFIT_INDEX, 0);
@@ -180,145 +180,145 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
     * to third-person view.
     */
    @SideOnly(Side.CLIENT)
-   void setFishingLevelFor(EntityPlayer var1, int var2) {
-      if (var2 == 0) {
-         EntityPlayerSP var3 = Minecraft.getMinecraft().player;
-         if (var3.getPersistentID().equals(var1.getPersistentID())) {
+   void setFishingLevelFor(EntityPlayer player, int level) {
+      if (level == 0) {
+         EntityPlayerSP localPlayer = Minecraft.getMinecraft().player;
+         if (player.getPersistentID().equals(localPlayer.getPersistentID())) {
             BeeScreen.enableInteraction();
-            var3.setVelocity(0.0, 0.0, 0.0);
+            localPlayer.setVelocity(0.0, 0.0, 0.0);
             HandlePlayerMovement.setMovementLock(false);
          }
       }
 
-      if (var2 == 25) {
-         EntityPlayerSP var4 = Minecraft.getMinecraft().player;
-         if (var4.getPersistentID().equals(var1.getPersistentID())) {
+      if (level == 25) {
+         EntityPlayerSP localPlayer = Minecraft.getMinecraft().player;
+         if (player.getPersistentID().equals(localPlayer.getPersistentID())) {
             Minecraft.getMinecraft().gameSettings.thirdPersonView = 2;
          }
       }
    }
 
    @Override
-   protected Action getNextAction(Action var1) {
-      if (var1 == Action.TOUCH_BOOBS_SLOW) {
+   protected Action getNextAction(Action action) {
+      if (action == Action.TOUCH_BOOBS_SLOW) {
          return Action.TOUCH_BOOBS_FAST;
       } else {
-         return var1 == Action.COWGIRL_SITTING_SLOW ? Action.COWGIRL_SITTING_FAST : null;
+         return action == Action.COWGIRL_SITTING_SLOW ? Action.COWGIRL_SITTING_FAST : null;
       }
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      if (var1 == Action.TOUCH_BOOBS_SLOW || var1 == Action.TOUCH_BOOBS_FAST) {
+   protected Action getCumAction(Action action) {
+      if (action == Action.TOUCH_BOOBS_SLOW || action == Action.TOUCH_BOOBS_FAST) {
          return Action.TOUCH_BOOBS_CUM;
       } else {
-         return var1 != Action.COWGIRL_SITTING_FAST && var1 != Action.COWGIRL_SITTING_SLOW ? null : Action.COWGIRL_SITTING_CUM;
+         return action != Action.COWGIRL_SITTING_FAST && action != Action.COWGIRL_SITTING_SLOW ? null : Action.COWGIRL_SITTING_CUM;
       }
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
-      switch (var1.getController().getName()) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
+      switch (event.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
-               this.createAnimation("animation.cat.blink", true, var1);
+               this.createAnimation("animation.cat.blink", true, event);
             } else {
-               this.createAnimation("animation.cat.null", true, var1);
+               this.createAnimation("animation.cat.null", true, event);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.cat.null", true, var1);
+               this.createAnimation("animation.cat.null", true, event);
             } else if (this.ak) {
-               this.createAnimation("animation.cat.sit", true, var1);
+               this.createAnimation("animation.cat.sit", true, event);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.aq = !this.aq;
                }
 
                if (!this.af) {
-                  this.createAnimation("animation.cat.fly" + (this.aq ? "2" : ""), true, var1);
+                  this.createAnimation("animation.cat.fly" + (this.aq ? "2" : ""), true, event);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
                      this.movementController.setAnimationSpeed(1.5);
-                     this.createAnimation("animation.cat.run", true, var1);
+                     this.createAnimation("animation.cat.run", true, event);
                   } else if (this.ao.y >= -0.1F) {
                      this.movementController.setAnimationSpeed(2.0);
-                     this.createAnimation("animation.cat.fastwalk", true, var1);
+                     this.createAnimation("animation.cat.fastwalk", true, event);
                   } else {
                      this.movementController.setAnimationSpeed(2.0);
-                     this.createAnimation("animation.cat.backwards_walk", true, var1);
+                     this.createAnimation("animation.cat.backwards_walk", true, event);
                   }
                } else {
-                  this.createAnimation("animation.cat.idle", true, var1);
+                  this.createAnimation("animation.cat.idle", true, event);
                }
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.createAnimation("animation.cat.null", true, var1);
+                  this.createAnimation("animation.cat.null", true, event);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.cat.attack" + this.nextAttack, false, var1);
+                  this.createAnimation("animation.cat.attack" + this.nextAttack, false, event);
                   break;
                case RIDE:
                case SIT:
-                  this.createAnimation("animation.cat.sit", true, var1);
+                  this.createAnimation("animation.cat.sit", true, event);
                   break;
                case BOW:
-                  this.createAnimation("animation.cat.bowcharge", false, var1);
+                  this.createAnimation("animation.cat.bowcharge", false, event);
                   break;
                case THROW_PEARL:
-                  this.createAnimation("animation.cat.throwpearl", true, var1);
+                  this.createAnimation("animation.cat.throwpearl", true, event);
                   break;
                case DOWNED:
-                  this.createAnimation("animation.cat.downed", true, var1);
+                  this.createAnimation("animation.cat.downed", true, event);
                   break;
                case FISHING_START:
-                  this.createAnimation("animation.cat.start_fishing", false, var1);
+                  this.createAnimation("animation.cat.start_fishing", false, event);
                   break;
                case FISHING_IDLE:
-                  this.createAnimation("animation.cat.idle_fishing", true, var1);
+                  this.createAnimation("animation.cat.idle_fishing", true, event);
                   break;
                case FISHING_EAT:
-                  this.createAnimation("animation.cat.eat_fishing", false, var1);
+                  this.createAnimation("animation.cat.eat_fishing", false, event);
                   break;
                case FISHING_THROW_AWAY:
-                  this.createAnimation("animation.cat.throw_away", false, var1);
+                  this.createAnimation("animation.cat.throw_away", false, event);
                   break;
                case PAYMENT:
-                  this.createAnimation("animation.cat.payment", false, var1);
+                  this.createAnimation("animation.cat.payment", false, event);
                   break;
                case TOUCH_BOOBS_INTRO:
-                  this.createAnimation("animation.cat.touch_boobs_intro", false, var1);
+                  this.createAnimation("animation.cat.touch_boobs_intro", false, event);
                   break;
                case TOUCH_BOOBS_SLOW:
-                  this.createAnimation("animation.cat.touch_boobs_slow" + (this.ap ? "1" : ""), true, var1);
+                  this.createAnimation("animation.cat.touch_boobs_slow" + (this.ap ? "1" : ""), true, event);
                   break;
                case TOUCH_BOOBS_FAST:
-                  this.createAnimation("animation.cat.touch_boobs_fast", true, var1);
+                  this.createAnimation("animation.cat.touch_boobs_fast", true, event);
                   break;
                case TOUCH_BOOBS_CUM:
-                  this.createAnimation("animation.cat.touch_boobs_cum", false, var1);
+                  this.createAnimation("animation.cat.touch_boobs_cum", false, event);
                   break;
                case WAIT_CAT:
-                  this.createAnimation("animation.cat.wait", false, var1);
+                  this.createAnimation("animation.cat.wait", false, event);
                   break;
                case COWGIRL_SITTING_INTRO:
-                  this.createAnimation("animation.cat.sitting_intro", false, var1);
+                  this.createAnimation("animation.cat.sitting_intro", false, event);
                   break;
                case COWGIRL_SITTING_SLOW:
-                  this.createAnimation("animation.cat.sitting_slow", true, var1);
+                  this.createAnimation("animation.cat.sitting_slow", true, event);
                   break;
                case COWGIRL_SITTING_FAST:
-                  this.createAnimation("animation.cat.sitting_fast", true, var1);
+                  this.createAnimation("animation.cat.sitting_fast", true, event);
                   break;
                case COWGIRL_SITTING_CUM:
-                  this.createAnimation("animation.cat.sitting_cum", true, var1);
+                  this.createAnimation("animation.cat.sitting_cum", true, event);
                   break;
                case HEAD_PAT:
-                  this.createAnimation("animation.cat.head_pat", true, var1);
+                  this.createAnimation("animation.cat.head_pat", true, event);
             }
       }
 
@@ -337,13 +337,13 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
     * player relative to the girl's target position.
     */
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       if (this.actionController == null) {
          this.initAnimationControllers();
       }
 
-      AnimationController.ISoundListener var2 = var1x -> {
-         switch (var1x.sound) {
+      AnimationController.ISoundListener soundListener = sound -> {
+         switch (sound.sound) {
             case "attackDone":
                if (++this.nextAttack == 3) {
                   this.nextAttack = 0;
@@ -368,9 +368,9 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "paymentMSG3":
                this.sendChatMessage("nyyyaaaa~ :D");
-               int[] var4 = new int[]{1, 7, 10, 11};
-               int var5 = var4[this.getRNG().nextInt(var4.length)];
-               this.playSound(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
+               int[] soundIds = new int[]{1, 7, 10, 11};
+               int soundId = soundIds[this.getRNG().nextInt(soundIds.length)];
+               this.playSound(SoundHandler.GIRLS_LUNA_CUTENYA[soundId]);
                break;
             case "paymentMSG4":
                this.sendChatMessage("tankuuuu owowowo");
@@ -538,27 +538,27 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
             case "sitting_fastDone":
                if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.COWGIRL_SITTING_SLOW);
-                  Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
-                  Vec3d var9 = VectorMath.rotateByYaw(var8, this.getYawRotation() + 180.0F);
+                  Vec3d headOffset = new Vec3d(0.0, -0.075F, -0.7109375);
+                  Vec3d rotatedHead = VectorMath.rotateByYaw(headOffset, this.getYawRotation() + 180.0F);
                   Minecraft.getMinecraft()
                      .player
                      .setPosition(
-                        this.getTargetPosition().x + var9.x,
-                        this.getTargetPosition().y - 0.0 + var9.y,
-                        this.getTargetPosition().z + var9.z
+                        this.getTargetPosition().x + rotatedHead.x,
+                        this.getTargetPosition().y - 0.0 + rotatedHead.y,
+                        this.getTargetPosition().z + rotatedHead.z
                      );
                }
                break;
             case "sitting_fastTp":
                if (this.isControlledByLocalPlayer()) {
-                  Vec3d var6 = new Vec3d(0.0, -0.160625, -0.9925);
-                  Vec3d var7 = VectorMath.rotateByYaw(var6, this.getYawRotation() + 180.0F);
+                  Vec3d backOffset = new Vec3d(0.0, -0.160625, -0.9925);
+                  Vec3d rotatedBack = VectorMath.rotateByYaw(backOffset, this.getYawRotation() + 180.0F);
                   Minecraft.getMinecraft()
                      .player
                      .setPosition(
-                        this.getTargetPosition().x + var7.x,
-                        this.getTargetPosition().y - 0.0 + var7.y,
-                        this.getTargetPosition().z + var7.z
+                        this.getTargetPosition().x + rotatedBack.x,
+                        this.getTargetPosition().y - 0.0 + rotatedBack.y,
+                        this.getTargetPosition().z + rotatedBack.z
                      );
                }
                break;
@@ -575,10 +575,10 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
          }
       };
       this.movementController.transitionLengthTicks = 10.0;
-      this.actionController.registerSoundListener(var2);
-      var1.addAnimationController(this.actionController);
-      var1.addAnimationController(this.movementController);
-      var1.addAnimationController(this.eyesController);
+      this.actionController.registerSoundListener(soundListener);
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.movementController);
+      data.addAnimationController(this.eyesController);
    }
 
 }

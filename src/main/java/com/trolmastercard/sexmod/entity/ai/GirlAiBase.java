@@ -23,9 +23,9 @@ public class GirlAiBase extends EntityAIBase {
    private final World world;
    private int tickInterval;
 
-   public GirlAiBase(EntityVillager var1) {
-      this.targetVillager = var1;
-      this.world = var1.world;
+   public GirlAiBase(EntityVillager villager) {
+      this.targetVillager = villager;
+      this.world = villager.world;
       this.setMutexBits(3);
    }
 
@@ -34,12 +34,12 @@ public class GirlAiBase extends EntityAIBase {
          return false;
       }
 
-      Entity var1 = this.world.findNearestEntityWithinAABB(EntityVillager.class, this.targetVillager.getEntityBoundingBox().grow(8.0, 3.0, 8.0), this.targetVillager);
-      if (var1 == null) {
+      Entity nearest = this.world.findNearestEntityWithinAABB(EntityVillager.class, this.targetVillager.getEntityBoundingBox().grow(8.0, 3.0, 8.0), this.targetVillager);
+      if (nearest == null) {
          return false;
       }
 
-      this.homeVillager = (EntityVillager)var1;
+      this.homeVillager = (EntityVillager)nearest;
       return true;
    }
 
@@ -73,18 +73,18 @@ public class GirlAiBase extends EntityAIBase {
    }
 
    private void breedVillagers() {
-      EntityVillager var1 = this.targetVillager.createChild(this.homeVillager);
+      EntityVillager child = this.targetVillager.createChild(this.homeVillager);
       this.homeVillager.setGrowingAge(6000);
       this.targetVillager.setGrowingAge(6000);
       this.homeVillager.setIsWillingToMate(false);
       this.targetVillager.setIsWillingToMate(false);
-      BabyEntitySpawnEvent var2 = new BabyEntitySpawnEvent(this.targetVillager, this.homeVillager, var1);
-      if (!MinecraftForge.EVENT_BUS.post(var2) && var2.getChild() != null) {
-         EntityAgeable var3 = var2.getChild();
-         var3.setGrowingAge(-24000);
-         var3.setLocationAndAngles(this.targetVillager.posX, this.targetVillager.posY, this.targetVillager.posZ, 0.0F, 0.0F);
-         this.world.spawnEntity(var3);
-         this.world.setEntityState(var3, (byte)12);
+      BabyEntitySpawnEvent spawnEvent = new BabyEntitySpawnEvent(this.targetVillager, this.homeVillager, child);
+      if (!MinecraftForge.EVENT_BUS.post(spawnEvent) && spawnEvent.getChild() != null) {
+         EntityAgeable spawnedChild = spawnEvent.getChild();
+         spawnedChild.setGrowingAge(-24000);
+         spawnedChild.setLocationAndAngles(this.targetVillager.posX, this.targetVillager.posY, this.targetVillager.posZ, 0.0F, 0.0F);
+         this.world.spawnEntity(spawnedChild);
+         this.world.setEntityState(spawnedChild, (byte)12);
       }
    }
 

@@ -36,8 +36,8 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
    private static final ResourceLocation elytraTexture = new ResourceLocation("textures/entity/elytra.png");
    private final ModelElytra elytraModel = new ModelElytra();
 
-   public GirlLayerRenderer(IGeoRenderer var1) {
-      super(var1);
+   public GirlLayerRenderer(IGeoRenderer renderer) {
+      super(renderer);
    }
 
    /**
@@ -47,73 +47,73 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
     * renders. No-op for non-girl entities or non-elytra chest items.
     */
    @Override
-   public void render(EntityLivingBase var1, float var2, float var3, float var4, float var5, float var6, float var7, Color var8) {
-      if (var1 instanceof AbstractGirlNpcEntity) {
-         AbstractGirlNpcEntity var9 = (AbstractGirlNpcEntity)var1;
-         ItemStack var10 = (ItemStack)var9.getDataManager().get(AbstractGirlNpcEntity.CHEST_SLOT);
-         EntityPlayer var11 = null;
-         if (var9 instanceof AbstractPlayerGirlEntity) {
-            UUID var12 = ((AbstractPlayerGirlEntity)var9).getOwnerUserUUID();
-            if (var12 != null) {
-               var11 = var1.world.getPlayerEntityByUUID(var12);
+   public void render(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale, Color color) {
+      if (entity instanceof AbstractGirlNpcEntity) {
+         AbstractGirlNpcEntity girl = (AbstractGirlNpcEntity)entity;
+         ItemStack chestStack = (ItemStack)girl.getDataManager().get(AbstractGirlNpcEntity.CHEST_SLOT);
+         EntityPlayer owner = null;
+         if (girl instanceof AbstractPlayerGirlEntity) {
+            UUID ownerUuid = ((AbstractPlayerGirlEntity)girl).getOwnerUserUUID();
+            if (ownerUuid != null) {
+               owner = entity.world.getPlayerEntityByUUID(ownerUuid);
             }
          }
 
-         if (var10.getItem() == Items.ELYTRA) {
+         if (chestStack.getItem() == Items.ELYTRA) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(SourceFactor.ONE, DestFactor.ZERO);
             Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(elytraTexture);
             GlStateManager.pushMatrix();
             GlStateManager.translate(0.0F, 0.0F, 0.125F);
-            float var21 = this.renderLayer();
-            float var19 = var21;
-            float var18 = var7;
-            float var17 = var6;
-            float var16 = var5;
-            float var15 = var3;
-            float var14 = var2;
-            ModelElytra var13 = this.elytraModel;
-            ModelElytra var10000;
-            float var10001;
-            float var10002;
-            float var10003;
-            float var10004;
-            float var10005;
-            float var10006;
-            Object var10007;
-            if (var11 == null) {
-               var10000 = var13;
-               var10001 = var14;
-               var10002 = var15;
-               var10003 = var16;
-               var10004 = var17;
-               var10005 = var18;
-               var10006 = var19;
-               var10007 = var1;
+            float layerScale = this.renderLayer();
+            float modelScale = layerScale;
+            float scale2 = scale;
+            float headPitch2 = headPitch;
+            float netHeadYaw2 = netHeadYaw;
+            float limbSwingAmount2 = limbSwingAmount;
+            float limbSwing2 = limbSwing;
+            ModelElytra elytraModel = this.elytraModel;
+            ModelElytra modelTarget;
+            float limbSwingArg;
+            float limbSwingAmountArg;
+            float netHeadYawArg;
+            float headPitchArg;
+            float scaleArg;
+            float modelScaleArg;
+            Object poseEntity;
+            if (owner == null) {
+               modelTarget = elytraModel;
+               limbSwingArg = limbSwing2;
+               limbSwingAmountArg = limbSwingAmount2;
+               netHeadYawArg = netHeadYaw2;
+               headPitchArg = headPitch2;
+               scaleArg = scale2;
+               modelScaleArg = modelScale;
+               poseEntity = entity;
             } else {
-               var10000 = var13;
-               var10001 = var14;
-               var10002 = var15;
-               var10003 = var16;
-               var10004 = var17;
-               var10005 = var18;
-               var10006 = var19;
-               var10007 = var11;
+               modelTarget = elytraModel;
+               limbSwingArg = limbSwing2;
+               limbSwingAmountArg = limbSwingAmount2;
+               netHeadYawArg = netHeadYaw2;
+               headPitchArg = headPitch2;
+               scaleArg = scale2;
+               modelScaleArg = modelScale;
+               poseEntity = owner;
             }
 
-            var10000.setRotationAngles(var10001, var10002, var10003, var10004, var10005, var10006, (Entity)var10007);
-            ModelElytra var20 = this.elytraModel;
-            Object var23;
-            if (var11 == null) {
-               var10000 = var20;
-               var23 = var1;
+            modelTarget.setRotationAngles(limbSwingArg, limbSwingAmountArg, netHeadYawArg, headPitchArg, scaleArg, modelScaleArg, (Entity)poseEntity);
+            ModelElytra renderModel = this.elytraModel;
+            Object renderEntity;
+            if (owner == null) {
+               modelTarget = renderModel;
+               renderEntity = entity;
             } else {
-               var10000 = var20;
-               var23 = var11;
+               modelTarget = renderModel;
+               renderEntity = owner;
             }
 
-            var10000.render((Entity)var23, var2, var3, var5, var6, var7, var21);
+            modelTarget.render((Entity)renderEntity, limbSwing, limbSwingAmount, netHeadYaw, headPitch, scale, layerScale);
             GlStateManager.disableBlend();
             GlStateManager.popMatrix();
          }
@@ -132,7 +132,7 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
    }
 
    @Override
-   public void doRenderLayer(EntityLivingBase var1, float var2, float var3, float var4, float var5, float var6, float var7, float var8) {
+   public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale, float renderScale) {
    }
 
    public boolean shouldCombineTextures() {

@@ -21,23 +21,23 @@ public interface IGirlRenderer {
    }
 
    /**
-    * Walks {@code var2}'s parent chain up to the root.
+    * Walks {@code bone}'s parent chain up to the root.
     *
     * @return {@code false} if any ancestor is a blacklisted custom-part bone or
     *         an armor bone; {@code true} otherwise (bone may be rendered)
     */
-   default boolean hasParentBone(HashSet<String> var1, GeoBone var2) {
-      while (var2.parent != null) {
-         String var3 = var2.getName();
-         if (var1.contains(var3)) {
+   default boolean hasParentBone(HashSet<String> blacklistedBones, GeoBone bone) {
+      while (bone.parent != null) {
+         String boneName = bone.getName();
+         if (blacklistedBones.contains(boneName)) {
             return false;
          }
 
-         if (var3.startsWith("armor")) {
+         if (boneName.startsWith("armor")) {
             return false;
          }
 
-         var2 = var2.parent;
+         bone = bone.parent;
       }
 
       return true;

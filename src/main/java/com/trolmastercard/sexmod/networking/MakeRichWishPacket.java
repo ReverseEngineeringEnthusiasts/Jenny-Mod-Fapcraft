@@ -31,53 +31,53 @@ public class MakeRichWishPacket implements IMessage {
    public MakeRichWishPacket() {
    }
 
-   public MakeRichWishPacket(Vec3d var1) {
-      this.wishPos = var1;
+   public MakeRichWishPacket(Vec3d wishPos) {
+      this.wishPos = wishPos;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.wishPos = new Vec3d(var1.readDouble(), var1.readDouble(), var1.readDouble());
+   public void fromBytes(ByteBuf buf) {
+      this.wishPos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeDouble(this.wishPos.x);
-      var1.writeDouble(this.wishPos.y);
-      var1.writeDouble(this.wishPos.z);
+   public void toBytes(ByteBuf buf) {
+      buf.writeDouble(this.wishPos.x);
+      buf.writeDouble(this.wishPos.y);
+      buf.writeDouble(this.wishPos.z);
    }
 
    public static class Handler implements IMessageHandler<MakeRichWishPacket, IMessage> {
-      public IMessage onMessage(MakeRichWishPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(MakeRichWishPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     World var2x = var2.getServerHandler().player.world;
-                     EntityItem var3 = new EntityItem(
-                        var2x,
-                        var1.wishPos.x,
-                        var1.wishPos.y,
-                        var1.wishPos.z,
+                     World world = ctx.getServerHandler().player.world;
+                     EntityItem diamondItem = new EntityItem(
+                        world,
+                        packet.wishPos.x,
+                        packet.wishPos.y,
+                        packet.wishPos.z,
                         new ItemStack(Items.DIAMOND, Reference.RANDOM.nextInt(2) + 1)
                      );
-                     EntityItem var4 = new EntityItem(
-                        var2x,
-                        var1.wishPos.x,
-                        var1.wishPos.y,
-                        var1.wishPos.z,
+                     EntityItem goldItem = new EntityItem(
+                        world,
+                        packet.wishPos.x,
+                        packet.wishPos.y,
+                        packet.wishPos.z,
                         new ItemStack(Items.EMERALD, Reference.RANDOM.nextInt(2) + 1)
                      );
-                     EntityItem var5 = new EntityItem(
-                        var2x,
-                        var1.wishPos.x,
-                        var1.wishPos.y,
-                        var1.wishPos.z,
+                     EntityItem emeraldItem = new EntityItem(
+                        world,
+                        packet.wishPos.x,
+                        packet.wishPos.y,
+                        packet.wishPos.z,
                         new ItemStack(Items.GOLD_INGOT, Reference.RANDOM.nextInt(2) + 1)
                      );
-                     var2x.spawnEntity(var3);
-                     var2x.spawnEntity(var4);
-                     var2x.spawnEntity(var5);
+                     world.spawnEntity(diamondItem);
+                     world.spawnEntity(goldItem);
+                     world.spawnEntity(emeraldItem);
                   }
                );
             return null;

@@ -37,69 +37,69 @@ public class TeleportPlayerPacket implements IMessage {
       this.isValid = false;
    }
 
-   public TeleportPlayerPacket(String var1, Vec3d var2) {
-      this.girlId = var1;
-      this.position = var2;
+   public TeleportPlayerPacket(String girlId, Vec3d position) {
+      this.girlId = girlId;
+      this.position = position;
       this.yaw = 0.0F;
       this.pitch = 0.0F;
       this.isValid = true;
    }
 
-   public TeleportPlayerPacket(String var1, Vec3d var2, float var3, float var4) {
-      this.girlId = var1;
-      this.position = var2;
-      this.yaw = var3;
-      this.pitch = var4;
+   public TeleportPlayerPacket(String girlId, Vec3d position, float yaw, float pitch) {
+      this.girlId = girlId;
+      this.position = position;
+      this.yaw = yaw;
+      this.pitch = pitch;
       this.isValid = true;
    }
 
-   public TeleportPlayerPacket(String var1, double var2, double var4, double var6, float var8, float var9) {
-      this.girlId = var1;
-      this.position = new Vec3d(var2, var4, var6);
-      this.yaw = var8;
-      this.pitch = var9;
+   public TeleportPlayerPacket(String girlId, double x, double y, double z, float yaw, float pitch) {
+      this.girlId = girlId;
+      this.position = new Vec3d(x, y, z);
+      this.yaw = yaw;
+      this.pitch = pitch;
       this.isValid = true;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlId = ByteBufUtils.readUTF8String(var1);
-      this.position = new Vec3d(var1.readDouble(), var1.readDouble(), var1.readDouble());
-      this.yaw = var1.readFloat();
-      this.pitch = var1.readFloat();
+   public void fromBytes(ByteBuf buf) {
+      this.girlId = ByteBufUtils.readUTF8String(buf);
+      this.position = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+      this.yaw = buf.readFloat();
+      this.pitch = buf.readFloat();
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlId);
-      var1.writeDouble(this.position.x);
-      var1.writeDouble(this.position.y);
-      var1.writeDouble(this.position.z);
-      var1.writeFloat(this.yaw);
-      var1.writeFloat(this.pitch);
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlId);
+      buf.writeDouble(this.position.x);
+      buf.writeDouble(this.position.y);
+      buf.writeDouble(this.position.z);
+      buf.writeFloat(this.yaw);
+      buf.writeFloat(this.pitch);
       this.isValid = true;
    }
 
    public static class Handler implements IMessageHandler<TeleportPlayerPacket, IMessage> {
-      public IMessage onMessage(TeleportPlayerPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(TeleportPlayerPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
                      try {
-                        System.out.println("teleporting player " + var1.girlId + " to " + var1.position);
-                        EntityPlayerMP var1x = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(UUID.fromString(var1.girlId));
-                        var1.yaw = MathHelper.wrapDegrees(var1.yaw);
-                        var1.pitch = MathHelper.wrapDegrees(var1.pitch);
-                        var1x.setLocationAndAngles(var1.position.x, var1.position.y, var1.position.z, var1.yaw, var1.pitch);
-                        var1x.setRotationYawHead(var1.yaw);
-                        var1x.motionX = 0.0;
-                        var1x.motionY = 0.0;
-                        var1x.motionZ = 0.0;
-                        var1x.connection
-                           .setPlayerLocation(var1.position.x, var1.position.y, var1.position.z, var1.yaw, var1.pitch, EnumSet.noneOf(EnumFlags.class));
-                     } catch (Exception var2x) {
-                        System.out.println("couldn't find player with UUID: " + var1.girlId);
+                        System.out.println("teleporting player " + packet.girlId + " to " + packet.position);
+                        EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(UUID.fromString(packet.girlId));
+                        packet.yaw = MathHelper.wrapDegrees(packet.yaw);
+                        packet.pitch = MathHelper.wrapDegrees(packet.pitch);
+                        player.setLocationAndAngles(packet.position.x, packet.position.y, packet.position.z, packet.yaw, packet.pitch);
+                        player.setRotationYawHead(packet.yaw);
+                        player.motionX = 0.0;
+                        player.motionY = 0.0;
+                        player.motionZ = 0.0;
+                        player.connection
+                           .setPlayerLocation(packet.position.x, packet.position.y, packet.position.z, packet.yaw, packet.pitch, EnumSet.noneOf(EnumFlags.class));
+                     } catch (Exception exception) {
+                        System.out.println("couldn't find player with UUID: " + packet.girlId);
                         System.out.println("could only find the following players:");
                         System.out.println(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getFormattedListOfPlayers(true));
                      }

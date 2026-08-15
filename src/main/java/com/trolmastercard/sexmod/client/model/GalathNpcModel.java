@@ -59,12 +59,12 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public ResourceLocation getTextureLocation(BaseGirlEntity var1) {
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/galath/galath.png");
    }
 
    @Override
-   public ResourceLocation getAnimationFileLocation(BaseGirlEntity var1) {
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "animations/galath/galath.animation.json");
    }
 
@@ -73,13 +73,13 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * invisibly until anchored) unless she has a master.
     */
    @Override
-   protected boolean shouldRender(BaseGirlEntity var1) {
-      if (!(var1 instanceof GalathEntity)) {
+   protected boolean shouldRender(BaseGirlEntity girl) {
+      if (!(girl instanceof GalathEntity)) {
          return true;
       }
 
-      GalathEntity var2 = (GalathEntity)var1;
-      return var2.hasMaster() ? true : var2.getTargetEntity() == null;
+      GalathEntity galath = (GalathEntity)girl;
+      return galath.hasMaster() ? true : galath.getTargetEntity() == null;
    }
 
    /**
@@ -87,25 +87,25 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * published values).
     */
    @Override
-   public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
-      this.updateIdlePose(var1);
-      super.setLivingAnimations(var1, var2, var3);
-      this.handleActionPose(var1);
-      this.updateHurtPose(var1);
-      this.handleFlightPose(var1);
-      this.handleWingState(var1);
-      this.updateSwordBones(var1);
-      this.hideWings(var1);
-      this.updatePlayerPose(var1);
+   public void setLivingAnimations(BaseGirlEntity entity, Integer uniqueID, AnimationEvent event) {
+      this.updateIdlePose(entity);
+      super.setLivingAnimations(entity, uniqueID, event);
+      this.handleActionPose(entity);
+      this.updateHurtPose(entity);
+      this.handleFlightPose(entity);
+      this.handleWingState(entity);
+      this.updateSwordBones(entity);
+      this.hideWings(entity);
+      this.updatePlayerPose(entity);
       this.hideFutaBone();
-      this.updateModelState(var1);
-      this.updatePussyPose(var1);
-      this.handleDashAnimation(var1);
-      if (var1 instanceof GalathEntity) {
-         GalathEntity var4 = (GalathEntity)var1;
-         var4.aE = this.getAnimationProcessor().getBone("head").getRotationX();
-         if (var4.isHuggingManglelie()) {
-            ManglelieNpcModel.animateModel(var4, this.getAnimationProcessor(), var3.getPartialTick());
+      this.updateModelState(entity);
+      this.updatePussyPose(entity);
+      this.handleDashAnimation(entity);
+      if (entity instanceof GalathEntity) {
+         GalathEntity galath = (GalathEntity)entity;
+         galath.aE = this.getAnimationProcessor().getBone("head").getRotationX();
+         if (galath.isHuggingManglelie()) {
+            ManglelieNpcModel.animateModel(galath, this.getAnimationProcessor(), event.getPartialTick());
          }
       }
    }
@@ -115,39 +115,39 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * (lerped by the sword attack progress) and the lip sound fires on each
     * lick wave (sine zero-crossing).
     */
-   void updatePussyPose(BaseGirlEntity var1) {
-      if (Action.isAnyAction(var1, Action.PUSSY_LICKING)) {
-         if (var1 instanceof GalathEntity) {
+   void updatePussyPose(BaseGirlEntity entity) {
+      if (Action.isAnyAction(entity, Action.PUSSY_LICKING)) {
+         if (entity instanceof GalathEntity) {
             if (!this.mc.isGamePaused()) {
-               AnimationProcessor var2 = this.getAnimationProcessor();
-               IBone var3 = var2.getBone("head");
-               float var4 = this.mc.getRenderPartialTicks() + this.mc.player.ticksExisted;
-               Vector3fSexmodSpecial var5 = this.getSwordPos((GalathEntity)var1, var4);
-               var3.setRotationX(var3.getRotationX() + var5.x);
-               var3.setRotationY(var3.getRotationY() + var5.y);
-               var3.setRotationZ(var3.getRotationZ() + var5.z);
-               if (var1.getCurrentAction() == Action.PUSSY_LICKING && !((GalathEntity)var1).a5) {
-                  float var6 = (float)(Math.sin(var4 * 0.3F) * 10.0);
-                  if (var6 > 0.0F && this.lastPussyLickingWave < 0.0F || var6 < 0.0F && this.lastPussyLickingWave > 0.0F) {
-                     var1.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
+               AnimationProcessor processor = this.getAnimationProcessor();
+               IBone headBone = processor.getBone("head");
+               float waveTime = this.mc.getRenderPartialTicks() + this.mc.player.ticksExisted;
+               Vector3fSexmodSpecial swordOffset = this.getSwordPos((GalathEntity)entity, waveTime);
+               headBone.setRotationX(headBone.getRotationX() + swordOffset.x);
+               headBone.setRotationY(headBone.getRotationY() + swordOffset.y);
+               headBone.setRotationZ(headBone.getRotationZ() + swordOffset.z);
+               if (entity.getCurrentAction() == Action.PUSSY_LICKING && !((GalathEntity)entity).a5) {
+                  float wave = (float)(Math.sin(waveTime * 0.3F) * 10.0);
+                  if (wave > 0.0F && this.lastPussyLickingWave < 0.0F || wave < 0.0F && this.lastPussyLickingWave > 0.0F) {
+                     entity.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
                   }
 
-                  this.lastPussyLickingWave = var6;
+                  this.lastPussyLickingWave = wave;
                }
             }
          }
       }
    }
 
-   Vector3fSexmodSpecial getSwordPos(GalathEntity var1, float var2) {
-      return RotationHelper.lerpVector3f(this.getSwordSwingOffset(var2), Vector3fSexmodSpecial.ZERO, var1.getSwordAttackProgress(this.mc.getRenderPartialTicks()));
+   Vector3fSexmodSpecial getSwordPos(GalathEntity galath, float partialTicks) {
+      return RotationHelper.lerpVector3f(this.getSwordSwingOffset(partialTicks), Vector3fSexmodSpecial.ZERO, galath.getSwordAttackProgress(this.mc.getRenderPartialTicks()));
    }
 
-   Vector3fSexmodSpecial getSwordSwingOffset(float var1) {
+   Vector3fSexmodSpecial getSwordSwingOffset(float time) {
       return new Vector3fSexmodSpecial(
-         (float)Math.sin(var1 * 0.3F) * TrigMath.wrapDegrees(10.0F),
-         (float)Math.sin(var1 * 0.15F) * TrigMath.wrapDegrees(7.0F),
-         (float)Math.sin(var1 * -0.15) * TrigMath.wrapDegrees(7.0F)
+         (float)Math.sin(time * 0.3F) * TrigMath.wrapDegrees(10.0F),
+         (float)Math.sin(time * 0.15F) * TrigMath.wrapDegrees(7.0F),
+         (float)Math.sin(time * -0.15) * TrigMath.wrapDegrees(7.0F)
       );
    }
 
@@ -156,13 +156,13 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * ({@code bw} = rotationY, {@code bm} = scaleY) — consumed by the wing/
     * geometry renderers.
     */
-   void updateModelState(BaseGirlEntity var1) {
-      if (var1 instanceof GalathEntity) {
-         GalathEntity var2 = (GalathEntity)var1;
-         AnimationProcessor var3 = this.getAnimationProcessor();
-         IBone var4 = var3.getBone("body");
-         var2.bw = var4.getRotationY();
-         var2.bm = var4.getScaleY();
+   void updateModelState(BaseGirlEntity entity) {
+      if (entity instanceof GalathEntity) {
+         GalathEntity galath = (GalathEntity)entity;
+         AnimationProcessor processor = this.getAnimationProcessor();
+         IBone bodyBone = processor.getBone("body");
+         galath.bw = bodyBone.getRotationY();
+         galath.bm = bodyBone.getScaleY();
       }
    }
 
@@ -170,19 +170,19 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * HUG_MANG transition: positions the {@code body2} bone (Manglelie's
     * attachment) while the controller transitions into the hug.
     */
-   void handleDashAnimation(BaseGirlEntity var1) {
-      if (var1.actionController.getAnimationState() == AnimationState.Transitioning) {
-         AnimationProcessor var2 = this.getAnimationProcessor();
-         Action var3 = var1.getCurrentAction();
-         if (var3 == Action.HUG_MANG) {
-            IBone var4 = var2.getBone("body2");
-            if (var4 == null) {
+   void handleDashAnimation(BaseGirlEntity entity) {
+      if (entity.actionController.getAnimationState() == AnimationState.Transitioning) {
+         AnimationProcessor processor = this.getAnimationProcessor();
+         Action action = entity.getCurrentAction();
+         if (action == Action.HUG_MANG) {
+            IBone body2Bone = processor.getBone("body2");
+            if (body2Bone == null) {
                return;
             }
 
-            var4.setPositionX(0.0F);
-            var4.setPositionY(-0.53F);
-            var4.setPositionZ(-40.05F);
+            body2Bone.setPositionX(0.0F);
+            body2Bone.setPositionY(-0.53F);
+            body2Bone.setPositionZ(-40.05F);
          }
       }
    }
@@ -192,27 +192,27 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * yaw) from the look vector to the master player so the animation reacts
     * to his position.
     */
-   void updateIdlePose(BaseGirlEntity var1) {
+   void updateIdlePose(BaseGirlEntity entity) {
       if (!ClientProxy.IS_PRELOADING) {
-         if (var1.getCurrentAction() == Action.MASTERBATE) {
-            Object var2 = var1.getMasterPlayer();
-            if (var2 == null) {
-               var2 = this.mc.player;
+         if (entity.getCurrentAction() == Action.MASTERBATE) {
+            Object masterPlayer = entity.getMasterPlayer();
+            if (masterPlayer == null) {
+               masterPlayer = this.mc.player;
             }
 
-            MolangParser var3 = GeckoLibCache.getInstance().parser;
-            Vec3d var4 = EntityLookVectorHelper.getLookVectorTo(var1, (EntityPlayer)var2, this.mc.getRenderPartialTicks()).add(var1.getCachedBoneOffset("head"));
-            float var5 = (float)TrigMath.sinDegrees(Math.atan2(var4.z, var4.x)) - var1.getYawRotation();
-            float var6 = (float)TrigMath.sinDegrees(
-               Math.atan2(var4.y, Math.sqrt(var4.x * var4.x + var4.z * var4.z))
+            MolangParser parser = GeckoLibCache.getInstance().parser;
+            Vec3d lookVec = EntityLookVectorHelper.getLookVectorTo(entity, (EntityPlayer)masterPlayer, this.mc.getRenderPartialTicks()).add(entity.getCachedBoneOffset("head"));
+            float yaw = (float)TrigMath.sinDegrees(Math.atan2(lookVec.z, lookVec.x)) - entity.getYawRotation();
+            float pitch = (float)TrigMath.sinDegrees(
+               Math.atan2(lookVec.y, Math.sqrt(lookVec.x * lookVec.x + lookVec.z * lookVec.z))
             );
-            double var7 = Math.abs(var4.x) + Math.abs(var4.y) + Math.abs(var4.z);
-            double var9 = var7 * 7.0 + -20.0;
-            double var11 = var7 * 5.0 + -20.0;
-            var3.setValue("pitch", var9 + var6 - 80.0);
-            var3.setValue("armpitch", var11 + var6 + -110.0);
-            var3.setValue("armyaw", var5 + 80.0F);
-            var3.setValue("yaw", var5 + 90.0F);
+            double magnitude = Math.abs(lookVec.x) + Math.abs(lookVec.y) + Math.abs(lookVec.z);
+            double pitchMolang = magnitude * 7.0 + -20.0;
+            double armpitchMolang = magnitude * 5.0 + -20.0;
+            parser.setValue("pitch", pitchMolang + pitch - 80.0);
+            parser.setValue("armpitch", armpitchMolang + pitch + -110.0);
+            parser.setValue("armyaw", yaw + 80.0F);
+            parser.setValue("yaw", yaw + 90.0F);
          }
       }
    }
@@ -231,14 +231,14 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    /**
     * Hides the coin bone for player-girls (only NPC Galath gives coins).
     */
-   void updatePlayerPose(BaseGirlEntity var1) {
-      if (var1 instanceof AbstractPlayerGirlEntity) {
+   void updatePlayerPose(BaseGirlEntity entity) {
+      if (entity instanceof AbstractPlayerGirlEntity) {
          this.getAnimationProcessor().getBone("coin").setHidden(true);
       }
    }
 
-   void hideWings(BaseGirlEntity var1) {
-      this.getAnimationProcessor().getBone("wings").setHidden(!((IGalath)var1).areWingsAnimated());
+   void hideWings(BaseGirlEntity entity) {
+      this.getAnimationProcessor().getBone("wings").setHidden(!((IGalath)entity).areWingsAnimated());
    }
 
    /**
@@ -246,40 +246,40 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * (idle/corrupted) the nipples hide and the bra/slip show; wing-animated
     * states expose the nipples.
     */
-   void updateSwordBones(BaseGirlEntity var1) {
-      AnimationProcessor var2 = this.getAnimationProcessor();
-      IBone var3 = var2.getBone("nippleR");
-      IBone var4 = var2.getBone("nippleL");
-      IBone var5 = var2.getBone("braBoobL");
-      IBone var6 = var2.getBone("braBoobR");
-      IBone var7 = var2.getBone("slip");
-      boolean var8 = ((IGalath)var1).isWingsAnimated();
-      if (var8) {
-         Action.isAnyAction(var1, Action.PUSSY_LICKING, Action.MASTERBATE_SITTING, Action.MASTERBATE_SITTING_CUM);
-         if (var3 != null) {
-            if (var5 != null) {
-               IBone var13 = var3;
-               var13.setHidden(false);
-               IBone var14 = var4;
-               var14.setHidden(false);
-               var5.setHidden(var8);
-               var6.setHidden(var8);
-               IBone var15 = var7;
-               var15.setHidden(true);
+   void updateSwordBones(BaseGirlEntity entity) {
+      AnimationProcessor processor = this.getAnimationProcessor();
+      IBone nippleRBone = processor.getBone("nippleR");
+      IBone nippleLBone = processor.getBone("nippleL");
+      IBone braBoobLBone = processor.getBone("braBoobL");
+      IBone braBoobRBone = processor.getBone("braBoobR");
+      IBone slipBone = processor.getBone("slip");
+      boolean wingsAnimated = ((IGalath)entity).isWingsAnimated();
+      if (wingsAnimated) {
+         Action.isAnyAction(entity, Action.PUSSY_LICKING, Action.MASTERBATE_SITTING, Action.MASTERBATE_SITTING_CUM);
+         if (nippleRBone != null) {
+            if (braBoobLBone != null) {
+               IBone nippleRBone3 = nippleRBone;
+               nippleRBone3.setHidden(false);
+               IBone nippleLBone3 = nippleLBone;
+               nippleLBone3.setHidden(false);
+               braBoobLBone.setHidden(wingsAnimated);
+               braBoobRBone.setHidden(wingsAnimated);
+               IBone slipBone3 = slipBone;
+               slipBone3.setHidden(true);
             }
          }
       } else {
-         boolean var9 = Action.isAnyAction(var1, Action.PUSSY_LICKING, Action.MASTERBATE_SITTING, Action.MASTERBATE_SITTING_CUM);
-         if (var3 != null) {
-            if (var5 != null) {
-               IBone var10 = var3;
-               var10.setHidden(true);
-               IBone var11 = var4;
-               var11.setHidden(true);
-               var5.setHidden(var8);
-               var6.setHidden(var8);
-               IBone var12 = var7;
-               var12.setHidden(var9);
+         boolean isPussyAction = Action.isAnyAction(entity, Action.PUSSY_LICKING, Action.MASTERBATE_SITTING, Action.MASTERBATE_SITTING_CUM);
+         if (nippleRBone != null) {
+            if (braBoobLBone != null) {
+               IBone nippleRBone2 = nippleRBone;
+               nippleRBone2.setHidden(true);
+               IBone nippleLBone2 = nippleLBone;
+               nippleLBone2.setHidden(true);
+               braBoobLBone.setHidden(wingsAnimated);
+               braBoobRBone.setHidden(wingsAnimated);
+               IBone slipBone2 = slipBone;
+               slipBone2.setHidden(isPussyAction);
             }
          }
       }
@@ -289,23 +289,23 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * Knock-out-flight pose: while flying with the KNOCK_OUT_FLY action the
     * body pitches -90 (hovering) or follows the interpolated flight vector.
     */
-   void handleWingState(BaseGirlEntity var1) {
-      if (var1 instanceof GalathEntity) {
-         if ((Boolean)var1.getDataManager().get(GalathEntity.bP)) {
-            if (var1.getCurrentAction() == Action.KNOCK_OUT_FLY) {
-               IBone var2 = this.getAnimationProcessor().getBone("body");
-               Vec3d var3 = new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ);
-               Vec3d var4 = var1.getPositionVector().subtract(var3);
-               boolean var5 = Math.abs(var4.x) + Math.abs(var4.z) < 0.01F;
-               if (var5) {
-                  var2.setRotationX(TrigMath.wrapDegrees(-90.0F));
-                  var2.setPositionY(0.0F);
-                  var2.setPositionZ(0.0F);
+   void handleWingState(BaseGirlEntity entity) {
+      if (entity instanceof GalathEntity) {
+         if ((Boolean)entity.getDataManager().get(GalathEntity.bP)) {
+            if (entity.getCurrentAction() == Action.KNOCK_OUT_FLY) {
+               IBone bodyBone = this.getAnimationProcessor().getBone("body");
+               Vec3d lastPos = new Vec3d(entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ);
+               Vec3d motion = entity.getPositionVector().subtract(lastPos);
+               boolean isHovering = Math.abs(motion.x) + Math.abs(motion.z) < 0.01F;
+               if (isHovering) {
+                  bodyBone.setRotationX(TrigMath.wrapDegrees(-90.0F));
+                  bodyBone.setPositionY(0.0F);
+                  bodyBone.setPositionZ(0.0F);
                } else {
-                  Vec3d var6 = getInterpolatedPosition(var1);
-                  var2.setRotationX(-((float)var6.x));
-                  var2.setPositionY((float)var6.y);
-                  var2.setPositionZ((float)var6.z);
+                  Vec3d interpolated = getInterpolatedPosition(entity);
+                  bodyBone.setRotationX(-((float)interpolated.x));
+                  bodyBone.setPositionY((float)interpolated.y);
+                  bodyBone.setPositionZ((float)interpolated.z);
                }
             }
          }
@@ -316,17 +316,17 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * Rape-charge pose: the rotation tool/body follow the interpolated charge
     * vector, with the body yaw from the charge progress value ({@code bO}).
     */
-   void updateHurtPose(BaseGirlEntity var1) {
-      if (var1 instanceof GalathEntity) {
-         if (var1.getCurrentAction() == Action.RAPE_CHARGE) {
-            Vec3d var2 = getInterpolatedPosition(var1);
-            IBone var3 = this.getAnimationProcessor().getBone("body");
-            IBone var4 = this.getAnimationProcessor().getBone("rotationTool");
-            var4.setRotationX((float)var2.x);
-            var3.setPositionY((float)var2.y);
-            var3.setPositionZ((float)var2.z);
-            float var5 = (Float)var1.getDataManager().get(GalathEntity.bO);
-            var3.setRotationY(TrigMath.wrapDegrees(var5 * 180.0F));
+   void updateHurtPose(BaseGirlEntity entity) {
+      if (entity instanceof GalathEntity) {
+         if (entity.getCurrentAction() == Action.RAPE_CHARGE) {
+            Vec3d interpolated = getInterpolatedPosition(entity);
+            IBone bodyBone = this.getAnimationProcessor().getBone("body");
+            IBone rotationToolBone = this.getAnimationProcessor().getBone("rotationTool");
+            rotationToolBone.setRotationX((float)interpolated.x);
+            bodyBone.setPositionY((float)interpolated.y);
+            bodyBone.setPositionZ((float)interpolated.z);
+            float chargeProgress = (Float)entity.getDataManager().get(GalathEntity.bO);
+            bodyBone.setRotationY(TrigMath.wrapDegrees(chargeProgress * 180.0F));
          }
       }
    }
@@ -335,27 +335,27 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * Sword-dash body motion: while the dash progress is in the 24..32 window
     * the body lerps from the dash-start offset back to zero (8-tick dash).
     */
-   void handleFlightPose(BaseGirlEntity var1) {
-      if (var1 instanceof GalathEntity) {
-         GalathEntity var2 = (GalathEntity)var1;
-         if (var2.getCurrentAction() != Action.ATTACK_SWORD) {
+   void handleFlightPose(BaseGirlEntity entity) {
+      if (entity instanceof GalathEntity) {
+         GalathEntity galath = (GalathEntity)entity;
+         if (galath.getCurrentAction() != Action.ATTACK_SWORD) {
             this.swordDashStartTime = -1L;
             this.swordDashEndTime = -1L;
          } else {
-            int var3 = var2.az();
-            if (var3 == 24 && this.swordDashStartTime == -1L) {
+            int dashTick = galath.az();
+            if (dashTick == 24 && this.swordDashStartTime == -1L) {
                this.swordDashStartTime = this.mc.world.getTotalWorldTime();
                this.swordDashEndTime = this.swordDashStartTime + 8L;
             }
 
-            if (ThreadNames.isBetween(var3, 24.0, 32.0)) {
-               IBone var4 = this.getAnimationProcessor().getBone("body");
-               Vec3d var5 = GirlModel.getBoneOffsetWorld(var2, var2.B_clash642());
-               float var6 = ((float)Minecraft.getMinecraft().world.getTotalWorldTime() + this.mc.getRenderPartialTicks() - (float)this.swordDashStartTime) / (float)(this.swordDashEndTime - this.swordDashStartTime);
-               var5 = RotationHelper.lerpVec3dDouble(var5, Vec3d.ZERO, var6);
-               var4.setRotationX((float)var5.x);
-               var4.setPositionY((float)var5.y);
-               var4.setPositionZ((float)var5.z);
+            if (ThreadNames.isBetween(dashTick, 24.0, 32.0)) {
+               IBone bodyBone = this.getAnimationProcessor().getBone("body");
+               Vec3d dashOffset = GirlModel.getBoneOffsetWorld(galath, galath.B_clash642());
+               float dashProgress = ((float)Minecraft.getMinecraft().world.getTotalWorldTime() + this.mc.getRenderPartialTicks() - (float)this.swordDashStartTime) / (float)(this.swordDashEndTime - this.swordDashStartTime);
+               dashOffset = RotationHelper.lerpVec3dDouble(dashOffset, Vec3d.ZERO, dashProgress);
+               bodyBone.setRotationX((float)dashOffset.x);
+               bodyBone.setPositionY((float)dashOffset.y);
+               bodyBone.setPositionZ((float)dashOffset.z);
             }
          }
       }
@@ -365,20 +365,20 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     * Flight/boost pose: lerps the rotation tool between the flight data
     * vectors (with an extra 45-degree pitch during the boost window).
     */
-   void handleActionPose(BaseGirlEntity var1) {
-      float var2 = 0.0F;
-      switch (var1.getCurrentAction()) {
+   void handleActionPose(BaseGirlEntity entity) {
+      float boostPitch = 0.0F;
+      switch (entity.getCurrentAction()) {
          case BOOST:
             if (Action.BOOST.ticksPlaying[1] > 13 && Action.BOOST.ticksPlaying[1] < 40) {
-               var2 = 45.0F;
+               boostPitch = 45.0F;
             }
          case FLY:
          case CONTROLLED_FLIGHT:
-            float var3 = Minecraft.getMinecraft().getRenderPartialTicks();
-            IBone var4 = this.getAnimationProcessor().getBone("rotationTool");
-            Vector4d var5 = ((IGalath)var1).getFlightData();
-            var4.setRotationX((float)RotationHelper.lerpDouble(var5.z + var2, var5.x + var2, var3));
-            var4.setRotationZ((float)RotationHelper.lerpDouble(var5.w, var5.y, var3));
+            float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+            IBone rotationToolBone = this.getAnimationProcessor().getBone("rotationTool");
+            Vector4d flightData = ((IGalath)entity).getFlightData();
+            rotationToolBone.setRotationX((float)RotationHelper.lerpDouble(flightData.z + boostPitch, flightData.x + boostPitch, partialTicks));
+            rotationToolBone.setRotationZ((float)RotationHelper.lerpDouble(flightData.w, flightData.y, partialTicks));
             return;
       }
    }

@@ -57,17 +57,17 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
       )
    );
 
-   public PlayerGalathRenderer(RenderManager var1, AnimatedGeoModel var2) {
-      super(var1, var2);
+   public PlayerGalathRenderer(RenderManager renderManager, AnimatedGeoModel geoModel) {
+      super(renderManager, geoModel);
    }
 
    @Nullable
    @Override
-   protected Vector3fSexmodSpecial getAdditionalOverlayColor(BaseGirlEntity var1) {
-      if (var1.world instanceof SexWorldClient) {
+   protected Vector3fSexmodSpecial getAdditionalOverlayColor(BaseGirlEntity girl) {
+      if (girl.world instanceof SexWorldClient) {
          return null;
       } else {
-         return ((IGalath)var1).isWingsAnimated() ? null : GalathRenderer.ZERO_OFFSET;
+         return ((IGalath)girl).isWingsAnimated() ? null : GalathRenderer.ZERO_OFFSET;
       }
    }
 
@@ -78,33 +78,33 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
    }
 
    @Override
-   protected void drawOverlayLines(Tessellator var1, BufferBuilder var2, BaseGirlEntity var3, Vector3fSexmodSpecial var4, float var5) {
-      renderGirlTint(var1, var2, var3, var4, var5);
+   protected void drawOverlayLines(Tessellator tessellator, BufferBuilder buffer, BaseGirlEntity girl, Vector3fSexmodSpecial offset, float alpha) {
+      renderGirlTint(tessellator, buffer, girl, offset, alpha);
    }
 
    @Override
-   public void doRenderEntity(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      super.doRenderEntity(var1, var2, var4, var6, var8, var9);
-      if (mc.gameSettings.thirdPersonView != 0 || !mc.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var1).getOwnerUserUUID()) || var1.isAnchored()) {
-         GalathRenderer.renderDashPov(var1, var9);
+   public void doRenderEntity(BaseGirlEntity entity, double x, double y, double z, float yaw, float partialTicks) {
+      super.doRenderEntity(entity, x, y, z, yaw, partialTicks);
+      if (mc.gameSettings.thirdPersonView != 0 || !mc.player.getPersistentID().equals(((AbstractPlayerGirlEntity)entity).getOwnerUserUUID()) || entity.isAnchored()) {
+         GalathRenderer.renderDashPov(entity, partialTicks);
       }
    }
 
    @Override
-   protected void applyBowRotation(boolean var1) {
-      super.applyBowRotation(var1);
-      if (var1) {
+   protected void applyBowRotation(boolean isMainHand) {
+      super.applyBowRotation(isMainHand);
+      if (isMainHand) {
          GlStateManager.translate(0.15, 0.0, 0.0);
       }
    }
 
    @Override
-   protected void applyShieldBlockingTransform(boolean var1, boolean var2) {
-      super.applyShieldBlockingTransform(var1, var2);
-      if (var1) {
+   protected void applyShieldBlockingTransform(boolean isBlocking, boolean isMainHand) {
+      super.applyShieldBlockingTransform(isBlocking, isMainHand);
+      if (isBlocking) {
          GlStateManager.translate(0.0, -0.05, -0.05);
          GlStateManager.rotate(15.0F, 1.0F, 0.0F, 0.0F);
-         if (var2) {
+         if (isMainHand) {
             GlStateManager.translate(0.3, 0.2, 0.0);
             GlStateManager.rotate(-30.0F, 1.0F, 0.0F, 0.0F);
             GlStateManager.rotate(15.0F, 0.0F, 0.0F, 1.0F);
@@ -112,34 +112,34 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
       } else {
          GlStateManager.translate(0.0, 0.0, 0.1);
          GlStateManager.rotate(30.0F, 1.0F, 0.0F, 0.0F);
-         if (var2) {
+         if (isMainHand) {
             GlStateManager.rotate(-29.0F, 1.0F, 0.0F, 0.0F);
          }
       }
    }
 
    @Override
-   protected Vector4f calculateBoneArmorColor(String var1, float var2, float var3, float var4) {
-      if (!blacklistBones.contains(var1)) {
-         return this.createOverlayColor(var2, var3, var4);
+   protected Vector4f calculateBoneArmorColor(String boneName, float red, float green, float blue) {
+      if (!blacklistBones.contains(boneName)) {
+         return this.createOverlayColor(red, green, blue);
       }
 
-      if ("armorHelmet".equals(var1)) {
-         return super.calculateBoneArmorColor(var1, var2, var3, var4);
+      if ("armorHelmet".equals(boneName)) {
+         return super.calculateBoneArmorColor(boneName, red, green, blue);
       }
 
-      ItemStack var5 = ItemStack.EMPTY;
-      switch (var1) {
+      ItemStack stack = ItemStack.EMPTY;
+      switch (boneName) {
          case "braBoobL":
          case "braBoobR":
          case "armorNippleR":
          case "armorNippleL":
-            var5 = (ItemStack)this.renderEntity.getDataManager().get(AbstractGirlNpcEntity.CHEST_SLOT);
+            stack = (ItemStack)this.renderEntity.getDataManager().get(AbstractGirlNpcEntity.CHEST_SLOT);
             break;
          case "turnable":
          case "static":
          case "slip":
-            var5 = (ItemStack)this.renderEntity.getDataManager().get(AbstractGirlNpcEntity.LEGS_SLOT);
+            stack = (ItemStack)this.renderEntity.getDataManager().get(AbstractGirlNpcEntity.LEGS_SLOT);
             break;
          case "shinL":
          case "shinR":
@@ -147,63 +147,63 @@ public class PlayerGalathRenderer extends GirlPlayerRenderer {
          case "sockR":
          case "kneeL":
          case "kneeR":
-            var5 = (ItemStack)this.renderEntity.getDataManager().get(AbstractGirlNpcEntity.BOOTS_SLOT);
+            stack = (ItemStack)this.renderEntity.getDataManager().get(AbstractGirlNpcEntity.BOOTS_SLOT);
       }
 
-      if (!(var5.getItem() instanceof ItemArmor)) {
-         return this.createOverlayColor(var2, var3, var4);
+      if (!(stack.getItem() instanceof ItemArmor)) {
+         return this.createOverlayColor(red, green, blue);
       }
 
-      ItemArmor var14 = (ItemArmor)var5.getItem();
-      switch (var14.getArmorMaterial()) {
+      ItemArmor armor = (ItemArmor)stack.getItem();
+      switch (armor.getArmorMaterial()) {
          case GOLD:
-            return new Vector4f(var2, var3, var4, -0.15625F);
+            return new Vector4f(red, green, blue, -0.15625F);
          case IRON:
          case CHAIN:
-            return new Vector4f(var2, var3, var4, -0.125F);
+            return new Vector4f(red, green, blue, -0.125F);
          case LEATHER:
-            int var15 = var14.getColor(var5);
-            float var8 = (var15 >> 16 & 0xFF) / 255.0F;
-            float var9 = (var15 >> 8 & 0xFF) / 255.0F;
-            float var10 = (var15 & 0xFF) / 255.0F;
-            var2 *= var8;
-            var3 *= var9;
-            var4 *= var10;
-            return new Vector4f(var2, var3, var4, -0.09375F);
+            int colorInt = armor.getColor(stack);
+            float colorRed = (colorInt >> 16 & 0xFF) / 255.0F;
+            float colorGreen = (colorInt >> 8 & 0xFF) / 255.0F;
+            float colorBlue = (colorInt & 0xFF) / 255.0F;
+            red *= colorRed;
+            green *= colorGreen;
+            blue *= colorBlue;
+            return new Vector4f(red, green, blue, -0.09375F);
          default:
-            return new Vector4f(var2, var3, var4, -0.1875F);
+            return new Vector4f(red, green, blue, -0.1875F);
       }
    }
 
    @Override
-   protected void renderModelBuffer(GeoModel var1, BufferBuilder var2, BaseGirlEntity var3, float var4, float var5, float var6, float var7, float var8) {
-      GeoBone var9 = var1.topLevelBones.get(0);
-      GeoBone var10 = null;
-      GeoBone var11 = null;
+   protected void renderModelBuffer(GeoModel model, BufferBuilder buffer, BaseGirlEntity entity, float partialTicks, float x, float y, float z, float scale) {
+      GeoBone rootBone = model.topLevelBones.get(0);
+      GeoBone bodyBone = null;
+      GeoBone headBone = null;
 
-      for (GeoBone var13 : var9.childBones) {
-         switch (var13.getName()) {
+      for (GeoBone childBone : rootBone.childBones) {
+         switch (childBone.getName()) {
             case "steve":
-               var11 = var13;
+               headBone = childBone;
                break;
             case "body":
-               var10 = var13;
+               bodyBone = childBone;
          }
       }
 
       MATRIX_STACK.push();
-      MATRIX_STACK.translate(var9);
-      MATRIX_STACK.moveToPivot(var9);
-      MATRIX_STACK.rotate(var9);
-      MATRIX_STACK.scale(var9);
-      MATRIX_STACK.moveBackFromPivot(var9);
-      this.renderRecursively(var2, var10, var4, var5, var6, var7);
+      MATRIX_STACK.translate(rootBone);
+      MATRIX_STACK.moveToPivot(rootBone);
+      MATRIX_STACK.rotate(rootBone);
+      MATRIX_STACK.scale(rootBone);
+      MATRIX_STACK.moveBackFromPivot(rootBone);
+      this.renderRecursively(buffer, bodyBone, partialTicks, x, y, z);
       Tessellator.getInstance().draw();
-      var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
       Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.renderEntity));
 
-      this.renderRecursively(var2, var11, var4, var5, var6, this.renderEntity.getRenderScaleFactor());
+      this.renderRecursively(buffer, headBone, partialTicks, x, y, this.renderEntity.getRenderScaleFactor());
       Tessellator.getInstance().draw();
       MATRIX_STACK.pop();
    }

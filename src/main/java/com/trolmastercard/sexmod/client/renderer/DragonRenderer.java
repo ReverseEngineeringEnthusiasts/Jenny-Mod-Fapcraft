@@ -37,13 +37,13 @@ public class DragonRenderer extends Render<DragonEntity> {
    static final UnknownScreen COLOR_WHITE_ALPHA = new UnknownScreen(255, 255, 255, 0);
    Minecraft mc = Minecraft.getMinecraft();
 
-   public DragonRenderer(RenderManager var1) {
-      super(var1);
+   public DragonRenderer(RenderManager renderManager) {
+      super(renderManager);
       instance = this;
    }
 
    @Nullable
-   protected ResourceLocation getEntityTexture(DragonEntity var1) {
+   protected ResourceLocation getEntityTexture(DragonEntity dragon) {
       return new ResourceLocation("sexmod", "textures/entity/galath/energy_ball.png");
    }
 
@@ -53,43 +53,43 @@ public class DragonRenderer extends Render<DragonEntity> {
     * animated colors (see class javadoc). Restores lighting/alpha state after.
     */
    @Override
-   public void doRender(DragonEntity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRender(DragonEntity dragon, double x, double y, double z, float entityYaw, float partialTicks) {
       GL11.glDisable(2896);
       GlStateManager.enableAlpha();
       GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
-      EntityPlayerSP var10 = this.mc.player;
-      Vec3d var11 = RotationHelper.lerpVec3dDouble(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var9);
-      Vec3d var12 = RotationHelper.lerpVec3dDouble(new Vec3d(var10.lastTickPosX, var10.lastTickPosY, var10.lastTickPosZ), var10.getPositionVector(), var9);
-      Vec3d var13 = var11.subtract(var12);
+      EntityPlayerSP player = this.mc.player;
+      Vec3d dragonPos = RotationHelper.lerpVec3dDouble(new Vec3d(dragon.lastTickPosX, dragon.lastTickPosY, dragon.lastTickPosZ), dragon.getPositionVector(), partialTicks);
+      Vec3d playerPos = RotationHelper.lerpVec3dDouble(new Vec3d(player.lastTickPosX, player.lastTickPosY, player.lastTickPosZ), player.getPositionVector(), partialTicks);
+      Vec3d offset = dragonPos.subtract(playerPos);
       GlStateManager.pushMatrix();
-      GlStateManager.translate(var13.x, var13.y, var13.z);
+      GlStateManager.translate(offset.x, offset.y, offset.z);
       GlStateManager.rotate(180.0F - this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
       GlStateManager.rotate((this.renderManager.options.thirdPersonView == 2 ? -1 : 1) * -this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
-      GlStateManager.scale(var1.SCALE_1_0, var1.SCALE_1_0, var1.SCALE_1_0);
-      Tessellator var14 = Tessellator.getInstance();
-      BufferBuilder var15 = var14.getBuffer();
-      this.mc.renderEngine.bindTexture(this.getEntityTexture(var1));
-      UnknownScreen var16;
-      UnknownScreen var17;
-      if (var1.SCALE_1_0 == 1.0) {
-         float var18 = (float)this.mc.world.getTotalWorldTime() + this.mc.getRenderPartialTicks();
-         double var19 = 0.5 * Math.sin(var18 * 0.5) + 0.5;
-         var16 = RotationHelper.lerpColor(COLOR_CYAN, COLOR_MAGENTA, var19);
-         var17 = RotationHelper.lerpColor(COLOR_MAGENTA, COLOR_CYAN, var19);
+      GlStateManager.scale(dragon.SCALE_1_0, dragon.SCALE_1_0, dragon.SCALE_1_0);
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder buffer = tessellator.getBuffer();
+      this.mc.renderEngine.bindTexture(this.getEntityTexture(dragon));
+      UnknownScreen outerColor;
+      UnknownScreen innerColor;
+      if (dragon.SCALE_1_0 == 1.0) {
+         float time = (float)this.mc.world.getTotalWorldTime() + this.mc.getRenderPartialTicks();
+         double lerpProgress = 0.5 * Math.sin(time * 0.5) + 0.5;
+         outerColor = RotationHelper.lerpColor(COLOR_CYAN, COLOR_MAGENTA, lerpProgress);
+         innerColor = RotationHelper.lerpColor(COLOR_MAGENTA, COLOR_CYAN, lerpProgress);
       } else {
-         var16 = RotationHelper.lerpColor(COLOR_WHITE_ALPHA, COLOR_CYAN, var1.SCALE_1_0);
-         var17 = RotationHelper.lerpColor(COLOR_WHITE_ALPHA, COLOR_CYAN, var1.SCALE_1_0);
+         outerColor = RotationHelper.lerpColor(COLOR_WHITE_ALPHA, COLOR_CYAN, dragon.SCALE_1_0);
+         innerColor = RotationHelper.lerpColor(COLOR_WHITE_ALPHA, COLOR_CYAN, dragon.SCALE_1_0);
       }
 
-      var15.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-      this.renderDragonColor(var15, var16, 0.0F);
-      var14.draw();
-      var15.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+      this.renderDragonColor(buffer, outerColor, 0.0F);
+      tessellator.draw();
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
       GlStateManager.scale(0.75F, 0.75F, 0.75F);
       GlStateManager.translate(0.0F, 0.075F, 0.0F);
-      this.renderDragonColor(var15, var17, 0.001F);
-      var14.draw();
+      this.renderDragonColor(buffer, innerColor, 0.001F);
+      tessellator.draw();
       GlStateManager.popMatrix();
       GlStateManager.disableAlpha();
       GL11.glEnable(2896);
@@ -100,11 +100,11 @@ public class DragonRenderer extends Render<DragonEntity> {
     * Emits one billboard quad (0.5x0.5) with the given color and a tiny z
     * offset to avoid z-fighting between the two layers.
     */
-   void renderDragonColor(BufferBuilder var1, UnknownScreen var2, float var3) {
-      var1.pos(-0.25, 0.0, var3).tex(0.0, 0.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
-      var1.pos(0.25, 0.0, var3).tex(1.0, 0.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
-      var1.pos(0.25, 0.5, var3).tex(1.0, 1.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
-      var1.pos(-0.25, 0.5, var3).tex(0.0, 1.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
+   void renderDragonColor(BufferBuilder buffer, UnknownScreen color, float zOffset) {
+      buffer.pos(-0.25, 0.0, zOffset).tex(0.0, 0.0).color(color.red, color.green, color.blue, color.alpha).endVertex();
+      buffer.pos(0.25, 0.0, zOffset).tex(1.0, 0.0).color(color.red, color.green, color.blue, color.alpha).endVertex();
+      buffer.pos(0.25, 0.5, zOffset).tex(1.0, 1.0).color(color.red, color.green, color.blue, color.alpha).endVertex();
+      buffer.pos(-0.25, 0.5, zOffset).tex(0.0, 1.0).color(color.red, color.green, color.blue, color.alpha).endVertex();
    }
 
 }

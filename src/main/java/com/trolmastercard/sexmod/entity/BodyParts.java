@@ -42,51 +42,51 @@ public class BodyParts {
    protected static HashMap<IGirlRenderer, HashMap<String, Boolean>> d = new HashMap<>();
    public static Vec3d OFFSET_VEC;
 
-   static boolean isCustomBone(IGirlRenderer var0, GeoBone var1) {
-      HashMap var2 = d.get(var0);
-      if (var2 == null) {
-         var2 = new HashMap();
-         boolean var6 = var0.hasParentBone(var0.getBlacklistedBones(), var1);
-         var2.put(var1.getName(), var6);
-         d.put(var0, var2);
-         return var6;
+   static boolean isCustomBone(IGirlRenderer renderer, GeoBone bone) {
+      HashMap cache = d.get(renderer);
+      if (cache == null) {
+         cache = new HashMap();
+         boolean custom = renderer.hasParentBone(renderer.getBlacklistedBones(), bone);
+         cache.put(bone.getName(), custom);
+         d.put(renderer, cache);
+         return custom;
       } else {
-         Boolean var3 = (Boolean)var2.get(var1.getName());
-         if (var3 == null) {
-            var3 = var0.hasParentBone(var0.getBlacklistedBones(), var1);
-            var2.put(var1.getName(), var3);
-            d.put(var0, var2);
-            return var3;
+         Boolean cached = (Boolean)cache.get(bone.getName());
+         if (cached == null) {
+            cached = renderer.hasParentBone(renderer.getBlacklistedBones(), bone);
+            cache.put(bone.getName(), cached);
+            d.put(renderer, cache);
+            return cached;
          } else {
-            return var3;
+            return cached;
          }
       }
    }
 
-   public static Vec3d getBoneWorldPosition(IGirlRenderer var0, GeoBone var1, Vec3d var2, Vector3f var3) {
-      return !isCustomBone(var0, var1) ? var2 : offsetBonePosition(var2, var3, OFFSET_VEC);
+   public static Vec3d getBoneWorldPosition(IGirlRenderer renderer, GeoBone bone, Vec3d worldPos, Vector3f rotation) {
+      return !isCustomBone(renderer, bone) ? worldPos : offsetBonePosition(worldPos, rotation, OFFSET_VEC);
    }
 
-   public static Vec3d offsetBonePosition(Vec3d var0, Vector3f var1, Vec3d var2) {
-      double var3 = VectorMath.dotProduct(var1, var2);
-      double var5 = RotationHelper.easeInOutQuad(Math.abs(var3));
-      var5 *= 0.1F;
-      return RotationHelper.lerpVec3dDouble(var0, var3 > 0.0 ? SKIN_COLOR : SKIN_COLOR_ALT, var5);
+   public static Vec3d offsetBonePosition(Vec3d worldPos, Vector3f rotation, Vec3d offset) {
+      double dot = VectorMath.dotProduct(rotation, offset);
+      double fade = RotationHelper.easeInOutQuad(Math.abs(dot));
+      fade *= 0.1F;
+      return RotationHelper.lerpVec3dDouble(worldPos, dot > 0.0 ? SKIN_COLOR : SKIN_COLOR_ALT, fade);
    }
 
-   public static void updateBoneOffset(EntityLivingBase var0, float var1) {
-      OFFSET_VEC = WorldUtils.getEntityLookVector(var0, var1);
+   public static void updateBoneOffset(EntityLivingBase entity, float partialTicks) {
+      OFFSET_VEC = WorldUtils.getEntityLookVector(entity, partialTicks);
    }
 
-   public static void updateCustomBones(List<IBone> var0, HashSet<String> var1, IGirlRenderer var2) {
-      if (d.get(var2) == null) {
-         HashMap var3 = new HashMap();
+   public static void updateCustomBones(List<IBone> bones, HashSet<String> blacklisted, IGirlRenderer renderer) {
+      if (d.get(renderer) == null) {
+         HashMap customBones = new HashMap();
 
-         for (IBone var5 : var0) {
-            var3.put(var5.getName(), var2.hasParentBone(var1, (GeoBone)var5));
+         for (IBone bone : bones) {
+            customBones.put(bone.getName(), renderer.hasParentBone(blacklisted, (GeoBone)bone));
          }
 
-         d.put(var2, var3);
+         d.put(renderer, customBones);
       }
    }
 

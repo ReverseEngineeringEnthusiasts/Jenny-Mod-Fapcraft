@@ -56,15 +56,15 @@ public class SexModEntities {
       EntityRegistry.addSpawn(ManglelieEntity.class, 5, 1, 1, EnumCreatureType.AMBIENT, new Biome[]{Biomes.HELL});
    }
 
-   private static void registerEntity(String var0, Class<? extends Entity> var1, int var2) {
-      EntityRegistry.registerModEntity(new ResourceLocation("sexmod:" + var0), var1, var0, var2, Main.instance, 100, 1, false);
+   private static void registerEntity(String name, Class<? extends Entity> entityClass, int id) {
+      EntityRegistry.registerModEntity(new ResourceLocation("sexmod:" + name), entityClass, name, id, Main.instance, 100, 1, false);
    }
 
-   private static void registerSpawnEntity(String var0, Class<? extends Entity> var1, int var2, int var3, int var4) {
-      EntityRegistry.registerModEntity(new ResourceLocation("sexmod:" + var0), var1, var0, var2, Main.instance, 50, 1, true, var3, var4);
+   private static void registerSpawnEntity(String name, Class<? extends Entity> entityClass, int id, int eggColor1, int eggColor2) {
+      EntityRegistry.registerModEntity(new ResourceLocation("sexmod:" + name), entityClass, name, id, Main.instance, 50, 1, true, eggColor1, eggColor2);
    }
 
-   private static void registerEggEntity(String var0, Class<? extends Entity> var1, int var2) {
-      EntityRegistry.registerModEntity(new ResourceLocation("sexmod:" + var0), var1, var0, var2, Main.instance, 50, 1, true);
+   private static void registerEggEntity(String name, Class<? extends Entity> entityClass, int id) {
+      EntityRegistry.registerModEntity(new ResourceLocation("sexmod:" + name), entityClass, name, id, Main.instance, 50, 1, true);
    }
 }

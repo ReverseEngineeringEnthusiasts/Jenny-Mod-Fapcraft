@@ -65,9 +65,9 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    int bowTimer = 0;
    int checkTimer = 0;
 
-   public GirlFollowGoal(AbstractGirlNpcEntity var1) {
-      super(var1);
-      this.girl = var1;
+   public GirlFollowGoal(AbstractGirlNpcEntity girl) {
+      super(girl);
+      this.girl = girl;
    }
 
    @Override
@@ -80,17 +80,17 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       }
    }
 
-   boolean isTargetVisible(EntityLivingBase var1) {
-      Vec3d var2 = this.girl.getPositionVector();
-      return !(var1 instanceof BaseGirlEntity)
+   boolean isTargetVisible(EntityLivingBase target) {
+      Vec3d girlPos = this.girl.getPositionVector();
+      return !(target instanceof BaseGirlEntity)
          && this.attackCooldown <= 0
-         && var1 != null
-         && var1.world != null
-         && !this.girl.equals(var1)
-         && var1.isEntityAlive()
-         && var2.distanceTo(this.master.getPositionVector()) < 15.0
-         && var2.distanceTo(var1.getPositionVector()) < 20.0
-         && !var1.equals(this.master);
+         && target != null
+         && target.world != null
+         && !this.girl.equals(target)
+         && target.isEntityAlive()
+         && girlPos.distanceTo(this.master.getPositionVector()) < 15.0
+         && girlPos.distanceTo(target.getPositionVector()) < 20.0
+         && !target.equals(this.master);
    }
 
    /**
@@ -99,16 +99,16 @@ public class GirlFollowGoal extends GirlFollowAiBase {
     * positioning on the master's mount, or stop.
     */
    @Override
-   protected void setState(GirlFollowAiBase.GirlFollowAiBaseState var1) {
-      switch (var1) {
+   protected void setState(GirlFollowAiBase.GirlFollowAiBaseState state) {
+      switch (state) {
          case ATTACK:
             this.girl.getLookHelper().setLookPositionWithEntity(this.target, 30.0F, 30.0F);
-            double var6 = this.girl.getDistance(this.target);
+            double dist = this.girl.getDistance(this.target);
             this.navigator.clearPath();
-            if (var6 < 1.9 && --this.attackTimer <= 0) {
+            if (dist < 1.9 && --this.attackTimer <= 0) {
                this.startAttack();
             } else {
-               if (this.girl.inventory.getStackInSlot(1).getItem() instanceof ItemBow && this.girl.getEntitySenses().canSee(this.target) && ++this.bowTimer > 0 && var6 > 6.0) {
+               if (this.girl.inventory.getStackInSlot(1).getItem() instanceof ItemBow && this.girl.getEntitySenses().canSee(this.target) && ++this.bowTimer > 0 && dist > 6.0) {
                   this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 2);
                   this.girl.setCurrentAction(Action.BOW);
                   if (++this.bowTimer >= 32) {
@@ -122,7 +122,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                   return;
                }
 
-               if (var6 < 2.0) {
+               if (dist < 2.0) {
                   this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 1);
                   this.navigator.tryMoveToEntityLiving(this.target, 0.5);
                   this.girl.setWalkSpeed(BaseGirlEntity.BaseGirlEntityState.WALK);
@@ -135,8 +135,8 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             break;
          case FOLLOW:
             this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 0);
-            double var2 = this.girl.getDistance(this.master);
-            if (this.navigator.getPathSearchRange() > var2) {
+            double followDist = this.girl.getDistance(this.master);
+            if (this.navigator.getPathSearchRange() > followDist) {
                this.navigator.clearPath();
                if (!this.girl.downed) {
                   this.navigator.tryMoveToEntityLiving(this.master, 0.5);
@@ -154,12 +154,12 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             if (!this.girl.downed) {
                if (++this.wanderTimer > 200 + Reference.RANDOM.nextInt(100)) {
                   this.wanderTimer = 0;
-                  Vec3d var7 = this.master.getPositionVector();
-                  Vec3d var5 = new Vec3d(
-                     var7.x + 1.0 + Reference.RANDOM.nextFloat() * 3.0F, var7.y, var7.z + 1.0 + Reference.RANDOM.nextFloat() * 3.0F
+                  Vec3d masterPos = this.master.getPositionVector();
+                  Vec3d targetPos = new Vec3d(
+                     masterPos.x + 1.0 + Reference.RANDOM.nextFloat() * 3.0F, masterPos.y, masterPos.z + 1.0 + Reference.RANDOM.nextFloat() * 3.0F
                   );
                   this.navigator.clearPath();
-                  this.navigator.tryMoveToXYZ(var5.x, var5.y, var5.z, 0.5);
+                  this.navigator.tryMoveToXYZ(targetPos.x, targetPos.y, targetPos.z, 0.5);
                }
 
                this.getFollowDistance();
@@ -173,8 +173,8 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             } else {
                this.girl.setNoGravity(true);
                this.girl.noClip = true;
-               Vec3d var4 = this.master.getPositionVector().subtract(this.mountEntity.getLookVec().x * 0.5, 0.0, this.mountEntity.getLookVec().z * 0.5);
-               this.girl.setPositionAndRotation(var4.x, var4.y, var4.z, 0.0F, 0.0F);
+               Vec3d ridePos = this.master.getPositionVector().subtract(this.mountEntity.getLookVec().x * 0.5, 0.0, this.mountEntity.getLookVec().z * 0.5);
+               this.girl.setPositionAndRotation(ridePos.x, ridePos.y, ridePos.z, 0.0F, 0.0F);
                this.girl.motionX = 0.0;
                this.girl.motionY = 0.0;
                this.girl.motionZ = 0.0;
@@ -191,9 +191,9 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       this.attackCooldown--;
       if (!this.girl.downed && this.girl.getInteractionPlayerUUID() == null) {
          if (this.master.isRiding()) {
-            Entity var1 = this.master.getRidingEntity();
-            if (this.girl.isRiding() || this.girl.startRiding(var1) || var1 instanceof EntityHorse && ((EntityHorse)var1).isHorseSaddled()) {
-               this.mountEntity = var1;
+            Entity mount = this.master.getRidingEntity();
+            if (this.girl.isRiding() || this.girl.startRiding(mount) || mount instanceof EntityHorse && ((EntityHorse)mount).isHorseSaddled()) {
+               this.mountEntity = mount;
                return GirlFollowAiBase.GirlFollowAiBaseState.RIDE;
             }
          } else if (!this.master.isRiding() && this.girl.isRiding() || this.state == GirlFollowAiBase.GirlFollowAiBaseState.RIDE && !this.master.isRiding()) {
@@ -207,75 +207,75 @@ public class GirlFollowGoal extends GirlFollowAiBase {
             return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
          }
 
-         DamageSource var2 = this.girl.getLastDamageSource();
-         if (var2 != null) {
-            EntityLivingBase var8 = (EntityLivingBase)var2.getTrueSource();
-            if (this.isTargetVisible(var8)) {
-               this.target = var8;
+         DamageSource source = this.girl.getLastDamageSource();
+         if (source != null) {
+            EntityLivingBase attacker = (EntityLivingBase)source.getTrueSource();
+            if (this.isTargetVisible(attacker)) {
+               this.target = attacker;
                return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
             }
          }
 
-         EntityLivingBase var9 = this.master.getLastAttackedEntity();
-         if (this.master.ticksExisted - this.master.getLastAttackedEntityTime() < 140 && this.isTargetVisible(var9)) {
-            this.target = var9;
+         EntityLivingBase attacked = this.master.getLastAttackedEntity();
+         if (this.master.ticksExisted - this.master.getLastAttackedEntityTime() < 140 && this.isTargetVisible(attacked)) {
+            this.target = attacked;
             return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
          }
 
          if (this.state != GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
-            var2 = this.master.getLastDamageSource();
-            if (var2 != null) {
-               var9 = (EntityLivingBase)var2.getTrueSource();
-               if (this.isTargetVisible(var9)) {
-                  this.target = var9;
+            source = this.master.getLastDamageSource();
+            if (source != null) {
+               attacked = (EntityLivingBase)source.getTrueSource();
+               if (this.isTargetVisible(attacked)) {
+                  this.target = attacked;
                   return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
                }
             }
 
-            Vec3d var3 = this.girl.getPositionVector();
-            AxisAlignedBB var4 = new AxisAlignedBB(
-               var3.x - 5.0,
-               var3.y - 2.0,
-               var3.z - 5.0,
-               var3.x + 5.0,
-               var3.y + 2.0,
-               var3.z + 5.0
+            Vec3d pos = this.girl.getPositionVector();
+            AxisAlignedBB aabb = new AxisAlignedBB(
+               pos.x - 5.0,
+               pos.y - 2.0,
+               pos.z - 5.0,
+               pos.x + 5.0,
+               pos.y + 2.0,
+               pos.z + 5.0
             );
-            List<EntityMob> var5 = (List<EntityMob>) (List) this.girl.world.getEntitiesWithinAABB(EntityMob.class, var4);
-            var5.sort((var1x, var2x) -> {
-               double var3x = var1x.getDistance(this.girl);
-               double var5x = var2x.getDistance(this.girl);
-               if (var3x == var5x) {
+            List<EntityMob> mobs = (List<EntityMob>) (List) this.girl.world.getEntitiesWithinAABB(EntityMob.class, aabb);
+            mobs.sort((mobA, mobB) -> {
+               double distA = mobB.getDistance(this.girl);
+               double distB = mobB.getDistance(this.girl);
+               if (distA == distB) {
                   return 0;
                } else {
-                  return var3x < var5x ? -1 : 1;
+                  return distA < distB ? -1 : 1;
                }
             });
 
-            for (EntityMob var7 : (java.util.Collection<EntityMob>) (var5) ) {
-               if (this.isTargetVisible(var7) && !(var7 instanceof EntityCreeper)) {
-                  this.target = var7;
+            for (EntityMob mob : (java.util.Collection<EntityMob>) (mobs) ) {
+               if (this.isTargetVisible(mob) && !(mob instanceof EntityCreeper)) {
+                  this.target = mob;
                   return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
                }
             }
          }
 
-         float var12 = this.girl.getDistance(this.master);
-         boolean var13 = var12 > 5.0F;
-         if (!var13 && this.state == GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
+         float followDist = this.girl.getDistance(this.master);
+         boolean tooFar = followDist > 5.0F;
+         if (!tooFar && this.state == GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW) {
             if (++this.checkTimer > 60) {
-               var13 = false;
+               tooFar = false;
                this.checkTimer = 0;
             } else {
-               var13 = true;
+               tooFar = true;
             }
          }
 
-         if (var13 && this.state == GirlFollowAiBase.GirlFollowAiBaseState.ATTACK) {
+         if (tooFar && this.state == GirlFollowAiBase.GirlFollowAiBaseState.ATTACK) {
             this.attackCooldown = 60;
          }
 
-         return var13 ? GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW : GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
+         return tooFar ? GirlFollowAiBase.GirlFollowAiBaseState.FOLLOW : GirlFollowAiBase.GirlFollowAiBaseState.IDLE;
       } else {
          return GirlFollowAiBase.GirlFollowAiBaseState.DOWNED;
       }
@@ -286,36 +286,36 @@ public class GirlFollowGoal extends GirlFollowAiBase {
     * skeleton-style shooting sound and 4.5 base damage.
     */
    public void shootArrow() {
-      EntityArrow var1 = this.createArrow();
-      double var2 = this.target.posX - this.girl.posX;
-      double var4 = this.target.getEntityBoundingBox().minY + this.target.height / 3.0F - var1.posY;
-      double var6 = this.target.posZ - this.girl.posZ;
-      double var8 = MathHelper.sqrt(var2 * var2 + var6 * var6);
-      var1.shoot(var2, var4 + var8 * 0.2F, var6, 1.6F, 2.0F);
+      EntityArrow arrow = this.createArrow();
+      double dx = this.target.posX - this.girl.posX;
+      double dy = this.target.getEntityBoundingBox().minY + this.target.height / 3.0F - arrow.posY;
+      double dz = this.target.posZ - this.girl.posZ;
+      double followDist = MathHelper.sqrt(dx * dx + dz * dz);
+      arrow.shoot(dx, dy + followDist * 0.2F, dz, 1.6F, 2.0F);
       this.girl.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0F, 1.0F / (this.girl.getRNG().nextFloat() * 0.4F + 0.8F));
-      this.girl.world.spawnEntity(var1);
-      var1.setDamage(4.5);
+      this.girl.world.spawnEntity(arrow);
+      arrow.setDamage(4.5);
    }
 
    protected EntityArrow createArrow() {
-      EntityTippedArrow var1 = new EntityTippedArrow(this.girl.world, this.girl);
-      ItemStack var2 = this.girl.inventory.getStackInSlot(1);
-      double var3 = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, var2);
-      int var5 = EnchantmentHelper.getEnchantmentLevel(Enchantments.PUNCH, var2);
-      int var6 = EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, var2);
-      if (var3 != 0.0) {
-         var1.setDamage(var1.getDamage() + var3 * 0.5 + 0.5);
+      EntityTippedArrow arrow = new EntityTippedArrow(this.girl.world, this.girl);
+      ItemStack stack = this.girl.inventory.getStackInSlot(1);
+      double power = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, stack);
+      int punch = EnchantmentHelper.getEnchantmentLevel(Enchantments.PUNCH, stack);
+      int flame = EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, stack);
+      if (power != 0.0) {
+         arrow.setDamage(arrow.getDamage() + power * 0.5 + 0.5);
       }
 
-      if (var5 != 0) {
-         var1.setKnockbackStrength(var5);
+      if (punch != 0) {
+         arrow.setKnockbackStrength(punch);
       }
 
-      if (var6 != 0) {
-         var1.setFire(100);
+      if (flame != 0) {
+         arrow.setFire(100);
       }
 
-      return var1;
+      return arrow;
    }
 
    /**
@@ -327,67 +327,67 @@ public class GirlFollowGoal extends GirlFollowAiBase {
    void startAttack() {
       this.girl.setCurrentAction(Action.ATTACK);
       this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 1);
-      ItemStack var1 = this.girl.inventory.getStackInSlot(0);
-      Multimap var2 = var1.getAttributeModifiers(EntityEquipmentSlot.MAINHAND);
-      float var3 = 0.0F;
-      float var4 = 0.0F;
+      ItemStack weapon = this.girl.inventory.getStackInSlot(0);
+      Multimap modifiers = weapon.getAttributeModifiers(EntityEquipmentSlot.MAINHAND);
+      float damage = 0.0F;
+      float speed = 0.0F;
 
-      for (AttributeModifier var6 : (java.util.Collection<AttributeModifier>) var2.get(SharedMonsterAttributes.ATTACK_DAMAGE.getName())) {
-         var3 = (float)var6.getAmount();
+      for (AttributeModifier modifier : (java.util.Collection<AttributeModifier>) modifiers.get(SharedMonsterAttributes.ATTACK_DAMAGE.getName())) {
+         damage = (float)modifier.getAmount();
       }
 
-      for (AttributeModifier var15 : (java.util.Collection<AttributeModifier>) var2.get(SharedMonsterAttributes.ATTACK_SPEED.getName())) {
-         var4 = (float)var15.getAmount();
+      for (AttributeModifier modifier : (java.util.Collection<AttributeModifier>) modifiers.get(SharedMonsterAttributes.ATTACK_SPEED.getName())) {
+         speed = (float)modifier.getAmount();
       }
 
-      var4 = Math.max(var4, 0.5F);
-      float var14 = EnchantmentHelper.getModifierForCreature(var1, this.target.getCreatureAttribute());
-      int var16 = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, var1);
-      int var7 = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, var1);
-      int var8 = EnchantmentHelper.getEnchantmentLevel(Enchantments.SWEEPING, var1);
+      speed = Math.max(speed, 0.5F);
+      float enchantDamage = EnchantmentHelper.getModifierForCreature(weapon, this.target.getCreatureAttribute());
+      int knockback = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, weapon);
+      int fireAspect = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, weapon);
+      int sweeping = EnchantmentHelper.getEnchantmentLevel(Enchantments.SWEEPING, weapon);
       this.target
          .knockBack(
             this.girl,
-            var16 * 0.5F,
+            knockback * 0.5F,
             MathHelper.sin(this.girl.rotationYaw * (float) (Math.PI / 180.0)),
             -MathHelper.cos(this.girl.rotationYaw * (float) (Math.PI / 180.0))
          );
-      this.target.setFire(var7 * 4);
-      if (var8 != 0) {
-         float var9 = 0.5F;
-         if (var8 == 2) {
-            var9 = 0.67F;
-         } else if (var8 == 3) {
-            var9 = 0.75F;
+      this.target.setFire(fireAspect * 4);
+      if (sweeping != 0) {
+         float sweepMod = 0.5F;
+         if (sweeping == 2) {
+            sweepMod = 0.67F;
+         } else if (sweeping == 3) {
+            sweepMod = 0.75F;
          }
 
-         for (EntityLivingBase var11 : this.girl.world.getEntitiesWithinAABB(EntityLivingBase.class, this.target.getEntityBoundingBox().grow(1.0, 0.25, 1.0))) {
-            if (var11 != this.girl && var11 != this.master && var11 != this.target && !this.girl.isOnSameTeam(var11) && this.girl.getDistanceSq(var11) < 9.0) {
-               var11.knockBack(
+         for (EntityLivingBase entity : this.girl.world.getEntitiesWithinAABB(EntityLivingBase.class, this.target.getEntityBoundingBox().grow(1.0, 0.25, 1.0))) {
+            if (entity != this.girl && entity != this.master && entity != this.target && !this.girl.isOnSameTeam(entity) && this.girl.getDistanceSq(entity) < 9.0) {
+               entity.knockBack(
                   this.girl,
                   0.4F,
                   MathHelper.sin(this.girl.rotationYaw * (float) (Math.PI / 180.0)),
                   -MathHelper.cos(this.girl.rotationYaw * (float) (Math.PI / 180.0))
                );
-               var11.attackEntityFrom(DamageSource.causeMobDamage(this.girl), (var3 + var14) * var9);
+               entity.attackEntityFrom(DamageSource.causeMobDamage(this.girl), (damage + enchantDamage) * sweepMod);
             }
          }
       }
 
-      this.target.attackEntityFrom(DamageSource.causeMobDamage(this.girl), var3 + var14);
-      this.attackTimer = Math.round(Math.abs(var4) / 3.373494F * 20.0F);
+      this.target.attackEntityFrom(DamageSource.causeMobDamage(this.girl), damage + enchantDamage);
+      this.attackTimer = Math.round(Math.abs(speed) / 3.373494F * 20.0F);
    }
 
    @Override
    protected double getFollowDistance() {
-      double var1 = super.getFollowDistance();
+      double followDistance = super.getFollowDistance();
       if (this.girl.downed) {
-         var1 = 0.0;
+         followDistance = 0.0;
       }
 
-      this.navigator.setSpeed(var1);
+      this.navigator.setSpeed(followDistance);
       this.girl.setWalkSpeed(this.girl.getWalkType());
-      return var1;
+      return followDistance;
    }
 
    @Override
@@ -398,10 +398,10 @@ public class GirlFollowGoal extends GirlFollowAiBase {
 
    void handleKnockback() {
       if (!this.girl.onGround && !this.girl.isInWater() && this.girl.motionX + this.girl.motionZ == 0.0 && !(this.girl.motionY <= 0.0)) {
-         Vec3d var1 = new Vec3d(0.0, 0.0, 0.1F);
-         var1 = VectorMath.rotateByYaw(var1, this.girl.rotationYaw);
-         this.girl.motionX = var1.x;
-         this.girl.motionZ = var1.z;
+         Vec3d vec = new Vec3d(0.0, 0.0, 0.1F);
+         vec = VectorMath.rotateByYaw(vec, this.girl.rotationYaw);
+         this.girl.motionX = vec.x;
+         this.girl.motionZ = vec.z;
       }
    }
 
@@ -412,43 +412,43 @@ public class GirlFollowGoal extends GirlFollowAiBase {
     */
    public static class a {
       @SubscribeEvent
-      public void onLivingHurt(LivingHurtEvent var1) {
-         if (var1.getEntityLiving() instanceof AbstractGirlNpcEntity) {
-            AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
-            if (var2.downed) {
-               var1.setCanceled(true);
-            } else if (var2.getHealth() - var1.getAmount() < 0.0F && !((String)var2.getDataManager().get(AbstractGirlNpcEntity.MASTER)).equals("")) {
-               var2.downed = true;
-               var2.setCurrentAction(Action.DOWNED);
-               var1.setAmount(var2.getHealth() - 1.0F);
-               var2.getNavigator().clearPath();
+      public void onLivingHurt(LivingHurtEvent event) {
+         if (event.getEntityLiving() instanceof AbstractGirlNpcEntity) {
+            AbstractGirlNpcEntity girl = (AbstractGirlNpcEntity)event.getEntityLiving();
+            if (girl.downed) {
+               event.setCanceled(true);
+            } else if (girl.getHealth() - event.getAmount() < 0.0F && !((String)girl.getDataManager().get(AbstractGirlNpcEntity.MASTER)).equals("")) {
+               girl.downed = true;
+               girl.setCurrentAction(Action.DOWNED);
+               event.setAmount(girl.getHealth() - 1.0F);
+               girl.getNavigator().clearPath();
             }
          }
       }
 
       @SubscribeEvent
-      public void onLivingHeal(LivingHealEvent var1) {
-         if (var1.getEntityLiving() instanceof AbstractGirlNpcEntity) {
-            AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
-            if (var2.downed && var2.getHealth() + var1.getAmount() >= var2.getMaxHealth()) {
-               var2.downed = false;
-               var2.setCurrentAction(Action.NULL);
+      public void onLivingHeal(LivingHealEvent event) {
+         if (event.getEntityLiving() instanceof AbstractGirlNpcEntity) {
+            AbstractGirlNpcEntity girl = (AbstractGirlNpcEntity)event.getEntityLiving();
+            if (girl.downed && girl.getHealth() + event.getAmount() >= girl.getMaxHealth()) {
+               girl.downed = false;
+               girl.setCurrentAction(Action.NULL);
             }
          }
       }
 
       @SubscribeEvent
-      public void onLivingDeath(LivingDeathEvent var1) {
-         if (var1.getEntityLiving() instanceof AbstractGirlNpcEntity) {
-            AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntityLiving();
-            if (var2.world.isRemote) {
+      public void onLivingDeath(LivingDeathEvent event) {
+         if (event.getEntityLiving() instanceof AbstractGirlNpcEntity) {
+            AbstractGirlNpcEntity girl = (AbstractGirlNpcEntity)event.getEntityLiving();
+            if (girl.world.isRemote) {
                return;
             }
 
-            for (int var3 = 0; var3 < 6; var3++) {
-               Item var4 = var2.inventory.getStackInSlot(var3).getItem();
-               if (var4 != Items.AIR) {
-                  var2.dropItem(var4, 1);
+            for (int i = 0; i < 6; i++) {
+               Item item = girl.inventory.getStackInSlot(i).getItem();
+               if (item != Items.AIR) {
+                  girl.dropItem(item, 1);
                }
             }
          }

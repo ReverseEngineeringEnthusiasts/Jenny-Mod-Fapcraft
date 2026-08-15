@@ -39,11 +39,11 @@ public class HornyPotion extends Potion {
       super(false, 0);
    }
 
-   public HornyPotion(String var1, boolean var2, int var3, int var4, int var5) {
-      super(var2, var3);
-      this.setPotionName(var1);
-      this.setIconIndex(var4, var5);
-      this.setRegistryName(new ResourceLocation("sexmod:" + var1));
+   public HornyPotion(String name, boolean isBadEffect, int liquidColor, int iconX, int iconY) {
+      super(isBadEffect, liquidColor);
+      this.setPotionName(name);
+      this.setIconIndex(iconX, iconY);
+      this.setRegistryName(new ResourceLocation("sexmod:" + name));
    }
 
    public static void register() {
@@ -53,39 +53,39 @@ public class HornyPotion extends Potion {
    }
 
    @SubscribeEvent
-   public void onPlayerTick(PlayerTickEvent var1) {
-      EntityPlayer var2 = var1.player;
-      PotionEffect var3 = var2.getActivePotionEffect(HORNY_POTION);
-      if (!var2.world.isRemote) {
-         if (var3 != null) {
-            if (var3.getDuration() <= 3500) {
-               var2.removePotionEffect(HORNY_POTION);
-               PacketHandler.networkWrapper.sendTo(new GirlDataPacket(var2), (EntityPlayerMP)var2);
+   public void onPlayerTick(PlayerTickEvent event) {
+      EntityPlayer player = event.player;
+      PotionEffect effect = player.getActivePotionEffect(HORNY_POTION);
+      if (!player.world.isRemote) {
+         if (effect != null) {
+            if (effect.getDuration() <= 3500) {
+               player.removePotionEffect(HORNY_POTION);
+               PacketHandler.networkWrapper.sendTo(new GirlDataPacket(player), (EntityPlayerMP)player);
             }
          }
       }
    }
 
    @SubscribeEvent
-   public void onLivingUpdate(LivingUpdateEvent var1) {
-      if (var1.getEntity() instanceof EntityVillager) {
-         EntityVillager var2 = (EntityVillager)var1.getEntity();
-         if (var2.isPotionActive(HORNY_POTION)) {
-            var2.tasks.addTask(2, new GirlAiBase(var2));
-            var2.removePotionEffect(HORNY_POTION);
+   public void onLivingUpdate(LivingUpdateEvent event) {
+      if (event.getEntity() instanceof EntityVillager) {
+         EntityVillager villager = (EntityVillager)event.getEntity();
+         if (villager.isPotionActive(HORNY_POTION)) {
+            villager.tasks.addTask(2, new GirlAiBase(villager));
+            villager.removePotionEffect(HORNY_POTION);
          }
       }
 
-      if (var1.getEntity() instanceof EntityAnimal) {
-         EntityAnimal var3 = (EntityAnimal)var1.getEntity();
-         if (var3.isPotionActive(HORNY_POTION)) {
-            if (var3.getGrowingAge() >= 0) {
-               var3.setGrowingAge(0);
-               var3.resetInLove();
-               var3.setInLove(var3.world.getClosestPlayerToEntity(var3, 30.0));
+      if (event.getEntity() instanceof EntityAnimal) {
+         EntityAnimal animal = (EntityAnimal)event.getEntity();
+         if (animal.isPotionActive(HORNY_POTION)) {
+            if (animal.getGrowingAge() >= 0) {
+               animal.setGrowingAge(0);
+               animal.resetInLove();
+               animal.setInLove(animal.world.getClosestPlayerToEntity(animal, 30.0));
             }
 
-            var3.removePotionEffect(HORNY_POTION);
+            animal.removePotionEffect(HORNY_POTION);
          }
       }
    }

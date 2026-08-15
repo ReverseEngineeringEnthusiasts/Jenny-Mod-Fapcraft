@@ -20,10 +20,10 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
    final ManglelieEntity manglelieEntity;
    final float distance;
 
-   public AvoidPlayerGoal(ManglelieEntity var1, float var2, double var3, double var5) {
-      super(var1, EntityPlayer.class, var2, var3, var5);
-      this.manglelieEntity = var1;
-      this.distance = var2;
+   public AvoidPlayerGoal(ManglelieEntity manglelie, float dist, double farSpeed, double nearSpeed) {
+      super(manglelie, EntityPlayer.class, dist, farSpeed, nearSpeed);
+      this.manglelieEntity = manglelie;
+      this.distance = dist;
    }
 
    /**
@@ -35,11 +35,11 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
          return true;
       }
 
-      BlockPos var1 = this.manglelieEntity.getPosition();
-      BlockPos var2 = new BlockPos(this.distance, this.distance, this.distance);
+      BlockPos pos = this.manglelieEntity.getPosition();
+      BlockPos offset = new BlockPos(this.distance, this.distance, this.distance);
 
-      for (GalathEntity var5 : this.manglelieEntity.world.getEntitiesWithinAABB(GalathEntity.class, new AxisAlignedBB(var1.add(var2), var1.subtract(var2)))) {
-         if (!var5.world.isRemote && !var5.isDead && var5.hasMaster()) {
+      for (GalathEntity galath : this.manglelieEntity.world.getEntitiesWithinAABB(GalathEntity.class, new AxisAlignedBB(pos.add(offset), pos.subtract(offset)))) {
+         if (!galath.world.isRemote && !galath.isDead && galath.hasMaster()) {
             return true;
          }
       }

@@ -18,15 +18,15 @@ import net.minecraft.util.ResourceLocation;
 public class WildSlimeRenderer extends RenderLiving<WildSlimeEntity> {
    private static final ResourceLocation slimeTexture = new ResourceLocation("textures/entity/slime/slime.png");
 
-   public WildSlimeRenderer(RenderManager var1) {
-      super(var1, new GoblinModel(), 0.25F);
+   public WildSlimeRenderer(RenderManager renderManager) {
+      super(renderManager, new GoblinModel(), 0.25F);
       this.addLayer(new WildSlimeFaceLayer(this));
    }
 
    @Override
-   public void doRender(WildSlimeEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      this.shadowSize = 0.25F * var1.getSquishFactor();
-      super.doRender(var1, var2, var4, var6, var8, var9);
+   public void doRender(WildSlimeEntity slime, double x, double y, double z, float entityYaw, float partialTicks) {
+      this.shadowSize = 0.25F * slime.getSquishFactor();
+      super.doRender(slime, x, y, z, entityYaw, partialTicks);
    }
 
    /**
@@ -34,15 +34,15 @@ public class WildSlimeRenderer extends RenderLiving<WildSlimeEntity> {
     * factor, vanilla slime deformation) with a near-1.0 base scale.
     */
    @Override
-   protected void preRenderCallback(WildSlimeEntity var1, float var2) {
+   protected void preRenderCallback(WildSlimeEntity slime, float partialTicks) {
       GlStateManager.scale(0.999F, 0.999F, 0.999F);
-      float var4 = var1.getSquishFactor();
-      float var5 = (var1.prevSquishFactor + (var1.squishFactor - var1.prevSquishFactor) * var2) / (var4 * 0.5F + 1.0F);
-      float var6 = 1.0F / (var5 + 1.0F);
-      GlStateManager.scale(var6 * var4, 1.0F / var6 * var4, var6 * var4);
+      float squishFactor = slime.getSquishFactor();
+      float squishScale = (slime.prevSquishFactor + (slime.squishFactor - slime.prevSquishFactor) * partialTicks) / (squishFactor * 0.5F + 1.0F);
+      float inverseScale = 1.0F / (squishScale + 1.0F);
+      GlStateManager.scale(inverseScale * squishFactor, 1.0F / inverseScale * squishFactor, inverseScale * squishFactor);
    }
 
-   protected ResourceLocation getEntityTexture(WildSlimeEntity var0) {
+   protected ResourceLocation getEntityTexture(WildSlimeEntity slime) {
       return slimeTexture;
    }
 }

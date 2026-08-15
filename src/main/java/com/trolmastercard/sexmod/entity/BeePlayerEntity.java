@@ -26,12 +26,12 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * ({@code sex_cumDone} -&gt; {@code resetCameraAndPhysics()}).
  */
 public class BeePlayerEntity extends AbstractPlayerGirlEntity {
-   protected BeePlayerEntity(World var1) {
-      super(var1);
+   protected BeePlayerEntity(World world) {
+      super(world);
    }
 
-   public BeePlayerEntity(World var1, UUID var2) {
-      super(var1, var2);
+   public BeePlayerEntity(World world, UUID uuid) {
+      super(world, uuid);
    }
 
    @Override
@@ -54,12 +54,12 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public IVanillaModel getHandModel(int var1) {
+   public IVanillaModel getHandModel(int index) {
       return new BeeModel();
    }
 
    @Override
-   public String getHandTexture(int var1) {
+   public String getHandTexture(int index) {
       return "textures/entity/bee/hand.png";
    }
 
@@ -69,21 +69,21 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
     * the girl.
     */
    @Override
-   public void handleOwnerCommand(String var1, UUID var2) {
+   public void handleOwnerCommand(String command, UUID uuid) {
       this.sendActionPacket(0, Action.CITIZEN_START);
       this.setOutfitIndex(0);
       this.setCurrentAction(Action.CITIZEN_START);
-      this.teleportPlayerToGirl(var2);
-      EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
-      if (var3 != null) {
-         Vec3d var4 = this.getVectorTowardPlayer(-0.2);
-         var3.setPositionAndUpdate(var4.x, var4.y, var4.z);
+      this.teleportPlayerToGirl(uuid);
+      EntityPlayer player = this.world.getPlayerEntityByUUID(uuid);
+      if (player != null) {
+         Vec3d offset = this.getVectorTowardPlayer(-0.2);
+         player.setPositionAndUpdate(offset.x, offset.y, offset.z);
       }
    }
 
    @Override
-   public boolean openInteractionMenu(EntityPlayer var1) {
-      openInventoryGui(var1, this, new String[]{"action.names.sex"}, false);
+   public boolean openInteractionMenu(EntityPlayer player) {
+      openInventoryGui(player, this, new String[]{"action.names.sex"}, false);
       return true;
    }
 
@@ -105,13 +105,13 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected Action getNextAction(Action var1) {
-      return var1 == Action.CITIZEN_SLOW ? Action.CITIZEN_FAST : null;
+   protected Action getNextAction(Action action) {
+      return action == Action.CITIZEN_SLOW ? Action.CITIZEN_FAST : null;
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      return var1 != Action.CITIZEN_FAST && var1 != Action.CITIZEN_SLOW ? null : Action.CITIZEN_CUM;
+   protected Action getCumAction(Action action) {
+      return action != Action.CITIZEN_FAST && action != Action.CITIZEN_SLOW ? null : Action.CITIZEN_CUM;
    }
 
    @Override
@@ -121,43 +121,43 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
-      switch (var1.getController().getName()) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
+      switch (event.getController().getName()) {
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.bee.null", true, var1);
+               this.createAnimation("animation.bee.null", true, event);
             } else {
-               this.createAnimation("animation.bee.idle", true, var1);
+               this.createAnimation("animation.bee.idle", true, event);
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.createAnimation("animation.bee.null", false, var1);
+                  this.createAnimation("animation.bee.null", false, event);
                   break;
                case CITIZEN_START:
-                  this.createAnimation("animation.bee.sex_start", false, var1);
+                  this.createAnimation("animation.bee.sex_start", false, event);
                   break;
                case CITIZEN_SLOW:
-                  this.createAnimation("animation.bee.sex_slow", true, var1);
+                  this.createAnimation("animation.bee.sex_slow", true, event);
                   break;
                case CITIZEN_FAST:
-                  this.createAnimation("animation.bee.sex_fast", true, var1);
+                  this.createAnimation("animation.bee.sex_fast", true, event);
                   break;
                case CITIZEN_CUM:
-                  this.createAnimation("animation.bee.sex_cum", false, var1);
+                  this.createAnimation("animation.bee.sex_cum", false, event);
                   break;
                case THROW_PEARL:
-                  this.createAnimation("animation.bee.throw_pearl", true, var1);
+                  this.createAnimation("animation.bee.throw_pearl", true, event);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.bee.attack" + this.nextAttack, false, var1);
+                  this.createAnimation("animation.bee.attack" + this.nextAttack, false, event);
                   break;
                case BOW:
-                  this.createAnimation("animation.bee.bowcharge", false, var1);
+                  this.createAnimation("animation.bee.bowcharge", false, event);
                   break;
                case RIDE:
-                  this.createAnimation("animation.bee.ride", true, var1);
+                  this.createAnimation("animation.bee.ride", true, event);
             }
       }
 
@@ -171,13 +171,13 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
     * {@code resetCameraAndPhysics()}.
     */
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       if (this.actionController == null) {
          this.initAnimationControllers();
       }
 
-      AnimationController.ISoundListener var2 = var1x -> {
-         switch (var1x.sound) {
+      AnimationController.ISoundListener soundListener = sound -> {
+         switch (sound.sound) {
             case "attackDone":
                if (++this.nextAttack == 3) {
                   this.nextAttack = 0;
@@ -236,9 +236,9 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
                }
          }
       };
-      this.actionController.registerSoundListener(var2);
-      var1.addAnimationController(this.actionController);
-      var1.addAnimationController(this.movementController);
+      this.actionController.registerSoundListener(soundListener);
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.movementController);
    }
 
 }

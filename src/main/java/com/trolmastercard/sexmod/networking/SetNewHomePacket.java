@@ -29,35 +29,35 @@ public class SetNewHomePacket implements IMessage {
    public SetNewHomePacket() {
    }
 
-   public SetNewHomePacket(UUID var1, Vec3d var2) {
-      this.girlUUID = var1;
-      this.homePos = var2;
+   public SetNewHomePacket(UUID girlUUID, Vec3d homePos) {
+      this.girlUUID = girlUUID;
+      this.homePos = homePos;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.homePos = new Vec3d(var1.readDouble(), var1.readDouble(), var1.readDouble());
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.homePos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      var1.writeDouble(this.homePos.x);
-      var1.writeDouble(this.homePos.y);
-      var1.writeDouble(this.homePos.z);
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      buf.writeDouble(this.homePos.x);
+      buf.writeDouble(this.homePos.y);
+      buf.writeDouble(this.homePos.z);
    }
 
    public static class Handler implements IMessageHandler<SetNewHomePacket, IMessage> {
-      public IMessage onMessage(SetNewHomePacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(SetNewHomePacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("received an invalid message @SetNewHome :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               ArrayList var1x = BaseGirlEntity.girlList(var1.girlUUID);
-               if (!var1x.isEmpty()) {
-                  for (BaseGirlEntity var3 : (java.util.Collection<BaseGirlEntity>) (var1x) ) {
-                     var3.homePos = new Vec3d(var1.homePos.x, Math.floor(var1.homePos.y), var1.homePos.z);
+               ArrayList girls = BaseGirlEntity.girlList(packet.girlUUID);
+               if (!girls.isEmpty()) {
+                  for (BaseGirlEntity girl : (java.util.Collection<BaseGirlEntity>) (girls) ) {
+                     girl.homePos = new Vec3d(packet.homePos.x, Math.floor(packet.homePos.y), packet.homePos.z);
                   }
                }
             });

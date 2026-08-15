@@ -24,32 +24,32 @@ public class UpdateEquipmentPacket implements IMessage {
    public UpdateEquipmentPacket() {
    }
 
-   public UpdateEquipmentPacket(UUID var1, NBTTagCompound var2) {
-      this.girlUUID = var1;
-      this.equipmentNbt = var2;
+   public UpdateEquipmentPacket(UUID girlUUID, NBTTagCompound equipmentNbt) {
+      this.girlUUID = girlUUID;
+      this.equipmentNbt = equipmentNbt;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.equipmentNbt = ByteBufUtils.readTag(var1);
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.equipmentNbt = ByteBufUtils.readTag(buf);
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      ByteBufUtils.writeTag(var1, this.equipmentNbt);
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      ByteBufUtils.writeTag(buf, this.equipmentNbt);
    }
 
    public static class Handler implements IMessageHandler<UpdateEquipmentPacket, IMessage> {
-      public IMessage onMessage(UpdateEquipmentPacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(UpdateEquipmentPacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("received an invalid message @UpdateEquipment :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
-                  if (var3 instanceof AbstractGirlNpcEntity) {
-                     ((AbstractGirlNpcEntity)var3).inventory.deserializeNBT(var1.equipmentNbt);
+               for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.girlUUID)) {
+                  if (girl instanceof AbstractGirlNpcEntity) {
+                     ((AbstractGirlNpcEntity)girl).inventory.deserializeNBT(packet.equipmentNbt);
                   }
                }
             });

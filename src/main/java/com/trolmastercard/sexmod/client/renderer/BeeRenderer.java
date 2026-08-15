@@ -10,7 +10,7 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  * proxy with its {@link BeeModel} and shadow radius.
  */
 public class BeeRenderer extends GirlRenderer<BeeEntity> {
-   public BeeRenderer(RenderManager var1, AnimatedGeoModel<?> var2, double var3) {
-      super(var1, var2, var3);
+   public BeeRenderer(RenderManager renderManager, AnimatedGeoModel<?> model, double shadowSize) {
+      super(renderManager, model, shadowSize);
    }
 }

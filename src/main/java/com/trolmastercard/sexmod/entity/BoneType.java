@@ -33,13 +33,13 @@ public enum BoneType {
    BoneType() {
    }
 
-   BoneType(int var3) {
-      this.iconXPos = var3;
+   BoneType(int iconXPos) {
+      this.iconXPos = iconXPos;
    }
 
-   BoneType(int var3, String var4) {
-      this.iconXPos = var3;
-      this.boneName = var4;
+   BoneType(int iconXPos, String boneName) {
+      this.iconXPos = iconXPos;
+      this.boneName = boneName;
       this.buttonIDPlus = ++Reference.BUTTON_ID_COUNTER;
       this.buttonIDMinus = ++Reference.BUTTON_ID_COUNTER;
    }

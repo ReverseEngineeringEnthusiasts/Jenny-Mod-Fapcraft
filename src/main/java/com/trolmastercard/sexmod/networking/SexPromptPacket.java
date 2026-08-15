@@ -38,47 +38,47 @@ public class SexPromptPacket implements IMessage {
    public SexPromptPacket() {
    }
 
-   public SexPromptPacket(String var1, UUID var2, UUID var3, boolean var4) {
-      this.actionName = var1;
-      this.playerUUID = var2;
-      this.girlUUID = var3;
-      this.accepted = var4;
+   public SexPromptPacket(String actionName, UUID playerUUID, UUID girlUUID, boolean accepted) {
+      this.actionName = actionName;
+      this.playerUUID = playerUUID;
+      this.girlUUID = girlUUID;
+      this.accepted = accepted;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.actionName = ByteBufUtils.readUTF8String(var1);
-      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.accepted = var1.readBoolean();
+   public void fromBytes(ByteBuf buf) {
+      this.actionName = ByteBufUtils.readUTF8String(buf);
+      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.accepted = buf.readBoolean();
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.actionName);
-      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      var1.writeBoolean(this.accepted);
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.actionName);
+      ByteBufUtils.writeUTF8String(buf, this.playerUUID.toString());
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      buf.writeBoolean(this.accepted);
    }
 
    public static class Handler implements IMessageHandler<SexPromptPacket, IMessage> {
-      public IMessage onMessage(SexPromptPacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(SexPromptPacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("received an invalid message @SexPrompt :(");
             return null;
-         } else if (var2.side.equals(Side.CLIENT)) {
-            GenderSwapScreen.instance.onButtonClicked(new GenderSwapScreen.SwapButton(var1.actionName, var1.playerUUID, var1.girlUUID, var1.accepted));
+         } else if (ctx.side.equals(Side.CLIENT)) {
+            GenderSwapScreen.instance.onButtonClicked(new GenderSwapScreen.SwapButton(packet.actionName, packet.playerUUID, packet.girlUUID, packet.accepted));
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               World var2x = var2.getServerHandler().player.world;
-               EntityPlayer var3 = var2x.getPlayerEntityByUUID(var1.girlUUID);
-               EntityPlayer var4 = var2x.getPlayerEntityByUUID(var1.playerUUID);
-               if (var3 == null) {
+               World world = ctx.getServerHandler().player.world;
+               EntityPlayer girlPlayer = world.getPlayerEntityByUUID(packet.girlUUID);
+               EntityPlayer player = world.getPlayerEntityByUUID(packet.playerUUID);
+               if (girlPlayer == null) {
                   System.out.println("Sex prompt invalid -> female player not found");
-               } else if (var4 == null) {
+               } else if (player == null) {
                   System.out.println("Sex prompt invalid -> male player not found");
                } else {
-                  PacketHandler.networkWrapper.sendTo(new SexPromptPacket(var1.actionName, var1.playerUUID, var1.girlUUID, var1.accepted), (EntityPlayerMP)(var1.accepted ? var3 : var4));
+                  PacketHandler.networkWrapper.sendTo(new SexPromptPacket(packet.actionName, packet.playerUUID, packet.girlUUID, packet.accepted), (EntityPlayerMP)(packet.accepted ? girlPlayer : player));
                }
             });
             return null;

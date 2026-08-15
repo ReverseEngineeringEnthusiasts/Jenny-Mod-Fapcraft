@@ -248,38 +248,38 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    public boolean isRenderEgg = false;
    int aN = 0;
 
-   public KoboldEntity(World var1) {
-      super(var1);
+   public KoboldEntity(World world) {
+      super(world);
       this.setSize(0.5F, 0.99F);
    }
 
-   KoboldEntity(World var1, UUID var2, float var3) {
-      this(var1);
-      this.entityDataManager.set(aL, Optional.of(var2));
-      this.entityDataManager.set(aE, var3);
+   KoboldEntity(World world, UUID tribeId, float size) {
+      this(world);
+      this.entityDataManager.set(aL, Optional.of(tribeId));
+      this.entityDataManager.set(aE, size);
    }
 
-   public static KoboldEntity createKobold(World var0, UUID var1) {
-      float var2 = getRandomThrowDelay();
-      return createKoboldWithSpeed(var0, var1, var2);
+   public static KoboldEntity createKobold(World world, UUID tribeId) {
+      float throwDelay = getRandomThrowDelay();
+      return createKoboldWithSpeed(world, tribeId, throwDelay);
    }
 
-   public static KoboldEntity createKoboldWithSpeed(World var0, UUID var1, float var2) {
-      af = 10.0 - var2 * 25.0;
-      return new KoboldEntity(var0, var1, var2);
+   public static KoboldEntity createKoboldWithSpeed(World world, UUID tribeId, float throwDelay) {
+      af = 10.0 - throwDelay * 25.0;
+      return new KoboldEntity(world, tribeId, throwDelay);
    }
 
    @Override
-   protected String buildModelCodeDNA(StringBuilder var1) {
-      appendPaddedLetter(var1, 8);
-      appendPaddedLetter(var1, 3);
-      appendRandomGene(var1);
-      appendRandomGene(var1);
-      appendPaddedNumber(var1, 2);
-      appendPaddedNumber(var1, 2);
-      appendPaddedNumber(var1, 1);
-      appendPaddedNumber(var1, 1);
-      return var1.toString();
+   protected String buildModelCodeDNA(StringBuilder builder) {
+      appendPaddedLetter(builder, 8);
+      appendPaddedLetter(builder, 3);
+      appendRandomGene(builder);
+      appendRandomGene(builder);
+      appendPaddedNumber(builder, 2);
+      appendPaddedNumber(builder, 2);
+      appendPaddedNumber(builder, 1);
+      appendPaddedNumber(builder, 1);
+      return builder.toString();
    }
 
    @Override
@@ -303,74 +303,74 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    public ArrayList<Integer> getBasePartIdList() {
-      ArrayList var1 = new ArrayList();
-      var1.add(Math.round((Float)this.entityDataManager.get(aE) * 100.0F / 0.25F));
-      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.entityDataManager.get(CURRENT_ACTION))));
-      var1.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.entityDataManager.get(ACTION_TARGET_POS))));
-      return var1;
+      ArrayList parts = new ArrayList();
+      parts.add(Math.round((Float)this.entityDataManager.get(aE) * 100.0F / 0.25F));
+      parts.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.entityDataManager.get(CURRENT_ACTION))));
+      parts.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.entityDataManager.get(ACTION_TARGET_POS))));
+      return parts;
    }
 
    @Override
-   public void setCustomPartList(List<Integer> var1) {
-      StringBuilder var2 = new StringBuilder();
+   public void setCustomPartList(List<Integer> parts) {
+      StringBuilder builder = new StringBuilder();
 
-      for (int var3 = 0; var3 < var1.size(); var3++) {
-         int var4 = (Integer)var1.get(var3);
-         switch (var3) {
+      for (int i = 0; i < parts.size(); i++) {
+         int partId = (Integer)parts.get(i);
+         switch (i) {
             case 0:
-               this.entityDataManager.set(aE, var4 / 100.0F * 0.25F);
+               this.entityDataManager.set(aE, partId / 100.0F * 0.25F);
                break;
             case 1:
-               String var5 = (String)this.entityDataManager.get(CURRENT_ACTION);
-               String var6 = EyeAndKoboldColor.values()[var4].toString();
-               if (!var6.equals(var5)) {
+               String currentColor = (String)this.entityDataManager.get(CURRENT_ACTION);
+               String newColor = EyeAndKoboldColor.values()[partId].toString();
+               if (!newColor.equals(currentColor)) {
                   this.aA = true;
                }
 
-               this.entityDataManager.set(CURRENT_ACTION, var6);
+               this.entityDataManager.set(CURRENT_ACTION, newColor);
                break;
             case 2:
-               this.entityDataManager.set(ACTION_TARGET_POS, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
+               this.entityDataManager.set(ACTION_TARGET_POS, new BlockPos(EyeAndKoboldColor.values()[partId].getMainColor()));
                break;
             default:
-               appendPaddedNumber(var2, var4);
+               appendPaddedNumber(builder, partId);
          }
       }
 
-      this.entityDataManager.set(APPEARANCE_DNA, var2.toString());
+      this.entityDataManager.set(APPEARANCE_DNA, builder.toString());
       KoboldRenderer.clearBoneColors();
    }
 
    void updateModelCodeDNA() {
       if (this.customPartsData != null) {
-         StringBuilder var1 = new StringBuilder();
+         StringBuilder builder = new StringBuilder();
 
-         for (int var2 = 0; var2 < this.customPartsData.size(); var2++) {
-            Entry var3 = this.customPartsData.get(var2);
-            int var4 = (Integer)((Entry)var3.getValue()).getValue();
-            switch (var2) {
+         for (int i = 0; i < this.customPartsData.size(); i++) {
+            Entry entry = this.customPartsData.get(i);
+            int partId = (Integer)((Entry)entry.getValue()).getValue();
+            switch (i) {
                case 0:
-                  this.entityDataManager.set(aE, var4 / 100.0F * 0.25F);
+                  this.entityDataManager.set(aE, partId / 100.0F * 0.25F);
                   break;
                case 1:
-                  this.entityDataManager.set(CURRENT_ACTION, EyeAndKoboldColor.values()[var4].toString());
+                  this.entityDataManager.set(CURRENT_ACTION, EyeAndKoboldColor.values()[partId].toString());
                   break;
                case 2:
-                  this.entityDataManager.set(ACTION_TARGET_POS, new BlockPos(EyeAndKoboldColor.values()[var4].getMainColor()));
+                  this.entityDataManager.set(ACTION_TARGET_POS, new BlockPos(EyeAndKoboldColor.values()[partId].getMainColor()));
                   break;
                default:
-                  appendPaddedNumber(var1, var4);
+                  appendPaddedNumber(builder, partId);
             }
          }
 
-         this.entityDataManager.set(APPEARANCE_DNA, var1.toString());
+         this.entityDataManager.set(APPEARANCE_DNA, builder.toString());
          KoboldRenderer.clearBoneColors();
       }
    }
 
    @Override
-   public Point2D getModelPartByIndex(int var1) {
-      switch (var1) {
+   public Point2D getModelPartByIndex(int index) {
+      switch (index) {
          case 0:
             return new Point2D(160, 0);
          case 1:
@@ -419,8 +419,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    @Override
    protected void entityInit() {
       super.entityInit();
-      EyeAndKoboldColor var1 = EyeAndKoboldColor.values()[this.getRNG().nextInt(EyeAndKoboldColor.values().length)];
-      this.entityDataManager.register(ACTION_TARGET_POS, new BlockPos(var1.getMainColor()));
+      EyeAndKoboldColor color = EyeAndKoboldColor.values()[this.getRNG().nextInt(EyeAndKoboldColor.values().length)];
+      this.entityDataManager.register(ACTION_TARGET_POS, new BlockPos(color.getMainColor()));
       this.entityDataManager.register(CURRENT_ACTION, aJ.name());
       this.entityDataManager.register(aL, Optional.absent());
       this.entityDataManager.register(aE, 0.0F);
@@ -458,19 +458,19 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       return true;
    }
 
-   protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
+   protected boolean processInteract(EntityPlayer player, EnumHand hand) {
       if (this.getInteractionPlayerUUID() != null) {
          return false;
       }
 
-      ItemStack var3 = var1.getHeldItem(EnumHand.MAIN_HAND);
-      if (!var3.getItem().equals(Items.NAME_TAG)) {
-         var3 = var1.getHeldItem(EnumHand.OFF_HAND);
+      ItemStack nameTagStack = player.getHeldItem(EnumHand.MAIN_HAND);
+      if (!nameTagStack.getItem().equals(Items.NAME_TAG)) {
+         nameTagStack = player.getHeldItem(EnumHand.OFF_HAND);
       }
 
-      if (var3.getItem().equals(Items.NAME_TAG) && var1.getPersistentID().toString().equals(this.entityDataManager.get(MASTER))) {
-         this.entityDataManager.set(KOBOLD_NAME, var3.getDisplayName());
-         var3.shrink(1);
+      if (nameTagStack.getItem().equals(Items.NAME_TAG) && player.getPersistentID().toString().equals(this.entityDataManager.get(MASTER))) {
+         this.entityDataManager.set(KOBOLD_NAME, nameTagStack.getDisplayName());
+         nameTagStack.shrink(1);
          return true;
       }
 
@@ -482,18 +482,18 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return false;
       }
 
-      ItemStack var4 = var1.getHeldItem(EnumHand.MAIN_HAND);
-      if (var4.getItem() != DragonStaffItem.DRAGON_STAFF) {
-         var4 = var1.getHeldItem(EnumHand.OFF_HAND);
+      ItemStack staffStack = player.getHeldItem(EnumHand.MAIN_HAND);
+      if (staffStack.getItem() != DragonStaffItem.DRAGON_STAFF) {
+         staffStack = player.getHeldItem(EnumHand.OFF_HAND);
       }
 
-      if (!this.hasMaster() && var4.getItem() == DragonStaffItem.DRAGON_STAFF) {
+      if (!this.hasMaster() && staffStack.getItem() == DragonStaffItem.DRAGON_STAFF) {
          if (!this.world.isRemote) {
             return true;
          }
 
-         Optional var5 = (Optional)this.entityDataManager.get(aL);
-         if (!var5.isPresent()) {
+         Optional tribeIdOpt = (Optional)this.entityDataManager.get(aL);
+         if (!tribeIdOpt.isPresent()) {
             return true;
          }
 
@@ -501,28 +501,28 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             return true;
          }
 
-         this.openTribeNameScreen((UUID)var5.get());
+         this.openTribeNameScreen((UUID)tribeIdOpt.get());
          return true;
       } else {
-         if (this.hasMaster() && var4.getItem() == DragonStaffItem.DRAGON_STAFF && ((String)this.entityDataManager.get(MASTER)).equals(var1.getPersistentID().toString())) {
+         if (this.hasMaster() && staffStack.getItem() == DragonStaffItem.DRAGON_STAFF && ((String)this.entityDataManager.get(MASTER)).equals(player.getPersistentID().toString())) {
             // jar-faithful: the mod instance is Main.instance — a deobf regression
             // passed null here and crashed NetworkRegistry.getLocalGuiContainer.
-            var1.openGui(
+            player.openGui(
                Main.instance, 1, this.world, this.getPosition().getX(), this.getPosition().getY(), this.getPosition().getZ()
             );
             return true;
          }
 
          if (this.world.isRemote) {
-            if (this.hasMaster() && ((String)this.entityDataManager.get(MASTER)).equals(var1.getPersistentID().toString())) {
+            if (this.hasMaster() && ((String)this.entityDataManager.get(MASTER)).equals(player.getPersistentID().toString())) {
                this.playRandomSounds(SoundHandler.GIRLS_KOBOLD_MASTER);
             }
 
-            this.openInteractionMenu(var1);
+            this.openInteractionMenu(player);
          } else {
-            this.setInteractionPlayerUUID(var1.getPersistentID());
+            this.setInteractionPlayerUUID(player.getPersistentID());
             this.getNavigator().clearPath();
-            this.setYawRotation((float)(Math.atan2(this.posZ - var1.posZ, this.posX - var1.posX) * (180.0 / Math.PI) + 90.0));
+            this.setYawRotation((float)(Math.atan2(this.posZ - player.posZ, this.posX - player.posX) * (180.0 / Math.PI) + 90.0));
             this.setTargetPosition(new Vec3d(this.posX, Math.floor(this.posY), this.posZ));
             this.entityDataManager.set(IS_ANCHORED, true);
             this.setCurrentAction(Action.NULL);
@@ -533,24 +533,24 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @SideOnly(Side.CLIENT)
-   void openTribeNameScreen(UUID var1) {
-      Minecraft.getMinecraft().displayGuiScreen(new TribeNameScreen(var1));
+   void openTribeNameScreen(UUID tribeId) {
+      Minecraft.getMinecraft().displayGuiScreen(new TribeNameScreen(tribeId));
    }
 
    @SideOnly(Side.CLIENT)
    @Override
-   public boolean openInteractionMenu(EntityPlayer var1) {
-      if (this.hasMaster() && var1.getPersistentID().toString().equals(this.entityDataManager.get(MASTER))) {
-         Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(this, var1, new String[]{"anal", "oral", "mating"}, null, false));
+   public boolean openInteractionMenu(EntityPlayer player) {
+      if (this.hasMaster() && player.getPersistentID().toString().equals(this.entityDataManager.get(MASTER))) {
+         Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(this, player, new String[]{"anal", "oral", "mating"}, null, false));
          return true;
       } else if (this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null) {
-         Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(this, var1, new String[]{"anal", "oral"}, null, false));
+         Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(this, player, new String[]{"anal", "oral"}, null, false));
          return true;
       } else {
          Minecraft.getMinecraft()
             .displayGuiScreen(
                new GirlInventoryScreen(
-                  this, var1, new String[]{"anal", "oral"}, new ItemStack[]{new ItemStack(Items.GOLD_INGOT, 3), new ItemStack(Items.IRON_PICKAXE)}, false
+                  this, player, new String[]{"anal", "oral"}, new ItemStack[]{new ItemStack(Items.GOLD_INGOT, 3), new ItemStack(Items.IRON_PICKAXE)}, false
                )
             );
          return true;
@@ -574,27 +574,27 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       super.resetCameraAndPhysics();
    }
 
-   protected void triggerActionSync(boolean var1, UUID var2) {
-      super.triggerActionSync(var1, true, var2);
+   protected void triggerActionSync(boolean flag, UUID uuid) {
+      super.triggerActionSync(flag, true, uuid);
       HandlePlayerMovement.setMovementLock(false);
    }
 
    @Override
-   public void doAction(String var1, UUID var2) {
+   public void doAction(String action, UUID uuid) {
       this.az = true;
-      if ("oral".equals(var1)) {
+      if ("oral".equals(action)) {
          this.changeDataParameterFromClient("animationFollowUp", Action.STARTBLOWJOB.toString());
-         this.triggerActionSync(true, var2);
+         this.triggerActionSync(true, uuid);
       }
 
-      if ("anal".equals(var1)) {
+      if ("anal".equals(action)) {
          this.changeDataParameterFromClient("animationFollowUp", Action.KOBOLD_ANAL_START.toString());
-         this.triggerActionSync(true, var2);
+         this.triggerActionSync(true, uuid);
       }
 
-      if ("mating".equals(var1)) {
+      if ("mating".equals(action)) {
          this.changeDataParameterFromClient("animationFollowUp", Action.MATING_PRESS_START.toString());
-         this.triggerActionSync(true, var2);
+         this.triggerActionSync(true, uuid);
       }
    }
 
@@ -621,11 +621,11 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          SceneDebug.log(SceneDebug.SITTING, "Kobold.isSitting: lerp done, U() (aD=%d, action=%s, handState=%s)", this.aD, this.getCurrentAction(), this.entityDataManager.get(GIRL_HAND_STATES));
          this.a2 = false;
          this.aD = 0;
-         EntityPlayer var6 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
-         this.setYawRotation(var6.rotationYaw + 180.0F);
+         EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
+         this.setYawRotation(player.rotationYaw + 180.0F);
          this.entityDataManager.set(IS_ANCHORED, true);
-         var6.noClip = true;
-         var6.setNoGravity(true);
+         player.noClip = true;
+         player.setNoGravity(true);
          this.noClip = true;
          this.setNoGravity(true);
          this.getNavigator().clearPath();
@@ -635,46 +635,46 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       this.rotationYaw = this.getYawRotation();
       this.setNoGravity(false);
-      Vec3d var1 = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.aD);
-      this.setPosition(var1.x, var1.y, var1.z);
+      Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.aD);
+      this.setPosition(pos.x, pos.y, pos.z);
       this.setCurrentAction(Action.NULL);
-      Optional var2 = (Optional)this.entityDataManager.get(aL);
-      if (!var2.isPresent()) {
+      Optional tribeIdOpt = (Optional)this.entityDataManager.get(aL);
+      if (!tribeIdOpt.isPresent()) {
          return true;
       }
 
-      Collection var3 = KoboldManager.getTribeTasks((UUID)var2.get());
-      if (var3 == null) {
+      Collection tasks = KoboldManager.getTribeTasks((UUID)tribeIdOpt.get());
+      if (tasks == null) {
          return true;
       }
 
-      for (KoboldTask var5 : (java.util.Collection<KoboldTask>) (var3) ) {
-         var5.addWorker(this);
+      for (KoboldTask task : (java.util.Collection<KoboldTask>) (tasks) ) {
+         task.addWorker(this);
       }
 
       return true;
    }
 
-   void handleActionCooldown(UUID var1) {
+   void handleActionCooldown(UUID tribeId) {
       if (this.actionCooldown != -1) {
          if (++this.actionCooldown >= 132) {
             this.actionCooldown = -1;
             if (this.getCurrentAction() == Action.MATING_PRESS_CUM) {
-               UUID var2 = this.getInteractionPlayerUUID();
-               if (var2 != null) {
-                  EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
-                  if (var3 != null) {
-                     EyeAndKoboldColor var4 = KoboldManager.getTribeColor(var1);
-                     ItemStack var5 = new ItemStack(KoboldEggItem.KOBOLD_EGG_ITEM, 1, var4.getWoolMeta());
-                     NBTTagCompound var6 = var5.getTagCompound();
-                     if (var6 == null) {
-                        var6 = new NBTTagCompound();
+               UUID uuid = this.getInteractionPlayerUUID();
+               if (uuid != null) {
+                  EntityPlayer player = this.world.getPlayerEntityByUUID(uuid);
+                  if (player != null) {
+                     EyeAndKoboldColor color = KoboldManager.getTribeColor(tribeId);
+                     ItemStack eggStack = new ItemStack(KoboldEggItem.KOBOLD_EGG_ITEM, 1, color.getWoolMeta());
+                     NBTTagCompound nbt = eggStack.getTagCompound();
+                     if (nbt == null) {
+                        nbt = new NBTTagCompound();
                      }
 
-                     var6.setString("tribeID", var1.toString());
-                     var6.setString("tribeColor", var4.toString());
-                     var5.setTagCompound(var6);
-                     var3.inventory.addItemStackToInventory(var5);
+                     nbt.setString("tribeID", tribeId.toString());
+                     nbt.setString("tribeColor", color.toString());
+                     eggStack.setTagCompound(nbt);
+                     player.inventory.addItemStackToInventory(eggStack);
                   }
                }
             }
@@ -686,13 +686,13 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    public void updateAITasks() {
       super.updateAITasks();
       this.ax = false;
-      Optional var1 = (Optional)this.entityDataManager.get(aL);
-      if (var1.isPresent()) {
-         this.handleActionCooldown((UUID)var1.get());
-         KoboldManager.triggerFastSexAction((UUID)var1.get());
-         EntityPlayer var2 = this.getMasterPlayer();
-         if (var2 != null) {
-            KoboldManager.assignMaster((UUID)var1.get(), var2.getPersistentID());
+      Optional tribeIdOpt = (Optional)this.entityDataManager.get(aL);
+      if (tribeIdOpt.isPresent()) {
+         this.handleActionCooldown((UUID)tribeIdOpt.get());
+         KoboldManager.triggerFastSexAction((UUID)tribeIdOpt.get());
+         EntityPlayer master = this.getMasterPlayer();
+         if (master != null) {
+            KoboldManager.assignMaster((UUID)tribeIdOpt.get(), master.getPersistentID());
          }
       }
 
@@ -712,7 +712,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                this.setNoGravity(false);
             }
 
-            if (var1.isPresent()) {
+            if (tribeIdOpt.isPresent()) {
                this.aP--;
                if (this.getCurrentAction() == Action.ATTACK) {
                   this.getNavigator().clearPath();
@@ -724,20 +724,20 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                   }
 
                   if (32 == this.animationTicks) {
-                     HashSet var6 = KoboldManager.getTribeTargets((UUID)var1.get());
-                     HashSet var3 = new HashSet();
+                     HashSet targets = KoboldManager.getTribeTargets((UUID)tribeIdOpt.get());
+                     HashSet toRemove = new HashSet();
 
-                     for (EntityLivingBase var5 : (java.util.Collection<EntityLivingBase>) (var6) ) {
-                        if (!(var5.getDistance(this) > 2.0F)) {
-                           var5.attackEntityFrom(DamageSource.causeMobDamage(this), 5.0F);
-                           if (var5.isDead) {
-                              var3.add(var5);
+                     for (EntityLivingBase target : (java.util.Collection<EntityLivingBase>) (targets) ) {
+                        if (!(target.getDistance(this) > 2.0F)) {
+                           target.attackEntityFrom(DamageSource.causeMobDamage(this), 5.0F);
+                           if (target.isDead) {
+                              toRemove.add(target);
                            }
                         }
                      }
 
-                     for (EntityLivingBase var8 : (java.util.Collection<EntityLivingBase>) (var3) ) {
-                        KoboldManager.removeCombatant((UUID)var1.get(), var8);
+                     for (EntityLivingBase target : (java.util.Collection<EntityLivingBase>) (toRemove) ) {
+                        KoboldManager.removeCombatant((UUID)tribeIdOpt.get(), target);
                      }
                   }
 
@@ -747,9 +747,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                      this.animationTicks = 0;
                   }
                } else {
-                  this.entityDataManager.set(aC, this.handleTribeCombat((UUID)var1.get(), false));
-                  this.entityDataManager.set(aZ, KoboldManager.isTribeMember((UUID)var1.get(), this));
-                  this.entityDataManager.set(ak, KoboldManager.isTribeAlerted((UUID)var1.get()));
+                  this.entityDataManager.set(aC, this.handleTribeCombat((UUID)tribeIdOpt.get(), false));
+                  this.entityDataManager.set(aZ, KoboldManager.isTribeMember((UUID)tribeIdOpt.get(), this));
+                  this.entityDataManager.set(ak, KoboldManager.isTribeAlerted((UUID)tribeIdOpt.get()));
                   this.handleMasterPresence();
                   this.handleModelSync();
                   this.watchClosestGirlGoal.isWatching = this.isIdle();
@@ -776,19 +776,19 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                if (this.getCurrentAction() == Action.NULL) {
                   if ("".equals(this.entityDataManager.get(GIRL_HAND_STATES))) {
                      if (!(Boolean)this.entityDataManager.get(ak)) {
-                        String var1 = (String)this.entityDataManager.get(MASTER);
-                        EntityPlayer var2 = this.world.getClosestPlayerToEntity(this, 10.0);
-                        if (var2 == null) {
+                        String masterUuid = (String)this.entityDataManager.get(MASTER);
+                        EntityPlayer player = this.world.getClosestPlayerToEntity(this, 10.0);
+                        if (player == null) {
                            this.nearestDistance = Float.MAX_VALUE;
-                        } else if (var2.getPersistentID().toString().equals(var1)) {
-                           float var3 = this.getDistance(var2);
-                           if (var3 < 2.0F && this.nearestDistance > 2.0F) {
+                        } else if (player.getPersistentID().toString().equals(masterUuid)) {
+                           float dist = this.getDistance(player);
+                           if (dist < 2.0F && this.nearestDistance > 2.0F) {
                               this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_HEYMASTER));
                               this.sendChatMessage("Hey master!");
                               aV = this.world.getTotalWorldTime();
                            }
 
-                           this.nearestDistance = var3;
+                           this.nearestDistance = dist;
                         }
                      }
                   }
@@ -803,9 +803,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          if (this.getCurrentAction() != Action.SLEEP) {
             if ((Boolean)this.entityDataManager.get(ak)) {
                if (this.hasMaster()) {
-                  EntityPlayer var1 = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.entityDataManager.get(MASTER)));
-                  if (var1 != null) {
-                     this.handleKoboldOwner(var1);
+                  EntityPlayer player = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.entityDataManager.get(MASTER)));
+                  if (player != null) {
+                     this.handleKoboldOwner(player);
                   }
                }
             }
@@ -816,33 +816,33 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    void handleTribeState() {
       if (!(Boolean)this.entityDataManager.get(aC)) {
          if (!this.hasMaster()) {
-            Optional var1 = (Optional)this.entityDataManager.get(aL);
-            if (var1.isPresent()) {
-               for (EntityPlayer var3 : this.world.playerEntities) {
-                  double var4 = var3.getPositionVector().distanceTo(this.getPositionVector());
-                  double var6 = var4;
+            Optional tribeIdOpt = (Optional)this.entityDataManager.get(aL);
+            if (tribeIdOpt.isPresent()) {
+               for (EntityPlayer player : this.world.playerEntities) {
+                  double dist = player.getPositionVector().distanceTo(this.getPositionVector());
+                  double closestDist = dist;
                   if (!this.world.isRemote) {
-                     for (KoboldEntity var9 : KoboldManager.getTribeMembersList((UUID)var1.get())) {
-                        double var10 = var3.getPositionVector().distanceTo(var9.getPositionVector());
-                        if (var10 < var6) {
-                           var6 = var10;
+                     for (KoboldEntity kobold : KoboldManager.getTribeMembersList((UUID)tribeIdOpt.get())) {
+                        double koboldDist = player.getPositionVector().distanceTo(kobold.getPositionVector());
+                        if (koboldDist < closestDist) {
+                           closestDist = koboldDist;
                         }
                      }
                   }
 
-                  if (!(var6 > 10.0)) {
-                     if (var3.getHeldItem(EnumHand.MAIN_HAND).getItem() != DragonStaffItem.DRAGON_STAFF
-                        && var3.getHeldItem(EnumHand.OFF_HAND).getItem() != DragonStaffItem.DRAGON_STAFF) {
+                  if (!(closestDist > 10.0)) {
+                     if (player.getHeldItem(EnumHand.MAIN_HAND).getItem() != DragonStaffItem.DRAGON_STAFF
+                        && player.getHeldItem(EnumHand.OFF_HAND).getItem() != DragonStaffItem.DRAGON_STAFF) {
                         return;
                      }
 
-                     PathNavigate var12 = this.getNavigator();
-                     var12.clearPath();
+                     PathNavigate navigator = this.getNavigator();
+                     navigator.clearPath();
                      if (this.world.isRemote) {
-                        this.handleKoboldOwner(var3);
-                     } else if (var4 > 2.0) {
-                        BlockPos var13 = this.findStandPos(var3.getPosition());
-                        var12.tryMoveToXYZ(var13.getX(), var13.getY(), var13.getZ(), 0.35F);
+                        this.handleKoboldOwner(player);
+                     } else if (dist > 2.0) {
+                        BlockPos standPos = this.findStandPos(player.getPosition());
+                        navigator.tryMoveToXYZ(standPos.getX(), standPos.getY(), standPos.getZ(), 0.35F);
                      }
 
                      return;
@@ -855,16 +855,16 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    protected void U() {
-      String var1 = (String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES);
-      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Kobold.U() handState=%s action=%s remote=%s potion=%s master=%s", var1, this.getCurrentAction(), this.world.isRemote, this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null, this.hasMaster());
-      boolean var2 = this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null;
-      boolean var3 = false;
+      String handState = (String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES);
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Kobold.U() handState=%s action=%s remote=%s potion=%s master=%s", handState, this.getCurrentAction(), this.world.isRemote, this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null, this.hasMaster());
+      boolean hasHornyPotion = this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null;
+      boolean isMasterNear = false;
       if (this.hasMaster()) {
-         var3 = ((String)this.entityDataManager.get(MASTER)).equals(this.getInteractionPlayerUUID().toString());
+         isMasterNear = ((String)this.entityDataManager.get(MASTER)).equals(this.getInteractionPlayerUUID().toString());
       }
 
-      if (!var2 && !var3) {
-         if (var1.equals(Action.STARTBLOWJOB.toString())) {
+      if (!hasHornyPotion && !isMasterNear) {
+         if (handState.equals(Action.STARTBLOWJOB.toString())) {
             if (this.getCurrentAction() == Action.PAYMENT) {
                this.setCurrentAction(Action.STARTBLOWJOB);
             } else {
@@ -872,7 +872,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             }
          }
 
-         if (var1.equals(Action.KOBOLD_ANAL_START.toString())) {
+         if (handState.equals(Action.KOBOLD_ANAL_START.toString())) {
             if (this.getCurrentAction() == Action.PAYMENT) {
                this.setCurrentAction(Action.KOBOLD_ANAL_START);
             } else {
@@ -880,19 +880,19 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             }
          }
 
-         if (var1.equals(Action.MATING_PRESS_START.toString())) {
+         if (handState.equals(Action.MATING_PRESS_START.toString())) {
             this.setCurrentAction(Action.MATING_PRESS_START);
          }
       } else {
-         if (var1.equals(Action.STARTBLOWJOB.toString())) {
+         if (handState.equals(Action.STARTBLOWJOB.toString())) {
             this.setCurrentAction(Action.STARTBLOWJOB);
          }
 
-         if (var1.equals(Action.KOBOLD_ANAL_START.toString())) {
+         if (handState.equals(Action.KOBOLD_ANAL_START.toString())) {
             this.setCurrentAction(Action.KOBOLD_ANAL_START);
          }
 
-         if (var1.equals(Action.MATING_PRESS_START.toString())) {
+         if (handState.equals(Action.MATING_PRESS_START.toString())) {
             this.setCurrentAction(Action.MATING_PRESS_START);
          }
       }
@@ -900,13 +900,13 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    void handleInteraction() {
       if (this.world.isRemote) {
-         UUID var1 = this.getInteractionPlayerUUID();
-         if (var1 != null) {
+         UUID uuid = this.getInteractionPlayerUUID();
+         if (uuid != null) {
             if ((Boolean)this.entityDataManager.get(IS_ANCHORED)) {
                if (this.getCurrentAction() == Action.NULL) {
-                  EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
-                  if (var2 != null) {
-                     this.handleKoboldOwner(var2);
+                  EntityPlayer player = this.world.getPlayerEntityByUUID(uuid);
+                  if (player != null) {
+                     this.handleKoboldOwner(player);
                   }
                }
             }
@@ -914,13 +914,13 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       }
    }
 
-   void handleKoboldOwner(EntityPlayer var1) {
-      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getPersistentID());
-      Vec3d var3 = new Vec3d(var1.posX, var1.posY + (var2 == null ? var1.eyeHeight : var2.getEyeHeight()), var1.posZ);
-      Vec3d var4 = new Vec3d(this.posX, this.posY + this.getEyeHeight(), this.posZ);
-      double var5 = var4.distanceTo(var3);
-      double var7 = var3.y - var4.y;
-      this.rotationPitch = (float)(-(Math.sin(var7 / var5) * (180.0 / Math.PI)));
+   void handleKoboldOwner(EntityPlayer player) {
+      AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player.getPersistentID());
+      Vec3d headPos = new Vec3d(player.posX, player.posY + (playerGirl == null ? player.eyeHeight : playerGirl.getEyeHeight()), player.posZ);
+      Vec3d eyePos = new Vec3d(this.posX, this.posY + this.getEyeHeight(), this.posZ);
+      double dist = eyePos.distanceTo(headPos);
+      double heightDiff = headPos.y - eyePos.y;
+      this.rotationPitch = (float)(-(Math.sin(heightDiff / dist) * (180.0 / Math.PI)));
    }
 
    void onTickEmpty() {
@@ -935,22 +935,22 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    void handleMasterPresence() {
-      Optional var1 = (Optional)this.entityDataManager.get(aL);
-      if (var1.isPresent()) {
-         UUID var2 = (UUID)var1.get();
-         if (!(Boolean)this.entityDataManager.get(aC) && KoboldManager.isTribeAlerted(var2)) {
+      Optional tribeIdOpt = (Optional)this.entityDataManager.get(aL);
+      if (tribeIdOpt.isPresent()) {
+         UUID tribeId = (UUID)tribeIdOpt.get();
+         if (!(Boolean)this.entityDataManager.get(aC) && KoboldManager.isTribeAlerted(tribeId)) {
             if (!this.hasMaster()) {
                return;
             }
 
-            EntityPlayer var3 = this.getMasterPlayer();
-            if (var3 == null) {
+            EntityPlayer master = this.getMasterPlayer();
+            if (master == null) {
                return;
             }
 
-            for (KoboldTask var5 : KoboldManager.getTribeTasks(var2)) {
-               if (var5.hasWorker(this)) {
-                  var5.addWorker(this);
+            for (KoboldTask task : KoboldManager.getTribeTasks(tribeId)) {
+               if (task.hasWorker(this)) {
+                  task.addWorker(this);
                   this.setCurrentAction(Action.NULL);
                   this.entityDataManager.set(IS_ANCHORED, false);
                }
@@ -958,176 +958,176 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
             this.noClip = false;
             this.setNoGravity(false);
-            PathNavigate var7 = this.getNavigator();
-            double var8 = this.getPositionVector().distanceTo(var3.getPositionVector());
-            if (var8 > 2.0) {
-               var7.tryMoveToEntityLiving(var3, this.getKickDistance(var3, var8));
+            PathNavigate navigator = this.getNavigator();
+            double dist = this.getPositionVector().distanceTo(master.getPositionVector());
+            if (dist > 2.0) {
+               navigator.tryMoveToEntityLiving(master, this.getKickDistance(master, dist));
                this.tickPathVelocity();
-               if (var8 > 15.0) {
-                  this.handlePlayerDismount(var3);
+               if (dist > 15.0) {
+                  this.handlePlayerDismount(master);
                }
             }
-         } else if (KoboldManager.isTribeMember(var2, this)) {
-            this.handleTribeRequest(var2);
+         } else if (KoboldManager.isTribeMember(tribeId, this)) {
+            this.handleTribeRequest(tribeId);
          } else {
-            this.handleTribeJoin(var2);
+            this.handleTribeJoin(tribeId);
          }
       }
    }
 
-   protected double getKickDistance(EntityPlayer var1, double var2) {
-      double var4;
-      if (var1.isSprinting()) {
-         var4 = 0.7;
+   protected double getKickDistance(EntityPlayer player, double dist) {
+      double kickDistance;
+      if (player.isSprinting()) {
+         kickDistance = 0.7;
       } else {
-         var4 = 0.35;
+         kickDistance = 0.35;
       }
 
-      double var6 = Math.floor(var2 / 5.0) * 0.3;
-      var4 += var6;
+      double extra = Math.floor(dist / 5.0) * 0.3;
+      kickDistance += extra;
       if (this.isInWater()) {
-         var4 *= 60.0;
+         kickDistance *= 60.0;
       }
 
-      return var4;
+      return kickDistance;
    }
 
-   void teleportToHome(UUID var1) {
-      BlockPos var2 = KoboldManager.getTribeHomePos(var1);
-      if (var2 != null) {
+   void teleportToHome(UUID tribeId) {
+      BlockPos homePos = KoboldManager.getTribeHomePos(tribeId);
+      if (homePos != null) {
          if (this.aX != null) {
-            this.world.setBlockState(var2, this.aX);
+            this.world.setBlockState(homePos, this.aX);
          }
 
          if (this.blockBelowState != null) {
-            this.world.setBlockState(var2.add(0, -1, 0), this.blockBelowState);
+            this.world.setBlockState(homePos.add(0, -1, 0), this.blockBelowState);
          }
       }
    }
 
-   void handleTribeRequest(UUID var1) {
-      if (!this.isTribeTaskDone(var1)) {
-         if (!this.hasMaster() && KoboldManager.hasAssignedMaster(var1)) {
+   void handleTribeRequest(UUID tribeId) {
+      if (!this.isTribeTaskDone(tribeId)) {
+         if (!this.hasMaster() && KoboldManager.hasAssignedMaster(tribeId)) {
             this.getNavigator().clearPath();
             this.aM = null;
          } else {
-            TribeState var2 = KoboldManager.getTribeState(var1);
-            TribeState var3 = this.getTribeStateForTime();
-            if (var2 != var3) {
-KoboldManager.setTribeState(var1, var3);
-               switch (var3) {
+            TribeState currentState = KoboldManager.getTribeState(tribeId);
+            TribeState newState = this.getTribeStateForTime();
+            if (currentState != newState) {
+KoboldManager.setTribeState(tribeId, newState);
+               switch (newState) {
                   case REST:
-                     this.handleTaskAssign(var1);
-                     KoboldManager.setTribeHome(var1, (BlockPos)null);
+                     this.handleTaskAssign(tribeId);
+                     KoboldManager.setTribeHome(tribeId, (BlockPos)null);
                      this.sendGirlChatMessage("okay resting time owo");
                      break;
                   case ACTIVE:
-                     this.teleportToHome(var1);
-                     this.handleMemberSync(var1);
+                     this.teleportToHome(tribeId);
+                     this.handleMemberSync(tribeId);
                }
             }
 
-            switch (var3) {
+            switch (newState) {
                case REST:
-                  this.handleTaskRequest(var1);
+                  this.handleTaskRequest(tribeId);
                   break;
                case ACTIVE:
                   this.aF = null;
-                  this.handleHomeRelease(var1);
+                  this.handleHomeRelease(tribeId);
             }
          }
       }
    }
 
-   void handleTaskAssign(UUID var1) {
-      Collection var2 = KoboldManager.getTribeTasks(var1);
-      if (var2 != null) {
-         for (KoboldTask var4 : (java.util.Collection<KoboldTask>) (var2) ) {
-            var4.releaseWorkers();
+   void handleTaskAssign(UUID tribeId) {
+      Collection tasks = KoboldManager.getTribeTasks(tribeId);
+      if (tasks != null) {
+         for (KoboldTask task : (java.util.Collection<KoboldTask>) (tasks) ) {
+            task.releaseWorkers();
          }
       }
    }
 
-   void handleMemberSync(UUID var1) {
+   void handleMemberSync(UUID tribeId) {
       if (this.hasMaster()) {
-         for (KoboldEntity var4 : KoboldManager.getTribeMembersList(var1)) {
-            KoboldManager.setTribeLeader(var4);
-            if (var4.getInteractionPlayerUUID() == null) {
-               var4.noClip = false;
-               var4.setNoGravity(false);
-               var4.getDataManager().set(IS_ANCHORED, false);
-               var4.setCurrentAction(Action.NULL);
+         for (KoboldEntity kobold : KoboldManager.getTribeMembersList(tribeId)) {
+            KoboldManager.setTribeLeader(kobold);
+            if (kobold.getInteractionPlayerUUID() == null) {
+               kobold.noClip = false;
+               kobold.setNoGravity(false);
+               kobold.getDataManager().set(IS_ANCHORED, false);
+               kobold.setCurrentAction(Action.NULL);
             }
          }
       }
    }
 
-   void handleTaskRequest(UUID var1) {
-      Collection var2 = KoboldManager.getTribeTasks(var1);
-      if (var2 != null) {
-         for (KoboldTask var4 : (java.util.Collection<KoboldTask>) (var2) ) {
-            var4.addWorker(this);
+   void handleTaskRequest(UUID tribeId) {
+      Collection tasks = KoboldManager.getTribeTasks(tribeId);
+      if (tasks != null) {
+         for (KoboldTask task : (java.util.Collection<KoboldTask>) (tasks) ) {
+            task.addWorker(this);
          }
       }
 
       if (this.hasMaster()) {
-         this.handleBedRequest(var1);
+         this.handleBedRequest(tribeId);
       } else {
-         this.handleHomeRequest(var1);
+         this.handleHomeRequest(tribeId);
       }
    }
 
-   void handleBedRequest(UUID var1) {
-      BlockPos[] var2 = KoboldManager.getBedForKobold(this);
-      if (var2 != null) {
-         Vec3d var11 = new Vec3d(var2[0].getX() + 0.5F, var2[0].getY() + 0.5625, var2[0].getZ() + 0.5F);
-         Vec3d var12 = new Vec3d(var2[1].getX() + 0.5F, var2[1].getY() + 0.5625, var2[1].getZ() + 0.5F);
-         boolean var14 = var11.subtract(var12).x == 0.0;
-         Vec3d var15 = RotationHelper.lerpVec3dDouble(var11, var12, 0.5);
+   void handleBedRequest(UUID tribeId) {
+      BlockPos[] bedPositions = KoboldManager.getBedForKobold(this);
+      if (bedPositions != null) {
+         Vec3d headVec = new Vec3d(bedPositions[0].getX() + 0.5F, bedPositions[0].getY() + 0.5625, bedPositions[0].getZ() + 0.5F);
+         Vec3d footVec = new Vec3d(bedPositions[1].getX() + 0.5F, bedPositions[1].getY() + 0.5625, bedPositions[1].getZ() + 0.5F);
+         boolean isVertical = headVec.subtract(footVec).x == 0.0;
+         Vec3d midVec = RotationHelper.lerpVec3dDouble(headVec, footVec, 0.5);
          this.entityDataManager.set(IS_ANCHORED, true);
-         this.setTargetPosition(var15);
-         this.setYawRotation(var14 ? 0.0F : 90.0F);
+         this.setTargetPosition(midVec);
+         this.setYawRotation(isVertical ? 0.0F : 90.0F);
          this.noClip = true;
          this.setNoGravity(true);
       } else {
-         HashSet var3 = KoboldManager.getTribeBeds(var1);
-         BlockPos var4 = null;
-         if (var3 != null) {
-            for (BlockPos var6 : (java.util.Collection<BlockPos>) (var3) ) {
-               IBlockState var7 = this.world.getBlockState(var6);
-               boolean var8 = false;
-               UnmodifiableIterator var9 = var7.getProperties().entrySet().iterator();
+         HashSet beds = KoboldManager.getTribeBeds(tribeId);
+         BlockPos chosenBed = null;
+         if (beds != null) {
+            for (BlockPos bedPos : (java.util.Collection<BlockPos>) (beds) ) {
+               IBlockState state = this.world.getBlockState(bedPos);
+               boolean occupied = false;
+               UnmodifiableIterator iterator = state.getProperties().entrySet().iterator();
 
-               while (var9.hasNext()) {
-                  Entry var10 = (Entry)var9.next();
-                  if (var10.getKey() instanceof PropertyBool) {
-                     var8 = Boolean.valueOf((Boolean)var10.getValue());
+               while (iterator.hasNext()) {
+                  Entry property = (Entry)iterator.next();
+                  if (property.getKey() instanceof PropertyBool) {
+                     occupied = Boolean.valueOf((Boolean)property.getValue());
                      break;
                   }
                }
 
-               if (!var8 && !KoboldManager.isBedAssigned(var6)) {
-                  if (var4 == null) {
-                     var4 = var6;
-                  } else if (this.getDistanceSq(var4) > this.getDistanceSq(var6)) {
-                     var4 = var6;
+               if (!occupied && !KoboldManager.isBedAssigned(bedPos)) {
+                  if (chosenBed == null) {
+                     chosenBed = bedPos;
+                  } else if (this.getDistanceSq(chosenBed) > this.getDistanceSq(bedPos)) {
+                     chosenBed = bedPos;
                   }
                }
             }
 
-            if (var4 != null) {
-               if (var4.getDistance((int)this.posX, (int)this.posY, (int)this.posZ) > 2.0) {
-                  if (Math.abs(var4.subtract(this.getPosition()).getY()) > 4) {
-                     this.syncTribeBlocks(var4.add(0, 1, 0));
+            if (chosenBed != null) {
+               if (chosenBed.getDistance((int)this.posX, (int)this.posY, (int)this.posZ) > 2.0) {
+                  if (Math.abs(chosenBed.subtract(this.getPosition()).getY()) > 4) {
+                     this.syncTribeBlocks(chosenBed.add(0, 1, 0));
                   } else {
-                     BlockPos var13 = this.findStandPos(var4);
-                     this.getNavigator().tryMoveToXYZ(var13.getX(), var13.getY(), var13.getZ(), 0.35F);
+                     BlockPos standPos = this.findStandPos(chosenBed);
+                     this.getNavigator().tryMoveToXYZ(standPos.getX(), standPos.getY(), standPos.getZ(), 0.35F);
                      if (this.getNavigator().getPath() == null) {
-                        this.syncTribeBlocks(var4.add(0, 1, 0));
+                        this.syncTribeBlocks(chosenBed.add(0, 1, 0));
                      }
                   }
                } else {
-KoboldManager.assignBed(this, var4);
+KoboldManager.assignBed(this, chosenBed);
                   this.setCurrentAction(Action.SLEEP);
                }
             }
@@ -1135,11 +1135,11 @@ KoboldManager.assignBed(this, var4);
       }
    }
 
-   void handleHomeRequest(UUID var1) {
-      BlockPos var2 = KoboldManager.getTribeHomePos(var1);
-      if (var2 != null) {
+   void handleHomeRequest(UUID tribeId) {
+      BlockPos homePos = KoboldManager.getTribeHomePos(tribeId);
+      if (homePos != null) {
          if (this.aF == null) {
-            this.aF = var2.add(
+            this.aF = homePos.add(
                (this.getRNG().nextBoolean() ? 1 : -1) * (this.getRNG().nextInt(2) + 1),
                0,
                (this.getRNG().nextBoolean() ? 1 : -1) * (this.getRNG().nextInt(2) + 1)
@@ -1149,50 +1149,50 @@ KoboldManager.assignBed(this, var4);
          this.getNavigator().tryMoveToXYZ(this.aF.getX(), this.aF.getY(), this.aF.getZ(), 0.35F);
          this.tickPathVelocity();
       } else {
-         if (KoboldManager.isTribeMember(var1, this)) {
-            BlockPos var3 = this.getPosition().add(1, 0, 0);
-            this.blockBelowState = this.world.getBlockState(var3.add(0, -1, 0));
-            this.aX = this.world.getBlockState(var3);
-            this.world.setBlockState(var3.add(0, -1, 0), Blocks.NETHERRACK.getDefaultState());
-            this.world.setBlockState(var3, SexFireBlock.FIRE.getDefaultState());
-            KoboldManager.setTribeHome(var1, var3);
+         if (KoboldManager.isTribeMember(tribeId, this)) {
+            BlockPos pos = this.getPosition().add(1, 0, 0);
+            this.blockBelowState = this.world.getBlockState(pos.add(0, -1, 0));
+            this.aX = this.world.getBlockState(pos);
+            this.world.setBlockState(pos.add(0, -1, 0), Blocks.NETHERRACK.getDefaultState());
+            this.world.setBlockState(pos, SexFireBlock.FIRE.getDefaultState());
+            KoboldManager.setTribeHome(tribeId, pos);
          }
       }
    }
 
-   void handleHomeRelease(UUID var1) {
+   void handleHomeRelease(UUID tribeId) {
       if (this.hasMaster()) {
-         KoboldManager.setTribeHome(var1, (BlockPos)null);
-         this.handleTaskFollow(var1);
+         KoboldManager.setTribeHome(tribeId, (BlockPos)null);
+         this.handleTaskFollow(tribeId);
       } else {
-         Collection var2 = KoboldManager.getTribeTasks(var1);
-         if (var2 != null) {
+         Collection tasks = KoboldManager.getTribeTasks(tribeId);
+         if (tasks != null) {
             if (this.ao) {
                this.aM = null;
-               this.handleTribeTasks(var1, var2);
+               this.handleTribeTasks(tribeId, tasks);
             } else {
-               this.handleTribeTasksInit(var1, var2);
+               this.handleTribeTasksInit(tribeId, tasks);
             }
          }
       }
    }
 
-   void handleTribeTasks(UUID var1, Collection<KoboldTask> var2) {
-      if (var2.isEmpty()) {
+   void handleTribeTasks(UUID tribeId, Collection<KoboldTask> tasks) {
+      if (tasks.isEmpty()) {
          this.ao = false;
-         this.checkTribeHome(var1);
+         this.checkTribeHome(tribeId);
          this.sendGirlChatMessage("Lets go somewhere else");
       }
    }
 
-   void handleTribeTasksInit(UUID var1, Collection<KoboldTask> var2) {
-      BlockPos var3 = KoboldManager.getTribeHomePos(var1);
-      if (var3 == null) {
-         this.checkTribeHome(var1);
+   void handleTribeTasksInit(UUID tribeId, Collection<KoboldTask> tasks) {
+      BlockPos homePos = KoboldManager.getTribeHomePos(tribeId);
+      if (homePos == null) {
+         this.checkTribeHome(tribeId);
       } else {
          if (this.ticksExisted % 40 == 0) {
             if (this.aS.equals(this.getPositionVector())) {
-               this.checkTribeHome(var1);
+               this.checkTribeHome(tribeId);
                this.aM = null;
             }
 
@@ -1200,35 +1200,35 @@ KoboldManager.assignBed(this, var4);
          }
 
          if (this.aM == null || this.aM.getDistance((int)this.posX, (int)this.posY, (int)this.posZ) < 4.0) {
-            this.aM = this.getTribeHomePos(var1);
+            this.aM = this.getTribeHomePos(tribeId);
          }
 
          this.getNavigator().tryMoveToXYZ(this.aM.getX(), this.aM.getY(), this.aM.getZ(), 0.35F);
          this.tickPathVelocity();
-         if (!(Math.sqrt(this.getPosition().distanceSq(var3)) > 5.0)) {
+         if (!(Math.sqrt(this.getPosition().distanceSq(homePos)) > 5.0)) {
             this.ao = true;
             this.sendGirlChatMessage("Time to work bitches!");
-            int var4 = KoboldManager.getTribeMemberCount(var1);
+            int memberCount = KoboldManager.getTribeMemberCount(tribeId);
 
-            for (int var5 = 1; var5 < var4; var5++) {
-               this.findConnectedLogs(var1, var2);
+            for (int i = 1; i < memberCount; i++) {
+               this.findConnectedLogs(tribeId, tasks);
             }
 
-            KoboldManager.setTribeHome(var1, (BlockPos)null);
+            KoboldManager.setTribeHome(tribeId, (BlockPos)null);
          }
       }
    }
 
-   protected void handlePlayerDismount(EntityPlayer var1) {
-      int var3 = 0;
+   protected void handlePlayerDismount(EntityPlayer player) {
+      int attempts = 0;
 
-      BlockPos var2;
+      BlockPos teleportPos;
       do {
-         var2 = var1.getPosition().add(Reference.RANDOM.nextInt(10), 0, Reference.RANDOM.nextInt(10));
-      } while (++var3 < 20 && !this.attemptTeleport(var2.getX(), var2.getY(), var2.getZ()));
+         teleportPos = player.getPosition().add(Reference.RANDOM.nextInt(10), 0, Reference.RANDOM.nextInt(10));
+      } while (++attempts < 20 && !this.attemptTeleport(teleportPos.getX(), teleportPos.getY(), teleportPos.getZ()));
 
-      if (var3 == 20) {
-         this.setPosition(var1.posX, var1.posY, var1.posZ);
+      if (attempts == 20) {
+         this.setPosition(player.posX, player.posY, player.posZ);
       }
 
       this.motionX = 0.0;
@@ -1236,132 +1236,132 @@ KoboldManager.assignBed(this, var4);
       this.motionZ = 0.0;
    }
 
-   BlockPos getTribeHomePos(UUID var1) {
-      BlockPos var2 = KoboldManager.getTribeHomePos(var1);
-      return var2 == null ? BlockPos.ORIGIN : this.findStandPos(var2);
+   BlockPos getTribeHomePos(UUID tribeId) {
+      BlockPos homePos = KoboldManager.getTribeHomePos(tribeId);
+      return homePos == null ? BlockPos.ORIGIN : this.findStandPos(homePos);
    }
 
-   BlockPos findStandPos(BlockPos var1) {
-      BlockPos var2 = this.getPosition();
-      BlockPos var3 = var1.subtract(var2);
-      if (Math.abs(var3.getX()) + Math.abs(var3.getZ()) < 20) {
-         return var1;
+   BlockPos findStandPos(BlockPos pos) {
+      BlockPos standPos = this.getPosition();
+      BlockPos delta = pos.subtract(standPos);
+      if (Math.abs(delta.getX()) + Math.abs(delta.getZ()) < 20) {
+         return pos;
       }
 
-      double var4 = Math.min(Math.abs(var3.getX()), Math.abs(var3.getZ()));
-      double var6 = Math.max(Math.abs(var3.getX()), Math.abs(var3.getZ()));
-      double var8 = var4 / (var6 + var4);
-      int var10 = (int)((var3.getX() > 0 ? 1 : -1) * 20 * (var4 == Math.abs(var3.getX()) ? var8 : 1.0 - var8));
-      int var11 = (int)((var3.getZ() > 0 ? 1 : -1) * 20 * (var4 == Math.abs(var3.getZ()) ? var8 : 1.0 - var8));
-      BlockPos var12 = this.getPosition().add(var10, 0, var11);
-      return new BlockPos(var12.getX(), WorldUtils.getHeightAt(this.world, var12.getX(), var12.getZ()) + 1, var12.getZ());
+      double minAxis = Math.min(Math.abs(delta.getX()), Math.abs(delta.getZ()));
+      double maxAxis = Math.max(Math.abs(delta.getX()), Math.abs(delta.getZ()));
+      double ratio = minAxis / (maxAxis + minAxis);
+      int xOffset = (int)((delta.getX() > 0 ? 1 : -1) * 20 * (minAxis == Math.abs(delta.getX()) ? ratio : 1.0 - ratio));
+      int zOffset = (int)((delta.getZ() > 0 ? 1 : -1) * 20 * (minAxis == Math.abs(delta.getZ()) ? ratio : 1.0 - ratio));
+      BlockPos candidate = this.getPosition().add(xOffset, 0, zOffset);
+      return new BlockPos(candidate.getX(), WorldUtils.getHeightAt(this.world, candidate.getX(), candidate.getZ()) + 1, candidate.getZ());
    }
 
-   void checkTribeHome(UUID var1) {
-      int var3 = 0;
+   void checkTribeHome(UUID tribeId) {
+      int attempts = 0;
 
-      BlockPos var5;
+      BlockPos homePos;
       do {
-         var3++;
-         var5 = this.getPosition();
-         var5 = var5.add(
+         attempts++;
+         homePos = this.getPosition();
+         homePos = homePos.add(
             (50 + this.getRNG().nextInt(50)) * (this.getRNG().nextBoolean() ? 1 : -1),
             0,
             (50 + this.getRNG().nextInt(50)) * (this.getRNG().nextBoolean() ? 1 : -1)
          );
-         var5 = new BlockPos(var5.getX(), WorldUtils.getHeightAt(this.world, var5.getX(), var5.getZ()), var5.getZ());
-      } while ((var5.getY() <= 0 || !this.getNavigator().canEntityStandOnPos(var5)) && var3 < 100);
+         homePos = new BlockPos(homePos.getX(), WorldUtils.getHeightAt(this.world, homePos.getX(), homePos.getZ()), homePos.getZ());
+      } while ((homePos.getY() <= 0 || !this.getNavigator().canEntityStandOnPos(homePos)) && attempts < 100);
 
-      KoboldManager.setTribeHome(var1, var5);
+      KoboldManager.setTribeHome(tribeId, homePos);
    }
 
-   void findConnectedLogs(UUID var1, Collection<KoboldTask> var2) {
-      List var3 = this.findBlocksInRadius(this.getPosition(), BlockLog.class, 30, 4, null);
-      BlockPos var4 = null;
+   void findConnectedLogs(UUID tribeId, Collection<KoboldTask> tasks) {
+      List logs = this.findBlocksInRadius(this.getPosition(), BlockLog.class, 30, 4, null);
+      BlockPos connectedLog = null;
 
-      for (BlockPos var6 : (java.util.Collection<BlockPos>) (var3) ) {
-         Block var7 = this.world.getBlockState(var6.down()).getBlock();
-         if (!(var7 instanceof BlockLog) && var7 != Blocks.AIR) {
-            boolean var8 = false;
+      for (BlockPos logPos : (java.util.Collection<BlockPos>) (logs) ) {
+         Block blockBelow = this.world.getBlockState(logPos.down()).getBlock();
+         if (!(blockBelow instanceof BlockLog) && blockBelow != Blocks.AIR) {
+            boolean connected = false;
 
-            for (KoboldTask var10 : var2) {
-               if (var10.isMiningTarget(var6)) {
-                  var8 = true;
+            for (KoboldTask task : tasks) {
+               if (task.isMiningTarget(logPos)) {
+                  connected = true;
                   break;
                }
             }
 
-            if (!var8) {
-               var4 = var6;
+            if (!connected) {
+               connectedLog = logPos;
                break;
             }
          }
       }
 
-      if (var4 != null) {
-         KoboldTask.findConnectedBlocks(this.world, var4, var1);
+      if (connectedLog != null) {
+         KoboldTask.findConnectedBlocks(this.world, connectedLog, tribeId);
          this.sendGirlChatMessage("Someone, go fall this tree!");
       }
    }
 
    TribeState getTribeStateForTime() {
-      long var1 = this.world.getWorldTime();
-      return var1 < 12000L ? TribeState.ACTIVE : TribeState.REST;
+      long time = this.world.getWorldTime();
+      return time < 12000L ? TribeState.ACTIVE : TribeState.REST;
    }
 
-   boolean isTribeTaskDone(UUID var1) {
-      return this.handleTribeCombat(var1, true);
+   boolean isTribeTaskDone(UUID tribeId) {
+      return this.handleTribeCombat(tribeId, true);
    }
 
-   boolean handleTribeCombat(UUID var1, boolean var2) {
-      HashSet var3 = KoboldManager.getTribeTargets(var1);
-      KoboldEntity var4 = KoboldManager.getTribeLeader(var1);
-      if (var4 == null) {
+   boolean handleTribeCombat(UUID tribeId, boolean isLeader) {
+      HashSet targets = KoboldManager.getTribeTargets(tribeId);
+      KoboldEntity leader = KoboldManager.getTribeLeader(tribeId);
+      if (leader == null) {
          return false;
       }
 
-      for (KoboldEntity var6 : this.world
+      for (KoboldEntity kobold : this.world
          .getEntitiesWithinAABB(
             KoboldEntity.class,
             new AxisAlignedBB(
-               var4.posX - 30.0,
-               var4.posY - 30.0,
-               var4.posZ - 30.0,
-               var4.posX + 30.0,
-               var4.posY + 30.0,
-               var4.posZ + 30.0
+               leader.posX - 30.0,
+               leader.posY - 30.0,
+               leader.posZ - 30.0,
+               leader.posX + 30.0,
+               leader.posY + 30.0,
+               leader.posZ + 30.0
             )
          )) {
-         if (this.canEntityBeSeen(var6) && (!var6.hasMaster() || !this.hasMaster())) {
-            Optional var7 = (Optional)var6.getDataManager().get(aL);
-            if (!var7.isPresent()) {
-               var3.add(var6);
-            } else if (!((UUID)var7.get()).equals(var1)) {
-               var3.add(var6);
+         if (this.canEntityBeSeen(kobold) && (!kobold.hasMaster() || !this.hasMaster())) {
+            Optional tribeOpt = (Optional)kobold.getDataManager().get(aL);
+            if (!tribeOpt.isPresent()) {
+               targets.add(kobold);
+            } else if (!((UUID)tribeOpt.get()).equals(tribeId)) {
+               targets.add(kobold);
             }
          }
       }
 
-      EntityLivingBase var9 = null;
-      ArrayList var10 = new ArrayList();
+      EntityLivingBase closestTarget = null;
+      ArrayList deadTargets = new ArrayList();
 
-      for (EntityLivingBase var8 : (java.util.Collection<EntityLivingBase>) (var3) ) {
-         if (var8.isDead) {
-            var10.add(var8);
-         } else if (!(var4.getDistance(var8) > 30.0F) && (var9 == null || this.getDistance(var9) > this.getDistance(var8))) {
-            var9 = var8;
+      for (EntityLivingBase target : (java.util.Collection<EntityLivingBase>) (targets) ) {
+         if (target.isDead) {
+            deadTargets.add(target);
+         } else if (!(leader.getDistance(target) > 30.0F) && (closestTarget == null || this.getDistance(closestTarget) > this.getDistance(target))) {
+            closestTarget = target;
          }
       }
 
-      for (EntityLivingBase var14 : (java.util.Collection<EntityLivingBase>) (var10) ) {
-         KoboldManager.removeCombatant(var1, var14);
+      for (EntityLivingBase target : (java.util.Collection<EntityLivingBase>) (deadTargets) ) {
+         KoboldManager.removeCombatant(tribeId, target);
       }
 
-      if (var9 == null) {
+      if (closestTarget == null) {
          return false;
       }
 
-      if (!var2) {
+      if (!isLeader) {
          return true;
       }
 
@@ -1370,10 +1370,10 @@ KoboldManager.assignBed(this, var4);
          this.setCurrentAction(Action.NULL);
       }
 
-      BlockPos var13 = this.findStandPos(var9.getPosition());
-      this.getNavigator().tryMoveToXYZ(var13.getX(), var13.getY(), var13.getZ(), 0.7);
+      BlockPos standPos = this.findStandPos(closestTarget.getPosition());
+      this.getNavigator().tryMoveToXYZ(standPos.getX(), standPos.getY(), standPos.getZ(), 0.7);
       this.tickPathVelocity();
-      if (this.getDistance(var9) > 1.5F) {
+      if (this.getDistance(closestTarget) > 1.5F) {
          return true;
       }
 
@@ -1381,55 +1381,55 @@ KoboldManager.assignBed(this, var4);
          return true;
       }
 
-      float var15 = (float)(Math.atan2(this.posZ - var9.posZ, this.posX - var9.posX) * (180.0 / Math.PI) + 90.0);
-      this.setYawRotation(var15);
+      float yaw = (float)(Math.atan2(this.posZ - closestTarget.posZ, this.posX - closestTarget.posX) * (180.0 / Math.PI) + 90.0);
+      this.setYawRotation(yaw);
       this.setCurrentAction(Action.ATTACK);
       this.aP = 84;
       return true;
    }
 
-   void handleTribeJoin(UUID var1) {
-      if (!this.isTribeTaskDone(var1)) {
-         TribeState var2 = KoboldManager.getTribeState(var1);
-         switch (var2) {
+   void handleTribeJoin(UUID tribeId) {
+      if (!this.isTribeTaskDone(tribeId)) {
+         TribeState state = KoboldManager.getTribeState(tribeId);
+         switch (state) {
             case REST:
-               this.handleTaskRequest(var1);
+               this.handleTaskRequest(tribeId);
                break;
             case ACTIVE:
                this.aF = null;
-               this.handleHomeTeleport(var1);
+               this.handleHomeTeleport(tribeId);
          }
       }
    }
 
-   void handleHomeTeleport(UUID var1) {
-      BlockPos var2 = KoboldManager.getTribeHomePos(var1);
-      if (var2 == null) {
+   void handleHomeTeleport(UUID tribeId) {
+      BlockPos homePos = KoboldManager.getTribeHomePos(tribeId);
+      if (homePos == null) {
          this.aM = null;
-         this.handleTaskFollow(var1);
+         this.handleTaskFollow(tribeId);
       } else {
-         KoboldEntity var3 = KoboldManager.getTribeLeader(var1);
-         if (KoboldManager.hasAssignedMaster(var1)) {
+         KoboldEntity leader = KoboldManager.getTribeLeader(tribeId);
+         if (KoboldManager.hasAssignedMaster(tribeId)) {
             this.getNavigator().clearPath();
             this.aM = null;
-         } else if (var3 == null) {
-            System.out.println("leader of tribe " + var1 + " is null");
+         } else if (leader == null) {
+            System.out.println("leader of tribe " + tribeId + " is null");
          } else {
-            if (var3.getDistance(this) > 20.0F) {
-               this.setPosition(var3.posX, var3.posY, var3.posZ);
+            if (leader.getDistance(this) > 20.0F) {
+               this.setPosition(leader.posX, leader.posY, leader.posZ);
                this.aM = null;
             }
 
             if (this.ticksExisted % 40 == 0) {
                if (this.aS.equals(this.getPositionVector())) {
-                  this.aM = this.getTribeHomePos(var1);
+                  this.aM = this.getTribeHomePos(tribeId);
                }
 
                this.aS = this.getPositionVector();
             }
 
             if (this.aM == null || this.aM.getDistance((int)this.posX, (int)this.posY, (int)this.posZ) < 4.0) {
-               this.aM = this.getTribeHomePos(var1);
+               this.aM = this.getTribeHomePos(tribeId);
             }
 
             this.getNavigator().tryMoveToXYZ(this.aM.getX(), this.aM.getY(), this.aM.getZ(), 0.35F);
@@ -1438,33 +1438,33 @@ KoboldManager.assignBed(this, var4);
       }
    }
 
-   void handleTaskFollow(UUID var1) {
+   void handleTaskFollow(UUID tribeId) {
       if (this.getInteractionPlayerUUID() == null) {
-         Collection var2 = KoboldManager.getTribeTasks(var1);
-         if (var2 != null) {
-            KoboldTask var3 = null;
+         Collection tasks = KoboldManager.getTribeTasks(tribeId);
+         if (tasks != null) {
+            KoboldTask assignedTask = null;
 
-            for (KoboldTask var5 : (java.util.Collection<KoboldTask>) (var2) ) {
-               if (var5.hasWorker(this)) {
-                  var3 = var5;
+            for (KoboldTask task : (java.util.Collection<KoboldTask>) (tasks) ) {
+               if (task.hasWorker(this)) {
+                  assignedTask = task;
                   break;
                }
             }
 
-            if (var3 == null) {
-               for (KoboldTask var7 : (java.util.Collection<KoboldTask>) (var2) ) {
-                  if (!this.hasMaster() || this.assignTaskToKobold(var1, var7)) {
-                     if (!this.canAssignTask(var7)) {
+            if (assignedTask == null) {
+               for (KoboldTask task : (java.util.Collection<KoboldTask>) (tasks) ) {
+                  if (!this.hasMaster() || this.assignTaskToKobold(tribeId, task)) {
+                     if (!this.canAssignTask(task)) {
                         this.ax = true;
-                     } else if (var7.addWorker(this)) {
-                        var3 = var7;
+                     } else if (task.addWorker(this)) {
+                        assignedTask = task;
                         this.aI = null;
-                        if (var7.getTaskType() == KoboldTask.TaskType.FALL_TREE) {
+                        if (task.getTaskType() == KoboldTask.TaskType.FALL_TREE) {
                            this.sendGirlChatMessage("Ima fall this tree owo");
                         } else {
                            this.sendGirlChatMessage("Ima go mine uwu");
-                           this.syncTribeBlocks(var7.getTargetPos());
-                           this.world.setBlockState(var7.getTargetPos(), Blocks.AIR.getDefaultState());
+                           this.syncTribeBlocks(task.getTargetPos());
+                           this.world.setBlockState(task.getTargetPos(), Blocks.AIR.getDefaultState());
                         }
                         break;
                      }
@@ -1472,28 +1472,28 @@ KoboldManager.assignBed(this, var4);
                }
             }
 
-            if (var3 == null) {
-               this.handleNearbyPlayerTick(var1);
+            if (assignedTask == null) {
+               this.handleNearbyPlayerTick(tribeId);
             } else {
-               if (var3.getTaskType() == KoboldTask.TaskType.FALL_TREE) {
-                  this.startMiningTask(var1, var3.getTargetPos(), var3);
+               if (assignedTask.getTaskType() == KoboldTask.TaskType.FALL_TREE) {
+                  this.startMiningTask(tribeId, assignedTask.getTargetPos(), assignedTask);
                }
 
-               if (var3.getTaskType() == KoboldTask.TaskType.MINE) {
-                  this.handleTribeTasks(var1, var2);
+               if (assignedTask.getTaskType() == KoboldTask.TaskType.MINE) {
+                  this.handleTribeTasks(tribeId, tasks);
                }
             }
          }
       }
    }
 
-   void syncTribeBlocks(BlockPos var1) {
+   void syncTribeBlocks(BlockPos pos) {
       PacketHandler.networkWrapper
          .sendToAllTracking(
             new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.PORTAL.getParticleName(), 30),
             new TargetPoint(this.dimension, this.posX, this.posY, this.posZ, 30.0)
          );
-      this.setPosition(0.5F + var1.getX(), var1.getY(), 0.5F + var1.getZ());
+      this.setPosition(0.5F + pos.getX(), pos.getY(), 0.5F + pos.getZ());
       PacketHandler.networkWrapper
          .sendToAllTracking(
             new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.PORTAL.getParticleName(), 30),
@@ -1501,24 +1501,24 @@ KoboldManager.assignBed(this, var4);
          );
    }
 
-   void handleTaskState(UUID var1, KoboldTask var2) {
+   void handleTaskState(UUID tribeId, KoboldTask task) {
       if (this.getCurrentAction() != Action.MINE) {
-         this.handleTaskNavigation(var1, var2);
+         this.handleTaskNavigation(tribeId, task);
       } else {
          this.taskTimer--;
          this.ai--;
          if (this.ai == 0) {
-            IBlockState var3 = this.world.getBlockState(this.aI.up());
-            if (!(var3.getBlock() instanceof BlockFalling)) {
-               var2.removeMiningTarget(this.aI);
-               EntityPlayer var4 = this.getMasterPlayer();
-               if (var4 != null) {
-                  PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(this.aI, false), (EntityPlayerMP)var4);
+            IBlockState fallingState = this.world.getBlockState(this.aI.up());
+            if (!(fallingState.getBlock() instanceof BlockFalling)) {
+               task.removeMiningTarget(this.aI);
+               EntityPlayer master = this.getMasterPlayer();
+               if (master != null) {
+                  PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(this.aI, false), (EntityPlayerMP)master);
                }
             }
 
-            IBlockState var5 = this.world.getBlockState(this.aI);
-            this.canExtractItem(new ItemStack(var5.getBlock().getItemDropped(var5, this.getRNG(), 0), 1, var5.getBlock().damageDropped(var5)));
+            IBlockState blockState = this.world.getBlockState(this.aI);
+            this.canExtractItem(new ItemStack(blockState.getBlock().getItemDropped(blockState, this.getRNG(), 0), 1, blockState.getBlock().damageDropped(blockState)));
             this.world.destroyBlock(this.aI, false);
          }
 
@@ -1530,19 +1530,19 @@ KoboldManager.assignBed(this, var4);
       }
    }
 
-   void handleTaskNavigation(UUID var1, KoboldTask var2) {
-      PathNavigate var3 = this.getNavigator();
-      if (this.aI != null && var2.getMiningTargets().contains(this.aI)) {
-         IBlockState var10 = this.world.getBlockState(this.aI);
-         if (!this.canInsertItem(new ItemStack(var10.getBlock().getItemDropped(var10, Reference.RANDOM, 0)))) {
+   void handleTaskNavigation(UUID tribeId, KoboldTask task) {
+      PathNavigate navigator = this.getNavigator();
+      if (this.aI != null && task.getMiningTargets().contains(this.aI)) {
+         IBlockState blockState = this.world.getBlockState(this.aI);
+         if (!this.canInsertItem(new ItemStack(blockState.getBlock().getItemDropped(blockState, Reference.RANDOM, 0)))) {
             this.ax = true;
-            this.canStoreInventory(var1, true);
+            this.canStoreInventory(tribeId, true);
          } else if (this.motionX == 0.0
             && this.motionZ == 0.0
             && this.onGround
             && !(this.getDistance(this.aI.getX(), this.aI.getY(), this.aI.getZ()) > 3.0)
             && ++this.aK >= 10) {
-            var3.clearPath();
+            navigator.clearPath();
             this.aK = 0;
             this.setCurrentAction(Action.MINE);
             this.rotationYawHead = (float)(
@@ -1551,248 +1551,248 @@ KoboldManager.assignBed(this, var4);
             this.rotationYaw = this.rotationYawHead;
             this.entityDataManager.set(at, false);
          } else {
-            BlockPos var11 = this.aI.add(var2.getFacing().getOpposite().getDirectionVec());
-            var3.tryMoveToXYZ(var11.getX(), var11.getY(), var11.getZ(), 0.35F);
+            BlockPos standPos = this.aI.add(task.getFacing().getOpposite().getDirectionVec());
+            navigator.tryMoveToXYZ(standPos.getX(), standPos.getY(), standPos.getZ(), 0.35F);
          }
       } else {
-         this.aI = this.executeMiningTask(var2, var1);
+         this.aI = this.executeMiningTask(task, tribeId);
          if (this.aI == null) {
-            boolean var9 = var2.getMiningTargets().isEmpty();
-            HashSet var5 = KoboldManager.removeTaskAndGetBlocks(var1, var2);
-            UUID var6 = KoboldManager.findTribeIdWith(var1);
-            if (var6 != null) {
-               EntityPlayer var7 = this.world.getPlayerEntityByUUID(var6);
-               if (var7 != null) {
-                  if (!var9) {
-                     var7.sendMessage(new TextComponentString(String.format("<%s> It's impossible to mine here...", this.getDisplayNameText())));
+            boolean noTargets = task.getMiningTargets().isEmpty();
+            HashSet blocks = KoboldManager.removeTaskAndGetBlocks(tribeId, task);
+            UUID tribeUuid = KoboldManager.findTribeIdWith(tribeId);
+            if (tribeUuid != null) {
+               EntityPlayer player = this.world.getPlayerEntityByUUID(tribeUuid);
+               if (player != null) {
+                  if (!noTargets) {
+                     player.sendMessage(new TextComponentString(String.format("<%s> It's impossible to mine here...", this.getDisplayNameText())));
                   }
 
-                  PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var5, false), (EntityPlayerMP)var7);
+                  PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(blocks, false), (EntityPlayerMP)player);
                }
             }
          } else {
-            if (Math.abs(this.getPosition().getY() - var2.getTargetPos().getY()) > 3) {
-               BlockPos var4 = var2.getTargetPos().add(var2.getFacing().getOpposite().getDirectionVec());
-               this.world.setBlockState(var4, Blocks.AIR.getDefaultState());
-               this.syncTribeBlocks(var4);
+            if (Math.abs(this.getPosition().getY() - task.getTargetPos().getY()) > 3) {
+               BlockPos targetPos = task.getTargetPos().add(task.getFacing().getOpposite().getDirectionVec());
+               this.world.setBlockState(targetPos, Blocks.AIR.getDefaultState());
+               this.syncTribeBlocks(targetPos);
             }
 
-            BlockPos var8 = this.aI.add(var2.getFacing().getOpposite().getDirectionVec());
-            var3.tryMoveToXYZ(var8.getX(), var8.getY(), var8.getZ(), 0.35F);
+            BlockPos standPos = this.aI.add(task.getFacing().getOpposite().getDirectionVec());
+            navigator.tryMoveToXYZ(standPos.getX(), standPos.getY(), standPos.getZ(), 0.35F);
          }
       }
    }
 
-   BlockPos executeMiningTask(KoboldTask var1, UUID var2) {
-      HashSet var3 = var1.getMiningTargets();
-      EnumFacing var4 = var1.getFacing();
-      ArrayList var5 = new ArrayList();
-      Integer var6 = null;
-      if (var3.isEmpty()) {
+   BlockPos executeMiningTask(KoboldTask task, UUID tribeId) {
+      HashSet miningTargets = task.getMiningTargets();
+      EnumFacing facing = task.getFacing();
+      ArrayList row = new ArrayList();
+      Integer maxZ = null;
+      if (miningTargets.isEmpty()) {
          return null;
       }
 
-      for (BlockPos var8 : (java.util.Collection<BlockPos>) (var3) ) {
-         switch (var4) {
+      for (BlockPos target : (java.util.Collection<BlockPos>) (miningTargets) ) {
+         switch (facing) {
             case NORTH:
-               if (var6 == null || var8.getZ() >= var6) {
-                  var6 = var8.getZ();
-                  var5.add(var8);
+               if (maxZ == null || target.getZ() >= maxZ) {
+                  maxZ = target.getZ();
+                  row.add(target);
                }
                break;
             case SOUTH:
-               if (var6 == null || var8.getZ() <= var6) {
-                  var6 = var8.getZ();
-                  var5.add(var8);
+               if (maxZ == null || target.getZ() <= maxZ) {
+                  maxZ = target.getZ();
+                  row.add(target);
                }
                break;
             case EAST:
-               if (var6 == null || var8.getX() <= var6) {
-                  var6 = var8.getX();
-                  var5.add(var8);
+               if (maxZ == null || target.getX() <= maxZ) {
+                  maxZ = target.getX();
+                  row.add(target);
                }
                break;
             case WEST:
-               if (var6 == null || var8.getX() >= var6) {
-                  var6 = var8.getX();
-                  var5.add(var8);
+               if (maxZ == null || target.getX() >= maxZ) {
+                  maxZ = target.getX();
+                  row.add(target);
                }
          }
       }
 
-      ArrayList var17 = new ArrayList();
+      ArrayList column = new ArrayList();
 
-      for (BlockPos var9 : (java.util.Collection<BlockPos>) (var5) ) {
-         if ((var4 == EnumFacing.NORTH || var4 == EnumFacing.SOUTH) && var9.getZ() == var6) {
-            var17.add(var9);
+      for (BlockPos pos : (java.util.Collection<BlockPos>) (row) ) {
+         if ((facing == EnumFacing.NORTH || facing == EnumFacing.SOUTH) && pos.getZ() == maxZ) {
+            column.add(pos);
          }
 
-         if ((var4 == EnumFacing.EAST || var4 == EnumFacing.WEST) && var9.getX() == var6) {
-            var17.add(var9);
+         if ((facing == EnumFacing.EAST || facing == EnumFacing.WEST) && pos.getX() == maxZ) {
+            column.add(pos);
          }
       }
 
-      if (var17.isEmpty()) {
+      if (column.isEmpty()) {
          return null;
       }
 
-      ArrayList var19 = new ArrayList();
-      EnumFacing var20 = var1.getFacing();
-      BlockPos var10 = var1.getTargetPos();
-      BlockPos var21;
-      if (var20.getAxis() == Axis.Z) {
-         var21 = new BlockPos(var10.getX(), var10.getY(), ((BlockPos)var17.get(0)).getZ());
-         if (var20 == EnumFacing.NORTH) {
-            var21 = var21.north();
+      ArrayList positions = new ArrayList();
+      EnumFacing taskFacing = task.getFacing();
+      BlockPos targetPos = task.getTargetPos();
+      BlockPos minePos;
+      if (taskFacing.getAxis() == Axis.Z) {
+         minePos = new BlockPos(targetPos.getX(), targetPos.getY(), ((BlockPos)column.get(0)).getZ());
+         if (taskFacing == EnumFacing.NORTH) {
+            minePos = minePos.north();
          } else {
-            var21 = var21.south();
+            minePos = minePos.south();
          }
 
-         var19.add(var21.down());
-         var19.add(var21.down().east());
-         var19.add(var21.down().west());
-         var19.add(var21);
-         var19.add(var21.up());
-         var19.add(var21.up().up());
-         var19.add(var21.up().up().up());
-         var19.add(var21.west());
-         var19.add(var21.west().up());
-         var19.add(var21.west().up().up());
-         var19.add(var21.west().up().up().up());
-         var19.add(var21.west().west());
-         var19.add(var21.west().west().up());
-         var19.add(var21.west().west().up().up());
-         var19.add(var21.east());
-         var19.add(var21.east().up());
-         var19.add(var21.east().up().up());
-         var19.add(var21.east().up().up().up());
-         var19.add(var21.east().east());
-         var19.add(var21.east().east().up());
-         var19.add(var21.east().east().up().up());
+         positions.add(minePos.down());
+         positions.add(minePos.down().east());
+         positions.add(minePos.down().west());
+         positions.add(minePos);
+         positions.add(minePos.up());
+         positions.add(minePos.up().up());
+         positions.add(minePos.up().up().up());
+         positions.add(minePos.west());
+         positions.add(minePos.west().up());
+         positions.add(minePos.west().up().up());
+         positions.add(minePos.west().up().up().up());
+         positions.add(minePos.west().west());
+         positions.add(minePos.west().west().up());
+         positions.add(minePos.west().west().up().up());
+         positions.add(minePos.east());
+         positions.add(minePos.east().up());
+         positions.add(minePos.east().up().up());
+         positions.add(minePos.east().up().up().up());
+         positions.add(minePos.east().east());
+         positions.add(minePos.east().east().up());
+         positions.add(minePos.east().east().up().up());
       } else {
-         var21 = new BlockPos(((BlockPos)var17.get(0)).getX(), var10.getY(), var10.getZ());
-         if (var20 == EnumFacing.EAST) {
-            var21 = var21.east();
+         minePos = new BlockPos(((BlockPos)column.get(0)).getX(), targetPos.getY(), targetPos.getZ());
+         if (taskFacing == EnumFacing.EAST) {
+            minePos = minePos.east();
          } else {
-            var21 = var21.west();
+            minePos = minePos.west();
          }
 
-         var19.add(var21.down());
-         var19.add(var21.down().north());
-         var19.add(var21.down().south());
-         var19.add(var21);
-         var19.add(var21.up());
-         var19.add(var21.up().up());
-         var19.add(var21.up().up().up());
-         var19.add(var21.south());
-         var19.add(var21.south().up());
-         var19.add(var21.south().up().up());
-         var19.add(var21.south().up().up().up());
-         var19.add(var21.south().south());
-         var19.add(var21.south().south().up());
-         var19.add(var21.south().south().up().up());
-         var19.add(var21.north());
-         var19.add(var21.north().up());
-         var19.add(var21.north().up().up());
-         var19.add(var21.north().up().up().up());
-         var19.add(var21.north().north());
-         var19.add(var21.north().north().up());
-         var19.add(var21.north().north().up().up());
+         positions.add(minePos.down());
+         positions.add(minePos.down().north());
+         positions.add(minePos.down().south());
+         positions.add(minePos);
+         positions.add(minePos.up());
+         positions.add(minePos.up().up());
+         positions.add(minePos.up().up().up());
+         positions.add(minePos.south());
+         positions.add(minePos.south().up());
+         positions.add(minePos.south().up().up());
+         positions.add(minePos.south().up().up().up());
+         positions.add(minePos.south().south());
+         positions.add(minePos.south().south().up());
+         positions.add(minePos.south().south().up().up());
+         positions.add(minePos.north());
+         positions.add(minePos.north().up());
+         positions.add(minePos.north().up().up());
+         positions.add(minePos.north().up().up().up());
+         positions.add(minePos.north().north());
+         positions.add(minePos.north().north().up());
+         positions.add(minePos.north().north().up().up());
       }
 
-      HashSet var12 = new HashSet();
+      HashSet liquidBlocks = new HashSet();
 
-      for (BlockPos var14 : (java.util.Collection<BlockPos>) (var19) ) {
-         if (this.world.getBlockState(var14).getMaterial().isLiquid()) {
-            this.world.setBlockState(var14, Blocks.COBBLESTONE.getDefaultState(), 2);
-            if (var17.contains(var14)) {
-               var12.add(var14);
+      for (BlockPos pos : (java.util.Collection<BlockPos>) (positions) ) {
+         if (this.world.getBlockState(pos).getMaterial().isLiquid()) {
+            this.world.setBlockState(pos, Blocks.COBBLESTONE.getDefaultState(), 2);
+            if (column.contains(pos)) {
+               liquidBlocks.add(pos);
             }
          }
       }
 
-      if (!var12.isEmpty()) {
-         var1.addMiningTargets(var12);
-         EntityPlayer var23 = this.getMasterPlayer();
-         if (var23 != null) {
-            PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var12, true), (EntityPlayerMP)var23);
+      if (!liquidBlocks.isEmpty()) {
+         task.addMiningTargets(liquidBlocks);
+         EntityPlayer master = this.getMasterPlayer();
+         if (master != null) {
+            PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(liquidBlocks, true), (EntityPlayerMP)master);
          }
       }
 
-      var19.clear();
-      var19.add(var21.down());
-      if (var20.getAxis() == Axis.Z) {
-         var19.add(var21.down().west());
-         var19.add(var21.down().east());
+      positions.clear();
+      positions.add(minePos.down());
+      if (taskFacing.getAxis() == Axis.Z) {
+         positions.add(minePos.down().west());
+         positions.add(minePos.down().east());
       } else {
-         var19.add(var21.down().north());
-         var19.add(var21.down().south());
+         positions.add(minePos.down().north());
+         positions.add(minePos.down().south());
       }
 
-      for (BlockPos var26 : (java.util.Collection<BlockPos>) (var19) ) {
-         if (this.world.getBlockState(var26).getBlock().isPassable(this.world, var26)) {
-            this.world.setBlockState(var26, Blocks.COBBLESTONE.getDefaultState());
+      for (BlockPos pos : (java.util.Collection<BlockPos>) (positions) ) {
+         if (this.world.getBlockState(pos).getBlock().isPassable(this.world, pos)) {
+            this.world.setBlockState(pos, Blocks.COBBLESTONE.getDefaultState());
          }
       }
 
-      HashSet var25 = new HashSet();
+      HashSet airBlocks = new HashSet();
 
-      for (BlockPos var15 : (java.util.Collection<BlockPos>) (var17) ) {
-         Block var16 = this.world.getBlockState(var15).getBlock();
-         if (var16 == Blocks.AIR) {
-            var25.add(var15);
+      for (BlockPos pos : (java.util.Collection<BlockPos>) (column) ) {
+         Block block = this.world.getBlockState(pos).getBlock();
+         if (block == Blocks.AIR) {
+            airBlocks.add(pos);
          }
       }
 
-      if (!var25.isEmpty()) {
-         var17.removeAll(var25);
-         var1.setMiningTargets(var25);
-         UUID var28 = KoboldManager.findTribeIdWith(var2);
-         if (var28 != null) {
-            EntityPlayer var30 = this.world.getPlayerEntityByUUID(var28);
-            if (var30 != null) {
-               PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var25, false), (EntityPlayerMP)var30);
+      if (!airBlocks.isEmpty()) {
+         column.removeAll(airBlocks);
+         task.setMiningTargets(airBlocks);
+         UUID tribeUuid = KoboldManager.findTribeIdWith(tribeId);
+         if (tribeUuid != null) {
+            EntityPlayer player = this.world.getPlayerEntityByUUID(tribeUuid);
+            if (player != null) {
+               PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(airBlocks, false), (EntityPlayerMP)player);
             }
          }
       }
 
-      if (var17.isEmpty()) {
-         return this.executeMiningTask(var1, var2);
+      if (column.isEmpty()) {
+         return this.executeMiningTask(task, tribeId);
       }
 
-      BlockPos var29 = null;
-      List var31 = var1.getWorkers();
+      BlockPos workerMinePos = null;
+      List workers = task.getWorkers();
 
-      for (int var32 = 0; var32 < var31.size(); var32++) {
-         if (((KoboldEntity)var31.get(var32)).getEntityId() == this.getEntityId()) {
-            if (var32 == 0) {
-               var29 = this.findTaskBlock(var17, -1, var1.getFacing(), var1.getTargetPos());
-               if (var29 == null) {
-                  var29 = this.findTaskBlock(var17, 0, var1.getFacing(), var1.getTargetPos());
-                  if (var29 == null) {
-                     var29 = this.findTaskBlock(var17, 1, var1.getFacing(), var1.getTargetPos());
+      for (int i = 0; i < workers.size(); i++) {
+         if (((KoboldEntity)workers.get(i)).getEntityId() == this.getEntityId()) {
+            if (i == 0) {
+               workerMinePos = this.findTaskBlock(column, -1, task.getFacing(), task.getTargetPos());
+               if (workerMinePos == null) {
+                  workerMinePos = this.findTaskBlock(column, 0, task.getFacing(), task.getTargetPos());
+                  if (workerMinePos == null) {
+                     workerMinePos = this.findTaskBlock(column, 1, task.getFacing(), task.getTargetPos());
                   }
                }
                break;
             }
 
-            if (var32 == 1) {
-               var29 = this.findTaskBlock(var17, 1, var1.getFacing(), var1.getTargetPos());
-               if (var29 == null) {
-                  var29 = this.findTaskBlock(var17, 0, var1.getFacing(), var1.getTargetPos());
-                  if (var29 == null) {
-                     var29 = this.findTaskBlock(var17, -1, var1.getFacing(), var1.getTargetPos());
+            if (i == 1) {
+               workerMinePos = this.findTaskBlock(column, 1, task.getFacing(), task.getTargetPos());
+               if (workerMinePos == null) {
+                  workerMinePos = this.findTaskBlock(column, 0, task.getFacing(), task.getTargetPos());
+                  if (workerMinePos == null) {
+                     workerMinePos = this.findTaskBlock(column, -1, task.getFacing(), task.getTargetPos());
                   }
                }
                break;
             }
 
-            if (var32 == 2) {
-               var29 = this.findTaskBlock(var17, 0, var1.getFacing(), var1.getTargetPos());
-               if (var29 == null) {
-                  var29 = this.findTaskBlock(var17, 1, var1.getFacing(), var1.getTargetPos());
-                  if (var29 == null) {
-                     var29 = this.findTaskBlock(var17, -1, var1.getFacing(), var1.getTargetPos());
+            if (i == 2) {
+               workerMinePos = this.findTaskBlock(column, 0, task.getFacing(), task.getTargetPos());
+               if (workerMinePos == null) {
+                  workerMinePos = this.findTaskBlock(column, 1, task.getFacing(), task.getTargetPos());
+                  if (workerMinePos == null) {
+                     workerMinePos = this.findTaskBlock(column, -1, task.getFacing(), task.getTargetPos());
                   }
                }
                break;
@@ -1800,110 +1800,110 @@ KoboldManager.assignBed(this, var4);
          }
       }
 
-      return var29;
+      return workerMinePos;
    }
 
    @Nullable
-   BlockPos findTaskBlock(List<BlockPos> var1, int var2, EnumFacing var3, BlockPos var4) {
-      if (var1.isEmpty()) {
+   BlockPos findTaskBlock(List<BlockPos> blocks, int index, EnumFacing facing, BlockPos targetPos) {
+      if (blocks.isEmpty()) {
          return null;
       }
 
-      ArrayList var5 = new ArrayList();
-      ArrayList var6 = new ArrayList();
-      ArrayList var7 = new ArrayList();
-      int var8 = var3 != EnumFacing.SOUTH && var3 != EnumFacing.WEST ? 1 : -1;
-      if (var3.getAxis() == Axis.Z) {
-         BlockPos var9 = new BlockPos(var4.getX(), var4.getY(), ((BlockPos)var1.get(0)).getZ());
-         var7.add(var9);
-         var7.add(var9.up());
-         var7.add(var9.up().up());
-         var7.add(var9.west());
-         var7.add(var9.west().up());
-         var7.add(var9.west().up().up());
-         var7.add(var9.east());
-         var7.add(var9.east().up());
-         var7.add(var9.east().up().up());
-         if (var2 == 0) {
-            for (BlockPos var11 : (java.util.Collection<BlockPos>) (var7) ) {
-               var6.add(var11.east(2));
-               var6.add(var11.east(-2));
+      ArrayList extraBlocks = new ArrayList();
+      ArrayList sideBlocks = new ArrayList();
+      ArrayList rowBlocks = new ArrayList();
+      int dir = facing != EnumFacing.SOUTH && facing != EnumFacing.WEST ? 1 : -1;
+      if (facing.getAxis() == Axis.Z) {
+         BlockPos rowAnchor = new BlockPos(targetPos.getX(), targetPos.getY(), ((BlockPos)blocks.get(0)).getZ());
+         rowBlocks.add(rowAnchor);
+         rowBlocks.add(rowAnchor.up());
+         rowBlocks.add(rowAnchor.up().up());
+         rowBlocks.add(rowAnchor.west());
+         rowBlocks.add(rowAnchor.west().up());
+         rowBlocks.add(rowAnchor.west().up().up());
+         rowBlocks.add(rowAnchor.east());
+         rowBlocks.add(rowAnchor.east().up());
+         rowBlocks.add(rowAnchor.east().up().up());
+         if (index == 0) {
+            for (BlockPos rowPos : (java.util.Collection<BlockPos>) (rowBlocks) ) {
+               sideBlocks.add(rowPos.east(2));
+               sideBlocks.add(rowPos.east(-2));
             }
 
-            for (BlockPos var20 : var1) {
-               if (!var6.contains(var20)) {
-                  var5.add(var20);
+            for (BlockPos blockPos : blocks) {
+               if (!sideBlocks.contains(blockPos)) {
+                  extraBlocks.add(blockPos);
                }
             }
          } else {
-            for (BlockPos var21 : (java.util.Collection<BlockPos>) (var7) ) {
-               var6.add(var21.east(var8 * 2 * var2));
+            for (BlockPos rowPos : (java.util.Collection<BlockPos>) (rowBlocks) ) {
+               sideBlocks.add(rowPos.east(dir * 2 * index));
             }
 
-            for (BlockPos var22 : (java.util.Collection<BlockPos>) (var6) ) {
-               if (var1.contains(var22)) {
-                  var5.add(var22);
+            for (BlockPos sidePos : (java.util.Collection<BlockPos>) (sideBlocks) ) {
+               if (blocks.contains(sidePos)) {
+                  extraBlocks.add(sidePos);
                }
             }
          }
       }
 
-      if (var3.getAxis() == Axis.X) {
-         BlockPos var12 = new BlockPos(((BlockPos)var1.get(0)).getX(), var4.getY(), var4.getZ());
-         var7.add(var12);
-         var7.add(var12.up());
-         var7.add(var12.up().up());
-         var7.add(var12.north());
-         var7.add(var12.north().up());
-         var7.add(var12.north().up().up());
-         var7.add(var12.south());
-         var7.add(var12.south().up());
-         var7.add(var12.south().up().up());
-         if (var2 == 0) {
-            for (BlockPos var23 : (java.util.Collection<BlockPos>) (var7) ) {
-               var6.add(var23.south(2));
-               var6.add(var23.south(-2));
+      if (facing.getAxis() == Axis.X) {
+         BlockPos colAnchor = new BlockPos(((BlockPos)blocks.get(0)).getX(), targetPos.getY(), targetPos.getZ());
+         rowBlocks.add(colAnchor);
+         rowBlocks.add(colAnchor.up());
+         rowBlocks.add(colAnchor.up().up());
+         rowBlocks.add(colAnchor.north());
+         rowBlocks.add(colAnchor.north().up());
+         rowBlocks.add(colAnchor.north().up().up());
+         rowBlocks.add(colAnchor.south());
+         rowBlocks.add(colAnchor.south().up());
+         rowBlocks.add(colAnchor.south().up().up());
+         if (index == 0) {
+            for (BlockPos colPos : (java.util.Collection<BlockPos>) (rowBlocks) ) {
+               sideBlocks.add(colPos.south(2));
+               sideBlocks.add(colPos.south(-2));
             }
 
-            for (BlockPos var24 : var1) {
-               if (!var6.contains(var24)) {
-                  var5.add(var24);
+            for (BlockPos blockPos : blocks) {
+               if (!sideBlocks.contains(blockPos)) {
+                  extraBlocks.add(blockPos);
                }
             }
          } else {
-            for (BlockPos var25 : (java.util.Collection<BlockPos>) (var7) ) {
-               var6.add(var25.south(var8 * 2 * var2));
+            for (BlockPos colPos : (java.util.Collection<BlockPos>) (rowBlocks) ) {
+               sideBlocks.add(colPos.south(dir * 2 * index));
             }
 
-            for (BlockPos var26 : (java.util.Collection<BlockPos>) (var6) ) {
-               if (var1.contains(var26)) {
-                  var5.add(var26);
+            for (BlockPos sidePos : (java.util.Collection<BlockPos>) (sideBlocks) ) {
+               if (blocks.contains(sidePos)) {
+                  extraBlocks.add(sidePos);
                }
             }
          }
       }
 
-      return var5.isEmpty() ? null : (BlockPos)var5.get(this.getRNG().nextInt(var5.size()));
+      return extraBlocks.isEmpty() ? null : (BlockPos)extraBlocks.get(this.getRNG().nextInt(extraBlocks.size()));
    }
 
-   void handleNearbyPlayerTick(UUID var1) {
-      if (!this.canStoreInventory(var1, false)) {
+   void handleNearbyPlayerTick(UUID tribeId) {
+      if (!this.canStoreInventory(tribeId, false)) {
          this.handleNearbyPlayer();
       }
    }
 
    void handleNearbyPlayer() {
-      EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 15.0);
-      if (this.hasMaster() && var1 != null && var1.getDistance(this) < 2.0F && ((String)this.entityDataManager.get(MASTER)).equals(var1.getPersistentID().toString())) {
+      EntityPlayer player = this.world.getClosestPlayerToEntity(this, 15.0);
+      if (this.hasMaster() && player != null && player.getDistance(this) < 2.0F && ((String)this.entityDataManager.get(MASTER)).equals(player.getPersistentID().toString())) {
          this.getNavigator().clearPath();
       } else {
          if (this.ap == null
             || this.getDistance(this.ap.getX(), this.ap.getY(), this.ap.getZ()) > this.getWanderRange()
             || this.ab > 100) {
-            int var2 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
-            int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
-            int var4 = WorldUtils.getHeightAt(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
-            this.ap = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
+            int xOffset = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
+            int zOffset = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
+            int height = WorldUtils.getHeightAt(this.world, this.getPosition().getX() + xOffset, this.getPosition().getZ() + zOffset);
+            this.ap = new BlockPos(this.getPosition().getX() + xOffset, height, this.getPosition().getZ() + zOffset);
             this.ab = 0;
          }
 
@@ -1920,24 +1920,24 @@ KoboldManager.assignBed(this, var4);
       return Math.sqrt(800.0);
    }
 
-   boolean canStoreInventory(UUID var1, boolean var2) {
+   boolean canStoreInventory(UUID tribeId, boolean checkOpen) {
       if (this.hasInventoryItems()) {
          return false;
       }
 
-      if (this.isTribeChestOpen(var1, var2)) {
+      if (this.isTribeChestOpen(tribeId, checkOpen)) {
          this.a0 = 0;
          return true;
       }
 
       if (--this.a0 < 0 && this.ax) {
          this.a0 = 300;
-         EntityPlayer var3 = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.entityDataManager.get(MASTER)));
-         EyeAndKoboldColor var4 = EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(CURRENT_ACTION));
-         if (var3 != null) {
-            var3.sendStatusMessage(
+         EntityPlayer master = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.entityDataManager.get(MASTER)));
+         EyeAndKoboldColor tribeColor = EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(CURRENT_ACTION));
+         if (master != null) {
+            master.sendStatusMessage(
                new TextComponentString(
-                  var4.getTextColor()
+                  tribeColor.getTextColor()
                      + this.getDisplayNameText()
                      + "s "
                      + TextFormatting.WHITE
@@ -1953,151 +1953,151 @@ KoboldManager.assignBed(this, var4);
       }
    }
 
-   boolean isTribeChestOpen(UUID var1, boolean var2) {
-      HashSet var3 = KoboldManager.getTribeChests(var1);
-      if (var3 == null) {
+   boolean isTribeChestOpen(UUID tribeId, boolean checkOpen) {
+      HashSet chests = KoboldManager.getTribeChests(tribeId);
+      if (chests == null) {
          return false;
       }
 
-      BlockPos var4 = null;
+      BlockPos chosenChest = null;
 
-      for (BlockPos var6 : (java.util.Collection<BlockPos>) (var3) ) {
-         TileEntityChest var7 = (TileEntityChest)this.world.getTileEntity(var6);
-         IItemHandler var8 = var7.getSingleChestHandler();
-         boolean var9 = false;
+      for (BlockPos chestPos : (java.util.Collection<BlockPos>) (chests) ) {
+         TileEntityChest chest = (TileEntityChest)this.world.getTileEntity(chestPos);
+         IItemHandler chestHandler = chest.getSingleChestHandler();
+         boolean canStore = false;
 
-         for (int var10 = 0; var10 < this.inventory.getSlots(); var10++) {
-            ItemStack var11 = this.inventory.getStackInSlot(var10);
-            if (!var11.isEmpty()) {
-               for (int var12 = 0; var12 < var8.getSlots(); var12++) {
-                  ItemStack var13 = var8.insertItem(var12, var11, true);
-                  if (var13.getCount() != var11.getCount()) {
-                     var9 = true;
+         for (int i = 0; i < this.inventory.getSlots(); i++) {
+            ItemStack stack = this.inventory.getStackInSlot(i);
+            if (!stack.isEmpty()) {
+               for (int slot = 0; slot < chestHandler.getSlots(); slot++) {
+                  ItemStack remaining = chestHandler.insertItem(slot, stack, true);
+                  if (remaining.getCount() != stack.getCount()) {
+                     canStore = true;
                      break;
                   }
                }
 
-               if (var9) {
+               if (canStore) {
                   break;
                }
             }
          }
 
-         if (var9) {
-            if (var4 == null) {
-               var4 = var6;
-            } else if (this.getDistanceSq(var4) > this.getDistanceSq(var6)) {
-               var4 = var6;
+         if (canStore) {
+            if (chosenChest == null) {
+               chosenChest = chestPos;
+            } else if (this.getDistanceSq(chosenChest) > this.getDistanceSq(chestPos)) {
+               chosenChest = chestPos;
             }
          }
       }
 
-      if (var4 == null) {
+      if (chosenChest == null) {
          return false;
       }
 
-      if (!(this.getDistance(var4.getX(), var4.getY(), var4.getZ()) < 2.0)) {
-         if (Math.abs(var4.getY() - this.getPosition().getY()) > 4) {
-            if (!var2) {
+      if (!(this.getDistance(chosenChest.getX(), chosenChest.getY(), chosenChest.getZ()) < 2.0)) {
+         if (Math.abs(chosenChest.getY() - this.getPosition().getY()) > 4) {
+            if (!checkOpen) {
                return false;
             }
 
-            this.syncTribeBlocks(var4);
+            this.syncTribeBlocks(chosenChest);
          } else {
-            PathNavigate var15 = this.getNavigator();
-            BlockPos var17 = this.findStandPos(var4);
-            var15.tryMoveToXYZ(var17.getX(), var17.getY(), var17.getZ(), 0.35F);
-            if (var15.getPath() == null) {
-               if (!var2) {
+            PathNavigate navigator = this.getNavigator();
+            BlockPos standPos = this.findStandPos(chosenChest);
+            navigator.tryMoveToXYZ(standPos.getX(), standPos.getY(), standPos.getZ(), 0.35F);
+            if (navigator.getPath() == null) {
+               if (!checkOpen) {
                   return false;
                }
 
-               this.syncTribeBlocks(var4);
+               this.syncTribeBlocks(chosenChest);
             }
          }
 
          return true;
       } else {
-         TileEntityChest var14 = (TileEntityChest)this.world.getTileEntity(var4);
-         IItemHandler var16 = var14.getSingleChestHandler();
+         TileEntityChest chest = (TileEntityChest)this.world.getTileEntity(chosenChest);
+         IItemHandler chestHandler = chest.getSingleChestHandler();
 
-         for (int var18 = 0; var18 < this.inventory.getSlots(); var18++) {
-            ItemStack var19 = this.inventory.getStackInSlot(var18);
-            if (!var19.isEmpty()) {
-               for (int var20 = 0; var20 < var16.getSlots(); var20++) {
-                  ItemStack var21 = var16.insertItem(var20, var19, false);
-                  if (var21.getCount() <= 0) {
-                     this.inventory.setStackInSlot(var18, ItemStack.EMPTY);
+         for (int i = 0; i < this.inventory.getSlots(); i++) {
+            ItemStack stack = this.inventory.getStackInSlot(i);
+            if (!stack.isEmpty()) {
+               for (int slot = 0; slot < chestHandler.getSlots(); slot++) {
+                  ItemStack remaining = chestHandler.insertItem(slot, stack, false);
+                  if (remaining.getCount() <= 0) {
+                     this.inventory.setStackInSlot(i, ItemStack.EMPTY);
                      break;
                   }
 
-                  this.inventory.setStackInSlot(var18, var21);
-                  var19 = var21;
+                  this.inventory.setStackInSlot(i, remaining);
+                  stack = remaining;
                }
             }
          }
 
-         this.world.playSound(null, var4, SoundEvents.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS, 1.0F, 1.0F);
+         this.world.playSound(null, chosenChest, SoundEvents.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS, 1.0F, 1.0F);
          return true;
       }
    }
 
-   boolean assignTaskToKobold(UUID var1, KoboldTask var2) {
-      List var3 = KoboldManager.getTribeMembersList(var1);
-      Collection var4 = KoboldManager.getTribeTasks(var1);
-      KoboldEntity var5 = null;
-      Vec3d var6 = new Vec3d(var2.getTargetPos().getX(), var2.getTargetPos().getY(), var2.getTargetPos().getZ());
+   boolean assignTaskToKobold(UUID tribeId, KoboldTask task) {
+      List members = KoboldManager.getTribeMembersList(tribeId);
+      Collection tasks = KoboldManager.getTribeTasks(tribeId);
+      KoboldEntity closestKobold = null;
+      Vec3d taskPos = new Vec3d(task.getTargetPos().getX(), task.getTargetPos().getY(), task.getTargetPos().getZ());
 
-      for (KoboldEntity var8 : (java.util.Collection<KoboldEntity>) (var3) ) {
-         boolean var9 = false;
+      for (KoboldEntity kobold : (java.util.Collection<KoboldEntity>) (members) ) {
+         boolean taskAssigned = false;
 
-         for (KoboldTask var11 : (java.util.Collection<KoboldTask>) (var4) ) {
-            if (var11.hasWorker(var8)) {
-               var9 = true;
+         for (KoboldTask workerTask : (java.util.Collection<KoboldTask>) (tasks) ) {
+            if (workerTask.hasWorker(kobold)) {
+               taskAssigned = true;
                break;
             }
          }
 
-         if (!var9 && var8.getInteractionPlayerUUID() == null) {
-            if (var5 == null) {
-               var5 = var8;
-            } else if (var5.getPositionVector().distanceTo(var6) > var8.getPositionVector().distanceTo(var6)) {
-               var5 = var8;
+         if (!taskAssigned && kobold.getInteractionPlayerUUID() == null) {
+            if (closestKobold == null) {
+               closestKobold = kobold;
+            } else if (closestKobold.getPositionVector().distanceTo(taskPos) > kobold.getPositionVector().distanceTo(taskPos)) {
+               closestKobold = kobold;
             }
          }
       }
 
-      return this.equals(var5);
+      return this.equals(closestKobold);
    }
 
-   void navigateToTask(UUID var1, KoboldTask var2, BlockPos var3) {
+   void navigateToTask(UUID tribeId, KoboldTask task, BlockPos pos) {
       if (this.ad == null) {
          this.aR = 24;
          this.cooldownTicks = 0;
          this.setCurrentAction(Action.NULL);
          this.entityDataManager.set(IS_ANCHORED, false);
-         EntityPlayer var6 = this.getMasterPlayer();
-         HashSet var7 = var2.getMiningTargets();
-         if (var6 != null && !var7.isEmpty()) {
-            PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var7, false), (EntityPlayerMP)var6);
+         EntityPlayer master = this.getMasterPlayer();
+         HashSet blocks = task.getMiningTargets();
+         if (master != null && !blocks.isEmpty()) {
+            PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(blocks, false), (EntityPlayerMP)master);
          }
 
-         KoboldManager.setLeaderKobold(var1, this);
+         KoboldManager.setLeaderKobold(tribeId, this);
       } else {
          switch (this.ad.getMetadata()) {
             case 3:
             case 5:
                this.world
                   .setBlockState(
-                     var3,
+                     pos,
                      Blocks.SAPLING
                         .getStateForPlacement(
                            this.world,
-                           var3,
+                           pos,
                            EnumFacing.NORTH,
-                           var3.getX(),
-                           var3.getY(),
-                           var3.getZ(),
+                           pos.getX(),
+                           pos.getY(),
+                           pos.getZ(),
                            this.ad.getMetadata(),
                            this,
                            EnumHand.MAIN_HAND
@@ -2105,15 +2105,15 @@ KoboldManager.assignBed(this, var4);
                   );
                this.world
                   .setBlockState(
-                     var3.north(),
+                     pos.north(),
                      Blocks.SAPLING
                         .getStateForPlacement(
                            this.world,
-                           var3.north(),
+                           pos.north(),
                            EnumFacing.NORTH,
-                           var3.getX(),
-                           var3.getY(),
-                           var3.getZ() + 1,
+                           pos.getX(),
+                           pos.getY(),
+                           pos.getZ() + 1,
                            this.ad.getMetadata(),
                            this,
                            EnumHand.MAIN_HAND
@@ -2121,15 +2121,15 @@ KoboldManager.assignBed(this, var4);
                   );
                this.world
                   .setBlockState(
-                     var3.west(),
+                     pos.west(),
                      Blocks.SAPLING
                         .getStateForPlacement(
                            this.world,
-                           var3.west(),
+                           pos.west(),
                            EnumFacing.NORTH,
-                           var3.getX() + 1,
-                           var3.getY(),
-                           var3.getZ(),
+                           pos.getX() + 1,
+                           pos.getY(),
+                           pos.getZ(),
                            this.ad.getMetadata(),
                            this,
                            EnumHand.MAIN_HAND
@@ -2137,15 +2137,15 @@ KoboldManager.assignBed(this, var4);
                   );
                this.world
                   .setBlockState(
-                     var3.north().west(),
+                     pos.north().west(),
                      Blocks.SAPLING
                         .getStateForPlacement(
                            this.world,
-                           var3.north().west(),
+                           pos.north().west(),
                            EnumFacing.NORTH,
-                           var3.getX() + 1,
-                           var3.getY(),
-                           var3.getZ() + 1,
+                           pos.getX() + 1,
+                           pos.getY(),
+                           pos.getZ() + 1,
                            this.ad.getMetadata(),
                            this,
                            EnumHand.MAIN_HAND
@@ -2155,15 +2155,15 @@ KoboldManager.assignBed(this, var4);
             default:
                this.world
                   .setBlockState(
-                     var3,
+                     pos,
                      Blocks.SAPLING
                         .getStateForPlacement(
                            this.world,
-                           var3,
+                           pos,
                            EnumFacing.NORTH,
-                           var3.getX(),
-                           var3.getY(),
-                           var3.getZ(),
+                           pos.getX(),
+                           pos.getY(),
+                           pos.getZ(),
                            this.ad.getMetadata(),
                            this,
                            EnumHand.MAIN_HAND
@@ -2176,19 +2176,19 @@ KoboldManager.assignBed(this, var4);
          this.ad = null;
          this.setCurrentAction(Action.NULL);
          this.setAnchored(false);
-         EntityPlayer var4 = this.getMasterPlayer();
-         HashSet var5 = var2.getMiningTargets();
-         if (var4 != null && !var5.isEmpty()) {
-            PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var5, false), (EntityPlayerMP)var4);
+         EntityPlayer master = this.getMasterPlayer();
+         HashSet blocks = task.getMiningTargets();
+         if (master != null && !blocks.isEmpty()) {
+            PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(blocks, false), (EntityPlayerMP)master);
          }
 
-         KoboldManager.setLeaderKobold(var1, this);
+         KoboldManager.setLeaderKobold(tribeId, this);
       }
    }
 
-   void startMiningTask(UUID var1, BlockPos var2, KoboldTask var3) {
+   void startMiningTask(UUID tribeId, BlockPos pos, KoboldTask task) {
       if (this.getCurrentAction() != Action.MINE) {
-         this.mineBlockAt(var2, var1);
+         this.mineBlockAt(pos, tribeId);
       } else {
          this.cooldownTicks--;
          if (this.cooldownTicks <= 0) {
@@ -2196,116 +2196,116 @@ KoboldManager.assignBed(this, var4);
                PacketHandler.networkWrapper.sendToAllAround(new ResetControllerPacket(this.getGirlId()), this.getTargetNetworkPoint());
             }
 
-            if (this.world.getBlockState(var2).getBlock() == Blocks.AIR) {
-               this.navigateToTask(var1, var3, var2);
+            if (this.world.getBlockState(pos).getBlock() == Blocks.AIR) {
+               this.navigateToTask(tribeId, task, pos);
             } else {
                this.aR--;
                if (this.aR < 0) {
                   this.aR = 24;
                   this.cooldownTicks = 78;
-                  HashSet var4 = new HashSet();
-                  EntityPlayer var5 = this.getMasterPlayer();
+                  HashSet targets = new HashSet();
+                  EntityPlayer master = this.getMasterPlayer();
 
-                  for (BlockPos var7 : var3.getMiningTargets()) {
-                     if (this.world.getBlockState(var7).getBlock() != Blocks.AIR) {
-                        if (var7.getX() != var2.getX() || var7.getZ() != var2.getZ()) {
+                  for (BlockPos target : task.getMiningTargets()) {
+                     if (this.world.getBlockState(target).getBlock() != Blocks.AIR) {
+                        if (target.getX() != pos.getX() || target.getZ() != pos.getZ()) {
                            try {
-                              ItemStack var8 = this.world
-                                 .getBlockState(var7)
+                              ItemStack dropStack = this.world
+                                 .getBlockState(target)
                                  .getBlock()
-                                 .getItem(this.world, var2, this.world.getBlockState(var2));
-                              if (var8.getItem() != Items.AIR) {
-                                 this.canExtractItem(var8);
+                                 .getItem(this.world, pos, this.world.getBlockState(pos));
+                              if (dropStack.getItem() != Items.AIR) {
+                                 this.canExtractItem(dropStack);
                               }
-                           } catch (IllegalArgumentException var13) {
+                           } catch (IllegalArgumentException ex) {
                               Main.LOGGER
                                  .error(
                                     "Couldn't get an item out of the block that a kobold just destroyed when falling a tree. As a result, the block wasn't added into the kobolds inventory. If you see this message, pls tell trol about it and send her the following stacktrace. Do you maybe remember what block the kobold just removed? Stacktrace follwing:"
                                  );
-                              Main.LOGGER.warn("block in question: " + this.world.getBlockState(var7).getBlock().getTranslationKey());
-                              Main.LOGGER.error(var13.getMessage());
+                              Main.LOGGER.warn("block in question: " + this.world.getBlockState(target).getBlock().getTranslationKey());
+                              Main.LOGGER.error(ex.getMessage());
                            }
 
-                           this.ad = this.getBlockItem(var7);
-                           this.world.destroyBlock(var7, false);
-                           var3.removeMiningTarget(var7);
-                           var3.setMiningTargets(var4);
-                           var4.add(var7);
-                           if (var5 != null) {
-                              PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var4, false), (EntityPlayerMP)var5);
+                           this.ad = this.getBlockItem(target);
+                           this.world.destroyBlock(target, false);
+                           task.removeMiningTarget(target);
+                           task.setMiningTargets(targets);
+                           targets.add(target);
+                           if (master != null) {
+                              PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(targets, false), (EntityPlayerMP)master);
                            }
 
                            return;
                         }
                      } else {
-                        var4.add(var7);
+                        targets.add(target);
                      }
                   }
 
                   try {
-                     ItemStack var15 = this.world
-                        .getBlockState(var2)
+                     ItemStack dropStack = this.world
+                        .getBlockState(pos)
                         .getBlock()
-                        .getItem(this.world, var2, this.world.getBlockState(var2));
-                     if (var15.getItem() != Items.AIR) {
-                        this.canExtractItem(var15);
+                        .getItem(this.world, pos, this.world.getBlockState(pos));
+                     if (dropStack.getItem() != Items.AIR) {
+                        this.canExtractItem(dropStack);
                      }
-                  } catch (IllegalArgumentException var14) {
+                  } catch (IllegalArgumentException ex) {
                      Main.LOGGER
                         .error(
                            "Couldn't get an item out of the block that a kobold just destroyed when falling a tree. As a result, the block wasn't added into the kobolds inventory. If you see this message, pls tell trol about it and send her the following stacktrace. Do you maybe remember what block the kobold just removed? Stacktrace follwing:"
                         );
-                     Main.LOGGER.warn("block in question: " + this.world.getBlockState(var2).getBlock().getTranslationKey());
-                     Main.LOGGER.error(var14.getMessage());
+                     Main.LOGGER.warn("block in question: " + this.world.getBlockState(pos).getBlock().getTranslationKey());
+                     Main.LOGGER.error(ex.getMessage());
                   }
 
-                  this.ad = this.getBlockItem(var2);
-                  this.world.destroyBlock(var2, false);
-                  int var16 = 0;
+                  this.ad = this.getBlockItem(pos);
+                  this.world.destroyBlock(pos, false);
+                  int logCount = 0;
 
-                  for (BlockPos var19 : var3.getMiningTargets()) {
-                     if (this.world.getBlockState(var19).getBlock() instanceof BlockLog) {
-                        var16++;
+                  for (BlockPos target : task.getMiningTargets()) {
+                     if (this.world.getBlockState(target).getBlock() instanceof BlockLog) {
+                        logCount++;
                      }
                   }
 
-                  HashSet var18 = new HashSet();
+                  HashSet trunkBlocks = new HashSet();
 
-                  for (int var20 = 0; var20 < var16; var20++) {
-                     var18.add(var2.add(0, var20, 0));
+                  for (int i = 0; i < logCount; i++) {
+                     trunkBlocks.add(pos.add(0, i, 0));
                   }
 
-                  HashSet var21 = new HashSet();
+                  HashSet otherBlocks = new HashSet();
 
-                  for (BlockPos var10 : var3.getMiningTargets()) {
-                     if (!var18.contains(var10)) {
-                        var21.add(var10);
+                  for (BlockPos target : task.getMiningTargets()) {
+                     if (!trunkBlocks.contains(target)) {
+                        otherBlocks.add(target);
                      }
                   }
 
-                  if (!var21.isEmpty() && var5 != null) {
-                     PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var21, false), (EntityPlayerMP)var5);
+                  if (!otherBlocks.isEmpty() && master != null) {
+                     PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(otherBlocks, false), (EntityPlayerMP)master);
                   }
 
-                  int var22 = 1;
+                  int height = 1;
 
                   while (true) {
-                     BlockPos var23 = var2.add(0, var22, 0);
-                     IBlockState var11 = this.world.getBlockState(var23);
-                     if (this.world.getBlockState(var23).getBlock() instanceof BlockLog) {
-                        this.world.destroyBlock(var23, false);
-                        EntityFallingBlock var12 = new EntityFallingBlock(
-                           this.world, var23.getX() + 0.5, var23.getY(), var23.getZ() + 0.5, var11
+                     BlockPos logPos = pos.add(0, height, 0);
+                     IBlockState logState = this.world.getBlockState(logPos);
+                     if (this.world.getBlockState(logPos).getBlock() instanceof BlockLog) {
+                        this.world.destroyBlock(logPos, false);
+                        EntityFallingBlock fallingBlock = new EntityFallingBlock(
+                           this.world, logPos.getX() + 0.5, logPos.getY(), logPos.getZ() + 0.5, logState
                         );
-                        var12.fallTime = 1;
-                        this.world.spawnEntity(var12);
+                        fallingBlock.fallTime = 1;
+                        this.world.spawnEntity(fallingBlock);
                      }
 
-                     if (!var3.getMiningTargets().contains(var23)) {
+                     if (!task.getMiningTargets().contains(logPos)) {
                         return;
                      }
 
-                     var22++;
+                     height++;
                   }
                }
             }
@@ -2313,114 +2313,114 @@ KoboldManager.assignBed(this, var4);
       }
    }
 
-   ItemStack getBlockItem(BlockPos var1) {
-      ItemStack var2;
+   ItemStack getBlockItem(BlockPos pos) {
+      ItemStack stack;
       try {
-         var2 = this.world.getBlockState(var1).getBlock().getItem(this.world, var1, this.world.getBlockState(var1));
-      } catch (IllegalArgumentException var5) {
+         stack = this.world.getBlockState(pos).getBlock().getItem(this.world, pos, this.world.getBlockState(pos));
+      } catch (IllegalArgumentException ex) {
          Main.LOGGER
             .error(
                "Couldn't turn a wooden block into an item to get its meta data. As a result the kobold is just gonna plant a oak saplinig instead. If you see this message, pls tell trol about it and send her the following stacktrace. Do you maybe remember what block the kobold just removed? Stacktrace follwing:"
             );
-         Main.LOGGER.warn("block in question: " + this.world.getBlockState(var1).getBlock().getTranslationKey());
-         Main.LOGGER.error(var5.getMessage());
+         Main.LOGGER.warn("block in question: " + this.world.getBlockState(pos).getBlock().getTranslationKey());
+         Main.LOGGER.error(ex.getMessage());
          return new ItemStack(Blocks.SAPLING, 1, 0);
       }
 
-      int var3 = ItemBlock.getIdFromItem(var2.getItem());
-      int var4 = var2.getItem().getMetadata(var2);
-      if (var3 == 17 && var4 == 1) {
+      int blockId = ItemBlock.getIdFromItem(stack.getItem());
+      int metadata = stack.getItem().getMetadata(stack);
+      if (blockId == 17 && metadata == 1) {
          return new ItemStack(Blocks.SAPLING, 1, 1);
-      } else if (var3 == 17 && var4 == 2) {
+      } else if (blockId == 17 && metadata == 2) {
          return new ItemStack(Blocks.SAPLING, 1, 2);
-      } else if (var3 == 17 && var4 == 3) {
+      } else if (blockId == 17 && metadata == 3) {
          return new ItemStack(Blocks.SAPLING, 1, 3);
-      } else if (var3 == 162 && var4 == 0) {
+      } else if (blockId == 162 && metadata == 0) {
          return new ItemStack(Blocks.SAPLING, 1, 4);
       } else {
-         return var3 == 162 && var4 == 1 ? new ItemStack(Blocks.SAPLING, 1, 5) : new ItemStack(Blocks.SAPLING, 1, 0);
+         return blockId == 162 && metadata == 1 ? new ItemStack(Blocks.SAPLING, 1, 5) : new ItemStack(Blocks.SAPLING, 1, 0);
       }
    }
 
-   void mineBlockAt(BlockPos var1, UUID var2) {
-      BlockPos var3 = null;
-      ArrayList var4 = new ArrayList();
-      if (this.world.getBlockState(var1.north().down()).isFullCube()
-         && !this.world.getBlockState(var1.north()).isFullBlock()) {
-         var4.add(var1.north());
+   void mineBlockAt(BlockPos pos, UUID tribeId) {
+      BlockPos bestBlock = null;
+      ArrayList neighbors = new ArrayList();
+      if (this.world.getBlockState(pos.north().down()).isFullCube()
+         && !this.world.getBlockState(pos.north()).isFullBlock()) {
+         neighbors.add(pos.north());
       }
 
-      if (this.world.getBlockState(var1.east().down()).isFullCube()
-         && !this.world.getBlockState(var1.east()).isFullBlock()) {
-         var4.add(var1.east());
+      if (this.world.getBlockState(pos.east().down()).isFullCube()
+         && !this.world.getBlockState(pos.east()).isFullBlock()) {
+         neighbors.add(pos.east());
       }
 
-      if (this.world.getBlockState(var1.south().down()).isFullCube()
-         && !this.world.getBlockState(var1.south()).isFullBlock()) {
-         var4.add(var1.south());
+      if (this.world.getBlockState(pos.south().down()).isFullCube()
+         && !this.world.getBlockState(pos.south()).isFullBlock()) {
+         neighbors.add(pos.south());
       }
 
-      if (this.world.getBlockState(var1.west().down()).isFullCube()
-         && !this.world.getBlockState(var1.west()).isFullBlock()) {
-         var4.add(var1.west());
+      if (this.world.getBlockState(pos.west().down()).isFullCube()
+         && !this.world.getBlockState(pos.west()).isFullBlock()) {
+         neighbors.add(pos.west());
       }
 
-      for (BlockPos var6 : (java.util.Collection<BlockPos>) (var4) ) {
-         if (var3 == null) {
-            var3 = var6;
+      for (BlockPos neighbor : (java.util.Collection<BlockPos>) (neighbors) ) {
+         if (bestBlock == null) {
+            bestBlock = neighbor;
          } else {
-            double var7 = new Vec3d(var3.getX() + 0.5F, var3.getY(), var3.getZ() + 0.5F).distanceTo(this.getPositionVector());
-            double var9 = new Vec3d(var6.getX() + 0.5F, var6.getY(), var6.getZ() + 0.5F).distanceTo(this.getPositionVector());
-            if (var9 < var7) {
-               var3 = var6;
+            double bestDist = new Vec3d(bestBlock.getX() + 0.5F, bestBlock.getY(), bestBlock.getZ() + 0.5F).distanceTo(this.getPositionVector());
+            double dist = new Vec3d(neighbor.getX() + 0.5F, neighbor.getY(), neighbor.getZ() + 0.5F).distanceTo(this.getPositionVector());
+            if (dist < bestDist) {
+               bestBlock = neighbor;
             }
          }
       }
 
-      if (var3 == null) {
-         KoboldManager.setLeaderKobold(var2, this);
-         EntityPlayer var13 = this.getMasterPlayer();
-         if (var13 != null) {
-            var13.sendStatusMessage(new TextComponentString("Your kobolds cannot fall this tree because it starts underground"), true);
+      if (bestBlock == null) {
+         KoboldManager.setLeaderKobold(tribeId, this);
+         EntityPlayer master = this.getMasterPlayer();
+         if (master != null) {
+            master.sendStatusMessage(new TextComponentString("Your kobolds cannot fall this tree because it starts underground"), true);
          }
-      } else if (!(this.getPosition().getDistance(var3.getX(), var3.getY(), var3.getZ()) > 1.0)) {
-         float var11 = 0.0F;
-         if (var3.subtract(var1).equals(new BlockPos(0, 0, -1))) {
-            var11 = 0.0F;
-         }
-
-         if (var3.subtract(var1).equals(new BlockPos(1, 0, 0))) {
-            var11 = 90.0F;
+      } else if (!(this.getPosition().getDistance(bestBlock.getX(), bestBlock.getY(), bestBlock.getZ()) > 1.0)) {
+         float yaw = 0.0F;
+         if (bestBlock.subtract(pos).equals(new BlockPos(0, 0, -1))) {
+            yaw = 0.0F;
          }
 
-         if (var3.subtract(var1).equals(new BlockPos(0, 0, 1))) {
-            var11 = 180.0F;
+         if (bestBlock.subtract(pos).equals(new BlockPos(1, 0, 0))) {
+            yaw = 90.0F;
          }
 
-         if (var3.subtract(var1).equals(new BlockPos(-1, 0, 0))) {
-            var11 = -90.0F;
+         if (bestBlock.subtract(pos).equals(new BlockPos(0, 0, 1))) {
+            yaw = 180.0F;
          }
 
-         this.setTargetPosition(new Vec3d(var3.getX() + 0.5, var3.getY(), var3.getZ() + 0.5));
-         this.setYawRotation(var11);
+         if (bestBlock.subtract(pos).equals(new BlockPos(-1, 0, 0))) {
+            yaw = -90.0F;
+         }
+
+         this.setTargetPosition(new Vec3d(bestBlock.getX() + 0.5, bestBlock.getY(), bestBlock.getZ() + 0.5));
+         this.setYawRotation(yaw);
          this.entityDataManager.set(IS_ANCHORED, true);
          this.entityDataManager.set(at, true);
          this.setCurrentAction(Action.MINE);
-         this.world.destroyBlock(var3.up(), false);
-      } else if (Math.abs(this.getPosition().getY() - var3.getY()) > 4) {
-         this.syncTribeBlocks(var3);
+         this.world.destroyBlock(bestBlock.up(), false);
+      } else if (Math.abs(this.getPosition().getY() - bestBlock.getY()) > 4) {
+         this.syncTribeBlocks(bestBlock);
       } else {
-         BlockPos var12 = this.findStandPos(var3);
-         this.getNavigator().tryMoveToXYZ(var12.getX() + 0.5, var12.getY(), var12.getZ() + 0.5, 0.35);
+         BlockPos standPos = this.findStandPos(bestBlock);
+         this.getNavigator().tryMoveToXYZ(standPos.getX() + 0.5, standPos.getY(), standPos.getZ() + 0.5, 0.35);
          this.tickPathVelocity();
       }
    }
 
    void handleModelSync() {
       if (!this.aA) {
-         Optional var1 = (Optional)this.entityDataManager.get(aL);
-         if (var1.isPresent()) {
-            this.entityDataManager.set(CURRENT_ACTION, KoboldManager.getTribeColor((UUID)var1.get()).toString());
+         Optional tribeIdOpt = (Optional)this.entityDataManager.get(aL);
+         if (tribeIdOpt.isPresent()) {
+            this.entityDataManager.set(CURRENT_ACTION, KoboldManager.getTribeColor((UUID)tribeIdOpt.get()).toString());
          }
       }
    }
@@ -2440,17 +2440,17 @@ KoboldManager.assignBed(this, var4);
       }
    }
 
-   public void onDeath(DamageSource var1) {
-      super.onDeath(var1);
+   public void onDeath(DamageSource source) {
+      super.onDeath(source);
       if (!this.world.isRemote) {
-         Optional var2 = (Optional)this.entityDataManager.get(aL);
-         if (var2.isPresent()) {
-            UUID var3 = (UUID)var2.get();
-KoboldManager.setTribeLeader(var3, this);
+         Optional tribeOpt = (Optional)this.entityDataManager.get(aL);
+         if (tribeOpt.isPresent()) {
+            UUID tribeId = (UUID)tribeOpt.get();
+KoboldManager.setTribeLeader(tribeId, this);
             if (this.hasMaster()) {
-               EntityPlayer var4 = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.getDataManager().get(MASTER)));
-               if (var4 != null) {
-                  var4.sendMessage(
+               EntityPlayer master = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.getDataManager().get(MASTER)));
+               if (master != null) {
+                  master.sendMessage(
                      new TextComponentString(
                         String.format("%s%s%s has perished %suwu", TextFormatting.RED, this.getDisplayNameText(), TextFormatting.WHITE, TextFormatting.RED)
                      )
@@ -2462,82 +2462,82 @@ KoboldManager.setTribeLeader(var3, this);
    }
 
    @Override
-   protected Action getNextAction(Action var1) {
-      if (var1 == Action.SUCKBLOWJOB_BLINK) {
+   protected Action getNextAction(Action action) {
+      if (action == Action.SUCKBLOWJOB_BLINK) {
          return Action.THRUSTBLOWJOB;
       } else {
-         return var1 == Action.KOBOLD_ANAL_SLOW ? Action.KOBOLD_ANAL_FAST : null;
+         return action == Action.KOBOLD_ANAL_SLOW ? Action.KOBOLD_ANAL_FAST : null;
       }
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      if (var1 == Action.THRUSTBLOWJOB || var1 == Action.SUCKBLOWJOB_BLINK) {
+   protected Action getCumAction(Action action) {
+      if (action == Action.THRUSTBLOWJOB || action == Action.SUCKBLOWJOB_BLINK) {
          return Action.CUMBLOWJOB;
-      } else if (var1 == Action.KOBOLD_ANAL_SLOW || var1 == Action.KOBOLD_ANAL_FAST) {
+      } else if (action == Action.KOBOLD_ANAL_SLOW || action == Action.KOBOLD_ANAL_FAST) {
          return Action.KOBOLD_ANAL_CUM;
       } else {
-         return var1 != Action.MATING_PRESS_HARD && var1 != Action.MATING_PRESS_SOFT ? null : Action.MATING_PRESS_CUM;
+         return action != Action.MATING_PRESS_HARD && action != Action.MATING_PRESS_SOFT ? null : Action.MATING_PRESS_CUM;
       }
    }
 
    @Override
-   public void writeEntityToNBT(NBTTagCompound var1) {
-      super.writeEntityToNBT(var1);
-      var1.setFloat("body_size", (Float)this.entityDataManager.get(aE));
-      var1.setInteger("eyeColorX", ((BlockPos)this.entityDataManager.get(ACTION_TARGET_POS)).getX());
-      var1.setInteger("eyeColorY", ((BlockPos)this.entityDataManager.get(ACTION_TARGET_POS)).getY());
-      var1.setInteger("eyeColorZ", ((BlockPos)this.entityDataManager.get(ACTION_TARGET_POS)).getZ());
-      var1.setString("model", (String)this.entityDataManager.get(APPEARANCE_DNA));
-      var1.setString("name", (String)this.entityDataManager.get(KOBOLD_NAME));
-      var1.setString("master", (String)this.entityDataManager.get(MASTER));
-      var1.setTag("inventory", this.inventory.serializeNBT());
-      var1.setString("bodyColor", (String)this.entityDataManager.get(CURRENT_ACTION));
-      var1.setBoolean("editedColorManually", this.aA);
-      Optional var2 = (Optional)this.entityDataManager.get(aL);
-      if (var2.isPresent()) {
-         var1.setUniqueId("tribeId", (UUID)var2.get());
-         var1.setBoolean("isLeader", KoboldManager.isTribeMember((UUID)var2.get(), this));
-         var1.setString("tribeName", (String)this.entityDataManager.get(aU));
+   public void writeEntityToNBT(NBTTagCompound nbt) {
+      super.writeEntityToNBT(nbt);
+      nbt.setFloat("body_size", (Float)this.entityDataManager.get(aE));
+      nbt.setInteger("eyeColorX", ((BlockPos)this.entityDataManager.get(ACTION_TARGET_POS)).getX());
+      nbt.setInteger("eyeColorY", ((BlockPos)this.entityDataManager.get(ACTION_TARGET_POS)).getY());
+      nbt.setInteger("eyeColorZ", ((BlockPos)this.entityDataManager.get(ACTION_TARGET_POS)).getZ());
+      nbt.setString("model", (String)this.entityDataManager.get(APPEARANCE_DNA));
+      nbt.setString("name", (String)this.entityDataManager.get(KOBOLD_NAME));
+      nbt.setString("master", (String)this.entityDataManager.get(MASTER));
+      nbt.setTag("inventory", this.inventory.serializeNBT());
+      nbt.setString("bodyColor", (String)this.entityDataManager.get(CURRENT_ACTION));
+      nbt.setBoolean("editedColorManually", this.aA);
+      Optional tribeOpt = (Optional)this.entityDataManager.get(aL);
+      if (tribeOpt.isPresent()) {
+         nbt.setUniqueId("tribeId", (UUID)tribeOpt.get());
+         nbt.setBoolean("isLeader", KoboldManager.isTribeMember((UUID)tribeOpt.get(), this));
+         nbt.setString("tribeName", (String)this.entityDataManager.get(aU));
       }
    }
 
    @Override
-   public void readEntityFromNBT(NBTTagCompound var1) {
-      super.readEntityFromNBT(var1);
-      String var2 = var1.getString("model");
-      if (!"".equals(var2)) {
-         this.entityDataManager.set(APPEARANCE_DNA, var2);
+   public void readEntityFromNBT(NBTTagCompound nbt) {
+      super.readEntityFromNBT(nbt);
+      String modelCode = nbt.getString("model");
+      if (!"".equals(modelCode)) {
+         this.entityDataManager.set(APPEARANCE_DNA, modelCode);
       }
 
-      BlockPos var3 = new BlockPos(var1.getInteger("eyeColorX"), var1.getInteger("eyeColorY"), var1.getInteger("eyeColorZ"));
-      if (!BlockPos.ORIGIN.equals(var3)) {
-         this.entityDataManager.set(ACTION_TARGET_POS, var3);
+      BlockPos eyeColor = new BlockPos(nbt.getInteger("eyeColorX"), nbt.getInteger("eyeColorY"), nbt.getInteger("eyeColorZ"));
+      if (!BlockPos.ORIGIN.equals(eyeColor)) {
+         this.entityDataManager.set(ACTION_TARGET_POS, eyeColor);
       }
 
-      this.entityDataManager.set(aE, var1.getFloat("body_size"));
-      this.entityDataManager.set(KOBOLD_NAME, var1.getString("name"));
-      this.entityDataManager.set(MASTER, var1.getString("master"));
-      this.inventory.deserializeNBT(var1.getCompoundTag("inventory"));
-      String var4 = var1.getString("bodyColor");
-      if (!"".equals(var4)) {
-         this.entityDataManager.set(CURRENT_ACTION, var1.getString("bodyColor"));
+      this.entityDataManager.set(aE, nbt.getFloat("body_size"));
+      this.entityDataManager.set(KOBOLD_NAME, nbt.getString("name"));
+      this.entityDataManager.set(MASTER, nbt.getString("master"));
+      this.inventory.deserializeNBT(nbt.getCompoundTag("inventory"));
+      String bodyColor = nbt.getString("bodyColor");
+      if (!"".equals(bodyColor)) {
+         this.entityDataManager.set(CURRENT_ACTION, nbt.getString("bodyColor"));
       }
 
-      this.aA = var1.getBoolean("editedColorManually");
-      UUID var5 = var1.getUniqueId("tribeId");
-      if (var5 != null && !this.isDead) {
-         this.entityDataManager.set(aL, Optional.of(var5));
-         if (!KoboldManager.doesTribeExist(var5)) {
-            KoboldManager.setTribeColor(var5, EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(CURRENT_ACTION)));
+      this.aA = nbt.getBoolean("editedColorManually");
+      UUID tribeId = nbt.getUniqueId("tribeId");
+      if (tribeId != null && !this.isDead) {
+         this.entityDataManager.set(aL, Optional.of(tribeId));
+         if (!KoboldManager.doesTribeExist(tribeId)) {
+            KoboldManager.setTribeColor(tribeId, EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(CURRENT_ACTION)));
          }
 
-         KoboldManager.addTribeMember(var5, this);
-         if (var1.getBoolean("isLeader")) {
-            KoboldManager.isTribeMember(var5, this);
+         KoboldManager.addTribeMember(tribeId, this);
+         if (nbt.getBoolean("isLeader")) {
+            KoboldManager.isTribeMember(tribeId, this);
          }
 
-         this.entityDataManager.set(aU, var1.getString("tribeName"));
+         this.entityDataManager.set(aU, nbt.getString("tribeName"));
       }
    }
 
@@ -2547,13 +2547,13 @@ KoboldManager.setTribeLeader(var3, this);
          return false;
       }
 
-      Block var1 = this.world.getBlockState(this.getPosition().add(0, 1, 0)).getBlock();
-      return !var1.isPassable(this.world, this.getPosition().add(0, 1, 0));
+      Block block = this.world.getBlockState(this.getPosition().add(0, 1, 0)).getBlock();
+      return !block.isPassable(this.world, this.getPosition().add(0, 1, 0));
    }
 
    boolean hasInventoryItems() {
-      for (int var1 = 0; var1 < this.inventory.getSlots(); var1++) {
-         if (!this.inventory.getStackInSlot(var1).isEmpty()) {
+      for (int slot = 0; slot < this.inventory.getSlots(); slot++) {
+         if (!this.inventory.getStackInSlot(slot).isEmpty()) {
             return false;
          }
       }
@@ -2561,34 +2561,34 @@ KoboldManager.setTribeLeader(var3, this);
       return true;
    }
 
-   boolean canAssignTask(KoboldTask var1) {
-      ArrayList var2 = new ArrayList();
+   boolean canAssignTask(KoboldTask task) {
+      ArrayList drops = new ArrayList();
 
-      for (BlockPos var4 : var1.getMiningTargets()) {
+      for (BlockPos target : task.getMiningTargets()) {
          try {
-            IBlockState var5 = this.world.getBlockState(var4);
-            ItemStack var6 = var5.getBlock().getItem(this.world, var4, var5);
-            var2.add(var6);
-         } catch (IllegalArgumentException var7) {
+            IBlockState state = this.world.getBlockState(target);
+            ItemStack drop = state.getBlock().getItem(this.world, target, state);
+            drops.add(drop);
+         } catch (IllegalArgumentException ex) {
          }
       }
 
-      return this.canStoreItems(var2);
+      return this.canStoreItems(drops);
    }
 
-   boolean canInsertItem(ItemStack var1) {
-      return this.canInsertItemStack(this.inventory, var1, true, false);
+   boolean canInsertItem(ItemStack stack) {
+      return this.canInsertItemStack(this.inventory, stack, true, false);
    }
 
-   boolean canStoreItems(List<ItemStack> var1) {
-      ItemStackHandler var2 = new ItemStackHandler(this.inventory.getSlots());
+   boolean canStoreItems(List<ItemStack> stacks) {
+      ItemStackHandler simulated = new ItemStackHandler(this.inventory.getSlots());
 
-      for (int var3 = 0; var3 < var2.getSlots(); var3++) {
-         var2.setStackInSlot(var3, this.inventory.getStackInSlot(var3));
+      for (int slot = 0; slot < simulated.getSlots(); slot++) {
+         simulated.setStackInSlot(slot, this.inventory.getStackInSlot(slot));
       }
 
-      for (ItemStack var4 : var1) {
-         if (!this.canInsertItemStack(var2, var4, true, false)) {
+      for (ItemStack stack : stacks) {
+         if (!this.canInsertItemStack(simulated, stack, true, false)) {
             return false;
          }
       }
@@ -2596,78 +2596,78 @@ KoboldManager.setTribeLeader(var3, this);
       return true;
    }
 
-   boolean canExtractItem(ItemStack var1) {
-      return this.canInsertItemStack(this.inventory, var1, false, true);
+   boolean canExtractItem(ItemStack stack) {
+      return this.canInsertItemStack(this.inventory, stack, false, true);
    }
 
-   boolean canInsertItemStack(ItemStackHandler var1, ItemStack var2, boolean var3, boolean var4) {
-      for (int var5 = 0; var5 < var1.getSlots(); var5++) {
-         ItemStack var6 = var1.getStackInSlot(var5);
-         if (var6.getItem() == var2.getItem() && var6.getMetadata() == var2.getMetadata()) {
-            int var7 = var6.getMaxStackSize();
-            if (var7 > var2.getCount() + var6.getCount()) {
-               if (!var3) {
-                  var6.setCount(var6.getCount() + var2.getCount());
+   boolean canInsertItemStack(ItemStackHandler handler, ItemStack stack, boolean simulate, boolean extract) {
+      for (int slot = 0; slot < handler.getSlots(); slot++) {
+         ItemStack existing = handler.getStackInSlot(slot);
+         if (existing.getItem() == stack.getItem() && existing.getMetadata() == stack.getMetadata()) {
+            int maxStack = existing.getMaxStackSize();
+            if (maxStack > stack.getCount() + existing.getCount()) {
+               if (!simulate) {
+                  existing.setCount(existing.getCount() + stack.getCount());
                }
 
                return true;
             }
 
-            int var8 = var7 - var6.getCount();
-            var6.setCount(var7);
-            var2.setCount(var2.getCount() - var8);
+            int space = maxStack - existing.getCount();
+            existing.setCount(maxStack);
+            stack.setCount(stack.getCount() - space);
          }
       }
 
-      for (int var9 = 0; var9 < var1.getSlots(); var9++) {
-         ItemStack var11 = var1.getStackInSlot(var9);
-         if (var11.getItem() == Items.AIR) {
-            if (!var3) {
-               var1.setStackInSlot(var9, var2);
+      for (int slot = 0; slot < handler.getSlots(); slot++) {
+         ItemStack slotStack = handler.getStackInSlot(slot);
+         if (slotStack.getItem() == Items.AIR) {
+            if (!simulate) {
+               handler.setStackInSlot(slot, stack);
             }
 
             return true;
          }
       }
 
-      if (var3) {
+      if (simulate) {
          return false;
       }
 
-      if (!var4) {
+      if (!extract) {
          return false;
       }
 
-      EntityItem var10 = new EntityItem(this.world);
-      var10.setItem(var2);
-      var10.setPosition(this.posX, this.posY, this.posZ);
-      this.world.spawnEntity(var10);
+      EntityItem itemEntity = new EntityItem(this.world);
+      itemEntity.setItem(stack);
+      itemEntity.setPosition(this.posX, this.posY, this.posZ);
+      this.world.spawnEntity(itemEntity);
       return false;
    }
 
    @Override
-   public void playSoundAtVolume(SoundEvent var1, float var2) {
-      float var3 = 0.25F - (Float)this.entityDataManager.get(aE);
-      double var4 = var3 / 0.25F;
-      float var6 = (float)RotationHelper.lerpDouble(0.9F, 1.1F, var4);
-      this.playSoundAtPosition(var1, var2, var6);
+   public void playSoundAtVolume(SoundEvent sound, float volume) {
+      float shrink = 0.25F - (Float)this.entityDataManager.get(aE);
+      double progress = shrink / 0.25F;
+      float pitch = (float)RotationHelper.lerpDouble(0.9F, 1.1F, progress);
+      this.playSoundAtPosition(sound, volume, pitch);
    }
 
    @Override
-   public void playSound(SoundEvent var1) {
-      this.playSoundAtVolume(var1, 1.0F);
+   public void playSound(SoundEvent sound) {
+      this.playSoundAtVolume(sound, 1.0F);
    }
 
-   void playRandomSounds(SoundEvent[] var1) {
-      this.playRandomSound(var1, 1.0F);
+   void playRandomSounds(SoundEvent[] sounds) {
+      this.playRandomSound(sounds, 1.0F);
    }
 
-   void playRandomSound(SoundEvent[] var1, float var2) {
-      this.playSoundAtVolume(var1[this.getRNG().nextInt(var1.length)], var2);
+   void playRandomSound(SoundEvent[] sounds, float volume) {
+      this.playSoundAtVolume(sounds[this.getRNG().nextInt(sounds.length)], volume);
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
       if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
@@ -2676,105 +2676,105 @@ KoboldManager.setTribeLeader(var3, this);
          this.initAnimationControllers();
       }
 
-      float var2 = 0.25F - (Float)this.getDataManager().get(aE);
-      GeckoLibCache.getInstance().parser.setValue("size", var2);
-      switch (var1.getController().getName()) {
+      float shrink = 0.25F - (Float)this.getDataManager().get(aE);
+      GeckoLibCache.getInstance().parser.setValue("size", shrink);
+      switch (event.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.kobold.null", true, var1);
+               this.createAnimation("animation.kobold.null", true, event);
             } else {
-               this.createAnimation("animation.kobold.blink", true, var1);
+               this.createAnimation("animation.kobold.blink", true, event);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.kobold.null", true, var1);
+               this.createAnimation("animation.kobold.null", true, event);
             } else if (this.isRiding()) {
-               this.createAnimation("animation.kobold.sit", true, var1);
+               this.createAnimation("animation.kobold.sit", true, event);
             } else {
-               double var5 = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
-               if (!(Boolean)this.entityDataManager.get(IS_ANCHORED) && var5 > 0.0) {
+               double moved = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
+               if (!(Boolean)this.entityDataManager.get(IS_ANCHORED) && moved > 0.0) {
                   if (this.onGround && Math.abs(Math.abs(this.prevPosY) - Math.abs(this.posY)) < 0.1F) {
                      this.rotationYaw = this.rotationYawHead;
-                     double var9 = 1.0 + var2 * 2.0F;
-                     this.movementController.setAnimationSpeed(var9);
+                     double speed = 1.0 + shrink * 2.0F;
+                     this.movementController.setAnimationSpeed(speed);
                      if (this.isBlockedByCeiling()) {
-                        this.createAnimation("animation.kobold.crouch_walk", true, var1);
+                        this.createAnimation("animation.kobold.crouch_walk", true, event);
                      } else if ((Boolean)this.entityDataManager.get(aC)) {
-                        this.createAnimation("animation.kobold.run_armed", true, var1);
-                     } else if (var5 > 0.2F) {
-                        this.createAnimation("animation.kobold.run", true, var1);
+                        this.createAnimation("animation.kobold.run_armed", true, event);
+                     } else if (moved > 0.2F) {
+                        this.createAnimation("animation.kobold.run", true, event);
                      } else {
-                        this.createAnimation("animation.kobold.walk", true, var1);
+                        this.createAnimation("animation.kobold.walk", true, event);
                      }
                   } else {
-                     this.createAnimation("animation.kobold.fly", true, var1);
+                     this.createAnimation("animation.kobold.fly", true, event);
                   }
                } else if (this.isBlockedByCeiling()) {
-                  this.createAnimation("animation.kobold.crouch_idle", true, var1);
+                  this.createAnimation("animation.kobold.crouch_idle", true, event);
                } else {
-                  this.createAnimation(this.entityDataManager.get(aC) ? "animation.kobold.idle_armed" : "animation.kobold.idle", true, var1);
+                  this.createAnimation(this.entityDataManager.get(aC) ? "animation.kobold.idle_armed" : "animation.kobold.idle", true, event);
                }
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.createAnimation("animation.kobold.null", true, var1);
+                  this.createAnimation("animation.kobold.null", true, event);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.kobold.attack", false, var1);
+                  this.createAnimation("animation.kobold.attack", false, event);
                   break;
                case RIDE:
                case SIT:
-                  this.createAnimation("animation.kobold.sit", true, var1);
+                  this.createAnimation("animation.kobold.sit", true, event);
                   break;
                case MINE:
-                  this.createAnimation("animation.kobold.fall_tree", true, var1);
+                  this.createAnimation("animation.kobold.fall_tree", true, event);
                   break;
                case PAYMENT:
-                  this.createAnimation("animation.kobold.paymentBackpack", true, var1);
+                  this.createAnimation("animation.kobold.paymentBackpack", true, event);
                   break;
                case STARTBLOWJOB:
-                  this.createAnimation("animation.kobold.blowjobStart", false, var1);
+                  this.createAnimation("animation.kobold.blowjobStart", false, event);
                   break;
                case SUCKBLOWJOB_BLINK:
-                  String var7 = this.WildSlimeFaceLayer ? "R" : "L";
-                  String var8 = this.aT ? "Switch" : "";
-                  this.createAnimation("animation.kobold.blowjobSlow" + var7 + var8, true, var1);
+                  String side = this.WildSlimeFaceLayer ? "R" : "L";
+                  String animSuffix = this.aT ? "Switch" : "";
+                  this.createAnimation("animation.kobold.blowjobSlow" + side + animSuffix, true, event);
                   break;
                case THRUSTBLOWJOB:
-                  this.createAnimation("animation.kobold.blowjobFast", true, var1);
+                  this.createAnimation("animation.kobold.blowjobFast", true, event);
                   break;
                case CUMBLOWJOB:
-                  this.createAnimation("animation.kobold.blowjobCum", false, var1);
+                  this.createAnimation("animation.kobold.blowjobCum", false, event);
                   break;
                case KOBOLD_ANAL_START:
-                  this.createAnimation("animation.kobold.analStart", false, var1);
+                  this.createAnimation("animation.kobold.analStart", false, event);
                   break;
                case KOBOLD_ANAL_SLOW:
-                  this.createAnimation("animation.kobold.analSoft", true, var1);
+                  this.createAnimation("animation.kobold.analSoft", true, event);
                   break;
                case KOBOLD_ANAL_FAST:
-                  this.createAnimation("animation.kobold.analHard", true, var1);
+                  this.createAnimation("animation.kobold.analHard", true, event);
                   break;
                case KOBOLD_ANAL_CUM:
-                  this.createAnimation("animation.kobold.analCum", true, var1);
+                  this.createAnimation("animation.kobold.analCum", true, event);
                   break;
                case SLEEP:
-                  this.createAnimation("animation.kobold.sleep", true, var1);
+                  this.createAnimation("animation.kobold.sleep", true, event);
                   break;
                case MATING_PRESS_START:
-                  this.createAnimation("animation.kobold.mating_press_start", false, var1);
+                  this.createAnimation("animation.kobold.mating_press_start", false, event);
                   break;
                case MATING_PRESS_SOFT:
-                  this.createAnimation("animation.kobold.mating_press_soft", true, var1);
+                  this.createAnimation("animation.kobold.mating_press_soft", true, event);
                   break;
                case MATING_PRESS_HARD:
-                  this.createAnimation("animation.kobold.mating_press_hard", true, var1);
+                  this.createAnimation("animation.kobold.mating_press_hard", true, event);
                   break;
                case MATING_PRESS_CUM:
-                  this.createAnimation("animation.kobold.mating_press_cum", true, var1);
+                  this.createAnimation("animation.kobold.mating_press_cum", true, event);
             }
       }
 
@@ -2783,13 +2783,13 @@ KoboldManager.setTribeLeader(var3, this);
 
    @SideOnly(Side.CLIENT)
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       if (this.actionController == null) {
          this.initAnimationControllers();
       }
 
-      AnimationController.ISoundListener var2 = var1x -> {
-         switch (var1x.sound) {
+      AnimationController.ISoundListener soundListener = sound -> {
+         switch (sound.sound) {
             case "attackSound":
                this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
                break;
@@ -2812,22 +2812,22 @@ KoboldManager.setTribeLeader(var3, this);
                break;
             case "blowjobStartMSG1":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var11 = Minecraft.getMinecraft().player;
-                  Vec3d var13 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.625 - var11.getEyeHeight(), -1.0), this.getYawRotation() + 180.0F);
+                  EntityPlayerSP player = Minecraft.getMinecraft().player;
+                  Vec3d pos = VectorMath.rotateByYaw(new Vec3d(0.0, 0.625 - player.getEyeHeight(), -1.0), this.getYawRotation() + 180.0F);
                   PacketHandler.networkWrapper
                      .sendToServer(
-                        new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var13), this.getYawRotation() + 180.0F, 0.0F)
+                        new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(pos), this.getYawRotation() + 180.0F, 0.0F)
                      );
                }
                break;
             case "blowjobStartMSG2":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var10 = Minecraft.getMinecraft().player;
-                  Vec3d var12 = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5 - var10.getEyeHeight(), -0.6875), this.getYawRotation() + 180.0F);
+                  EntityPlayerSP player = Minecraft.getMinecraft().player;
+                  Vec3d pos = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5 - player.getEyeHeight(), -0.6875), this.getYawRotation() + 180.0F);
                   PacketHandler.networkWrapper
                      .sendToServer(
                         new TeleportPlayerPacket(
-                           this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var12), this.getYawRotation() + 180.0F - 40.0F, 0.0F
+                           this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(pos), this.getYawRotation() + 180.0F - 40.0F, 0.0F
                         )
                      );
                }
@@ -2887,10 +2887,10 @@ KoboldManager.setTribeLeader(var3, this);
                break;
             case "analStartCam":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var9 = Minecraft.getMinecraft().player;
-                  Vec3d var5 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.5625 - var9.getEyeHeight(), 0.5625), this.getYawRotation() + 180.0F);
+                  EntityPlayerSP player = Minecraft.getMinecraft().player;
+                  Vec3d pos = VectorMath.rotateByYaw(new Vec3d(0.0, 0.5625 - player.getEyeHeight(), 0.5625), this.getYawRotation() + 180.0F);
                   PacketHandler.networkWrapper
-                     .sendToServer(new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(var5), this.getYawRotation(), 0.0F));
+                     .sendToServer(new TeleportPlayerPacket(this.getInteractionPlayerUUID().toString(), this.getTargetPosition().add(pos), this.getYawRotation(), 0.0F));
                }
                break;
             case "pounding":
@@ -2962,16 +2962,16 @@ KoboldManager.setTribeLeader(var3, this);
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_BJMOAN));
                break;
             case "blowjobStartbreath":
-               int var6 = this.getRNG().nextInt(3);
-               this.playSound(SoundHandler.GIRLS_KOBOLD_LIGHTBREATHING[var6]);
+               int soundId = this.getRNG().nextInt(3);
+               this.playSound(SoundHandler.GIRLS_KOBOLD_LIGHTBREATHING[soundId]);
                break;
             case "matingCam":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var8 = Minecraft.getMinecraft().player;
-                  Vec3d var16 = new Vec3d(0.0, 0.4375 - var8.eyeHeight, -0.6875);
-                  var16 = VectorMath.rotateByYaw(var16, this.getYawRotation() + 180.0F);
-                  var16 = var16.add(this.getTargetPosition());
-                  PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(var8.getPersistentID().toString(), var16, this.getYawRotation() + 180.0F, 10.0F));
+                  EntityPlayerSP player = Minecraft.getMinecraft().player;
+                  Vec3d pos = new Vec3d(0.0, 0.4375 - player.eyeHeight, -0.6875);
+                  pos = VectorMath.rotateByYaw(pos, this.getYawRotation() + 180.0F);
+                  pos = pos.add(this.getTargetPosition());
+                  PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(player.getPersistentID().toString(), pos, this.getYawRotation() + 180.0F, 10.0F));
                }
                break;
             case "mating_press_startDone":
@@ -3003,11 +3003,11 @@ KoboldManager.setTribeLeader(var3, this);
                break;
             case "mating_cum_cam":
                if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP var4 = Minecraft.getMinecraft().player;
-                  Vec3d var7 = new Vec3d(0.0, 1.1875 - var4.eyeHeight, 0.125);
-                  var7 = VectorMath.rotateByYaw(var7, this.getYawRotation() + 180.0F);
-                  var7 = var7.add(this.getTargetPosition());
-                  PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(var4.getPersistentID().toString(), var7, this.getYawRotation() + 180.0F, 70.0F));
+                  EntityPlayerSP player = Minecraft.getMinecraft().player;
+                  Vec3d pos = new Vec3d(0.0, 1.1875 - player.eyeHeight, 0.125);
+                  pos = VectorMath.rotateByYaw(pos, this.getYawRotation() + 180.0F);
+                  pos = pos.add(this.getTargetPosition());
+                  PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(player.getPersistentID().toString(), pos, this.getYawRotation() + 180.0F, 70.0F));
                }
                break;
             case "cumMsg":
@@ -3025,10 +3025,10 @@ KoboldManager.setTribeLeader(var3, this);
          }
       };
       this.movementController.transitionLengthTicks = 10.0;
-      this.actionController.registerSoundListener(var2);
-      var1.addAnimationController(this.actionController);
-      var1.addAnimationController(this.movementController);
-      var1.addAnimationController(this.eyesController);
+      this.actionController.registerSoundListener(soundListener);
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.movementController);
+      data.addAnimationController(this.eyesController);
    }
 
    public int getSizeInventory() {
@@ -3039,20 +3039,20 @@ KoboldManager.setTribeLeader(var3, this);
       return false;
    }
 
-   public ItemStack getStackInSlot(int var1) {
-      return var1 >= this.inventory.getSlots() ? ItemStack.EMPTY : this.inventory.getStackInSlot(var1);
+   public ItemStack getStackInSlot(int slot) {
+      return slot >= this.inventory.getSlots() ? ItemStack.EMPTY : this.inventory.getStackInSlot(slot);
    }
 
-   public ItemStack decrStackSize(int var1, int var2) {
-      return this.inventory.extractItem(var1, var2, false);
+   public ItemStack decrStackSize(int slot, int amount) {
+      return this.inventory.extractItem(slot, amount, false);
    }
 
-   public ItemStack removeStackFromSlot(int var1) {
-      return this.inventory.extractItem(var1, this.inventory.getStackInSlot(var1).getCount(), false);
+   public ItemStack removeStackFromSlot(int slot) {
+      return this.inventory.extractItem(slot, this.inventory.getStackInSlot(slot).getCount(), false);
    }
 
-   public void setInventorySlotContents(int var1, ItemStack var2) {
-      this.inventory.setStackInSlot(var1, var2);
+   public void setInventorySlotContents(int slot, ItemStack stack) {
+      this.inventory.setStackInSlot(slot, stack);
    }
 
    public int getInventoryStackLimit() {
@@ -3062,25 +3062,25 @@ KoboldManager.setTribeLeader(var3, this);
    public void markDirty() {
    }
 
-   public boolean isUsableByPlayer(EntityPlayer var1) {
+   public boolean isUsableByPlayer(EntityPlayer player) {
       return true;
    }
 
-   public void openInventory(EntityPlayer var1) {
+   public void openInventory(EntityPlayer player) {
    }
 
-   public void closeInventory(EntityPlayer var1) {
+   public void closeInventory(EntityPlayer player) {
    }
 
-   public boolean isItemValidForSlot(int var1, ItemStack var2) {
+   public boolean isItemValidForSlot(int slot, ItemStack stack) {
       return true;
    }
 
-   public int getField(int var1) {
-      return var1;
+   public int getField(int id) {
+      return id;
    }
 
-   public void setField(int var1, int var2) {
+   public void setField(int id, int value) {
    }
 
    public int getFieldCount() {
@@ -3094,51 +3094,51 @@ KoboldManager.setTribeLeader(var3, this);
       int tickCounter = 0;
 
       @SubscribeEvent
-      public void onLivingDeath(LivingDeathEvent var1) {
-         if (var1.getEntityLiving() instanceof KoboldEntity) {
-            KoboldEntity var2 = (KoboldEntity)var1.getEntityLiving();
-            if (var2.world.isRemote) {
+      public void onLivingDeath(LivingDeathEvent event) {
+         if (event.getEntityLiving() instanceof KoboldEntity) {
+            KoboldEntity kobold = (KoboldEntity)event.getEntityLiving();
+            if (kobold.world.isRemote) {
                return;
             }
 
-            for (int var3 = 0; var3 < var2.inventory.getSlots(); var3++) {
-               ItemStack var4 = var2.inventory.getStackInSlot(var3);
-               if (var4.getItem() != Items.AIR) {
-                  var2.dropItem(var4.getItem(), var4.getCount());
+            for (int slot = 0; slot < kobold.inventory.getSlots(); slot++) {
+               ItemStack stack = kobold.inventory.getStackInSlot(slot);
+               if (stack.getItem() != Items.AIR) {
+                  kobold.dropItem(stack.getItem(), stack.getCount());
                }
             }
          }
       }
 
       @SubscribeEvent
-      public void onLivingHurtPlayer(LivingHurtEvent var1) {
-         Entity var2 = var1.getEntity();
-         World var3 = var2.getEntityWorld();
-         if (!var3.isRemote) {
-            if (var2 instanceof KoboldEntity) {
-               KoboldEntity var4 = (KoboldEntity)var2;
-               Optional var5 = (Optional)var4.getDataManager().get(KoboldEntity.aL);
-               if (var5.isPresent()) {
-                  Entity var6 = var1.getSource().getTrueSource();
-                  if (var6 != null) {
-                     if (var6 instanceof EntityLivingBase) {
-                        if (var6 instanceof EntityPlayer) {
-                           EntityPlayer var7 = (EntityPlayer)var6;
-                           if (var7.capabilities.isCreativeMode) {
+      public void onLivingHurtPlayer(LivingHurtEvent event) {
+         Entity entity = event.getEntity();
+         World world = entity.getEntityWorld();
+         if (!world.isRemote) {
+            if (entity instanceof KoboldEntity) {
+               KoboldEntity kobold = (KoboldEntity)entity;
+               Optional tribeOpt = (Optional)kobold.getDataManager().get(KoboldEntity.aL);
+               if (tribeOpt.isPresent()) {
+                  Entity attacker = event.getSource().getTrueSource();
+                  if (attacker != null) {
+                     if (attacker instanceof EntityLivingBase) {
+                        if (attacker instanceof EntityPlayer) {
+                           EntityPlayer player = (EntityPlayer)attacker;
+                           if (player.capabilities.isCreativeMode) {
                               return;
                            }
 
-                           if (var7.equals(var4.getMasterPlayer())) {
+                           if (player.equals(kobold.getMasterPlayer())) {
                               return;
                            }
                         }
 
-                        EntityPlayer var8 = var4.getMasterPlayer();
-                        if (var8 != null) {
-                           var8.sendStatusMessage(new TextComponentString(TextFormatting.RED + "Your Tribe is under Attack!"), true);
+                        EntityPlayer master = kobold.getMasterPlayer();
+                        if (master != null) {
+                           master.sendStatusMessage(new TextComponentString(TextFormatting.RED + "Your Tribe is under Attack!"), true);
                         }
 
-                        KoboldManager.addCombatant((UUID)var5.get(), (EntityLivingBase)var6);
+                        KoboldManager.addCombatant((UUID)tribeOpt.get(), (EntityLivingBase)attacker);
                      }
                   }
                }
@@ -3147,37 +3147,37 @@ KoboldManager.setTribeLeader(var3, this);
       }
 
       @SubscribeEvent
-      public void onWorldUnload(Unload var1) {
+      public void onWorldUnload(Unload event) {
          try {
-            for (BaseGirlEntity var3 : BaseGirlEntity.getGirlEntityList()) {
-               if (var3 instanceof KoboldEntity) {
-                  KoboldEntity var4 = (KoboldEntity)var3;
-                  Optional var5 = (Optional)var4.getDataManager().get(KoboldEntity.aL);
-                  if (var5.isPresent() && KoboldManager.isTribeMember((UUID)var5.get(), var4)) {
-                     var4.teleportToHome((UUID)var5.get());
+            for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+               if (girl instanceof KoboldEntity) {
+                  KoboldEntity kobold = (KoboldEntity)girl;
+                  Optional tribeOpt = (Optional)kobold.getDataManager().get(KoboldEntity.aL);
+                  if (tribeOpt.isPresent() && KoboldManager.isTribeMember((UUID)tribeOpt.get(), kobold)) {
+                     kobold.teleportToHome((UUID)tribeOpt.get());
                   }
                }
             }
-         } catch (ConcurrentModificationException var6) {
+         } catch (ConcurrentModificationException ex) {
          }
       }
 
       @SubscribeEvent
-      public void onLivingHurtCancel(LivingHurtEvent var1) {
-         if (var1.getSource() == DamageSource.IN_WALL) {
-            Entity var2 = var1.getEntity();
-            if (var2 instanceof KoboldEntity) {
-               var2.setPosition(var2.posX, var2.posY + 1.0, var2.posZ);
-               var1.setCanceled(true);
+      public void onLivingHurtCancel(LivingHurtEvent event) {
+         if (event.getSource() == DamageSource.IN_WALL) {
+            Entity entity = event.getEntity();
+            if (entity instanceof KoboldEntity) {
+               entity.setPosition(entity.posX, entity.posY + 1.0, entity.posZ);
+               event.setCanceled(true);
             }
          }
       }
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void onClientTick(ClientTickEvent var1) {
-         WorldClient var2 = Minecraft.getMinecraft().world;
-         if (var2 != null) {
+      public void onClientTick(ClientTickEvent event) {
+         WorldClient world = Minecraft.getMinecraft().world;
+         if (world != null) {
             if (++this.tickCounter % 20 == 0) {
                PacketHandler.networkWrapper.sendToServer(new GetTribeUiValuesPacket());
             }

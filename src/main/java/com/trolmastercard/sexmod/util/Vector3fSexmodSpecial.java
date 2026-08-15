@@ -13,21 +13,21 @@ public class Vector3fSexmodSpecial {
    public float y;
    public float z;
 
-   public Vector3fSexmodSpecial(float var1, float var2, float var3) {
-      this.x = var1;
-      this.y = var2;
-      this.z = var3;
+   public Vector3fSexmodSpecial(float x, float y, float z) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
    }
 
-   public Vector3fSexmodSpecial add(Vector3fSexmodSpecial var1) {
-      return new Vector3fSexmodSpecial(this.x - var1.x, this.y - var1.y, this.z - var1.z);
+   public Vector3fSexmodSpecial add(Vector3fSexmodSpecial other) {
+      return new Vector3fSexmodSpecial(this.x - other.x, this.y - other.y, this.z - other.z);
    }
 
-   public Vector3fSexmodSpecial subtract(Vector3fSexmodSpecial var1) {
-      return new Vector3fSexmodSpecial(this.x + var1.x, this.y + var1.y, this.z + var1.z);
+   public Vector3fSexmodSpecial subtract(Vector3fSexmodSpecial other) {
+      return new Vector3fSexmodSpecial(this.x + other.x, this.y + other.y, this.z + other.z);
    }
 
-   public Vector3fSexmodSpecial scale(float var1) {
-      return new Vector3fSexmodSpecial(this.x * var1, this.y * var1, this.z * var1);
+   public Vector3fSexmodSpecial scale(float factor) {
+      return new Vector3fSexmodSpecial(this.x * factor, this.y * factor, this.z * factor);
    }
 }

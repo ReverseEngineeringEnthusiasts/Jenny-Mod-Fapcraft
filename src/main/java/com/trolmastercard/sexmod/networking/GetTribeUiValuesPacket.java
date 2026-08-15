@@ -45,83 +45,83 @@ public class GetTribeUiValuesPacket implements IMessage {
       this.tribeMembers = new ArrayList<>();
    }
 
-   public GetTribeUiValuesPacket(boolean var1, List<Vector4d> var2) {
-      this.isValid = var1;
-      this.tribeMembers = var2;
+   public GetTribeUiValuesPacket(boolean isValid, List<Vector4d> tribeMembers) {
+      this.isValid = isValid;
+      this.tribeMembers = tribeMembers;
    }
 
    static GetTribeUiValuesPacket createEmptyPacket() {
       return new GetTribeUiValuesPacket(false, new ArrayList<>());
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.isValid = var1.readBoolean();
-      int var2 = var1.readInt();
+   public void fromBytes(ByteBuf buf) {
+      this.isValid = buf.readBoolean();
+      int count = buf.readInt();
 
-      for (int var3 = 0; var3 < var2; var3++) {
-         this.tribeMembers.add(new Vector4d(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt()));
+      for (int i = 0; i < count; i++) {
+         this.tribeMembers.add(new Vector4d(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt()));
       }
 
       this.isTribeLeader = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeBoolean(this.isValid);
-      var1.writeInt(this.tribeMembers.size());
+   public void toBytes(ByteBuf buf) {
+      buf.writeBoolean(this.isValid);
+      buf.writeInt(this.tribeMembers.size());
 
-      for (Vector4d var3 : this.tribeMembers) {
-         var1.writeInt((int)var3.getX());
-         var1.writeInt((int)var3.getY());
-         var1.writeInt((int)var3.getZ());
-         var1.writeInt((int)var3.getW());
+      for (Vector4d member : this.tribeMembers) {
+         buf.writeInt((int)member.getX());
+         buf.writeInt((int)member.getY());
+         buf.writeInt((int)member.getZ());
+         buf.writeInt((int)member.getW());
       }
    }
 
    public static class Handler implements IMessageHandler<GetTribeUiValuesPacket, IMessage> {
-      public IMessage onMessage(GetTribeUiValuesPacket var1, MessageContext var2) {
-         if (!var1.isTribeLeader) {
+      public IMessage onMessage(GetTribeUiValuesPacket packet, MessageContext ctx) {
+         if (!packet.isTribeLeader) {
             System.out.println("received an invalid message @GetTribeUIValues :(");
             return null;
-         } else if (var2.side.isClient()) {
-            StructureCommandScreen.isErasing = var1.isValid;
-            KoboldEntity.aY = var1.tribeMembers;
+         } else if (ctx.side.isClient()) {
+            StructureCommandScreen.isErasing = packet.isValid;
+            KoboldEntity.aY = packet.tribeMembers;
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               UUID var1x = KoboldManager.getTribeUUID(var2.getServerHandler().player.getPersistentID());
-               if (var1x == null) {
-                  PacketHandler.networkWrapper.sendTo(GetTribeUiValuesPacket.createEmptyPacket(), var2.getServerHandler().player);
+               UUID tribeUuid = KoboldManager.getTribeUUID(ctx.getServerHandler().player.getPersistentID());
+               if (tribeUuid == null) {
+                  PacketHandler.networkWrapper.sendTo(GetTribeUiValuesPacket.createEmptyPacket(), ctx.getServerHandler().player);
                } else {
-                  boolean var2x = KoboldManager.isTribeAlerted(var1x);
-                  EntityPlayerMP var3 = var2.getServerHandler().player;
-                  HashMap var4 = KoboldManager.getTribeSavedPositions(var1x, var3.world);
-                  List var5 = KoboldManager.getTribeMembersList(var1x);
-                  ArrayList var6 = new ArrayList();
-                  int var7 = KoboldManager.getTribeColor(var1x).getWoolMeta();
-                  HashSet var8 = new HashSet();
+                  boolean isAlerted = KoboldManager.isTribeAlerted(tribeUuid);
+                  EntityPlayerMP player = ctx.getServerHandler().player;
+                  HashMap savedPositions = KoboldManager.getTribeSavedPositions(tribeUuid, player.world);
+                  List membersList = KoboldManager.getTribeMembersList(tribeUuid);
+                  ArrayList positions = new ArrayList();
+                  int woolColor = KoboldManager.getTribeColor(tribeUuid).getWoolMeta();
+                  HashSet seenIds = new HashSet();
 
-                  for (KoboldEntity var10 : (java.util.Collection<KoboldEntity>) (var5) ) {
-                     if (!var10.isDead) {
-                        UUID var11 = var10.getGirlId();
-                        if (!var8.contains(var11)) {
-                           if (var10.aA) {
-                              var7 = EyeAndKoboldColor.safeValueOf((String)var10.getDataManager().get(AbstractNpcOnlyEntity.CURRENT_ACTION)).getWoolMeta();
+                  for (KoboldEntity kobold : (java.util.Collection<KoboldEntity>) (membersList) ) {
+                     if (!kobold.isDead) {
+                        UUID girlId = kobold.getGirlId();
+                        if (!seenIds.contains(girlId)) {
+                           if (kobold.aA) {
+                              woolColor = EyeAndKoboldColor.safeValueOf((String)kobold.getDataManager().get(AbstractNpcOnlyEntity.CURRENT_ACTION)).getWoolMeta();
                            }
 
-                           var6.add(new Vector4d(var10.posX, var10.posY, var10.posZ, var7));
-                           var8.add(var11);
+                           positions.add(new Vector4d(kobold.posX, kobold.posY, kobold.posZ, woolColor));
+                           seenIds.add(girlId);
                         }
                      }
                   }
 
-                  for (Entry var13 : (java.util.Set<Entry>) var4.entrySet()) {
-                     if (!var8.contains(var13.getKey())) {
-                        BlockPos var14 = (BlockPos)var13.getValue();
-                        var6.add(new Vector4d(var14.getX(), var14.getY(), var14.getZ(), var7));
+                  for (Entry entry : (java.util.Set<Entry>) savedPositions.entrySet()) {
+                     if (!seenIds.contains(entry.getKey())) {
+                        BlockPos pos = (BlockPos)entry.getValue();
+                        positions.add(new Vector4d(pos.getX(), pos.getY(), pos.getZ(), woolColor));
                      }
                   }
 
-                  PacketHandler.networkWrapper.sendTo(new GetTribeUiValuesPacket(var2x, var6), var3);
+                  PacketHandler.networkWrapper.sendTo(new GetTribeUiValuesPacket(isAlerted, positions), player);
                }
             });
             return null;

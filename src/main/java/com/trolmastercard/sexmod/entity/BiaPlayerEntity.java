@@ -51,12 +51,12 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    boolean ap = false;
    int aq = 1;
 
-   public BiaPlayerEntity(World var1) {
-      super(var1);
+   public BiaPlayerEntity(World world) {
+      super(world);
    }
 
-   public BiaPlayerEntity(World var1, UUID var2) {
-      super(var1, var2);
+   public BiaPlayerEntity(World world, UUID uuid) {
+      super(world, uuid);
    }
 
    @Override
@@ -79,12 +79,12 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
     * the server.
     */
    @Override
-   public boolean handleActionRequest(String var1) {
-      if ("anal".equals(var1)) {
+   public boolean handleActionRequest(String action) {
+      if ("anal".equals(action)) {
          this.setCurrentAction(Action.ANAL_PREPARE);
          this.setOutfitIndex(0);
          return true;
-      } else if ("doggy".equals(var1)) {
+      } else if ("doggy".equals(action)) {
          this.setCurrentAction(Action.SITDOWN);
          this.setOutfitIndex(0);
          return true;
@@ -104,21 +104,21 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
     * and plays the headpat animation.
     */
    @Override
-   public void handleOwnerCommand(String var1, UUID var2) {
-      if ("action.names.headpat".equals(var1)) {
-         this.teleportPlayerToGirl(var2);
+   public void handleOwnerCommand(String command, UUID uuid) {
+      if ("action.names.headpat".equals(command)) {
+         this.teleportPlayerToGirl(uuid);
          this.setCurrentAction(Action.HEAD_PAT);
          this.sendActionPacket(this.getOutfitIndex(), Action.HEAD_PAT);
       }
    }
 
    @Override
-   public IVanillaModel getHandModel(int var1) {
+   public IVanillaModel getHandModel(int index) {
       return new JennyModel();
    }
 
    @Override
-   public String getHandTexture(int var1) {
+   public String getHandTexture(int index) {
       return "textures/entity/bia/hand.png";
    }
 
@@ -138,8 +138,8 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean openInteractionMenu(EntityPlayer var1) {
-      BaseGirlEntity.openInventoryGui(var1, this, new String[]{"action.names.headpat"}, false);
+   public boolean openInteractionMenu(EntityPlayer player) {
+      BaseGirlEntity.openInventoryGui(player, this, new String[]{"action.names.headpat"}, false);
       return true;
    }
 
@@ -153,20 +153,20 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected Action getNextAction(Action var1) {
-      if (var1 == Action.ANAL_SLOW) {
+   protected Action getNextAction(Action action) {
+      if (action == Action.ANAL_SLOW) {
          return Action.ANAL_FAST;
       } else {
-         return var1 == Action.PRONE_DOGGY_INTRO ? Action.PRONE_DOGGY_INSERT : null;
+         return action == Action.PRONE_DOGGY_INTRO ? Action.PRONE_DOGGY_INSERT : null;
       }
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      if (var1 == Action.ANAL_SLOW || var1 == Action.ANAL_FAST) {
+   protected Action getCumAction(Action action) {
+      if (action == Action.ANAL_SLOW || action == Action.ANAL_FAST) {
          return Action.ANAL_CUM;
       } else {
-         return var1 != Action.PRONE_DOGGY_SOFT && var1 != Action.PRONE_DOGGY_HARD ? null : Action.PRONE_DOGGY_CUM;
+         return action != Action.PRONE_DOGGY_SOFT && action != Action.PRONE_DOGGY_HARD ? null : Action.PRONE_DOGGY_CUM;
       }
    }
 
@@ -187,8 +187,8 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean isOwnPlayer(EntityPlayer var1) {
-      return Minecraft.getMinecraft().player.getPersistentID().equals(var1.getPersistentID());
+   public boolean isOwnPlayer(EntityPlayer player) {
+      return Minecraft.getMinecraft().player.getPersistentID().equals(player.getPersistentID());
    }
 
    /**
@@ -201,50 +201,50 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
     * CLIENT only mirrors the horny-meter/UI side.
     */
    void handleBiaAnalState() {
-      Action var1 = this.getCurrentAction();
-      if (var1 == Action.ANAL_WAIT || var1 == Action.SITDOWNIDLE) {
-         EntityPlayer var2 = this.getNearestPlayer();
-         if (var2 != null) {
-            if (!(var2.getDistance(this) > 1.0F)) {
-               if (!this.world.isRemote || this.isOwnPlayer(var2)) {
+      Action action = this.getCurrentAction();
+      if (action == Action.ANAL_WAIT || action == Action.SITDOWNIDLE) {
+         EntityPlayer player = this.getNearestPlayer();
+         if (player != null) {
+            if (!(player.getDistance(this) > 1.0F)) {
+               if (!this.world.isRemote || this.isOwnPlayer(player)) {
                   if (this.ar == -1) {
                      if (this.world.isRemote) {
                         BeeScreen.enableInteraction();
                         HandlePlayerMovement.setMovementLock(false);
                      } else {
-                        this.setInteractionPlayerUUID(var2.getPersistentID());
+                        this.setInteractionPlayerUUID(player.getPersistentID());
                      }
 
                      this.ar = 22;
                   } else if (--this.ar <= 0) {
                      this.ar = -1;
-                     var2.noClip = true;
-                     var2.setNoGravity(true);
-                     if (var1 == Action.ANAL_WAIT) {
+                     player.noClip = true;
+                     player.setNoGravity(true);
+                     if (action == Action.ANAL_WAIT) {
                         if (!this.world.isRemote) {
                            this.setCurrentAction(Action.ANAL_START);
-                           Vec3d var8 = this.getTargetPosition().add(VectorMath.rotateByYaw(-0.3, -1.0, -0.5, this.getYawRotation()));
-                           var2.setPositionAndUpdate(var8.x, var8.y, var8.z);
+                           Vec3d pos = this.getTargetPosition().add(VectorMath.rotateByYaw(-0.3, -1.0, -0.5, this.getYawRotation()));
+                           player.setPositionAndUpdate(pos.x, pos.y, pos.z);
                         } else if (this.isControlledByLocalPlayer()) {
                            HornyMeterHud.showHornyMeter();
                         }
                      } else {
-                        float var3 = this.getYawRotation();
-                        var2.rotationYaw = var3;
-                        var2.rotationPitch = 60.0F;
+                        float yaw = this.getYawRotation();
+                        player.rotationYaw = yaw;
+                        player.rotationPitch = 60.0F;
                         if (!this.world.isRemote) {
                            this.setOutfitIndex(0);
                            this.setCurrentAction(Action.PRONE_DOGGY_INTRO);
-                           Vec3d var4 = this.getTargetPosition();
-                           Vec3d var5 = var4.add(VectorMath.rotateByYaw(0.0, 0.0, 1.0, var3));
-                           this.setTargetPosition(var5);
-                           EntityPlayer var6 = this.getOwnerPlayer();
-                           if (var6 != null) {
-                              var6.setPositionAndUpdate(var5.x, var5.y, var5.z);
+                           Vec3d targetPos = this.getTargetPosition();
+                           Vec3d followPos = targetPos.add(VectorMath.rotateByYaw(0.0, 0.0, 1.0, yaw));
+                           this.setTargetPosition(followPos);
+                           EntityPlayer owner = this.getOwnerPlayer();
+                           if (owner != null) {
+                              owner.setPositionAndUpdate(followPos.x, followPos.y, followPos.z);
                            }
 
-                           Vec3d var7 = var4.add(VectorMath.rotateByYaw(0.0, 1.1875 - var2.getEyeHeight(), 0.5, var3));
-                           var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
+                           Vec3d playerPos = targetPos.add(VectorMath.rotateByYaw(0.0, 1.1875 - player.getEyeHeight(), 0.5, yaw));
+                           player.setPositionAndUpdate(playerPos.x, playerPos.y, playerPos.z);
                            this.setAnchored(true);
                         }
                      }
@@ -265,128 +265,128 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    public void resetAnimationControllerTicks() {
       super.resetAnimationControllerTicks();
       if (this.getCurrentAction() == Action.PRONE_DOGGY_HARD) {
-         int var1 = this.aq;
+         int oldState = this.aq;
 
          do {
             this.aq = this.getRNG().nextInt(3) + 1;
-         } while (var1 == this.aq);
+         } while (oldState == this.aq);
       }
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
-      switch (var1.getController().getName()) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
+      switch (event.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
-               this.createAnimation("animation.bia.fhappy", true, var1);
+               this.createAnimation("animation.bia.fhappy", true, event);
             } else {
-               this.createAnimation("animation.bia.null", true, var1);
+               this.createAnimation("animation.bia.null", true, event);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.bia.null", true, var1);
+               this.createAnimation("animation.bia.null", true, event);
             } else if (this.ak) {
-               this.createAnimation("animation.bia.sit", true, var1);
+               this.createAnimation("animation.bia.sit", true, event);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.ap = !this.ap;
                }
 
                if (!this.af) {
-                  this.createAnimation("animation.bia.fly" + (this.ap ? "2" : ""), true, var1);
+                  this.createAnimation("animation.bia.fly" + (this.ap ? "2" : ""), true, event);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
                      this.movementController.setAnimationSpeed(1.2);
-                     this.createAnimation("animation.bia.run", true, var1);
+                     this.createAnimation("animation.bia.run", true, event);
                   } else if (this.ao.y >= -0.1F) {
                      this.movementController.setAnimationSpeed(1.2);
-                     this.createAnimation("animation.bia.fastwalk", true, var1);
+                     this.createAnimation("animation.bia.fastwalk", true, event);
                   } else {
                      this.movementController.setAnimationSpeed(1.2);
-                     this.createAnimation("animation.bia.backwards_walk", true, var1);
+                     this.createAnimation("animation.bia.backwards_walk", true, event);
                   }
                } else {
-                  this.createAnimation("animation.bia.idle", true, var1);
+                  this.createAnimation("animation.bia.idle", true, event);
                }
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.createAnimation("animation.bia.null", true, var1);
+                  this.createAnimation("animation.bia.null", true, event);
                   break;
                case STRIP:
-                  this.createAnimation("animation.bia.strip", false, var1);
+                  this.createAnimation("animation.bia.strip", false, event);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.bia.attack" + this.nextAttack, false, var1);
+                  this.createAnimation("animation.bia.attack" + this.nextAttack, false, event);
                   break;
                case BOW:
-                  this.createAnimation("animation.bia.bowcharge", false, var1);
+                  this.createAnimation("animation.bia.bowcharge", false, event);
                   break;
                case RIDE:
-                  this.createAnimation("animation.bia.ride", true, var1);
+                  this.createAnimation("animation.bia.ride", true, event);
                   break;
                case SIT:
-                  this.createAnimation("animation.bia.sit", true, var1);
+                  this.createAnimation("animation.bia.sit", true, event);
                   break;
                case THROW_PEARL:
-                  this.createAnimation("animation.bia.throwpearl", false, var1);
+                  this.createAnimation("animation.bia.throwpearl", false, event);
                   break;
                case DOWNED:
-                  this.createAnimation("animation.bia.downed", true, var1);
+                  this.createAnimation("animation.bia.downed", true, event);
                   break;
                case TALK_HORNY:
-                  this.createAnimation("animation.bia.talk_horny", false, var1);
+                  this.createAnimation("animation.bia.talk_horny", false, event);
                   break;
                case TALK_IDLE:
-                  this.createAnimation("animation.bia.talk_idle", true, var1);
+                  this.createAnimation("animation.bia.talk_idle", true, event);
                   break;
                case TALK_RESPONSE:
-                  this.createAnimation("animation.bia.talk_response", true, var1);
+                  this.createAnimation("animation.bia.talk_response", true, event);
                   break;
                case ANAL_PREPARE:
-                  this.createAnimation("animation.bia.anal_prepare", false, var1);
+                  this.createAnimation("animation.bia.anal_prepare", false, event);
                   break;
                case ANAL_WAIT:
-                  this.createAnimation("animation.bia.anal_wait", true, var1);
+                  this.createAnimation("animation.bia.anal_wait", true, event);
                   break;
                case ANAL_START:
-                  this.createAnimation("animation.bia.anal_start", true, var1);
+                  this.createAnimation("animation.bia.anal_start", true, event);
                   break;
                case ANAL_SLOW:
-                  this.createAnimation("animation.bia.anal_slow", true, var1);
+                  this.createAnimation("animation.bia.anal_slow", true, event);
                   break;
                case ANAL_FAST:
-                  this.createAnimation("animation.bia.anal_fast", true, var1);
+                  this.createAnimation("animation.bia.anal_fast", true, event);
                   break;
                case ANAL_CUM:
-                  this.createAnimation("animation.bia.anal_cum", false, var1);
+                  this.createAnimation("animation.bia.anal_cum", false, event);
                   break;
                case HEAD_PAT:
-                  this.createAnimation("animation.bia.headpat", false, var1);
+                  this.createAnimation("animation.bia.headpat", false, event);
                   break;
                case SITDOWN:
-                  this.createAnimation("animation.bia.sitdown", false, var1);
+                  this.createAnimation("animation.bia.sitdown", false, event);
                   break;
                case SITDOWNIDLE:
-                  this.createAnimation("animation.bia.sitdownidle", true, var1);
+                  this.createAnimation("animation.bia.sitdownidle", true, event);
                   break;
                case PRONE_DOGGY_INTRO:
-                  this.createAnimation("animation.bia.prone_doggy_intro", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_intro", true, event);
                   break;
                case PRONE_DOGGY_INSERT:
-                  this.createAnimation("animation.bia.prone_doggy_insert", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_insert", true, event);
                   break;
                case PRONE_DOGGY_SOFT:
-                  this.createAnimation("animation.bia.prone_doggy_soft", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_soft", true, event);
                   break;
                case PRONE_DOGGY_HARD:
-                  this.createAnimation("animation.bia.prone_doggy_hard" + this.aq, true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_hard" + this.aq, true, event);
                   break;
                case PRONE_DOGGY_CUM:
-                  this.createAnimation("animation.bia.prone_doggy_cum", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_cum", true, event);
             }
       }
 
@@ -406,13 +406,13 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
     */
    @SideOnly(Side.CLIENT)
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       if (this.actionController == null) {
          this.initAnimationControllers();
       }
 
-      AnimationController.ISoundListener var2 = var1x -> {
-         switch (var1x.sound) {
+      AnimationController.ISoundListener soundListener = sound -> {
+         switch (sound.sound) {
             case "attackDone":
                if (++this.nextAttack == 3) {
                   this.nextAttack = 0;
@@ -597,10 +597,10 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                }
          }
       };
-      this.actionController.registerSoundListener(var2);
-      var1.addAnimationController(this.movementController);
-      var1.addAnimationController(this.eyesController);
-      var1.addAnimationController(this.actionController);
+      this.actionController.registerSoundListener(soundListener);
+      data.addAnimationController(this.movementController);
+      data.addAnimationController(this.eyesController);
+      data.addAnimationController(this.actionController);
    }
 
 }

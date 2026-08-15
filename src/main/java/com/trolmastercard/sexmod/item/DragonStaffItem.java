@@ -57,24 +57,24 @@ public class DragonStaffItem extends Item implements IAnimatable {
       MinecraftForge.EVENT_BUS.register(DragonStaffItem.class);
    }
 
-   public ActionResult<ItemStack> onItemRightClick(World var1, EntityPlayer var2, EnumHand var3) {
-      return new ActionResult(EnumActionResult.FAIL, var2.getHeldItem(var3));
+   public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+      return new ActionResult(EnumActionResult.FAIL, player.getHeldItem(hand));
    }
 
    @SubscribeEvent
-   public static void registerItems(Register<Item> var0) {
-      var0.getRegistry().register(DRAGON_STAFF);
+   public static void registerItems(Register<Item> event) {
+      event.getRegistry().register(DRAGON_STAFF);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void onModelRegistry(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent event) {
       ModelLoader.setCustomModelResourceLocation(DRAGON_STAFF, 0, new ModelResourceLocation("sexmod:dragon_staff"));
       DRAGON_STAFF.setTileEntityItemStackRenderer(new DragonStaffRenderer());
    }
 
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData animationData) {
    }
 
    @Override
@@ -84,12 +84,12 @@ public class DragonStaffItem extends Item implements IAnimatable {
 
    public static class a {
       @SubscribeEvent
-      public void onRightClickItem(RightClickItem var1) {
-         World var2 = var1.getWorld();
-         if (var2.isRemote) {
-            EntityPlayer var3 = var1.getEntityPlayer();
-            if (var3.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.DRAGON_STAFF
-               || var3.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.DRAGON_STAFF) {
+      public void onRightClickItem(RightClickItem event) {
+         World world = event.getWorld();
+         if (world.isRemote) {
+            EntityPlayer player = event.getEntityPlayer();
+            if (player.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.DRAGON_STAFF
+               || player.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.DRAGON_STAFF) {
                if (!KoboldEntity.aY.isEmpty()) {
                   this.openStructureCommand();
                }
@@ -104,21 +104,21 @@ public class DragonStaffItem extends Item implements IAnimatable {
       }
 
       @SubscribeEvent
-      public void onRightClickBlock(RightClickBlock var1) {
-         EntityPlayer var2 = var1.getEntityPlayer();
-         if (var2.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.DRAGON_STAFF
-            || var2.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.DRAGON_STAFF) {
-            Block var3 = var1.getWorld().getBlockState(var1.getPos()).getBlock();
-            if (var3 instanceof BlockBed) {
-               var1.setCancellationResult(EnumActionResult.FAIL);
-               var1.setResult(Result.DENY);
-               var1.setCanceled(true);
+      public void onRightClickBlock(RightClickBlock event) {
+         EntityPlayer player = event.getEntityPlayer();
+         if (player.getHeldItem(EnumHand.MAIN_HAND).getItem() == DragonStaffItem.DRAGON_STAFF
+            || player.getHeldItem(EnumHand.OFF_HAND).getItem() == DragonStaffItem.DRAGON_STAFF) {
+            Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
+            if (block instanceof BlockBed) {
+               event.setCancellationResult(EnumActionResult.FAIL);
+               event.setResult(Result.DENY);
+               event.setCanceled(true);
             }
 
-            if (var3 instanceof BlockChest) {
-               var1.setCancellationResult(EnumActionResult.FAIL);
-               var1.setResult(Result.DENY);
-               var1.setCanceled(true);
+            if (block instanceof BlockChest) {
+               event.setCancellationResult(EnumActionResult.FAIL);
+               event.setResult(Result.DENY);
+               event.setCanceled(true);
             }
          }
       }

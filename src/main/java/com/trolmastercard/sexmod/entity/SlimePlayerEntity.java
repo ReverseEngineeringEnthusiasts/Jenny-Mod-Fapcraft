@@ -37,12 +37,12 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    boolean ap = false;
    int aq = 0;
 
-   protected SlimePlayerEntity(World var1) {
-      super(var1);
+   protected SlimePlayerEntity(World world) {
+      super(world);
    }
 
-   public SlimePlayerEntity(World var1, UUID var2) {
-      super(var1, var2);
+   public SlimePlayerEntity(World world, UUID uuid) {
+      super(world, uuid);
    }
 
    @Override
@@ -65,27 +65,27 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public IVanillaModel getHandModel(int var1) {
+   public IVanillaModel getHandModel(int index) {
       return new KoboldModel();
    }
 
    @Override
-   public String getHandTexture(int var1) {
+   public String getHandTexture(int index) {
       return "textures/entity/slime/hand.png";
    }
 
    @Override
-   public void handleOwnerCommand(String var1, UUID var2) {
-      if ("action.names.blowjob".equals(var1)) {
+   public void handleOwnerCommand(String command, UUID uuid) {
+      if ("action.names.blowjob".equals(command)) {
          this.sendActionPacket(0, Action.SUCKBLOWJOB);
          this.setCurrentAction(Action.SUCKBLOWJOB);
-         this.teleportPlayerToGirl(var2);
+         this.teleportPlayerToGirl(uuid);
       }
    }
 
    @Override
-   public boolean openInteractionMenu(EntityPlayer var1) {
-      openInventoryGui(var1, this, new String[]{"action.names.blowjob"}, false);
+   public boolean openInteractionMenu(EntityPlayer player) {
+      openInventoryGui(player, this, new String[]{"action.names.blowjob"}, false);
       return true;
    }
 
@@ -99,20 +99,20 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected Action getNextAction(Action var1) {
-      if (var1 == Action.SUCKBLOWJOB) {
+   protected Action getNextAction(Action action) {
+      if (action == Action.SUCKBLOWJOB) {
          return Action.THRUSTBLOWJOB;
       } else {
-         return var1 == Action.DOGGYSLOW ? Action.DOGGYFAST : null;
+         return action == Action.DOGGYSLOW ? Action.DOGGYFAST : null;
       }
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      if (var1 == Action.SUCKBLOWJOB || var1 == Action.THRUSTBLOWJOB) {
+   protected Action getCumAction(Action action) {
+      if (action == Action.SUCKBLOWJOB || action == Action.THRUSTBLOWJOB) {
          return Action.CUMBLOWJOB;
       } else {
-         return var1 != Action.DOGGYSLOW && var1 != Action.DOGGYFAST ? null : Action.DOGGYCUM;
+         return action != Action.DOGGYSLOW && action != Action.DOGGYFAST ? null : Action.DOGGYCUM;
       }
    }
 
@@ -126,116 +126,116 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    public void updateAITasks() {
       super.updateAITasks();
       if (this.getCurrentAction() == Action.WAITDOGGY) {
-         EntityPlayer var1 = this.getNearestPlayer();
-         if (var1 != null) {
-            if (!(var1.getPositionVector().distanceTo(this.getPositionVec3d()) > 1.0)) {
-               PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
-               this.setInteractionPlayerUUID(var1.getPersistentID());
-               var1.rotationYaw = this.getYawRotation();
+         EntityPlayer player = this.getNearestPlayer();
+         if (player != null) {
+            if (!(player.getPositionVector().distanceTo(this.getPositionVec3d()) > 1.0)) {
+               PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)player);
+               this.setInteractionPlayerUUID(player.getPersistentID());
+               player.rotationYaw = this.getYawRotation();
                this.cameraYaw = this.getYawRotation();
-               var1.setPosition(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z);
-               var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
+               player.setPosition(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z);
+               player.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
                this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
                this.setCurrentAction(Action.DOGGYSTART);
-               var1.setNoGravity(true);
-               var1.noClip = true;
-               EntityPlayer var2 = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
-               var2.setNoGravity(true);
-               var1.noClip = true;
-               var1.capabilities.isFlying = true;
-               var2.capabilities.isFlying = true;
+               player.setNoGravity(true);
+               player.noClip = true;
+               EntityPlayer ownerPlayer = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
+               ownerPlayer.setNoGravity(true);
+               player.noClip = true;
+               player.capabilities.isFlying = true;
+               ownerPlayer.capabilities.isFlying = true;
             }
          }
       }
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
-      switch (var1.getController().getName()) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
+      switch (event.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() != Action.NULL && this.getCurrentAction().autoBlink) {
-               this.createAnimation("animation.slime.fhappy", true, var1);
+               this.createAnimation("animation.slime.fhappy", true, event);
             } else {
-               this.createAnimation("animation.slime.null", true, var1);
+               this.createAnimation("animation.slime.null", true, event);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.slime.null", true, var1);
+               this.createAnimation("animation.slime.null", true, event);
             } else if (this.ak) {
-               this.createAnimation("animation.slime.sit", true, var1);
+               this.createAnimation("animation.slime.sit", true, event);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
                   this.ap = !this.ap;
                }
 
                if (!this.af) {
-                  this.createAnimation("animation.slime.fly" + (this.ap ? "2" : ""), true, var1);
+                  this.createAnimation("animation.slime.fly" + (this.ap ? "2" : ""), true, event);
                } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
                   if (this.aj) {
-                     this.createAnimation("animation.slime.run", true, var1);
+                     this.createAnimation("animation.slime.run", true, event);
                   } else if (this.ao.y >= -0.1F) {
-                     this.createAnimation("animation.slime.walk", true, var1);
+                     this.createAnimation("animation.slime.walk", true, event);
                   } else {
-                     this.createAnimation("animation.slime.backwards_walk", true, var1);
+                     this.createAnimation("animation.slime.backwards_walk", true, event);
                   }
                } else {
-                  this.createAnimation("animation.slime.idle", true, var1);
+                  this.createAnimation("animation.slime.idle", true, event);
                }
             }
             break;
          case "action":
             if (this.getCurrentAction() == Action.NULL) {
-               this.createAnimation("animation.slime.null", true, var1);
+               this.createAnimation("animation.slime.null", true, event);
             } else {
                switch (this.getCurrentAction()) {
                   case UNDRESS:
-                     this.createAnimation("animation.slime.undress", false, var1);
+                     this.createAnimation("animation.slime.undress", false, event);
                      break;
                   case DRESS:
-                     this.createAnimation("animation.slime.dress", false, var1);
+                     this.createAnimation("animation.slime.dress", false, event);
                      break;
                   case STRIP:
-                     this.createAnimation("animation.slime.strip", false, var1);
+                     this.createAnimation("animation.slime.strip", false, event);
                      break;
                   case SUCKBLOWJOB:
-                     this.createAnimation("animation.slime.blowjobsuck", true, var1);
+                     this.createAnimation("animation.slime.blowjobsuck", true, event);
                      break;
                   case THRUSTBLOWJOB:
-                     this.createAnimation("animation.slime.blowjobthrust", true, var1);
+                     this.createAnimation("animation.slime.blowjobthrust", true, event);
                      break;
                   case CUMBLOWJOB:
-                     this.createAnimation("animation.slime.blowjobcum", false, var1);
+                     this.createAnimation("animation.slime.blowjobcum", false, event);
                      break;
                   case STARTDOGGY:
-                     this.createAnimation("animation.slime.doggygoonbed", false, var1);
+                     this.createAnimation("animation.slime.doggygoonbed", false, event);
                      break;
                   case WAITDOGGY:
-                     this.createAnimation("animation.slime.doggywait", true, var1);
+                     this.createAnimation("animation.slime.doggywait", true, event);
                      break;
                   case DOGGYSTART:
-                     this.createAnimation("animation.slime.doggystart", false, var1);
+                     this.createAnimation("animation.slime.doggystart", false, event);
                      break;
                   case DOGGYSLOW:
-                     this.createAnimation("animation.slime.doggyslow", true, var1);
+                     this.createAnimation("animation.slime.doggyslow", true, event);
                      break;
                   case DOGGYFAST:
-                     this.createAnimation("animation.slime.doggyfast", true, var1);
+                     this.createAnimation("animation.slime.doggyfast", true, event);
                      break;
                   case DOGGYCUM:
-                     this.createAnimation("animation.slime.doggycum", false, var1);
+                     this.createAnimation("animation.slime.doggycum", false, event);
                      break;
                   case ATTACK:
-                     this.createAnimation("animation.slime.attack" + this.nextAttack, false, var1);
+                     this.createAnimation("animation.slime.attack" + this.nextAttack, false, event);
                      break;
                   case BOW:
-                     this.createAnimation("animation.slime.bowcharge", false, var1);
+                     this.createAnimation("animation.slime.bowcharge", false, event);
                      break;
                   case RIDE:
-                     this.createAnimation("animation.slime.ride", true, var1);
+                     this.createAnimation("animation.slime.ride", true, event);
                      break;
                   case SIT:
-                     this.createAnimation("animation.slime.sit", true, var1);
+                     this.createAnimation("animation.slime.sit", true, event);
                }
             }
       }
@@ -250,14 +250,14 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
     * outfit change + reset.
     */
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       if (this.actionController == null) {
          this.initAnimationControllers();
       }
 
-      AnimationController.ISoundListener var2 = var1x -> {
-         String var2x = var1x.sound;
-         switch (var2x) {
+      AnimationController.ISoundListener soundListener = sound -> {
+         String soundName = sound.sound;
+         switch (soundName) {
             case "attackDone":
                if (++this.nextAttack == 3) {
                   this.nextAttack = 0;
@@ -387,10 +387,10 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "doggyslowMSG1":
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
-               int var5 = Reference.RANDOM.nextInt(4);
-               if (var5 == 0) {
-                  var5 = Reference.RANDOM.nextInt(2);
-                  if (var5 == 0) {
+               int choice = Reference.RANDOM.nextInt(4);
+               if (choice == 0) {
+                  choice = Reference.RANDOM.nextInt(2);
+                  if (choice == 0) {
                      this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                   } else {
                      this.playSound(SoundEvents.ENTITY_SLIME_SQUISH);
@@ -411,8 +411,8 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
 
                this.aq++;
                if (this.aq % 2 == 0) {
-                  int var6 = Reference.RANDOM.nextInt(2);
-                  if (var6 == 0) {
+                  int choice2 = Reference.RANDOM.nextInt(2);
+                  if (choice2 == 0) {
                      this.playSound(SoundEvents.ENTITY_SLIME_JUMP);
                   } else {
                      this.playSound(SoundEvents.ENTITY_SLIME_SQUISH);
@@ -430,10 +430,10 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                this.playSound(SoundEvents.ENTITY_SLIME_DEATH);
          }
       };
-      this.actionController.registerSoundListener(var2);
-      var1.addAnimationController(this.actionController);
-      var1.addAnimationController(this.eyesController);
-      var1.addAnimationController(this.movementController);
+      this.actionController.registerSoundListener(soundListener);
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.eyesController);
+      data.addAnimationController(this.movementController);
    }
 
 }

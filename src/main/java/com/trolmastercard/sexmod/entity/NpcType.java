@@ -36,29 +36,29 @@ public enum NpcType {
    public final int editorID;
    public final boolean hasSpecifics;
 
-   NpcType(Class<? extends BaseGirlEntity> var3, int var4, Class<? extends AbstractPlayerGirlEntity> var5, int var6, boolean var7) {
-      this.npcID = var4;
-      this.playerID = var6;
-      this.npcClass = var3;
-      this.playerClass = var5;
+   NpcType(Class<? extends BaseGirlEntity> npcClass, int npcID, Class<? extends AbstractPlayerGirlEntity> playerClass, int playerID, boolean hasSpecifics) {
+      this.npcID = npcID;
+      this.playerID = playerID;
+      this.npcClass = npcClass;
+      this.playerClass = playerClass;
       this.isNpcOnly = false;
-      this.hasSpecifics = var7;
+      this.hasSpecifics = hasSpecifics;
       this.editorID = Reference.EDITOR_ID_COUNTER++;
    }
 
-   NpcType(Class<? extends BaseGirlEntity> var3, int var4, Class<? extends AbstractPlayerGirlEntity> var5, int var6) {
-      this.npcID = var4;
-      this.playerID = var6;
-      this.npcClass = var3;
-      this.playerClass = var5;
+   NpcType(Class<? extends BaseGirlEntity> npcClass, int npcID, Class<? extends AbstractPlayerGirlEntity> playerClass, int playerID) {
+      this.npcID = npcID;
+      this.playerID = playerID;
+      this.npcClass = npcClass;
+      this.playerClass = playerClass;
       this.isNpcOnly = false;
       this.hasSpecifics = false;
       this.editorID = Reference.EDITOR_ID_COUNTER++;
    }
 
-   NpcType(Class<? extends BaseGirlEntity> var3, int var4) {
-      this.npcID = var4;
-      this.npcClass = var3;
+   NpcType(Class<? extends BaseGirlEntity> npcClass, int npcID) {
+      this.npcID = npcID;
+      this.npcClass = npcClass;
       this.isNpcOnly = true;
       this.hasSpecifics = false;
       this.editorID = Reference.EDITOR_ID_COUNTER++;
@@ -66,31 +66,31 @@ public enum NpcType {
       this.playerID = 0;
    }
 
-   public static NpcType getNpcTypeByName(String var0) {
-      for (NpcType var4 : values()) {
-         if (var4.toString().equalsIgnoreCase(var0)) {
-            return var4;
+   public static NpcType getNpcTypeByName(String name) {
+      for (NpcType type : values()) {
+         if (type.toString().equalsIgnoreCase(name)) {
+            return type;
          }
       }
 
       return JENNY;
    }
 
-   public static NpcType getNpcType(Entity var0) {
-      if (!(var0 instanceof BaseGirlEntity)) {
+   public static NpcType getNpcType(Entity entity) {
+      if (!(entity instanceof BaseGirlEntity)) {
          return null;
       }
 
-      BaseGirlEntity var1 = (BaseGirlEntity)var0;
-      Class var2 = var1.getClass();
+      BaseGirlEntity girl = (BaseGirlEntity)entity;
+      Class clazz = girl.getClass();
 
-      for (NpcType var6 : values()) {
-         if (var2.equals(var6.npcClass)) {
-            return var6;
+      for (NpcType type : values()) {
+         if (clazz.equals(type.npcClass)) {
+            return type;
          }
 
-         if (var2.equals(var6.playerClass)) {
-            return var6;
+         if (clazz.equals(type.playerClass)) {
+            return type;
          }
       }
 

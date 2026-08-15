@@ -20,29 +20,29 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 public class GirlCombatProtection {
    @SubscribeEvent
-   public void onLivingAttack(LivingAttackEvent var1) {
-      if (var1.getSource() != DamageSource.OUT_OF_WORLD) {
-         if (var1.getEntity() instanceof BaseGirlEntity) {
-            BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntity();
-            if (var2 instanceof AbstractPlayerGirlEntity) {
-               var1.setCanceled(true);
+   public void onLivingAttack(LivingAttackEvent event) {
+      if (event.getSource() != DamageSource.OUT_OF_WORLD) {
+         if (event.getEntity() instanceof BaseGirlEntity) {
+            BaseGirlEntity girl = (BaseGirlEntity)event.getEntity();
+            if (girl instanceof AbstractPlayerGirlEntity) {
+               event.setCanceled(true);
             } else {
-               var1.setCanceled(var2.getInteractionPlayerUUID() != null);
+               event.setCanceled(girl.getInteractionPlayerUUID() != null);
             }
          }
       }
    }
 
    @SubscribeEvent
-   public void onPlayerDamage(LivingAttackEvent var1) {
-      DamageSource var2 = var1.getSource();
-      if (var2 != DamageSource.OUT_OF_WORLD && !(var2 instanceof SuccubusDamageSource)) {
-         if (var1.getEntity() instanceof EntityPlayer) {
-            EntityPlayer var3 = (EntityPlayer)var1.getEntity();
-            BaseGirlEntity var4 = BaseGirlEntity.getGirlByUUID(var3.getPersistentID());
-            if (var4 != null) {
-               if (var4.getDistance(var3) < 1.0F) {
-                  var1.setCanceled(true);
+   public void onPlayerDamage(LivingAttackEvent event) {
+      DamageSource source = event.getSource();
+      if (source != DamageSource.OUT_OF_WORLD && !(source instanceof SuccubusDamageSource)) {
+         if (event.getEntity() instanceof EntityPlayer) {
+            EntityPlayer player = (EntityPlayer)event.getEntity();
+            BaseGirlEntity girl = BaseGirlEntity.getGirlByUUID(player.getPersistentID());
+            if (girl != null) {
+               if (girl.getDistance(player) < 1.0F) {
+                  event.setCanceled(true);
                }
             }
          }

@@ -28,7 +28,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class CommandSetModelCode extends CommandBase implements IClientCommand {
    public static final CommandSetModelCode SET_MODEL_CODE_COMMAND = new CommandSetModelCode();
 
-   public boolean allowUsageWithoutPrefix(ICommandSender var1, String var2) {
+   public boolean allowUsageWithoutPrefix(ICommandSender sender, String args) {
       return false;
    }
 
@@ -36,53 +36,53 @@ public class CommandSetModelCode extends CommandBase implements IClientCommand {
       return "setmodelcode";
    }
 
-   public String getUsage(ICommandSender var1) {
+   public String getUsage(ICommandSender sender) {
       return "/setmodelcode";
    }
 
-   public boolean checkPermission(MinecraftServer var1, ICommandSender var2) {
+   public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
       return true;
    }
 
-   public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
-      Minecraft var4 = Minecraft.getMinecraft();
-      EntityPlayerSP var5 = var4.player;
-      String var6 = "";
-      String var7 = "";
-      if (var3.length > 0) {
-         String[] var8 = var3[0].split("\\$");
-         var6 = var8[0];
-         if (var8.length > 1) {
-            var7 = var8[1];
+   public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+      Minecraft mc = Minecraft.getMinecraft();
+      EntityPlayerSP player = mc.player;
+      String modelCode = "";
+      String parts = "";
+      if (args.length > 0) {
+         String[] partsArr = args[0].split("\\$");
+         modelCode = partsArr[0];
+         if (partsArr.length > 1) {
+            parts = partsArr[1];
          }
       }
 
-      RayTraceResult var10 = Minecraft.getMinecraft().objectMouseOver;
-      BaseGirlEntity var9 = this.getTargetGirl(var10);
-      if (var9 == null) {
-         var5.sendStatusMessage(new TextComponentString("You gotta transform into the girl you want to apply the model-code to"), true);
-      } else if ("".equals(var7)) {
-         PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId()));
-         var5.sendStatusMessage(new TextComponentString(this.getModelCodeText(var9)), true);
+      RayTraceResult rayTrace = Minecraft.getMinecraft().objectMouseOver;
+      BaseGirlEntity target = this.getTargetGirl(rayTrace);
+      if (target == null) {
+         player.sendStatusMessage(new TextComponentString("You gotta transform into the girl you want to apply the model-code to"), true);
+      } else if ("".equals(parts)) {
+         PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(modelCode, target.getGirlId()));
+         player.sendStatusMessage(new TextComponentString(this.getModelCodeText(target)), true);
       } else {
-         PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(var6, var9.getGirlId(), BaseGirlEntity.decodePartIdList(var7)));
-         var5.sendStatusMessage(new TextComponentString(this.getModelCodeText(var9)), true);
+         PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(modelCode, target.getGirlId(), BaseGirlEntity.decodePartIdList(parts)));
+         player.sendStatusMessage(new TextComponentString(this.getModelCodeText(target)), true);
       }
    }
 
-   String getModelCodeText(BaseGirlEntity var1) {
-      return var1 instanceof AbstractPlayerGirlEntity
-         ? TextFormatting.YELLOW + "applied model code to your player-" + ThreadNames.capitalizeFirst(NpcType.getNpcType(var1).toString())
-         : TextFormatting.YELLOW + "applied model code to this " + var1.getDisplayNameText();
+   String getModelCodeText(BaseGirlEntity girl) {
+      return girl instanceof AbstractPlayerGirlEntity
+         ? TextFormatting.YELLOW + "applied model code to your player-" + ThreadNames.capitalizeFirst(NpcType.getNpcType(girl).toString())
+         : TextFormatting.YELLOW + "applied model code to this " + girl.getDisplayNameText();
    }
 
    @SideOnly(Side.CLIENT)
-   BaseGirlEntity getTargetGirl(RayTraceResult var1) {
-      if (var1 == null) {
+   BaseGirlEntity getTargetGirl(RayTraceResult target) {
+      if (target == null) {
          return AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player);
       } else {
-         return BaseGirlEntity.isValidGirl(var1.entityHit)
-            ? (BaseGirlEntity)var1.entityHit
+         return BaseGirlEntity.isValidGirl(target.entityHit)
+            ? (BaseGirlEntity)target.entityHit
             : AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player);
       }
    }

@@ -35,8 +35,8 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
    double smoothedBob = 0.0;
    double moveMagnitude = 0.0;
 
-   public PlayerAllieRenderer(RenderManager var1, AnimatedGeoModel var2) {
-      super(var1, var2);
+   public PlayerAllieRenderer(RenderManager renderManager, AnimatedGeoModel geoModel) {
+      super(renderManager, geoModel);
       renderers.add(this);
    }
 
@@ -47,11 +47,11 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
    }
 
    @Override
-   protected void applyItemPostRotation(boolean var1, ItemStack var2) {
-      super.applyItemPostRotation(var1, var2);
-      switch (var2.getItem().getItemUseAction(var2)) {
+   protected void applyItemPostRotation(boolean isMainHand, ItemStack stack) {
+      super.applyItemPostRotation(isMainHand, stack);
+      switch (stack.getItem().getItemUseAction(stack)) {
          default:
-            if (!var1) {
+            if (!isMainHand) {
                GlStateManager.rotate(20.0F, 1.0F, 0.0F, 0.0F);
             }
 
@@ -62,9 +62,9 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
    }
 
    @Override
-   protected void applyBowRotation(boolean var1) {
-      super.applyBowRotation(var1);
-      if (var1) {
+   protected void applyBowRotation(boolean isMainHand) {
+      super.applyBowRotation(isMainHand);
+      if (isMainHand) {
          GlStateManager.translate(0.15, 0.0, 0.0);
       } else {
          GlStateManager.translate(-0.05, 0.0, 0.0);
@@ -72,63 +72,63 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
    }
 
    @Override
-   protected void applyShieldBlockingTransform(boolean var1, boolean var2) {
-      super.applyShieldBlockingTransform(var1, var2);
-      if (var1 && !var2) {
+   protected void applyShieldBlockingTransform(boolean isBlocking, boolean isMainHand) {
+      super.applyShieldBlockingTransform(isBlocking, isMainHand);
+      if (isBlocking && !isMainHand) {
          GlStateManager.translate(-0.025, -0.1, -0.1);
          GlStateManager.rotate(10.0F, 1.0F, 0.0F, 0.0F);
-      } else if (!var1 && !var2) {
+      } else if (!isBlocking && !isMainHand) {
          GlStateManager.translate(-0.05, -0.125, 0.125);
          GlStateManager.rotate(50.0F, 1.0F, 0.0F, 0.0F);
       }
    }
 
    @Override
-   protected void onBoneRenderStart(String var1, GeoBone var2) {
+   protected void onBoneRenderStart(String boneName, GeoBone bone) {
       if (!(Boolean)this.playerGirl.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
-         if ("tail".equals(var1)) {
-            this.applyBoneRotation(var2, 0.0F, 0.0F, 1.0F);
+         if ("tail".equals(boneName)) {
+            this.applyBoneRotation(bone, 0.0F, 0.0F, 1.0F);
          }
 
-         if ("body".equals(var1)) {
-            this.updateBoneBob(var2);
+         if ("body".equals(boneName)) {
+            this.updateBoneBob(bone);
          }
 
          if (this.playerGirl.getCurrentAction() != Action.BOW) {
-            if ("armL".equals(var1)) {
-               this.applyBoneRotation(var2, 0.0F, (float) (-Math.PI / 9), 0.15F);
+            if ("armL".equals(boneName)) {
+               this.applyBoneRotation(bone, 0.0F, (float) (-Math.PI / 9), 0.15F);
             }
 
             if (this.playerGirl.getCurrentAction() != Action.ATTACK) {
-               if ("armR".equals(var1)) {
-                  this.applyBoneRotation(var2, 0.0F, (float) (Math.PI / 9), 0.15F);
+               if ("armR".equals(boneName)) {
+                  this.applyBoneRotation(bone, 0.0F, (float) (Math.PI / 9), 0.15F);
                }
             }
          }
       }
    }
 
-   void applyBoneRotation(GeoBone var1, float var2, float var3, float var4) {
-      double var5 = this.currentPosX - this.prevPosX;
-      double var7 = this.currentPosZ - this.prevPosZ;
-      double var9 = (Math.PI / 180.0) * this.playerGirl.rotationYaw;
-      Vec2f var11 = new Vec2f((float)(var5 * Math.cos(var9) + var7 * Math.sin(var9)), (float)(-var5 * Math.sin(var9) + var7 * Math.cos(var9)));
-      this.rotG = var11.y * -8.0F;
-      this.rotI = var11.x * 8.0F;
+   void applyBoneRotation(GeoBone bone, float rotX, float rotZ, float intensity) {
+      double dx = this.currentPosX - this.prevPosX;
+      double dz = this.currentPosZ - this.prevPosZ;
+      double yawRad = (Math.PI / 180.0) * this.playerGirl.rotationYaw;
+      Vec2f movement = new Vec2f((float)(dx * Math.cos(yawRad) + dz * Math.sin(yawRad)), (float)(-dx * Math.sin(yawRad) + dz * Math.cos(yawRad)));
+      this.rotG = movement.y * -8.0F;
+      this.rotI = movement.x * 8.0F;
       this.rotG = ThreadNames.clampFloat(this.rotG, -1.68F, 1.68F);
       this.rotI = ThreadNames.clampFloat(this.rotI, -1.68F, 1.68F);
       this.rotG = RotationHelper.lerp(this.prevRotX, this.rotG, this.partialTicks);
       this.rotI = RotationHelper.lerp(this.prevRotZ, this.rotI, this.partialTicks);
-      var1.setRotationX(var2 + this.rotG * var4);
-      var1.setRotationZ(var3 + this.rotI * var4);
+      bone.setRotationX(rotX + this.rotG * intensity);
+      bone.setRotationZ(rotZ + this.rotI * intensity);
    }
 
-   void updateBoneBob(GeoBone var1) {
-      double var2 = this.currentPosX - this.prevPosX;
-      double var4 = this.currentPosZ - this.prevPosZ;
-      this.moveMagnitude = (Math.abs(var2) + Math.abs(var4)) * 5.0;
+   void updateBoneBob(GeoBone bone) {
+      double dx = this.currentPosX - this.prevPosX;
+      double dz = this.currentPosZ - this.prevPosZ;
+      this.moveMagnitude = (Math.abs(dx) + Math.abs(dz)) * 5.0;
       this.moveMagnitude = ThreadNames.clampFloat((float)this.moveMagnitude, 0.0F, 1.0F);
-      var1.setPositionY((float)RotationHelper.lerpAngle(5.0, 0.0, RotationHelper.lerpDouble(this.smoothedBob, this.moveMagnitude, this.partialTicks)));
+      bone.setPositionY((float)RotationHelper.lerpAngle(5.0, 0.0, RotationHelper.lerpDouble(this.smoothedBob, this.moveMagnitude, this.partialTicks)));
       if (this.playerGirl instanceof AlliePlayerEntity) {
          ((AlliePlayerEntity)this.playerGirl).aq = (float)RotationHelper.lerpAngle(0.3F, 0.0, RotationHelper.lerpDouble(this.smoothedBob, this.moveMagnitude, this.partialTicks));
       }
@@ -140,12 +140,12 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
          this.prevRotZ = this.rotI;
          this.smoothedBob = this.moveMagnitude;
          if (this.playerGirl.getOwnerUserUUID() != null) {
-            EntityPlayer var1 = this.renderEntity.world.getPlayerEntityByUUID(this.playerGirl.getOwnerUserUUID());
-            if (var1 != null) {
+            EntityPlayer owner = this.renderEntity.world.getPlayerEntityByUUID(this.playerGirl.getOwnerUserUUID());
+            if (owner != null) {
                this.prevPosX = this.currentPosX;
                this.prevPosZ = this.currentPosZ;
-               this.currentPosX = var1.posX;
-               this.currentPosZ = var1.posZ;
+               this.currentPosX = owner.posX;
+               this.currentPosZ = owner.posZ;
             }
          }
       }
@@ -153,9 +153,9 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
 
    public static class a {
       @SubscribeEvent
-      public void onClientTick(ClientTickEvent var1) {
-         for (PlayerAllieRenderer var3 : PlayerAllieRenderer.renderers) {
-            var3.updateCameraRotations();
+      public void onClientTick(ClientTickEvent event) {
+         for (PlayerAllieRenderer renderer : PlayerAllieRenderer.renderers) {
+            renderer.updateCameraRotations();
          }
       }
    }

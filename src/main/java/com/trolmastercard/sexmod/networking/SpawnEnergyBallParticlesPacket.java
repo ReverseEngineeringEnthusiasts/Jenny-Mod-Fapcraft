@@ -32,41 +32,41 @@ public class SpawnEnergyBallParticlesPacket implements IMessage {
    public SpawnEnergyBallParticlesPacket() {
    }
 
-   public SpawnEnergyBallParticlesPacket(UUID var1, UUID var2) {
-      this.girlUUID = var1;
-      this.playerUUID = var2;
+   public SpawnEnergyBallParticlesPacket(UUID girlUUID, UUID playerUUID) {
+      this.girlUUID = girlUUID;
+      this.playerUUID = playerUUID;
    }
 
-   public void fromBytes(ByteBuf var1) {
+   public void fromBytes(ByteBuf buf) {
       try {
-         this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      } catch (Exception var3) {
+         this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      } catch (Exception exception) {
          this.girlUUID = null;
       }
 
       try {
-         this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      } catch (Exception var2) {
+         this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      } catch (Exception exception2) {
          this.playerUUID = null;
       }
 
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID == null ? "trol was here" : this.girlUUID.toString());
-      ByteBufUtils.writeUTF8String(var1, this.playerUUID == null ? "trol was here" : this.playerUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID == null ? "trol was here" : this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(buf, this.playerUUID == null ? "trol was here" : this.playerUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<SpawnEnergyBallParticlesPacket, IMessage> {
-      public IMessage onMessage(SpawnEnergyBallParticlesPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.CLIENT)) {
-            BaseGirlEntity var3 = BaseGirlEntity.getClientGirlEntity(var1.girlUUID);
-            if (!(var3 instanceof GalathEntity)) {
+      public IMessage onMessage(SpawnEnergyBallParticlesPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.CLIENT)) {
+            BaseGirlEntity girl = BaseGirlEntity.getClientGirlEntity(packet.girlUUID);
+            if (!(girl instanceof GalathEntity)) {
                System.out.println("doesnt exit");
                return null;
             } else {
-               GalathCoinItem.summonGalathFor(var1.playerUUID, (GalathEntity)var3);
+               GalathCoinItem.summonGalathFor(packet.playerUUID, (GalathEntity)girl);
                return null;
             }
          } else {

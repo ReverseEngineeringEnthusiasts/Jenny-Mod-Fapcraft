@@ -25,8 +25,8 @@ public abstract class BeeEntityBase extends BaseGirlEntity implements IInventory
       .createKey(111);
    public ItemStackHandler inventory = new ItemStackHandler(27);
 
-   protected BeeEntityBase(World var1) {
-      super(var1);
+   protected BeeEntityBase(World world) {
+      super(world);
    }
 
    @Override
@@ -43,20 +43,20 @@ public abstract class BeeEntityBase extends BaseGirlEntity implements IInventory
       return false;
    }
 
-   public ItemStack getStackInSlot(int var1) {
-      return var1 >= this.inventory.getSlots() ? ItemStack.EMPTY : this.inventory.getStackInSlot(var1);
+   public ItemStack getStackInSlot(int slot) {
+      return slot >= this.inventory.getSlots() ? ItemStack.EMPTY : this.inventory.getStackInSlot(slot);
    }
 
-   public ItemStack decrStackSize(int var1, int var2) {
-      return this.inventory.extractItem(var1, var2, false);
+   public ItemStack decrStackSize(int slot, int amount) {
+      return this.inventory.extractItem(slot, amount, false);
    }
 
-   public ItemStack removeStackFromSlot(int var1) {
-      return this.inventory.extractItem(var1, this.inventory.getStackInSlot(var1).getCount(), false);
+   public ItemStack removeStackFromSlot(int slot) {
+      return this.inventory.extractItem(slot, this.inventory.getStackInSlot(slot).getCount(), false);
    }
 
-   public void setInventorySlotContents(int var1, ItemStack var2) {
-      this.inventory.setStackInSlot(var1, var2);
+   public void setInventorySlotContents(int slot, ItemStack stack) {
+      this.inventory.setStackInSlot(slot, stack);
    }
 
    public int getInventoryStackLimit() {
@@ -66,25 +66,25 @@ public abstract class BeeEntityBase extends BaseGirlEntity implements IInventory
    public void markDirty() {
    }
 
-   public boolean isUsableByPlayer(EntityPlayer var1) {
+   public boolean isUsableByPlayer(EntityPlayer player) {
       return true;
    }
 
-   public void openInventory(EntityPlayer var1) {
+   public void openInventory(EntityPlayer player) {
    }
 
-   public void closeInventory(EntityPlayer var1) {
+   public void closeInventory(EntityPlayer player) {
    }
 
-   public boolean isItemValidForSlot(int var1, ItemStack var2) {
+   public boolean isItemValidForSlot(int slot, ItemStack stack) {
       return true;
    }
 
-   public int getField(int var1) {
-      return var1;
+   public int getField(int id) {
+      return id;
    }
 
-   public void setField(int var1, int var2) {
+   public void setField(int id, int value) {
    }
 
    public int getFieldCount() {

@@ -46,50 +46,50 @@ public class SendBlocksPacket implements IMessage {
    public SendBlocksPacket() {
    }
 
-   public SendBlocksPacket(HashSet<BlockPos> var1, boolean var2) {
-      this.blockPositions = var1;
-      this.isBreaking = var2;
+   public SendBlocksPacket(HashSet<BlockPos> blockPositions, boolean isBreaking) {
+      this.blockPositions = blockPositions;
+      this.isBreaking = isBreaking;
    }
 
-   public SendBlocksPacket(BlockPos var1, boolean var2) {
-      this.blockPositions.add(var1);
-      this.isBreaking = var2;
+   public SendBlocksPacket(BlockPos blockPos, boolean isBreaking) {
+      this.blockPositions.add(blockPos);
+      this.isBreaking = isBreaking;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.isBreaking = var1.readBoolean();
-      int var2 = var1.readInt();
+   public void fromBytes(ByteBuf buf) {
+      this.isBreaking = buf.readBoolean();
+      int count = buf.readInt();
 
-      for (int var3 = 0; var3 < var2; var3++) {
-         this.blockPositions.add(new BlockPos(var1.readInt(), var1.readInt(), var1.readInt()));
+      for (int i = 0; i < count; i++) {
+         this.blockPositions.add(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()));
       }
 
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeBoolean(this.isBreaking);
-      var1.writeInt(this.blockPositions.size());
+   public void toBytes(ByteBuf buf) {
+      buf.writeBoolean(this.isBreaking);
+      buf.writeInt(this.blockPositions.size());
 
-      for (BlockPos var3 : this.blockPositions) {
-         var1.writeInt(var3.getX());
-         var1.writeInt(var3.getY());
-         var1.writeInt(var3.getZ());
+      for (BlockPos pos : this.blockPositions) {
+         buf.writeInt(pos.getX());
+         buf.writeInt(pos.getY());
+         buf.writeInt(pos.getZ());
       }
    }
 
    public static class Handler implements IMessageHandler<SendBlocksPacket, IMessage> {
-      public IMessage onMessage(SendBlocksPacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(SendBlocksPacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("received an invalid Message @SendBlocks :(");
             return null;
          }
 
-         if (var2.side.isClient()) {
-            if (var1.isBreaking) {
-               StructureMarkerRenderer.renderMarkers(var1.blockPositions);
+         if (ctx.side.isClient()) {
+            if (packet.isBreaking) {
+               StructureMarkerRenderer.renderMarkers(packet.blockPositions);
             } else {
-               StructureMarkerRenderer.setMarkers(var1.blockPositions);
+               StructureMarkerRenderer.setMarkers(packet.blockPositions);
             }
 
             return null;
@@ -98,69 +98,69 @@ public class SendBlocksPacket implements IMessage {
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     UUID var2x = var2.getServerHandler().player.getPersistentID();
-                     UUID var3 = KoboldManager.getTribeUUID(var2x);
-                     if (var3 != null) {
-                        if (var1.blockPositions.size() == 1) {
-                           World var4 = var2.getServerHandler().player.world;
+                     UUID playerUuid = ctx.getServerHandler().player.getPersistentID();
+                     UUID tribeUuid = KoboldManager.getTribeUUID(playerUuid);
+                     if (tribeUuid != null) {
+                        if (packet.blockPositions.size() == 1) {
+                           World world = ctx.getServerHandler().player.world;
 
-                           for (BlockPos var6 : var1.blockPositions) {
-                              IBlockState var7 = var4.getBlockState(var6);
-                              BlockPos var8 = null;
-                              if (var7.getBlock() instanceof BlockBed) {
-                                 var8 = WorldUtils.getStatePos(var6, var7);
+                           for (BlockPos pos : packet.blockPositions) {
+                              IBlockState state = world.getBlockState(pos);
+                              BlockPos pairedPos = null;
+                              if (state.getBlock() instanceof BlockBed) {
+                                 pairedPos = WorldUtils.getStatePos(pos, state);
                               }
 
-                              if (var7.getBlock() instanceof BlockChest) {
-                                 Type var9 = ((BlockChest)var7.getBlock()).chestType;
-                                 if (var4.getBlockState(var6.north()).getBlock() instanceof BlockChest
-                                    && var9.equals(((BlockChest)var4.getBlockState(var6.north()).getBlock()).chestType)) {
-                                    var8 = var6.north();
+                              if (state.getBlock() instanceof BlockChest) {
+                                 Type chestType = ((BlockChest)state.getBlock()).chestType;
+                                 if (world.getBlockState(pos.north()).getBlock() instanceof BlockChest
+                                    && chestType.equals(((BlockChest)world.getBlockState(pos.north()).getBlock()).chestType)) {
+                                    pairedPos = pos.north();
                                  }
 
-                                 if (var4.getBlockState(var6.east()).getBlock() instanceof BlockChest
-                                    && var9.equals(((BlockChest)var4.getBlockState(var6.east()).getBlock()).chestType)) {
-                                    var8 = var6.east();
+                                 if (world.getBlockState(pos.east()).getBlock() instanceof BlockChest
+                                    && chestType.equals(((BlockChest)world.getBlockState(pos.east()).getBlock()).chestType)) {
+                                    pairedPos = pos.east();
                                  }
 
-                                 if (var4.getBlockState(var6.south()).getBlock() instanceof BlockChest
-                                    && var9.equals(((BlockChest)var4.getBlockState(var6.south()).getBlock()).chestType)) {
-                                    var8 = var6.south();
+                                 if (world.getBlockState(pos.south()).getBlock() instanceof BlockChest
+                                    && chestType.equals(((BlockChest)world.getBlockState(pos.south()).getBlock()).chestType)) {
+                                    pairedPos = pos.south();
                                  }
 
-                                 if (var4.getBlockState(var6.west()).getBlock() instanceof BlockChest
-                                    && var9.equals(((BlockChest)var4.getBlockState(var6.west()).getBlock()).chestType)) {
-                                    var8 = var6.west();
+                                 if (world.getBlockState(pos.west()).getBlock() instanceof BlockChest
+                                    && chestType.equals(((BlockChest)world.getBlockState(pos.west()).getBlock()).chestType)) {
+                                    pairedPos = pos.west();
                                  }
                               }
 
-                              if (var8 == null && var7.getBlock() instanceof BlockBed) {
+                              if (pairedPos == null && state.getBlock() instanceof BlockBed) {
                                  return;
                               }
 
-                              if (var1.isBreaking) {
-                                 if (var7.getBlock() instanceof BlockBed) {
-                                    KoboldManager.addTribeBed(var3, var6);
-                                    KoboldManager.addTribeBed(var3, var8);
+                              if (packet.isBreaking) {
+                                 if (state.getBlock() instanceof BlockBed) {
+                                    KoboldManager.addTribeBed(tribeUuid, pos);
+                                    KoboldManager.addTribeBed(tribeUuid, pairedPos);
                                  } else {
-                                    KoboldManager.addTribeChest(var3, var6);
-                                    KoboldManager.addTribeChest(var3, var8);
+                                    KoboldManager.addTribeChest(tribeUuid, pos);
+                                    KoboldManager.addTribeChest(tribeUuid, pairedPos);
                                  }
-                              } else if (var7.getBlock() instanceof BlockBed) {
-                                 KoboldManager.removeTribeChest(var3, var6);
-                                 KoboldManager.removeTribeChest(var3, var8);
+                              } else if (state.getBlock() instanceof BlockBed) {
+                                 KoboldManager.removeTribeChest(tribeUuid, pos);
+                                 KoboldManager.removeTribeChest(tribeUuid, pairedPos);
                               } else {
-                                 KoboldManager.removeMiningTargetsFor(var3, var6);
-                                 KoboldManager.removeMiningTargetsFor(var3, var8);
+                                 KoboldManager.removeMiningTargetsFor(tribeUuid, pos);
+                                 KoboldManager.removeMiningTargetsFor(tribeUuid, pairedPos);
                               }
 
-                              HashSet var10 = new HashSet();
-                              var10.add(var6);
-                              if (var8 != null) {
-                                 var10.add(var8);
+                              HashSet blocks = new HashSet();
+                              blocks.add(pos);
+                              if (pairedPos != null) {
+                                 blocks.add(pairedPos);
                               }
 
-                              PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var10, var1.isBreaking), var2.getServerHandler().player);
+                              PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(blocks, packet.isBreaking), ctx.getServerHandler().player);
                            }
                         }
                      }

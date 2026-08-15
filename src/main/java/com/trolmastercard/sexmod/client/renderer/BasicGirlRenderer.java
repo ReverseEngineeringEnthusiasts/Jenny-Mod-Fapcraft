@@ -39,7 +39,7 @@ import org.lwjgl.opengl.GL11;
 public class BasicGirlRenderer extends Render<BasicGirlEntity> {
 
    @Override
-   protected ResourceLocation getEntityTexture(BasicGirlEntity var1) {
+   protected ResourceLocation getEntityTexture(BasicGirlEntity girl) {
       return this.IDLE_TEXTURE;
    }
 
@@ -55,13 +55,13 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
    ResourceLocation cachedTexture = null;
    long lastTextureSwitchTime = 0L;
 
-   public BasicGirlRenderer(RenderManager var1) {
-      super(var1);
+   public BasicGirlRenderer(RenderManager renderManager) {
+      super(renderManager);
       this.mc = Minecraft.getMinecraft();
    }
 
    @Nullable
-   protected ResourceLocation getGirlTexture(BasicGirlEntity var1) {
+   protected ResourceLocation getGirlTexture(BasicGirlEntity girl) {
       return null;
    }
 
@@ -72,43 +72,43 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
     * minute when the practice texture first appears. Resets lighting/alpha GL
     * state afterwards.
     */
-   public void doRenderBasicGirl(BasicGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderBasicGirl(BasicGirlEntity girl, double x, double y, double z, float entityYaw, float partialTicks) {
       GL11.glDisable(2896);
       GlStateManager.enableAlpha();
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
-      EntityPlayerSP var10 = this.mc.player;
-      Vec3d var11 = RotationHelper.lerpVec3dDouble(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var9);
-      Vec3d var12 = RotationHelper.lerpVec3dDouble(new Vec3d(var10.lastTickPosX, var10.lastTickPosY, var10.lastTickPosZ), var10.getPositionVector(), var9);
-      Vec3d var13 = var11.subtract(var12);
-      ResourceLocation var14 = this.getFatTexture(var1, Math.abs(var13.x) + Math.abs(var13.y) + Math.abs(var13.z));
-      this.mc.renderEngine.bindTexture(var14);
+      EntityPlayerSP localPlayer = this.mc.player;
+      Vec3d girlPos = RotationHelper.lerpVec3dDouble(new Vec3d(girl.lastTickPosX, girl.lastTickPosY, girl.lastTickPosZ), girl.getPositionVector(), partialTicks);
+      Vec3d playerPos = RotationHelper.lerpVec3dDouble(new Vec3d(localPlayer.lastTickPosX, localPlayer.lastTickPosY, localPlayer.lastTickPosZ), localPlayer.getPositionVector(), partialTicks);
+      Vec3d offset = girlPos.subtract(playerPos);
+      ResourceLocation texture = this.getFatTexture(girl, Math.abs(offset.x) + Math.abs(offset.y) + Math.abs(offset.z));
+      this.mc.renderEngine.bindTexture(texture);
       GlStateManager.pushMatrix();
-      GlStateManager.color(1.0F, 1.0F, 1.0F, this.getFatShrink(var1, var9));
-      GlStateManager.translate(var13.x, var13.y + this.getFatBobOffset(var14), var13.z);
+      GlStateManager.color(1.0F, 1.0F, 1.0F, this.getFatShrink(girl, partialTicks));
+      GlStateManager.translate(offset.x, offset.y + this.getFatBobOffset(texture), offset.z);
       GlStateManager.rotate(180.0F - this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
-      float var15 = 1.4F + this.getFatProgress(var1, var9);
-      GlStateManager.scale(var15, var15, var15);
-      Tessellator var16 = Tessellator.getInstance();
-      BufferBuilder var17 = var16.getBuffer();
-      var17.begin(7, DefaultVertexFormats.POSITION_TEX);
-      var17.pos(-1.0, 0.0, 0.0).tex(0.0, 1.0).endVertex();
-      var17.pos(1.0, 0.0, 0.0).tex(1.0, 1.0).endVertex();
-      var17.pos(1.0, 2.0, 0.0).tex(1.0, 0.0).endVertex();
-      var17.pos(-1.0, 2.0, 0.0).tex(0.0, 0.0).endVertex();
-      var16.draw();
+      float scale = 1.4F + this.getFatProgress(girl, partialTicks);
+      GlStateManager.scale(scale, scale, scale);
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder buffer = tessellator.getBuffer();
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX);
+      buffer.pos(-1.0, 0.0, 0.0).tex(0.0, 1.0).endVertex();
+      buffer.pos(1.0, 0.0, 0.0).tex(1.0, 1.0).endVertex();
+      buffer.pos(1.0, 2.0, 0.0).tex(1.0, 0.0).endVertex();
+      buffer.pos(-1.0, 2.0, 0.0).tex(0.0, 0.0).endVertex();
+      tessellator.draw();
       GlStateManager.popMatrix();
       GL11.glEnable(2896);
       GlStateManager.disableAlpha();
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, OpenGlHelper.lastBrightnessX, OpenGlHelper.lastBrightnessY);
-      long var18 = System.currentTimeMillis();
-      if (this.cachedTexture != PRACTICE_TEXTURE && var14 == PRACTICE_TEXTURE && var18 > this.lastTextureSwitchTime + 60000L) {
+      long now = System.currentTimeMillis();
+      if (this.cachedTexture != PRACTICE_TEXTURE && texture == PRACTICE_TEXTURE && now > this.lastTextureSwitchTime + 60000L) {
          this.mc.player.playSound(SoundHandler.MISC_PYRO[0], 1.0F, 1.0F);
-         this.lastTextureSwitchTime = var18;
+         this.lastTextureSwitchTime = now;
       }
 
-      this.cachedTexture = var14;
+      this.cachedTexture = texture;
    }
 
    /**
@@ -117,16 +117,16 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
     * nearly still (distance < 3), idle when the girl hasn't moved, otherwise
     * alternating walk frames.
     *
-    * @param var2 the player-relative distance to the girl
+    * @param distance the player-relative distance to the girl
     */
-   ResourceLocation getFatTexture(BasicGirlEntity var1, double var2) {
-      if (var1.lastSoundTick != -1) {
-         return new ResourceLocation("sexmod", String.format("%s%s.png", "textures/entity/pyrocinical/fat/", this.getFatIndex(var1)));
-      } else if (var2 < 3.0) {
+   ResourceLocation getFatTexture(BasicGirlEntity girl, double distance) {
+      if (girl.lastSoundTick != -1) {
+         return new ResourceLocation("sexmod", String.format("%s%s.png", "textures/entity/pyrocinical/fat/", this.getFatIndex(girl)));
+      } else if (distance < 3.0) {
          return PRACTICE_TEXTURE;
       } else {
-         Vec3d var4 = new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ).subtract(var1.getPositionVector());
-         if (Math.abs(var4.x) + Math.abs(var4.y) + Math.abs(var4.z) == 0.0) {
+         Vec3d movement = new Vec3d(girl.lastTickPosX, girl.lastTickPosY, girl.lastTickPosZ).subtract(girl.getPositionVector());
+         if (Math.abs(movement.x) + Math.abs(movement.y) + Math.abs(movement.z) == 0.0) {
             return IDLE_TEXTURE;
          } else {
             return Math.sin(this.mc.player.ticksExisted * 0.75F) > 0.0 ? WALK_TEXTURE_1 : WALK_TEXTURE_2;
@@ -134,47 +134,47 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       }
    }
 
-   double getFatBobOffset(ResourceLocation var1) {
-      return !WALK_TEXTURE_1.equals(var1) && !WALK_TEXTURE_2.equals(var1) ? 0.0 : Math.sin(this.mc.player.ticksExisted * 0.75F) * 0.1F;
+   double getFatBobOffset(ResourceLocation texture) {
+      return !WALK_TEXTURE_1.equals(texture) && !WALK_TEXTURE_2.equals(texture) ? 0.0 : Math.sin(this.mc.player.ticksExisted * 0.75F) * 0.1F;
    }
 
    /**
     * Morph frame index 1..30, clamped from the time since the girl's last
     * sound.
     */
-   int getFatIndex(BasicGirlEntity var1) {
-      return var1.lastSoundTick == -1 ? 0 : (int)ThreadNames.clampFloat(this.mc.player.ticksExisted - var1.lastSoundTick, 1.0F, 30.0F);
+   int getFatIndex(BasicGirlEntity girl) {
+      return girl.lastSoundTick == -1 ? 0 : (int)ThreadNames.clampFloat(this.mc.player.ticksExisted - girl.lastSoundTick, 1.0F, 30.0F);
    }
 
    /**
     * Scale multiplier of the morph animation: 0 idle, ramps 0..1 over 30 ticks
     * after a sound, then holds.
     */
-   float getFatProgress(BasicGirlEntity var1, float var2) {
-      if (var1.lastSoundTick == -1) {
+   float getFatProgress(BasicGirlEntity girl, float partialTicks) {
+      if (girl.lastSoundTick == -1) {
          return 0.0F;
       }
 
-      int var3 = this.getFatIndex(var1);
-      return var3 == 30 ? 1.0F : (var3 + var2) / 30.0F;
+      int index = this.getFatIndex(girl);
+      return index == 30 ? 1.0F : (index + partialTicks) / 30.0F;
    }
 
    /**
     * Alpha multiplier for the morph: 1 normally, fades to 0 between 90 and 120
     * ticks after the sound (the girl "un-morphs" back to normal).
     */
-   float getFatShrink(BasicGirlEntity var1, float var2) {
-      if (var1.lastSoundTick == -1) {
+   float getFatShrink(BasicGirlEntity girl, float partialTicks) {
+      if (girl.lastSoundTick == -1) {
          return 1.0F;
       }
 
-      if (this.mc.player.ticksExisted - var1.lastSoundTick > 120) {
+      if (this.mc.player.ticksExisted - girl.lastSoundTick > 120) {
          return 0.0F;
       }
 
-      float var4 = ThreadNames.clampFloat(this.mc.player.ticksExisted - var1.lastSoundTick, 90.0F, 120.0F) - 90.0F;
-      float var5 = (var4 + var2) / 30.0F;
-      return 1.0F - var5;
+      float elapsed = ThreadNames.clampFloat(this.mc.player.ticksExisted - girl.lastSoundTick, 90.0F, 120.0F) - 90.0F;
+      float fadeProgress = (elapsed + partialTicks) / 30.0F;
+      return 1.0F - fadeProgress;
    }
 
 }

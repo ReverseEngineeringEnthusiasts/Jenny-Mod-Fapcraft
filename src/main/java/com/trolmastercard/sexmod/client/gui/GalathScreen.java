@@ -44,9 +44,9 @@ public class GalathScreen extends GuiScreen {
    BaseGirlEntity targetEntity;
    boolean isGoblinTarget = false;
 
-   public GalathScreen(BaseGirlEntity var1) {
-      this.targetEntity = var1;
-      this.isGoblinTarget = var1 instanceof GoblinEntity;
+   public GalathScreen(BaseGirlEntity target) {
+      this.targetEntity = target;
+      this.isGoblinTarget = target instanceof GoblinEntity;
    }
 
    /**
@@ -115,35 +115,35 @@ public class GalathScreen extends GuiScreen {
     * (animLeft/Right/Top/Bottom) happens here, which {@link #onGuiClosed()}
     * reads when the screen closes.
     */
-   public void drawScreen(int var1, int var2, float var3) {
-      super.drawScreen(var1, var2, var3);
+   public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+      super.drawScreen(mouseX, mouseY, partialTicks);
       GL11.glEnable(3042);
       OpenGlHelper.glBlendFunc(770, 771, 1, 0);
       GL11.glBlendFunc(770, 771);
 
       try {
          this.animProgress = Math.min(1.0F, this.animProgress + this.mc.getTickLength() / 5.0F);
-      } catch (NullPointerException var6) {
+      } catch (NullPointerException npe) {
       }
 
-      float var4 = (float)this.easeOutBack(this.animProgress);
-      float var5 = (1.0F - var4) * 100.0F;
-      this.animLeft = this.animLeft + (var1 < this.width / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.animRight = this.animRight + (var1 > this.width / 2 ? 1 : -1) * this.mc.getTickLength();
-      this.animTop = this.animTop + (var2 < this.height / 2 - 1 ? 1 : -1) * this.mc.getTickLength();
-      this.animBottom = this.animBottom + (var2 > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
+      float scale = (float)this.easeOutBack(this.animProgress);
+      float offset = (1.0F - scale) * 100.0F;
+      this.animLeft = this.animLeft + (mouseX < this.width / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animRight = this.animRight + (mouseX > this.width / 2 ? 1 : -1) * this.mc.getTickLength();
+      this.animTop = this.animTop + (mouseY < this.height / 2 - 1 ? 1 : -1) * this.mc.getTickLength();
+      this.animBottom = this.animBottom + (mouseY > this.height / 2 ? 1 : -1) * this.mc.getTickLength();
       this.animLeft = ThreadNames.clampFloat(this.animLeft, 0.0F, 1.0F);
       this.animRight = ThreadNames.clampFloat(this.animRight, 0.0F, 1.0F);
       this.animTop = ThreadNames.clampFloat(this.animTop, 0.0F, 1.0F);
       this.animBottom = ThreadNames.clampFloat(this.animBottom, 0.0F, 1.0F);
       GlStateManager.pushMatrix();
       GlStateManager.translate(this.width / 2.0F, this.height / 2.0F, 0.0F);
-      GlStateManager.scale(var4, var4, var4);
+      GlStateManager.scale(scale, scale, scale);
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
       GlStateManager.pushMatrix();
       GlStateManager.scale(1.0F + this.animLeft * 0.5F, 1.0F + this.animLeft * 0.5F, 1.0F);
-      this.drawTexturedModalRect(-62.0F + var5 - this.animLeft * 15.0F, var5 - 32.0F, 0, 0, 64, 64);
-      this.drawTexturedModalRect(-62.0F + var5 - this.animLeft * 15.0F, var5 - 32.0F, 64, 128, 64, 64);
+      this.drawTexturedModalRect(-62.0F + offset - this.animLeft * 15.0F, offset - 32.0F, 0, 0, 64, 64);
+      this.drawTexturedModalRect(-62.0F + offset - this.animLeft * 15.0F, offset - 32.0F, 64, 128, 64, 64);
       GlStateManager.popMatrix();
       if (!this.isGoblinTarget) {
          GlStateManager.popMatrix();
@@ -151,19 +151,19 @@ public class GalathScreen extends GuiScreen {
       } else {
          GlStateManager.pushMatrix();
          GlStateManager.scale(1.0F - this.animRight, 1.0F - this.animRight, 1.0F);
-         this.drawTexturedModalRect(-2.0F - var5 + this.animRight * 32.0F, -var5 - 32.0F, 0, 0, 64, 64);
-         this.drawTexturedModalRect(-2.0F - var5 + this.animRight * 32.0F, -var5 - 32.0F, 0, 128, 64, 64);
+         this.drawTexturedModalRect(-2.0F - offset + this.animRight * 32.0F, -offset - 32.0F, 0, 0, 64, 64);
+         this.drawTexturedModalRect(-2.0F - offset + this.animRight * 32.0F, -offset - 32.0F, 0, 128, 64, 64);
          GlStateManager.popMatrix();
          if (this.animRight > 0.0F) {
             GlStateManager.pushMatrix();
             GlStateManager.scale(-1.0F + this.animRight + 1.0F + this.animTop * 0.5F, -1.0F + this.animRight + 1.0F + this.animTop * 0.5F, 1.0F);
-            this.drawTexturedModalRect(-2.0F - var5 + this.animTop * 5.0F, -var5 - 64.0F - this.animTop * 5.0F / 2.0F, 0, 0, 64, 64);
-            this.drawTexturedModalRect(-2.0F - var5 + this.animTop * 5.0F, -var5 - 64.0F - this.animTop * 5.0F / 2.0F, 128, 128, 64, 64);
+            this.drawTexturedModalRect(-2.0F - offset + this.animTop * 5.0F, -offset - 64.0F - this.animTop * 5.0F / 2.0F, 0, 0, 64, 64);
+            this.drawTexturedModalRect(-2.0F - offset + this.animTop * 5.0F, -offset - 64.0F - this.animTop * 5.0F / 2.0F, 128, 128, 64, 64);
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
             GlStateManager.scale(-1.0F + this.animRight + 1.0F + this.animBottom * 0.5F, -1.0F + this.animRight + 1.0F + this.animBottom * 0.5F, 1.0F);
-            this.drawTexturedModalRect(-2.0F - var5 + this.animBottom * 5.0F, -var5 + this.animBottom * 5.0F / 2.0F, 0, 0, 64, 64);
-            this.drawTexturedModalRect(-2.0F - var5 + this.animBottom * 5.0F, -var5 + this.animBottom * 5.0F / 2.0F, 192, 128, 64, 64);
+            this.drawTexturedModalRect(-2.0F - offset + this.animBottom * 5.0F, -offset + this.animBottom * 5.0F / 2.0F, 0, 0, 64, 64);
+            this.drawTexturedModalRect(-2.0F - offset + this.animBottom * 5.0F, -offset + this.animBottom * 5.0F / 2.0F, 192, 128, 64, 64);
             GlStateManager.popMatrix();
          }
 
@@ -172,10 +172,10 @@ public class GalathScreen extends GuiScreen {
       }
    }
 
-   double easeOutBack(double var1) {
-      double var3 = 1.70158;
-      double var5 = 2.70158;
-      return 1.0 + var5 * Math.pow(var1 - 1.0, 3.0) + var3 * Math.pow(var1 - 1.0, 2.0);
+   double easeOutBack(double t) {
+      double c1 = 1.70158;
+      double c3 = 2.70158;
+      return 1.0 + c3 * Math.pow(t - 1.0, 3.0) + c1 * Math.pow(t - 1.0, 2.0);
    }
 
    public boolean doesGuiPauseGame() {

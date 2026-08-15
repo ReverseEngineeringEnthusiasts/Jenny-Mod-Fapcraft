@@ -38,7 +38,7 @@ public class ShaderHelper {
     * created).
     */
    public static void initOutlineShader() {
-      Minecraft var0 = Minecraft.getMinecraft();
+      Minecraft mc = Minecraft.getMinecraft();
       if (!OpenGlHelper.shadersSupported) {
          Main.LOGGER.warn("Shaders not supported");
       } else {
@@ -47,15 +47,15 @@ public class ShaderHelper {
          }
 
          try {
-            outlineShaderGroup = new ShaderGroup(var0.getTextureManager(), var0.getResourceManager(), var0.getFramebuffer(), entityShader);
-            outlineShaderGroup.createBindFramebuffers(var0.displayWidth, var0.displayHeight);
+            outlineShaderGroup = new ShaderGroup(mc.getTextureManager(), mc.getResourceManager(), mc.getFramebuffer(), entityShader);
+            outlineShaderGroup.createBindFramebuffers(mc.displayWidth, mc.displayHeight);
             outlineFramebuffer = outlineShaderGroup.getFramebufferRaw("final");
             ClientRegistry.registerEntityShader(BaseGirlEntity.class, entityShader);
             System.out.println("succ registered the outline shader :)");
-         } catch (IOException var2) {
-            Main.LOGGER.warn("Failed to load shader: {}", entityShader, var2);
-         } catch (JsonSyntaxException var3) {
-            Main.LOGGER.warn("Failed to load shader: {}", entityShader, var3);
+         } catch (IOException ioe) {
+            Main.LOGGER.warn("Failed to load shader: {}", entityShader, ioe);
+         } catch (JsonSyntaxException jsone) {
+            Main.LOGGER.warn("Failed to load shader: {}", entityShader, jsone);
          }
       }
    }

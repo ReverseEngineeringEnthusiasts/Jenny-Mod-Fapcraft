@@ -52,70 +52,70 @@ public class DamageCalculation {
    }
 
    @SubscribeEvent
-   public void onLivingDamage(LivingDamageEvent var1) {
-      if (var1.getEntity() instanceof AbstractGirlNpcEntity) {
-         AbstractGirlNpcEntity var2 = (AbstractGirlNpcEntity)var1.getEntity();
-         ItemStack[] var3 = new ItemStack[]{var2.inventory.getStackInSlot(2), var2.inventory.getStackInSlot(3), var2.inventory.getStackInSlot(4), var2.inventory.getStackInSlot(5)};
-         ArrayList var4 = new ArrayList();
-         ArrayList var5 = new ArrayList();
+   public void onLivingDamage(LivingDamageEvent event) {
+      if (event.getEntity() instanceof AbstractGirlNpcEntity) {
+         AbstractGirlNpcEntity girl = (AbstractGirlNpcEntity)event.getEntity();
+         ItemStack[] armorStacks = new ItemStack[]{girl.inventory.getStackInSlot(2), girl.inventory.getStackInSlot(3), girl.inventory.getStackInSlot(4), girl.inventory.getStackInSlot(5)};
+         ArrayList armorItems = new ArrayList();
+         ArrayList toughnessItems = new ArrayList();
 
-         for (ItemStack var9 : var3) {
-            if (var9.getItem() instanceof ItemArmor) {
-               var4.add((ItemArmor)var9.getItem());
-               var5.add(var9);
+         for (ItemStack stack : armorStacks) {
+            if (stack.getItem() instanceof ItemArmor) {
+               armorItems.add((ItemArmor)stack.getItem());
+               toughnessItems.add(stack);
             }
          }
 
-         if (var4.size() != 0) {
-            DamageSource var17 = var1.getSource();
-            int var18 = 0;
-            int var19 = 0;
-            if (!var17.isUnblockable()) {
-               for (ItemArmor var10 : (java.util.Collection<ItemArmor>) (var4) ) {
-                  var18 += DamageCalculation.a.getArmorDamageReduction(var10.armorType, var10.getArmorMaterial());
-                  var19 += DamageCalculation.a.getArmorToughness(var10.armorType, var10.getArmorMaterial());
+         if (armorItems.size() != 0) {
+            DamageSource source = event.getSource();
+            int armorReduction = 0;
+            int toughness = 0;
+            if (!source.isUnblockable()) {
+               for (ItemArmor armorItem : (java.util.Collection<ItemArmor>) (armorItems) ) {
+                  armorReduction += DamageCalculation.a.getArmorDamageReduction(armorItem.armorType, armorItem.getArmorMaterial());
+                  toughness += DamageCalculation.a.getArmorToughness(armorItem.armorType, armorItem.getArmorMaterial());
                }
             }
 
-            float var21 = var1.getAmount();
-            var21 *= 1.0F - Math.min(20.0F, Math.max(var18 / 5.0F, var18 - 4.0F * var21 / (var19 + 8.0F))) / 25.0F;
-            float var23 = 0.0F;
+            float damage = event.getAmount();
+            damage *= 1.0F - Math.min(20.0F, Math.max(armorReduction / 5.0F, armorReduction - 4.0F * damage / (toughness + 8.0F))) / 25.0F;
+            float thornsDamage = 0.0F;
 
-            for (ItemStack var13 : (java.util.Collection<ItemStack>) (var5) ) {
-               int var14 = EnchantmentHelper.getEnchantmentLevel(Enchantments.PROTECTION, var13);
-               var21 -= var14 * 0.04F * var21;
-               int var15 = EnchantmentHelper.getEnchantmentLevel(Enchantments.THORNS, var13);
-               var23 += Reference.RANDOM.nextFloat() < 0.15F * var15 ? Reference.RANDOM.nextFloat() * 4.0F + 1.0F : 0.0F;
-               var23 = Math.min(4.0F, var23);
-               if (var17.isFireDamage()) {
-                  int var16 = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_PROTECTION, var13);
-                  var21 -= var16 * 0.08F * var21;
+            for (ItemStack protectionStack : (java.util.Collection<ItemStack>) (toughnessItems) ) {
+               int protectionLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.PROTECTION, protectionStack);
+               damage -= protectionLevel * 0.04F * damage;
+               int thornsLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.THORNS, protectionStack);
+               thornsDamage += Reference.RANDOM.nextFloat() < 0.15F * thornsLevel ? Reference.RANDOM.nextFloat() * 4.0F + 1.0F : 0.0F;
+               thornsDamage = Math.min(4.0F, thornsDamage);
+               if (source.isFireDamage()) {
+                  int fireProtLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_PROTECTION, protectionStack);
+                  damage -= fireProtLevel * 0.08F * damage;
                }
 
-               if (var17.isExplosion()) {
-                  int var26 = EnchantmentHelper.getEnchantmentLevel(Enchantments.BLAST_PROTECTION, var13);
-                  var21 -= var26 * 0.08F * var21;
+               if (source.isExplosion()) {
+                  int blastProtLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.BLAST_PROTECTION, protectionStack);
+                  damage -= blastProtLevel * 0.08F * damage;
                }
 
-               if (var17.damageType.equals("fall")) {
-                  int var27 = EnchantmentHelper.getEnchantmentLevel(Enchantments.FEATHER_FALLING, var13);
-                  var21 -= var27 * 0.12F * var21;
+               if (source.damageType.equals("fall")) {
+                  int featherFallLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FEATHER_FALLING, protectionStack);
+                  damage -= featherFallLevel * 0.12F * damage;
                }
 
-               if (var17.isProjectile()) {
-                  int var28 = EnchantmentHelper.getEnchantmentLevel(Enchantments.PROJECTILE_PROTECTION, var13);
-                  var21 -= var28 * 0.08F * var21;
-               }
-            }
-
-            if (var23 > 0.0F && var17 instanceof EntityDamageSource) {
-               EntityDamageSource var25 = (EntityDamageSource)var17;
-               if (var25.getTrueSource() != null) {
-                  var25.getTrueSource().attackEntityFrom(DamageSource.causeThornsDamage(var2), var23);
+               if (source.isProjectile()) {
+                  int projectileProtLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.PROJECTILE_PROTECTION, protectionStack);
+                  damage -= projectileProtLevel * 0.08F * damage;
                }
             }
 
-            var1.setAmount(var21);
+            if (thornsDamage > 0.0F && source instanceof EntityDamageSource) {
+               EntityDamageSource entitySource = (EntityDamageSource)source;
+               if (entitySource.getTrueSource() != null) {
+                  entitySource.getTrueSource().attackEntityFrom(DamageSource.causeThornsDamage(girl), thornsDamage);
+               }
+            }
+
+            event.setAmount(damage);
          }
       }
    }
@@ -123,24 +123,24 @@ public class DamageCalculation {
    static class a {
       public static HashMap<String, Integer[]> a = new HashMap<>();
 
-      public static int getArmorDamageReduction(EntityEquipmentSlot var0, ArmorMaterial var1) {
+      public static int getArmorDamageReduction(EntityEquipmentSlot slot, ArmorMaterial material) {
          try {
-            return a.get(var0.toString() + var1.toString())[0];
-         } catch (NullPointerException var2) {
+            return a.get(slot.toString() + material.toString())[0];
+         } catch (NullPointerException exception) {
             return 3;
          }
       }
 
-      public static int getArmorToughness(EntityEquipmentSlot var0, ArmorMaterial var1) {
+      public static int getArmorToughness(EntityEquipmentSlot slot, ArmorMaterial material) {
          try {
-            return a.get(var0.toString() + var1.toString())[1];
-         } catch (NullPointerException var2) {
+            return a.get(slot.toString() + material.toString())[1];
+         } catch (NullPointerException exception) {
             return 0;
          }
       }
 
-      public static void calculateDamage(EntityEquipmentSlot var0, ArmorMaterial var1, int var2, int var3) {
-         a.put(var0.toString() + var1.toString(), new Integer[]{var2, var3});
+      public static void calculateDamage(EntityEquipmentSlot slot, ArmorMaterial material, int damage, int toughness) {
+         a.put(slot.toString() + material.toString(), new Integer[]{damage, toughness});
       }
    }
 }

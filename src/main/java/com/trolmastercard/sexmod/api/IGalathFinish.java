@@ -7,5 +7,5 @@ import com.trolmastercard.sexmod.entity.GalathEntity;
  * Callback fired when a galath scene/fight finishes.
  */
 public interface IGalathFinish {
-   void finish(GalathEntity var1);
+   void finish(GalathEntity galath);
 }

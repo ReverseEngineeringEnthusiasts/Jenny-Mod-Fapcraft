@@ -18,21 +18,21 @@ public interface IGoblin {
    @Nullable
    UUID getOwnerUUID();
 
-   void setOwnerUUID(UUID var1);
+   void setOwnerUUID(UUID ownerUuid);
 
    int getHeldPlayerDistance();
 
-   void setThrowProgress(int var1);
+   void setThrowProgress(int throwProgress);
 
    int getThrowProgress();
 
-   void setThrowTickCount(int var1);
+   void setThrowTickCount(int throwTickCount);
 
    int getThrowTickCount();
 
-   void setPreviousAction(Action var1);
+   void setPreviousAction(Action previousAction);
 
    Action getPreviousAction();
 
-   void setHeldPlayerDistance(int var1);
+   void setHeldPlayerDistance(int heldPlayerDistance);
 }

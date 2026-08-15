@@ -84,25 +84,25 @@ public class ServerWhitelistManager {
       return modelDataMap;
    }
 
-   public static boolean isModelDisabled(String var0) {
-      return modelDataMap.get(var0) != null;
+   public static boolean isModelDisabled(String modelName) {
+      return modelDataMap.get(modelName) != null;
    }
 
-   public static int getModelCount(boolean var0) {
-      setGlobalRenderingDisabled(var0);
-      return loadCustomModels(var0);
+   public static int getModelCount(boolean disableRendering) {
+      setGlobalRenderingDisabled(disableRendering);
+      return loadCustomModels(disableRendering);
    }
 
-   static void logError(Level var0, String var1) {
+   static void logError(Level level, String message) {
       if (null instanceof ClientProxy) {
-         logInfo(var0, var1);
+         logInfo(level, message);
       } else {
-         Main.LOGGER.log(var0, var1);
+         Main.LOGGER.log(level, message);
       }
    }
 
-   public static void setGlobalRenderingDisabled(boolean var0) {
-      if (var0) {
+   public static void setGlobalRenderingDisabled(boolean disabled) {
+      if (disabled) {
          syncModelData();
       }
 
@@ -115,140 +115,140 @@ public class ServerWhitelistManager {
 
    @SideOnly(Side.CLIENT)
    public static boolean isGlobalRenderingDisabled() {
-      String var0 = getCustomModelsKey();
-      return var0 == null ? false : isModelWhitelisted(var0);
+      String customModelsKey = getCustomModelsKey();
+      return customModelsKey == null ? false : isModelWhitelisted(customModelsKey);
    }
 
-   public static void initWhitelistFile(String var0) {
-      File var1 = new File("sexmod/custom_models/whitelisted_servers.txt");
-      var1.mkdirs();
-      HashSet var2 = new HashSet();
-      if (var1.exists()) {
-         var2 = loadWhitelistedServers();
+   public static void initWhitelistFile(String serverName) {
+      File file = new File("sexmod/custom_models/whitelisted_servers.txt");
+      file.mkdirs();
+      HashSet whitelist = new HashSet();
+      if (file.exists()) {
+         whitelist = loadWhitelistedServers();
       }
 
-      var2.add(var0);
-      var1.delete();
-      var1 = new File("sexmod/custom_models/whitelisted_servers.txt");
+      whitelist.add(serverName);
+      file.delete();
+      file = new File("sexmod/custom_models/whitelisted_servers.txt");
 
       try {
-         FileWriter var3 = new FileWriter(var1);
-         Object var4 = null;
-         boolean var13 = false;
+         FileWriter writer = new FileWriter(file);
+         Object primaryExc = null;
+         boolean suppressed = false;
 
          label77: {
-            Throwable var5;
+            Throwable throwable;
             try {
-               var13 = true;
+               suppressed = true;
 
-               for (String var6 : (java.util.Collection<String>) (var2) ) {
-                  var3.write(var6 + "\n");
+               for (String server : (java.util.Collection<String>) (whitelist) ) {
+                  writer.write(server + "\n");
                }
 
-               var13 = false;
+               suppressed = false;
                break label77;
-            } catch (Throwable var15) {
-               var5 = var15;
-               var13 = false;
+            } catch (Throwable caughtThrowable) {
+               throwable = caughtThrowable;
+               suppressed = false;
             } finally {
-               if (var13) {
-                  if (var3 != null) {
-                     if (var4 != null) {
+               if (suppressed) {
+                  if (writer != null) {
+                     if (primaryExc != null) {
                         try {
-                           var3.close();
-                        } catch (Throwable var14) {
-                           ((Throwable) var4).addSuppressed(var14);
+                           writer.close();
+                        } catch (Throwable suppressedThrowable) {
+                           ((Throwable) primaryExc).addSuppressed(suppressedThrowable);
                         }
                      } else {
-                        var3.close();
+                        writer.close();
                      }
                   }
                }
             }
 
-            throw new RuntimeException(var5);
+            throw new RuntimeException(throwable);
          }
 
-         if (var3 != null) {
-            var3.close();
+         if (writer != null) {
+            writer.close();
          }
-      } catch (IOException var17) {
-         var17.printStackTrace();
+      } catch (IOException ioException) {
+         ioException.printStackTrace();
       }
    }
 
-   public static boolean isModelWhitelisted(String var0) {
-      return loadWhitelistedServers().contains(var0);
+   public static boolean isModelWhitelisted(String serverName) {
+      return loadWhitelistedServers().contains(serverName);
    }
 
    static HashSet<String> loadWhitelistedServers() {
-      File var0 = new File("sexmod/custom_models/whitelisted_servers.txt");
+      File file = new File("sexmod/custom_models/whitelisted_servers.txt");
 
       try {
-         var0.createNewFile();
-      } catch (Exception var14) {
-         var14.printStackTrace();
+         file.createNewFile();
+      } catch (Exception exception) {
+         exception.printStackTrace();
       }
 
-      HashSet var1 = new HashSet();
+      HashSet servers = new HashSet();
 
       try {
-         BufferedReader var2 = new BufferedReader(new FileReader(var0));
+         BufferedReader reader = new BufferedReader(new FileReader(file));
          try {
-            String var18;
-            while ((var18 = var2.readLine()) != null) {
-               var1.add(var18);
+            String line;
+            while ((line = reader.readLine()) != null) {
+               servers.add(line);
             }
          } finally {
-            var2.close();
+            reader.close();
          }
 
-         return var1;
-      } catch (IOException var17) {
-         var17.printStackTrace();
+         return servers;
+      } catch (IOException ioException) {
+         ioException.printStackTrace();
          return new HashSet<>();
       }
    }
 
-   public static float getModelZOffset(String var0) {
-      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
-      return var1 == null ? 0.0F : var1.getZOffset();
+   public static float getModelZOffset(String modelName) {
+      ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
+      return modelData == null ? 0.0F : modelData.getZOffset();
    }
 
    @SideOnly(Side.CLIENT)
    static void syncModelData() {
-      for (Entry var1 : modelDataMap.entrySet()) {
-         ServerWhitelistManager.ModelData var2 = (ServerWhitelistManager.ModelData)var1.getValue();
-         if (var2 != null) {
-            ResourceLocation var3 = var2.getFallbackTexture();
-            ResourceLocation var4 = var2.getTextureLocation();
-            if (var3 != null) {
-               GeckoLibCache.getInstance().getGeoModels().remove(var3);
+      for (Entry entry : modelDataMap.entrySet()) {
+         ServerWhitelistManager.ModelData modelData = (ServerWhitelistManager.ModelData)entry.getValue();
+         if (modelData != null) {
+            ResourceLocation fallbackTex = modelData.getFallbackTexture();
+            ResourceLocation textureLoc = modelData.getTextureLocation();
+            if (fallbackTex != null) {
+               GeckoLibCache.getInstance().getGeoModels().remove(fallbackTex);
             }
 
-            if (var4 != null) {
-               Minecraft.getMinecraft().renderEngine.deleteTexture(var4);
+            if (textureLoc != null) {
+               Minecraft.getMinecraft().renderEngine.deleteTexture(textureLoc);
             }
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
-   static void logInfo(Level var0, String var1) {
-      EntityPlayerSP var2 = Minecraft.getMinecraft().player;
-      if (var2 == null) {
-         Main.LOGGER.log(var0, var1);
+   static void logInfo(Level level, String message) {
+      EntityPlayerSP player = Minecraft.getMinecraft().player;
+      if (player == null) {
+         Main.LOGGER.log(level, message);
       } else {
-         TextFormatting var3;
-         if (Level.DEBUG.equals(var0)) {
-            var3 = TextFormatting.DARK_GREEN;
-         } else if (Level.ERROR.equals(var0)) {
-            var3 = TextFormatting.RED;
+         TextFormatting color;
+         if (Level.DEBUG.equals(level)) {
+            color = TextFormatting.DARK_GREEN;
+         } else if (Level.ERROR.equals(level)) {
+            color = TextFormatting.RED;
          } else {
-            var3 = TextFormatting.WHITE;
+            color = TextFormatting.WHITE;
          }
 
-         var2.sendMessage(new TextComponentString(var3.toString() + var1));
+         player.sendMessage(new TextComponentString(color.toString() + message));
       }
    }
 
@@ -258,294 +258,294 @@ public class ServerWhitelistManager {
 
    @SideOnly(Side.CLIENT)
    public static String getGlobalModelOverride() {
-      String var0 = getCustomModelsKey();
-      return var0 == null ? "sexmod/custom_models/singleplayer" : "sexmod/custom_models/" + var0;
+      String customModelsKey = getCustomModelsKey();
+      return customModelsKey == null ? "sexmod/custom_models/singleplayer" : "sexmod/custom_models/" + customModelsKey;
    }
 
    @SideOnly(Side.CLIENT)
    @Nullable
    public static String getCustomModelsKey() {
-      Minecraft var0 = Minecraft.getMinecraft();
-      ServerData var1 = var0.getCurrentServerData();
-      if (var1 == null) {
+      Minecraft minecraft = Minecraft.getMinecraft();
+      ServerData serverData = minecraft.getCurrentServerData();
+      if (serverData == null) {
          return null;
       }
 
-      String var2 = var1.serverIP;
-      int var3 = var2.indexOf(":");
-      if (var3 != -1) {
-         var2 = var2.substring(0, var3);
+      String serverIp = serverData.serverIP;
+      int portIndex = serverIp.indexOf(":");
+      if (portIndex != -1) {
+         serverIp = serverIp.substring(0, portIndex);
       }
 
-      return var2;
+      return serverIp;
    }
 
-   public static int loadCustomModels(boolean var0) {
+   public static int loadCustomModels(boolean global) {
       logError(Level.INFO, "loading up custom models...");
-      String var1 = getCurrentGroup();
-      File var2 = new File(var1);
-      var2.mkdirs();
-      String[] var3 = var2.list((var0x, var1x) -> new File(var0x, var1x).isDirectory());
-      if (var3 == null) {
+      String group = getCurrentGroup();
+      File dir = new File(group);
+      dir.mkdirs();
+      String[] modelNames = dir.list((subDir, subName) -> new File(subDir, subName).isDirectory());
+      if (modelNames == null) {
          logError(
             Level.ERROR,
             String.format(
                "Something is wrong with the custom models folder at '%s'. Check if it exists, if not - make the directory yourself because Minecraft cannot do it itself for some reason",
-               var2.getAbsolutePath()
+               dir.getAbsolutePath()
             )
          );
          return -1;
       }
 
-      logError(Level.INFO, String.format("found %s custom model(s)", var3.length));
-      int var4 = 0;
+      logError(Level.INFO, String.format("found %s custom model(s)", modelNames.length));
+      int count = 0;
 
-      for (String var8 : var3) {
-         String var9 = getPartName(var8, var1);
-         if (!"".equals(var9)) {
-            logError(Level.ERROR, var9);
+      for (String modelName : modelNames) {
+         String error = getPartName(modelName, group);
+         if (!"".equals(error)) {
+            logError(Level.ERROR, error);
             return -1;
          }
 
-         var9 = registerModel(var8, var1, var0);
-         if (!"".equals(var9)) {
-            logError(Level.ERROR, var9);
+         error = registerModel(modelName, group, global);
+         if (!"".equals(error)) {
+            logError(Level.ERROR, error);
             return -1;
          }
 
-         var4++;
+         count++;
       }
 
-      logError(Level.DEBUG, String.format("successfully registered %s custom models", var4));
+      logError(Level.DEBUG, String.format("successfully registered %s custom models", count));
       isLoaded = true;
       return 0;
    }
 
-   public static String getPartName(String var0, String var1) {
-      String var2 = String.format("%s/%s", var1, var0);
-      File var3 = new File(String.format("%s/%s.geo.json", var2, var0));
-      File var4 = new File(String.format("%s/%s.png", var2, var0));
-      File var5 = new File(String.format("%s/%s.cfg", var2, var0));
-      if (!var3.exists()) {
-         return String.format("couldn't find model File for '%s'. It should have been at '%s'. Are you sure it exists?", var0, var3.getAbsolutePath());
-      } else if (!var4.exists()) {
-         return String.format("couldn't find texture File for '%s'. It should have been at '%s'. Are you sure it exists?", var0, var4.getAbsolutePath());
+   public static String getPartName(String modelName, String group) {
+      String path = String.format("%s/%s", group, modelName);
+      File geoFile = new File(String.format("%s/%s.geo.json", path, modelName));
+      File textureFile = new File(String.format("%s/%s.png", path, modelName));
+      File cfgFile = new File(String.format("%s/%s.cfg", path, modelName));
+      if (!geoFile.exists()) {
+         return String.format("couldn't find model File for '%s'. It should have been at '%s'. Are you sure it exists?", modelName, geoFile.getAbsolutePath());
+      } else if (!textureFile.exists()) {
+         return String.format("couldn't find texture File for '%s'. It should have been at '%s'. Are you sure it exists?", modelName, textureFile.getAbsolutePath());
       } else {
-         return !var5.exists()
-            ? String.format("couldn't find cfg File for '%s'. It should have been at '%s'. Are you sure it exists?", var0, var5.getAbsolutePath())
+         return !cfgFile.exists()
+            ? String.format("couldn't find cfg File for '%s'. It should have been at '%s'. Are you sure it exists?", modelName, cfgFile.getAbsolutePath())
             : "";
       }
    }
 
    @SideOnly(Side.CLIENT)
-   static ResourceLocation loadTexture(String var0, File var1) throws IOException {
-      BufferedImage var2 = ImageIO.read(var1);
-      return Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(var0, new DynamicTexture(var2));
+   static ResourceLocation loadTexture(String name, File file) throws IOException {
+      BufferedImage image = ImageIO.read(file);
+      return Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(name, new DynamicTexture(image));
    }
 
    @SideOnly(Side.CLIENT)
-   static RawGeoModel loadGeoModel(File var0) throws IOException {
-      StringBuilder var1 = new StringBuilder();
-      BufferedReader var2 = new BufferedReader(new FileReader(var0));
+   static RawGeoModel loadGeoModel(File file) throws IOException {
+      StringBuilder content = new StringBuilder();
+      BufferedReader reader = new BufferedReader(new FileReader(file));
       try {
-         String var12;
-         while ((var12 = var2.readLine()) != null) {
-            var1.append(var12);
+         String line;
+         while ((line = reader.readLine()) != null) {
+            content.append(line);
          }
       } finally {
-         var2.close();
+         reader.close();
       }
 
-      String var11 = var1.toString();
-      return Converter.fromJsonString(var11);
+      String json = content.toString();
+      return Converter.fromJsonString(json);
    }
 
-   public static String registerModel(String var0, String var1, boolean var2) {
-      if (modelDataMap.get(var0) != null) {
-         return String.format("already registered '%s'... honestly, unsure how this could happen lol", var0);
+   public static String registerModel(String modelName, String group, boolean textureFlag) {
+      if (modelDataMap.get(modelName) != null) {
+         return String.format("already registered '%s'... honestly, unsure how this could happen lol", modelName);
       }
 
-      String var3 = String.format("%s/%s/", var1, var0);
-      String var4 = var3 + var0 + ".cfg";
-      File var5 = new File(var4);
-      if (!var5.exists()) {
-         return String.format("couldn't find cfg File for '%s'. It should have been at '%s'. Are you sure it exists?", var0, var4);
+      String modelDir = String.format("%s/%s/", group, modelName);
+      String cfgPath = modelDir + modelName + ".cfg";
+      File cfgFile = new File(cfgPath);
+      if (!cfgFile.exists()) {
+         return String.format("couldn't find cfg File for '%s'. It should have been at '%s'. Are you sure it exists?", modelName, cfgPath);
       }
 
-      ServerWhitelistManager.ModelData var6 = new ServerWhitelistManager.ModelData(var5, var0);
-      if (var6.errorMessage != null) {
-         return var6.errorMessage;
+      ServerWhitelistManager.ModelData modelData = new ServerWhitelistManager.ModelData(cfgFile, modelName);
+      if (modelData.errorMessage != null) {
+         return modelData.errorMessage;
       }
 
-      String var8 = var3 + var0 + ".png";
-      File var7 = new File(var8);
-      if (!var7.exists()) {
-         return String.format("The texture for the custom model '%s' couldn't be found at '%s' are you sure it exists?", var0, var8);
+      String texturePath = modelDir + modelName + ".png";
+      File textureFile = new File(texturePath);
+      if (!textureFile.exists()) {
+         return String.format("The texture for the custom model '%s' couldn't be found at '%s' are you sure it exists?", modelName, texturePath);
       }
 
-      ResourceLocation var9 = null;
-      if (var2) {
+      ResourceLocation textureLoc = null;
+      if (textureFlag) {
          try {
-            var9 = loadTexture(var0, var7);
-         } catch (IOException var18) {
-            return String.format("The texture for the custom model '%s' at '%s' appears to be corrupted. Try making a new one", var0, var8);
-         } catch (Exception var19) {
+            textureLoc = loadTexture(modelName, textureFile);
+         } catch (IOException ioException) {
+            return String.format("The texture for the custom model '%s' at '%s' appears to be corrupted. Try making a new one", modelName, texturePath);
+         } catch (Exception exception) {
             return String.format(
-               "Couldn't load the texture for the custom model '%s' at '%s'. Maybe try increasing the amount of RAM of ur Minecraft client", var0, var7
+               "Couldn't load the texture for the custom model '%s' at '%s'. Maybe try increasing the amount of RAM of ur Minecraft client", modelName, textureFile
             );
          }
       }
 
-      ResourceLocation var10 = new ResourceLocation("sexmod", var0 + "Model");
-      String var12 = var3 + var0 + ".geo.json";
-      File var13 = new File(var12);
-      if (!var13.exists()) {
-         return String.format("The geo model for the custom model '%s' couldn't be found at '%s' are you sure it exists?", var0, var12);
+      ResourceLocation geoResource = new ResourceLocation("sexmod", modelName + "Model");
+      String geoPath = modelDir + modelName + ".geo.json";
+      File geoFile = new File(geoPath);
+      if (!geoFile.exists()) {
+         return String.format("The geo model for the custom model '%s' couldn't be found at '%s' are you sure it exists?", modelName, geoPath);
       }
 
-      if (var2) {
-         RawGeoModel var11;
+      if (textureFlag) {
+         RawGeoModel rawGeoModel;
          try {
-            var11 = loadGeoModel(var13);
-         } catch (IOException var17) {
-            return String.format("The geo model for the custom model '%s' at '%s' appears to be corrupted. Try replacing it.", var0, var12);
+            rawGeoModel = loadGeoModel(geoFile);
+         } catch (IOException ioException2) {
+            return String.format("The geo model for the custom model '%s' at '%s' appears to be corrupted. Try replacing it.", modelName, geoPath);
          }
 
          try {
-            RawGeometryTree var14 = RawGeometryTree.parseHierarchy(var11, var10);
-            GeoModel var15 = GeoBuilder.getGeoBuilder(var10.getNamespace()).constructGeoModel(var14);
-            GeckoLibCache.getInstance().getGeoModels().put(var10, var15);
-         } catch (Exception var16) {
-            return String.format("The geo model for the custom model '%s' at '%s' appears to be corrupted. Try replacing it.", var0, var12);
+            RawGeometryTree geometryTree = RawGeometryTree.parseHierarchy(rawGeoModel, geoResource);
+            GeoModel geoModel = GeoBuilder.getGeoBuilder(geoResource.getNamespace()).constructGeoModel(geometryTree);
+            GeckoLibCache.getInstance().getGeoModels().put(geoResource, geoModel);
+         } catch (Exception exception2) {
+            return String.format("The geo model for the custom model '%s' at '%s' appears to be corrupted. Try replacing it.", modelName, geoPath);
          }
       }
 
-      if (var2) {
-         var6.setFallbackTexture(var10);
-         var6.setTextureLocation(var9);
+      if (textureFlag) {
+         modelData.setFallbackTexture(geoResource);
+         modelData.setTextureLocation(textureLoc);
       }
 
-      modelDataMap.put(var0, var6);
-      logError(Level.DEBUG, String.format("successfully registered custom model '%s'", var0));
+      modelDataMap.put(modelName, modelData);
+      logError(Level.DEBUG, String.format("successfully registered custom model '%s'", modelName));
       return "";
    }
 
-   public static ResourceLocation getModelResource(String var0) {
-      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
-      if (var1 == null) {
-         if (!var0.equals("cross")) {
-            System.out.printf("The custom model for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
+   public static ResourceLocation getModelResource(String modelName) {
+      ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
+      if (modelData == null) {
+         if (!modelName.equals("cross")) {
+            System.out.printf("The custom model for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
          }
 
          return null;
       } else {
-         return var1.getFallbackTexture();
+         return modelData.getFallbackTexture();
       }
    }
 
-   public static ResourceLocation getModelTexture(String var0) {
-      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
-      if (var1 == null) {
-         if (!var0.equals("cross")) {
-            System.out.printf("The custom texture for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
+   public static ResourceLocation getModelTexture(String modelName) {
+      ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
+      if (modelData == null) {
+         if (!modelName.equals("cross")) {
+            System.out.printf("The custom texture for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
          }
 
          return null;
       } else {
-         return var1.getTextureLocation();
+         return modelData.getTextureLocation();
       }
    }
 
-   public static GeoModel getGeoModel(String var0) {
-      return GeckoLibCache.getInstance().getGeoModels().get(getModelResource(var0));
+   public static GeoModel getGeoModel(String modelName) {
+      return GeckoLibCache.getInstance().getGeoModels().get(getModelResource(modelName));
    }
 
-   public static BoneType getBoneType(String var0) {
-      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
-      if (var1 == null) {
-         if (!var0.equals("cross")) {
-            System.out.printf("The ClothingType for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
+   public static BoneType getBoneType(String modelName) {
+      ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
+      if (modelData == null) {
+         if (!modelName.equals("cross")) {
+            System.out.printf("The ClothingType for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
          }
 
          return BoneType.HEAD;
       } else {
-         return var1.boneType;
+         return modelData.boneType;
       }
    }
 
-   public static HashSet<NpcType> getAllowedNpcTypes(String var0) {
-      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
-      if (var1 == null) {
-         if (!var0.equals("cross")) {
-            System.out.printf("The HashSet<GirlType> for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
+   public static HashSet<NpcType> getAllowedNpcTypes(String modelName) {
+      ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
+      if (modelData == null) {
+         if (!modelName.equals("cross")) {
+            System.out.printf("The HashSet<GirlType> for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
          }
 
          return null;
       } else {
-         return var1.allowedNpcTypes;
+         return modelData.allowedNpcTypes;
       }
    }
 
-   public static HashSet<String> getCustomPartBones(String var0) {
-      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
-      if (var1 == null) {
-         if (!var0.equals("cross")) {
-            System.out.printf("The HashSet<String> for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
+   public static HashSet<String> getCustomPartBones(String modelName) {
+      ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
+      if (modelData == null) {
+         if (!modelName.equals("cross")) {
+            System.out.printf("The HashSet<String> for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
          }
 
          return new HashSet<>();
       } else {
-         return var1.customPartBones;
+         return modelData.customPartBones;
       }
    }
 
-   public static String getModelCode(String var0) {
-      ServerWhitelistManager.ModelData var1 = modelDataMap.get(var0);
-      if (var1 == null) {
-         if (!var0.equals("cross")) {
-            System.out.printf("The author for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", var0);
+   public static String getModelCode(String modelName) {
+      ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
+      if (modelData == null) {
+         if (!modelName.equals("cross")) {
+            System.out.printf("The author for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
          }
 
          return "";
       } else {
-         return var1.modelCode;
+         return modelData.modelCode;
       }
    }
 
    @Nullable
-   public static ServerWhitelistManager.ModelData getModelDataForGirl(String var0) {
-      return modelDataMap.get(var0);
+   public static ServerWhitelistManager.ModelData getModelDataForGirl(String modelName) {
+      return modelDataMap.get(modelName);
    }
 
-   public static HashMap<BoneType, List<String>> getModelParts(BaseGirlEntity var0) {
-      HashMap var1 = new HashMap();
+   public static HashMap<BoneType, List<String>> getModelParts(BaseGirlEntity girl) {
+      HashMap partsMap = new HashMap();
 
-      for (BoneType var5 : BoneType.values()) {
-         var1.put(var5, new ArrayList());
+      for (BoneType boneType : BoneType.values()) {
+         partsMap.put(boneType, new ArrayList());
       }
 
-      for (Entry var9 : modelDataMap.entrySet()) {
-         String var10 = (String)var9.getKey();
-         ServerWhitelistManager.ModelData var11 = (ServerWhitelistManager.ModelData)var9.getValue();
-         BoneType var6 = var11.boneType;
-         List var7 = (List)var1.get(var6);
-         if (var11.allowedNpcTypes.isEmpty() || var11.allowedNpcTypes.contains(NpcType.getNpcType(var0))) {
-            var7.add(var10);
-            var1.put(var6, var7);
+      for (Entry entry : modelDataMap.entrySet()) {
+         String modelName = (String)entry.getKey();
+         ServerWhitelistManager.ModelData modelData = (ServerWhitelistManager.ModelData)entry.getValue();
+         BoneType boneType2 = modelData.boneType;
+         List models = (List)partsMap.get(boneType2);
+         if (modelData.allowedNpcTypes.isEmpty() || modelData.allowedNpcTypes.contains(NpcType.getNpcType(girl))) {
+            models.add(modelName);
+            partsMap.put(boneType2, models);
          }
       }
 
-      return var1;
+      return partsMap;
    }
 
    public static HashMap<String, Float> getModelScales() {
-      HashMap var0 = new HashMap();
+      HashMap scales = new HashMap();
 
-      for (Entry var2 : getModelDataMap().entrySet()) {
-         var0.put(var2.getKey(), ((ServerWhitelistManager.ModelData)var2.getValue()).getZOffset());
+      for (Entry entry : getModelDataMap().entrySet()) {
+         scales.put(entry.getKey(), ((ServerWhitelistManager.ModelData)entry.getValue()).getZOffset());
       }
 
-      return var0;
+      return scales;
    }
 
    @SideOnly(Side.CLIENT)
@@ -560,40 +560,40 @@ public static class ChatHandler {
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void onClientChat(ClientChatEvent var1) {
-         String var2 = var1.getOriginalMessage();
-         if ("id".equals(var2)) {
-            EntityPlayerSP var3 = Minecraft.getMinecraft().player;
-            List var4 = var3.world.getEntitiesWithinAABB(BaseGirlEntity.class, var3.getEntityBoundingBox().grow(10.0));
-            BaseGirlEntity var5 = null;
+      public void onClientChat(ClientChatEvent event) {
+         String message = event.getOriginalMessage();
+         if ("id".equals(message)) {
+            EntityPlayerSP player = Minecraft.getMinecraft().player;
+            List nearbyGirls = player.world.getEntitiesWithinAABB(BaseGirlEntity.class, player.getEntityBoundingBox().grow(10.0));
+            BaseGirlEntity closestGirl = null;
 
-            for (BaseGirlEntity var7 : (java.util.Collection<BaseGirlEntity>) (var4) ) {
-               if (var5 == null) {
-                  var5 = var7;
-               } else if (var3.getDistance(var7) < var3.getDistance(var5)) {
-                  var5 = var7;
+            for (BaseGirlEntity girl : (java.util.Collection<BaseGirlEntity>) (nearbyGirls) ) {
+               if (closestGirl == null) {
+                  closestGirl = girl;
+               } else if (player.getDistance(girl) < player.getDistance(closestGirl)) {
+                  closestGirl = girl;
                }
             }
 
-            if (var5 != null) {
-               var3.sendStatusMessage(new TextComponentString(var5.getGirlId().toString()), false);
-               var1.setCanceled(true);
+            if (closestGirl != null) {
+               player.sendStatusMessage(new TextComponentString(closestGirl.getGirlId().toString()), false);
+               event.setCanceled(true);
             }
          }
       }
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void onServerConnect(ClientConnectedToServerEvent var1) {
-         Minecraft var2 = Minecraft.getMinecraft();
-         var2.addScheduledTask(() -> ServerWhitelistManager.loadCustomModels(true));
+      public void onServerConnect(ClientConnectedToServerEvent event) {
+         Minecraft minecraft = Minecraft.getMinecraft();
+         minecraft.addScheduledTask(() -> ServerWhitelistManager.loadCustomModels(true));
          this.hasSentId = false;
       }
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void onEntityJoinWorld(EntityJoinWorldEvent var1) {
-         if (var1.getEntity().equals(Minecraft.getMinecraft().player)) {
+      public void onEntityJoinWorld(EntityJoinWorldEvent event) {
+         if (event.getEntity().equals(Minecraft.getMinecraft().player)) {
             if (!this.hasSentId) {
                this.hasSentId = true;
                if (ServerWhitelistManager.isGlobalRenderingDisabled()) {
@@ -605,7 +605,7 @@ public static class ChatHandler {
 
       @SideOnly(Side.CLIENT)
       @SubscribeEvent
-      public void onServerDisconnect(ClientDisconnectionFromServerEvent var1) {
+      public void onServerDisconnect(ClientDisconnectionFromServerEvent event) {
          Minecraft.getMinecraft().addScheduledTask(() -> ServerWhitelistManager.setGlobalRenderingDisabled(true));
          this.hasSentId = false;
       }
@@ -639,173 +639,173 @@ public static class ModelData {
       public String errorMessage = null;
       float zOffset;
 
-      public ModelData(File var1, String var2) {
-         if (var2.contains(" ") || var2.contains("#") || var2.contains("$")) {
-            this.errorMessage = String.format("You cannot call your custom model '%s'. '#', '$' and spaces are illegal characters", var2);
-         } else if ("cross".equalsIgnoreCase(var2)) {
+      public ModelData(File file, String modelName) {
+         if (modelName.contains(" ") || modelName.contains("#") || modelName.contains("$")) {
+            this.errorMessage = String.format("You cannot call your custom model '%s'. '#', '$' and spaces are illegal characters", modelName);
+         } else if ("cross".equalsIgnoreCase(modelName)) {
             this.errorMessage = "You cannot call your custom model 'cross'. Im sorry, but I need that specific name for internal stuff";
          } else {
-            Properties var3 = new Properties();
+            Properties properties = new Properties();
 
-            FileInputStream var4;
+            FileInputStream inputStream;
             try {
-               var4 = new FileInputStream(var1);
-            } catch (FileNotFoundException var21) {
-               this.errorMessage = String.format("couldn't find cfg File for '%s'. It should have been at '%s'. Are you sure it exists?", var2, var1.getAbsolutePath());
+               inputStream = new FileInputStream(file);
+            } catch (FileNotFoundException notFoundExc) {
+               this.errorMessage = String.format("couldn't find cfg File for '%s'. It should have been at '%s'. Are you sure it exists?", modelName, file.getAbsolutePath());
                return;
             }
 
             try {
-               var3.load(var4);
-            } catch (IOException var20) {
+               properties.load(inputStream);
+            } catch (IOException ioExc) {
                this.errorMessage = String.format(
-                  "couldn't read the cfg File for '%s' at '%s'. It appears to be corrupted. Try making a new one", var2, var1.getAbsolutePath()
+                  "couldn't read the cfg File for '%s' at '%s'. It appears to be corrupted. Try making a new one", modelName, file.getAbsolutePath()
                );
                return;
             }
 
-            String var5 = var3.getProperty("wear_type");
-            if (var5 == null) {
+            String wearType = properties.getProperty("wear_type");
+            if (wearType == null) {
                this.errorMessage = String.format(
                   "The cfg File for the model '%s' at '%s' is missing the 'wear_type'. Go to the bottom of the cfg File and write 'wear_type=HEAD'. Check the cfg files of my examples to see what values for 'wear_type' are possible",
-                  var2,
-                  var1.getAbsolutePath()
+                  modelName,
+                  file.getAbsolutePath()
                );
             } else {
                try {
-                  var5 = var5.replace(" ", "");
-                  this.boneType = BoneType.valueOf(var5);
-               } catch (IllegalArgumentException var19) {
+                  wearType = wearType.replace(" ", "");
+                  this.boneType = BoneType.valueOf(wearType);
+               } catch (IllegalArgumentException illegalArg) {
                   this.errorMessage = String.format(
                      "you entered '%s' into the 'wear_type' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'wear_type",
-                     var5,
-                     var2,
-                     var1.getAbsolutePath()
+                     wearType,
+                     modelName,
+                     file.getAbsolutePath()
                   );
                   return;
                }
 
                if (BoneType.CUSTOM_BONE.equals(this.boneType)) {
-                  this.modelName = var3.getProperty("custom_bone");
+                  this.modelName = properties.getProperty("custom_bone");
                   if ("".equals(this.modelName)) {
                      this.errorMessage = String.format(
                         "You selected CUSTOM_BONE as the 'wear_type' in the cfg file for '%s' at '%s', yet you left the 'custom_bone' field right underneath it empty. If you want ur model to be parented to a specific bone, you have to enter the name of that bone at the field 'custom_bone'.",
-                        var2,
-                        var1.getAbsolutePath()
+                        modelName,
+                        file.getAbsolutePath()
                      );
                      return;
                   }
                }
 
-               String var6 = var3.getProperty("which_girls");
-               var6 = var6.replace(" ", "");
-               String[] var7 = var6.split(",");
+               String girlsStr = properties.getProperty("which_girls");
+               girlsStr = girlsStr.replace(" ", "");
+               String[] girlNames = girlsStr.split(",");
 
-               for (String var11 : var7) {
+               for (String girlName : girlNames) {
                   try {
-                     if (!"".equals(var11)) {
-                        this.allowedNpcTypes.add(NpcType.valueOf(var11));
+                     if (!"".equals(girlName)) {
+                        this.allowedNpcTypes.add(NpcType.valueOf(girlName));
                      }
-                  } catch (IllegalArgumentException var22) {
+                  } catch (IllegalArgumentException illegalArg2) {
                      this.errorMessage = String.format(
                         "you entered '%s' as one of the girls, you put into the 'which_girls' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'which_girls'.",
-                        var11,
-                        var2,
-                        var1.getAbsolutePath()
+                        girlName,
+                        modelName,
+                        file.getAbsolutePath()
                      );
                      return;
                   }
                }
 
-               String var24 = var3.getProperty("which_lighting");
-               if (var24 == null) {
+               String lightingStr = properties.getProperty("which_lighting");
+               if (lightingStr == null) {
                   this.errorMessage = String.format(
                      "The %s's cfg file at '%s' doesn't contain the field 'which_lighting'. Go to the bottom of the cfg file and write either 'which_lighting=DEFAULT', 'which_lighting=SEXMOD', or 'which_lighting=NONE'.",
-                     var2,
-                     var1.getAbsolutePath()
+                     modelName,
+                     file.getAbsolutePath()
                   );
                } else {
-                  var24 = var24.replace(" ", "");
+                  lightingStr = lightingStr.replace(" ", "");
 
                   try {
-                     this.lightingType = LightingType.valueOf(var24);
-                  } catch (IllegalArgumentException var18) {
+                     this.lightingType = LightingType.valueOf(lightingStr);
+                  } catch (IllegalArgumentException illegalArg3) {
                      this.errorMessage = String.format(
                         "you entered '%s' into the 'which_lighting' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'which_lighting'.",
-                        var24,
-                        var2,
-                        var1.getAbsolutePath()
+                        lightingStr,
+                        modelName,
+                        file.getAbsolutePath()
                      );
                   }
 
-                  String var26 = var3.getProperty("author");
-                  if (var26 != null && !"".equals(var26)) {
-                     this.modelCode = var26;
+                  String author = properties.getProperty("author");
+                  if (author != null && !"".equals(author)) {
+                     this.modelCode = author;
                   } else {
                      this.modelCode = "anon";
                   }
 
-                  String var27 = var3.getProperty("bones_to_hide");
-                  if (var27 != null && !"".equals(var27)) {
-                     var27 = var27.replace(" ", "");
-                     String[] var29 = var27.split(",");
-                     this.customPartBones.addAll(Arrays.asList(var29));
+                  String hideBonesStr = properties.getProperty("bones_to_hide");
+                  if (hideBonesStr != null && !"".equals(hideBonesStr)) {
+                     hideBonesStr = hideBonesStr.replace(" ", "");
+                     String[] boneNames = hideBonesStr.split(",");
+                     this.customPartBones.addAll(Arrays.asList(boneNames));
                   }
 
-                  String var30 = var3.getProperty("enable_when_nude");
-                  if (var30 == null) {
+                  String nudeStr = properties.getProperty("enable_when_nude");
+                  if (nudeStr == null) {
                      this.disabled = false;
                   } else {
-                     var30 = var30.replace(" ", "");
-                     this.disabled = var30.equalsIgnoreCase("yes");
+                     nudeStr = nudeStr.replace(" ", "");
+                     this.disabled = nudeStr.equalsIgnoreCase("yes");
                   }
 
-                  String var12 = var3.getProperty("gui_size_factor");
-                  if (var12 != null && !"".equals(var12)) {
-                     var12 = var12.replace(" ", "");
-                     var12 = var12.replace(",", ".");
+                  String scaleStr = properties.getProperty("gui_size_factor");
+                  if (scaleStr != null && !"".equals(scaleStr)) {
+                     scaleStr = scaleStr.replace(" ", "");
+                     scaleStr = scaleStr.replace(",", ".");
 
                      try {
-                        this.scale = Float.parseFloat(var12);
-                     } catch (NumberFormatException var17) {
+                        this.scale = Float.parseFloat(scaleStr);
+                     } catch (NumberFormatException numberExc) {
                         this.errorMessage = String.format(
                            "you entered '%s' into the 'gui_size_factor' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'gui_size_factor'.",
-                           var12,
-                           var2,
-                           var1.getAbsolutePath()
+                           scaleStr,
+                           modelName,
+                           file.getAbsolutePath()
                         );
                      }
                   }
 
-                  String var13 = var3.getProperty("gui_vertical_positioning");
-                  if (var13 != null && !"".equals(var13)) {
-                     var13 = var13.replace(" ", "");
-                     var13 = var13.replace(",", ".");
+                  String posStr = properties.getProperty("gui_vertical_positioning");
+                  if (posStr != null && !"".equals(posStr)) {
+                     posStr = posStr.replace(" ", "");
+                     posStr = posStr.replace(",", ".");
 
                      try {
-                        this.xOffset = Float.parseFloat(var13);
-                     } catch (NumberFormatException var16) {
+                        this.xOffset = Float.parseFloat(posStr);
+                     } catch (NumberFormatException numberExc2) {
                         this.errorMessage = String.format(
                            "you entered '%s' into the 'gui_vertical_positioning' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'gui_vertical_positioning'.",
-                           var13,
-                           var2,
-                           var1.getAbsolutePath()
+                           posStr,
+                           modelName,
+                           file.getAbsolutePath()
                         );
                      }
                   }
 
-                  String var14 = var3.getProperty("version");
-                  var14 = var14.replace(" ", "");
-                  var14 = var14.replace(",", ".");
+                  String versionStr = properties.getProperty("version");
+                  versionStr = versionStr.replace(" ", "");
+                  versionStr = versionStr.replace(",", ".");
 
                   try {
-                     this.zOffset = Float.parseFloat(var14);
-                  } catch (NumberFormatException var15) {
+                     this.zOffset = Float.parseFloat(versionStr);
+                  } catch (NumberFormatException numberExc3) {
                      this.errorMessage = String.format(
                         "you entered '%s' into the 'versionString' field of the %s's cfg file at '%s'. This is not a valid value. Check my examples on what valid values are to enter into the field 'versionString'.",
-                        var14,
-                        var2,
-                        var1.getAbsolutePath()
+                        versionStr,
+                        modelName,
+                        file.getAbsolutePath()
                      );
                   }
                }
@@ -853,24 +853,24 @@ public static class ModelData {
          return this.textureLocation;
       }
 
-      public void setTextureLocation(ResourceLocation var1) {
-         this.textureLocation = var1;
+      public void setTextureLocation(ResourceLocation textureLoc) {
+         this.textureLocation = textureLoc;
       }
 
       public ResourceLocation getFallbackTexture() {
          return this.fallbackTexture;
       }
 
-      public void setFallbackTexture(ResourceLocation var1) {
-         this.fallbackTexture = var1;
+      public void setFallbackTexture(ResourceLocation fallback) {
+         this.fallbackTexture = fallback;
       }
 
       public float getZOffset() {
          return this.zOffset;
       }
 
-      private static FileNotFoundException wrapException(FileNotFoundException var0) {
-         return var0;
+      private static FileNotFoundException wrapException(FileNotFoundException exception) {
+         return exception;
       }
    }
 }

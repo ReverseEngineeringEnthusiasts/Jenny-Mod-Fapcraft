@@ -80,53 +80,53 @@ public class ClothingScreen extends GuiScreen {
    int scrollVelocity = 0;
    int scrollDirection = 1;
 
-   public ClothingScreen(@Nonnull BaseGirlEntity var1) {
+   public ClothingScreen(@Nonnull BaseGirlEntity girl) {
       this.mc = Minecraft.getMinecraft();
-      this.girlId = var1.getGirlId();
-      NpcType var2 = NpcType.getNpcType(var1);
-      if (var2 == null) {
-         var2 = NpcType.JENNY;
+      this.girlId = girl.getGirlId();
+      NpcType npcType = NpcType.getNpcType(girl);
+      if (npcType == null) {
+         npcType = NpcType.JENNY;
       }
 
       try {
-         Constructor var3 = var2.npcClass.getConstructor(World.class);
-         this.previewGirl = (BaseGirlEntity)var3.newInstance(this.mc.world);
+         Constructor constructor = npcType.npcClass.getConstructor(World.class);
+         this.previewGirl = (BaseGirlEntity)constructor.newInstance(this.mc.world);
          this.previewGirl.setLocallyRegistered(true);
-      } catch (Exception var11) {
-         var11.printStackTrace();
+      } catch (Exception e) {
+         e.printStackTrace();
       }
 
       this.refreshCustomParts();
-      String var12 = var1.getCustomModelCode();
-      this.previewGirl.getDataManager().set(BaseGirlEntity.CUSTOM_MODEL_KEY, var12);
-      int var4 = 0;
+      String modelCode = girl.getCustomModelCode();
+      this.previewGirl.getDataManager().set(BaseGirlEntity.CUSTOM_MODEL_KEY, modelCode);
+      int customBoneCount = 0;
 
-      for (String var6 : this.previewGirl.getCustomPartsSet()) {
-         BoneType var7 = ServerWhitelistManager.getBoneType(var6);
-         if (BoneType.CUSTOM_BONE.equals(var7)) {
-            var4++;
+      for (String partName : this.previewGirl.getCustomPartsSet()) {
+         BoneType boneType = ServerWhitelistManager.getBoneType(partName);
+         if (BoneType.CUSTOM_BONE.equals(boneType)) {
+            customBoneCount++;
          }
 
-         Entry var8 = null;
-         if (BoneType.CUSTOM_BONE.equals(var7) && var4 > 1) {
-            var8 = getCustomPartData(this.previewGirl);
+         Entry entry = null;
+         if (BoneType.CUSTOM_BONE.equals(boneType) && customBoneCount > 1) {
+            entry = getCustomPartData(this.previewGirl);
          } else {
-            for (Entry var10 : m) {
-               if (((BoneType)var10.getKey()).equals(var7)) {
-                  var8 = var10;
+            for (Entry existingEntry : m) {
+               if (((BoneType)existingEntry.getKey()).equals(boneType)) {
+                  entry = existingEntry;
                }
             }
          }
 
-         if (var8 != null) {
-            m.remove(var8);
-            int var13 = ((List)((Entry)var8.getValue()).getKey()).indexOf(var6);
-            if (var13 == -1) {
-               var13 = 0;
+         if (entry != null) {
+            m.remove(entry);
+            int index = ((List)((Entry)entry.getValue()).getKey()).indexOf(partName);
+            if (index == -1) {
+               index = 0;
             }
 
-            ((Entry)var8.getValue()).setValue(var13);
-            m.add(var8);
+            ((Entry)entry.getValue()).setValue(index);
+            m.add(entry);
          }
       }
    }
@@ -137,55 +137,55 @@ public class ClothingScreen extends GuiScreen {
    }
 
    public static HashSet<String> getCustomBoneNames() {
-      HashSet var0 = new HashSet();
+      HashSet names = new HashSet();
 
-      for (Entry var2 : m) {
-         if (((List)((Entry)var2.getValue()).getKey()).size() != 1) {
-            Entry var3 = (Entry)var2.getValue();
-            List var4 = (List)var3.getKey();
-            Integer var5 = (Integer)var3.getValue();
-            var0.add(var4.get(var5));
+      for (Entry entry : m) {
+         if (((List)((Entry)entry.getValue()).getKey()).size() != 1) {
+            Entry data = (Entry)entry.getValue();
+            List parts = (List)data.getKey();
+            Integer index = (Integer)data.getValue();
+            names.add(parts.get(index));
          }
       }
 
-      return var0;
+      return names;
    }
 
-   public static Entry<BoneType, Entry<List<String>, Integer>> getCustomPartData(BaseGirlEntity var0) {
-      ArrayList var1 = new ArrayList();
-      var1.add("cross");
-      var1.addAll(ServerWhitelistManager.getModelParts(var0).get(BoneType.CUSTOM_BONE));
-      return new SimpleEntry<>(BoneType.CUSTOM_BONE, new SimpleEntry<>(var1, 0));
+   public static Entry<BoneType, Entry<List<String>, Integer>> getCustomPartData(BaseGirlEntity girl) {
+      ArrayList parts = new ArrayList();
+      parts.add("cross");
+      parts.addAll(ServerWhitelistManager.getModelParts(girl).get(BoneType.CUSTOM_BONE));
+      return new SimpleEntry<>(BoneType.CUSTOM_BONE, new SimpleEntry<>(parts, 0));
    }
 
    void refreshCustomParts() {
       m.clear();
-      List var1 = this.previewGirl.buildCustomPartsData(this.girlId);
-      this.partsCount = var1.size();
-      m.addAll(var1);
+      List customParts = this.previewGirl.buildCustomPartsData(this.girlId);
+      this.partsCount = customParts.size();
+      m.addAll(customParts);
 
-      for (BoneType var5 : BoneType.values()) {
-         if (var5 != BoneType.GIRL_SPECIFIC) {
-            ArrayList var6 = new ArrayList();
-            var6.add("cross");
-            m.add(new SimpleEntry<>(var5, new SimpleEntry<>(var6, 0)));
+      for (BoneType boneType : BoneType.values()) {
+         if (boneType != BoneType.GIRL_SPECIFIC) {
+            ArrayList parts = new ArrayList();
+            parts.add("cross");
+            m.add(new SimpleEntry<>(boneType, new SimpleEntry<>(parts, 0)));
          }
       }
 
-      for (Entry var8 : ServerWhitelistManager.getModelParts(this.previewGirl).entrySet()) {
-         Entry var9 = null;
+      for (Entry modelParts : ServerWhitelistManager.getModelParts(this.previewGirl).entrySet()) {
+         Entry entry = null;
 
-         for (Entry var12 : m) {
-            if (((BoneType)var8.getKey()).equals(var12.getKey())) {
-               var9 = var12;
+         for (Entry existingEntry : m) {
+            if (((BoneType)modelParts.getKey()).equals(existingEntry.getKey())) {
+               entry = existingEntry;
             }
          }
 
-         if (var9 != null) {
-            int var11 = m.indexOf(var9);
-            m.remove(var9);
-            ((List)((Entry)var9.getValue()).getKey()).addAll((Collection)var8.getValue());
-            m.add(var11, var9);
+         if (entry != null) {
+            int index = m.indexOf(entry);
+            m.remove(entry);
+            ((List)((Entry)entry.getValue()).getKey()).addAll((Collection)modelParts.getValue());
+            m.add(index, entry);
          }
       }
    }
@@ -194,50 +194,50 @@ public class ClothingScreen extends GuiScreen {
       this.modelList = new CustomModelList(this.mc, this);
    }
 
-   public void setWorldAndResolution(Minecraft var1, int var2, int var3) {
-      super.setWorldAndResolution(var1, var2, var3);
+   public void setWorldAndResolution(Minecraft mc, int width, int height) {
+      super.setWorldAndResolution(mc, width, height);
       this.guiX = this.screenX(76.0F);
       this.guiY = this.screenY(89.0F);
       this.modelRotation = 90.0F;
    }
 
-   boolean isMouseOverPart(int var1, int var2, int var3, int var4, int var5, int var6) {
-      if (var1 < var3) {
+   boolean isMouseOverPart(int mouseX, int mouseY, int left, int top, int right, int bottom) {
+      if (mouseX < left) {
          return false;
-      } else if (var1 > var5) {
+      } else if (mouseX > right) {
          return false;
       } else {
-         return var2 < var4 ? false : var2 <= var6;
+         return mouseY < top ? false : mouseY <= bottom;
       }
    }
 
-   public void drawScreen(int var1, int var2, float var3) {
-      super.drawScreen(var1, var2, var3);
+   public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+      super.drawScreen(mouseX, mouseY, partialTicks);
       if (this.isRendering) {
-         currentModelYaw = currentModelYaw + RotationHelper.lerp(targetScrollOffset, scrollOffset, var3);
+         currentModelYaw = currentModelYaw + RotationHelper.lerp(targetScrollOffset, scrollOffset, partialTicks);
       }
 
       this.startRendering();
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-      int var4 = this.guiX - this.screenX(15.0F);
-      int var5 = this.guiY - 20;
-      this.drawTexturedModalRect(var4, var5, 100, this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20) ? 40 : 20, 20, 20);
+      int x = this.guiX - this.screenX(15.0F);
+      int y = this.guiY - 20;
+      this.drawTexturedModalRect(x, y, 100, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 40 : 20, 20, 20);
       if (ServerWhitelistManager.getCustomModelsKey() == null) {
-         this.drawBackground(var4, var1, var2);
+         this.drawBackground(x, mouseX, mouseY);
       }
 
       this.drawPartRotated(this.guiX, this.guiY, this.modelRotation, this.previewGirl, 1.2345679F);
       this.previewGirl.onUpdate();
-      this.modelList.drawScreen(var1, var2, var3);
+      this.modelList.drawScreen(mouseX, mouseY, partialTicks);
    }
 
-   void drawBackground(int var1, int var2, int var3) {
-      int var4 = this.guiY - 40;
-      this.drawTexturedModalRect(var1, var4, 120, this.isMouseOverPart(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 40 : 20, 20, 20);
-      var4 -= 20;
-      this.drawTexturedModalRect(var1, var4, 20, this.isMouseOverPart(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
-      var4 -= 20;
-      this.drawTexturedModalRect(var1, var4, 0, this.isMouseOverPart(var2, var3, var1, var4, var1 + 20, var4 + 20) ? 170 : 150, 20, 20);
+   void drawBackground(int x, int mouseX, int mouseY) {
+      int y = this.guiY - 40;
+      this.drawTexturedModalRect(x, y, 120, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 40 : 20, 20, 20);
+      y -= 20;
+      this.drawTexturedModalRect(x, y, 20, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
+      y -= 20;
+      this.drawTexturedModalRect(x, y, 0, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
    }
 
    public boolean doesGuiPauseGame() {
@@ -246,152 +246,152 @@ public class ClothingScreen extends GuiScreen {
 
    void playClickSound() {
       this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-      HashSet var1 = new HashSet();
-      ArrayList var2 = new ArrayList();
+      HashSet selectedParts = new HashSet();
+      ArrayList girlSpecific = new ArrayList();
 
-      for (Entry var4 : m) {
-         if (var4.getKey() == BoneType.GIRL_SPECIFIC) {
-            var2.add(((Entry)var4.getValue()).getValue());
+      for (Entry entry : m) {
+         if (entry.getKey() == BoneType.GIRL_SPECIFIC) {
+            girlSpecific.add(((Entry)entry.getValue()).getValue());
          } else {
-            Entry var5 = (Entry)var4.getValue();
-            Integer var6 = (Integer)var5.getValue();
-            if (var6 != 0) {
-               String var7 = (String)((List)var5.getKey()).get(var6);
-               var1.add(var7);
+            Entry data = (Entry)entry.getValue();
+            Integer index = (Integer)data.getValue();
+            if (index != 0) {
+               String partName = (String)((List)data.getKey()).get(index);
+               selectedParts.add(partName);
             }
          }
       }
 
-      PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(BaseGirlEntity.encodeCustomParts(var1), this.girlId, var2));
+      PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(BaseGirlEntity.encodeCustomParts(selectedParts), this.girlId, girlSpecific));
       this.mc.player.closeScreen();
    }
 
-   public void onBoneTypeToggle(BoneType var1, boolean var2, int var3) {
+   public void onBoneTypeToggle(BoneType boneType, boolean forward, int clickIndex) {
       this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-      ArrayList var4 = new ArrayList();
-      ArrayList var5 = new ArrayList();
-      int var6 = 0;
+      ArrayList matches = new ArrayList();
+      ArrayList indices = new ArrayList();
+      int i = 0;
 
-      for (Entry var8 : m) {
-         if (((BoneType)var8.getKey()).equals(var1)) {
-            var4.add(var8);
-            var5.add(var6);
+      for (Entry entry : m) {
+         if (((BoneType)entry.getKey()).equals(boneType)) {
+            matches.add(entry);
+            indices.add(i);
          }
 
-         var6++;
+         i++;
       }
 
-      if (var4.size() != 0) {
-         Entry var15;
-         int var16;
-         if (var4.size() == 1) {
-            var15 = (Entry)var4.get(0);
-            var16 = (Integer)var5.get(0);
+      if (matches.size() != 0) {
+         Entry entry;
+         int index;
+         if (matches.size() == 1) {
+            entry = (Entry)matches.get(0);
+            index = (Integer)indices.get(0);
          } else {
-            int var9;
-            if (this.partsCount != 0 && var3 <= this.partsCount - 1 + BoneType.getCustomBoneCount()) {
-               var9 = var3;
+            int partIndex;
+            if (this.partsCount != 0 && clickIndex <= this.partsCount - 1 + BoneType.getCustomBoneCount()) {
+               partIndex = clickIndex;
             } else {
-               var9 = var3 - (this.partsCount + BoneType.getCustomBoneCount());
+               partIndex = clickIndex - (this.partsCount + BoneType.getCustomBoneCount());
             }
 
-            var15 = (Entry)var4.get(var9);
-            var16 = (Integer)var5.get(var9);
+            entry = (Entry)matches.get(partIndex);
+            index = (Integer)indices.get(partIndex);
          }
 
-         if (var15 != null) {
-            Entry var17 = (Entry)var15.getValue();
-            int var10 = (Integer)var17.getValue();
-            int var11 = ((List)var17.getKey()).size();
-            if (var2) {
-               if (++var10 >= var11) {
-                  var10 = 0;
+         if (entry != null) {
+            Entry data = (Entry)entry.getValue();
+            int currentIndex = (Integer)data.getValue();
+            int partCount = ((List)data.getKey()).size();
+            if (forward) {
+               if (++currentIndex >= partCount) {
+                  currentIndex = 0;
                }
-            } else if (--var10 < 0) {
-               var10 = var11 - 1;
+            } else if (--currentIndex < 0) {
+               currentIndex = partCount - 1;
             }
 
-            m.set(var16, new SimpleEntry<>((BoneType)var15.getKey(), new SimpleEntry<>((List<String>)((Entry)var15.getValue()).getKey(), var10)));
-            ArrayList var12 = new ArrayList();
+            m.set(index, new SimpleEntry<>((BoneType)entry.getKey(), new SimpleEntry<>((List<String>)((Entry)entry.getValue()).getKey(), currentIndex)));
+            ArrayList girlSpecificEntries = new ArrayList();
 
-            for (Entry var14 : m) {
-               if (var14.getKey() == BoneType.GIRL_SPECIFIC) {
-                  var12.add(var14);
+            for (Entry girlSpecificEntry : m) {
+               if (girlSpecificEntry.getKey() == BoneType.GIRL_SPECIFIC) {
+                  girlSpecificEntries.add(girlSpecificEntry);
                }
             }
 
-            this.previewGirl.setCustomPartsData(var12);
+            this.previewGirl.setCustomPartsData(girlSpecificEntries);
          }
       }
    }
 
-   public void drawPart(int var1, int var2, float var3, SexSceneEntity var4) {
-      this.drawPartRotated(var1, var2, var3, var4, 1.876945F);
+   public void drawPart(int x, int y, float rotation, SexSceneEntity entity) {
+      this.drawPartRotated(x, y, rotation, entity, 1.876945F);
    }
 
-   public void drawPreviewModel(SexSceneEntity var1) {
-      this.drawPartRotatedScaled(this.guiX, this.guiY, this.modelRotation, var1, 2.876945F, var1.isItemModel ? 1 : 0);
+   public void drawPreviewModel(SexSceneEntity entity) {
+      this.drawPartRotatedScaled(this.guiX, this.guiY, this.modelRotation, entity, 2.876945F, entity.isItemModel ? 1 : 0);
    }
 
-   public void drawHoverText(String var1, int var2, int var3) {
-      this.drawHoveringText(var1, var2, var3);
+   public void drawHoverText(String text, int x, int y) {
+      this.drawHoveringText(text, x, y);
    }
 
-   protected void mouseClickMove(int var1, int var2, int var3, long var4) {
-      super.mouseClickMove(var1, var2, var3, var4);
-      if (var3 == 0) {
-         if (var1 >= this.width / 2) {
-            int var6 = var1 - this.lastMouseX;
-            selectedPartIds.add(var6);
-            this.lastMouseX = var1;
+   protected void mouseClickMove(int mouseX, int mouseY, int mouseButton, long time) {
+      super.mouseClickMove(mouseX, mouseY, mouseButton, time);
+      if (mouseButton == 0) {
+         if (mouseX >= this.width / 2) {
+            int deltaX = mouseX - this.lastMouseX;
+            selectedPartIds.add(deltaX);
+            this.lastMouseX = mouseX;
          }
       }
    }
 
-   protected void mouseClicked(int var1, int var2, int var3) {
-      super.mouseClicked(var1, var2, var3);
-      this.modelList.mouseClicked(var1, var2, var3);
-      if (var3 == 0) {
+   protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+      super.mouseClicked(mouseX, mouseY, mouseButton);
+      this.modelList.mouseClicked(mouseX, mouseY, mouseButton);
+      if (mouseButton == 0) {
          this.isEditing = true;
          this.isRendering = true;
-         this.lastMouseX = var1;
-         int var4 = this.guiX - this.screenX(15.0F);
-         int var5 = this.guiY - 20;
-         if (this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
+         this.lastMouseX = mouseX;
+         int x = this.guiX - this.screenX(15.0F);
+         int y = this.guiY - 20;
+         if (this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20)) {
             this.playClickSound();
          }
 
          if (ServerWhitelistManager.getCustomModelsKey() == null) {
-            var5 = this.guiY - 40;
-            if (this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
+            y = this.guiY - 40;
+            if (this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20)) {
                this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                this.mc.player.closeScreen();
-               int var6 = ServerWhitelistManager.getModelCount(true);
-               if (var6 != 0) {
+               int modelCount = ServerWhitelistManager.getModelCount(true);
+               if (modelCount != 0) {
                   ServerWhitelistManager.isGlobalRenderingDisabled = true;
                } else {
-                  BaseGirlEntity var7 = BaseGirlEntity.getClientGirlEntity(this.girlId);
-                  if (var7 != null) {
-                     openClothingScreen(var7);
+                  BaseGirlEntity girl = BaseGirlEntity.getClientGirlEntity(this.girlId);
+                  if (girl != null) {
+                     openClothingScreen(girl);
                   }
                }
             } else {
-               var5 -= 20;
-               if (this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
-                  File var10 = new File(ServerWhitelistManager.getGlobalModelOverride());
-                  SceneDebug.log(SceneDebug.CLOTHING, "ClothingScreen: opening folder %s (exists=%s)", var10.getAbsolutePath(), var10.exists());
-                  if (var10.exists() || var10.mkdirs()) {
-                     try { Desktop.getDesktop().open(var10); } catch (IOException var9) { }
+               y -= 20;
+               if (this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20)) {
+                  File folder = new File(ServerWhitelistManager.getGlobalModelOverride());
+                  SceneDebug.log(SceneDebug.CLOTHING, "ClothingScreen: opening folder %s (exists=%s)", folder.getAbsolutePath(), folder.exists());
+                  if (folder.exists() || folder.mkdirs()) {
+                     try { Desktop.getDesktop().open(folder); } catch (IOException ioe) { }
                   }
                } else {
-                  var5 -= 20;
-                  if (this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
+                  y -= 20;
+                  if (this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20)) {
                      try {
                         Desktop.getDesktop().browse(new URI("http://fapcraft.org/assets/video/tutorial/girl_wand.mp4"));
-                     } catch (URISyntaxException var8) {
-                        throw new RuntimeException(var8);
-                     } catch (IOException var9) {
-                        throw new RuntimeException(var9);
+                     } catch (URISyntaxException urie) {
+                        throw new RuntimeException(urie);
+                     } catch (IOException ioe) {
+                        throw new RuntimeException(ioe);
                      }
                   }
                }
@@ -400,9 +400,9 @@ public class ClothingScreen extends GuiScreen {
       }
    }
 
-   protected void mouseReleased(int var1, int var2, int var3) {
-      super.mouseReleased(var1, var2, var3);
-      if (var3 == 0) {
+   protected void mouseReleased(int mouseX, int mouseY, int mouseButton) {
+      super.mouseReleased(mouseX, mouseY, mouseButton);
+      if (mouseButton == 0) {
          this.isRendering = false;
          this.isEditing = false;
       }
@@ -410,12 +410,12 @@ public class ClothingScreen extends GuiScreen {
       this.scrollVelocity = targetScrollOffset;
    }
 
-   int screenX(float var1) {
-      return Math.round(this.width * (var1 / 100.0F));
+   int screenX(float percent) {
+      return Math.round(this.width * (percent / 100.0F));
    }
 
-   int screenY(float var1) {
-      return Math.round(this.height * (var1 / 100.0F));
+   int screenY(float percent) {
+      return Math.round(this.height * (percent / 100.0F));
    }
 
    public void onGuiClosed() {
@@ -429,76 +429,76 @@ public class ClothingScreen extends GuiScreen {
       return this.previewGirl;
    }
 
-   public void drawPartBackground(int var1, int var2, int var3, int var4) {
+   public void drawPartBackground(int x, int y, int u, int v) {
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-      this.drawTexturedModalRect(var1, var2, var3, var4, 20, 20);
+      this.drawTexturedModalRect(x, y, u, v, 20, 20);
    }
 
-   public void drawPartIcon(int var1, int var2, int var3) {
-      this.drawPartBackground(var1, var2, var3, 0);
+   public void drawPartIcon(int x, int y, int u) {
+      this.drawPartBackground(x, y, u, 0);
    }
 
-   public void drawPartAt(int var1, int var2, Point2D var3) {
-      this.drawPartBackground(var1, var2, var3.x, var3.y);
+   public void drawPartAt(int x, int y, Point2D pos) {
+      this.drawPartBackground(x, y, pos.x, pos.y);
    }
 
-   void drawPartRotated(int var1, int var2, float var3, EntityLivingBase var4, float var5) {
-      this.drawPartRotatedScaled(var1, var2, var3, var4, var5, 0);
+   void drawPartRotated(int x, int y, float rotation, EntityLivingBase entity, float scale) {
+      this.drawPartRotatedScaled(x, y, rotation, entity, scale, 0);
    }
 
-   void drawPartRotatedScaled(int var1, int var2, float var3, EntityLivingBase var4, float var5, int var6) {
-      float var7 = var4.renderYawOffset;
-      float var8 = var4.rotationYaw;
-      float var9 = var4.rotationPitch;
-      float var10 = var4.prevRotationYawHead;
-      float var11 = var4.rotationYawHead;
-      var4.renderYawOffset = 0.0F;
-      var4.rotationYaw = 0.0F;
-      var4.rotationPitch = 0.0F;
-      var4.prevRotationYawHead = 0.0F;
-      var4.rotationYawHead = 0.0F;
+   void drawPartRotatedScaled(int x, int y, float rotation, EntityLivingBase entity, float scale, int zOffset) {
+      float renderYawOffset = entity.renderYawOffset;
+      float rotationYaw = entity.rotationYaw;
+      float rotationPitch = entity.rotationPitch;
+      float prevRotationYawHead = entity.prevRotationYawHead;
+      float rotationYawHead = entity.rotationYawHead;
+      entity.renderYawOffset = 0.0F;
+      entity.rotationYaw = 0.0F;
+      entity.rotationPitch = 0.0F;
+      entity.prevRotationYawHead = 0.0F;
+      entity.rotationYawHead = 0.0F;
       GlStateManager.enableColorMaterial();
       GlStateManager.pushMatrix();
-      GlStateManager.translate(var1, var2, 50.0F);
-      GlStateManager.scale(-var3, var3, var3);
+      GlStateManager.translate(x, y, 50.0F);
+      GlStateManager.scale(-rotation, rotation, rotation);
       GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
       GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
       RenderHelper.enableStandardItemLighting();
       GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
-      GlStateManager.translate(0.0F, 0.0F, var6);
+      GlStateManager.translate(0.0F, 0.0F, zOffset);
       GlStateManager.rotate(currentModelYaw, 0.0F, 1.0F, 0.0F);
       GlStateManager.rotate(0.25F, 1.0F, 0.0F, 0.0F);
       GlStateManager.translate(0.0F, 0.0F, 0.0F);
-      RenderManager var12 = Minecraft.getMinecraft().getRenderManager();
-      var12.setPlayerViewY(180.0F);
-      var12.setRenderShadow(false);
-      var12.renderEntity(var4, 0.0, 0.0, 0.0, 0.0F, var5, false);
-      var12.setRenderShadow(true);
+      RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
+      renderManager.setPlayerViewY(180.0F);
+      renderManager.setRenderShadow(false);
+      renderManager.renderEntity(entity, 0.0, 0.0, 0.0, 0.0F, scale, false);
+      renderManager.setRenderShadow(true);
       GlStateManager.popMatrix();
       RenderHelper.disableStandardItemLighting();
       GlStateManager.disableRescaleNormal();
       GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
       GlStateManager.disableTexture2D();
       GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-      var4.renderYawOffset = var7;
-      var4.rotationYaw = var8;
-      var4.rotationPitch = var9;
-      var4.prevRotationYawHead = var10;
-      var4.rotationYawHead = var11;
+      entity.renderYawOffset = renderYawOffset;
+      entity.rotationYaw = rotationYaw;
+      entity.rotationPitch = rotationPitch;
+      entity.prevRotationYawHead = prevRotationYawHead;
+      entity.rotationYawHead = rotationYawHead;
    }
 
    void startRendering() {
       if (!this.isRendering) {
-         float var1 = Minecraft.getDebugFPS();
-         if (var1 == 0.0F) {
-            var1 = 0.1F;
+         float fps = Minecraft.getDebugFPS();
+         if (fps == 0.0F) {
+            fps = 0.1F;
          }
 
          if (this.scrollVelocity == 0) {
-            currentModelYaw = currentModelYaw + this.scrollDirection * 10 / var1;
+            currentModelYaw = currentModelYaw + this.scrollDirection * 10 / fps;
          } else {
-            currentModelYaw = currentModelYaw + this.scrollVelocity / var1;
-            this.scrollVelocity = (int)(this.scrollVelocity * (1.0F - 0.25F / var1));
+            currentModelYaw = currentModelYaw + this.scrollVelocity / fps;
+            this.scrollVelocity = (int)(this.scrollVelocity * (1.0F - 0.25F / fps));
             if (Math.abs(this.scrollVelocity) <= 10) {
                this.scrollDirection = this.scrollVelocity > 0 ? 1 : -1;
                this.scrollVelocity = 0;
@@ -508,17 +508,17 @@ public class ClothingScreen extends GuiScreen {
    }
 
    @SideOnly(Side.CLIENT)
-   public static void openClothingScreen(@Nonnull BaseGirlEntity var0) {
-      Minecraft var1 = Minecraft.getMinecraft();
-      if (!(var1.currentScreen instanceof ClothingScreen)) {
-         boolean var2 = ServerWhitelistManager.getCustomModelsKey() == null || ServerWhitelistManager.isGlobalRenderingDisabled();
-         if (!var2) {
-            var1.player
+   public static void openClothingScreen(@Nonnull BaseGirlEntity girl) {
+      Minecraft mc = Minecraft.getMinecraft();
+      if (!(mc.currentScreen instanceof ClothingScreen)) {
+         boolean canUseCustomModels = ServerWhitelistManager.getCustomModelsKey() == null || ServerWhitelistManager.isGlobalRenderingDisabled();
+         if (!canUseCustomModels) {
+            mc.player
                .sendStatusMessage(
                   new TextComponentString("You have to whitelist the server to use its custom models. " + TextFormatting.YELLOW + "/whitelistserver"), true
                );
          } else {
-            var1.addScheduledTask(() -> var1.displayGuiScreen(new ClothingScreen(var0)));
+            mc.addScheduledTask(() -> mc.displayGuiScreen(new ClothingScreen(girl)));
          }
       }
    }
@@ -527,7 +527,7 @@ public class ClothingScreen extends GuiScreen {
    public static class b {
       @SubscribeEvent
       @SideOnly(Side.CLIENT)
-      public void onKeyInput(KeyInputEvent var1) {
+      public void onKeyInput(KeyInputEvent event) {
          if (ClientProxy.keyBindings[1].isPressed()) {
             if (ServerWhitelistManager.isGlobalRenderingDisabled) {
                ServerWhitelistManager.isGlobalRenderingDisabled = 0 != ServerWhitelistManager.getModelCount(true);
@@ -536,24 +536,24 @@ public class ClothingScreen extends GuiScreen {
                }
             }
 
-            Minecraft var2 = Minecraft.getMinecraft();
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
-            if (var3 == null) {
-               var2.player.sendStatusMessage(new TextComponentString("You have to turn into the girl you want to customize"), true);
+            Minecraft mc = Minecraft.getMinecraft();
+            AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(mc.player.getPersistentID());
+            if (playerGirl == null) {
+               mc.player.sendStatusMessage(new TextComponentString("You have to turn into the girl you want to customize"), true);
             } else {
-               ClothingScreen.openClothingScreen(var3);
+               ClothingScreen.openClothingScreen(playerGirl);
             }
          }
       }
 
       @SubscribeEvent
       @SideOnly(Side.CLIENT)
-      public void onClientTick(ClientTickEvent var1) {
+      public void onClientTick(ClientTickEvent event) {
          ClothingScreen.targetScrollOffset = ClothingScreen.scrollOffset;
          ClothingScreen.scrollOffset = 0;
 
-         for (Integer var3 : ClothingScreen.selectedPartIds) {
-            ClothingScreen.scrollOffset = ClothingScreen.scrollOffset + var3;
+         for (Integer id : ClothingScreen.selectedPartIds) {
+            ClothingScreen.scrollOffset = ClothingScreen.scrollOffset + id;
          }
 
          ClothingScreen.selectedPartIds.clear();

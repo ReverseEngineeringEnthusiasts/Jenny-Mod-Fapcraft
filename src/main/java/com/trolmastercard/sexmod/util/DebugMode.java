@@ -47,9 +47,9 @@ public class DebugMode {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onDebugResetColor(ClientChatEvent var1) {
+   public void onDebugResetColor(ClientChatEvent event) {
       if (isDeobfuscated()) {
-         if ("resetcolor".equalsIgnoreCase(var1.getMessage())) {
+         if ("resetcolor".equalsIgnoreCase(event.getMessage())) {
             KoboldRenderer.clearBoneColors();
             PlayerKoboldRenderer.clearRenderCache();
             GoblinRenderer.clearBoneColors();
@@ -60,29 +60,29 @@ public class DebugMode {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onDebugSetCommand(ClientChatEvent var1) {
+   public void onDebugSetCommand(ClientChatEvent event) {
       if (isDeobfuscated()) {
-         String var2 = var1.getOriginalMessage();
-         String[] var3 = var2.split(" ");
-         if (var3.length == 3) {
-            if ("set".equalsIgnoreCase(var3[0])) {
-               int var4;
-               float var5;
+         String message = event.getOriginalMessage();
+         String[] parts = message.split(" ");
+         if (parts.length == 3) {
+            if ("set".equalsIgnoreCase(parts[0])) {
+               int index;
+               float value;
                try {
-                  var4 = Integer.parseInt(var3[1]);
-                  var5 = Float.parseFloat(var3[2]);
-                  if (b.length - 1 < var4) {
+                  index = Integer.parseInt(parts[1]);
+                  value = Float.parseFloat(parts[2]);
+                  if (b.length - 1 < index) {
                      return;
                   }
-               } catch (Exception var6) {
+               } catch (Exception exception) {
                   return;
                }
 
                Minecraft.getMinecraft()
                   .player
-                  .sendMessage(new TextComponentString(String.format("%sSet dev float N.%s from %s to %s", TextFormatting.GRAY, var4, b[var4], var5)));
-               b[var4] = var5;
-               var1.setCanceled(true);
+                  .sendMessage(new TextComponentString(String.format("%sSet dev float N.%s from %s to %s", TextFormatting.GRAY, index, b[index], value)));
+               b[index] = value;
+               event.setCanceled(true);
             }
          }
       }
@@ -90,26 +90,26 @@ public class DebugMode {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onDebugGetCommand(ClientChatEvent var1) {
+   public void onDebugGetCommand(ClientChatEvent event) {
       if (isDeobfuscated()) {
-         String var2 = var1.getOriginalMessage();
-         String[] var3 = var2.split(" ");
-         if (var3.length == 2) {
-            if ("get".equalsIgnoreCase(var3[0])) {
-               int var4;
+         String message = event.getOriginalMessage();
+         String[] parts = message.split(" ");
+         if (parts.length == 2) {
+            if ("get".equalsIgnoreCase(parts[0])) {
+               int index;
                try {
-                  var4 = Integer.parseInt(var3[1]);
-                  if (b.length - 1 < var4) {
+                  index = Integer.parseInt(parts[1]);
+                  if (b.length - 1 < index) {
                      return;
                   }
-               } catch (Exception var5) {
+               } catch (Exception exception) {
                   return;
                }
 
                Minecraft.getMinecraft()
                   .player
-                  .sendMessage(new TextComponentString(String.format("%sdev float N.%s is %s", TextFormatting.YELLOW, var4, b[var4])));
-               var1.setCanceled(true);
+                  .sendMessage(new TextComponentString(String.format("%sdev float N.%s is %s", TextFormatting.YELLOW, index, b[index])));
+               event.setCanceled(true);
             }
          }
       }
@@ -117,119 +117,119 @@ public class DebugMode {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onLivingHurt(LivingHurtEvent var1) {
+   public void onLivingHurt(LivingHurtEvent event) {
       if (isDeobfuscated()) {
-         EntityPlayerSP var2 = Minecraft.getMinecraft().player;
-         EntityLivingBase var3 = var1.getEntityLiving();
-         if (var3 instanceof KoboldEntity) {
-            KoboldEntity var4 = (KoboldEntity)var3;
-            UUID var5 = KoboldManager.getTribeUUID(var2.getPersistentID());
+         EntityPlayerSP player = Minecraft.getMinecraft().player;
+         EntityLivingBase hurtEntity = event.getEntityLiving();
+         if (hurtEntity instanceof KoboldEntity) {
+            KoboldEntity kobold = (KoboldEntity)hurtEntity;
+            UUID tribeUuid = KoboldManager.getTribeUUID(player.getPersistentID());
 
-            for (KoboldTask var8 : KoboldManager.getTribeTasks(var5)) {
-               this.sendDebugMessage("task: " + var8.getTaskType().name());
+            for (KoboldTask task : KoboldManager.getTribeTasks(tribeUuid)) {
+               this.sendDebugMessage("task: " + task.getTaskType().name());
                this.sendDebugMessage("workers involved: ");
 
-               for (KoboldEntity var10 : var8.getWorkers()) {
-                  this.sendDebugMessage(var10.getDisplayNameText() + " " + var10.getGirlId());
+               for (KoboldEntity worker : task.getWorkers()) {
+                  this.sendDebugMessage(worker.getDisplayNameText() + " " + worker.getGirlId());
                }
             }
 
-            this.sendDebugMessage("tribe contains my exact reference: " + KoboldManager.getTribeMembersList(var5).contains(var4));
+            this.sendDebugMessage("tribe contains my exact reference: " + KoboldManager.getTribeMembersList(tribeUuid).contains(kobold));
             this.sendDebugMessage("tribe contains my ID: ");
-            boolean var11 = false;
+            boolean memberFound = false;
 
-            for (KoboldEntity var14 : KoboldManager.getTribeMembersList(var5)) {
-               if (var14.getGirlId().equals(var4.getGirlId())) {
-                  var11 = true;
+            for (KoboldEntity member : KoboldManager.getTribeMembersList(tribeUuid)) {
+               if (member.getGirlId().equals(kobold.getGirlId())) {
+                  memberFound = true;
                }
             }
 
-            boolean var13 = false;
+            boolean savedFound = false;
 
-            for (Entry var16 : KoboldManager.getTribeSavedPositions(var5, var2.world).entrySet()) {
-               if (((UUID)var16.getKey()).equals(var4.getGirlId())) {
-                  var13 = true;
+            for (Entry entry : KoboldManager.getTribeSavedPositions(tribeUuid, player.world).entrySet()) {
+               if (((UUID)entry.getKey()).equals(kobold.getGirlId())) {
+                  savedFound = true;
                }
             }
 
-            this.sendDebugMessage("loaded : " + var11);
-            this.sendDebugMessage("saved : " + var13);
+            this.sendDebugMessage("loaded : " + memberFound);
+            this.sendDebugMessage("saved : " + savedFound);
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onDebugTimeCommand(ClientChatEvent var1) {
+   public void onDebugTimeCommand(ClientChatEvent event) {
       if (isDeobfuscated()) {
-         String var2 = var1.getOriginalMessage().toLowerCase();
-         EntityPlayerSP var3 = Minecraft.getMinecraft().player;
-         if ("time".equals(var2)) {
-            var3.sendMessage(new TextComponentString(String.valueOf(var3.world.getTotalWorldTime())));
+         String command = event.getOriginalMessage().toLowerCase();
+         EntityPlayerSP player = Minecraft.getMinecraft().player;
+         if ("time".equals(command)) {
+            player.sendMessage(new TextComponentString(String.valueOf(player.world.getTotalWorldTime())));
          }
 
-         if ("girls".equals(var2)) {
-            List var4 = var3.world.getEntities(BaseGirlEntity.class, var0 -> true);
-            var3.sendMessage(new TextComponentString(String.valueOf(var4.size())));
+         if ("girls".equals(command)) {
+            List girls = player.world.getEntities(BaseGirlEntity.class, girl -> true);
+            player.sendMessage(new TextComponentString(String.valueOf(girls.size())));
 
-            for (BaseGirlEntity var6 : (java.util.Collection<BaseGirlEntity>) (var4) ) {
-               System.out.printf("%s at %s %s %s\n", var6, var6.posX, var6.posY, var6.posZ);
+            for (BaseGirlEntity girl : (java.util.Collection<BaseGirlEntity>) (girls) ) {
+               System.out.printf("%s at %s %s %s\n", girl, girl.posX, girl.posY, girl.posZ);
             }
          }
 
-         if ("kobs".equals(var2)) {
-            UUID var11 = KoboldManager.getTribeUUID(var3.getPersistentID());
-            int var13 = KoboldManager.getTribeMemberCount(var11);
+         if ("kobs".equals(command)) {
+            UUID tribeUuid = KoboldManager.getTribeUUID(player.getPersistentID());
+            int memberCount = KoboldManager.getTribeMemberCount(tribeUuid);
 
-            for (KoboldEntity var8 : KoboldManager.getTribeMembersList(var11)) {
+            for (KoboldEntity kobold : KoboldManager.getTribeMembersList(tribeUuid)) {
                this.sendDebugMessage(
                   String.format(
                      "alive member %s at %s world.isremote? %s isdead %s girlID %s entityID %s",
-                     var8.getDisplayNameText(),
-                     var8.getPosition(),
-                     var8.world.isRemote,
-                     var8.isDead,
-                     var8.getGirlId(),
-                     var8.getEntityId()
+                     kobold.getDisplayNameText(),
+                     kobold.getPosition(),
+                     kobold.world.isRemote,
+                     kobold.isDead,
+                     kobold.getGirlId(),
+                     kobold.getEntityId()
                   )
                );
                this.sendDebugMessage(
-                  var3.world.getEntitiesWithinAABB(KoboldEntity.class, new AxisAlignedBB(var8.getPosition())).isEmpty()
+                  player.world.getEntitiesWithinAABB(KoboldEntity.class, new AxisAlignedBB(kobold.getPosition())).isEmpty()
                      ? "couldn't be located"
                      : "appears to actually exist"
                );
             }
 
-            HashMap var16 = KoboldManager.getTribeSavedPositions(var11, var3.world);
+            HashMap savedPositions = KoboldManager.getTribeSavedPositions(tribeUuid, player.world);
 
-            for (Entry var9 : (java.util.Set<Entry>) var16.entrySet()) {
-               this.sendDebugMessage(String.format("saved pos of %s at %s", ((UUID)var9.getKey()).toString(), ((BlockPos)var9.getValue()).toString()));
+            for (Entry entry : (java.util.Set<Entry>) savedPositions.entrySet()) {
+               this.sendDebugMessage(String.format("saved pos of %s at %s", ((UUID)entry.getKey()).toString(), ((BlockPos)entry.getValue()).toString()));
             }
 
-            this.sendDebugMessage("total amount members: " + var13);
+            this.sendDebugMessage("total amount members: " + memberCount);
          }
 
-         if (var2.startsWith("setcumtime ")) {
-            String[] var12 = var2.split(" ");
+         if (command.startsWith("setcumtime ")) {
+            String[] parts = command.split(" ");
 
-            long var14;
+            long cumTime;
             try {
-               var14 = Long.parseLong(var12[1]);
-            } catch (NullPointerException var10) {
-               System.out.println("long: " + var12[1]);
-               var10.printStackTrace();
+               cumTime = Long.parseLong(parts[1]);
+            } catch (NullPointerException exception) {
+               System.out.println("long: " + parts[1]);
+               exception.printStackTrace();
                return;
             }
 
-            GirlSavedData.saveCumTime(var3.getPersistentID(), var14);
-            var3.sendMessage(new TextComponentString("set to: " + var14));
+            GirlSavedData.saveCumTime(player.getPersistentID(), cumTime);
+            player.sendMessage(new TextComponentString("set to: " + cumTime));
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
-   void sendDebugMessage(String var1) {
-      Minecraft.getMinecraft().player.sendMessage(new TextComponentString(var1));
+   void sendDebugMessage(String message) {
+      Minecraft.getMinecraft().player.sendMessage(new TextComponentString(message));
    }
 
 }

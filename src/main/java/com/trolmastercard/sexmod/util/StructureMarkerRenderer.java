@@ -56,161 +56,161 @@ public class StructureMarkerRenderer {
       markerPositions.clear();
    }
 
-   public static boolean isMarked(BlockPos var0) {
-      return markerPositions.contains(var0);
+   public static boolean isMarked(BlockPos pos) {
+      return markerPositions.contains(pos);
    }
 
    public static void renderMarkers() {
-      Tessellator var0 = Tessellator.getInstance();
-      BufferBuilder var1 = var0.getBuffer();
-      Vec3d var2 = RotationHelper.lerpVec3dDouble(Reference.cameraPosPrevious, Reference.cameraPosCurrent, mc.getRenderPartialTicks());
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder buffer = tessellator.getBuffer();
+      Vec3d cameraPos = RotationHelper.lerpVec3dDouble(Reference.cameraPosPrevious, Reference.cameraPosCurrent, mc.getRenderPartialTicks());
       GlStateManager.pushMatrix();
       GlStateManager.disableCull();
       GlStateManager.disableDepth();
       textureManager.bindTexture(MARK_TEXTURE);
-      GlStateManager.translate(-var2.x, -var2.y, -var2.z);
-      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+      GlStateManager.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
 
       try {
-         for (BlockPos var4 : markerPositions) {
-            Vec3i var5 = getBlockColor(var4);
-            drawMarkerFace(var1, var4, var5.getX(), var5.getY(), var5.getZ());
+         for (BlockPos pos : markerPositions) {
+            Vec3i color = getBlockColor(pos);
+            drawMarkerFace(buffer, pos, color.getX(), color.getY(), color.getZ());
          }
-      } catch (ConcurrentModificationException var6) {
+      } catch (ConcurrentModificationException exception) {
       }
 
-      var0.draw();
+      tessellator.draw();
       GlStateManager.enableDepth();
       GlStateManager.enableCull();
       GlStateManager.popMatrix();
    }
 
-   static Vec3i getBlockColor(BlockPos var0) {
-      Block var1 = Minecraft.getMinecraft().world.getBlockState(var0).getBlock();
-      if (var1 instanceof BlockBed) {
+   static Vec3i getBlockColor(BlockPos pos) {
+      Block block = Minecraft.getMinecraft().world.getBlockState(pos).getBlock();
+      if (block instanceof BlockBed) {
          return COLOR_BLUE;
       } else {
-         return var1 instanceof BlockChest ? COLOR_GREEN : COLOR_RED;
+         return block instanceof BlockChest ? COLOR_GREEN : COLOR_RED;
       }
    }
 
-   static void drawMarkerFace(BufferBuilder var0, BlockPos var1, int var2, int var3, int var4) {
-      var0.pos(var1.getX(), var1.getY() + 1, var1.getZ())
+   static void drawMarkerFace(BufferBuilder buffer, BlockPos pos, int red, int green, int blue) {
+      buffer.pos(pos.getX(), pos.getY() + 1, pos.getZ())
          .tex(0.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY() + 1, var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY() + 1, pos.getZ())
          .tex(1.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY(), var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY(), pos.getZ())
          .tex(1.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY(), var1.getZ())
+      buffer.pos(pos.getX(), pos.getY(), pos.getZ())
          .tex(0.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+      buffer.pos(pos.getX(), pos.getY() + 1, 1 + pos.getZ())
          .tex(0.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY() + 1, 1 + pos.getZ())
          .tex(1.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY(), 1 + var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY(), 1 + pos.getZ())
          .tex(1.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY(), 1 + var1.getZ())
+      buffer.pos(pos.getX(), pos.getY(), 1 + pos.getZ())
          .tex(0.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY() + 1, var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY() + 1, pos.getZ())
          .tex(0.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY() + 1, 1 + pos.getZ())
          .tex(1.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY(), 1 + var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY(), 1 + pos.getZ())
          .tex(1.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY(), var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY(), pos.getZ())
          .tex(0.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY() + 1, var1.getZ())
+      buffer.pos(pos.getX(), pos.getY() + 1, pos.getZ())
          .tex(0.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+      buffer.pos(pos.getX(), pos.getY() + 1, 1 + pos.getZ())
          .tex(1.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY(), 1 + var1.getZ())
+      buffer.pos(pos.getX(), pos.getY(), 1 + pos.getZ())
          .tex(1.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY(), var1.getZ())
+      buffer.pos(pos.getX(), pos.getY(), pos.getZ())
          .tex(0.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY(), 1 + var1.getZ())
+      buffer.pos(pos.getX(), pos.getY(), 1 + pos.getZ())
          .tex(0.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY(), 1 + var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY(), 1 + pos.getZ())
          .tex(1.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY(), var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY(), pos.getZ())
          .tex(1.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY(), var1.getZ())
+      buffer.pos(pos.getX(), pos.getY(), pos.getZ())
          .tex(0.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+      buffer.pos(pos.getX(), pos.getY() + 1, 1 + pos.getZ())
          .tex(0.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY() + 1, 1 + var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY() + 1, 1 + pos.getZ())
          .tex(1.0, 1.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(1 + var1.getX(), var1.getY() + 1, var1.getZ())
+      buffer.pos(1 + pos.getX(), pos.getY() + 1, pos.getZ())
          .tex(1.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
-      var0.pos(var1.getX(), var1.getY() + 1, var1.getZ())
+      buffer.pos(pos.getX(), pos.getY() + 1, pos.getZ())
          .tex(0.0, 0.0)
-         .color(var2, var3, var4, 255)
+         .color(red, green, blue, 255)
          .endVertex();
    }
 
-   public static void renderMarkers(HashSet<BlockPos> var0) {
-      markerPositions.addAll(var0);
+   public static void renderMarkers(HashSet<BlockPos> markers) {
+      markerPositions.addAll(markers);
    }
 
-   public static void setMarkers(HashSet<BlockPos> var0) {
-      markerPositions.removeAll(var0);
+   public static void setMarkers(HashSet<BlockPos> markers) {
+      markerPositions.removeAll(markers);
    }
 
    @SubscribeEvent
-   public void onRenderWorldLast(RenderWorldLastEvent var1) {
+   public void onRenderWorldLast(RenderWorldLastEvent event) {
       GlStateManager.enableColorMaterial();
       GL11.glDisable(2896);
-      ItemStack var2 = mc.player.getHeldItem(EnumHand.MAIN_HAND);
-      if (var2.getItem() != DragonStaffItem.DRAGON_STAFF) {
-         var2 = mc.player.getHeldItem(EnumHand.OFF_HAND);
+      ItemStack stack = mc.player.getHeldItem(EnumHand.MAIN_HAND);
+      if (stack.getItem() != DragonStaffItem.DRAGON_STAFF) {
+         stack = mc.player.getHeldItem(EnumHand.OFF_HAND);
       }
 
-      if (var2.getItem() == DragonStaffItem.DRAGON_STAFF) {
+      if (stack.getItem() == DragonStaffItem.DRAGON_STAFF) {
          renderMarkers();
       }
 
@@ -222,12 +222,12 @@ public class StructureMarkerRenderer {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onClientTick(ClientTickEvent var1) {
-      if (var1.phase != Phase.START) {
-         EntityPlayerSP var2 = Minecraft.getMinecraft().player;
-         if (var2 != null) {
+   public void onClientTick(ClientTickEvent event) {
+      if (event.phase != Phase.START) {
+         EntityPlayerSP player = Minecraft.getMinecraft().player;
+         if (player != null) {
             Reference.cameraPosPrevious = Reference.cameraPosCurrent;
-            Reference.cameraPosCurrent = var2.getPositionVector();
+            Reference.cameraPosCurrent = player.getPositionVector();
          }
       }
    }

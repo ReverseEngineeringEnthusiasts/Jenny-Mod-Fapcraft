@@ -13,12 +13,12 @@ import net.minecraft.world.World;
 public class SexEntityPart extends MultiPartEntityPart {
    public boolean isActive = false;
 
-   public SexEntityPart(World var1) {
+   public SexEntityPart(World world) {
       super(null, "", 0.0F, 0.0F);
    }
 
-   public SexEntityPart(IEntityMultiPart var1, String var2, float var3, float var4) {
-      super(var1, var2, var3, var4);
+   public SexEntityPart(IEntityMultiPart parent, String name, float width, float height) {
+      super(parent, name, width, height);
    }
 
    public boolean canBeCollidedWith() {

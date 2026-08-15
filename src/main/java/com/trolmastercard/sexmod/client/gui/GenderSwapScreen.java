@@ -57,28 +57,28 @@ public class GenderSwapScreen {
    }
 
    /**
-    * Installs {@code var1} as the pending swap button and prints the prompt
+    * Installs {@code button} as the pending swap button and prints the prompt
     * (who asked whom for which action, accept/decline line, auto-deletion
     * notice) to the asked player. No-op unless both involved players are
     * present in the world.
     */
-   public void onButtonClicked(@Nonnull GenderSwapScreen.SwapButton var1) {
-      World var2 = Minecraft.getMinecraft().player.world;
-      EntityPlayer var3 = var2.getPlayerEntityByUUID(var1.playerUUID);
-      EntityPlayer var4 = var2.getPlayerEntityByUUID(var1.girlUUID);
-      if (var4 != null && var3 != null) {
-         TextComponentString var5 = new TextComponentString(
+   public void onButtonClicked(@Nonnull GenderSwapScreen.SwapButton button) {
+      World world = Minecraft.getMinecraft().player.world;
+      EntityPlayer player = world.getPlayerEntityByUUID(button.playerUUID);
+      EntityPlayer girl = world.getPlayerEntityByUUID(button.girlUUID);
+      if (girl != null && player != null) {
+         TextComponentString requestLine = new TextComponentString(
             TextFormatting.LIGHT_PURPLE
-               + (var1.isMale ? var4.getName() : var3.getName())
+               + (button.isMale ? girl.getName() : player.getName())
                + " "
                + TextFormatting.DARK_PURPLE
                + I18n.format("genderswap.sexpromt.playerxaskedfory", new Object[0])
                + " "
                + TextFormatting.LIGHT_PURPLE
-               + I18n.format(var1.label, new Object[0])
+               + I18n.format(button.label, new Object[0])
          );
-         TextComponentString var6 = new TextComponentString(TextFormatting.DARK_PURPLE + I18n.format("genderswap.sexpromt.autodeletion", new Object[0]));
-         TextComponentString var7 = new TextComponentString(
+         TextComponentString deleteLine = new TextComponentString(TextFormatting.DARK_PURPLE + I18n.format("genderswap.sexpromt.autodeletion", new Object[0]));
+         TextComponentString choiceLine = new TextComponentString(
             TextFormatting.DARK_PURPLE
                + "[ "
                + TextFormatting.LIGHT_PURPLE
@@ -90,10 +90,10 @@ public class GenderSwapScreen {
                + TextFormatting.DARK_PURPLE
                + " ]"
          );
-         var3.sendMessage(var5);
-         var3.sendMessage(var6);
-         var3.sendMessage(var7);
-         this.activeButton = var1;
+         player.sendMessage(requestLine);
+         player.sendMessage(deleteLine);
+         player.sendMessage(choiceLine);
+         this.activeButton = button;
       }
    }
 
@@ -104,24 +104,24 @@ public class GenderSwapScreen {
     * accept/decline strings.
     */
    @SubscribeEvent
-   public void onClientChat(ClientChatEvent var1) {
+   public void onClientChat(ClientChatEvent event) {
       if (instance.getActiveButton() != null) {
-         String var2 = var1.getMessage().toLowerCase();
-         if (var2.equals(I18n.format("genderswap.sexpromt.accept", new Object[0]).toLowerCase())) {
-            GenderSwapScreen.SwapButton var3 = instance.getActiveButton();
-            this.sendSwapRequest(var3.label, var3.playerUUID, var3.girlUUID);
+         String message = event.getMessage().toLowerCase();
+         if (message.equals(I18n.format("genderswap.sexpromt.accept", new Object[0]).toLowerCase())) {
+            GenderSwapScreen.SwapButton button = instance.getActiveButton();
+            this.sendSwapRequest(button.label, button.playerUUID, button.girlUUID);
             this.clearActiveButton();
-            var1.setCanceled(true);
+            event.setCanceled(true);
          }
 
-         if (var2.equals(I18n.format("genderswap.sexpromt.decline", new Object[0]).toLowerCase())) {
+         if (message.equals(I18n.format("genderswap.sexpromt.decline", new Object[0]).toLowerCase())) {
             Minecraft.getMinecraft()
                .player
                .sendMessage(
                   new TextComponentString(TextFormatting.DARK_PURPLE + I18n.format("genderswap.sexpromt.declineconformation", new Object[0]))
                );
             this.clearActiveButton();
-            var1.setCanceled(true);
+            event.setCanceled(true);
          }
       }
    }
@@ -129,12 +129,12 @@ public class GenderSwapScreen {
    /**
     * Sends the standing-sex animation request to the server.
     *
-    * @param var1 the localized action label, e.g. {@code genderswap.sexpromt.missionary}
-    * @param var2 the asked player's UUID (the girl side)
-    * @param var3 the requesting player's UUID (the boy side)
+    * @param label the localized action label, e.g. {@code genderswap.sexpromt.missionary}
+    * @param playerUuid the asked player's UUID (the girl side)
+    * @param girlUuid the requesting player's UUID (the boy side)
     */
-   void sendSwapRequest(String var1, UUID var2, UUID var3) {
-      PacketHandler.networkWrapper.sendToServer(new StartStandingSexAnimationPacket(var2, var3, var1));
+   void sendSwapRequest(String label, UUID playerUuid, UUID girlUuid) {
+      PacketHandler.networkWrapper.sendToServer(new StartStandingSexAnimationPacket(playerUuid, girlUuid, label));
    }
 
    /**
@@ -149,12 +149,12 @@ public class GenderSwapScreen {
       public float countdown;
       boolean isMale;
 
-      public SwapButton(String var1, UUID var2, UUID var3, boolean var4) {
-         this.label = var1;
-         this.girlUUID = var2;
-         this.playerUUID = var3;
+      public SwapButton(String label, UUID girlUuid, UUID playerUuid, boolean isMale) {
+         this.label = label;
+         this.girlUUID = girlUuid;
+         this.playerUUID = playerUuid;
          this.countdown = 1200.0F;
-         this.isMale = var4;
+         this.isMale = isMale;
       }
    }
 }

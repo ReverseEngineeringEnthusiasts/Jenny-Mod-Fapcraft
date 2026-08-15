@@ -39,8 +39,8 @@ public class BasicGirlEntity extends EntityLiving {
    boolean shouldStopMoving = false;
    public int lastSoundTick = -1;
 
-   public BasicGirlEntity(World var1) {
-      super(var1);
+   public BasicGirlEntity(World world) {
+      super(world);
    }
 
    protected void updateAITasks() {
@@ -57,17 +57,17 @@ public class BasicGirlEntity extends EntityLiving {
       if (this.shouldStopMoving) {
          this.getNavigator().clearPath();
       } else {
-         EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 15.0);
-         if (var1 != null && var1.getDistance(this) < 3.0F) {
+         EntityPlayer player = this.world.getClosestPlayerToEntity(this, 15.0);
+         if (player != null && player.getDistance(this) < 3.0F) {
             this.getNavigator().clearPath();
          } else {
             if (this.wanderTarget == null || this.getDistance(this.wanderTarget.getX(), this.wanderTarget.getY(), this.wanderTarget.getZ()) > this.getDespawnDistance() || this.wanderTicks > 175) {
-               int var2 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
-               int var3 = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
-               int var4 = this.world.provider.getDimensionType() == DimensionType.NETHER
+               int xOffset = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
+               int zOffset = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(10);
+               int height = this.world.provider.getDimensionType() == DimensionType.NETHER
                   ? (int)Math.ceil(this.posY)
-                  : WorldUtils.getHeightAt(this.world, this.getPosition().getX() + var2, this.getPosition().getZ() + var3);
-               this.wanderTarget = new BlockPos(this.getPosition().getX() + var2, var4, this.getPosition().getZ() + var3);
+                  : WorldUtils.getHeightAt(this.world, this.getPosition().getX() + xOffset, this.getPosition().getZ() + zOffset);
+               this.wanderTarget = new BlockPos(this.getPosition().getX() + xOffset, height, this.getPosition().getZ() + zOffset);
                this.wanderTicks = 0;
             }
 
@@ -82,17 +82,17 @@ public class BasicGirlEntity extends EntityLiving {
    }
 
    protected void updateWanderAI() {
-      Path var1 = this.getNavigator().getPath();
-      if (var1 != null) {
+      Path path = this.getNavigator().getPath();
+      if (path != null) {
          if (!this.onGround && !this.isInWater()) {
-            int var2 = var1.getCurrentPathIndex();
-            int var3 = var1.getCurrentPathLength();
-            if (var3 != var2 && var3 - 1 != var2) {
-               PathPoint var4 = var1.getPathPointFromIndex(var2);
-               PathPoint var5 = var1.getPathPointFromIndex(var2 + 1);
-               Vec3d var6 = new Vec3d(var5.x - var4.x, var5.y - var4.y, var5.z - var4.z);
-               this.motionX = var6.x / 7.0;
-               this.motionZ = var6.z / 7.0;
+            int currentIndex = path.getCurrentPathIndex();
+            int length = path.getCurrentPathLength();
+            if (length != currentIndex && length - 1 != currentIndex) {
+               PathPoint currentPoint = path.getPathPointFromIndex(currentIndex);
+               PathPoint nextPoint = path.getPathPointFromIndex(currentIndex + 1);
+               Vec3d delta = new Vec3d(nextPoint.x - currentPoint.x, nextPoint.y - currentPoint.y, nextPoint.z - currentPoint.z);
+               this.motionX = delta.x / 7.0;
+               this.motionZ = delta.z / 7.0;
             }
          }
       }
@@ -103,13 +103,13 @@ public class BasicGirlEntity extends EntityLiving {
     * (CLIENT) and schedule its removal 6250 ms later; out-of-world damage
     * removes it immediately.
     */
-   public boolean attackEntityFrom(DamageSource var1, float var2) {
-      if (var1 == DamageSource.OUT_OF_WORLD) {
+   public boolean attackEntityFrom(DamageSource source, float amount) {
+      if (source == DamageSource.OUT_OF_WORLD) {
          this.world.removeEntity(this);
          return true;
       }
 
-      if (!(var1.getTrueSource() instanceof EntityPlayer)) {
+      if (!(source.getTrueSource() instanceof EntityPlayer)) {
          return false;
       }
 
@@ -124,9 +124,9 @@ public class BasicGirlEntity extends EntityLiving {
 
    @SideOnly(Side.CLIENT)
    void playSpawnSound() {
-      EntityPlayerSP var1 = Minecraft.getMinecraft().player;
-      this.lastSoundTick = var1.ticksExisted;
-      var1.playSound(SoundHandler.MISC_WEOWEO[3], 1.0F, 1.0F);
+      EntityPlayerSP player = Minecraft.getMinecraft().player;
+      this.lastSoundTick = player.ticksExisted;
+      player.playSound(SoundHandler.MISC_WEOWEO[3], 1.0F, 1.0F);
    }
 
    double getDespawnDistance() {

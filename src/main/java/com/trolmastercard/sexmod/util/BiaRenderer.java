@@ -9,8 +9,8 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  * Renderer for the Bia NPC.
  */
 public class BiaRenderer extends GirlRenderer {
-   public BiaRenderer(RenderManager var1, AnimatedGeoModel var2, double var3) {
-      super(var1, var2, var3);
+   public BiaRenderer(RenderManager renderManager, AnimatedGeoModel geoModel, double scaleFactor) {
+      super(renderManager, geoModel, scaleFactor);
    }
 
    @Override

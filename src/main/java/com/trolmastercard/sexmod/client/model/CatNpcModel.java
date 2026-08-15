@@ -14,12 +14,12 @@ public class CatNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public ResourceLocation getTextureLocation(BaseGirlEntity var0) {
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/cat/cat.png");
    }
 
    @Override
-   public ResourceLocation getAnimationFileLocation(BaseGirlEntity var0) { return new ResourceLocation("sexmod", "animations/cat/cat.animation.json");
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) { return new ResourceLocation("sexmod", "animations/cat/cat.animation.json");
    }
 
    @Override

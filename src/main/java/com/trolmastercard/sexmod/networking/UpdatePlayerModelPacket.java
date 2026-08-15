@@ -45,72 +45,72 @@ public class UpdatePlayerModelPacket implements IMessage {
    public UpdatePlayerModelPacket() {
    }
 
-   public UpdatePlayerModelPacket(NpcType var1) {
-      this.npcType = var1;
+   public UpdatePlayerModelPacket(NpcType npcType) {
+      this.npcType = npcType;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      String var2 = ByteBufUtils.readUTF8String(var1);
-      if ("player".equals(var2)) {
+   public void fromBytes(ByteBuf buf) {
+      String typeName = ByteBufUtils.readUTF8String(buf);
+      if ("player".equals(typeName)) {
          this.npcType = null;
       } else {
-         this.npcType = NpcType.valueOf(var2);
+         this.npcType = NpcType.valueOf(typeName);
       }
 
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
+   public void toBytes(ByteBuf buf) {
       if (this.npcType == null) {
-         ByteBufUtils.writeUTF8String(var1, "player");
+         ByteBufUtils.writeUTF8String(buf, "player");
       } else {
-         ByteBufUtils.writeUTF8String(var1, this.npcType.toString());
+         ByteBufUtils.writeUTF8String(buf, this.npcType.toString());
       }
    }
 
    public static class Handler implements IMessageHandler<UpdatePlayerModelPacket, IMessage> {
-      public IMessage onMessage(UpdatePlayerModelPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(UpdatePlayerModelPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               EntityPlayerMP var2x = var2.getServerHandler().player;
-               World var3 = var2x.world;
-               UUID var4 = var2.getServerHandler().player.getPersistentID();
-               AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var4);
-               if (var5 != null) {
+               EntityPlayerMP player = ctx.getServerHandler().player;
+               World world = player.world;
+               UUID playerUuid = ctx.getServerHandler().player.getPersistentID();
+               AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(playerUuid);
+               if (playerGirl != null) {
                   try {
-                     for (BaseGirlEntity var7 : BaseGirlEntity.getGirlEntityList()) {
-                        if (!var7.world.isRemote && var7.getGirlId().equals(var5.getGirlId())) {
-                           var3.removeEntity(var7);
+                     for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+                        if (!girl.world.isRemote && girl.getGirlId().equals(playerGirl.getGirlId())) {
+                           world.removeEntity(girl);
                         }
                      }
-                  } catch (ConcurrentModificationException var10) {
+                  } catch (ConcurrentModificationException exception) {
                   }
 
-                  var5.onTickClient();
-                  AbstractPlayerGirlEntity.al.remove(var4);
-                  BaseGirlEntity.getGirlEntityList().remove(var5);
-                  var5.setOwnerId(Optional.absent());
+                  playerGirl.onTickClient();
+                  AbstractPlayerGirlEntity.al.remove(playerUuid);
+                  BaseGirlEntity.getGirlEntityList().remove(playerGirl);
+                  playerGirl.setOwnerId(Optional.absent());
                }
 
-               NpcType var12 = var1.npcType;
-               if (var12 != null) {
-                  AbstractPlayerGirlEntity var11;
+               NpcType npcType = packet.npcType;
+               if (npcType != null) {
+                  AbstractPlayerGirlEntity newPlayerGirl;
                   try {
-                     Constructor var8 = var12.playerClass.getConstructor(World.class, UUID.class);
-                     var11 = (AbstractPlayerGirlEntity)var8.newInstance(var3, var2.getServerHandler().player.getPersistentID());
-                  } catch (Exception var9) {
-                     var9.printStackTrace();
+                     Constructor constructor = npcType.playerClass.getConstructor(World.class, UUID.class);
+                     newPlayerGirl = (AbstractPlayerGirlEntity)constructor.newInstance(world, ctx.getServerHandler().player.getPersistentID());
+                  } catch (Exception exception) {
+                     exception.printStackTrace();
                      return;
                   }
 
-                  var11.setNoGravity(true);
-                  var11.noClip = true;
-                  var11.motionX = 0.0;
-                  var11.motionY = 0.0;
-                  var11.motionZ = 0.0;
-                  var11.setPosition(var2x.posX, var2x.posY + 69.0, var2x.posZ);
-                  var3.spawnEntity(var11);
-                  var11.B_clash233();
+                  newPlayerGirl.setNoGravity(true);
+                  newPlayerGirl.noClip = true;
+                  newPlayerGirl.motionX = 0.0;
+                  newPlayerGirl.motionY = 0.0;
+                  newPlayerGirl.motionZ = 0.0;
+                  newPlayerGirl.setPosition(player.posX, player.posY + 69.0, player.posZ);
+                  world.spawnEntity(newPlayerGirl);
+                  newPlayerGirl.B_clash233();
                }
             });
             return null;

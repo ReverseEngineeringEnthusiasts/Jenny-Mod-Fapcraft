@@ -17,14 +17,14 @@ public class GalathDamageSource extends DamageSource {
    GalathEntity galathEntity;
    Vec3d sourcePos;
 
-   public GalathDamageSource(GalathEntity var1) {
+   public GalathDamageSource(GalathEntity galath) {
       super("galath");
-      this.galathEntity = var1;
-      this.sourcePos = var1.getPositionVector();
+      this.galathEntity = galath;
+      this.sourcePos = galath.getPositionVector();
    }
 
-   public ITextComponent getDeathMessage(EntityLivingBase var1) {
-      return new TextComponentString(var1.getName() + " was slain by Galath");
+   public ITextComponent getDeathMessage(EntityLivingBase victim) {
+      return new TextComponentString(victim.getName() + " was slain by Galath");
    }
 
    @Nullable

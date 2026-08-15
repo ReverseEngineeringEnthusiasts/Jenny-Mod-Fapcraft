@@ -38,34 +38,34 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * crashes while building the preload world.
  */
 public class SexWorldClient extends WorldClient {
-   public Biome getBiomeForCoordsBody(BlockPos var1) {
+   public Biome getBiomeForCoordsBody(BlockPos pos) {
       return new BiomePlains(false, new BiomeProperties("Plains").setBaseHeight(0.125F).setHeightVariation(0.05F).setHeightVariation(0.8F).setRainfall(0.4F));
    }
 
-   public void notifyNeighborsOfStateChange(BlockPos var1, Block var2, boolean var3) {
-      super.notifyNeighborsOfStateChange(var1, var2, var3);
+   public void notifyNeighborsOfStateChange(BlockPos pos, Block neighbor, boolean updateObservers) {
+      super.notifyNeighborsOfStateChange(pos, neighbor, updateObservers);
    }
 
-   public void markAndNotifyBlock(BlockPos var1, Chunk var2, IBlockState var3, IBlockState var4, int var5) {
+   public void markAndNotifyBlock(BlockPos pos, Chunk chunk, IBlockState oldState, IBlockState newState, int flags) {
    }
 
-   public float getSunBrightnessFactor(float var1) {
+   public float getSunBrightnessFactor(float partialTicks) {
       return 1.0F;
    }
 
    @SideOnly(Side.CLIENT)
-   public float getSunBrightnessBody(float var1) {
+   public float getSunBrightnessBody(float partialTicks) {
       return 1.0F;
    }
 
    public void updateWeatherBody() {
    }
 
-   public boolean canBlockFreezeBody(BlockPos var1, boolean var2) {
+   public boolean canBlockFreezeBody(BlockPos pos, boolean doWater) {
       return false;
    }
 
-   public boolean canSnowAtBody(BlockPos var1, boolean var2) {
+   public boolean canSnowAtBody(BlockPos pos, boolean checkLight) {
       return false;
    }
 
@@ -80,19 +80,19 @@ public class SexWorldClient extends WorldClient {
       this.provider.setWorld(this);
    }
 
-   public boolean canMineBlockBody(EntityPlayer var1, BlockPos var2) {
+   public boolean canMineBlockBody(EntityPlayer player, BlockPos pos) {
       return false;
    }
 
-   public boolean isSideSolid(BlockPos var1, EnumFacing var2) {
-      return var1.getY() <= 63;
+   public boolean isSideSolid(BlockPos pos, EnumFacing side) {
+      return pos.getY() <= 63;
    }
 
-   public boolean isSideSolid(BlockPos var1, EnumFacing var2, boolean var3) {
-      return var1.getY() <= 63;
+   public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean defaultValue) {
+      return pos.getY() <= 63;
    }
 
-   public int countEntities(EnumCreatureType var1, boolean var2) {
+   public int countEntities(EnumCreatureType type, boolean countSpawns) {
       return 0;
    }
 

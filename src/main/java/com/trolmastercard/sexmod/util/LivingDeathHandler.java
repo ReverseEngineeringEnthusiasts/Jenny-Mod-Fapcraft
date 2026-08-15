@@ -15,15 +15,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 public class LivingDeathHandler {
    @SubscribeEvent(priority = EventPriority.LOW)
-   public void onLivingDeath(LivingDeathEvent var1) {
-      if (var1.getEntity() instanceof BaseGirlEntity) {
-         BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntity();
-         BaseGirlEntity.getGirlEntityList().remove(var2);
-      } else if (var1.getEntity() instanceof EntityPlayer) {
-         EntityPlayer var3 = (EntityPlayer)var1.getEntity();
-         AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByOwner(var3.getPersistentID());
-         if (var4 != null) {
-            ResetGirlPacket.Handler.resetGirl(var4);
+   public void onLivingDeath(LivingDeathEvent event) {
+      if (event.getEntity() instanceof BaseGirlEntity) {
+         BaseGirlEntity girl = (BaseGirlEntity)event.getEntity();
+         BaseGirlEntity.getGirlEntityList().remove(girl);
+      } else if (event.getEntity() instanceof EntityPlayer) {
+         EntityPlayer player = (EntityPlayer)event.getEntity();
+         AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByOwner(player.getPersistentID());
+         if (playerGirl != null) {
+            ResetGirlPacket.Handler.resetGirl(playerGirl);
          }
       }
    }

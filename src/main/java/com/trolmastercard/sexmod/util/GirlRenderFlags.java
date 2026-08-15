@@ -12,9 +12,9 @@ public class GirlRenderFlags {
    public boolean flagD;
    public boolean flagB;
 
-   public GirlRenderFlags(boolean var1, boolean var2, boolean var3) {
-      this.flagC = var1;
-      this.flagD = var2;
-      this.flagB = var3;
+   public GirlRenderFlags(boolean flagC, boolean flagD, boolean flagB) {
+      this.flagC = flagC;
+      this.flagD = flagD;
+      this.flagB = flagB;
    }
 }

@@ -51,44 +51,44 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
    ResourceLocation getSkin() {
       if (lampTexture == null) {
          try {
-            URL var1 = new URL(
+            URL profileUrl = new URL(
                "https://sessionserver.mojang.com/session/minecraft/profile/"
                   + Minecraft.getMinecraft().player.getPersistentID().toString().replace("-", "")
             );
-            BufferedReader var2 = new BufferedReader(new InputStreamReader(var1.openStream()));
-            String var3 = var2.lines().collect(Collectors.joining());
-            int var4 = var3.indexOf("\"value\" : ");
-            int var5 = var4 + 11;
-            StringBuilder var6 = new StringBuilder();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(profileUrl.openStream()));
+            String profileJson = reader.lines().collect(Collectors.joining());
+            int valueStart = profileJson.indexOf("\"value\" : ");
+            int valueContentStart = valueStart + 11;
+            StringBuilder valueBuilder = new StringBuilder();
 
-            for (int var7 = 0; var3.charAt(var5 + var7) != '"'; var7++) {
-               var6.append(var3.charAt(var5 + var7));
+            for (int i = 0; profileJson.charAt(valueContentStart + i) != '"'; i++) {
+               valueBuilder.append(profileJson.charAt(valueContentStart + i));
             }
 
-            String var18 = new String(Base64.getDecoder().decode(var6.toString()));
-            int var8 = var18.indexOf("\"url\" : ");
-            int var9 = var8 + 9;
-            StringBuilder var10 = new StringBuilder();
+            String decodedValue = new String(Base64.getDecoder().decode(valueBuilder.toString()));
+            int urlStart = decodedValue.indexOf("\"url\" : ");
+            int urlContentStart = urlStart + 9;
+            StringBuilder urlBuilder = new StringBuilder();
 
-            for (int var11 = 0; var18.charAt(var9 + var11) != '"'; var11++) {
-               var10.append(var18.charAt(var9 + var11));
+            for (int j = 0; decodedValue.charAt(urlContentStart + j) != '"'; j++) {
+               urlBuilder.append(decodedValue.charAt(urlContentStart + j));
             }
 
-            URL var19 = new URL(var10.toString());
-            BufferedImage var12 = ImageIO.read(var19);
-            BufferedImage var13 = ImageIO.read(this.mc.getResourceManager().getResource(new AlliesLampModel().getTextureLocation((AlliesLampItem) null)).getInputStream());
+            URL skinUrl = new URL(urlBuilder.toString());
+            BufferedImage playerSkin = ImageIO.read(skinUrl);
+            BufferedImage baseTexture = ImageIO.read(this.mc.getResourceManager().getResource(new AlliesLampModel().getTextureLocation((AlliesLampItem) null)).getInputStream());
 
-            for (int var14 = 0; var14 < var13.getWidth(); var14++) {
-               for (int var15 = 0; var15 < var13.getHeight(); var15++) {
-                  int var16 = var12.getRGB(var14, var15);
-                  if (var16 != 0) {
-                     var13.setRGB(var14, var15, var16);
+            for (int x = 0; x < baseTexture.getWidth(); x++) {
+               for (int y = 0; y < baseTexture.getHeight(); y++) {
+                  int rgb = playerSkin.getRGB(x, y);
+                  if (rgb != 0) {
+                     baseTexture.setRGB(x, y, rgb);
                   }
                }
             }
 
-            lampTexture = Minecraft.getMinecraft().getRenderManager().renderEngine.getDynamicTextureLocation("lamptex", new DynamicTexture(var13));
-         } catch (Exception var17) {
+            lampTexture = Minecraft.getMinecraft().getRenderManager().renderEngine.getDynamicTextureLocation("lamptex", new DynamicTexture(baseTexture));
+         } catch (Exception e) {
             lampTexture = new AlliesLampModel().getTextureLocation((AlliesLampItem) null);
          }
       }
@@ -102,20 +102,20 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
     * top-level bones with a fresh vertex buffer and the skin texture bound.
     */
    @Override
-   public void render(GeoModel var1, AlliesLampItem var2, float var3, float var4, float var5, float var6, float var7) {
+   public void render(GeoModel model, AlliesLampItem lamp, float r, float g, float b, float a, float ticks) {
       GlStateManager.disableCull();
       GlStateManager.enableRescaleNormal();
-      this.renderEarly(var2, var3, var4, var5, var6, var7);
-      this.renderLate(var2, var3, var4, var5, var6, var7);
-      BufferBuilder var8 = Tessellator.getInstance().getBuffer();
-      var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      this.renderEarly(lamp, r, g, b, a, ticks);
+      this.renderLate(lamp, r, g, b, a, ticks);
+      BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
-      for (GeoBone var10 : var1.topLevelBones) {
-         this.renderLampBone(var8, var2, var10, var4, var5, var6, var7);
+      for (GeoBone bone : model.topLevelBones) {
+         this.renderLampBone(buffer, lamp, bone, g, b, a, ticks);
       }
 
       Tessellator.getInstance().draw();
-      this.renderAfter(var2, var3, var4, var5, var6, var7);
+      this.renderAfter(lamp, r, g, b, a, ticks);
       GlStateManager.disableRescaleNormal();
       GlStateManager.enableCull();
    }
@@ -125,16 +125,16 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
     * its cubes with the skin texture, skipping the arm bones in first person
     * while the lamp is in use ({@code sexmodAllieInUse}).
     */
-   public void renderLampBone(BufferBuilder var1, AlliesLampItem var2, GeoBone var3, float var4, float var5, float var6, float var7) {
+   public void renderLampBone(BufferBuilder buffer, AlliesLampItem lamp, GeoBone bone, float r, float g, float b, float a) {
       MATRIX_STACK.push();
-      MATRIX_STACK.translate(var3);
-      MATRIX_STACK.moveToPivot(var3);
-      MATRIX_STACK.rotate(var3);
-      MATRIX_STACK.scale(var3);
-      MATRIX_STACK.moveBackFromPivot(var3);
+      MATRIX_STACK.translate(bone);
+      MATRIX_STACK.moveToPivot(bone);
+      MATRIX_STACK.rotate(bone);
+      MATRIX_STACK.scale(bone);
+      MATRIX_STACK.moveBackFromPivot(bone);
       this.mc.renderEngine.bindTexture(this.getSkin());
-      if (this.isNotArmBone(var3.getName())) {
-         this.renderLampEffect(var1, var2, var3, var4, var5, var6, var7);
+      if (this.isNotArmBone(bone.getName())) {
+         this.renderLampEffect(buffer, lamp, bone, r, g, b, a);
       }
 
       MATRIX_STACK.pop();
@@ -144,8 +144,8 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
     * Whether this bone may be drawn: arm bones are only drawn in third person
     * or when the lamp is not currently in use.
     */
-   boolean isNotArmBone(String var1) {
-      return !var1.equals("leftArm") && !var1.equals("rightArm")
+   boolean isNotArmBone(String boneName) {
+      return !boneName.equals("leftArm") && !boneName.equals("rightArm")
          ? true
          : this.mc.player.getEntityData().getBoolean("sexmodAllieInUse") && this.mc.gameSettings.thirdPersonView == 0;
    }
@@ -154,18 +154,18 @@ public class AlliesLampRenderer extends GeoItemRenderer<AlliesLampItem> {
     * Renders a bone's cubes and recurses into its child bones, unless the
     * bone is hidden.
     */
-   void renderLampEffect(BufferBuilder var1, AlliesLampItem var2, GeoBone var3, float var4, float var5, float var6, float var7) {
-      if (!var3.isHidden) {
-         for (GeoCube var9 : var3.childCubes) {
+   void renderLampEffect(BufferBuilder buffer, AlliesLampItem lamp, GeoBone bone, float r, float g, float b, float a) {
+      if (!bone.isHidden) {
+         for (GeoCube cube : bone.childCubes) {
             MATRIX_STACK.push();
             GlStateManager.pushMatrix();
-            this.renderCube(var1, var9, var4, var5, var6, var7);
+            this.renderCube(buffer, cube, r, g, b, a);
             GlStateManager.popMatrix();
             MATRIX_STACK.pop();
          }
 
-         for (GeoBone var11 : var3.childBones) {
-            this.renderLampBone(var1, var2, var11, var4, var5, var6, var7);
+         for (GeoBone childBone : bone.childBones) {
+            this.renderLampBone(buffer, lamp, childBone, r, g, b, a);
          }
       }
    }

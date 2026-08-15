@@ -24,54 +24,54 @@ public class CommandLocateGoblinLair extends CommandBase {
       return "locatenearestgoblinlair";
    }
 
-   public String getUsage(ICommandSender var1) {
+   public String getUsage(ICommandSender sender) {
       return "/locatenearestgoblinlair";
    }
 
-   public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
-      Entity var4 = var2.getCommandSenderEntity();
-      if (var4 != null && var4.dimension != 0) {
-         var2.sendMessage(
+   public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+      Entity target = sender.getCommandSenderEntity();
+      if (target != null && target.dimension != 0) {
+         sender.sendMessage(
             new TextComponentString(
                TextFormatting.YELLOW
                   + "goblin lairs don't exist in the "
-                  + (var4.dimension == -1 ? TextFormatting.RED + "Nether" : TextFormatting.DARK_PURPLE + "End")
+                  + (target.dimension == -1 ? TextFormatting.RED + "Nether" : TextFormatting.DARK_PURPLE + "End")
             )
          );
       } else {
-         GoblinEntity var5 = null;
+         GoblinEntity lair = null;
 
          try {
-            for (BaseGirlEntity var7 : BaseGirlEntity.getGirlEntityList()) {
-               if (var7 instanceof GoblinEntity) {
-                  GoblinEntity var8 = (GoblinEntity)var7;
-                  if (var8.aX) {
-                     if (var5 == null) {
-                        var5 = var8;
-                     } else if (var8.getDistanceSq(var2.getPosition()) < var5.getDistanceSq(var2.getPosition())) {
-                        var5 = var8;
+            for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+               if (girl instanceof GoblinEntity) {
+                  GoblinEntity goblin = (GoblinEntity)girl;
+                  if (goblin.aX) {
+                     if (lair == null) {
+                        lair = goblin;
+                     } else if (goblin.getDistanceSq(sender.getPosition()) < lair.getDistanceSq(sender.getPosition())) {
+                        lair = goblin;
                      }
                   }
                }
             }
-         } catch (ConcurrentModificationException var9) {
+         } catch (ConcurrentModificationException e) {
          }
 
-         if (var5 == null) {
-            var2.sendMessage(new TextComponentString(TextFormatting.RED + "No nearby goblin lair found uwu"));
+         if (lair == null) {
+            sender.sendMessage(new TextComponentString(TextFormatting.RED + "No nearby goblin lair found uwu"));
          } else {
-            BlockPos var10 = var5.getPosition();
-            var2.sendMessage(
+            BlockPos pos = lair.getPosition();
+            sender.sendMessage(
                new TextComponentString(
                   String.format(
                      "%sgoblin lair found at %s%s %s%s %s%s",
                      TextFormatting.YELLOW,
                      TextFormatting.RED,
-                     var10.getX(),
+                     pos.getX(),
                      TextFormatting.GREEN,
-                     var10.getY(),
+                     pos.getY(),
                      TextFormatting.BLUE,
-                     var10.getZ()
+                     pos.getZ()
                   )
                )
             );

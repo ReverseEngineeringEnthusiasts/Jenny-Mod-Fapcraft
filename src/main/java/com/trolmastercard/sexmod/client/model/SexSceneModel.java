@@ -18,20 +18,20 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  * CLIENT-side render thread only.
  */
 public class SexSceneModel extends AnimatedGeoModel<SexSceneEntity> {
-   public ResourceLocation getModelLocation(SexSceneEntity var0) {
-      return var0.isItemModel ? new ResourceLocation("sexmod", "geo/cross.geo.json") : ServerWhitelistManager.getModelResource(var0.getModelCode());
+   public ResourceLocation getModelLocation(SexSceneEntity sceneEntity) {
+      return sceneEntity.isItemModel ? new ResourceLocation("sexmod", "geo/cross.geo.json") : ServerWhitelistManager.getModelResource(sceneEntity.getModelCode());
    }
 
-   public ResourceLocation getTextureLocation(SexSceneEntity var0) {
-      return var0.isItemModel ? new ResourceLocation("sexmod", "textures/cross.png") : ServerWhitelistManager.getModelTexture(var0.getModelCode());
+   public ResourceLocation getTextureLocation(SexSceneEntity sceneEntity) {
+      return sceneEntity.isItemModel ? new ResourceLocation("sexmod", "textures/cross.png") : ServerWhitelistManager.getModelTexture(sceneEntity.getModelCode());
    }
 
-   public ResourceLocation getAnimationFileLocation(SexSceneEntity var0) {
+   public ResourceLocation getAnimationFileLocation(SexSceneEntity sceneEntity) {
       return new ResourceLocation("sexmod", "animations/slime/slime.animation.json");
    }
 
    @Override
-   public void setLivingAnimations(SexSceneEntity var1, Integer var2, @Nullable AnimationEvent var3) {
+   public void setLivingAnimations(SexSceneEntity sceneEntity, Integer uniqueID, @Nullable AnimationEvent event) {
    }
 
 }

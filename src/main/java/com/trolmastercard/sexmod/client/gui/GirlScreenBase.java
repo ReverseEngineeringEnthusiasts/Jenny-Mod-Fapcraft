@@ -40,22 +40,22 @@ public class GirlScreenBase extends GuiScreen {
    int renderIndex = 0;
    static float progress = 0.0F;
 
-   public GirlScreenBase(HashMap<NpcType, String> var1) {
+   public GirlScreenBase(HashMap<NpcType, String> modelCodes) {
       this.mc = Minecraft.getMinecraft();
 
-      for (NpcType var5 : NpcType.values()) {
-         if (!var5.isNpcOnly) {
+      for (NpcType npcType : NpcType.values()) {
+         if (!npcType.isNpcOnly) {
             try {
-               Constructor var6 = var5.npcClass.getConstructor(World.class);
-               BaseGirlEntity var7 = (BaseGirlEntity)var6.newInstance(this.mc.world);
-               var7.setLocallyRegistered(true);
-               this.nearbyEntities.add(var7);
-               String var8 = (String)var1.get(var5);
-               if (var8 != null) {
-                  var7.setCustomPartList(BaseGirlEntity.decodePartIdList(var8));
+               Constructor constructor = npcType.npcClass.getConstructor(World.class);
+               BaseGirlEntity entity = (BaseGirlEntity)constructor.newInstance(this.mc.world);
+               entity.setLocallyRegistered(true);
+               this.nearbyEntities.add(entity);
+               String parts = (String)modelCodes.get(npcType);
+               if (parts != null) {
+                  entity.setCustomPartList(BaseGirlEntity.decodePartIdList(parts));
                }
-            } catch (Exception var9) {
-               var9.printStackTrace();
+            } catch (Exception e) {
+               e.printStackTrace();
             }
          }
       }
@@ -63,8 +63,8 @@ public class GirlScreenBase extends GuiScreen {
       this.nearbyEntities.add(this.mc.player);
    }
 
-   public void drawScreen(int var1, int var2, float var3) {
-      super.drawScreen(var1, var2, var3);
+   public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+      super.drawScreen(mouseX, mouseY, partialTicks);
       this.buttonList.clear();
       renderEntityPreview(this.width / 2, this.height / 2 + 20, 30, this.nearbyEntities.get(this.renderIndex));
       this.buttonList.add(new GuiButton(1, this.width / 2 + 30, this.height / 2 - 10, 20, 20, ">"));
@@ -78,22 +78,22 @@ public class GirlScreenBase extends GuiScreen {
     * eye height and flight capability. "<"/">" cycle the preview index
     * (wrapping).
     */
-   protected void actionPerformed(GuiButton var1) {
-      if (">".equals(var1.displayString) && ++this.renderIndex >= this.nearbyEntities.size()) {
+   protected void actionPerformed(GuiButton button) {
+      if (">".equals(button.displayString) && ++this.renderIndex >= this.nearbyEntities.size()) {
          this.renderIndex = 0;
       }
 
-      if ("<".equals(var1.displayString) && --this.renderIndex < 0) {
+      if ("<".equals(button.displayString) && --this.renderIndex < 0) {
          this.renderIndex = this.nearbyEntities.size() - 1;
       }
 
-      if (var1.id == 0) {
+      if (button.id == 0) {
          PacketHandler.networkWrapper.sendToServer(new UpdatePlayerModelPacket(NpcType.getNpcType((Entity)this.nearbyEntities.get(this.renderIndex))));
-         EntityPlayerSP var2 = Minecraft.getMinecraft().player;
-         var2.closeScreen();
-         var2.eyeHeight = var2.getDefaultEyeHeight();
-         if (!var2.capabilities.allowFlying) {
-            var2.capabilities.allowFlying = var2.capabilities.isCreativeMode;
+         EntityPlayerSP player = Minecraft.getMinecraft().player;
+         player.closeScreen();
+         player.eyeHeight = player.getDefaultEyeHeight();
+         if (!player.capabilities.allowFlying) {
+            player.capabilities.allowFlying = player.capabilities.isCreativeMode;
          }
       }
    }
@@ -110,55 +110,55 @@ public class GirlScreenBase extends GuiScreen {
     * restores every overridden field. The static {@code progress} makes all
     * previews rotate in sync.
     */
-   public static void renderEntityPreview(int var0, int var1, int var2, EntityLivingBase var3) {
-      float var4 = var3.renderYawOffset;
-      float var5 = var3.rotationYaw;
-      float var6 = var3.rotationPitch;
-      float var7 = var3.prevRotationYawHead;
-      float var8 = var3.rotationYawHead;
-      if (!(var3 instanceof EntityPlayer)) {
-         var3.posX = 0.0;
-         var3.posY = 0.0;
-         var3.posZ = 0.0;
+   public static void renderEntityPreview(int x, int y, int scale, EntityLivingBase entity) {
+      float renderYawOffset = entity.renderYawOffset;
+      float rotationYaw = entity.rotationYaw;
+      float rotationPitch = entity.rotationPitch;
+      float prevRotationYawHead = entity.prevRotationYawHead;
+      float rotationYawHead = entity.rotationYawHead;
+      if (!(entity instanceof EntityPlayer)) {
+         entity.posX = 0.0;
+         entity.posY = 0.0;
+         entity.posZ = 0.0;
       }
 
-      var3.renderYawOffset = 0.0F;
-      var3.rotationYaw = 0.0F;
-      var3.rotationPitch = 0.0F;
-      var3.prevRotationYawHead = 0.0F;
-      var3.rotationYawHead = 0.0F;
-      float var9 = Minecraft.getDebugFPS();
-      if (var9 == 0.0F) {
-         var9 = 0.1F;
+      entity.renderYawOffset = 0.0F;
+      entity.rotationYaw = 0.0F;
+      entity.rotationPitch = 0.0F;
+      entity.prevRotationYawHead = 0.0F;
+      entity.rotationYawHead = 0.0F;
+      float fps = Minecraft.getDebugFPS();
+      if (fps == 0.0F) {
+         fps = 0.1F;
       }
 
-      progress += 60.0F / var9;
+      progress += 60.0F / fps;
       GlStateManager.enableColorMaterial();
       GlStateManager.pushMatrix();
-      GlStateManager.translate(var0, var1, 50.0F);
-      GlStateManager.scale(-var2, var2, var2);
+      GlStateManager.translate(x, y, 50.0F);
+      GlStateManager.scale(-scale, scale, scale);
       GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
       GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
       RenderHelper.enableStandardItemLighting();
       GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
       GlStateManager.rotate(progress, 0.0F, 1.0F, 0.0F);
       GlStateManager.translate(0.0F, 0.0F, 0.0F);
-      RenderManager var10 = Minecraft.getMinecraft().getRenderManager();
-      var10.setPlayerViewY(180.0F);
-      var10.setRenderShadow(false);
-      var10.renderEntity(var3, 0.0, 0.0, 0.0, 0.0F, 1.2345679F, false);
-      var10.setRenderShadow(true);
+      RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
+      renderManager.setPlayerViewY(180.0F);
+      renderManager.setRenderShadow(false);
+      renderManager.renderEntity(entity, 0.0, 0.0, 0.0, 0.0F, 1.2345679F, false);
+      renderManager.setRenderShadow(true);
       GlStateManager.popMatrix();
       RenderHelper.disableStandardItemLighting();
       GlStateManager.disableRescaleNormal();
       GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
       GlStateManager.disableTexture2D();
       GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-      var3.renderYawOffset = var4;
-      var3.rotationYaw = var5;
-      var3.rotationPitch = var6;
-      var3.prevRotationYawHead = var7;
-      var3.rotationYawHead = var8;
+      entity.renderYawOffset = renderYawOffset;
+      entity.rotationYaw = rotationYaw;
+      entity.rotationPitch = rotationPitch;
+      entity.prevRotationYawHead = prevRotationYawHead;
+      entity.rotationYawHead = rotationYawHead;
    }
 
 }

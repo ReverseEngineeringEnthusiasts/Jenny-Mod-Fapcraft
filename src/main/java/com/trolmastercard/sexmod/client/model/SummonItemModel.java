@@ -9,13 +9,13 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  * locations only).
  */
 public class SummonItemModel extends AnimatedGeoModel<WinchesterItem> {
-   public ResourceLocation getModelLocation(WinchesterItem var0) { return new ResourceLocation("sexmod", "geo/west/winchester.geo.json"); }
+   public ResourceLocation getModelLocation(WinchesterItem item) { return new ResourceLocation("sexmod", "geo/west/winchester.geo.json"); }
 
-   public ResourceLocation getTextureLocation(WinchesterItem var0) {
+   public ResourceLocation getTextureLocation(WinchesterItem item) {
       return new ResourceLocation("sexmod", "textures/items/winchester/winchester.png");
    }
 
-   public ResourceLocation getAnimationFileLocation(WinchesterItem var0) {
+   public ResourceLocation getAnimationFileLocation(WinchesterItem item) {
       return new ResourceLocation("sexmod", "animations/west/winchester.animation.json");
    }
 }

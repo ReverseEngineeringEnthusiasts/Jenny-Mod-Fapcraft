@@ -224,8 +224,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    protected List<Entry<BoneType, Entry<List<String>, Integer>>> customPartsData = null;
 
    /** Sets the walk-mode state (WALK/FAST_WALK/RUN) stored in the data manager. */
-   public void setWalkSpeed(BaseGirlEntity.BaseGirlEntityState var1) {
-      this.entityDataManager.set(WALK_SPEED, var1.toString());
+   public void setWalkSpeed(BaseGirlEntity.BaseGirlEntityState state) {
+      this.entityDataManager.set(WALK_SPEED, state.toString());
    }
 
    /** @return the current walk-mode state */
@@ -234,8 +234,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @SideOnly(Side.CLIENT)
-   protected void changeDataParameterFromClient(String var1, String var2) {
-      PacketHandler.networkWrapper.sendToServer(new ChangeDataParameterPacket(this.getGirlId(), var1, var2));
+   protected void changeDataParameterFromClient(String key, String value) {
+      PacketHandler.networkWrapper.sendToServer(new ChangeDataParameterPacket(this.getGirlId(), key, value));
    }
 
    /** @return this girl's persistent UUID, minted on first access if unset */
@@ -282,11 +282,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    /** Sets the outfit index; on the client this is routed through a packet. */
-   public void setOutfitIndex(int var1) {
+   public void setOutfitIndex(int index) {
       if (this.world.isRemote) {
          this.changeDataParameterFromClient("currentModel", "0");
       } else {
-         this.entityDataManager.set(OUTFIT_INDEX, var1);
+         this.entityDataManager.set(OUTFIT_INDEX, index);
       }
    }
 
@@ -297,60 +297,60 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    /** @return the player this girl is currently having sex with, or null */
    @Nullable
    public EntityPlayer getPlayerEntity() {
-      UUID var1 = this.getInteractionPlayerUUID();
-      return var1 == null ? null : this.world.getPlayerEntityByUUID(var1);
+      UUID uuid = this.getInteractionPlayerUUID();
+      return uuid == null ? null : this.world.getPlayerEntityByUUID(uuid);
    }
 
-   public static void sendMessageToTrackingPlayers(BaseGirlEntity var0, String var1) {
-      for (EntityPlayer var3 : WorldUtils.getNearbyPlayers(var0)) {
-         var3.sendMessage(new TextComponentString(var1));
+   public static void sendMessageToTrackingPlayers(BaseGirlEntity girl, String message) {
+      for (EntityPlayer player : WorldUtils.getNearbyPlayers(girl)) {
+         player.sendMessage(new TextComponentString(message));
       }
    }
 
-   public static void girlPlaySound(BaseGirlEntity var0, SoundEvent var1, boolean var2) {
-      Vec3d var3 = var0.getPositionVector();
+   public static void girlPlaySound(BaseGirlEntity girl, SoundEvent sound, boolean atPlayer) {
+      Vec3d pos = girl.getPositionVector();
 
-      for (EntityPlayer var5 : WorldUtils.getNearbyPlayers(var0)) {
-         Vec3d var6;
-         if (!var2) {
-            var6 = var3;
+      for (EntityPlayer player : WorldUtils.getNearbyPlayers(girl)) {
+         Vec3d soundPos;
+         if (!atPlayer) {
+            soundPos = pos;
          } else {
-            Vec3d var7 = var5.getPositionVector();
-            Vec3d var8 = var3.subtract(var7).normalize();
-            var6 = var7.add(var8);
+            Vec3d playerPos = player.getPositionVector();
+            Vec3d dir = pos.subtract(playerPos).normalize();
+            soundPos = playerPos.add(dir);
          }
 
-         ((EntityPlayerMP)var5)
+         ((EntityPlayerMP)player)
             .connection
-            .sendPacket(new SPacketSoundEffect(var1, SoundCategory.AMBIENT, var6.x, var6.y, var6.z, 1.0F, 1.0F));
+            .sendPacket(new SPacketSoundEffect(sound, SoundCategory.AMBIENT, soundPos.x, soundPos.y, soundPos.z, 1.0F, 1.0F));
       }
    }
 
-   public static void girlPlaySound(BaseGirlEntity var0, SoundEvent var1) {
-      girlPlaySound(var0, var1, false);
+   public static void girlPlaySound(BaseGirlEntity girl, SoundEvent sound) {
+      girlPlaySound(girl, sound, false);
    }
 
-   public static void playRandomSound(BaseGirlEntity var0, SoundEvent[] var1) {
-      girlPlaySound(var0, SoundHandler.randomSound(var1));
+   public static void playRandomSound(BaseGirlEntity girl, SoundEvent[] sounds) {
+      girlPlaySound(girl, SoundHandler.randomSound(sounds));
    }
 
-   public static void playRandomSound(BaseGirlEntity var0, SoundEvent[] var1, boolean var2) {
-      girlPlaySound(var0, SoundHandler.randomSound(var1), var2);
+   public static void playRandomSound(BaseGirlEntity girl, SoundEvent[] sounds, boolean atPlayer) {
+      girlPlaySound(girl, SoundHandler.randomSound(sounds), atPlayer);
    }
 
    @SideOnly(Side.CLIENT)
    public Vec3d getVectorTowardPlayer() {
-      Vec3d var1 = Minecraft.getMinecraft().player.getPositionVector();
-      Vec3d var2 = this.getPositionVector();
-      Vec3d var3 = var2.subtract(var1).normalize();
-      return var1.add(var3);
+      Vec3d playerPos = Minecraft.getMinecraft().player.getPositionVector();
+      Vec3d girlPos = this.getPositionVector();
+      Vec3d dir = girlPos.subtract(playerPos).normalize();
+      return playerPos.add(dir);
    }
 
    /** @return UUID of the player bound to this girl's scene, or null */
    @Nullable
    public UUID getInteractionPlayerUUID() {
-      String var1 = (String)this.entityDataManager.get(INTERACTION_PARTNER_UUID);
-      return var1.equals("null") ? null : UUID.fromString(var1);
+      String uuidStr = (String)this.entityDataManager.get(INTERACTION_PARTNER_UUID);
+      return uuidStr.equals("null") ? null : UUID.fromString(uuidStr);
    }
 
    public void setInteractionPlayerUUID(UUID uuid) {
@@ -369,14 +369,14 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   public void setInteractionPlayer(@Nonnull EntityPlayer var1) {
-      this.setInteractionPlayerUUID(var1.getPersistentID());
+   public void setInteractionPlayer(@Nonnull EntityPlayer player) {
+      this.setInteractionPlayerUUID(player.getPersistentID());
    }
 
    /** @return the anchored target position ("0|0|0" if unset), used by the renderer/state machine */
    public Vec3d getTargetPosition() {
-      String[] var1 = ((String)this.entityDataManager.get(TARGET_POS)).split("\\|");
-      return new Vec3d(Double.parseDouble(var1[0]), Double.parseDouble(var1[1]), Double.parseDouble(var1[2]));
+      String[] parts = ((String)this.entityDataManager.get(TARGET_POS)).split("\\|");
+      return new Vec3d(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
    }
 
    /** Sets the target position; on the client routed through a packet. */
@@ -420,16 +420,16 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return false;
    }
 
-   protected BaseGirlEntity(World var1) {
-      super(var1);
-      if (var1.isRemote) {
+   protected BaseGirlEntity(World world) {
+      super(world);
+      if (world.isRemote) {
          this.initAnimationControllers();
       }
 
-      if (!var1.isRemote || !(var1 instanceof SexWorldClient)) {
-         PathNavigate var2 = this.getNavigator();
-         if (var2 instanceof PathNavigateGround) {
-            ((PathNavigateGround)var2).setBreakDoors(true);
+      if (!world.isRemote || !(world instanceof SexWorldClient)) {
+         PathNavigate navigator = this.getNavigator();
+         if (navigator instanceof PathNavigateGround) {
+            ((PathNavigateGround)navigator).setBreakDoors(true);
          }
       }
    }
@@ -459,9 +459,9 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       this.entityDataManager.register(CUSTOM_NAME, "");
    }
 
-   public void setLocallyRegistered(boolean var1) {
-      this.isLocallyRegistered = var1;
-      if (var1) {
+   public void setLocallyRegistered(boolean registered) {
+      this.isLocallyRegistered = registered;
+      if (registered) {
          GirlRegistry.registerGirl(this);
       } else {
          GirlRegistry.unregisterGirl(this);
@@ -485,7 +485,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       ArrayList girls = new ArrayList();
 
       for (WorldServer world : worlds) {
-         girls.addAll(world.getEntities(BaseGirlEntity.class, var0x -> true));
+         girls.addAll(world.getEntities(BaseGirlEntity.class, entity -> true));
       }
 
       return girls;
@@ -493,8 +493,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    private static List<BaseGirlEntity> getClientGirls() {
-      WorldClient var0 = Minecraft.getMinecraft().world;
-      return var0 == null ? new ArrayList<>() : var0.getEntities(BaseGirlEntity.class, var0x -> true);
+      WorldClient world = Minecraft.getMinecraft().world;
+      return world == null ? new ArrayList<>() : world.getEntities(BaseGirlEntity.class, entity -> true);
    }
 
    public boolean canBeInteractedWith() {
@@ -518,54 +518,54 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       this.tasks.addTask(5, this.wanderGoal);
    }
 
-   public void writeEntityToNBT(NBTTagCompound var1) {
-      var1.setDouble("homeX", this.homePos.x);
-      var1.setDouble("homeY", this.homePos.y);
-      var1.setDouble("homeZ", this.homePos.z);
-      var1.setString("girlID", (String)this.entityDataManager.get(GIRL_ID));
-      String var2 = this.getCustomName();
-      if (!"".equals(var2)) {
-         var1.setString("sexmod:customname", var2);
+   public void writeEntityToNBT(NBTTagCompound nbt) {
+      nbt.setDouble("homeX", this.homePos.x);
+      nbt.setDouble("homeY", this.homePos.y);
+      nbt.setDouble("homeZ", this.homePos.z);
+      nbt.setString("girlID", (String)this.entityDataManager.get(GIRL_ID));
+      String customName = this.getCustomName();
+      if (!"".equals(customName)) {
+         nbt.setString("sexmod:customname", customName);
       }
 
       if (this.supportsCustomModels()) {
-         var1.setString("sexmod:customModel", this.getCustomModelCode());
+         nbt.setString("sexmod:customModel", this.getCustomModelCode());
       }
 
-      super.writeEntityToNBT(var1);
+      super.writeEntityToNBT(nbt);
    }
 
    protected boolean supportsCustomModels() {
       return isValidGirl(this);
    }
 
-   public void readEntityFromNBT(NBTTagCompound var1) {
-      super.readEntityFromNBT(var1);
-      this.homePos = new Vec3d(var1.getDouble("homeX"), var1.getDouble("homeY"), var1.getDouble("homeZ"));
-      String var2 = var1.getString("sexmod:customname");
-      if (!"".equals(var2)) {
-         this.setCustomNameOverride(var2);
+   public void readEntityFromNBT(NBTTagCompound nbt) {
+      super.readEntityFromNBT(nbt);
+      this.homePos = new Vec3d(nbt.getDouble("homeX"), nbt.getDouble("homeY"), nbt.getDouble("homeZ"));
+      String customName = nbt.getString("sexmod:customname");
+      if (!"".equals(customName)) {
+         this.setCustomNameOverride(customName);
       }
 
-      String var3 = var1.getString("girlID");
-      if (!"".equals(var3)) {
-         UUID var4 = UUID.fromString(var3);
-         boolean var5 = false;
+      String girlId = nbt.getString("girlID");
+      if (!"".equals(girlId)) {
+         UUID uuid = UUID.fromString(girlId);
+         boolean duped = false;
 
-         for (BaseGirlEntity var7 : girlList(var4)) {
-            if (!var7.world.isRemote && var7 != this && !var7.isDead && var7.isAddedToWorld()) {
-               var5 = true;
+         for (BaseGirlEntity girl : girlList(uuid)) {
+            if (!girl.world.isRemote && girl != this && !girl.isDead && girl.isAddedToWorld()) {
+               duped = true;
                break;
             }
          }
 
-         if (var5) {
-            Main.LOGGER.log(Level.WARN, String.format("got a duped %s with id '%s'. Deleted her", this.getDisplayNameText(), var4));
+         if (duped) {
+            Main.LOGGER.log(Level.WARN, String.format("got a duped %s with id '%s'. Deleted her", this.getDisplayNameText(), uuid));
             this.world.removeEntity(this);
          } else {
-            this.entityDataManager.set(GIRL_ID, var4.toString());
+            this.entityDataManager.set(GIRL_ID, uuid.toString());
             if (this.supportsCustomModels()) {
-               this.setCustomModelCode(var1.getString("sexmod:customModel"));
+               this.setCustomModelCode(nbt.getString("sexmod:customModel"));
             }
          }
       }
@@ -656,27 +656,27 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
     */
    protected void updateCustomModelParts() {
       if (ServerWhitelistManager.isLoaded) {
-         HashSet var1 = this.getCustomPartsSet();
-         NpcType var2 = NpcType.getNpcType(this);
-         HashSet var3 = new HashSet();
-         String var4 = ServerWhitelistManager.getCurrentGroup();
+         HashSet parts = this.getCustomPartsSet();
+         NpcType type = NpcType.getNpcType(this);
+         HashSet allowed = new HashSet();
+         String group = ServerWhitelistManager.getCurrentGroup();
 
-         for (String var6 : (java.util.Collection<String>) (var1) ) {
-            if (!"".equals(ServerWhitelistManager.getPartName(var6, var4))) {
-               var3.add(var6);
+         for (String part : (java.util.Collection<String>) (parts) ) {
+            if (!"".equals(ServerWhitelistManager.getPartName(part, group))) {
+               allowed.add(part);
             } else {
-               HashSet var7 = ServerWhitelistManager.getAllowedNpcTypes(var6);
-               if (var7 == null) {
-                  var3.add(var6);
-               } else if (!var7.isEmpty() && !var7.contains(var2)) {
-                  var3.add(var6);
+               HashSet allowedTypes = ServerWhitelistManager.getAllowedNpcTypes(part);
+               if (allowedTypes == null) {
+                  allowed.add(part);
+               } else if (!allowedTypes.isEmpty() && !allowedTypes.contains(type)) {
+                  allowed.add(part);
                }
             }
          }
 
-         if (!var3.isEmpty()) {
-            var1.removeAll(var3);
-            this.setCustomModelCode(encodeCustomParts(var1));
+         if (!allowed.isEmpty()) {
+            parts.removeAll(allowed);
+            this.setCustomModelCode(encodeCustomParts(parts));
          }
       }
    }
@@ -697,17 +697,17 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    protected void tickPathVelocity() {
-      Path var1 = this.getNavigator().getPath();
-      if (var1 != null) {
+      Path path = this.getNavigator().getPath();
+      if (path != null) {
          if (!this.onGround && !this.isInWater()) {
-            int var2 = var1.getCurrentPathIndex();
-            int var3 = var1.getCurrentPathLength();
-            if (var3 != var2 && var3 - 1 != var2) {
-               PathPoint var4 = var1.getPathPointFromIndex(var2);
-               PathPoint var5 = var1.getPathPointFromIndex(var2 + 1);
-               Vec3d var6 = new Vec3d(var5.x - var4.x, var5.y - var4.y, var5.z - var4.z);
-               this.motionX = var6.x / 7.0;
-               this.motionZ = var6.z / 7.0;
+            int currentIndex = path.getCurrentPathIndex();
+            int length = path.getCurrentPathLength();
+            if (length != currentIndex && length - 1 != currentIndex) {
+               PathPoint currentPoint = path.getPathPointFromIndex(currentIndex);
+               PathPoint nextPoint = path.getPathPointFromIndex(currentIndex + 1);
+               Vec3d delta = new Vec3d(nextPoint.x - currentPoint.x, nextPoint.y - currentPoint.y, nextPoint.z - currentPoint.z);
+               this.motionX = delta.x / 7.0;
+               this.motionZ = delta.z / 7.0;
             }
          }
       }
@@ -717,39 +717,39 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean openInteractionMenu(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer player) {
       return false;
    }
 
    @SideOnly(Side.CLIENT)
-   protected static void openInventoryGui(EntityPlayer var0, BaseGirlEntity var1) {
-      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(var1, var0));
+   protected static void openInventoryGui(EntityPlayer player, BaseGirlEntity girl) {
+      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(girl, player));
    }
 
    @SideOnly(Side.CLIENT)
-   protected static void openInventoryGui(EntityPlayer var0, BaseGirlEntity var1, String[] var2, ItemStack[] var3, boolean var4) {
-      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(var1, var0, var2, var3, var4));
+   protected static void openInventoryGui(EntityPlayer player, BaseGirlEntity girl, String[] options, ItemStack[] rewards, boolean dressUp) {
+      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(girl, player, options, rewards, dressUp));
    }
 
    @SideOnly(Side.CLIENT)
-   protected static void openInventoryGui(EntityPlayer var0, BaseGirlEntity var1, String[] var2, boolean var3) {
-      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(var1, var0, var2, null, var3));
+   protected static void openInventoryGui(EntityPlayer player, BaseGirlEntity girl, String[] options, boolean dressUp) {
+      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(girl, player, options, null, dressUp));
    }
 
-   public void setHeldItemOverride(ItemStack var1) {
-      this.activeItemStack = var1;
+   public void setHeldItemOverride(ItemStack stack) {
+      this.activeItemStack = stack;
    }
 
-   public void setItemUseCount(int var1) {
-      this.activeItemStackUseCount = var1;
+   public void setItemUseCount(int count) {
+      this.activeItemStackUseCount = count;
    }
 
    public Vec3d getPreviousPosition() {
       return new Vec3d(this.prevPosX, this.prevPosY, this.prevPosZ);
    }
 
-   protected static Vec3d getPreviousPosition(BaseGirlEntity var0) {
-      return new Vec3d(var0.prevPosX, var0.prevPosY, var0.prevPosZ);
+   protected static Vec3d getPreviousPosition(BaseGirlEntity girl) {
+      return new Vec3d(girl.prevPosX, girl.prevPosY, girl.prevPosZ);
    }
 
    public BaseGirlEntity getSelf() {
@@ -845,8 +845,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return girls;
    }
 
-   protected BlockPos getNearestBed(BlockPos var1) {
-      return this.findNearestBed(var1, 1);
+   protected BlockPos getNearestBed(BlockPos pos) {
+      return this.findNearestBed(pos, 1);
    }
 
    public BlockPos findNearestBed(BlockPos origin, int radius) {
@@ -904,43 +904,43 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return null;
    }
 
-   protected List<BlockPos> findBlocksInRadius(BlockPos var1, Class var2, int var3, int var4, @Nullable HashSet<Biome> var5) {
-      int var6 = 1;
-      byte var7 = -1;
-      BlockPos var8 = var1;
-      ArrayList var9 = new ArrayList();
+   protected List<BlockPos> findBlocksInRadius(BlockPos center, Class blockClass, int maxRadius, int height, @Nullable HashSet<Biome> biomes) {
+      int radius = 1;
+      byte step = -1;
+      BlockPos base = center;
+      ArrayList found = new ArrayList();
 
-      while (var6 < var3) {
-         for (int var10 = 0; var10 < 2; var10++) {
-            var7 *= -1;
+      while (radius < maxRadius) {
+         for (int pass = 0; pass < 2; pass++) {
+            step *= -1;
 
-            for (int var11 = 0; var11 < var6; var11++) {
-               var8 = var8.add(0, 0, var7);
+            for (int i = 0; i < radius; i++) {
+               base = base.add(0, 0, step);
 
-               for (int var12 = -var4; var12 < var4 + 1; var12++) {
-                  if (var2.isInstance(this.world.getBlockState(var8.add(0, var12, var7)).getBlock())
-                     && (var5 == null || var5.contains(this.world.getBiome(var8.add(var7, var12, 0))))) {
-                     var9.add(var8.add(0, var12, var7));
+               for (int yOffset = -height; yOffset < height + 1; yOffset++) {
+                  if (blockClass.isInstance(this.world.getBlockState(base.add(0, yOffset, step)).getBlock())
+                     && (biomes == null || biomes.contains(this.world.getBiome(base.add(step, yOffset, 0))))) {
+                     found.add(base.add(0, yOffset, step));
                   }
                }
             }
 
-            for (int var13 = 0; var13 < var6; var13++) {
-               var8 = var8.add(var7, 0, 0);
+            for (int j = 0; j < radius; j++) {
+               base = base.add(step, 0, 0);
 
-               for (int var14 = -var4; var14 < var4 + 1; var14++) {
-                  if (var2.isInstance(this.world.getBlockState(var8.add(var7, var14, 0)).getBlock())
-                     && (var5 == null || var5.contains(this.world.getBiome(var8.add(var7, var14, 0))))) {
-                     var9.add(var8.add(var7, var14, 0));
+               for (int zOffset = -height; zOffset < height + 1; zOffset++) {
+                  if (blockClass.isInstance(this.world.getBlockState(base.add(step, zOffset, 0)).getBlock())
+                     && (biomes == null || biomes.contains(this.world.getBiome(base.add(step, zOffset, 0))))) {
+                     found.add(base.add(step, zOffset, 0));
                   }
                }
             }
 
-            var6++;
+            radius++;
          }
       }
 
-      return var9;
+      return found;
    }
 
    /** @return true if this girl is bound to a master player UUID */
@@ -958,7 +958,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
       try {
          return UUID.fromString(masterUuid);
-      } catch (IllegalArgumentException var2) {
+      } catch (IllegalArgumentException ex) {
          return null;
       }
    }
@@ -975,115 +975,115 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @SideOnly(Side.CLIENT)
-   public void doAction(String var1, UUID var2) {
+   public void doAction(String action, UUID uuid) {
    }
 
    @SideOnly(Side.CLIENT)
-   protected abstract <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1);
+   protected abstract <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event);
 
    @SideOnly(Side.CLIENT)
-   protected boolean handleActionAnimationOverrides(Action var1, String var2, boolean var3, AnimationEvent var4) {
+   protected boolean handleActionAnimationOverrides(Action action, String animName, boolean started, AnimationEvent event) {
       return false;
    }
 
    @SideOnly(Side.CLIENT)
-   protected void createAnimation(String var1, boolean var2, AnimationEvent var3, boolean var4) {
-      if (var4 || !Action.isActionComplete(this, var3.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.isJumping, var3)) {
-         ILoopType.EDefaultLoopTypes var5 = var2 ? ILoopType.EDefaultLoopTypes.LOOP : ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME;
-         var3.getController().setAnimation(new AnimationBuilder().addAnimation(var1, var5));
-         var3.getController().transitionLengthTicks = 0.0;
+   protected void createAnimation(String animName, boolean loop, AnimationEvent event, boolean force) {
+      if (force || !Action.isActionComplete(this, event.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), animName, HandlePlayerMovement.isJumping, event)) {
+         ILoopType.EDefaultLoopTypes loopType = loop ? ILoopType.EDefaultLoopTypes.LOOP : ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME;
+         event.getController().setAnimation(new AnimationBuilder().addAnimation(animName, loopType));
+         event.getController().transitionLengthTicks = 0.0;
       }
    }
 
    @SideOnly(Side.CLIENT)
-   protected void createAnimation(String var1, boolean var2, AnimationEvent var3) {
-      this.createAnimation(var1, var2, var3, false);
+   protected void createAnimation(String animName, boolean loop, AnimationEvent event) {
+      this.createAnimation(animName, loop, event, false);
    }
 
    @SideOnly(Side.CLIENT)
-   protected void playRandomizedAnimation(String var1, int var2, float var3, AnimationEvent var4, boolean var5) {
-      if (var5 || !Action.isActionComplete(this, var4.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), var1, HandlePlayerMovement.isJumping, var4)) {
-         AnimationController var6 = var4.getController();
-         Pair var7 = this.animationVariantMap.get(var1);
-         if (var7 == null) {
-            var7 = Pair.of(0, 0);
+   protected void playRandomizedAnimation(String animName, int maxVariants, float chance, AnimationEvent event, boolean force) {
+      if (force || !Action.isActionComplete(this, event.getPartialTick()) || !this.handleActionAnimationOverrides(this.getCurrentAction(), animName, HandlePlayerMovement.isJumping, event)) {
+         AnimationController controller = event.getController();
+         Pair variants = this.animationVariantMap.get(animName);
+         if (variants == null) {
+            variants = Pair.of(0, 0);
          }
 
-         int var8 = (Integer)var7.first();
-         int var9 = (Integer)var7.second();
-         if (!Action.isActionComplete(this, var4.getPartialTick())) {
-            var4.getController().setAnimation(new AnimationBuilder().addAnimation(var8 == 0 ? var1 : var1 + var8, ILoopType.EDefaultLoopTypes.LOOP));
-            var4.getController().transitionLengthTicks = 0.0;
+         int baseVariant = (Integer)variants.first();
+         int maxVariant = (Integer)variants.second();
+         if (!Action.isActionComplete(this, event.getPartialTick())) {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation(baseVariant == 0 ? animName : animName + baseVariant, ILoopType.EDefaultLoopTypes.LOOP));
+            event.getController().transitionLengthTicks = 0.0;
          } else {
-            int var10 = this.pickRandomVariant(var8, var9, var2, var3);
-            AnimationBuilder var12 = new AnimationBuilder();
-            AnimationController var11 = var6;
-            AnimationController var10000;
-            AnimationBuilder var10001;
-            String var10002;
-            if (var10 == 0) {
-               var10000 = var11;
-               var10001 = var12;
-               var10002 = var1;
+            int variant = this.pickRandomVariant(baseVariant, maxVariant, maxVariants, chance);
+            AnimationBuilder builder = new AnimationBuilder();
+            AnimationController current = controller;
+            AnimationController selectedController;
+            AnimationBuilder selectedBuilder;
+            String tempAnimName;
+            if (variant == 0) {
+               selectedController = current;
+               selectedBuilder = builder;
+               tempAnimName = animName;
             } else {
-               var10000 = var11;
-               var10001 = var12;
-               var10002 = var1 + var10;
+               selectedController = current;
+               selectedBuilder = builder;
+               tempAnimName = animName + variant;
             }
 
-            var10000.setAnimation(var10001.addAnimation(var10002, ILoopType.EDefaultLoopTypes.LOOP));
-            var6.transitionLengthTicks = 0.0;
-            HashMap var16 = this.animationVariantMap;
-            Integer var15 = var10;
-            String var14 = var1;
-            HashMap var13 = var16;
-            HashMap var17;
-            String var18;
-            Integer var19;
-            int var10003;
-            if (var10 == 0) {
-               var17 = var13;
-               var18 = var14;
-               var19 = var15;
-               var10003 = var9;
+            selectedController.setAnimation(selectedBuilder.addAnimation(animName, ILoopType.EDefaultLoopTypes.LOOP));
+            controller.transitionLengthTicks = 0.0;
+            HashMap variantsMap = this.animationVariantMap;
+            Integer newValue = variant;
+            String newName = animName;
+            HashMap currentMap = variantsMap;
+            HashMap selectedMap;
+            String selectedName;
+            Integer selectedValue;
+            int maxVar;
+            if (variant == 0) {
+               selectedMap = currentMap;
+               selectedName = newName;
+               selectedValue = newValue;
+               maxVar = maxVariant;
             } else {
-               var17 = var13;
-               var18 = var14;
-               var19 = var15;
-               var10003 = var10;
+               selectedMap = currentMap;
+               selectedName = newName;
+               selectedValue = newValue;
+               maxVar = variant;
             }
 
-            var17.put(var18, Pair.of(var19, var10003));
+            selectedMap.put(selectedName, Pair.of(selectedValue, maxVar));
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
-   protected void playRandomizedAnimation(String var1, int var2, float var3, AnimationEvent var4) {
-      this.playRandomizedAnimation(var1, var2, var3, var4, false);
+   protected void playRandomizedAnimation(String animName, int maxVariants, float chance, AnimationEvent event) {
+      this.playRandomizedAnimation(animName, maxVariants, chance, event, false);
    }
 
-   int pickRandomVariant(int var1, int var2, int var3, float var4) {
-      if (var1 != 0) {
+   int pickRandomVariant(int baseVariant, int exclude, int max, float chance) {
+      if (baseVariant != 0) {
          return 0;
       }
 
-      Random var5 = this.getRNG();
-      if (var5.nextFloat() > var4) {
+      Random random = this.getRNG();
+      if (random.nextFloat() > chance) {
          return 0;
       }
 
-      int var6;
+      int variant;
       do {
-         var6 = var5.nextInt(var3);
-      } while ((var6 == var2 || var6 == 0) && var3 > 2);
+         variant = random.nextInt(max);
+      } while ((variant == exclude || variant == 0) && max > 2);
 
-      return var6;
+      return variant;
    }
 
    @SideOnly(Side.CLIENT)
    @Override
-   public abstract void registerControllers(AnimationData var1);
+   public abstract void registerControllers(AnimationData data);
 
    /**
     * Leaves the current scene: sends ResetGirlPacket(uuid, true) on the client
@@ -1098,64 +1098,64 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   public static BaseGirlEntity getCompanionInteractingWithPlayer(EntityPlayer var0) {
-      return var0 == null ? null : getGirlByUUID(var0.getPersistentID());
+   public static BaseGirlEntity getCompanionInteractingWithPlayer(EntityPlayer player) {
+      return player == null ? null : getGirlByUUID(player.getPersistentID());
    }
 
    @SideOnly(Side.CLIENT)
-   public Vec3d renderCustomModelTransform(Minecraft var1, SexSceneEntity var2, EntityLivingBase var3, float var4) {
-      return SexSceneRenderer.getSceneEntityPosition(var1, var2, var3, this, var4);
+   public Vec3d renderCustomModelTransform(Minecraft mc, SexSceneEntity scene, EntityLivingBase entity, float partialTicks) {
+      return SexSceneRenderer.getSceneEntityPosition(mc, scene, entity, this, partialTicks);
    }
 
-   public static BaseGirlEntity getGirlByUUID(@Nonnull UUID var0) {
-      return getGirlByUUID(var0, (Boolean)null);
+   public static BaseGirlEntity getGirlByUUID(@Nonnull UUID uuid) {
+      return getGirlByUUID(uuid, (Boolean)null);
    }
 
-   public static BaseGirlEntity getGirlByUUID(@Nonnull UUID var0, Boolean var1) {
+   public static BaseGirlEntity getGirlByUUID(@Nonnull UUID uuid, Boolean serverOnly) {
       try {
-         for (BaseGirlEntity var3 : getGirlEntityList()) {
-            if (!var3.isDead && var0.equals(var3.getInteractionPlayerUUID())) {
-               if (var1 == null) {
-                  return var3;
+         for (BaseGirlEntity girl : getGirlEntityList()) {
+            if (!girl.isDead && uuid.equals(girl.getInteractionPlayerUUID())) {
+               if (serverOnly == null) {
+                  return girl;
                }
 
-               boolean var4 = var3.world.isRemote;
-               if (var4 && !var1) {
-                  return var3;
+               boolean isRemote = girl.world.isRemote;
+               if (isRemote && !serverOnly) {
+                  return girl;
                }
 
-               if (!var4 && var1) {
-                  return var3;
+               if (!isRemote && serverOnly) {
+                  return girl;
                }
             }
          }
-      } catch (ConcurrentModificationException var5) {
+      } catch (ConcurrentModificationException ex) {
       }
 
       return null;
    }
 
    @Nullable
-   public static BaseGirlEntity getActiveSceneInfo(@Nonnull UUID var0) {
-      boolean var1 = FMLCommonHandler.instance().getMinecraftServerInstance() == null;
+   public static BaseGirlEntity getActiveSceneInfo(@Nonnull UUID uuid) {
+      boolean noServer = FMLCommonHandler.instance().getMinecraftServerInstance() == null;
 
       try {
-         for (BaseGirlEntity var3 : getGirlEntityList()) {
-            if (!var3.isDead) {
-               boolean var4 = var3.world.isRemote;
-               if (var4 == var1 && var0.equals(var3.getInteractionPlayerUUID())) {
-                  return var3;
+         for (BaseGirlEntity girl : getGirlEntityList()) {
+            if (!girl.isDead) {
+               boolean isRemote = girl.world.isRemote;
+               if (isRemote == noServer && uuid.equals(girl.getInteractionPlayerUUID())) {
+                  return girl;
                }
             }
          }
-      } catch (ConcurrentModificationException var5) {
+      } catch (ConcurrentModificationException ex) {
       }
 
       return null;
    }
 
-   public static BaseGirlEntity getActiveSceneInfo(@Nonnull EntityPlayer var0) {
-      return getActiveSceneInfo(var0.getPersistentID());
+   public static BaseGirlEntity getActiveSceneInfo(@Nonnull EntityPlayer player) {
+      return getActiveSceneInfo(player.getPersistentID());
    }
 
    @SideOnly(Side.CLIENT)
@@ -1184,39 +1184,39 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @SideOnly(Side.CLIENT)
-   public static void triggerFastSexAction(UUID var0) {
+   public static void triggerFastSexAction(UUID uuid) {
       try {
-         for (BaseGirlEntity var2 : getGirlEntityList()) {
-            UUID var3 = var2.getInteractionPlayerUUID();
-            if (var3 != null && var3.equals(var0)) {
-               Action var4 = var2.getNextAction(var2.getCurrentAction());
-               if (var4 == null) {
+         for (BaseGirlEntity girl : getGirlEntityList()) {
+            UUID interactionUuid = girl.getInteractionPlayerUUID();
+            if (interactionUuid != null && interactionUuid.equals(uuid)) {
+               Action nextAction = girl.getNextAction(girl.getCurrentAction());
+               if (nextAction == null) {
                   return;
                }
 
-               var2.setCurrentAction(var4);
+               girl.setCurrentAction(nextAction);
                return;
             }
          }
-      } catch (ConcurrentModificationException var5) {
+      } catch (ConcurrentModificationException ex) {
       }
    }
 
    @SideOnly(Side.CLIENT)
-   public static void triggerCumAction(UUID var0) {
+   public static void triggerCumAction(UUID uuid) {
       try {
-         for (BaseGirlEntity var2 : getGirlEntityList()) {
-            if (!var2.isDead && var2.world.isRemote) {
-               UUID var3 = var2.getInteractionPlayerUUID();
-               if (var3 != null && var3.equals(var0)) {
-                  Action var4 = var2.getCumAction(var2.getCurrentAction());
-                  if (var4 != null) {
-                     var2.setCurrentAction(var4);
+         for (BaseGirlEntity girl : getGirlEntityList()) {
+            if (!girl.isDead && girl.world.isRemote) {
+               UUID interactionUuid = girl.getInteractionPlayerUUID();
+               if (interactionUuid != null && interactionUuid.equals(uuid)) {
+                  Action cumAction = girl.getCumAction(girl.getCurrentAction());
+                  if (cumAction != null) {
+                     girl.setCurrentAction(cumAction);
                   }
                }
             }
          }
-      } catch (ConcurrentModificationException var5) {
+      } catch (ConcurrentModificationException ex) {
       }
    }
 
@@ -1234,33 +1234,33 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    @Nullable
-   protected abstract Action getNextAction(Action var1);
+   protected abstract Action getNextAction(Action action);
 
    @SideOnly(Side.CLIENT)
-   protected abstract Action getCumAction(Action var1);
+   protected abstract Action getCumAction(Action action);
 
    public TargetPoint getTargetNetworkPoint() {
       return new TargetPoint(this.dimension, this.posX, this.posY, this.posZ, 50.0);
    }
 
-   protected void positionPlayerRelative(double var1, double var3, double var5, float var7, float var8) {
+   protected void positionPlayerRelative(double dx, double dy, double dz, float yaw, float pitch) {
       if (this.getInteractionPlayerUUID() == null) {
          System.out.println("couldnt move camera because the player isn't set");
       } else {
-         EntityPlayer var9 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
+         EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
          if (this.cameraOriginPos == null) {
-            this.cameraOriginPos = var9.getPositionVector();
+            this.cameraOriginPos = player.getPositionVector();
          }
 
-         Vec3d var10 = this.cameraOriginPos;
-         var10 = var10.add(-Math.sin((this.cameraYaw + 90.0F) * (Math.PI / 180.0)) * var1, 0.0, Math.cos((this.cameraYaw + 90.0F) * (Math.PI / 180.0)) * var1);
-         var10 = var10.add(0.0, var3, 0.0);
-         var10 = var10.add(-Math.sin(this.cameraYaw * (Math.PI / 180.0)) * var5, 0.0, Math.cos(this.cameraYaw * (Math.PI / 180.0)) * var5);
+         Vec3d newPos = this.cameraOriginPos;
+         newPos = newPos.add(-Math.sin((this.cameraYaw + 90.0F) * (Math.PI / 180.0)) * dx, 0.0, Math.cos((this.cameraYaw + 90.0F) * (Math.PI / 180.0)) * dx);
+         newPos = newPos.add(0.0, dy, 0.0);
+         newPos = newPos.add(-Math.sin(this.cameraYaw * (Math.PI / 180.0)) * dz, 0.0, Math.cos(this.cameraYaw * (Math.PI / 180.0)) * dz);
          if (this.world.isRemote) {
-            PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(var9.getPersistentID().toString(), var10, this.cameraYaw + var7, var8));
+            PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(player.getPersistentID().toString(), newPos, this.cameraYaw + yaw, pitch));
          } else {
-            var9.setPositionAndRotation(var10.x, var10.y, var10.z, this.cameraYaw + var7, var8);
-            var9.setPositionAndUpdate(var10.x, var10.y, var10.z);
+            player.setPositionAndRotation(newPos.x, newPos.y, newPos.z, this.cameraYaw + yaw, pitch);
+            player.setPositionAndUpdate(newPos.x, newPos.y, newPos.z);
             this.motionX = 0.0;
             this.motionY = 0.0;
             this.motionZ = 0.0;
@@ -1307,65 +1307,65 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    /** Broadcasts "&lt;name&gt; message" chat to nearby players (both sides). */
-   public void sendGirlChatMessage(String var1) {
+   public void sendGirlChatMessage(String message) {
       if (!this.world.isRemote) {
          PacketHandler.networkWrapper
             .sendToAllAround(
-               new SendChatMessagePacket(String.format("<%s> %s", this.getEffectiveDisplayName(), var1), this.dimension, this.getGirlId()),
+               new SendChatMessagePacket(String.format("<%s> %s", this.getEffectiveDisplayName(), message), this.dimension, this.getGirlId()),
                new TargetPoint(this.dimension, this.posX, this.posY, this.posZ, 40.0)
             );
       } else if (this.isControlledByLocalPlayer()) {
-         PacketHandler.networkWrapper.sendToServer(new SendChatMessagePacket(String.format("<%s> %s", this.getEffectiveDisplayName(), var1), this.dimension, this.getGirlId()));
+         PacketHandler.networkWrapper.sendToServer(new SendChatMessagePacket(String.format("<%s> %s", this.getEffectiveDisplayName(), message), this.dimension, this.getGirlId()));
       }
    }
 
    /** Sends the given message as the girl; if not local, additionally calls sendGirlChatMessage. */
-   protected void broadcastChatAround(String var1, boolean var2) {
-      if (!var2) {
-         this.sendGirlChatMessage(var1);
+   protected void broadcastChatAround(String message, boolean toAll) {
+      if (!toAll) {
+         this.sendGirlChatMessage(message);
       }
 
       if (!this.world.isRemote) {
          PacketHandler.networkWrapper
             .sendToAllAround(
-               new SendChatMessagePacket(var1, this.dimension, this.getGirlId()),
+               new SendChatMessagePacket(message, this.dimension, this.getGirlId()),
                new TargetPoint(this.dimension, this.posX, this.posY, this.posZ, 40.0)
             );
       } else {
          if (this.isControlledByLocalPlayer()) {
-            PacketHandler.networkWrapper.sendToServer(new SendChatMessagePacket(var1, this.dimension, this.getGirlId()));
+            PacketHandler.networkWrapper.sendToServer(new SendChatMessagePacket(message, this.dimension, this.getGirlId()));
          }
       }
    }
 
-   protected void sendChatMessage(String var1) {
+   protected void sendChatMessage(String message) {
       if (this.world.isRemote) {
-         Minecraft.getMinecraft().player.sendMessage(new TextComponentString(String.format("<%s> %s", this.getEffectiveDisplayName(), var1)));
+         Minecraft.getMinecraft().player.sendMessage(new TextComponentString(String.format("<%s> %s", this.getEffectiveDisplayName(), message)));
       }
    }
 
-   protected void sendChatMessageToPlayer(UUID var1, String var2) {
-      EntityPlayer var3 = this.world.getPlayerEntityByUUID(var1);
-      if (var3 == null) {
-         System.out.println("Player with UUID " + var1.toString() + " not found");
+   protected void sendChatMessageToPlayer(UUID uuid, String message) {
+      EntityPlayer player = this.world.getPlayerEntityByUUID(uuid);
+      if (player == null) {
+         System.out.println("Player with UUID " + uuid.toString() + " not found");
       } else {
          if (this.world.isRemote) {
-            Minecraft.getMinecraft().player.sendMessage(new TextComponentString("<" + var3.getName() + "> " + var2));
+            Minecraft.getMinecraft().player.sendMessage(new TextComponentString("<" + player.getName() + "> " + message));
          }
       }
    }
 
    /** Plays a sound at the girl's position (world sound event). */
-   public void playSoundAtPosition(SoundEvent var1, float var2, float var3) {
+   public void playSoundAtPosition(SoundEvent sound, float volume, float pitch) {
       this.world
          .playSound(
             this.getPosition().getX(),
             this.getPosition().getY(),
             this.getPosition().getZ(),
-            var1,
+            sound,
             SoundCategory.NEUTRAL,
-            var2,
-            var3,
+            volume,
+            pitch,
             false
          );
    }
@@ -1383,19 +1383,19 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   public void playRandomSoundAtVolume(SoundEvent[] var1, float var2) {
-      this.playSoundAtPosition(var1[this.getRNG().nextInt(var1.length)], var2, 1.0F);
+   public void playRandomSoundAtVolume(SoundEvent[] sounds, float volume) {
+      this.playSoundAtPosition(sounds[this.getRNG().nextInt(sounds.length)], volume, 1.0F);
    }
 
    public void playSoundAtVolume(SoundEvent sound, float volume) {
       this.playSoundAtPosition(sound, volume, 1.0F);
    }
 
-   public static boolean isValidGirl(Entity var0) {
-      if (var0 == null) {
+   public static boolean isValidGirl(Entity entity) {
+      if (entity == null) {
          return false;
       } else {
-         return !(var0 instanceof BaseGirlEntity) ? false : !(var0 instanceof AbstractPlayerGirlEntity);
+         return !(entity instanceof BaseGirlEntity) ? false : !(entity instanceof AbstractPlayerGirlEntity);
       }
    }
 
@@ -1406,8 +1406,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    @SideOnly(Side.CLIENT)
    public boolean isLocalPlayerNearby() {
-      EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 50.0);
-      return var1 == null ? false : var1.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID());
+      EntityPlayer player = this.world.getClosestPlayerToEntity(this, 50.0);
+      return player == null ? false : player.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID());
    }
 
    public Vec3d getFrontOffsetVector() {
@@ -1421,8 +1421,8 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return player.getPositionVector().add(-Math.sin(yaw * (Math.PI / 180.0)) * distance, 0.0, Math.cos(yaw * (Math.PI / 180.0)) * distance);
    }
 
-   public Vec3d transformRenderOffset(Vec3d var1, float var2) {
-      return var1;
+   public Vec3d transformRenderOffset(Vec3d vec, float partialTicks) {
+      return vec;
    }
 
    public static void spawnParticlesAround(EnumParticleTypes particle, BaseGirlEntity girl) {
@@ -1484,58 +1484,58 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
     * (walks the bone parent chain, applies the girl's yaw when anchored).
     * @return empty stack if the bone is unknown
     */
-   public MatrixStack getBoneMatrixStack(String var1, boolean var2) {
+   public MatrixStack getBoneMatrixStack(String boneName, boolean usePivots) {
       if (this.cachedAnimationProcessor == null) {
          this.cachedAnimationProcessor = this.getAnimationProcessor();
       }
 
-      IBone var3 = this.cachedAnimationProcessor.getBone(var1);
-      if (var3 == null) {
-         if (!GirlModel.CAMERA_PLACEMENTS.contains(var1)) {
-            Main.LOGGER.log(Level.WARN, String.format("The bone '%s' does not exist on %s. Bone model matrix couldn't be calculated", var1, this.getDisplayNameText()));
-            this.boneTrackingList.remove(var1);
+      IBone bone = this.cachedAnimationProcessor.getBone(boneName);
+      if (bone == null) {
+         if (!GirlModel.CAMERA_PLACEMENTS.contains(boneName)) {
+            Main.LOGGER.log(Level.WARN, String.format("The bone '%s' does not exist on %s. Bone model matrix couldn't be calculated", boneName, this.getDisplayNameText()));
+            this.boneTrackingList.remove(boneName);
          }
 
          return new MatrixStack();
       } else {
-         GeoBone var4 = (GeoBone)var3;
-         ArrayList var5 = new ArrayList();
-         GeoBone var6 = var4;
+         GeoBone currentBone = (GeoBone)bone;
+         ArrayList chain = new ArrayList();
+         GeoBone bone6 = currentBone;
 
-         while (var6.parent != null) {
-            GeoBone var7 = var6.parent;
-            var5.add(var7);
-            var6 = var7;
+         while (bone6.parent != null) {
+            GeoBone parent = bone6.parent;
+            chain.add(parent);
+            bone6 = parent;
          }
 
-         Collections.reverse(var5);
-         MatrixStack var9 = new MatrixStack();
+         Collections.reverse(chain);
+         MatrixStack matrixStack = new MatrixStack();
          if (this.isAnchored()) {
-            var9.rotateY((float)(-Math.toRadians(this.getYawRotation().floatValue())));
-         } else if (var2) {
-            var9.rotateY(
+            matrixStack.rotateY((float)(-Math.toRadians(this.getYawRotation().floatValue())));
+         } else if (usePivots) {
+            matrixStack.rotateY(
                (float)(-Math.toRadians(RotationHelper.lerp(this.prevRenderYawOffset, this.renderYawOffset, Minecraft.getMinecraft().getRenderPartialTicks())))
             );
          }
 
-         for (GeoBone var8 : (java.util.Collection<GeoBone>) (var5) ) {
-            var9.translate(var8);
-            var9.moveToPivot(var8);
-            var9.rotate(var8);
-            var9.scale(var8);
-            var9.moveBackFromPivot(var8);
+         for (GeoBone chainBone : (java.util.Collection<GeoBone>) (chain) ) {
+            matrixStack.translate(chainBone);
+            matrixStack.moveToPivot(chainBone);
+            matrixStack.rotate(chainBone);
+            matrixStack.scale(chainBone);
+            matrixStack.moveBackFromPivot(chainBone);
          }
 
-         var9.translate(var4);
-         var9.moveToPivot(var4);
-         var9.rotate(var4);
-         var9.scale(var4);
-         return this.applyAdditionalMatrixTransformations(var9);
+         matrixStack.translate(currentBone);
+         matrixStack.moveToPivot(currentBone);
+         matrixStack.rotate(currentBone);
+         matrixStack.scale(currentBone);
+         return this.applyAdditionalMatrixTransformations(matrixStack);
       }
    }
 
-   protected MatrixStack applyAdditionalMatrixTransformations(MatrixStack var1) {
-      return var1;
+   protected MatrixStack applyAdditionalMatrixTransformations(MatrixStack stack) {
+      return stack;
    }
 
    @SideOnly(Side.CLIENT)
@@ -1567,15 +1567,15 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    @SideOnly(Side.CLIENT)
    /** CLIENT: height of the girlCam bone in world units (for camera placement). */
    public float getCameraBoneHeight() {
-      AnimationProcessor var1 = this.getAnimationProcessor();
-      IBone var2 = var1.getBone("girlCam");
-      if (var2 == null) {
+      AnimationProcessor processor = this.getAnimationProcessor();
+      IBone bone = processor.getBone("girlCam");
+      if (bone == null) {
          return 0.0F;
       }
 
-      float var3 = var2.getPivotY();
-      var3 = this.transformCameraPivotY(var3);
-      return var3 / 16.0F;
+      float pivotY = bone.getPivotY();
+      pivotY = this.transformCameraPivotY(pivotY);
+      return pivotY / 16.0F;
    }
 
    @SideOnly(Side.CLIENT)
@@ -1583,25 +1583,25 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return 1.0F;
    }
 
-   protected float transformCameraPivotY(float var1) {
-      return var1;
+   protected float transformCameraPivotY(float y) {
+      return y;
    }
 
    /** @return the AnimatedGeoModel used by this girl's renderer, or null */
    public AnimatedGeoModel<? extends BaseGirlEntity> getGeoModel() {
-      Minecraft var1 = Minecraft.getMinecraft();
-      Render var2 = var1.getRenderManager().getEntityRenderObject(this);
-      if (var2 == null) {
+      Minecraft mc = Minecraft.getMinecraft();
+      Render render = mc.getRenderManager().getEntityRenderObject(this);
+      if (render == null) {
          return null;
-      } else if (!(var2 instanceof GirlRenderer)) {
+      } else if (!(render instanceof GirlRenderer)) {
          return null;
       } else {
-         GeoEntityRenderer var3 = (GeoEntityRenderer)var2;
-         GeoModelProvider var4 = var3.getGeoModelProvider();
-         if (var4 == null) {
+         GeoEntityRenderer renderer = (GeoEntityRenderer)render;
+         GeoModelProvider provider = renderer.getGeoModelProvider();
+         if (provider == null) {
             return null;
          } else {
-            return !(var4 instanceof AnimatedGeoModel) ? null : (AnimatedGeoModel)var4;
+            return !(provider instanceof AnimatedGeoModel) ? null : (AnimatedGeoModel)provider;
          }
       }
    }
@@ -1610,24 +1610,24 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return this.getGeoModel().getAnimationProcessor();
    }
 
-   public boolean isPartEnabled(int var1) {
-      ArrayList var2 = this.getCustomPartIdList();
-      return var2.size() - 1 < var1 ? false : (Integer)var2.get(var1) == 101;
+   public boolean isPartEnabled(int index) {
+      ArrayList parts = this.getCustomPartIdList();
+      return parts.size() - 1 < index ? false : (Integer)parts.get(index) == 101;
    }
 
-   public Point2D getModelPartByIndex(int var1) {
+   public Point2D getModelPartByIndex(int index) {
       return Point2D.ZERO;
    }
 
-   public void setCustomPartList(List<Integer> var1) {
+   public void setCustomPartList(List<Integer> parts) {
       if (this instanceof AbstractNpcOnlyEntity || this instanceof AbstractKoboldPlayerEntity) {
-         StringBuilder var2 = new StringBuilder();
+         StringBuilder builder = new StringBuilder();
 
-         for (int var4 : var1) {
-            AbstractNpcOnlyEntity.appendPaddedNumber(var2, var4);
+         for (int partId : parts) {
+            AbstractNpcOnlyEntity.appendPaddedNumber(builder, partId);
          }
 
-         this.entityDataManager.set(AbstractNpcOnlyEntity.APPEARANCE_DNA, var2.toString());
+         this.entityDataManager.set(AbstractNpcOnlyEntity.APPEARANCE_DNA, builder.toString());
       }
    }
 
@@ -1659,70 +1659,70 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return ids;
    }
 
-   public static List<Integer> getAllPartIdsForGirl(UUID var0) {
-      BaseGirlEntity var1 = null instanceof ClientProxy ? getClientGirlEntity(var0) : getServerGirlEntity(var0);
-      ArrayList var2 = new ArrayList<>(var1.getBasePartIdList());
-      if (var1 instanceof AbstractNpcOnlyEntity || var1 instanceof AbstractKoboldPlayerEntity) {
-         var2.addAll(decodePartIdList((String)var1.getDataManager().get(AbstractNpcOnlyEntity.APPEARANCE_DNA)));
+   public static List<Integer> getAllPartIdsForGirl(UUID uuid) {
+      BaseGirlEntity girl = null instanceof ClientProxy ? getClientGirlEntity(uuid) : getServerGirlEntity(uuid);
+      ArrayList parts = new ArrayList<>(girl.getBasePartIdList());
+      if (girl instanceof AbstractNpcOnlyEntity || girl instanceof AbstractKoboldPlayerEntity) {
+         parts.addAll(decodePartIdList((String)girl.getDataManager().get(AbstractNpcOnlyEntity.APPEARANCE_DNA)));
       }
 
-      return var2;
+      return parts;
    }
 
    public ArrayList<Integer> getBasePartIdList() {
       return new ArrayList<>();
    }
 
-   public List<Entry<BoneType, Entry<List<String>, Integer>>> buildCustomPartsData(UUID var1) {
+   public List<Entry<BoneType, Entry<List<String>, Integer>>> buildCustomPartsData(UUID uuid) {
       if (this.customPartsData != null) {
          return this.customPartsData;
       }
 
-      ArrayList var2 = this.getCustomPartIdList();
-      if (var2.isEmpty()) {
+      ArrayList parts = this.getCustomPartIdList();
+      if (parts.isEmpty()) {
          this.customPartsData = new ArrayList<>();
          return this.customPartsData;
       }
 
-      ArrayList var3 = new ArrayList();
-      List var4 = getAllPartIdsForGirl(var1);
+      ArrayList data = new ArrayList();
+      List allParts = getAllPartIdsForGirl(uuid);
 
-      for (int var5 = 0; var5 < var2.size(); var5++) {
-         var3.add(new SimpleEntry<>(BoneType.GIRL_SPECIFIC, new SimpleEntry<>(this.getPartNames((Integer)var2.get(var5)), var4.get(var5))));
+      for (int i = 0; i < parts.size(); i++) {
+         data.add(new SimpleEntry<>(BoneType.GIRL_SPECIFIC, new SimpleEntry<>(this.getPartNames((Integer)parts.get(i)), allParts.get(i))));
       }
 
-      this.customPartsData = var3;
-      return var3;
+      this.customPartsData = data;
+      return data;
    }
 
-   public void setCustomPartsData(List<Entry<BoneType, Entry<List<String>, Integer>>> var1) {
-      this.customPartsData = var1;
+   public void setCustomPartsData(List<Entry<BoneType, Entry<List<String>, Integer>>> data) {
+      this.customPartsData = data;
    }
 
-   public void setCustomPartValue(int var1, int var2) {
+   public void setCustomPartValue(int index, int value) {
       if (this.customPartsData != null) {
-         if (this.customPartsData.size() - 1 >= var1) {
-            Entry var3 = this.customPartsData.get(var1);
-            ((Entry)var3.getValue()).setValue(var2);
-            this.customPartsData.set(var1, var3);
+         if (this.customPartsData.size() - 1 >= index) {
+            Entry entry = this.customPartsData.get(index);
+            ((Entry)entry.getValue()).setValue(value);
+            this.customPartsData.set(index, entry);
          }
       }
    }
 
-   public void setCustomPartListCode(String var1) {
+   public void setCustomPartListCode(String code) {
       if (this instanceof AbstractNpcOnlyEntity || this instanceof AbstractKoboldPlayerEntity) {
-         this.entityDataManager.set(AbstractNpcOnlyEntity.APPEARANCE_DNA, var1);
+         this.entityDataManager.set(AbstractNpcOnlyEntity.APPEARANCE_DNA, code);
       }
    }
 
-   private List<String> getPartNames(int var1) {
-      ArrayList var2 = new ArrayList();
+   private List<String> getPartNames(int count) {
+      ArrayList names = new ArrayList();
 
-      for (int var3 = 0; var3 < var1; var3++) {
-         var2.add("");
+      for (int i = 0; i < count; i++) {
+         names.add("");
       }
 
-      return var2;
+      return names;
    }
 
    public ArrayList<Integer> getCustomPartIdList() {
@@ -1733,45 +1733,45 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       return new ArrayList<>();
    }
 
-   public void setCustomModelCode(String var1) {
-      this.entityDataManager.set(CUSTOM_MODEL_KEY, var1);
+   public void setCustomModelCode(String modelCode) {
+      this.entityDataManager.set(CUSTOM_MODEL_KEY, modelCode);
    }
 
    public String getCustomModelCode() {
       return (String)this.entityDataManager.get(CUSTOM_MODEL_KEY);
    }
 
-   public static String encodeCustomParts(HashSet<String> var0) {
-      if (var0 == null) {
+   public static String encodeCustomParts(HashSet<String> parts) {
+      if (parts == null) {
          return "";
       }
 
-      if (var0.isEmpty()) {
+      if (parts.isEmpty()) {
          return "";
       }
 
-      StringBuilder var1 = new StringBuilder();
+      StringBuilder builder = new StringBuilder();
 
-      for (String var3 : var0) {
-         var1.append(var3);
-         var1.append("#");
+      for (String part : parts) {
+         builder.append(part);
+         builder.append("#");
       }
 
-      return var1.toString();
+      return builder.toString();
    }
 
    public HashSet<String> getCustomPartsSet() {
-      String var1 = this.getCustomModelCode();
-      String[] var2 = var1.split("#");
-      HashSet var3 = new HashSet();
+      String code = this.getCustomModelCode();
+      String[] parts = code.split("#");
+      HashSet set = new HashSet();
 
-      for (String var7 : var2) {
-         if (!"".equals(var7) && !"cross".equals(var7)) {
-            var3.add(var7);
+      for (String part : parts) {
+         if (!"".equals(part) && !"cross".equals(part)) {
+            set.add(part);
          }
       }
 
-      return var3;
+      return set;
    }
 
    @SideOnly(Side.CLIENT)

@@ -27,48 +27,48 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  * position doubles as an RGB vector for the eyes).
  */
 public class PlayerKoboldRenderer extends AbstractPlayerKoblinGoboldRenderer {
-   public PlayerKoboldRenderer(RenderManager var1, AnimatedGeoModel var2) {
-      super(var1, var2);
+   public PlayerKoboldRenderer(RenderManager renderManager, AnimatedGeoModel geoModel) {
+      super(renderManager, geoModel);
    }
 
    @Override
-   protected Vec3i resolveBoneColor(String var1) {
-      EntityDataManager var2 = this.renderEntity.getDataManager();
-      EyeAndKoboldColor var3 = EyeAndKoboldColor.valueOf((String)var2.get(KoboldEntity.CURRENT_ACTION));
-      BlockPos var4 = (BlockPos)var2.get(KoboldEntity.ACTION_TARGET_POS);
-      if (KoboldRenderer.hideBones.contains(var1)) {
-         return var3.getMainColor();
-      } else if (KoboldRenderer.showBones.contains(var1)) {
-         return var3.getSecondaryColor();
+   protected Vec3i resolveBoneColor(String boneName) {
+      EntityDataManager dataManager = this.renderEntity.getDataManager();
+      EyeAndKoboldColor color = EyeAndKoboldColor.valueOf((String)dataManager.get(KoboldEntity.CURRENT_ACTION));
+      BlockPos irisPos = (BlockPos)dataManager.get(KoboldEntity.ACTION_TARGET_POS);
+      if (KoboldRenderer.hideBones.contains(boneName)) {
+         return color.getMainColor();
+      } else if (KoboldRenderer.showBones.contains(boneName)) {
+         return color.getSecondaryColor();
       } else {
-         return (Vec3i)(!"irisR".equals(var1) && !"irisL".equals(var1) ? tintColor : var4);
+         return (Vec3i)(!"irisR".equals(boneName) && !"irisL".equals(boneName) ? tintColor : irisPos);
       }
    }
 
    @Override
-   protected Vector4f calculateBoneArmorColor(String var1, float var2, float var3, float var4) {
-      if ("mouth".equals(var1)) {
-         String[] var5 = AbstractNpcOnlyEntity.getModelCodeParts(this.renderEntity);
-         int var6 = Integer.parseInt(var5[7]);
-         if (var6 == 1) {
-            return new Vector4f(var2, var3, var4, -0.078125F);
+   protected Vector4f calculateBoneArmorColor(String boneName, float red, float green, float blue) {
+      if ("mouth".equals(boneName)) {
+         String[] modelCodeParts = AbstractNpcOnlyEntity.getModelCodeParts(this.renderEntity);
+         int eyeIndex = Integer.parseInt(modelCodeParts[7]);
+         if (eyeIndex == 1) {
+            return new Vector4f(red, green, blue, -0.078125F);
          }
       }
 
-      return super.calculateBoneArmorColor(var1, var2, var3, var4);
+      return super.calculateBoneArmorColor(boneName, red, green, blue);
    }
 
    @Override
    protected void renderLeftEye() {
-      float var1 = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
-      GlStateManager.scale(1.0F - var1, 1.0F - var1, 1.0F - var1);
+      float scale = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
+      GlStateManager.scale(1.0F - scale, 1.0F - scale, 1.0F - scale);
    }
 
    @Override
    protected void renderRightEye() {
-      float var1 = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
-      double var2 = 1.0 / (1.0 - var1);
-      GlStateManager.scale(var2, var2, var2);
+      float scale = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
+      double inverseScale = 1.0 / (1.0 - scale);
+      GlStateManager.scale(inverseScale, inverseScale, inverseScale);
    }
 
    @Override
@@ -78,26 +78,26 @@ public class PlayerKoboldRenderer extends AbstractPlayerKoblinGoboldRenderer {
    }
 
    @Override
-   protected void applyItemPostRotation(boolean var1, ItemStack var2) {
-      super.applyItemPostRotation(var1, var2);
-      if (var2.getItem().getItemUseAction(var2) == EnumAction.BOW) {
-         if (!var1) {
+   protected void applyItemPostRotation(boolean isMainHand, ItemStack stack) {
+      super.applyItemPostRotation(isMainHand, stack);
+      if (stack.getItem().getItemUseAction(stack) == EnumAction.BOW) {
+         if (!isMainHand) {
             GlStateManager.rotate(170.0F, 1.0F, 0.0F, 0.0F);
          }
 
-         if (var1) {
+         if (isMainHand) {
             GlStateManager.translate(0.1F, 0.0F, 0.0F);
          }
       } else {
-         GlStateManager.rotate(var1 ? 80.0F : 180.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.rotate(isMainHand ? 80.0F : 180.0F, 1.0F, 0.0F, 0.0F);
       }
    }
 
    @Override
-   protected void applyShieldBlockingTransform(boolean var1, boolean var2) {
-      super.applyShieldBlockingTransform(var1, var2);
-      if (var1) {
-         if (var2) {
+   protected void applyShieldBlockingTransform(boolean isBlocking, boolean isMainHand) {
+      super.applyShieldBlockingTransform(isBlocking, isMainHand);
+      if (isBlocking) {
+         if (isMainHand) {
             GlStateManager.translate(0.06, 0.0, -0.13);
             GlStateManager.rotate(60.0F, 0.0F, 1.0F, 0.0F);
             GlStateManager.rotate(38.0F, 1.0F, 0.0F, 0.0F);
@@ -106,7 +106,7 @@ public class PlayerKoboldRenderer extends AbstractPlayerKoblinGoboldRenderer {
             GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
             GlStateManager.translate(0.0, -0.3F, -0.13);
          }
-      } else if (var2) {
+      } else if (isMainHand) {
          GlStateManager.rotate(150.0F, 0.0F, 1.0F, 0.0F);
          GlStateManager.translate(0.0, -0.35, 0.0);
       } else {

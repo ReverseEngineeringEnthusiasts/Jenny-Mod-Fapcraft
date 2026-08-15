@@ -78,57 +78,57 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
  */
 public enum GalathFlightData {
    CHANGE_POSITION(
-      var0 -> {
-         World var1 = var0.world;
-         BlockPos var2 = var0.getPosition();
-         BlockPos var3 = var0.getTargetEntity().getPosition();
-         ArrayList var4 = new ArrayList();
-         HashMap var5 = new HashMap();
-         int var6 = 0;
-         boolean var7 = !var1.isAirBlock(var2.down());
+      galath -> {
+         World world = galath.world;
+         BlockPos pos = galath.getPosition();
+         BlockPos targetPos = galath.getTargetEntity().getPosition();
+         ArrayList candidates = new ArrayList();
+         HashMap weighted = new HashMap();
+         int bestWeight = 0;
+         boolean onGround = !world.isAirBlock(pos.down());
 
-         for (int var8 = -10; var8 < 10; var8++) {
-            for (int var9 = -10; var9 < 10; var9++) {
-               for (int var10 = -10; var10 < 10; var10++) {
-                  if (var8 != 0 || var9 != 0 || var10 != 0) {
-                     BlockPos var11 = var3.add(new BlockPos(var8, var9, var10));
-                     if ((!var7 || var2.getY() < var11.getY())
-                        && var1.isAirBlock(var11)
-                        && var1.isAirBlock(var11.up())
-                        && var1.isAirBlock(var11.up().up())) {
-                        RayTraceResult var12 = var1.rayTraceBlocks(new Vec3d(var2), new Vec3d(var11), true, true, true);
-                        if (var12 == null) {
-                           int var13 = var11.getY();
+         for (int dx = -10; dx < 10; dx++) {
+            for (int dy = -10; dy < 10; dy++) {
+               for (int dz = -10; dz < 10; dz++) {
+                  if (dx != 0 || dy != 0 || dz != 0) {
+                     BlockPos candidatePos = targetPos.add(new BlockPos(dx, dy, dz));
+                     if ((!onGround || pos.getY() < candidatePos.getY())
+                        && world.isAirBlock(candidatePos)
+                        && world.isAirBlock(candidatePos.up())
+                        && world.isAirBlock(candidatePos.up().up())) {
+                        RayTraceResult rayTrace = world.rayTraceBlocks(new Vec3d(pos), new Vec3d(candidatePos), true, true, true);
+                        if (rayTrace == null) {
+                           int groundY = candidatePos.getY();
 
                            do {
-                              var13--;
+                              groundY--;
                            } while (
-                              var13 >= 0
-                                 && var1.getBlockState(new BlockPos(var11.getX(), var13, var11.getZ())).getBlock() instanceof BlockAir
+                              groundY >= 0
+                                 && world.getBlockState(new BlockPos(candidatePos.getX(), groundY, candidatePos.getZ())).getBlock() instanceof BlockAir
                            );
 
-                           if (!(var1.getBlockState(new BlockPos(var11.getX(), var13, var11.getZ())).getBlock() instanceof BlockLiquid)) {
-                              var4.add(var11);
-                              if (var1.isAirBlock(var11.down())
-                                 && var1.isAirBlock(var11.down().down())
-                                 && !(var3.getDistance(var11.getX(), var11.getY(), var11.getZ()) < 5.0)
-                                 && !(var2.getDistance(var11.getX(), var11.getY(), var11.getZ()) < 3.0)) {
-                                 int var14 = 0;
+                           if (!(world.getBlockState(new BlockPos(candidatePos.getX(), groundY, candidatePos.getZ())).getBlock() instanceof BlockLiquid)) {
+                              candidates.add(candidatePos);
+                              if (world.isAirBlock(candidatePos.down())
+                                 && world.isAirBlock(candidatePos.down().down())
+                                 && !(targetPos.getDistance(candidatePos.getX(), candidatePos.getY(), candidatePos.getZ()) < 5.0)
+                                 && !(pos.getDistance(candidatePos.getX(), candidatePos.getY(), candidatePos.getZ()) < 3.0)) {
+                                 int count = 0;
 
-                                 for (int var15 = -1; var15 < 2; var15++) {
-                                    for (int var16 = -1; var16 < 2; var16++) {
-                                       for (int var17 = -1; var17 < 4; var17++) {
-                                          if (var1.isAirBlock(var11.add(var15, var17, var16))) {
-                                             var14++;
+                                 for (int ox = -1; ox < 2; ox++) {
+                                    for (int oz = -1; oz < 2; oz++) {
+                                       for (int oy = -1; oy < 4; oy++) {
+                                          if (world.isAirBlock(candidatePos.add(ox, oy, oz))) {
+                                             count++;
                                           }
                                        }
                                     }
                                  }
 
-                                 if (var14 >= 25) {
-                                    var5.put(var11, var14);
-                                    if (var14 > var6) {
-                                       var6 = var14;
+                                 if (count >= 25) {
+                                    weighted.put(candidatePos, count);
+                                    if (count > bestWeight) {
+                                       bestWeight = count;
                                     }
                                  }
                               }
@@ -140,324 +140,324 @@ public enum GalathFlightData {
             }
          }
 
-         if (!var5.isEmpty()) {
-            ArrayList<Entry> var18 = new ArrayList<Entry>(var5.entrySet());
-            var18.sort((var0x, var1x) -> ((Integer)((Entry) var1x).getValue()).compareTo((Integer)((Entry) var0x).getValue()));
-            var0.flightTargetPosition = new Vec3d((Vec3i)((Entry)var18.get(ThreadNames.weightedRandomIndex(var18.size() - 1))).getKey());
-         } else if (var4.isEmpty()) {
-            var0.flightTargetPosition = new Vec3d(
-               var3.add(ThreadNames.randomSignedFloat(10.0F, true), ThreadNames.randomSignedFloat(10.0F, false), ThreadNames.randomSignedFloat(10.0F, true))
+         if (!weighted.isEmpty()) {
+            ArrayList<Entry> entries = new ArrayList<Entry>(weighted.entrySet());
+            entries.sort((entryA, entryB) -> ((Integer)((Entry) galath).getValue()).compareTo((Integer)((Entry) galath).getValue()));
+            galath.flightTargetPosition = new Vec3d((Vec3i)((Entry)entries.get(ThreadNames.weightedRandomIndex(entries.size() - 1))).getKey());
+         } else if (candidates.isEmpty()) {
+            galath.flightTargetPosition = new Vec3d(
+               targetPos.add(ThreadNames.randomSignedFloat(10.0F, true), ThreadNames.randomSignedFloat(10.0F, false), ThreadNames.randomSignedFloat(10.0F, true))
             );
          } else {
-            var0.flightTargetPosition = new Vec3d((Vec3i)var4.get(Reference.RANDOM.nextInt(var4.size())));
+            galath.flightTargetPosition = new Vec3d((Vec3i)candidates.get(Reference.RANDOM.nextInt(candidates.size())));
          }
 
-         var0.bL = null;
-         var0.setSwordAttackProgress(0);
-         var0.setCurrentAction(Action.FLY);
-         PacketHandler.networkWrapper.sendToAllTracking(new ResetControllerPacket(var0.getGirlId()), var0);
+         galath.bL = null;
+         galath.setSwordAttackProgress(0);
+         galath.setCurrentAction(Action.FLY);
+         PacketHandler.networkWrapper.sendToAllTracking(new ResetControllerPacket(galath.getGirlId()), galath);
       },
-      var0 -> {
-         Vec3d var1 = var0.getPositionVector();
-         Vec3d var2 = var0.flightTargetPosition;
-         if (var2 != null) {
-            var0.bL = var1;
-            int var3 = var0.ar();
-            var0.setSwordAttackProgress(var3 + 1);
-            if (var3 == 0) {
-               Vec3d var4 = var2.subtract(var1);
-               Vec3d var5 = var4.normalize();
-               var0.motionX = var5.x * 0.6F;
-               var0.motionZ = var5.z * 0.6F;
-               var0.motionY = (float)ThreadNames.clampDouble(var4.y * 0.6F, -0.6F, 0.6F);
+      galath -> {
+         Vec3d pos = galath.getPositionVector();
+         Vec3d targetPos = galath.flightTargetPosition;
+         if (targetPos != null) {
+            galath.bL = pos;
+            int attackProgress = galath.ar();
+            galath.setSwordAttackProgress(attackProgress + 1);
+            if (attackProgress == 0) {
+               Vec3d delta = targetPos.subtract(pos);
+               Vec3d dir = delta.normalize();
+               galath.motionX = dir.x * 0.6F;
+               galath.motionZ = dir.z * 0.6F;
+               galath.motionY = (float)ThreadNames.clampDouble(delta.y * 0.6F, -0.6F, 0.6F);
             }
          }
       },
-      var0 -> var0.ar() > 23,
-      var0 -> {
-         var0.setVelocity(Vec3d.ZERO);
-         var0.setSwordAttackProgress(0);
-         var0.bL = null;
+      galath -> galath.ar() > 23,
+      galath -> {
+         galath.setVelocity(Vec3d.ZERO);
+         galath.setSwordAttackProgress(0);
+         galath.bL = null;
       },
       false,
-      var0 -> true,
+      galath -> true,
       false
    ),
    SUMMON_SKELETON(
-      var0 -> {
-         var0.setCurrentAction(Action.SUMMON_SKELETON);
-         var0.ad = 0;
-         EntityDataManager var1 = var0.getDataManager();
-         var1.set(GalathEntity.bN, true);
-         var1.set(GalathEntity.b7, true);
-         var1.set(GalathEntity.ay, var0.getRNG().nextBoolean());
-         BaseGirlEntity.playRandomSound(var0, SoundHandler.GIRLS_GALATH_STRONGCHARGE, true);
+      galath -> {
+         galath.setCurrentAction(Action.SUMMON_SKELETON);
+         galath.ad = 0;
+         EntityDataManager dataManager = galath.getDataManager();
+         dataManager.set(GalathEntity.bN, true);
+         dataManager.set(GalathEntity.b7, true);
+         dataManager.set(GalathEntity.ay, galath.getRNG().nextBoolean());
+         BaseGirlEntity.playRandomSound(galath, SoundHandler.GIRLS_GALATH_STRONGCHARGE, true);
       },
-      var0 -> {
-         var0.setVelocity(Vec3d.ZERO);
-         if (var0.ad == 30.0F) {
-            GalathEntity.getAimYaw(var0, 0.0F);
-            Vec3d var1 = var0.getPositionVector();
-            Vec3d var2 = var0.getTargetEntity().getPositionVector();
-            Random var3 = var0.getRNG();
-            if ((Boolean)var0.getDataManager().get(GalathEntity.ay)) {
-               if ((Boolean)var0.getDataManager().get(GalathEntity.bN)) {
-                  Vec3d var31 = var1;
-                  Vec3d var12 = var31.add(VectorMath.rotateByYaw(VectorMath.MirrorXZ(GalathEntity.bz), 180.0F + var0.renderYawOffset));
-                  Vec3d var19 = var2.subtract(var12).normalize();
-                  var19 = new Vec3d(
-                     var19.x + var3.nextDouble() * 0.3F,
-                     var19.y + var3.nextDouble() * 0.3F,
-                     var19.z + var3.nextDouble() * 0.3F
+      galath -> {
+         galath.setVelocity(Vec3d.ZERO);
+         if (galath.ad == 30.0F) {
+            GalathEntity.getAimYaw(galath, 0.0F);
+            Vec3d pos = galath.getPositionVector();
+            Vec3d targetPos = galath.getTargetEntity().getPositionVector();
+            Random random = galath.getRNG();
+            if ((Boolean)galath.getDataManager().get(GalathEntity.ay)) {
+               if ((Boolean)galath.getDataManager().get(GalathEntity.bN)) {
+                  Vec3d headPos = pos;
+                  Vec3d headAnchor = headPos.add(VectorMath.rotateByYaw(VectorMath.MirrorXZ(GalathEntity.bz), 180.0F + galath.renderYawOffset));
+                  Vec3d aim = targetPos.subtract(headAnchor).normalize();
+                  aim = new Vec3d(
+                     aim.x + random.nextDouble() * 0.3F,
+                     aim.y + random.nextDouble() * 0.3F,
+                     aim.z + random.nextDouble() * 0.3F
                   );
-                  var19 = var19.normalize();
-                  Vec3d var26 = new Vec3d(var19.x * 0.4F, var19.y * 0.4F, var19.z * 0.4F);
-                  DragonEntity var29 = new DragonEntity(var0.world, var0, var26);
-                  var29.setPositionAndUpdate(var12.x, var12.y, var12.z);
-                  var0.world.spawnEntity(var29);
+                  aim = aim.normalize();
+                  Vec3d headVel = new Vec3d(aim.x * 0.4F, aim.y * 0.4F, aim.z * 0.4F);
+                  DragonEntity dragon = new DragonEntity(galath.world, galath, headVel);
+                  dragon.setPositionAndUpdate(headAnchor.x, headAnchor.y, headAnchor.z);
+                  galath.world.spawnEntity(dragon);
                }
 
-               if ((Boolean)var0.getDataManager().get(GalathEntity.b7)) {
-                  Vec3d var32 = var1;
-                  Vec3d var13 = var32.add(VectorMath.rotateByYaw(VectorMath.MirrorXZ(GalathEntity.bC), 180.0F + var0.renderYawOffset));
-                  Vec3d var22 = var2.subtract(var13).normalize();
-                  var22 = new Vec3d(
-                     var22.x + var3.nextDouble() * 0.3F,
-                     var22.y + var3.nextDouble() * 0.3F,
-                     var22.z + var3.nextDouble() * 0.3F
+               if ((Boolean)galath.getDataManager().get(GalathEntity.b7)) {
+                  Vec3d backPos = pos;
+                  Vec3d backAnchor = backPos.add(VectorMath.rotateByYaw(VectorMath.MirrorXZ(GalathEntity.bC), 180.0F + galath.renderYawOffset));
+                  Vec3d aim2 = targetPos.subtract(backAnchor).normalize();
+                  aim2 = new Vec3d(
+                     aim2.x + random.nextDouble() * 0.3F,
+                     aim2.y + random.nextDouble() * 0.3F,
+                     aim2.z + random.nextDouble() * 0.3F
                   );
-                  var22 = var22.normalize();
-                  Vec3d var27 = new Vec3d(var22.x * 0.4F, var22.y * 0.4F, var22.z * 0.4F);
-                  DragonEntity var30 = new DragonEntity(var0.world, var0, var27);
-                  var30.setPositionAndUpdate(var13.x, var13.y, var13.z);
-                  var0.world.spawnEntity(var30);
+                  aim2 = aim2.normalize();
+                  Vec3d backVel = new Vec3d(aim2.x * 0.4F, aim2.y * 0.4F, aim2.z * 0.4F);
+                  DragonEntity dragon2 = new DragonEntity(galath.world, galath, backVel);
+                  dragon2.setPositionAndUpdate(backAnchor.x, backAnchor.y, backAnchor.z);
+                  galath.world.spawnEntity(dragon2);
                }
             } else {
-               if ((Boolean)var0.getDataManager().get(GalathEntity.bN)) {
-                  Vec3d var9 = var1;
-                  Vec3d var5 = var9.add(VectorMath.rotateByYaw(GalathEntity.bz, 180.0F + var0.renderYawOffset));
-                  Vec3d var6 = var2.subtract(var5).normalize();
-                  var6 = new Vec3d(
-                     var6.x + var3.nextDouble() * 0.3F,
-                     var6.y + var3.nextDouble() * 0.3F,
-                     var6.z + var3.nextDouble() * 0.3F
+               if ((Boolean)galath.getDataManager().get(GalathEntity.bN)) {
+                  Vec3d pos9 = pos;
+                  Vec3d anchor5 = pos9.add(VectorMath.rotateByYaw(GalathEntity.bz, 180.0F + galath.renderYawOffset));
+                  Vec3d aim3 = targetPos.subtract(anchor5).normalize();
+                  aim3 = new Vec3d(
+                     aim3.x + random.nextDouble() * 0.3F,
+                     aim3.y + random.nextDouble() * 0.3F,
+                     aim3.z + random.nextDouble() * 0.3F
                   );
-                  var6 = var6.normalize();
-                  Vec3d var7 = new Vec3d(var6.x * 0.4F, var6.y * 0.4F, var6.z * 0.4F);
-                  DragonEntity var8 = new DragonEntity(var0.world, var0, var7);
-                  var8.setPositionAndUpdate(var5.x, var5.y, var5.z);
-                  var0.world.spawnEntity(var8);
+                  aim3 = aim3.normalize();
+                  Vec3d vel7 = new Vec3d(aim3.x * 0.4F, aim3.y * 0.4F, aim3.z * 0.4F);
+                  DragonEntity dragon3 = new DragonEntity(galath.world, galath, vel7);
+                  dragon3.setPositionAndUpdate(anchor5.x, anchor5.y, anchor5.z);
+                  galath.world.spawnEntity(dragon3);
                }
 
-               if ((Boolean)var0.getDataManager().get(GalathEntity.b7)) {
-                  Vec3d var10 = var1;
-                  Vec3d var11 = var10.add(VectorMath.rotateByYaw(GalathEntity.bC, 180.0F + var0.renderYawOffset));
-                  Vec3d var16 = var2.subtract(var11).normalize();
-                  var16 = new Vec3d(
-                     var16.x + var3.nextDouble() * 0.3F,
-                     var16.y + var3.nextDouble() * 0.3F,
-                     var16.z + var3.nextDouble() * 0.3F
+               if ((Boolean)galath.getDataManager().get(GalathEntity.b7)) {
+                  Vec3d pos10 = pos;
+                  Vec3d anchor11 = pos10.add(VectorMath.rotateByYaw(GalathEntity.bC, 180.0F + galath.renderYawOffset));
+                  Vec3d aim4 = targetPos.subtract(anchor11).normalize();
+                  aim4 = new Vec3d(
+                     aim4.x + random.nextDouble() * 0.3F,
+                     aim4.y + random.nextDouble() * 0.3F,
+                     aim4.z + random.nextDouble() * 0.3F
                   );
-                  var16 = var16.normalize();
-                  Vec3d var25 = new Vec3d(var16.x * 0.4F, var16.y * 0.4F, var16.z * 0.4F);
-                  DragonEntity var28 = new DragonEntity(var0.world, var0, var25);
-                  var28.setPositionAndUpdate(var11.x, var11.y, var11.z);
-                  var0.world.spawnEntity(var28);
+                  aim4 = aim4.normalize();
+                  Vec3d vel25 = new Vec3d(aim4.x * 0.4F, aim4.y * 0.4F, aim4.z * 0.4F);
+                  DragonEntity dragon4 = new DragonEntity(galath.world, galath, vel25);
+                  dragon4.setPositionAndUpdate(anchor11.x, anchor11.y, anchor11.z);
+                  galath.world.spawnEntity(dragon4);
                }
             }
          }
       },
-      var0 -> var0.ad >= 45,
-      var0 -> var0.ad = 0,
+      galath -> galath.ad >= 45,
+      galath -> galath.ad = 0,
       true,
-      var0 -> var0.bI.size() < 2,
+      galath -> galath.bI.size() < 2,
       true
    ),
-   ATTACK_SWORD(var0 -> {
-      var0.setSwordAttackProgress(0);
-      var0.setCurrentAction(Action.ATTACK_SWORD);
-      var0.setVelocity(Vec3d.ZERO);
-      Vec3d var1 = var0.getPositionVector();
-      var0.setFlightTargetPos(var1);
-      Vec3d var2 = var0.getTargetEntity().getPositionVector();
-      Vector2d var3 = new Vector2d(var2.x - var1.x, var2.z - var1.z);
-      double var4 = TrigMath.sinDegrees(Math.atan2(var3.x, var3.y)) - 90.0;
-      var0.setAnchored(true);
-      var0.setTargetPosition(var1);
-      var0.setYawRotation((float)var4);
-      BaseGirlEntity.playRandomSound(var0, SoundHandler.GIRLS_GALATH_STRONGCHARGE, true);
-   }, var0 -> {
-      EntityLivingBase var1 = var0.getTargetEntity();
-      int var2 = var0.az() + 1;
-      var0.setSwordAttackProgress(var2);
-      if (ThreadNames.isBetween(var2, 24.0, 32.0)) {
-         Vec3d var3 = var1.getPositionVector().add(0.0, var1.getEyeHeight(), 0.0);
-         Vector2d var4 = new Vector2d(var3.x - var0.posX, var3.z - var0.posZ);
-         double var5 = TrigMath.sinDegrees(Math.atan2(var4.x, var4.y)) - 90.0;
-         var0.setYawRotation((float)var5);
-         Vec3d var7 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 3.0), (float)(var5 + 180.0));
-         Vec3d var8 = var0.B_clash642();
-         Vec3d var9 = var3.add(var7);
-         float var10 = (var2 - 24) / 8.0F;
-         Vec3d var11 = RotationHelper.lerpVec3dDouble(var8, var9, var10);
-         var0.setTargetPosition(var11);
-      } else if (ThreadNames.isBetween(var2, 32.0, 54.0)) {
-         Vec3d var12 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 1.5), var0.getYawRotation() + 180.0F);
-         Vec3d var14 = var1.getPositionVector().add(var12);
-         var0.setTargetPosition(var14);
-         GalathDamageSource var15 = new GalathDamageSource(var0);
-         var1.hurtTime = 0;
-         var1.hurtResistantTime = 0;
-         if (var2 == 36) {
-            var1.attackEntityFrom(var15, 5.0F);
+   ATTACK_SWORD(galath -> {
+      galath.setSwordAttackProgress(0);
+      galath.setCurrentAction(Action.ATTACK_SWORD);
+      galath.setVelocity(Vec3d.ZERO);
+      Vec3d pos = galath.getPositionVector();
+      galath.setFlightTargetPos(pos);
+      Vec3d targetPos = galath.getTargetEntity().getPositionVector();
+      Vector2d delta = new Vector2d(targetPos.x - pos.x, targetPos.z - pos.z);
+      double yaw = TrigMath.sinDegrees(Math.atan2(delta.x, delta.y)) - 90.0;
+      galath.setAnchored(true);
+      galath.setTargetPosition(pos);
+      galath.setYawRotation((float)yaw);
+      BaseGirlEntity.playRandomSound(galath, SoundHandler.GIRLS_GALATH_STRONGCHARGE, true);
+   }, galath -> {
+      EntityLivingBase target = galath.getTargetEntity();
+      int attackProgress = galath.az() + 1;
+      galath.setSwordAttackProgress(attackProgress);
+      if (ThreadNames.isBetween(attackProgress, 24.0, 32.0)) {
+         Vec3d eyePos = target.getPositionVector().add(0.0, target.getEyeHeight(), 0.0);
+         Vector2d delta2 = new Vector2d(eyePos.x - galath.posX, eyePos.z - galath.posZ);
+         double yaw = TrigMath.sinDegrees(Math.atan2(delta2.x, delta2.y)) - 90.0;
+         galath.setYawRotation((float)yaw);
+         Vec3d forward = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 3.0), (float)(yaw + 180.0));
+         Vec3d from = galath.B_clash642();
+         Vec3d to = eyePos.add(forward);
+         float progress = (attackProgress - 24) / 8.0F;
+         Vec3d lerped = RotationHelper.lerpVec3dDouble(from, to, progress);
+         galath.setTargetPosition(lerped);
+      } else if (ThreadNames.isBetween(attackProgress, 32.0, 54.0)) {
+         Vec3d behind = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 1.5), galath.getYawRotation() + 180.0F);
+         Vec3d targetPos2 = target.getPositionVector().add(behind);
+         galath.setTargetPosition(targetPos2);
+         GalathDamageSource damageSource = new GalathDamageSource(galath);
+         target.hurtTime = 0;
+         target.hurtResistantTime = 0;
+         if (attackProgress == 36) {
+            target.attackEntityFrom(damageSource, 5.0F);
          }
 
-         if (var2 == 40) {
-            var1.attackEntityFrom(var15, 5.0F);
+         if (attackProgress == 40) {
+            target.attackEntityFrom(damageSource, 5.0F);
          }
-      } else if (var2 == 54) {
-         var0.setAnchored(false);
-         var0.setCurrentAction(Action.FLY);
-         Vec3d var13 = var0.B_clash642().subtract(var0.getPositionVector()).normalize();
-         var0.motionX = var13.x * 0.6F;
-         var0.motionY = var13.y * 0.6F;
-         var0.motionZ = var13.z * 0.6F;
-         var0.setSwordAttackProgress(1);
+      } else if (attackProgress == 54) {
+         galath.setAnchored(false);
+         galath.setCurrentAction(Action.FLY);
+         Vec3d dir = galath.B_clash642().subtract(galath.getPositionVector()).normalize();
+         galath.motionX = dir.x * 0.6F;
+         galath.motionY = dir.y * 0.6F;
+         galath.motionZ = dir.z * 0.6F;
+         galath.setSwordAttackProgress(1);
       } else {
-         var0.setSwordAttackProgress(var0.ar() + 1);
+         galath.setSwordAttackProgress(galath.ar() + 1);
       }
-   }, var0 -> var0.ar() > 23, var0 -> {
-      var0.setSwordAttackProgress(0);
-      var0.setVelocity(Vec3d.ZERO);
-      var0.setSwordAttackProgress(-1);
-      var0.setAnchored(false);
-   }, true, var0 -> true, false),
+   }, galath -> galath.ar() > 23, galath -> {
+      galath.setSwordAttackProgress(0);
+      galath.setVelocity(Vec3d.ZERO);
+      galath.setSwordAttackProgress(-1);
+      galath.setAnchored(false);
+   }, true, galath -> true, false),
    RAPE(
-      var0 -> {
-         var0.setCurrentAction(Action.RAPE_PREPARE);
-         var0.aF = 0;
-         var0.bd = null;
-         var0.flightTargetPosition = null;
-         var0.getDataManager().set(GalathEntity.bO, 0.0F);
+      galath -> {
+         galath.setCurrentAction(Action.RAPE_PREPARE);
+         galath.aF = 0;
+         galath.bd = null;
+         galath.flightTargetPosition = null;
+         galath.getDataManager().set(GalathEntity.bO, 0.0F);
       },
-      var0 -> {
-         if (++var0.aF >= 48) {
-            var0.setCurrentAction(Action.RAPE_CHARGE);
-            EntityLivingBase var1 = var0.getTargetEntity();
-            if (var0.bd == null) {
-               var0.flightTargetPosition = var1.getPositionVector().add(0.0, var1.getEyeHeight() / 2.0F, 0.0);
-               var0.bd = var0.getPositionVector();
-               Vec3d var2 = var1.getPositionVector().subtract(var0.getPositionVector()).normalize();
-               var0.setYawRotation((float)(TrigMath.sinDegrees(Math.atan2(var2.z, var2.x)) - 90.0));
+      galath -> {
+         if (++galath.aF >= 48) {
+            galath.setCurrentAction(Action.RAPE_CHARGE);
+            EntityLivingBase target = galath.getTargetEntity();
+            if (galath.bd == null) {
+               galath.flightTargetPosition = target.getPositionVector().add(0.0, target.getEyeHeight() / 2.0F, 0.0);
+               galath.bd = galath.getPositionVector();
+               Vec3d dir = target.getPositionVector().subtract(galath.getPositionVector()).normalize();
+               galath.setYawRotation((float)(TrigMath.sinDegrees(Math.atan2(dir.z, dir.x)) - 90.0));
             }
 
-            Vec3d var20 = var0.getPositionVector();
-            Vec3d var3 = var20.subtract(0.65F, 0.65F, 0.65F);
-            Vec3d var4 = var20.add(0.65F, 0.65F, 0.65F);
-            AxisAlignedBB var5 = new AxisAlignedBB(
-               var3.x, var3.y, var3.z, var4.x, var4.y, var4.z
+            Vec3d pos = galath.getPositionVector();
+            Vec3d min = pos.subtract(0.65F, 0.65F, 0.65F);
+            Vec3d max = pos.add(0.65F, 0.65F, 0.65F);
+            AxisAlignedBB aabb = new AxisAlignedBB(
+               min.x, min.y, min.z, max.x, max.y, max.z
             );
 
-            for (EntityPlayer var8 : var0.world.getEntitiesWithinAABB(EntityPlayer.class, var5)) {
-               if (!var8.isDead && var8.onGround && BaseGirlEntity.getGirlByUUID(var8.getPersistentID(), Boolean.valueOf(true)) == null) {
-                  Vec3d var9 = var8.getPositionVector();
-                  Vec3d var10 = var20.subtract(var9);
-                  Vec3d var11 = VectorMath.rotateByYaw(var10, var0.getYawRotation());
-                  double var12 = Math.abs(var11.x);
-                  if (!(var12 > 0.65F)) {
-                     for (EntityWitherSkeleton var15 : var0.bI) {
-                        Vec3d var16 = var15.getPositionVector();
-                        var15.world.removeEntity(var15);
+            for (EntityPlayer player : galath.world.getEntitiesWithinAABB(EntityPlayer.class, aabb)) {
+               if (!player.isDead && player.onGround && BaseGirlEntity.getGirlByUUID(player.getPersistentID(), Boolean.valueOf(true)) == null) {
+                  Vec3d playerPos = player.getPositionVector();
+                  Vec3d toPlayer = pos.subtract(playerPos);
+                  Vec3d rotated = VectorMath.rotateByYaw(toPlayer, galath.getYawRotation());
+                  double dist = Math.abs(rotated.x);
+                  if (!(dist > 0.65F)) {
+                     for (EntityWitherSkeleton skeleton : galath.bI) {
+                        Vec3d skeletonPos = skeleton.getPositionVector();
+                        skeleton.world.removeEntity(skeleton);
                         PacketHandler.networkWrapper
                            .sendToAllTracking(
-                              new SpawnEnergyBallParticlesPacket2(var16, true),
-                              new TargetPoint(var15.dimension, var16.x, var16.y, var16.z, 50.0)
+                              new SpawnEnergyBallParticlesPacket2(skeletonPos, true),
+                              new TargetPoint(skeleton.dimension, skeletonPos.x, skeletonPos.y, skeletonPos.z, 50.0)
                            );
                      }
 
-                     var0.bI.clear();
-                     EntityPlayerMP var30 = (EntityPlayerMP)var8;
-                     var0.setTargetPosition(var8.getPositionVector());
-                     var0.setInteractionPlayerUUID(var8.getPersistentID());
-                     var0.setAnchored(true);
-                     var0.setCurrentAction(Action.RAPE_INTRO);
-                     byte var32 = (byte)MathHelper.floor((var0.getYawRotation() + 180.0F) * 256.0F / 360.0F);
-                     PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), var30);
-                     var30.connection.sendPacket(new SPacketEntityVelocity(var30.getEntityId(), 0.0, 0.0, 0.0));
-                     var30.connection.sendPacket(new S16PacketEntityLook(var30.getEntityId(), var32, (byte)-14, true));
+                     galath.bI.clear();
+                     EntityPlayerMP playerMP = (EntityPlayerMP)player;
+                     galath.setTargetPosition(player.getPositionVector());
+                     galath.setInteractionPlayerUUID(player.getPersistentID());
+                     galath.setAnchored(true);
+                     galath.setCurrentAction(Action.RAPE_INTRO);
+                     byte yawByte = (byte)MathHelper.floor((galath.getYawRotation() + 180.0F) * 256.0F / 360.0F);
+                     PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), playerMP);
+                     playerMP.connection.sendPacket(new SPacketEntityVelocity(playerMP.getEntityId(), 0.0, 0.0, 0.0));
+                     playerMP.connection.sendPacket(new S16PacketEntityLook(playerMP.getEntityId(), yawByte, (byte)-14, true));
                      return;
                   }
                }
             }
 
-            Vec3d var22 = var0.bd;
-            Vec3d var23 = var0.flightTargetPosition;
-            Vec3d var24 = var23.subtract(var22);
-            Vec3d var25 = var23.add(var24);
-            var25 = new Vec3d(var25.x, var22.y, var25.z);
-            boolean var27 = var20.distanceTo(new Vec3d(var22.x, var20.y, var22.z))
-               > var20.distanceTo(new Vec3d(var25.x, var20.y, var25.z));
-            double var28;
-            double var31;
-            if (var27) {
-               var28 = VectorMath.getLinearFactor(var23, var25, var20);
-               var31 = var23.distanceTo(var25);
+            Vec3d from = galath.bd;
+            Vec3d to = galath.flightTargetPosition;
+            Vec3d delta = to.subtract(from);
+            Vec3d newPos = to.add(delta);
+            newPos = new Vec3d(newPos.x, from.y, newPos.z);
+            boolean isPast = pos.distanceTo(new Vec3d(from.x, pos.y, from.z))
+               > pos.distanceTo(new Vec3d(newPos.x, pos.y, newPos.z));
+            double distAlong;
+            double totalDist;
+            if (isPast) {
+               distAlong = VectorMath.getLinearFactor(to, newPos, pos);
+               totalDist = to.distanceTo(newPos);
             } else {
-               var28 = VectorMath.getLinearFactor(var22, var23, var20);
-               var31 = var22.distanceTo(var23);
+               distAlong = VectorMath.getLinearFactor(from, to, pos);
+               totalDist = from.distanceTo(to);
             }
 
-            double var33 = var31 / 0.05F;
-            double var18 = 1.0 / var33 * 20.0;
-            var28 += var18;
-            if (!var27 && var28 < 0.9F) {
-               var0.flightTargetPosition = var1.getPositionVector().add(0.0, var1.getEyeHeight() / 2.0F, 0.0);
+            double steps = totalDist / 0.05F;
+            double speedFactor = 1.0 / steps * 20.0;
+            distAlong += speedFactor;
+            if (!isPast && distAlong < 0.9F) {
+               galath.flightTargetPosition = target.getPositionVector().add(0.0, target.getEyeHeight() / 2.0F, 0.0);
             }
 
-            if (var27) {
-               var20 = new Vec3d(
-                  RotationHelper.lerpDouble(var23.x, var25.x, Math.min(1.0, var28)),
-                  RotationHelper.lerpDouble(var23.y, var25.y, Math.min(1.0, RotationHelper.easeInCubic(var28))),
-                  RotationHelper.lerpDouble(var23.z, var25.z, Math.min(1.0, var28))
+            if (isPast) {
+               pos = new Vec3d(
+                  RotationHelper.lerpDouble(to.x, newPos.x, Math.min(1.0, distAlong)),
+                  RotationHelper.lerpDouble(to.y, newPos.y, Math.min(1.0, RotationHelper.easeInCubic(distAlong))),
+                  RotationHelper.lerpDouble(to.z, newPos.z, Math.min(1.0, distAlong))
                );
             } else {
-               var20 = new Vec3d(
-                  RotationHelper.lerpDouble(var22.x, var23.x, var28),
-                  RotationHelper.lerpDouble(var22.y, var23.y, RotationHelper.easeInOutQuad(var28)),
-                  RotationHelper.lerpDouble(var22.z, var23.z, var28)
+               pos = new Vec3d(
+                  RotationHelper.lerpDouble(from.x, to.x, distAlong),
+                  RotationHelper.lerpDouble(from.y, to.y, RotationHelper.easeInOutQuad(distAlong)),
+                  RotationHelper.lerpDouble(from.z, to.z, distAlong)
                );
             }
 
-            var0.setPosition(var20.x, var20.y, var20.z);
-            if (var27) {
-               var0.getDataManager().set(GalathEntity.bO, (float)var28);
+            galath.setPosition(pos.x, pos.y, pos.z);
+            if (isPast) {
+               galath.getDataManager().set(GalathEntity.bO, (float)distAlong);
             }
          }
       },
-      var0 -> {
-         if (var0.getCurrentAction() == Action.RAPE_INTRO) {
+      galath -> {
+         if (galath.getCurrentAction() == Action.RAPE_INTRO) {
             return true;
          }
 
-         Vec3d var1 = var0.bd;
-         Vec3d var2 = var0.flightTargetPosition;
-         if (var1 == null) {
+         Vec3d from = galath.bd;
+         Vec3d to = galath.flightTargetPosition;
+         if (from == null) {
             return false;
          }
 
-         Vec3d var3 = var2.subtract(var1);
-         Vec3d var4 = var2.add(var3);
-         var4 = new Vec3d(var4.x, var1.y, var4.z);
-         return var0.getDistance(var4.x, var4.y, var4.z) < 0.1F;
+         Vec3d delta = to.subtract(from);
+         Vec3d newPos = to.add(delta);
+         newPos = new Vec3d(newPos.x, from.y, newPos.z);
+         return galath.getDistance(newPos.x, newPos.y, newPos.z) < 0.1F;
       },
-      var0 -> {
-         var0.flightTargetPosition = null;
-         var0.bd = null;
-         var0.aF = 0;
-         var0.getDataManager().set(GalathEntity.bO, 0.0F);
+      galath -> {
+         galath.flightTargetPosition = null;
+         galath.bd = null;
+         galath.aF = 0;
+         galath.getDataManager().set(GalathEntity.bO, 0.0F);
       },
       true,
-      var0 -> true,
+      galath -> true,
       true
    );
 
@@ -469,34 +469,34 @@ public enum GalathFlightData {
    public final boolean applyAttackCoolDown;
    public final boolean onlyDoThisOnPlayers;
 
-   GalathFlightData(IGalathStart var3, IGalathFinish var4, IGalathUpdate var5, GalathActionListener var6, boolean var7, IGalathExecute var8, boolean var9) {
-      this.updateAction = var5;
-      this.startAction = var3;
-      this.finishAction = var4;
-      this.stopAction = var6;
-      this.applyAttackCoolDown = var7;
-      this.canExecuteAction = var8;
-      this.onlyDoThisOnPlayers = var9;
+   GalathFlightData(IGalathStart startAction, IGalathFinish finishAction, IGalathUpdate updateAction, GalathActionListener stopAction, boolean applyAttackCoolDown, IGalathExecute canExecuteAction, boolean onlyDoThisOnPlayers) {
+      this.updateAction = updateAction;
+      this.startAction = startAction;
+      this.finishAction = finishAction;
+      this.stopAction = stopAction;
+      this.applyAttackCoolDown = applyAttackCoolDown;
+      this.canExecuteAction = canExecuteAction;
+      this.onlyDoThisOnPlayers = onlyDoThisOnPlayers;
    }
 
-   public void executeStart(GalathEntity var1) {
-      this.startAction.start(var1);
+   public void executeStart(GalathEntity galath) {
+      this.startAction.start(galath);
    }
 
-   public boolean executeUpdate(GalathEntity var1) {
-      return this.updateAction.update(var1);
+   public boolean executeUpdate(GalathEntity galath) {
+      return this.updateAction.update(galath);
    }
 
-   public void checkFinished(GalathEntity var1) {
-      this.finishAction.finish(var1);
+   public void checkFinished(GalathEntity galath) {
+      this.finishAction.finish(galath);
    }
 
-   public void updateFlight(GalathEntity var1) {
-      this.stopAction.stop(var1);
+   public void updateFlight(GalathEntity galath) {
+      this.stopAction.stop(galath);
    }
 
-   public boolean canExecute(GalathEntity var1) {
-      return this.canExecuteAction.canExecute(var1);
+   public boolean canExecute(GalathEntity galath) {
+      return this.canExecuteAction.canExecute(galath);
    }
 
 }

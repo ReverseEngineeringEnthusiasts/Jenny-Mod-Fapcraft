@@ -35,29 +35,29 @@ public class TribeEggItem extends Item {
       this.maxStackSize = 1;
    }
 
-   public ActionResult<ItemStack> onItemRightClick(World var1, EntityPlayer var2, EnumHand var3) {
-      ItemStack var4 = var2.getHeldItem(var3);
-      Vec3d var5 = var2.getPositionEyes(0.0F);
-      Vec3d var6 = var2.getLook(0.0F);
-      Vec3d var7 = var5.add(var6.x * 5.0, var6.y * 5.0, var6.z * 5.0);
-      RayTraceResult var8 = var1.rayTraceBlocks(var5, var7, false, false, true);
-      if (var8 == null) {
-         return new ActionResult(EnumActionResult.FAIL, var2.getHeldItem(var3));
+   public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+      ItemStack stack = player.getHeldItem(hand);
+      Vec3d eyes = player.getPositionEyes(0.0F);
+      Vec3d look = player.getLook(0.0F);
+      Vec3d end = eyes.add(look.x * 5.0, look.y * 5.0, look.z * 5.0);
+      RayTraceResult rayTrace = world.rayTraceBlocks(eyes, end, false, false, true);
+      if (rayTrace == null) {
+         return new ActionResult(EnumActionResult.FAIL, player.getHeldItem(hand));
       }
 
-      if (var8.typeOfHit == Type.MISS) {
-         return new ActionResult(EnumActionResult.FAIL, var2.getHeldItem(var3));
+      if (rayTrace.typeOfHit == Type.MISS) {
+         return new ActionResult(EnumActionResult.FAIL, player.getHeldItem(hand));
       }
 
-      if (!var2.capabilities.isCreativeMode) {
-         var4.shrink(1);
+      if (!player.capabilities.isCreativeMode) {
+         stack.shrink(1);
       }
 
-      if (!var1.isRemote) {
-         KoboldManager.spawnKoboldAt(var1, var8.hitVec);
+      if (!world.isRemote) {
+         KoboldManager.spawnKoboldAt(world, rayTrace.hitVec);
       }
 
-      return new ActionResult(EnumActionResult.SUCCESS, var2.getHeldItem(var3));
+      return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
    }
 
    public static void register() {
@@ -67,13 +67,13 @@ public class TribeEggItem extends Item {
    }
 
    @SubscribeEvent
-   public static void registerItems(Register<Item> var0) {
-      var0.getRegistry().register(TRIBE_EGG);
+   public static void registerItems(Register<Item> event) {
+      event.getRegistry().register(TRIBE_EGG);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void onModelRegistry(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent event) {
       ModelLoader.setCustomModelResourceLocation(TRIBE_EGG, 0, new ModelResourceLocation("sexmod:tribe_egg"));
    }
 

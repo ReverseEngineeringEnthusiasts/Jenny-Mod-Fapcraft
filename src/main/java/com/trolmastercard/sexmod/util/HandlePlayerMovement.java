@@ -58,8 +58,8 @@ public class HandlePlayerMovement {
     * sneak/jump to the scene controls (see class doc).
     */
    @SubscribeEvent
-   public void onInputUpdate(InputUpdateEvent var1) {
-      input = var1.getMovementInput();
+   public void onInputUpdate(InputUpdateEvent event) {
+      input = event.getMovementInput();
       isJumping = input.sneak;
       isInAction = input.jump;
       if (!isSneaking) {
@@ -91,26 +91,26 @@ public class HandlePlayerMovement {
       return isSneaking;
    }
 
-   public static void setMovementLock(boolean var0) {
-      SceneDebug.log(SceneDebug.MOVEMENT, "setMovementLock(%s) (was %s)", var0, isSneaking);
-      isSneaking = var0;
-      if (!var0) {
+   public static void setMovementLock(boolean locked) {
+      SceneDebug.log(SceneDebug.MOVEMENT, "setMovementLock(%s) (was %s)", locked, isSneaking);
+      isSneaking = locked;
+      if (!locked) {
          handlePlayerMovementTick();
       }
    }
 
    @SideOnly(Side.CLIENT)
    static void handlePlayerMovementTick() {
-      EntityPlayerSP var0 = Minecraft.getMinecraft().player;
-      if (AbstractPlayerGirlEntity.isOwnerPlayer(var0)) {
-         var0.sendStatusMessage(new TextComponentString("Jump to get out of the animation"), true);
+      EntityPlayerSP player = Minecraft.getMinecraft().player;
+      if (AbstractPlayerGirlEntity.isOwnerPlayer(player)) {
+         player.sendStatusMessage(new TextComponentString("Jump to get out of the animation"), true);
       }
    }
 
    @SubscribeEvent
-   public void onMouse(MouseEvent var1) {
-      if (!isSneaking && var1.isButtonstate()) {
-         var1.setCanceled(true);
+   public void onMouse(MouseEvent event) {
+      if (!isSneaking && event.isButtonstate()) {
+         event.setCanceled(true);
       }
    }
 

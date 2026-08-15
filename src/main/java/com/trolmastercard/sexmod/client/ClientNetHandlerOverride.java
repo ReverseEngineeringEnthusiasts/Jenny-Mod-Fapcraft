@@ -15,7 +15,7 @@ import net.minecraft.network.EnumPacketDirection;
  * {@link SexNetworkManager} — do not make this handler functional).
  */
 public class ClientNetHandlerOverride extends NetHandlerPlayClient {
-   public ClientNetHandlerOverride(Minecraft var1) {
-      super(var1, var1.currentScreen, new SexNetworkManager(EnumPacketDirection.CLIENTBOUND), var1.getSession().getProfile());
+   public ClientNetHandlerOverride(Minecraft mc) {
+      super(mc, mc.currentScreen, new SexNetworkManager(EnumPacketDirection.CLIENTBOUND), mc.getSession().getProfile());
    }
 }

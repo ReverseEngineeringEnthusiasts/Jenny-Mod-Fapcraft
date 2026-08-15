@@ -26,17 +26,17 @@ public class GirlInventoryContainerGui2 extends GuiContainer {
    BaseGirlEntity girlEntity;
    UUID girlUUID;
 
-   public GirlInventoryContainerGui2(BaseGirlEntity var1, InventoryPlayer var2, UUID var3) {
-      super(new ChestContainer(var1, var2, var3));
-      this.playerUUID = var3;
-      this.girlEntity = var1;
-      this.girlUUID = var2.player.getPersistentID();
+   public GirlInventoryContainerGui2(BaseGirlEntity girl, InventoryPlayer playerInventory, UUID uuid) {
+      super(new ChestContainer(girl, playerInventory, uuid));
+      this.playerUUID = uuid;
+      this.girlEntity = girl;
+      this.girlUUID = playerInventory.player.getPersistentID();
    }
 
-   public void drawScreen(int var1, int var2, float var3) {
+   public void drawScreen(int mouseX, int mouseY, float partialTicks) {
       this.drawDefaultBackground();
-      super.drawScreen(var1, var2, var3);
-      this.renderHoveredToolTip(var1, var2);
+      super.drawScreen(mouseX, mouseY, partialTicks);
+      this.renderHoveredToolTip(mouseX, mouseY);
    }
 
    /**
@@ -47,22 +47,22 @@ public class GirlInventoryContainerGui2 extends GuiContainer {
    public void onGuiClosed() {
       super.onGuiClosed();
 
-      for (ChestContainer var2 : ChestContainer.containers) {
-         if (var2.girlUUID.equals(this.playerUUID)) {
-            ItemStack[] var3 = new ItemStack[42];
-            Minecraft.getMinecraft().player.inventory.mainInventory.toArray(var3);
-            var3[36] = var2.getSlot(0).getStack();
-            var3[37] = var2.getSlot(1).getStack();
-            var3[38] = var2.getSlot(2).getStack();
-            var3[39] = var2.getSlot(3).getStack();
-            var3[40] = var2.getSlot(4).getStack();
-            var3[41] = var2.getSlot(5).getStack();
-            PacketHandler.networkWrapper.sendToServer(new UploadInventoryToServerPacket(this.girlEntity.getGirlId(), this.girlUUID, var3));
+      for (ChestContainer container : ChestContainer.containers) {
+         if (container.girlUUID.equals(this.playerUUID)) {
+            ItemStack[] stacks = new ItemStack[42];
+            Minecraft.getMinecraft().player.inventory.mainInventory.toArray(stacks);
+            stacks[36] = container.getSlot(0).getStack();
+            stacks[37] = container.getSlot(1).getStack();
+            stacks[38] = container.getSlot(2).getStack();
+            stacks[39] = container.getSlot(3).getStack();
+            stacks[40] = container.getSlot(4).getStack();
+            stacks[41] = container.getSlot(5).getStack();
+            PacketHandler.networkWrapper.sendToServer(new UploadInventoryToServerPacket(this.girlEntity.getGirlId(), this.girlUUID, stacks));
          }
       }
    }
 
-   protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
+   protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
       GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
       this.drawTexturedModalRect(this.width / 2 - 88, this.height / 2 - 7 - 24, 33, 16, 176, 114);

@@ -44,8 +44,8 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
    String lastCachedDNA = null;
    BlockPos lastCachedTargetPos = null;
 
-   protected AbstractNpcOnlyEntity(World var1) {
-      super(var1);
+   protected AbstractNpcOnlyEntity(World world) {
+      super(world);
    }
 
    @Override
@@ -69,55 +69,55 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
     */
    void tickClientDataCheck() {
       if (this.world.isRemote) {
-         String var1 = (String)this.entityDataManager.get(CURRENT_ACTION);
-         String var2 = (String)this.entityDataManager.get(APPEARANCE_DNA);
-         BlockPos var3 = (BlockPos)this.entityDataManager.get(ACTION_TARGET_POS);
+         String action = (String)this.entityDataManager.get(CURRENT_ACTION);
+         String dna = (String)this.entityDataManager.get(APPEARANCE_DNA);
+         BlockPos targetPos = (BlockPos)this.entityDataManager.get(ACTION_TARGET_POS);
          if (this.lastCachedAction == null) {
-            this.lastCachedAction = var1;
-            this.lastCachedDNA = var2;
-            this.lastCachedTargetPos = var3;
+            this.lastCachedAction = action;
+            this.lastCachedDNA = dna;
+            this.lastCachedTargetPos = targetPos;
          } else {
-            if (!this.lastCachedDNA.equals(var2) || !this.lastCachedAction.equals(var1) || !this.lastCachedTargetPos.equals(var3)) {
+            if (!this.lastCachedDNA.equals(dna) || !this.lastCachedAction.equals(action) || !this.lastCachedTargetPos.equals(targetPos)) {
                this.clearBoneColors();
             }
 
-            this.lastCachedAction = var1;
-            this.lastCachedDNA = var2;
-            this.lastCachedTargetPos = var3;
+            this.lastCachedAction = action;
+            this.lastCachedDNA = dna;
+            this.lastCachedTargetPos = targetPos;
          }
       }
    }
 
    protected abstract void clearBoneColors();
 
-   abstract String buildModelCodeDNA(StringBuilder var1);
+   abstract String buildModelCodeDNA(StringBuilder builder);
 
    /**
     * Appends {@code value} as a zero-padded (2-digit) dash-terminated segment
     * of the model-code DNA string. Keeps every DNA segment a fixed width so
     * the string can be split by {@code "-"} and indexed positionally.
     */
-   public static void appendPaddedNumber(StringBuilder var0, int var1) {
-      if (var1 < 10) {
-         var0.append(0);
+   public static void appendPaddedNumber(StringBuilder builder, int number) {
+      if (number < 10) {
+         builder.append(0);
       }
 
-      var0.append(var1);
-      var0.append("-");
+      builder.append(number);
+      builder.append("-");
    }
 
    /**
-    * Appends a uniformly-random segment in {@code [0, var1]} as a padded
+    * Appends a uniformly-random segment in {@code [0, bound]} as a padded
     * dash-terminated DNA segment (used for randomization of trait ranges).
     */
-   public static void appendRandomSegment(StringBuilder var0, int var1) {
-      int var2 = Reference.RANDOM.nextInt(var1 + 1);
-      if (var2 < 10) {
-         var0.append(0);
+   public static void appendRandomSegment(StringBuilder builder, int bound) {
+      int digit = Reference.RANDOM.nextInt(bound + 1);
+      if (digit < 10) {
+         builder.append(0);
       }
 
-      var0.append(var2);
-      var0.append("-");
+      builder.append(digit);
+      builder.append("-");
    }
 
    /**
@@ -125,31 +125,31 @@ public abstract class AbstractNpcOnlyEntity extends BaseGirlEntity {
     * bell-curve over [-2.5, 2.5] and writes its two fractional digits as the
     * DNA segment (drives naturally-distributed trait values like size).
     */
-   public static void appendRandomGene(StringBuilder var0) {
-      double var1 = Reference.RANDOM.nextDouble();
-      double var3 = Math.pow(Math.E, -Math.pow(-2.5 + 5.0 * var1, 2.0));
-      String var5 = String.format("%.2f", var3);
-      String[] var6 = var5.split("\\.");
-      if (var6.length < 2) {
-         var6 = var5.split(",");
+   public static void appendRandomGene(StringBuilder builder) {
+      double weight = Reference.RANDOM.nextDouble();
+      double geneValue = Math.pow(Math.E, -Math.pow(-2.5 + 5.0 * weight, 2.0));
+      String formatted = String.format("%.2f", geneValue);
+      String[] parts = formatted.split("\\.");
+      if (parts.length < 2) {
+         parts = formatted.split(",");
       }
 
-      var5 = var6[1];
-      var0.append(var5).append("-");
+      formatted = parts[1];
+      builder.append(formatted).append("-");
    }
 
-   public static void appendPaddedLetter(StringBuilder var0, int var1) {
-      int var2 = Reference.RANDOM.nextInt(var1);
-      if (var2 < 10) {
-         var0.append(0);
+   public static void appendPaddedLetter(StringBuilder builder, int bound) {
+      int digit = Reference.RANDOM.nextInt(bound);
+      if (digit < 10) {
+         builder.append(0);
       }
 
-      var0.append(var2);
-      var0.append("-");
+      builder.append(digit);
+      builder.append("-");
    }
 
-   public static String[] getModelCodeParts(BaseGirlEntity var0) {
-      return ((String)var0.getDataManager().get(APPEARANCE_DNA)).split("-");
+   public static String[] getModelCodeParts(BaseGirlEntity girl) {
+      return ((String)girl.getDataManager().get(APPEARANCE_DNA)).split("-");
    }
 
 }

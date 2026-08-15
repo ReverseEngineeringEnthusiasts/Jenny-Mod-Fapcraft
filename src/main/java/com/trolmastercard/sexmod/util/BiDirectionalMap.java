@@ -18,29 +18,29 @@ public class BiDirectionalMap<K, V> {
    private final HashMap<K, V> b = new HashMap<>();
    private final HashMap<V, K> a = new HashMap<>();
 
-   public void put(K var1, V var2) {
-      Object var3 = this.b.put((K)var1, (V)var2);
-      this.a.remove(var3);
-      this.a.put((V)var2, (K)var1);
+   public void put(K key, V value) {
+      Object oldValue = this.b.put((K)key, (V)value);
+      this.a.remove(oldValue);
+      this.a.put((V)value, (K)key);
    }
 
-   public V getByKey(K var1) {
-      return this.b.get(var1);
+   public V getByKey(K key) {
+      return this.b.get(key);
    }
 
-   public K getByValue(V var1) {
-      return this.a.get(var1);
+   public K getByValue(V value) {
+      return this.a.get(value);
    }
 
    public int size() {
       return this.b.size();
    }
 
-   public void removeByKey(K var1) {
-      Object var2 = this.b.get(var1);
-      if (var2 != null) {
-         this.b.remove(var1);
-         this.a.remove(var2);
+   public void removeByKey(K key) {
+      Object removedValue = this.b.get(key);
+      if (removedValue != null) {
+         this.b.remove(key);
+         this.a.remove(removedValue);
       }
    }
 

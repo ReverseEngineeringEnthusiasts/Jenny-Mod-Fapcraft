@@ -56,8 +56,8 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
       .getSerializer()
       .createKey(116);
 
-   public KoboldEggEntity(World var1) {
-      super(var1);
+   public KoboldEggEntity(World world) {
+      super(world);
       this.setSize(0.5F, 0.5F);
    }
 
@@ -74,23 +74,23 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
     */
    public void onUpdate() {
       super.onUpdate();
-      int var1 = (Integer)this.dataManager.get(EGG_TYPE);
-      if (var1 >= 12000) {
+      int eggType = (Integer)this.dataManager.get(EGG_TYPE);
+      if (eggType >= 12000) {
          this.spawnHatchExplosion();
       }
 
       if (!this.world.isRemote) {
-         this.dataManager.set(EGG_TYPE, var1 + 1);
+         this.dataManager.set(EGG_TYPE, eggType + 1);
       }
    }
 
-   public boolean canTrample(World var1, Block var2, BlockPos var3, float var4) {
+   public boolean canTrample(World world, Block block, BlockPos pos, float fallDistance) {
       return false;
    }
 
-   public boolean attackEntityFrom(DamageSource var1, float var2) {
-      boolean var3 = super.attackEntityFrom(var1, var2);
-      if (!var3) {
+   public boolean attackEntityFrom(DamageSource source, float amount) {
+      boolean damaged = super.attackEntityFrom(source, amount);
+      if (!damaged) {
          return false;
       }
 
@@ -105,13 +105,13 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
     * notifies the master.
     */
    void spawnHatchExplosion() {
-      for (int var1 = 0; var1 < 30; var1++) {
-         float var2 = (Reference.RANDOM.nextBoolean() ? 1 : -1) * Reference.RANDOM.nextFloat();
-         float var3 = (Reference.RANDOM.nextBoolean() ? 1 : -1) * Reference.RANDOM.nextFloat();
-         float var4 = (Reference.RANDOM.nextBoolean() ? 1 : -1) * Reference.RANDOM.nextFloat();
+      for (int i = 0; i < 30; i++) {
+         float vx = (Reference.RANDOM.nextBoolean() ? 1 : -1) * Reference.RANDOM.nextFloat();
+         float vy = (Reference.RANDOM.nextBoolean() ? 1 : -1) * Reference.RANDOM.nextFloat();
+         float vz = (Reference.RANDOM.nextBoolean() ? 1 : -1) * Reference.RANDOM.nextFloat();
          this.world
             .spawnParticle(
-               EnumParticleTypes.EXPLOSION_NORMAL, 0.5 + this.posX, 0.5 + this.posY, 0.5 + this.posZ, var2, var3, var4, new int[0]
+               EnumParticleTypes.EXPLOSION_NORMAL, 0.5 + this.posX, 0.5 + this.posY, 0.5 + this.posZ, vx, vy, vz, new int[0]
             );
       }
 
@@ -120,31 +120,31 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
             this.tribeId = UUID.randomUUID();
          }
 
-         KoboldEntity var8 = KoboldEntity.createKobold(this.world, this.tribeId);
-         KoboldManager.addTribeMember(this.tribeId, var8);
-         UUID var9 = KoboldManager.findTribeIdWith(this.tribeId);
-         if (var9 != null) {
-            var8.getDataManager().set(BaseGirlEntity.MASTER, var9.toString());
+         KoboldEntity kobold = KoboldEntity.createKobold(this.world, this.tribeId);
+         KoboldManager.addTribeMember(this.tribeId, kobold);
+         UUID masterId = KoboldManager.findTribeIdWith(this.tribeId);
+         if (masterId != null) {
+            kobold.getDataManager().set(BaseGirlEntity.MASTER, masterId.toString());
          }
 
-         List var10 = KoboldManager.getTribeMembersList(this.tribeId);
-         String var11 = null;
+         List members = KoboldManager.getTribeMembersList(this.tribeId);
+         String masterName = null;
 
-         for (KoboldEntity var6 : (java.util.Collection<KoboldEntity>) (var10) ) {
-            String var7 = (String)var6.getDataManager().get(KoboldEntity.aU);
-            if (!"".equals(var7)) {
-               var11 = var7;
+         for (KoboldEntity memberKobold : (java.util.Collection<KoboldEntity>) (members) ) {
+            String name = (String)memberKobold.getDataManager().get(KoboldEntity.aU);
+            if (!"".equals(name)) {
+               masterName = name;
                break;
             }
          }
 
-         if (var11 != null) {
-            var8.getDataManager().set(KoboldEntity.aU, var11);
+         if (masterName != null) {
+            kobold.getDataManager().set(KoboldEntity.aU, masterName);
          }
 
-         var8.setPosition(0.5 + this.posX, this.posY, 0.5 + this.posZ);
-         this.world.spawnEntity(var8);
-         this.hatchEgg(var8);
+         kobold.setPosition(0.5 + this.posX, this.posY, 0.5 + this.posZ);
+         this.world.spawnEntity(kobold);
+         this.hatchEgg(kobold);
          this.world.playSound(null, this.getPosition(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 0.5F, 1.0F);
          this.world.removeEntity(this);
       }
@@ -154,40 +154,40 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
     * SERVER: announces the new tribe member to the kobold's master (colored
     * chat + hit/level-up sounds).
     */
-   void hatchEgg(KoboldEntity var1) {
-      EntityPlayer var2 = var1.getMasterPlayer();
-      if (var2 != null) {
-         EntityPlayerMP var3 = (EntityPlayerMP)var2;
-         EyeAndKoboldColor var4 = KoboldManager.getTribeColor(this.tribeId);
-         var2.sendMessage(
+   void hatchEgg(KoboldEntity kobold) {
+      EntityPlayer player = kobold.getMasterPlayer();
+      if (player != null) {
+         EntityPlayerMP playerMP = (EntityPlayerMP)player;
+         EyeAndKoboldColor color = KoboldManager.getTribeColor(this.tribeId);
+         player.sendMessage(
             new TextComponentString(
                String.format(
                   "%s%s %shas become a %snew tribe member%s!",
-                  var4.getTextColor(),
-                  var1.getDisplayNameText(),
+                  color.getTextColor(),
+                  kobold.getDisplayNameText(),
                   TextFormatting.WHITE,
                   TextFormatting.RED,
                   TextFormatting.WHITE
                )
             )
          );
-         var3.connection
+         playerMP.connection
             .sendPacket(
-               new SPacketSoundEffect(SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.NEUTRAL, var2.posX, var2.posY, var2.posZ, 1.0F, 1.0F)
+               new SPacketSoundEffect(SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.NEUTRAL, player.posX, player.posY, player.posZ, 1.0F, 1.0F)
             );
-         var3.connection
+         playerMP.connection
             .sendPacket(
                new SPacketSoundEffect(
-                  SoundEvents.ENTITY_FIREWORK_TWINKLE_FAR, SoundCategory.NEUTRAL, var2.posX, var2.posY, var2.posZ, 1.0F, 1.0F
+                  SoundEvents.ENTITY_FIREWORK_TWINKLE_FAR, SoundCategory.NEUTRAL, player.posX, player.posY, player.posZ, 1.0F, 1.0F
                )
             );
       }
    }
 
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       animationController = new AnimationController<>(this, "controller", 5.0F, this::animationPredicate);
-      var1.addAnimationController(animationController);
+      data.addAnimationController(animationController);
    }
 
    @Override
@@ -195,45 +195,45 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
       return this.factory;
    }
 
-   public void writeEntityToNBT(NBTTagCompound var1) {
+   public void writeEntityToNBT(NBTTagCompound nbt) {
       if (this.tribeId != null) {
-         var1.setString("tribeID", this.tribeId.toString());
+         nbt.setString("tribeID", this.tribeId.toString());
       }
 
-      var1.setString("egg_color", (String)this.dataManager.get(EGG_COLOR));
-      var1.setInteger("eggAge", (Integer)this.dataManager.get(EGG_TYPE));
-      super.writeEntityToNBT(var1);
+      nbt.setString("egg_color", (String)this.dataManager.get(EGG_COLOR));
+      nbt.setInteger("eggAge", (Integer)this.dataManager.get(EGG_TYPE));
+      super.writeEntityToNBT(nbt);
    }
 
-   public void readEntityFromNBT(NBTTagCompound var1) {
-      super.readEntityFromNBT(var1);
-      String var2 = var1.getString("tribeID");
-      if (!"".equals(var2)) {
-         this.tribeId = UUID.fromString(var2);
+   public void readEntityFromNBT(NBTTagCompound nbt) {
+      super.readEntityFromNBT(nbt);
+      String tribeIdStr = nbt.getString("tribeID");
+      if (!"".equals(tribeIdStr)) {
+         this.tribeId = UUID.fromString(tribeIdStr);
       }
 
-      this.dataManager.set(EGG_COLOR, var1.getString("egg_color"));
-      this.dataManager.set(EGG_TYPE, var1.getInteger("eggAge"));
+      this.dataManager.set(EGG_COLOR, nbt.getString("egg_color"));
+      this.dataManager.set(EGG_TYPE, nbt.getInteger("eggAge"));
    }
 
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
-      int var2 = (Integer)this.dataManager.get(EGG_TYPE);
-      if (12000 - var2 < 20) {
-         var1.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.hatch", true));
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
+      int eggType = (Integer)this.dataManager.get(EGG_TYPE);
+      if (12000 - eggType < 20) {
+         event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.hatch", true));
          return PlayState.CONTINUE;
       } else {
-         float var3 = var2 / 12000.0F;
-         if (var3 > 0.98) {
-            var1.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.veryfast", true));
+         float progress = eggType / 12000.0F;
+         if (progress > 0.98) {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.veryfast", true));
             return PlayState.CONTINUE;
-         } else if (var3 > 0.85) {
-            var1.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.fast", true));
+         } else if (progress > 0.85) {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.fast", true));
             return PlayState.CONTINUE;
-         } else if (var3 > 0.75) {
-            var1.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.medium", true));
+         } else if (progress > 0.75) {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.medium", true));
             return PlayState.CONTINUE;
-         } else if (var3 > 0.5) {
-            var1.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.slow", true));
+         } else if (progress > 0.5) {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.model.slow", true));
             return PlayState.CONTINUE;
          } else {
             return PlayState.CONTINUE;
@@ -245,11 +245,11 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
       return new ArrayList<>();
    }
 
-   public ItemStack getItemStackFromSlot(EntityEquipmentSlot var1) {
+   public ItemStack getItemStackFromSlot(EntityEquipmentSlot slot) {
       return ItemStack.EMPTY;
    }
 
-   public void setItemStackToSlot(EntityEquipmentSlot var1, ItemStack var2) {
+   public void setItemStackToSlot(EntityEquipmentSlot slot, ItemStack stack) {
    }
 
    public EnumHandSide getPrimaryHand() {

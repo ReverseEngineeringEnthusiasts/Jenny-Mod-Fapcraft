@@ -7,5 +7,5 @@ import com.trolmastercard.sexmod.entity.GalathEntity;
  * Per-tick update hook for galath AI states.
  */
 public interface IGalathUpdate {
-   boolean update(GalathEntity var1);
+   boolean update(GalathEntity galath);
 }

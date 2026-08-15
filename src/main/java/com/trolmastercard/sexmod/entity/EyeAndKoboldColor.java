@@ -32,49 +32,49 @@ public enum EyeAndKoboldColor {
    private final int woolMeta;
    private final TextFormatting textColor;
 
-   EyeAndKoboldColor(int var3, int var4, int var5, int var6, int var7, int var8, int var9, TextFormatting var10) {
-      this.mainColor = new Vec3i(var3, var4, var5);
-      this.secondaryColor = new Vec3i(var6, var7, var8);
-      this.woolMeta = var9;
-      this.textColor = var10;
+   EyeAndKoboldColor(int mainColorR, int mainColorG, int mainColorB, int secondaryColorR, int secondaryColorG, int secondaryColorB, int woolMeta, TextFormatting textFormat) {
+      this.mainColor = new Vec3i(mainColorR, mainColorG, mainColorB);
+      this.secondaryColor = new Vec3i(secondaryColorR, secondaryColorG, secondaryColorB);
+      this.woolMeta = woolMeta;
+      this.textColor = textFormat;
    }
 
-   public static int indexOf(EyeAndKoboldColor var0) {
-      int var1 = 0;
+   public static int indexOf(EyeAndKoboldColor color) {
+      int index = 0;
 
-      for (EyeAndKoboldColor var5 : values()) {
-         if (var0 == var5) {
-            return var1;
+      for (EyeAndKoboldColor entry : values()) {
+         if (color == entry) {
+            return index;
          }
 
-         var1++;
+         index++;
       }
 
-      return var1;
+      return index;
    }
 
-   public static EyeAndKoboldColor safeValueOf(String var0) {
+   public static EyeAndKoboldColor safeValueOf(String name) {
       try {
-         return valueOf(var0);
-      } catch (IllegalArgumentException var1) {
+         return valueOf(name);
+      } catch (IllegalArgumentException ex) {
          return KoboldEntity.aJ;
       }
    }
 
-   public static EyeAndKoboldColor safeValueOf(Vec3i var0) {
-      for (EyeAndKoboldColor var4 : values()) {
-         if (var0.equals(var4.getMainColor())) {
-            return var4;
+   public static EyeAndKoboldColor safeValueOf(Vec3i colorVec) {
+      for (EyeAndKoboldColor entry : values()) {
+         if (colorVec.equals(entry.getMainColor())) {
+            return entry;
          }
       }
 
       return KoboldEntity.aJ;
    }
 
-   public static EyeAndKoboldColor getColorByWoolId(int var0) {
-      for (EyeAndKoboldColor var4 : values()) {
-         if (var4.getWoolMeta() == var0) {
-            return var4;
+   public static EyeAndKoboldColor getColorByWoolId(int woolMeta) {
+      for (EyeAndKoboldColor entry : values()) {
+         if (entry.getWoolMeta() == woolMeta) {
+            return entry;
          }
       }
 

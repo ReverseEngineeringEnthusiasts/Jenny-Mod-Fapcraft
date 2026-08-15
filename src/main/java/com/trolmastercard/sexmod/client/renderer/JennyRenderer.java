@@ -9,7 +9,7 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  * logic lives in {@link GirlRenderer}.
  */
 public class JennyRenderer extends GirlRenderer<JennyEntity> {
-   public JennyRenderer(RenderManager var1, AnimatedGeoModel<?> var2, double var3) {
-      super(var1, var2, var3);
+   public JennyRenderer(RenderManager renderManager, AnimatedGeoModel<?> model, double shadowSize) {
+      super(renderManager, model, shadowSize);
    }
 }
