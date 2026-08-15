@@ -1,26 +1,32 @@
 # Translations, Sounds & Credits
 
-## Translations (16 languages)
+## Translations (15 language files)
 
-`assets/sexmod/lang/`:
+`assets/sexmod/lang/` (15 files; the vanilla locale list only loads the ones
+the client's locale maps to):
 
 | File | Language | Translator (per mcmod.info) |
 |---|---|---|
-| `en_us.lang` (+ `en_id.lang`) | English | — |
+| `en_us.lang` | English | — |
+| `en_id.lang` | Indonesian | @AsiangalM |
 | `pl_pl.lang` | Polish | @Wiktor82178716 |
 | `tr_tr.lang` | Turkish | @MasterAdam1234 |
 | `zh_cn.lang` | Chinese | @yimamiantang |
 | `ru_ru.lang` | Russian | @PeiMochy |
 | `es_es.lang` | Spanish | @eddyslejandro |
 | `hu_hu.lang` | Hungarian | Lobasz |
-| `id_id.lang` (`en_id`) | Indonesian | @AsiangalM |
 | `bg_bg.lang` | Bulgarian | @fursainty |
-| `nl_nl` → `ne_be`? | Dutch | @Bongos25270749 |
+| `ne_be.lang` | Dutch (locale `nl_nl`) | @Bongos25270749 |
 | `fi_fi.lang` | Finnish | @ImLegitment |
 | `he_il.lang` | Hebrew | @Atlantic281 |
 | `it_it.lang` | Italian | @RkTzXq1 |
 | `fr_fr.lang` | French | @MarcLewisNSFW |
 | `de_de.lang` | German | — |
+
+> Note: there is **no** `nl_nl.lang` — the Dutch translation ships as
+> `ne_be.lang` (Nepali/Belarusian locale code), which is what the original
+> mod published. `en_us.lang` is the canonical key source; all other files are
+> partial translations.
 
 ## Voice actresses (from mcmod.info credits)
 
@@ -32,17 +38,31 @@
 | Luna | @MacStarVA ("being super cute and awesome :))") |
 | Kobolds | @FlirtyFawn696 |
 
-## Sounds (~719 files in `assets/sexmod/sounds/`)
+## Sounds (719 events, 748 files)
 
-- **Per-girl folders**: allie, bia, ellie, galath, jenny, kobold, luna (+ more) — dialogue/sex
-  voice lines, registered by `SoundHandler` as arrays per field.
-- **Misc scene/effect sounds**: bedrustle, beew, belljingle, clap, cuminflation, eat, fart,
-  flap, inserts, jump, … (the folder contents were normalized/renamed by the
-  `normalizse.py` / `renameSounds.py` / `writeSoundFile.py` helper scripts in the sound folder).
-- `SoundHandler.randomSound` picks a random variant per array without repeating the last one;
-  the registry-name derivation (lowercased field name, `_` → `.`) is load-bearing.
-- One credited external sound: "Magical Whoosh.m4a" by JalynCatbtg (Freesound, CC BY 4.0),
-  used edited in the mod. The Anime Blush PNG comes from pngall.com (CC BY-NC 4.0), edited.
+`sounds.json` registers **719 sound events** pointing at **748 audio files**
+under `assets/sexmod/sounds/`:
+
+| Group | Events | Notes |
+|---|---|---|
+| `girls.jenny` | 106 | voice + sex lines |
+| `girls.luna` | 161 | largest set (fishing + scenes) |
+| `girls.allie` | 101 | |
+| `girls.ellie` | 97 | |
+| `girls.kobold` | 72 | |
+| `girls.galath` | 62 | |
+| `girls.bia` | 35 | |
+| `misc` | 85 | bedrustle, beew, belljingle, clap, cuminflation, eat, fart, flap, inserts, jump, … |
+
+- **Per-girl folders**: `sounds/girls/<name>/<category>/<name><n>.ogg`
+  (e.g. `girls/galath/moan/moan0.ogg`), registered by `SoundHandler` as arrays
+  per field; the registry name derivation (lowercased field name, `_` → `.`)
+  is load-bearing.
+- `SoundHandler.randomSound` picks a random variant per array without repeating
+  the last one.
+- One credited external sound: "Magical Whoosh.m4a" by JalynCatbtg (Freesound,
+  CC BY 4.0), used edited in the mod. The Anime Blush PNG comes from pngall.com
+  (CC BY-NC 4.0), edited.
 
 ## Animation/geo assets
 

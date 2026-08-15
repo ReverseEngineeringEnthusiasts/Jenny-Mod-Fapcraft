@@ -21,7 +21,7 @@ Non-creative players without the required stack get a chat refusal + sad sound.
 
 ## ClothingScreen (the girl wand editor)
 
-See [07-custom-models.md](07-custom-models.md) for the full system. Controls:
+See [custom-models.md](custom-models.md) for the full system. Controls:
 
 - **Bone toggles** with `</>` and `+/-` for the target girl's custom model parts (one row per
   `BoneType` via `CustomModelList`, each row showing a live preview via a temporary SexSceneEntity).
@@ -58,7 +58,7 @@ SendCompanionHomePacket, SetNewHomePacket, BeeOpenChestPacket).
 
 ## StructureCommandScreen (dragon staff)
 
-Direction-pad command screen (see [04-tribe-system.md](04-tribe-system.md)):
+Direction-pad command screen (see [tribe-system.md](tribe-system.md)):
 bottom-left mark/unmark bed/chest, top-left tribe follow mode, bottom-right staff rendering mode,
 top-right fell log / mine block / cancel task. Shows the tribe overview
 (GetTribeUiValuesPacket: alerted state, saved positions, member positions + wool colors).
@@ -72,7 +72,7 @@ For non-goblin targets only the left action is meaningful.
 
 ## GenderSwapScreen (consent prompt)
 
-Standing-sex consent flow (see [03-actions-scenes.md](03-actions-scenes.md)): purple chat prompt
+Standing-sex consent flow (see [actions-scenes.md](actions-scenes.md)): purple chat prompt
 with accept/decline, 1200-tick countdown; "accept"/"decline" typed in chat resolve it.
 SexPromptPacket routes the prompt to the other participant.
 
@@ -82,7 +82,7 @@ Claim-tribe name input (max 15 chars, "set" button → ClaimTribePacket; empty f
 
 ## HUDs (not screens but part of the GUI layer)
 
-- **HornyMeterHud** — the cum meter (see [03-actions-scenes.md](03-actions-scenes.md)).
+- **HornyMeterHud** — the cum meter (see [actions-scenes.md](actions-scenes.md)).
 - **GalathFlightHud** — 3 boost-charge pips (3s cooldown, 5s regen per charge), fades in/out.
 - **EscapeMinigameHud** — WASD prompt minigame during the rape pounce (35-tick prompt cycle).
 - **BeeScreen** — 69-tick black transition wipe between scenes (hides the horny meter).
@@ -93,7 +93,7 @@ Claim-tribe name input (max 15 chars, "set" button → ClaimTribePacket; empty f
 |---|---|---|
 | **G** (34) | Interact with your goblin | goblin interact (pick up/throw/… — opens GalathScreen) |
 | **L** (76) | open character customisation menu | ClothingScreen while transformed |
-| **R-Shift** (54) | Leave sex scene | progress scene to natural ending (see [03-actions-scenes.md](03-actions-scenes.md)) |
+| **R-Shift** (54) | Leave sex scene | progress scene to natural ending (see [actions-scenes.md](actions-scenes.md)) |
 
 Other input: **shift = fast sex action / scene advance**, **space = camera reset / cum trigger
 with full meter** (HandlePlayerMovement), **escape-direction keys** for scene escapes.

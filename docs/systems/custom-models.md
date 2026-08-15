@@ -48,7 +48,8 @@ scene props), client-side editors, and **server-pushed GeckoLib models** for mul
 - **Download flow** (DownloadServerModelPacket): the client sends the list of model names it still
   wants; the server streams one packet per file (tagged with a total-count modelIndex); the client
   writes them into `sexmod/custom_models/<server>/<name>/` with progress output.
-- **Lighting modes** (`LightingType`): DEFAULT vs SEXMOD look-vector lighting per model.
+- **Lighting modes** (`LightingType` enum: `DEFAULT`, `SEXMOD`, `NONE`) — per-model
+  lighting override (SEXMOD = look-vector lighting) stored in the whitelist registry.
 - **Rendering gate**: `isGlobalRenderingDisabled()` — the current server IP must be whitelisted
   for its models to render; `/reloadcustommodels` (op 2) reloads the registry and pushes fresh
   model scales to every player via UnknownPacket.

@@ -1,9 +1,11 @@
 # Networking — the `sexmodchannel` protocol
 
 All packets are SimpleNetworkWrapper messages on the channel **"sexmodchannel"**
-(`PacketHandler`). **Packet IDs are assigned sequentially at registration time — the ID order
-IS the wire protocol.** Never reorder/insert/remove registrations without a full client+server
-redeploy; the channel name must never change.
+(`PacketHandler`). **46 packet classes are registered via 53 `registerMessage`
+calls** (bidirectional packets register twice, once per side). **Packet IDs are
+assigned sequentially at registration time — the ID order IS the wire
+protocol.** Never reorder/insert/remove registrations without a full
+client+server redeploy; the channel name must never change.
 
 ## Scene-critical flow (the core loop)
 
