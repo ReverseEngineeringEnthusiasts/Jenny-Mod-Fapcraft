@@ -26,204 +26,204 @@ import software.bernie.geckolib3.core.processor.IBone;
  */
 public class GalathGeometryRender {
    public static Vec3d[][] buildBodyBoneMesh(
-      BaseGirlEntity var0, float var1, String var2, String var3, String var4, float var5, float var6, float var7, float var8, String var9
+      BaseGirlEntity girl, float partialTicks, String leftBoneName, String rightBoneName, String midBoneName, float innerRadius, float outerRadius, float innerLength, float outerLength, String wingBoneName
    ) {
-      Vec3d[] var10 = buildWingBoneMesh(var0, var1, var2, var3, var4, var5, var6, var7, var8, var9);
-      return buildBodyMesh(var10);
+      Vec3d[] mesh = buildWingBoneMesh(girl, partialTicks, leftBoneName, rightBoneName, midBoneName, innerRadius, outerRadius, innerLength, outerLength, wingBoneName);
+      return buildBodyMesh(mesh);
    }
 
-   public static Vec3d[][] buildBodyMesh(BaseGirlEntity var0, float var1, String var2, String var3, Vector3fSexmodSpecial var4, Vector3fSexmodSpecial var5) {
-      Vec3d[] var6 = buildBodyMeshLine(var0, var1, var2, var3, var4, var5);
-      return buildWingMesh(var6);
+   public static Vec3d[][] buildBodyMesh(BaseGirlEntity girl, float partialTicks, String leftBoneName, String rightBoneName, Vector3fSexmodSpecial leftOffset, Vector3fSexmodSpecial rightOffset) {
+      Vec3d[] line = buildBodyMeshLine(girl, partialTicks, leftBoneName, rightBoneName, leftOffset, rightOffset);
+      return buildWingMesh(line);
    }
 
-   static Vec3d[] buildBodyMeshLine(BaseGirlEntity var0, float var1, String var2, String var3, Vector3fSexmodSpecial var4, Vector3fSexmodSpecial var5) {
-      Vec3d var6 = var0.getCachedBoneOffset(var2);
-      Vec3d var7 = var0.getCachedBoneOffset(var3);
-      Vec3d[] var8 = new Vec3d[8];
-      if (var4.x == 0.0F && var5.x == 0.0F) {
-         var8[0] = new Vec3d(0.0, var4.y, var4.z);
-         var8[1] = new Vec3d(0.0, -var4.y, var4.z);
-         var8[2] = new Vec3d(0.0, -var4.y, -var4.z);
-         var8[3] = new Vec3d(0.0, var4.y, -var4.z);
-         var8[4] = new Vec3d(0.0, var5.y, var5.z);
-         var8[5] = new Vec3d(0.0, -var5.y, var5.z);
-         var8[6] = new Vec3d(0.0, -var5.y, -var5.z);
-         var8[7] = new Vec3d(0.0, var5.y, -var5.z);
+   static Vec3d[] buildBodyMeshLine(BaseGirlEntity girl, float partialTicks, String leftBoneName, String rightBoneName, Vector3fSexmodSpecial leftOffset, Vector3fSexmodSpecial rightOffset) {
+      Vec3d leftPos = girl.getCachedBoneOffset(leftBoneName);
+      Vec3d rightPos = girl.getCachedBoneOffset(rightBoneName);
+      Vec3d[] corners = new Vec3d[8];
+      if (leftOffset.x == 0.0F && rightOffset.x == 0.0F) {
+         corners[0] = new Vec3d(0.0, leftOffset.y, leftOffset.z);
+         corners[1] = new Vec3d(0.0, -leftOffset.y, leftOffset.z);
+         corners[2] = new Vec3d(0.0, -leftOffset.y, -leftOffset.z);
+         corners[3] = new Vec3d(0.0, leftOffset.y, -leftOffset.z);
+         corners[4] = new Vec3d(0.0, rightOffset.y, rightOffset.z);
+         corners[5] = new Vec3d(0.0, -rightOffset.y, rightOffset.z);
+         corners[6] = new Vec3d(0.0, -rightOffset.y, -rightOffset.z);
+         corners[7] = new Vec3d(0.0, rightOffset.y, -rightOffset.z);
       } else {
-         var8[0] = new Vec3d(var4.x, var4.y, 0.0);
-         var8[1] = new Vec3d(-var4.x, var4.y, 0.0);
-         var8[2] = new Vec3d(-var4.x, -var4.y, 0.0);
-         var8[3] = new Vec3d(var4.x, -var4.y, 0.0);
-         var8[4] = new Vec3d(var5.x, var5.y, 0.0);
-         var8[5] = new Vec3d(-var5.x, var5.y, 0.0);
-         var8[6] = new Vec3d(-var5.x, -var5.y, 0.0);
-         var8[7] = new Vec3d(var5.x, -var5.y, 0.0);
+         corners[0] = new Vec3d(leftOffset.x, leftOffset.y, 0.0);
+         corners[1] = new Vec3d(-leftOffset.x, leftOffset.y, 0.0);
+         corners[2] = new Vec3d(-leftOffset.x, -leftOffset.y, 0.0);
+         corners[3] = new Vec3d(leftOffset.x, -leftOffset.y, 0.0);
+         corners[4] = new Vec3d(rightOffset.x, rightOffset.y, 0.0);
+         corners[5] = new Vec3d(-rightOffset.x, rightOffset.y, 0.0);
+         corners[6] = new Vec3d(-rightOffset.x, -rightOffset.y, 0.0);
+         corners[7] = new Vec3d(rightOffset.x, -rightOffset.y, 0.0);
       }
 
-      for (int var9 = 0; var9 < var8.length; var9++) {
-         var8[var9] = VectorMath.rotateByYaw(var8[var9], var1);
+      for (int i = 0; i < corners.length; i++) {
+         corners[i] = VectorMath.rotateByYaw(corners[i], partialTicks);
       }
 
-      for (int var10 = 0; var10 < 4; var10++) {
-         var8[var10] = var8[var10].add(var6);
+      for (int i2 = 0; i2 < 4; i2++) {
+         corners[i2] = corners[i2].add(leftPos);
       }
 
-      for (int var11 = 4; var11 < 8; var11++) {
-         var8[var11] = var8[var11].add(var7);
+      for (int i3 = 4; i3 < 8; i3++) {
+         corners[i3] = corners[i3].add(rightPos);
       }
 
-      return var8;
+      return corners;
    }
 
-   static Vec3d[][] buildWingMesh(Vec3d[] var0) {
-      Vec3d[][] var1 = new Vec3d[6][4];
-      var1[0][0] = var0[0];
-      var1[0][1] = var0[1];
-      var1[0][2] = var0[2];
-      var1[0][3] = var0[3];
-      var1[1][0] = var0[4];
-      var1[1][1] = var0[5];
-      var1[1][2] = var0[6];
-      var1[1][3] = var0[7];
-      var1[2][0] = var0[1];
-      var1[2][1] = var0[2];
-      var1[2][2] = var0[6];
-      var1[2][3] = var0[5];
-      var1[3][0] = var0[3];
-      var1[3][1] = var0[7];
-      var1[3][2] = var0[4];
-      var1[3][3] = var0[0];
-      var1[4][0] = var0[1];
-      var1[4][1] = var0[0];
-      var1[4][2] = var0[4];
-      var1[4][3] = var0[5];
-      var1[5][0] = var0[2];
-      var1[5][1] = var0[3];
-      var1[5][2] = var0[7];
-      var1[5][3] = var0[6];
-      return var1;
+   static Vec3d[][] buildWingMesh(Vec3d[] bodyCorners) {
+      Vec3d[][] wingMesh = new Vec3d[6][4];
+      wingMesh[0][0] = bodyCorners[0];
+      wingMesh[0][1] = bodyCorners[1];
+      wingMesh[0][2] = bodyCorners[2];
+      wingMesh[0][3] = bodyCorners[3];
+      wingMesh[1][0] = bodyCorners[4];
+      wingMesh[1][1] = bodyCorners[5];
+      wingMesh[1][2] = bodyCorners[6];
+      wingMesh[1][3] = bodyCorners[7];
+      wingMesh[2][0] = bodyCorners[1];
+      wingMesh[2][1] = bodyCorners[2];
+      wingMesh[2][2] = bodyCorners[6];
+      wingMesh[2][3] = bodyCorners[5];
+      wingMesh[3][0] = bodyCorners[3];
+      wingMesh[3][1] = bodyCorners[7];
+      wingMesh[3][2] = bodyCorners[4];
+      wingMesh[3][3] = bodyCorners[0];
+      wingMesh[4][0] = bodyCorners[1];
+      wingMesh[4][1] = bodyCorners[0];
+      wingMesh[4][2] = bodyCorners[4];
+      wingMesh[4][3] = bodyCorners[5];
+      wingMesh[5][0] = bodyCorners[2];
+      wingMesh[5][1] = bodyCorners[3];
+      wingMesh[5][2] = bodyCorners[7];
+      wingMesh[5][3] = bodyCorners[6];
+      return wingMesh;
    }
 
-   static Vec3d[] buildWingBoneMesh(BaseGirlEntity var0, float var1, String var2, String var3, String var4, float var5, float var6, float var7, float var8, String var9) {
-      IBone var10 = var0.getAnimationProcessor().getBone(var9);
-      if (var10 == null) {
-         Vec3d[] var18 = new Vec3d[12];
-         Arrays.fill(var18, Vec3d.ZERO);
-         return var18;
+   static Vec3d[] buildWingBoneMesh(BaseGirlEntity girl, float partialTicks, String leftBoneName, String rightBoneName, String midBoneName, float innerRadius, float outerRadius, float innerLength, float outerLength, String boneName) {
+      IBone bone = girl.getAnimationProcessor().getBone(boneName);
+      if (bone == null) {
+         Vec3d[] zeros = new Vec3d[12];
+         Arrays.fill(zeros, Vec3d.ZERO);
+         return zeros;
       }
 
-      float var11 = TrigMath.toDegrees(var10.getRotationY());
-      float var12 = TrigMath.toDegrees(var10.getRotationZ());
-      Vec3d var13 = var0.getCachedBoneOffset(var2);
-      Vec3d var14 = var0.getCachedBoneOffset(var3);
-      Vec3d var15 = var0.getCachedBoneOffset(var4);
-      Vec3d[] var16 = new Vec3d[]{
-         new Vec3d(var5, 0.0, -var6),
-         new Vec3d(-var5, 0.0, -var6),
-         new Vec3d(-var5, 0.0, var6),
-         new Vec3d(var5, 0.0, var6),
-         new Vec3d(var5, var6, 0.0),
-         new Vec3d(-var5, var6, 0.0),
-         new Vec3d(-var5, -var6, 0.0),
-         new Vec3d(var5, -var6, 0.0),
-         new Vec3d(var7, 0.0, -var8),
-         new Vec3d(-var7, 0.0, -var8),
-         new Vec3d(-var7, 0.0, var8),
-         new Vec3d(var7, 0.0, var8)
+      float rotY = TrigMath.toDegrees(bone.getRotationY());
+      float rotZ = TrigMath.toDegrees(bone.getRotationZ());
+      Vec3d leftPos = girl.getCachedBoneOffset(leftBoneName);
+      Vec3d rightPos = girl.getCachedBoneOffset(rightBoneName);
+      Vec3d midPos = girl.getCachedBoneOffset(midBoneName);
+      Vec3d[] corners = new Vec3d[]{
+         new Vec3d(innerRadius, 0.0, -outerRadius),
+         new Vec3d(-innerRadius, 0.0, -outerRadius),
+         new Vec3d(-innerRadius, 0.0, outerRadius),
+         new Vec3d(innerRadius, 0.0, outerRadius),
+         new Vec3d(innerRadius, outerRadius, 0.0),
+         new Vec3d(-innerRadius, outerRadius, 0.0),
+         new Vec3d(-innerRadius, -outerRadius, 0.0),
+         new Vec3d(innerRadius, -outerRadius, 0.0),
+         new Vec3d(innerLength, 0.0, -outerLength),
+         new Vec3d(-innerLength, 0.0, -outerLength),
+         new Vec3d(-innerLength, 0.0, outerLength),
+         new Vec3d(innerLength, 0.0, outerLength)
       };
 
-      for (int var17 = 0; var17 < var16.length; var17++) {
-         var16[var17] = VectorMath.rotateByYaw(var16[var17], var1);
+      for (int i = 0; i < corners.length; i++) {
+         corners[i] = VectorMath.rotateByYaw(corners[i], partialTicks);
       }
 
-      for (int var19 = 0; var19 < 4; var19++) {
-         var16[var19] = VectorMath.rotateByEuler(var16[var19], 0.0F, var11, var12);
+      for (int i2 = 0; i2 < 4; i2++) {
+         corners[i2] = VectorMath.rotateByEuler(corners[i2], 0.0F, rotY, rotZ);
       }
 
-      for (int var20 = 0; var20 < 4; var20++) {
-         var16[var20] = var16[var20].add(var13);
+      for (int i3 = 0; i3 < 4; i3++) {
+         corners[i3] = corners[i3].add(leftPos);
       }
 
-      for (int var21 = 4; var21 < 8; var21++) {
-         var16[var21] = var16[var21].add(var14);
+      for (int i4 = 4; i4 < 8; i4++) {
+         corners[i4] = corners[i4].add(rightPos);
       }
 
-      for (int var22 = 8; var22 < 12; var22++) {
-         var16[var22] = var16[var22].add(var15);
+      for (int i5 = 8; i5 < 12; i5++) {
+         corners[i5] = corners[i5].add(midPos);
       }
 
-      return var16;
+      return corners;
    }
 
-   static Vec3d[][] buildBodyMesh(Vec3d[] var0) {
-      Vec3d[][] var1 = new Vec3d[10][4];
-      var1[0][0] = var0[0];
-      var1[0][1] = var0[1];
-      var1[0][2] = var0[5];
-      var1[0][3] = var0[4];
-      var1[1][0] = var0[1];
-      var1[1][1] = var0[2];
-      var1[1][2] = var0[6];
-      var1[1][3] = var0[5];
-      var1[2][0] = var0[3];
-      var1[2][1] = var0[2];
-      var1[2][2] = var0[6];
-      var1[2][3] = var0[7];
-      var1[3][0] = var0[0];
-      var1[3][1] = var0[4];
-      var1[3][2] = var0[7];
-      var1[3][3] = var0[3];
-      var1[4][0] = var0[0];
-      var1[4][1] = var0[1];
-      var1[4][2] = var0[2];
-      var1[4][3] = var0[3];
-      var1[5][0] = var0[4];
-      var1[5][1] = var0[5];
-      var1[5][2] = var0[9];
-      var1[5][3] = var0[8];
-      var1[6][0] = var0[9];
-      var1[6][1] = var0[10];
-      var1[6][2] = var0[6];
-      var1[6][3] = var0[5];
-      var1[7][0] = var0[10];
-      var1[7][1] = var0[11];
-      var1[7][2] = var0[7];
-      var1[7][3] = var0[6];
-      var1[8][0] = var0[4];
-      var1[8][1] = var0[7];
-      var1[8][2] = var0[11];
-      var1[8][3] = var0[8];
-      var1[9][0] = var0[8];
-      var1[9][1] = var0[9];
-      var1[9][2] = var0[10];
-      var1[9][3] = var0[11];
-      return var1;
+   static Vec3d[][] buildBodyMesh(Vec3d[] points) {
+      Vec3d[][] bodyMesh = new Vec3d[10][4];
+      bodyMesh[0][0] = points[0];
+      bodyMesh[0][1] = points[1];
+      bodyMesh[0][2] = points[5];
+      bodyMesh[0][3] = points[4];
+      bodyMesh[1][0] = points[1];
+      bodyMesh[1][1] = points[2];
+      bodyMesh[1][2] = points[6];
+      bodyMesh[1][3] = points[5];
+      bodyMesh[2][0] = points[3];
+      bodyMesh[2][1] = points[2];
+      bodyMesh[2][2] = points[6];
+      bodyMesh[2][3] = points[7];
+      bodyMesh[3][0] = points[0];
+      bodyMesh[3][1] = points[4];
+      bodyMesh[3][2] = points[7];
+      bodyMesh[3][3] = points[3];
+      bodyMesh[4][0] = points[0];
+      bodyMesh[4][1] = points[1];
+      bodyMesh[4][2] = points[2];
+      bodyMesh[4][3] = points[3];
+      bodyMesh[5][0] = points[4];
+      bodyMesh[5][1] = points[5];
+      bodyMesh[5][2] = points[9];
+      bodyMesh[5][3] = points[8];
+      bodyMesh[6][0] = points[9];
+      bodyMesh[6][1] = points[10];
+      bodyMesh[6][2] = points[6];
+      bodyMesh[6][3] = points[5];
+      bodyMesh[7][0] = points[10];
+      bodyMesh[7][1] = points[11];
+      bodyMesh[7][2] = points[7];
+      bodyMesh[7][3] = points[6];
+      bodyMesh[8][0] = points[4];
+      bodyMesh[8][1] = points[7];
+      bodyMesh[8][2] = points[11];
+      bodyMesh[8][3] = points[8];
+      bodyMesh[9][0] = points[8];
+      bodyMesh[9][1] = points[9];
+      bodyMesh[9][2] = points[10];
+      bodyMesh[9][3] = points[11];
+      return bodyMesh;
    }
 
-   public static void renderMesh(BufferBuilder var0, Vec3d[][] var1, UnknownScreen var2) {
-      for (Vec3d[] var6 : var1) {
-         for (Vec3d var10 : var6) {
-            var0.pos(var10.x, var10.y, var10.z)
+   public static void renderMesh(BufferBuilder buffer, Vec3d[][] mesh, UnknownScreen color) {
+      for (Vec3d[] row : mesh) {
+         for (Vec3d point : row) {
+            buffer.pos(point.x, point.y, point.z)
                .tex(0.0, 0.0)
-               .color(var2.red, var2.green, var2.blue, var2.alpha)
+               .color(color.red, color.green, color.blue, color.alpha)
                .endVertex();
          }
       }
    }
 
-   public static void renderGalathGeometry(Minecraft var0, BaseGirlEntity var1, float var2) {
-      EntityPlayerSP var3 = var0.player;
-      if (var3 != null) {
+   public static void renderGalathGeometry(Minecraft minecraft, BaseGirlEntity girl, float partialTicks) {
+      EntityPlayerSP player = minecraft.player;
+      if (player != null) {
          GlStateManager.translate(0.0, 0.01, 0.0);
-         Entity var4 = ((GirlRenderer)var0.getRenderManager().getEntityRenderObject(var1)).getRenderEntity(var1);
-         Vec3d var5 = var1.isAnchored()
-            ? var1.getTargetPosition()
-            : RotationHelper.lerpVec3dDouble(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
-         Vec3d var6 = RotationHelper.lerpVec3dDouble(new Vec3d(var3.lastTickPosX, var3.lastTickPosY, var3.lastTickPosZ), var3.getPositionVector(), var2);
-         Vec3d var7 = var5.subtract(var6);
-         var7 = var1.transformRenderOffset(var7, var2);
-         GlStateManager.translate(var7.x, var7.y, var7.z);
+         Entity renderEntity = ((GirlRenderer)minecraft.getRenderManager().getEntityRenderObject(girl)).getRenderEntity(girl);
+         Vec3d girlPos = girl.isAnchored()
+            ? girl.getTargetPosition()
+            : RotationHelper.lerpVec3dDouble(new Vec3d(renderEntity.lastTickPosX, renderEntity.lastTickPosY, renderEntity.lastTickPosZ), renderEntity.getPositionVector(), partialTicks);
+         Vec3d cameraPos = RotationHelper.lerpVec3dDouble(new Vec3d(player.lastTickPosX, player.lastTickPosY, player.lastTickPosZ), player.getPositionVector(), partialTicks);
+         Vec3d offset = girlPos.subtract(cameraPos);
+         offset = girl.transformRenderOffset(offset, partialTicks);
+         GlStateManager.translate(offset.x, offset.y, offset.z);
       }
    }
 

@@ -98,12 +98,12 @@ public class EscapeMinigameHud extends Gui {
     * prompt never repeats twice in a row.
     */
    static void pickNextKey() {
-      EscapeDirectionKey var0 = currentKey;
-      Random var1 = new Random();
+      EscapeDirectionKey previous = currentKey;
+      Random random = new Random();
 
       do {
-         currentKey = EscapeDirectionKey.values()[var1.nextInt(EscapeDirectionKey.values().length)];
-      } while (var0 == currentKey);
+         currentKey = EscapeDirectionKey.values()[random.nextInt(EscapeDirectionKey.values().length)];
+      } while (previous == currentKey);
    }
 
    /**
@@ -146,39 +146,39 @@ public class EscapeMinigameHud extends Gui {
     * failure the whole card slides back out with an ease-in-out curve.
     */
    @SubscribeEvent
-   public void onRenderGameOverlay(RenderGameOverlayEvent var1) {
+   public void onRenderGameOverlay(RenderGameOverlayEvent event) {
       if (showHud) {
-         if (var1.getType() == ElementType.TEXT) {
-            int var2 = var1.getResolution().getScaledWidth();
-            int var3 = var1.getResolution().getScaledHeight();
-            float var4 = var1.getPartialTicks();
+         if (event.getType() == ElementType.TEXT) {
+            int screenWidth = event.getResolution().getScaledWidth();
+            int screenHeight = event.getResolution().getScaledHeight();
+            float partialTicks = event.getPartialTicks();
             mc.getTextureManager().bindTexture(HUD_TEXTURE);
-            double var5;
+            double slide;
             if (failed) {
-               var5 = 1.0 - RotationHelper.easeInOutQuad((failTimer + var4) / 20.0F);
+               slide = 1.0 - RotationHelper.easeInOutQuad((failTimer + partialTicks) / 20.0F);
             } else {
-               var5 = Math.min(1.0, RotationHelper.smoothStep((timer + var4) / 20.0F));
+               slide = Math.min(1.0, RotationHelper.smoothStep((timer + partialTicks) / 20.0F));
             }
 
-            int var7 = var3 + 385;
+            int targetY = screenHeight + 385;
             GlStateManager.pushMatrix();
             GlStateManager.scale(0.33F, 0.33F, 0.33F);
             GlStateManager.translate(485.0F, 0.0F, 0.0F);
-            int var8 = 4 * var3;
-            this.drawTexturedModalRect(var2 / 2 - 87, (int)RotationHelper.lerpDouble(var8, var7, var5), 0, 104, 174, 48);
-            this.drawTexturedModalRect((int)(var2 / 2.0F - 78.0F), (int)RotationHelper.lerpDouble(var8, var7 - 52, var5), 52, blinkState && currentKey == EscapeDirectionKey.A ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.lerpDouble(var8, var7 - 52, var5), 104, blinkState && currentKey == EscapeDirectionKey.S ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect((int)(var2 / 2.0F + 26.0F), (int)RotationHelper.lerpDouble(var8, var7 - 52, var5), 156, blinkState && currentKey == EscapeDirectionKey.D ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect((int)(var2 / 2.0F - 26.0F), (int)RotationHelper.lerpDouble(var8, var7 - 104, var5), 0, blinkState && currentKey == EscapeDirectionKey.W ? 52 : 0, 52, 52);
-            this.drawTexturedModalRect(var2 / 2 - 87 + 8, (int)RotationHelper.lerpDouble(var8 - 8, var7 + 8, var5), 8, 152, (int)(158.0F * progress), 32);
+            int startY = 4 * screenHeight;
+            this.drawTexturedModalRect(screenWidth / 2 - 87, (int)RotationHelper.lerpDouble(startY, targetY, slide), 0, 104, 174, 48);
+            this.drawTexturedModalRect((int)(screenWidth / 2.0F - 78.0F), (int)RotationHelper.lerpDouble(startY, targetY - 52, slide), 52, blinkState && currentKey == EscapeDirectionKey.A ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(screenWidth / 2.0F - 26.0F), (int)RotationHelper.lerpDouble(startY, targetY - 52, slide), 104, blinkState && currentKey == EscapeDirectionKey.S ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(screenWidth / 2.0F + 26.0F), (int)RotationHelper.lerpDouble(startY, targetY - 52, slide), 156, blinkState && currentKey == EscapeDirectionKey.D ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect((int)(screenWidth / 2.0F - 26.0F), (int)RotationHelper.lerpDouble(startY, targetY - 104, slide), 0, blinkState && currentKey == EscapeDirectionKey.W ? 52 : 0, 52, 52);
+            this.drawTexturedModalRect(screenWidth / 2 - 87 + 8, (int)RotationHelper.lerpDouble(startY - 8, targetY + 8, slide), 8, 152, (int)(158.0F * progress), 32);
             GlStateManager.popMatrix();
          }
       }
    }
 
    @SubscribeEvent
-   public void onClientTick(ClientTickEvent var1) {
-      if (var1.phase != Phase.END) {
+   public void onClientTick(ClientTickEvent event) {
+      if (event.phase != Phase.END) {
          tickHud();
       }
    }
@@ -190,27 +190,27 @@ public class EscapeMinigameHud extends Gui {
     * completes the minigame.
     */
    @SubscribeEvent
-   public void onKeyInput(KeyInputEvent var1) {
-      GameSettings var2 = Minecraft.getMinecraft().gameSettings;
-      if (GameSettings.isKeyDown(var2.keyBindLeft)) {
+   public void onKeyInput(KeyInputEvent event) {
+      GameSettings settings = Minecraft.getMinecraft().gameSettings;
+      if (GameSettings.isKeyDown(settings.keyBindLeft)) {
          if (currentKey == EscapeDirectionKey.A) {
             progress += 0.08F;
          } else {
             progress -= 0.04F;
          }
-      } else if (GameSettings.isKeyDown(var2.keyBindRight)) {
+      } else if (GameSettings.isKeyDown(settings.keyBindRight)) {
          if (currentKey == EscapeDirectionKey.D) {
             progress += 0.08F;
          } else {
             progress -= 0.04F;
          }
-      } else if (GameSettings.isKeyDown(var2.keyBindForward)) {
+      } else if (GameSettings.isKeyDown(settings.keyBindForward)) {
          if (currentKey == EscapeDirectionKey.W) {
             progress += 0.08F;
          } else {
             progress -= 0.04F;
          }
-      } else if (GameSettings.isKeyDown(var2.keyBindBack)) {
+      } else if (GameSettings.isKeyDown(settings.keyBindBack)) {
          if (currentKey == EscapeDirectionKey.S) {
             progress += 0.08F;
          } else {

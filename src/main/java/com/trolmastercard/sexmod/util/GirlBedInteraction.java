@@ -22,41 +22,41 @@ public class GirlBedInteraction {
    static final int bedIndex = 3;
 
    @SubscribeEvent
-   public void onBlockBreak(BreakEvent var1) {
-      Block var2 = var1.getState().getBlock();
-      if (var2 == Blocks.BED) {
-         BlockPos var3 = var1.getPos();
-         AxisAlignedBB var4 = new AxisAlignedBB(
-            var3.getX() - 3,
-            var3.getY() - 3,
-            var3.getZ() - 3,
-            var3.getX() + 3,
-            var3.getY() + 3,
-            var3.getZ() + 3
+   public void onBlockBreak(BreakEvent event) {
+      Block block = event.getState().getBlock();
+      if (block == Blocks.BED) {
+         BlockPos pos = event.getPos();
+         AxisAlignedBB aabb = new AxisAlignedBB(
+            pos.getX() - 3,
+            pos.getY() - 3,
+            pos.getZ() - 3,
+            pos.getX() + 3,
+            pos.getY() + 3,
+            pos.getZ() + 3
          );
-         List var5 = var1.getWorld().getEntitiesWithinAABB(BaseGirlEntity.class, var4);
-         boolean var6 = false;
+         List girls = event.getWorld().getEntitiesWithinAABB(BaseGirlEntity.class, aabb);
+         boolean found = false;
 
-         for (BaseGirlEntity var8 : (java.util.Collection<BaseGirlEntity>) (var5) ) {
-            if (!var8.isDead && (Boolean)var8.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
-               var6 = true;
+         for (BaseGirlEntity girl : (java.util.Collection<BaseGirlEntity>) (girls) ) {
+            if (!girl.isDead && (Boolean)girl.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
+               found = true;
                break;
             }
          }
 
-         if (var6) {
-            var1.getPlayer()
+         if (found) {
+            event.getPlayer()
                .sendStatusMessage(new TextComponentString("this bed is currently used by a girl.. pls don't disturb okay? ... you are kinda mean rn"), true);
-            var1.setCanceled(true);
+            event.setCanceled(true);
          }
       }
    }
 
    @SubscribeEvent
    @SideOnly(Side.CLIENT)
-   public void onPushOutOfBlocks(PlayerSPPushOutOfBlocksEvent var1) {
-      if (BaseGirlEntity.getActiveSceneInfo(var1.getEntityPlayer()) != null) {
-         var1.setCanceled(true);
+   public void onPushOutOfBlocks(PlayerSPPushOutOfBlocksEvent event) {
+      if (BaseGirlEntity.getActiveSceneInfo(event.getEntityPlayer()) != null) {
+         event.setCanceled(true);
       }
    }
 

@@ -85,8 +85,8 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
    }
 
    @Override
-   public void render(DragonStaffItem var1, ItemStack var2) {
-      this.renderStaffItem(var1, var2);
+   public void render(DragonStaffItem item, ItemStack stack) {
+      this.renderStaffItem(item, stack);
    }
 
    /**
@@ -95,26 +95,26 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
     * animation clock (paused when the game is paused) and delegates to the
     * geckolib pipeline. Stores the holder/stack for the recursive pass.
     */
-   public void renderStaffItem(DragonStaffItem var1, ItemStack var2) {
-      EntityPlayer var3 = null;
+   public void renderStaffItem(DragonStaffItem item, ItemStack stack) {
+      EntityPlayer holder = null;
 
-      for (EntityPlayer var5 : this.mc.world.playerEntities) {
-         if (var5.inventory.mainInventory.contains(var2)) {
-            var3 = var5;
+      for (EntityPlayer player : this.mc.world.playerEntities) {
+         if (player.inventory.mainInventory.contains(stack)) {
+            holder = player;
             break;
          }
 
-         if (var5.inventory.offHandInventory.contains(var2)) {
-            var3 = var5;
+         if (player.inventory.offHandInventory.contains(stack)) {
+            holder = player;
             break;
          }
       }
 
-      if (var3 != null) {
-         double var10 = var3.posX - var3.lastTickPosX;
-         double var6 = var3.posZ - var3.lastTickPosZ;
-         double var8 = (Math.PI / 180.0) * var3.rotationYaw;
-         this.screenPos = new Vector2f((float)(var10 * Math.cos(var8) + var6 * Math.sin(var8)), (float)(-var10 * Math.sin(var8) + var6 * Math.cos(var8)));
+      if (holder != null) {
+         double deltaX = holder.posX - holder.lastTickPosX;
+         double deltaZ = holder.posZ - holder.lastTickPosZ;
+         double yawRadians = (Math.PI / 180.0) * holder.rotationYaw;
+         this.screenPos = new Vector2f((float)(deltaX * Math.cos(yawRadians) + deltaZ * Math.sin(yawRadians)), (float)(-deltaX * Math.sin(yawRadians) + deltaZ * Math.cos(yawRadians)));
       } else {
          this.screenPos = new Vector2f(0.0F, 0.0F);
       }
@@ -123,9 +123,9 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
          this.animationTicks = Minecraft.getMinecraft().player.ticksExisted + this.mc.getRenderPartialTicks();
       }
 
-      this.heldItem = var2;
-      this.player = var3;
-      super.render(var1, var2);
+      this.heldItem = stack;
+      this.player = holder;
+      super.render(item, stack);
    }
 
    /**
@@ -136,24 +136,24 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
     * texture and restarts the buffer for the remaining bones.
     */
    @Override
-   public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
-      if ("staff".equals(var2.getName())) {
+   public void renderRecursively(BufferBuilder buffer, GeoBone bone, float r, float g, float b, float a) {
+      if ("staff".equals(bone.getName())) {
          GlStateManager.pushMatrix();
          Tessellator.getInstance().draw();
-         com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
+         com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
          GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.animationTicks) + 0.001, 0.0);
-         Vector3f var7 = n.get(this.heldItem);
+         Vector3f storedSway = n.get(this.heldItem);
          GlStateManager.scale(this.getBobOffset(), this.getBobOffset(), this.getBobOffset());
-         if (var7 == null) {
-            var7 = new Vector3f(0.0F, 0.0F, 0.0F);
+         if (storedSway == null) {
+            storedSway = new Vector3f(0.0F, 0.0F, 0.0F);
          }
 
-         var7.add(new Vector3f(this.screenPos.x, this.player == null ? 0.0F : (float)(this.player.posY - this.player.lastTickPosY), this.screenPos.y));
-         GlStateManager.rotate(var7.z * 10.0F, 1.0F, 0.0F, 0.0F);
-         GlStateManager.rotate(var7.x * 10.0F, 0.0F, 1.0F, 0.0F);
-         GlStateManager.rotate(-var7.y * 10.0F, 0.0F, 0.0F, 1.0F);
+         storedSway.add(new Vector3f(this.screenPos.x, this.player == null ? 0.0F : (float)(this.player.posY - this.player.lastTickPosY), this.screenPos.y));
+         GlStateManager.rotate(storedSway.z * 10.0F, 1.0F, 0.0F, 0.0F);
+         GlStateManager.rotate(storedSway.x * 10.0F, 0.0F, 1.0F, 0.0F);
+         GlStateManager.rotate(-storedSway.y * 10.0F, 0.0F, 0.0F, 1.0F);
          GlStateManager.rotate((float)(this.animationTicks * 0.1F), 1.0F, 1.0F, 1.0F);
-         n.put(this.heldItem, var7);
+         n.put(this.heldItem, storedSway);
          this.mc.getTextureManager().bindTexture(CRYSTAL_TEXTURE);
          this.crystalModel.render(Minecraft.getMinecraft().player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
          GlStateManager.popMatrix();
@@ -162,10 +162,10 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
          }
 
          this.mc.getTextureManager().bindTexture(new DragonStaffModel().getTextureLocation((DragonStaffItem) null));
-         var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       }
 
-      super.renderRecursively(var1, var2, var3, var4, var5, var6);
+      super.renderRecursively(buffer, bone, r, g, b, a);
    }
 
    /**
@@ -175,19 +175,19 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
     * bone order (animation mode, {@link #animateBones}).
     */
    void collectAnimationBones() {
-      ArrayList var1 = new ArrayList();
-      ArrayList var2 = new ArrayList();
+      ArrayList particleIds = new ArrayList();
+      ArrayList particlePositions = new ArrayList();
 
-      for (Vector4d var4 : KoboldEntity.aY) {
-         var1.add((int)var4.getW());
-         var2.add(new Vec3d(var4.getX(), var4.getY(), var4.getZ()));
+      for (Vector4d particleData : KoboldEntity.aY) {
+         particleIds.add((int)particleData.getW());
+         particlePositions.add(new Vec3d(particleData.getX(), particleData.getY(), particleData.getZ()));
       }
 
-      if (var1.size() != 0) {
+      if (particleIds.size() != 0) {
          if (isRendering) {
-            this.renderParticles(var1, var2);
+            this.renderParticles(particleIds, particlePositions);
          } else {
-            this.animateBones(var1);
+            this.animateBones(particleIds);
          }
       }
    }
@@ -198,28 +198,28 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
     * ({@code easeInOut}) so the wool cubes stream toward the player's eye,
     * scaled by 1.3.
     */
-   void renderParticles(List<Integer> var1, List<Vec3d> var2) {
-      for (int var3 = 0; var3 < var1.size(); var3++) {
-         float var4 = RotationHelper.lerp(this.player.prevRotationYawHead, this.player.rotationYawHead, this.mc.getRenderPartialTicks());
-         float var5 = RotationHelper.lerp(this.player.prevRotationPitch, this.player.rotationPitch, this.mc.getRenderPartialTicks());
-         Vec3d var6 = RotationHelper.lerpVec3dDouble(
+   void renderParticles(List<Integer> particleIds, List<Vec3d> particlePositions) {
+      for (int i = 0; i < particleIds.size(); i++) {
+         float headYaw = RotationHelper.lerp(this.player.prevRotationYawHead, this.player.rotationYawHead, this.mc.getRenderPartialTicks());
+         float headPitch = RotationHelper.lerp(this.player.prevRotationPitch, this.player.rotationPitch, this.mc.getRenderPartialTicks());
+         Vec3d eyePos = RotationHelper.lerpVec3dDouble(
             new Vec3d(this.player.prevPosX, this.player.prevPosY + this.player.getEyeHeight(), this.player.prevPosZ),
             this.player.getPositionVector().add(0.0, this.player.getEyeHeight(), 0.0),
             this.mc.getRenderPartialTicks()
          );
-         Vec3d var7 = var6.subtract((Vec3d)var2.get(var3));
-         var7 = VectorMath.rotateByYawPitch(var7, -var5, var4);
-         double var8 = Math.abs(var7.x) + Math.abs(var7.z) + Math.abs(var7.y);
-         double var10 = -var7.x / var8;
-         double var12 = -var7.y / var8;
-         double var14 = var7.z / var8;
-         var10 = this.easeInOut(var10);
-         var12 = this.easeInOut(var12);
-         var14 = this.easeInOut(var14);
-         var10 *= 1.3F;
-         var12 *= 1.3F;
-         var14 *= 1.3F;
-         this.renderParticleFrom((Integer)var1.get(var3), (float)var10, (float)var12, (float)var14);
+         Vec3d relative = eyePos.subtract((Vec3d)particlePositions.get(i));
+         relative = VectorMath.rotateByYawPitch(relative, -headPitch, headYaw);
+         double magnitude = Math.abs(relative.x) + Math.abs(relative.z) + Math.abs(relative.y);
+         double easedX = -relative.x / magnitude;
+         double easedY = -relative.y / magnitude;
+         double easedZ = relative.z / magnitude;
+         easedX = this.easeInOut(easedX);
+         easedY = this.easeInOut(easedY);
+         easedZ = this.easeInOut(easedZ);
+         easedX *= 1.3F;
+         easedY *= 1.3F;
+         easedZ *= 1.3F;
+         this.renderParticleFrom((Integer)particleIds.get(i), (float)easedX, (float)easedY, (float)easedZ);
       }
    }
 
@@ -228,30 +228,30 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
     * spinning arc (rotation axis per particle, speed scaled by an index
     * lerp 0.8..1.2).
     */
-   void animateBones(List<Integer> var1) {
-      float var2 = 1.0F / var1.size();
-      float var3 = 0.0F;
+   void animateBones(List<Integer> particleIds) {
+      float step = 1.0F / particleIds.size();
+      float progress = 0.0F;
 
-      for (int var4 = 0; var4 < var1.size(); var4++) {
-         var3 += var2;
-         this.renderParticleAt((Integer)var1.get(var4), 1.0F - var3, 0.0F + var3, (float)RotationHelper.lerpDouble(0.8F, 1.2F, (double)var4 / var1.size()));
+      for (int i = 0; i < particleIds.size(); i++) {
+         progress += step;
+         this.renderParticleAt((Integer)particleIds.get(i), 1.0F - progress, 0.0F + progress, (float)RotationHelper.lerpDouble(0.8F, 1.2F, (double)i / particleIds.size()));
       }
    }
 
-   double easeInOut(double var1) {
-      return var1 * Math.sqrt(1.0 - var1 * var1 / 2.0);
+   double easeInOut(double value) {
+      return value * Math.sqrt(1.0 - value * value / 2.0);
    }
 
    double getBobOffset() {
       return 0.175F + 0.025 * Math.sin(0.005 * this.animationTicks) + 0.025;
    }
 
-   void renderParticleAt(int var1, float var2, float var3, float var4) {
-      this.renderItem(new ItemStack(Blocks.WOOL, 1, var1), var2, var3, var4);
+   void renderParticleAt(int colorId, float x, float y, float z) {
+      this.renderItem(new ItemStack(Blocks.WOOL, 1, colorId), x, y, z);
    }
 
-   void renderParticleFrom(int var1, float var2, float var3, float var4) {
-      this.renderItemAt(new ItemStack(Blocks.WOOL, 1, var1), var2, var3, var4);
+   void renderParticleFrom(int colorId, float x, float y, float z) {
+      this.renderItemAt(new ItemStack(Blocks.WOOL, 1, colorId), x, y, z);
    }
 
    /**
@@ -259,26 +259,26 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
     * given offset from the crystal anchor. Tiny 0.04 scale, vanilla item
     * rendering.
     */
-   void renderItemAt(ItemStack var1, float var2, float var3, float var4) {
+   void renderItemAt(ItemStack stack, float x, float y, float z) {
       GlStateManager.pushMatrix();
       GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.animationTicks) + 0.001, 0.0);
       GlStateManager.scale(0.04F, 0.04F, 0.04F);
-      GlStateManager.translate(var2 * 6.0F, var3 * 6.0F, var4 * 6.0F);
-      this.mc.getItemRenderer().renderItem(Minecraft.getMinecraft().player, var1, TransformType.NONE);
+      GlStateManager.translate(x * 6.0F, y * 6.0F, z * 6.0F);
+      this.mc.getItemRenderer().renderItem(Minecraft.getMinecraft().player, stack, TransformType.NONE);
       GlStateManager.popMatrix();
    }
 
    /**
     * Draws one wool-cube particle rotating around the given axis with speed
-    * scaled by {@code var4}, offset by 6 units along X.
+    * scaled by {@code speed}, offset by 6 units along X.
     */
-   void renderItem(ItemStack var1, float var2, float var3, float var4) {
+   void renderItem(ItemStack stack, float rotX, float rotY, float speed) {
       GlStateManager.pushMatrix();
       GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.animationTicks) + 0.001, 0.0);
       GlStateManager.scale(0.04F, 0.04F, 0.04F);
-      GlStateManager.rotate((float)(this.animationTicks * 8.0 * var4), 0.0F, var2, var3);
+      GlStateManager.rotate((float)(this.animationTicks * 8.0 * speed), 0.0F, rotX, rotY);
       GlStateManager.translate(6.0F, 0.0F, 0.0F);
-      this.mc.getItemRenderer().renderItem(Minecraft.getMinecraft().player, var1, TransformType.NONE);
+      this.mc.getItemRenderer().renderItem(Minecraft.getMinecraft().player, stack, TransformType.NONE);
       GlStateManager.popMatrix();
    }
 

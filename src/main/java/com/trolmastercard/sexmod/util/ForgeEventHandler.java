@@ -39,7 +39,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * GirlSavedData, PlayerIds, ...) are registered here.
  */
 public class ForgeEventHandler {
-   public static void registerB(boolean var0) {
+   public static void registerB(boolean showDebug) {
       MinecraftForge.EVENT_BUS.register(new GirlCombatProtection());
       MinecraftForge.EVENT_BUS.register(new LivingDeathHandler());
       MinecraftForge.EVENT_BUS.register(new PlayerIds());
@@ -74,7 +74,7 @@ public class ForgeEventHandler {
       MinecraftForge.EVENT_BUS.register(ConfigWorldGenHandler.getInstance());
       MinecraftForge.EVENT_BUS.register(new ManglelieEntity.b());
       MinecraftForge.EVENT_BUS.register(new NameTagInteractHandler());
-      if (var0) {
+      if (showDebug) {
          registerDebugWindow();
       }
    }
@@ -107,9 +107,9 @@ public class ForgeEventHandler {
    }
 
    static boolean shouldShowDebugWindow() {
-      File var0 = new File("sexmod/dontAskAgain");
-      var0.getParentFile().mkdirs();
-      return !var0.exists();
+      File dontAskAgainFile = new File("sexmod/dontAskAgain");
+      dontAskAgainFile.getParentFile().mkdirs();
+      return !dontAskAgainFile.exists();
    }
 
 }

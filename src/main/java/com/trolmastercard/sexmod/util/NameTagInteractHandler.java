@@ -14,30 +14,30 @@ import net.minecraftforge.fml.common.eventhandler.Event.Result;
  */
 public class NameTagInteractHandler {
    @SubscribeEvent
-   public void onEntityInteractSpecific(EntityInteractSpecific var1) {
-      Entity var2 = var1.getTarget();
-      if (var2 instanceof BaseGirlEntity) {
-         EntityPlayer var3 = var1.getEntityPlayer();
-         ItemStack var4;
-         if (var3.getHeldItemMainhand().getItem() == Items.NAME_TAG) {
-            var4 = var3.getHeldItemMainhand();
+   public void onEntityInteractSpecific(EntityInteractSpecific event) {
+      Entity target = event.getTarget();
+      if (target instanceof BaseGirlEntity) {
+         EntityPlayer player = event.getEntityPlayer();
+         ItemStack stack;
+         if (player.getHeldItemMainhand().getItem() == Items.NAME_TAG) {
+            stack = player.getHeldItemMainhand();
          } else {
-            if (var3.getHeldItemOffhand().getItem() != Items.NAME_TAG) {
+            if (player.getHeldItemOffhand().getItem() != Items.NAME_TAG) {
                return;
             }
 
-            var4 = var3.getHeldItemOffhand();
+            stack = player.getHeldItemOffhand();
          }
 
-         String var5 = var4.getDisplayName();
-         if (!"".equals(var5)) {
-            ((BaseGirlEntity)var2).setCustomNameOverride(var5);
-            if (!var3.capabilities.isCreativeMode) {
-               var4.shrink(1);
+         String displayName = stack.getDisplayName();
+         if (!"".equals(displayName)) {
+            ((BaseGirlEntity)target).setCustomNameOverride(displayName);
+            if (!player.capabilities.isCreativeMode) {
+               stack.shrink(1);
             }
 
-            var1.setCanceled(true);
-            var1.setResult(Result.DENY);
+            event.setCanceled(true);
+            event.setResult(Result.DENY);
          }
       }
    }

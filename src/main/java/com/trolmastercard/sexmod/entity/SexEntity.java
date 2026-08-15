@@ -69,20 +69,20 @@ public class SexEntity extends Entity {
    private int fishingLevel;
    public static LunaEntity ownerLuna = null;
 
-   public SexEntity(World var1, LunaEntity var2, double var3) {
-      super(var1);
-      this.setOwnerLuna(var2);
-      this.positionLunaAbove(var3);
+   public SexEntity(World world, LunaEntity luna, double height) {
+      super(world);
+      this.setOwnerLuna(luna);
+      this.positionLunaAbove(height);
    }
 
-   public SexEntity(World var1) {
-      super(var1);
+   public SexEntity(World world) {
+      super(world);
    }
 
-   private void setOwnerLuna(LunaEntity var1) {
+   private void setOwnerLuna(LunaEntity luna) {
       this.setSize(0.25F, 0.25F);
       this.ignoreFrustumCheck = true;
-      var1.av = this;
+      luna.av = this;
    }
 
    protected void entityInit() {
@@ -95,35 +95,35 @@ public class SexEntity extends Entity {
    }
 
    LunaEntity getOwnerLunaInternal() {
-      Optional var1 = (Optional)this.dataManager.get(OWNER_UUID);
-      if (!var1.isPresent()) {
+      Optional uuidOpt = (Optional)this.dataManager.get(OWNER_UUID);
+      if (!uuidOpt.isPresent()) {
          return null;
       } else {
-         BaseGirlEntity var2 = BaseGirlEntity.getServerGirlEntity((UUID)var1.get());
-         if (var2 == null) {
+         BaseGirlEntity girl = BaseGirlEntity.getServerGirlEntity((UUID)uuidOpt.get());
+         if (girl == null) {
             return null;
          } else {
-            return !(var2 instanceof LunaEntity) ? null : (LunaEntity)var2;
+            return !(girl instanceof LunaEntity) ? null : (LunaEntity)girl;
          }
       }
    }
 
    public LunaEntity getOwnerLuna() {
-      Optional var1 = (Optional)this.dataManager.get(OWNER_UUID);
-      if (!var1.isPresent()) {
+      Optional uuidOpt = (Optional)this.dataManager.get(OWNER_UUID);
+      if (!uuidOpt.isPresent()) {
          return null;
       }
 
-      BaseGirlEntity var2 = BaseGirlEntity.getClientGirlEntity((UUID)var1.get());
-      return !(var2 instanceof LunaEntity) ? null : (LunaEntity)var2;
+      BaseGirlEntity girl = BaseGirlEntity.getClientGirlEntity((UUID)uuidOpt.get());
+      return !(girl instanceof LunaEntity) ? null : (LunaEntity)girl;
    }
 
-   public void setFishingLevel(int var1) {
-      this.fishingLevel = var1;
+   public void setFishingLevel(int level) {
+      this.fishingLevel = level;
    }
 
-   public void setPhase(int var1) {
-      this.phase = var1;
+   public void setPhase(int phase) {
+      this.phase = phase;
    }
 
    public void onEntityUpdate() {
@@ -135,54 +135,54 @@ public class SexEntity extends Entity {
       }
    }
 
-   public void positionLunaAbove(double var1) {
-      LunaEntity var3 = this.getOwnerLunaInternal();
-      if (var3 != null) {
-         BlockPos var4 = var3.ai;
-         float var5 = (float)Math.sqrt(var3.getPositionVector().squareDistanceTo(var4.getX(), var4.getY(), var4.getZ()));
-         float var6 = -22.5F + 45.0F * (var5 / 7.0F);
-         float var7 = var3.getYawRotation();
-         float var8 = MathHelper.cos(-var7 * (float) (Math.PI / 180.0) - (float) Math.PI);
-         float var9 = MathHelper.sin(-var7 * (float) (Math.PI / 180.0) - (float) Math.PI);
-         float var10 = -MathHelper.cos(-var6 * (float) (Math.PI / 180.0));
-         float var11 = MathHelper.sin(-var6 * (float) (Math.PI / 180.0));
-         double var12 = var3.prevPosX + (var3.posX - var3.prevPosX) - var9 * 0.3;
-         double var14 = var3.prevPosY + (var3.posY - var3.prevPosY) + var3.getEyeHeight();
-         double var16 = var3.prevPosZ + (var3.posZ - var3.prevPosZ) - var8 * 0.3;
-         this.setLocationAndAngles(var12, var14, var16, var7, var6);
-         this.motionX = var1 * -var9;
-         this.motionY = var1 * MathHelper.clamp(-(var11 / var10), -5.0F, 5.0F);
-         this.motionZ = var1 * -var8;
-         float var18 = MathHelper.sqrt(
+   public void positionLunaAbove(double height) {
+      LunaEntity luna = this.getOwnerLunaInternal();
+      if (luna != null) {
+         BlockPos anchorPos = luna.ai;
+         float dist = (float)Math.sqrt(luna.getPositionVector().squareDistanceTo(anchorPos.getX(), anchorPos.getY(), anchorPos.getZ()));
+         float angle = -22.5F + 45.0F * (dist / 7.0F);
+         float yaw = luna.getYawRotation();
+         float cosYaw = MathHelper.cos(-yaw * (float) (Math.PI / 180.0) - (float) Math.PI);
+         float sinYaw = MathHelper.sin(-yaw * (float) (Math.PI / 180.0) - (float) Math.PI);
+         float cosTilt = -MathHelper.cos(-angle * (float) (Math.PI / 180.0));
+         float sinTilt = MathHelper.sin(-angle * (float) (Math.PI / 180.0));
+         double interpX = luna.prevPosX + (luna.posX - luna.prevPosX) - sinYaw * 0.3;
+         double interpY = luna.prevPosY + (luna.posY - luna.prevPosY) + luna.getEyeHeight();
+         double interpZ = luna.prevPosZ + (luna.posZ - luna.prevPosZ) - cosYaw * 0.3;
+         this.setLocationAndAngles(interpX, interpY, interpZ, yaw, angle);
+         this.motionX = height * -sinYaw;
+         this.motionY = height * MathHelper.clamp(-(sinTilt / cosTilt), -5.0F, 5.0F);
+         this.motionZ = height * -cosYaw;
+         float speed = MathHelper.sqrt(
             this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ
          );
-         this.motionX = this.motionX * (0.6 / var18 + 0.5 + this.rand.nextGaussian() * 0.0045);
-         this.motionY = this.motionY * (0.6 / var18 + 0.5 + this.rand.nextGaussian() * 0.0045);
-         this.motionZ = this.motionZ * (0.6 / var18 + 0.5 + this.rand.nextGaussian() * 0.0045);
-         float var19 = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+         this.motionX = this.motionX * (0.6 / speed + 0.5 + this.rand.nextGaussian() * 0.0045);
+         this.motionY = this.motionY * (0.6 / speed + 0.5 + this.rand.nextGaussian() * 0.0045);
+         this.motionZ = this.motionZ * (0.6 / speed + 0.5 + this.rand.nextGaussian() * 0.0045);
+         float horizontalSpeed = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
          this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180.0 / Math.PI));
-         this.rotationPitch = (float)(MathHelper.atan2(this.motionY, var19) * (180.0 / Math.PI));
+         this.rotationPitch = (float)(MathHelper.atan2(this.motionY, horizontalSpeed) * (180.0 / Math.PI));
          this.prevRotationYaw = this.rotationYaw;
          this.prevRotationPitch = this.rotationPitch;
       }
    }
 
-   public void notifyDataManagerChange(DataParameter<?> var1) {
-      if (CAUGHT_ENTITY_ID.equals(var1)) {
-         int var2 = (Integer)this.getDataManager().get(CAUGHT_ENTITY_ID);
-         this.caughtEntity = var2 > 0 ? this.world.getEntityByID(var2 - 1) : null;
+   public void notifyDataManagerChange(DataParameter<?> key) {
+      if (CAUGHT_ENTITY_ID.equals(key)) {
+         int caughtId = (Integer)this.getDataManager().get(CAUGHT_ENTITY_ID);
+         this.caughtEntity = caughtId > 0 ? this.world.getEntityByID(caughtId - 1) : null;
       }
 
-      super.notifyDataManagerChange(var1);
+      super.notifyDataManagerChange(key);
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean isInRangeToRenderDist(double var1) {
-      return var1 < 4096.0;
+   public boolean isInRangeToRenderDist(double dist) {
+      return dist < 4096.0;
    }
 
    @SideOnly(Side.CLIENT)
-   public void setPositionAndRotationDirect(double var1, double var3, double var5, float var7, float var8, int var9, boolean var10) {
+   public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport) {
    }
 
    /**
@@ -203,11 +203,11 @@ public class SexEntity extends Entity {
             }
          }
 
-         float var1 = 0.0F;
-         BlockPos var2 = new BlockPos(this);
-         IBlockState var3 = this.world.getBlockState(var2);
-         if (var3.getMaterial() == Material.WATER) {
-            var1 = BlockLiquid.getBlockLiquidHeight(var3, this.world, var2);
+         float liquidHeight = 0.0F;
+         BlockPos pos = new BlockPos(this);
+         IBlockState state = this.world.getBlockState(pos);
+         if (state.getMaterial() == Material.WATER) {
+            liquidHeight = BlockLiquid.getBlockLiquidHeight(state, this.world, pos);
          }
 
          if (this.hookState == SexEntity.SexEntityState.FLYING) {
@@ -219,7 +219,7 @@ public class SexEntity extends Entity {
                return;
             }
 
-            if (var1 > 0.0F) {
+            if (liquidHeight > 0.0F) {
                this.motionX *= 0.3;
                this.motionY *= 0.2;
                this.motionZ *= 0.3;
@@ -247,8 +247,8 @@ public class SexEntity extends Entity {
                      this.hookState = SexEntity.SexEntityState.FLYING;
                   } else {
                      this.posX = this.caughtEntity.posX;
-                     double var6 = this.caughtEntity.height;
-                     this.posY = this.caughtEntity.getEntityBoundingBox().minY + var6 * 0.8;
+                     double height = this.caughtEntity.height;
+                     this.posY = this.caughtEntity.getEntityBoundingBox().minY + height * 0.8;
                      this.posZ = this.caughtEntity.posZ;
                      this.setPosition(this.posX, this.posY, this.posZ);
                   }
@@ -260,19 +260,19 @@ public class SexEntity extends Entity {
             if (this.hookState == SexEntity.SexEntityState.BOBBING) {
                this.motionX *= 0.9;
                this.motionZ *= 0.9;
-               double var4 = this.posY + this.motionY - var2.getY() - var1;
-               if (Math.abs(var4) < 0.01) {
-                  var4 += Math.signum(var4) * 0.1;
+               double deltaY = this.posY + this.motionY - pos.getY() - liquidHeight;
+               if (Math.abs(deltaY) < 0.01) {
+                  deltaY += Math.signum(deltaY) * 0.1;
                }
 
-               this.motionY = this.motionY - var4 * this.rand.nextFloat() * 0.2;
-               if (!this.world.isRemote && var1 > 0.0F) {
-                  this.spawnLootBlocks(var2);
+               this.motionY = this.motionY - deltaY * this.rand.nextFloat() * 0.2;
+               if (!this.world.isRemote && liquidHeight > 0.0F) {
+                  this.spawnLootBlocks(pos);
                }
             }
          }
 
-         if (var3.getMaterial() != Material.WATER) {
+         if (state.getMaterial() != Material.WATER) {
             this.motionY -= 0.03;
          }
 
@@ -290,9 +290,9 @@ public class SexEntity extends Entity {
    }
 
    private void updateVelocity() {
-      float var1 = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+      float horizontalSpeed = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
       this.rotationYaw = (float)(MathHelper.atan2(this.motionX, this.motionZ) * (180.0 / Math.PI));
-      this.rotationPitch = (float)(MathHelper.atan2(this.motionY, var1) * (180.0 / Math.PI));
+      this.rotationPitch = (float)(MathHelper.atan2(this.motionY, horizontalSpeed) * (180.0 / Math.PI));
 
       while (this.rotationPitch - this.prevRotationPitch < -180.0F) {
          this.prevRotationPitch -= 360.0F;
@@ -319,41 +319,41 @@ public class SexEntity extends Entity {
     * collidable entity (or the ground) ahead of it.
     */
    private void checkCatch() {
-      Vec3d var1 = new Vec3d(this.posX, this.posY, this.posZ);
-      Vec3d var2 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
-      RayTraceResult var3 = this.world.rayTraceBlocks(var1, var2, false, true, false);
-      var1 = new Vec3d(this.posX, this.posY, this.posZ);
-      var2 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
-      if (var3 != null) {
-         var2 = new Vec3d(var3.hitVec.x, var3.hitVec.y, var3.hitVec.z);
+      Vec3d start = new Vec3d(this.posX, this.posY, this.posZ);
+      Vec3d end = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+      RayTraceResult rayTrace = this.world.rayTraceBlocks(start, end, false, true, false);
+      start = new Vec3d(this.posX, this.posY, this.posZ);
+      end = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+      if (rayTrace != null) {
+         end = new Vec3d(rayTrace.hitVec.x, rayTrace.hitVec.y, rayTrace.hitVec.z);
       }
 
-      Entity var4 = null;
-      List var5 = this.world
+      Entity target = null;
+      List entities = this.world
          .getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).grow(1.0));
-      double var6 = 0.0;
+      double closestDist = 0.0;
 
-      for (Entity var9 : (java.util.Collection<Entity>) (var5) ) {
-         if (this.isCollidableEntity(var9) && (var9 != this.getOwnerLunaInternal() || this.waterBobCounter >= 5)) {
-            AxisAlignedBB var10 = var9.getEntityBoundingBox().grow(0.3F);
-            RayTraceResult var11 = var10.calculateIntercept(var1, var2);
-            if (var11 != null) {
-               double var12 = var1.squareDistanceTo(var11.hitVec);
-               if (var12 < var6 || var6 == 0.0) {
-                  var4 = var9;
-                  var6 = var12;
+      for (Entity entity : (java.util.Collection<Entity>) (entities) ) {
+         if (this.isCollidableEntity(entity) && (entity != this.getOwnerLunaInternal() || this.waterBobCounter >= 5)) {
+            AxisAlignedBB aabb = entity.getEntityBoundingBox().grow(0.3F);
+            RayTraceResult entityRayTrace = aabb.calculateIntercept(start, end);
+            if (entityRayTrace != null) {
+               double distSq = start.squareDistanceTo(entityRayTrace.hitVec);
+               if (distSq < closestDist || closestDist == 0.0) {
+                  target = entity;
+                  closestDist = distSq;
                }
             }
          }
       }
 
-      if (var4 != null) {
-         var3 = new RayTraceResult(var4);
+      if (target != null) {
+         rayTrace = new RayTraceResult(target);
       }
 
-      if (var3 != null && var3.typeOfHit != Type.MISS) {
-         if (var3.typeOfHit == Type.ENTITY) {
-            this.caughtEntity = var3.entityHit;
+      if (rayTrace != null && rayTrace.typeOfHit != Type.MISS) {
+         if (rayTrace.typeOfHit == Type.ENTITY) {
+            this.caughtEntity = rayTrace.entityHit;
             this.bindTargetEntity();
          } else {
             this.isHooked = true;
@@ -370,16 +370,16 @@ public class SexEntity extends Entity {
     * sounds and the randomized catch-delay chain (scaled by the fishing
     * level). Vanilla bobber mechanics, adapted for Luna.
     */
-   private void spawnLootBlocks(BlockPos var1) {
-      WorldServer var2 = (WorldServer)this.world;
-      int var3 = 1;
-      BlockPos var4 = var1.up();
-      if (this.rand.nextFloat() < 0.25F && this.world.isRainingAt(var4)) {
-         var3++;
+   private void spawnLootBlocks(BlockPos centerPos) {
+      WorldServer worldServer = (WorldServer)this.world;
+      int lootCount = 1;
+      BlockPos pos = centerPos.up();
+      if (this.rand.nextFloat() < 0.25F && this.world.isRainingAt(pos)) {
+         lootCount++;
       }
 
-      if (this.rand.nextFloat() < 0.5F && !this.world.canSeeSky(var4)) {
-         var3--;
+      if (this.rand.nextFloat() < 0.5F && !this.world.canSeeSky(pos)) {
+         lootCount--;
       }
 
       if (this.lureTimer > 0) {
@@ -391,34 +391,34 @@ public class SexEntity extends Entity {
             this.motionY = this.motionY - 0.2 * this.rand.nextFloat() * this.rand.nextFloat();
          }
       } else if (this.bobMotion > 0) {
-         this.bobMotion -= var3;
+         this.bobMotion -= lootCount;
          if (this.bobMotion > 0) {
             this.bobAngle = (float)(this.bobAngle + this.rand.nextGaussian() * 4.0);
-            float var5 = this.bobAngle * (float) (Math.PI / 180.0);
-            float var6 = MathHelper.sin(var5);
-            float var7 = MathHelper.cos(var5);
-            double var8 = this.posX + var6 * this.bobMotion * 0.1F;
-            double var10 = MathHelper.floor(this.getEntityBoundingBox().minY) + 1.0F;
-            double var12 = this.posZ + var7 * this.bobMotion * 0.1F;
-            IBlockState var14 = var2.getBlockState(new BlockPos(var8, var10 - 1.0, var12));
-            if (var14.getMaterial() == Material.WATER) {
+            float angle = this.bobAngle * (float) (Math.PI / 180.0);
+            float sinAngle = MathHelper.sin(angle);
+            float cosAngle = MathHelper.cos(angle);
+            double x = this.posX + sinAngle * this.bobMotion * 0.1F;
+            double y = MathHelper.floor(this.getEntityBoundingBox().minY) + 1.0F;
+            double z = this.posZ + cosAngle * this.bobMotion * 0.1F;
+            IBlockState state = worldServer.getBlockState(new BlockPos(x, y - 1.0, z));
+            if (state.getMaterial() == Material.WATER) {
                if (this.rand.nextFloat() < 0.15F) {
-                  var2.spawnParticle(EnumParticleTypes.WATER_BUBBLE, var8, var10 - 0.1F, var12, 1, var6, 0.1, var7, 0.0, new int[0]);
+                  worldServer.spawnParticle(EnumParticleTypes.WATER_BUBBLE, x, y - 0.1F, z, 1, sinAngle, 0.1, cosAngle, 0.0, new int[0]);
                }
 
-               float var15 = var6 * 0.04F;
-               float var16 = var7 * 0.04F;
-               var2.spawnParticle(EnumParticleTypes.WATER_WAKE, var8, var10, var12, 0, var16, 0.01, -var15, 1.0, new int[0]);
-               var2.spawnParticle(EnumParticleTypes.WATER_WAKE, var8, var10, var12, 0, -var16, 0.01, var15, 1.0, new int[0]);
+               float xVel = sinAngle * 0.04F;
+               float zVel = cosAngle * 0.04F;
+               worldServer.spawnParticle(EnumParticleTypes.WATER_WAKE, x, y, z, 0, zVel, 0.01, -xVel, 1.0, new int[0]);
+               worldServer.spawnParticle(EnumParticleTypes.WATER_WAKE, x, y, z, 0, -zVel, 0.01, xVel, 1.0, new int[0]);
             }
          } else {
             this.motionY = -0.4F * MathHelper.nextFloat(this.rand, 0.6F, 1.0F);
             this.playSound(SoundEvents.ENTITY_BOBBER_SPLASH, 0.25F, 1.0F + (this.rand.nextFloat() - this.rand.nextFloat()) * 0.4F);
-            double var17 = this.getEntityBoundingBox().minY + 0.5;
-            var2.spawnParticle(
+            double y = this.getEntityBoundingBox().minY + 0.5;
+            worldServer.spawnParticle(
                EnumParticleTypes.WATER_BUBBLE,
                this.posX,
-               var17,
+               y,
                this.posZ,
                (int)(1.0F + this.width * 20.0F),
                this.width,
@@ -427,10 +427,10 @@ public class SexEntity extends Entity {
                0.2F,
                new int[0]
             );
-            var2.spawnParticle(
+            worldServer.spawnParticle(
                EnumParticleTypes.WATER_WAKE,
                this.posX,
-               var17,
+               y,
                this.posZ,
                (int)(1.0F + this.width * 20.0F),
                this.width,
@@ -442,25 +442,25 @@ public class SexEntity extends Entity {
             this.lureTimer = MathHelper.getInt(this.rand, 20, 40);
          }
       } else if (this.catchDelay > 0) {
-         this.catchDelay -= var3;
-         float var18 = 0.15F;
+         this.catchDelay -= lootCount;
+         float radius = 0.15F;
          if (this.catchDelay < 20) {
-            var18 = (float)(0.15F + (20 - this.catchDelay) * 0.05);
+            radius = (float)(0.15F + (20 - this.catchDelay) * 0.05);
          } else if (this.catchDelay < 40) {
-            var18 = (float)(0.15F + (40 - this.catchDelay) * 0.02);
+            radius = (float)(0.15F + (40 - this.catchDelay) * 0.02);
          } else if (this.catchDelay < 60) {
-            var18 = (float)(0.15F + (60 - this.catchDelay) * 0.01);
+            radius = (float)(0.15F + (60 - this.catchDelay) * 0.01);
          }
 
-         if (this.rand.nextFloat() < var18) {
-            float var19 = MathHelper.nextFloat(this.rand, 0.0F, 360.0F) * (float) (Math.PI / 180.0);
-            float var20 = MathHelper.nextFloat(this.rand, 25.0F, 60.0F);
-            double var21 = this.posX + MathHelper.sin(var19) * var20 * 0.1F;
-            double var22 = MathHelper.floor(this.getEntityBoundingBox().minY) + 1.0F;
-            double var23 = this.posZ + MathHelper.cos(var19) * var20 * 0.1F;
-            IBlockState var24 = var2.getBlockState(new BlockPos((int)var21, (int)var22 - 1, (int)var23));
-            if (var24.getMaterial() == Material.WATER) {
-               var2.spawnParticle(EnumParticleTypes.WATER_SPLASH, var21, var22, var23, 2 + this.rand.nextInt(2), 0.1F, 0.0, 0.1F, 0.0, new int[0]);
+         if (this.rand.nextFloat() < radius) {
+            float angle = MathHelper.nextFloat(this.rand, 0.0F, 360.0F) * (float) (Math.PI / 180.0);
+            float spread = MathHelper.nextFloat(this.rand, 25.0F, 60.0F);
+            double x = this.posX + MathHelper.sin(angle) * spread * 0.1F;
+            double y = MathHelper.floor(this.getEntityBoundingBox().minY) + 1.0F;
+            double z = this.posZ + MathHelper.cos(angle) * spread * 0.1F;
+            IBlockState state = worldServer.getBlockState(new BlockPos((int)x, (int)y - 1, (int)z));
+            if (state.getMaterial() == Material.WATER) {
+               worldServer.spawnParticle(EnumParticleTypes.WATER_SPLASH, x, y, z, 2 + this.rand.nextInt(2), 0.1F, 0.0, 0.1F, 0.0, new int[0]);
             }
          }
 
@@ -474,14 +474,14 @@ public class SexEntity extends Entity {
       }
    }
 
-   protected boolean isCollidableEntity(Entity var1) {
-      return var1.canBeCollidedWith() || var1 instanceof EntityItem;
+   protected boolean isCollidableEntity(Entity entity) {
+      return entity.canBeCollidedWith() || entity instanceof EntityItem;
    }
 
-   public void writeEntityToNBT(NBTTagCompound var1) {
+   public void writeEntityToNBT(NBTTagCompound nbt) {
    }
 
-   public void readEntityFromNBT(NBTTagCompound var1) {
+   public void readEntityFromNBT(NBTTagCompound nbt) {
    }
 
    /**
@@ -492,45 +492,45 @@ public class SexEntity extends Entity {
     */
    public int getCatchResult() {
       if (!this.world.isRemote && this.getOwnerLunaInternal() != null) {
-         byte var1 = 0;
+         byte result = 0;
          if (this.caughtEntity != null) {
             this.handleCatch();
             this.world.setEntityState(this, (byte)31);
-            var1 = (byte)(this.caughtEntity instanceof EntityItem ? 3 : 5);
+            result = (byte)(this.caughtEntity instanceof EntityItem ? 3 : 5);
          } else if (this.lureTimer > 0) {
-            Builder var3 = new Builder((WorldServer)this.world);
+            Builder lootBuilder = new Builder((WorldServer)this.world);
 
-            for (ItemStack var6 : this.world
+            for (ItemStack stack : this.world
                .getLootTableManager()
                .getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING)
-               .generateLootForPools(this.rand, var3.build())) {
-               LunaEntity var7 = this.getOwnerLunaInternal();
-               var7.setHeldItemStack(var6);
+               .generateLootForPools(this.rand, lootBuilder.build())) {
+               LunaEntity luna = this.getOwnerLunaInternal();
+               luna.setHeldItemStack(stack);
             }
 
             this.lureTimer = 9999;
-            var1 = 1;
+            result = 1;
          }
 
          if (this.isHooked) {
-            var1 = 2;
+            result = 2;
          }
 
-         return var1;
+         return result;
       } else {
          return 0;
       }
    }
 
    protected void handleCatch() {
-      LunaEntity var1 = this.getOwnerLunaInternal();
-      if (var1 != null) {
-         double var2 = var1.posX - this.posX;
-         double var4 = var1.posY - this.posY;
-         double var6 = var1.posZ - this.posZ;
-         this.caughtEntity.motionX += var2 * 0.1;
-         this.caughtEntity.motionY += var4 * 0.1;
-         this.caughtEntity.motionZ += var6 * 0.1;
+      LunaEntity luna = this.getOwnerLunaInternal();
+      if (luna != null) {
+         double dx = luna.posX - this.posX;
+         double dy = luna.posY - this.posY;
+         double dz = luna.posZ - this.posZ;
+         this.caughtEntity.motionX += dx * 0.1;
+         this.caughtEntity.motionY += dy * 0.1;
+         this.caughtEntity.motionZ += dz * 0.1;
       }
    }
 
@@ -538,10 +538,10 @@ public class SexEntity extends Entity {
       return false;
    }
 
-   public void readFromNBT(NBTTagCompound var1) {
+   public void readFromNBT(NBTTagCompound nbt) {
    }
 
-   public NBTTagCompound writeToNBT(NBTTagCompound var1) {
+   public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
       return null;
    }
 

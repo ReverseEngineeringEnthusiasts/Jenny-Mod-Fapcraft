@@ -23,8 +23,8 @@ public class TribeNameScreen extends GuiScreen {
    UUID koboldId;
    GuiTextField nameField;
 
-   public TribeNameScreen(UUID var1) {
-      this.koboldId = var1;
+   public TribeNameScreen(UUID koboldId) {
+      this.koboldId = koboldId;
    }
 
    public boolean doesGuiPauseGame() {
@@ -43,35 +43,35 @@ public class TribeNameScreen extends GuiScreen {
       super.updateScreen();
    }
 
-   public void drawScreen(int var1, int var2, float var3) {
+   public void drawScreen(int mouseX, int mouseY, float partialTicks) {
       this.drawHoveringText("Name Tribe", this.width / 2 - 39, this.height / 2 - 10);
       this.nameField.drawTextBox();
-      super.drawScreen(var1, var2, var3);
+      super.drawScreen(mouseX, mouseY, partialTicks);
    }
 
    /**
     * Clamps the tribe name to {@value #MAX_NAME_LENGTH} characters while
     * typing.
     */
-   protected void keyTyped(char var1, int var2) {
-      this.nameField.textboxKeyTyped(var1, var2);
-      String var3 = this.nameField.getText();
-      if (var3.length() > 15) {
-         this.nameField.setText(var3.substring(0, 15));
+   protected void keyTyped(char typedChar, int keyCode) {
+      this.nameField.textboxKeyTyped(typedChar, keyCode);
+      String text = this.nameField.getText();
+      if (text.length() > 15) {
+         this.nameField.setText(text.substring(0, 15));
       }
 
-      super.keyTyped(var1, var2);
+      super.keyTyped(typedChar, keyCode);
    }
 
    /**
     * Sends {@link ClaimTribePacket} with the entered name (non-empty after
     * trimming) and closes the screen.
     */
-   protected void actionPerformed(GuiButton var1) {
-      super.actionPerformed(var1);
-      String var2 = this.nameField.getText().trim();
-      if (var2.length() != 0) {
-         PacketHandler.networkWrapper.sendToServer(new ClaimTribePacket(this.koboldId, Minecraft.getMinecraft().player.getPersistentID(), var2));
+   protected void actionPerformed(GuiButton button) {
+      super.actionPerformed(button);
+      String name = this.nameField.getText().trim();
+      if (name.length() != 0) {
+         PacketHandler.networkWrapper.sendToServer(new ClaimTribePacket(this.koboldId, Minecraft.getMinecraft().player.getPersistentID(), name));
          Minecraft.getMinecraft().player.closeScreen();
       }
    }

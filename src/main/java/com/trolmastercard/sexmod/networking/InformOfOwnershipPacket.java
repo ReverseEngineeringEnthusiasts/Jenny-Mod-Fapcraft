@@ -25,23 +25,23 @@ public class InformOfOwnershipPacket implements IMessage {
    public InformOfOwnershipPacket() {
    }
 
-   public InformOfOwnershipPacket(boolean var1) {
-      this.isOwned = var1;
+   public InformOfOwnershipPacket(boolean isOwned) {
+      this.isOwned = isOwned;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.isOwned = var1.readBoolean();
+   public void fromBytes(ByteBuf buf) {
+      this.isOwned = buf.readBoolean();
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeBoolean(this.isOwned);
+   public void toBytes(ByteBuf buf) {
+      buf.writeBoolean(this.isOwned);
    }
 
    public static class Handler implements IMessageHandler<InformOfOwnershipPacket, IMessage> {
-      public IMessage onMessage(InformOfOwnershipPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.CLIENT)) {
-            GirlSavedData.debugEnabled = var1.isOwned;
+      public IMessage onMessage(InformOfOwnershipPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.CLIENT)) {
+            GirlSavedData.debugEnabled = packet.isOwned;
             return null;
          } else {
             System.out.println("received an invalid message @InformOfOwnership :(");

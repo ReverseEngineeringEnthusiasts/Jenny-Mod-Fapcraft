@@ -22,7 +22,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * interaction player and gives her an upward velocity.
  * <p>
  * <b>Pitfall — side effects.</b> The girl is removed from her chunk
- * ({@code world.getChunk(...).removeEntity(var5)}) so she is not ticked/render-
+ * ({@code world.getChunk(...).removeEntity(girl)}) so she is not ticked/render-
  * synced as a normal entity while being ridden. Do not remove that line: the
  * riding player is the authority for her position; keeping her in the chunk
  * causes a desync loop where the server snaps her back to the chunk position.
@@ -32,28 +32,28 @@ import net.minecraftforge.fml.relauncher.Side;
 public class RequestRidingPacket implements IMessage {
    boolean isValid = false;
 
-   public void fromBytes(ByteBuf var1) {
+   public void fromBytes(ByteBuf buf) {
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
+   public void toBytes(ByteBuf buf) {
    }
 
    public static class Handler implements IMessageHandler<RequestRidingPacket, IMessage> {
-      public IMessage onMessage(RequestRidingPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.SERVER)) {
-            EntityPlayerMP var3 = var2.getServerHandler().player;
-            UUID var4 = GirlSavedData.getOwnerOf(var3);
-            BaseGirlEntity var5 = BaseGirlEntity.getServerGirlEntity(var4);
-            if (var5 == null) {
+      public IMessage onMessage(RequestRidingPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.SERVER)) {
+            EntityPlayerMP player = ctx.getServerHandler().player;
+            UUID ownerUuid = GirlSavedData.getOwnerOf(player);
+            BaseGirlEntity girl = BaseGirlEntity.getServerGirlEntity(ownerUuid);
+            if (girl == null) {
                return null;
             }
 
-            var3.startRiding(var5, true);
-            var5.setCurrentAction(Action.CONTROLLED_FLIGHT);
-            var5.setInteractionPlayer(var3);
-            var5.motionY = 0.25;
-            var3.world.getChunk(var5.getPosition()).removeEntity(var5);
+            player.startRiding(girl, true);
+            girl.setCurrentAction(Action.CONTROLLED_FLIGHT);
+            girl.setInteractionPlayer(player);
+            girl.motionY = 0.25;
+            player.world.getChunk(girl.getPosition()).removeEntity(girl);
             return null;
          } else {
             System.out.println("received an invalid message @RequestRiding :(");

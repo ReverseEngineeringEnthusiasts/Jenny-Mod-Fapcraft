@@ -32,42 +32,42 @@ public class GirlDataPacket implements IMessage {
    public GirlDataPacket() {
    }
 
-   public GirlDataPacket(EntityPlayer var1) {
-      this.player = var1;
+   public GirlDataPacket(EntityPlayer player) {
+      this.player = player;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      int var2 = var1.readInt();
+   public void fromBytes(ByteBuf buf) {
+      int count = buf.readInt();
 
-      for (int var3 = 0; var3 < var2; var3++) {
-         this.a.put(NpcType.valueOf(ByteBufUtils.readUTF8String(var1)), ByteBufUtils.readUTF8String(var1));
+      for (int i = 0; i < count; i++) {
+         this.a.put(NpcType.valueOf(ByteBufUtils.readUTF8String(buf)), ByteBufUtils.readUTF8String(buf));
       }
 
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      for (NpcType var5 : NpcType.values()) {
-         if (var5.hasSpecifics) {
-            String var6 = this.player.getEntityData().getString("sexmod:GirlSpecific" + var5);
-            if (!"".equals(var6)) {
-               this.a.put(var5, var6);
+   public void toBytes(ByteBuf buf) {
+      for (NpcType type : NpcType.values()) {
+         if (type.hasSpecifics) {
+            String value = this.player.getEntityData().getString("sexmod:GirlSpecific" + type);
+            if (!"".equals(value)) {
+               this.a.put(type, value);
             }
          }
       }
 
-      var1.writeInt(this.a.size());
+      buf.writeInt(this.a.size());
 
-      for (Entry var8 : this.a.entrySet()) {
-         ByteBufUtils.writeUTF8String(var1, ((NpcType)var8.getKey()).toString());
-         ByteBufUtils.writeUTF8String(var1, (String)var8.getValue());
+      for (Entry entry : this.a.entrySet()) {
+         ByteBufUtils.writeUTF8String(buf, ((NpcType)entry.getKey()).toString());
+         ByteBufUtils.writeUTF8String(buf, (String)entry.getValue());
       }
    }
 
    public static class Handler implements IMessageHandler<GirlDataPacket, IMessage> {
-      public IMessage onMessage(GirlDataPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.CLIENT) {
-            this.applyGirlData(var1.a);
+      public IMessage onMessage(GirlDataPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.CLIENT) {
+            this.applyGirlData(packet.a);
             return null;
          } else {
             return null;
@@ -75,9 +75,9 @@ public class GirlDataPacket implements IMessage {
       }
 
       @SideOnly(Side.CLIENT)
-      public void applyGirlData(HashMap<NpcType, String> var1) {
-         Minecraft var2 = Minecraft.getMinecraft();
-         var2.addScheduledTask(() -> var2.displayGuiScreen(new GirlScreenBase(var1)));
+      public void applyGirlData(HashMap<NpcType, String> data) {
+         Minecraft minecraft = Minecraft.getMinecraft();
+         minecraft.addScheduledTask(() -> minecraft.displayGuiScreen(new GirlScreenBase(data)));
       }
 
    }

@@ -35,16 +35,16 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
    }
 
    @Override
-   public void render(WinchesterItem var1, ItemStack var2) {
-      this.renderSummonItem(var1, var2);
+   public void render(WinchesterItem item, ItemStack stack) {
+      this.renderSummonItem(item, stack);
    }
 
-   public void renderSummonItem(WinchesterItem var1, ItemStack var2) {
+   public void renderSummonItem(WinchesterItem item, ItemStack stack) {
       if (DebugMode.b[0] == 0.0F) {
          GL11.glDisable(2896);
       }
 
-      super.render(var1, var2);
+      super.render(item, stack);
       GL11.glEnable(2896);
    }
 
@@ -55,36 +55,36 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
     * color.
     */
    @Override
-   public void renderCube(BufferBuilder var1, GeoCube var2, float var3, float var4, float var5, float var6) {
-      MATRIX_STACK.moveToPivot(var2);
-      MATRIX_STACK.rotate(var2);
-      MATRIX_STACK.moveBackFromPivot(var2);
+   public void renderCube(BufferBuilder buffer, GeoCube cube, float r, float g, float b, float alpha) {
+      MATRIX_STACK.moveToPivot(cube);
+      MATRIX_STACK.rotate(cube);
+      MATRIX_STACK.moveBackFromPivot(cube);
 
-      for (GeoQuad var10 : var2.quads) {
-         if (var10 != null) {
-            Vector3f var11 = new Vector3f(var10.normal.getX(), var10.normal.getY(), var10.normal.getZ());
-            MATRIX_STACK.getNormalMatrix().transform(var11);
-            if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var11.getX() < 0.0F) {
-               var11.x *= -1.0F;
+      for (GeoQuad quad : cube.quads) {
+         if (quad != null) {
+            Vector3f normal = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
+            MATRIX_STACK.getNormalMatrix().transform(normal);
+            if ((cube.size.y == 0.0F || cube.size.z == 0.0F) && normal.getX() < 0.0F) {
+               normal.x *= -1.0F;
             }
 
-            if ((var2.size.x == 0.0F || var2.size.z == 0.0F) && var11.getY() < 0.0F) {
-               var11.y *= -1.0F;
+            if ((cube.size.x == 0.0F || cube.size.z == 0.0F) && normal.getY() < 0.0F) {
+               normal.y *= -1.0F;
             }
 
-            if ((var2.size.x == 0.0F || var2.size.y == 0.0F) && var11.getZ() < 0.0F) {
-               var11.z *= -1.0F;
+            if ((cube.size.x == 0.0F || cube.size.y == 0.0F) && normal.getZ() < 0.0F) {
+               normal.z *= -1.0F;
             }
 
-            Vec3d var12 = DebugMode.b[0] == 0.0F ? BodyParts.offsetBonePosition(new Vec3d(var3, var4, var5), var11, offsetVec) : new Vec3d(var3, var4, var5);
+            Vec3d tint = DebugMode.b[0] == 0.0F ? BodyParts.offsetBonePosition(new Vec3d(r, g, b), normal, offsetVec) : new Vec3d(r, g, b);
 
-            for (GeoVertex var16 : var10.vertices) {
-               Vector4f var17 = new Vector4f(var16.position.getX(), var16.position.getY(), var16.position.getZ(), 1.0F);
-               MATRIX_STACK.getModelMatrix().transform(var17);
-               var1.pos(var17.getX(), var17.getY(), var17.getZ())
-                  .tex(var16.textureU, var16.textureV)
-                  .color((float)var12.x, (float)var12.y, (float)var12.z, var6)
-                  .normal(var11.getX(), var11.getY(), var11.getZ())
+            for (GeoVertex vertex : quad.vertices) {
+               Vector4f matrixPos = new Vector4f(vertex.position.getX(), vertex.position.getY(), vertex.position.getZ(), 1.0F);
+               MATRIX_STACK.getModelMatrix().transform(matrixPos);
+               buffer.pos(matrixPos.getX(), matrixPos.getY(), matrixPos.getZ())
+                  .tex(vertex.textureU, vertex.textureV)
+                  .color((float)tint.x, (float)tint.y, (float)tint.z, alpha)
+                  .normal(normal.getX(), normal.getY(), normal.getZ())
                   .endVertex();
             }
          }

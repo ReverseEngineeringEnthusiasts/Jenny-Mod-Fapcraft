@@ -21,7 +21,7 @@ public class CommandReloadCustomModels extends CommandBase {
       return "reloadcustommodels";
    }
 
-   public String getUsage(ICommandSender var1) {
+   public String getUsage(ICommandSender sender) {
       return "/reloadcustommodels";
    }
 
@@ -29,11 +29,11 @@ public class CommandReloadCustomModels extends CommandBase {
       return 2;
    }
 
-   public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
+   public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
       ServerWhitelistManager.getModelCount(false);
 
-      for (EntityPlayerMP var5 : var1.getPlayerList().getPlayers()) {
-         var1.addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(new UnknownPacket(ServerWhitelistManager.getModelScales()), var5));
+      for (EntityPlayerMP player : server.getPlayerList().getPlayers()) {
+         server.addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(new UnknownPacket(ServerWhitelistManager.getModelScales()), player));
       }
    }
 }

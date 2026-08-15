@@ -34,101 +34,101 @@ public class GirlWorldData extends WorldSavedData {
       super("sexmod:static_custom_model_manager");
    }
 
-   public GirlWorldData(String var1) {
+   public GirlWorldData(String dataId) {
       super("sexmod:static_custom_model_manager");
    }
 
-   public static String getCustomModelCode(BaseGirlEntity var0) {
-      String var1 = buildModelCode(var0);
-      return var1 == null ? "" : var1;
+   public static String getCustomModelCode(BaseGirlEntity girl) {
+      String code = buildModelCode(girl);
+      return code == null ? "" : code;
    }
 
-   private static String buildModelCode(BaseGirlEntity var0) {
-      if (var0 instanceof GalathEntity) {
-         UUID var3 = var0.getGirlId();
-         UUID var2 = GirlSavedData.getManglelieOwnerId(var3);
-         if (var2 == null) {
-            var2 = var3;
+   private static String buildModelCode(BaseGirlEntity girl) {
+      if (girl instanceof GalathEntity) {
+         UUID girlId = girl.getGirlId();
+         UUID ownerId = GirlSavedData.getManglelieOwnerId(girlId);
+         if (ownerId == null) {
+            ownerId = girlId;
          }
 
-         return c.get(var2);
-      } else if (var0 instanceof ManglelieEntity) {
-         UUID var1 = GirlSavedData.getManglelieOwnerId(((ManglelieEntity)var0).getCorruptPlayerUUID());
-         return b.get(var1 == null ? var0.getGirlId() : var1);
+         return c.get(ownerId);
+      } else if (girl instanceof ManglelieEntity) {
+         UUID ownerId2 = GirlSavedData.getManglelieOwnerId(((ManglelieEntity)girl).getCorruptPlayerUUID());
+         return b.get(ownerId2 == null ? girl.getGirlId() : ownerId2);
       } else {
          return null;
       }
    }
 
-   public static void setCustomModelCode(BaseGirlEntity var0) {
-      if (var0 instanceof GalathEntity) {
-         UUID var3 = var0.getGirlId();
-         UUID var2 = GirlSavedData.getManglelieOwnerId(var3);
-         if (var2 == null) {
-            var2 = var3;
+   public static void setCustomModelCode(BaseGirlEntity girl) {
+      if (girl instanceof GalathEntity) {
+         UUID girlId = girl.getGirlId();
+         UUID ownerId = GirlSavedData.getManglelieOwnerId(girlId);
+         if (ownerId == null) {
+            ownerId = girlId;
          }
 
-         c.put(var2, var0.getCustomModelCode());
+         c.put(ownerId, girl.getCustomModelCode());
       } else {
-         if (var0 instanceof ManglelieEntity) {
-            UUID var1 = GirlSavedData.getManglelieOwnerId(((ManglelieEntity)var0).getCorruptPlayerUUID());
-            b.put(var1 == null ? var0.getGirlId() : var1, var0.getCustomModelCode());
+         if (girl instanceof ManglelieEntity) {
+            UUID ownerId2 = GirlSavedData.getManglelieOwnerId(((ManglelieEntity)girl).getCorruptPlayerUUID());
+            b.put(ownerId2 == null ? girl.getGirlId() : ownerId2, girl.getCustomModelCode());
          }
       }
    }
 
    @SubscribeEvent
-   public void onSave(Save var1) {
-      World var2 = var1.getWorld();
-      var2.getMapStorage().setData("sexmod:static_custom_model_manager", this);
+   public void onSave(Save event) {
+      World world = event.getWorld();
+      world.getMapStorage().setData("sexmod:static_custom_model_manager", this);
       this.markDirty();
    }
 
    @SubscribeEvent
-   public void onLoad(Load var1) {
-      World var2 = var1.getWorld();
-      var2.getMapStorage().getOrLoadData(GirlWorldData.class, "sexmod:static_custom_model_manager");
+   public void onLoad(Load event) {
+      World world = event.getWorld();
+      world.getMapStorage().getOrLoadData(GirlWorldData.class, "sexmod:static_custom_model_manager");
    }
 
-   public void readFromNBT(NBTTagCompound var1) {
-      NBTTagCompound var2 = var1.getCompoundTag("sexmod:static_custom_model_manager");
-      this.writeNBT(var2.getCompoundTag("galath"), c);
-      this.writeNBT(var2.getCompoundTag("mang"), b);
+   public void readFromNBT(NBTTagCompound nbt) {
+      NBTTagCompound tag = nbt.getCompoundTag("sexmod:static_custom_model_manager");
+      this.writeNBT(tag.getCompoundTag("galath"), c);
+      this.writeNBT(tag.getCompoundTag("mang"), b);
    }
 
-   public NBTTagCompound writeToNBT(NBTTagCompound var1) {
-      NBTTagCompound var2 = new NBTTagCompound();
-      var2.setTag("galath", this.serializeOwnership(c));
-      var2.setTag("mang", this.serializeOwnership(b));
-      var1.setTag("sexmod:static_custom_model_manager", var2);
-      return var1;
+   public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+      NBTTagCompound tag = new NBTTagCompound();
+      tag.setTag("galath", this.serializeOwnership(c));
+      tag.setTag("mang", this.serializeOwnership(b));
+      nbt.setTag("sexmod:static_custom_model_manager", tag);
+      return nbt;
    }
 
-   NBTTagCompound serializeOwnership(HashMap<UUID, String> var1) {
-      NBTTagCompound var2 = new NBTTagCompound();
-      int var3 = 0;
+   NBTTagCompound serializeOwnership(HashMap<UUID, String> ownershipMap) {
+      NBTTagCompound tag = new NBTTagCompound();
+      int i = 0;
 
-      for (Entry var5 : var1.entrySet()) {
-         UUID var6 = (UUID)var5.getKey();
-         var2.setString("UUID" + var3, var6.toString());
-         var2.setString("MODEL" + var3, (String)var5.getValue());
-         var3++;
+      for (Entry entry : ownershipMap.entrySet()) {
+         UUID uuid = (UUID)entry.getKey();
+         tag.setString("UUID" + i, uuid.toString());
+         tag.setString("MODEL" + i, (String)entry.getValue());
+         i++;
       }
 
-      return var2;
+      return tag;
    }
 
-   void writeNBT(NBTTagCompound var1, HashMap<UUID, String> var2) {
-      int var3 = 0;
+   void writeNBT(NBTTagCompound tag, HashMap<UUID, String> ownershipMap) {
+      int i = 0;
 
       while (true) {
-         String var4 = var1.getString("UUID" + var3);
-         if ("".equals(var4)) {
+         String uuidString = tag.getString("UUID" + i);
+         if ("".equals(uuidString)) {
             return;
          }
 
-         var2.put(UUID.fromString(var4), var1.getString("MODEL" + var3));
-         var3++;
+         ownershipMap.put(UUID.fromString(uuidString), tag.getString("MODEL" + i));
+         i++;
       }
    }
 

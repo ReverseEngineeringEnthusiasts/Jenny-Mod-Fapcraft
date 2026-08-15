@@ -34,47 +34,47 @@ public class SetPlayerForGirlPacket implements IMessage {
       this.isValid = false;
    }
 
-   public SetPlayerForGirlPacket(UUID var1, UUID var2) {
-      this.girlUUID = var1;
-      this.playerUUID = var2;
+   public SetPlayerForGirlPacket(UUID girlUUID, UUID playerUUID) {
+      this.girlUUID = girlUUID;
+      this.playerUUID = playerUUID;
       this.isValid = true;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(buf, this.playerUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<SetPlayerForGirlPacket, IMessage> {
-      public IMessage onMessage(SetPlayerForGirlPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(SetPlayerForGirlPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
-                  PlayerList var4 = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
+               for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.girlUUID)) {
+                  PlayerList playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
 
                   try {
-                     var4.getPlayerByUUID(var1.playerUUID).getName();
-                  } catch (NullPointerException var8) {
-                     System.out.println("couldn't find player with UUID: " + var1.playerUUID);
+                     playerList.getPlayerByUUID(packet.playerUUID).getName();
+                  } catch (NullPointerException exception) {
+                     System.out.println("couldn't find player with UUID: " + packet.playerUUID);
                      System.out.println("could only find players with thsese UUID's:");
 
-                     for (EntityPlayerMP var7 : var4.getPlayers()) {
-                        System.out.println(var7.getName() + " " + var7.getUniqueID());
+                     for (EntityPlayerMP player : playerList.getPlayers()) {
+                        System.out.println(player.getName() + " " + player.getUniqueID());
                      }
                      continue;
                   }
 
-                  if (var3 instanceof JennyEntity) {
-                     ((JennyEntity)var3).af = true;
+                  if (girl instanceof JennyEntity) {
+                     ((JennyEntity)girl).af = true;
                   }
 
-                  var3.setInteractionPlayerUUID(var1.playerUUID);
+                  girl.setInteractionPlayerUUID(packet.playerUUID);
                }
             });
             return null;

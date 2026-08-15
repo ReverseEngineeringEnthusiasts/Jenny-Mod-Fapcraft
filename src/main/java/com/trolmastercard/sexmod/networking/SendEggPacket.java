@@ -27,30 +27,30 @@ import net.minecraftforge.fml.relauncher.Side;
 public class SendEggPacket implements IMessage {
    boolean isValid;
 
-   public void fromBytes(ByteBuf var1) {
+   public void fromBytes(ByteBuf buf) {
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
+   public void toBytes(ByteBuf buf) {
    }
 
    public static class Handler implements IMessageHandler<SendEggPacket, IMessage> {
-      public IMessage onMessage(SendEggPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.SERVER)) {
+      public IMessage onMessage(SendEggPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               EntityPlayerMP var1x = var2.getServerHandler().player;
-               UUID var2x = KoboldManager.getTribeUUID(var1x.getPersistentID());
-               if (var2x != null) {
-                  EyeAndKoboldColor var3 = KoboldManager.getTribeColor(var2x);
-                  ItemStack var4 = new ItemStack(KoboldEggItem.KOBOLD_EGG_ITEM, 1, var3.getWoolMeta());
-                  NBTTagCompound var5 = var4.getTagCompound();
-                  if (var5 == null) {
-                     var5 = new NBTTagCompound();
+               EntityPlayerMP player = ctx.getServerHandler().player;
+               UUID tribeUuid = KoboldManager.getTribeUUID(player.getPersistentID());
+               if (tribeUuid != null) {
+                  EyeAndKoboldColor color = KoboldManager.getTribeColor(tribeUuid);
+                  ItemStack stack = new ItemStack(KoboldEggItem.KOBOLD_EGG_ITEM, 1, color.getWoolMeta());
+                  NBTTagCompound tag = stack.getTagCompound();
+                  if (tag == null) {
+                     tag = new NBTTagCompound();
                   }
 
-                  var5.setString("tribeID", var2x.toString());
-                  var4.setTagCompound(var5);
-                  var1x.inventory.addItemStackToInventory(var4);
+                  tag.setString("tribeID", tribeUuid.toString());
+                  stack.setTagCompound(tag);
+                  player.inventory.addItemStackToInventory(stack);
                }
             });
             return null;

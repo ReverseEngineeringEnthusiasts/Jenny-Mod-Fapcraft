@@ -49,11 +49,11 @@ public class HornyMeterHud extends Gui {
       }
    }
 
-   public static void setHornyMeterVisible(boolean var0) {
+   public static void setHornyMeterVisible(boolean visible) {
       if (!isVisible) {
          resetHornyMeter();
          isVisible = true;
-         displayState = var0;
+         displayState = visible;
       }
    }
 
@@ -68,42 +68,42 @@ public class HornyMeterHud extends Gui {
    }
 
    @SubscribeEvent
-   public void onRenderGameOverlay(RenderGameOverlayEvent var1) {
-      if (isVisible && var1.getType() == ElementType.TEXT) {
-         Minecraft var2 = Minecraft.getMinecraft();
+   public void onRenderGameOverlay(RenderGameOverlayEvent event) {
+      if (isVisible && event.getType() == ElementType.TEXT) {
+         Minecraft mc = Minecraft.getMinecraft();
          if (slideInProgress < 1.0F) {
-            slideInProgress = slideInProgress + var2.getTickLength() / 25.0F;
+            slideInProgress = slideInProgress + mc.getTickLength() / 25.0F;
          } else {
             slideInProgress = 1.0F;
          }
 
          GL11.glPushMatrix();
-         var2.renderEngine.bindTexture(BUTTON_TEXTURE);
+         mc.renderEngine.bindTexture(BUTTON_TEXTURE);
          GL11.glScalef(0.35F, 0.35F, 0.35F);
          if (meterValue >= 1.0) {
             if (HandlePlayerMovement.isInAction) {
                isExpanded = true;
             }
 
-            int var3 = isExpanded ? 54 : 0;
-            this.drawTexturedModalRect(240, 160, 0, 108 + var3, 256, 52);
+            int yOffset = isExpanded ? 54 : 0;
+            this.drawTexturedModalRect(240, 160, 0, 108 + yOffset, 256, 52);
          }
 
          if (displayState && !isExpanded) {
-            int var7 = HandlePlayerMovement.isJumping ? 54 : 0;
-            this.drawTexturedModalRect((int)RotationHelper.lerp(-200.0F, 98.0F, slideInProgress), 405, 0, var7, 158, 54);
+            int jumpOffset = HandlePlayerMovement.isJumping ? 54 : 0;
+            this.drawTexturedModalRect((int)RotationHelper.lerp(-200.0F, 98.0F, slideInProgress), 405, 0, jumpOffset, 158, 54);
          }
 
          GL11.glScalef(2.857143F, 2.857143F, 2.857143F);
-         var2.renderEngine.bindTexture(METER_TEXTURE);
+         mc.renderEngine.bindTexture(METER_TEXTURE);
          GL11.glScalef(0.75F, 0.75F, 0.75F);
          this.drawTexturedModalRect(10, (int)RotationHelper.lerp(-200.0F, 10.0F, slideInProgress), 0, 0, 146, 175);
-         smoothedMeter = RotationHelper.lerpDouble(smoothedMeter, meterValue, var2.getTickLength());
-         int var8 = (int)RotationHelper.lerpDouble(0.0, 160.0, smoothedMeter);
-         int var4 = (int)RotationHelper.lerpDouble(167.0, 8.0, smoothedMeter);
-         double var5 = RotationHelper.lerpDouble(178.0, 18.0, smoothedMeter);
+         smoothedMeter = RotationHelper.lerpDouble(smoothedMeter, meterValue, mc.getTickLength());
+         int meterHeight = (int)RotationHelper.lerpDouble(0.0, 160.0, smoothedMeter);
+         int meterY = (int)RotationHelper.lerpDouble(167.0, 8.0, smoothedMeter);
+         double lerpedY = RotationHelper.lerpDouble(178.0, 18.0, smoothedMeter);
          if (!isExpanded) {
-            this.drawTexturedModalRect(67, (int)RotationHelper.lerpDouble(-45.0, var5, slideInProgress), 159, var4, 32, var8);
+            this.drawTexturedModalRect(67, (int)RotationHelper.lerpDouble(-45.0, lerpedY, slideInProgress), 159, meterY, 32, meterHeight);
             this.drawTexturedModalRect(
                120,
                (int)RotationHelper.lerpDouble(-58.0, RotationHelper.lerpDouble(178.0, 149.0, 1.0 - smoothedMeter), slideInProgress),
@@ -121,7 +121,7 @@ public class HornyMeterHud extends Gui {
                (int)RotationHelper.lerpDouble(1.0, 29.0, 1.0 - smoothedMeter)
             );
          } else {
-            slideOutProgress = slideOutProgress + var2.getTickLength() / 15.0F;
+            slideOutProgress = slideOutProgress + mc.getTickLength() / 15.0F;
             this.drawTexturedModalRect(67, (int)RotationHelper.lerp(18.0F, -300.0F, slideOutProgress), 159, 8, 32, 160);
          }
 
@@ -129,8 +129,8 @@ public class HornyMeterHud extends Gui {
       }
    }
 
-   public static void addToHornyMeter(double var0) {
-      meterValue += var0;
+   public static void addToHornyMeter(double amount) {
+      meterValue += amount;
       meterValue = meterValue > 1.0 ? 1.0 : meterValue;
    }
 

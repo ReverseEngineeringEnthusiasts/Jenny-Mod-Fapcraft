@@ -37,10 +37,10 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
    public static final double attackDistance = 0.7;
    public static final int updateTicks = 60;
 
-   public GirlFollowAiBase(BaseGirlEntity var1) {
-      this.girl = var1;
-      this.navigator = var1.getNavigator();
-      this.dataManager = var1.getDataManager();
+   public GirlFollowAiBase(BaseGirlEntity girl) {
+      this.girl = girl;
+      this.navigator = girl.getNavigator();
+      this.dataManager = girl.getDataManager();
    }
 
    /**
@@ -49,14 +49,14 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
     * position. Always zeroes her motion afterwards.
     */
    protected void updateNavigation() {
-      int var2 = 0;
+      int attempts = 0;
 
-      BlockPos var1;
+      BlockPos targetPos;
       do {
-         var1 = this.master.getPosition().add(Reference.RANDOM.nextInt(10), 0, Reference.RANDOM.nextInt(10));
-      } while (++var2 < 20 && !this.girl.attemptTeleport(var1.getX(), var1.getY(), var1.getZ()));
+         targetPos = this.master.getPosition().add(Reference.RANDOM.nextInt(10), 0, Reference.RANDOM.nextInt(10));
+      } while (++attempts < 20 && !this.girl.attemptTeleport(targetPos.getX(), targetPos.getY(), targetPos.getZ()));
 
-      if (var2 >= 20) {
+      if (attempts >= 20) {
          this.girl.setPosition(this.master.posX, this.master.posY, this.master.posZ);
       }
 
@@ -66,27 +66,27 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
    }
 
    protected double getFollowDistance() {
-      float var1 = this.girl.getDistance(this.master);
-      double var2;
-      BaseGirlEntity.BaseGirlEntityState var4;
+      float dist = this.girl.getDistance(this.master);
+      double followDistance;
+      BaseGirlEntity.BaseGirlEntityState state;
       if (this.master.isSprinting()) {
-         var2 = 0.7;
-         var4 = BaseGirlEntity.BaseGirlEntityState.RUN;
+         followDistance = 0.7;
+         state = BaseGirlEntity.BaseGirlEntityState.RUN;
       } else {
-         var2 = 0.5;
-         var4 = BaseGirlEntity.BaseGirlEntityState.WALK;
+         followDistance = 0.5;
+         state = BaseGirlEntity.BaseGirlEntityState.WALK;
       }
 
-      double var5 = Math.floor(var1 / 5.0F) * 0.2;
-      var2 += var5;
+      double extra = Math.floor(dist / 5.0F) * 0.2;
+      followDistance += extra;
       if (this.girl.isInWater()) {
-         var2 *= 60.0;
-         var4 = BaseGirlEntity.BaseGirlEntityState.WALK;
+         followDistance *= 60.0;
+         state = BaseGirlEntity.BaseGirlEntityState.WALK;
       }
 
-      this.navigator.setSpeed(var2);
-      this.girl.setWalkSpeed(var4);
-      return var2;
+      this.navigator.setSpeed(followDistance);
+      this.girl.setWalkSpeed(state);
+      return followDistance;
    }
 
    public void resetTask() {
@@ -104,8 +104,8 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
    }
 
    public boolean shouldContinueExecuting() {
-      String var1 = (String)this.dataManager.get(BaseGirlEntity.MASTER);
-      return !var1.equals("") && this.girl.world.getPlayerEntityByUUID(UUID.fromString(var1)) != null;
+      String masterUuid = (String)this.dataManager.get(BaseGirlEntity.MASTER);
+      return !masterUuid.equals("") && this.girl.world.getPlayerEntityByUUID(UUID.fromString(masterUuid)) != null;
    }
 
    public void startExecuting() {
@@ -125,14 +125,14 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
 
    protected abstract GirlFollowAiBase.GirlFollowAiBaseState getCurrentState();
 
-   protected abstract void setState(GirlFollowAiBase.GirlFollowAiBaseState var1);
+   protected abstract void setState(GirlFollowAiBase.GirlFollowAiBaseState state);
 
    @SubscribeEvent
-   public void onLivingDeath(LivingDeathEvent var1) {
-      if (var1.getEntityLiving() instanceof BaseGirlEntity) {
-         BaseGirlEntity var2 = (BaseGirlEntity)var1.getEntityLiving();
-         if (!((String)var2.getDataManager().get(BaseGirlEntity.MASTER)).equals("")) {
-            var1.setCanceled(true);
+   public void onLivingDeath(LivingDeathEvent event) {
+      if (event.getEntityLiving() instanceof BaseGirlEntity) {
+         BaseGirlEntity girl = (BaseGirlEntity)event.getEntityLiving();
+         if (!((String)girl.getDataManager().get(BaseGirlEntity.MASTER)).equals("")) {
+            event.setCanceled(true);
          }
       }
    }

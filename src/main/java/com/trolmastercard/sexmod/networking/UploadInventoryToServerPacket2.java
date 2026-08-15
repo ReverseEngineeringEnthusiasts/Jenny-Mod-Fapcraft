@@ -28,26 +28,26 @@ public class UploadInventoryToServerPacket2 implements IMessage {
    public UploadInventoryToServerPacket2() {
    }
 
-   public UploadInventoryToServerPacket2(UUID var1) {
-      this.girlUUID = var1;
+   public UploadInventoryToServerPacket2(UUID girlUUID) {
+      this.girlUUID = girlUUID;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<UploadInventoryToServerPacket2, IMessage> {
-      public IMessage onMessage(UploadInventoryToServerPacket2 var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(UploadInventoryToServerPacket2 packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
-                  if (!var3.world.isRemote) {
-                     var3.world.removeEntity(var3);
+               for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.girlUUID)) {
+                  if (!girl.world.isRemote) {
+                     girl.world.removeEntity(girl);
                   }
                }
             });

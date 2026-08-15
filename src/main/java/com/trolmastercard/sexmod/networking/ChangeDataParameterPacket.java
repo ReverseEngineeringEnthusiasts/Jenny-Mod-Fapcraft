@@ -51,71 +51,71 @@ public class ChangeDataParameterPacket implements IMessage {
       this.isValid = false;
    }
 
-   public ChangeDataParameterPacket(UUID var1, String var2, String var3) {
-      this.girlUUID = var1;
-      this.parameterName = var2;
-      this.value = var3;
+   public ChangeDataParameterPacket(UUID girlUUID, String parameterName, String value) {
+      this.girlUUID = girlUUID;
+      this.parameterName = parameterName;
+      this.value = value;
       this.isValid = true;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.parameterName = ByteBufUtils.readUTF8String(var1);
-      this.value = ByteBufUtils.readUTF8String(var1);
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.parameterName = ByteBufUtils.readUTF8String(buf);
+      this.value = ByteBufUtils.readUTF8String(buf);
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      ByteBufUtils.writeUTF8String(var1, this.parameterName);
-      ByteBufUtils.writeUTF8String(var1, this.value == null ? "null" : this.value);
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(buf, this.parameterName);
+      ByteBufUtils.writeUTF8String(buf, this.value == null ? "null" : this.value);
    }
 
    public static class Handler implements IMessageHandler<ChangeDataParameterPacket, IMessage> {
-      public IMessage onMessage(ChangeDataParameterPacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(ChangeDataParameterPacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("received an invalid message @ChangeDataParameter :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               BaseGirlEntity var1x = BaseGirlEntity.getServerGirlEntity(var1.girlUUID);
-               if (var1x != null) {
-                  SceneDebug.log(SceneDebug.PACKETS, "ChangeDataParameter: %s param=%s value=%s (remote=%s)", var1x.getDisplayNameText(), var1.parameterName, var1.value, var1x.world.isRemote);
-                  switch (var1.parameterName) {
+               BaseGirlEntity girl = BaseGirlEntity.getServerGirlEntity(packet.girlUUID);
+               if (girl != null) {
+                  SceneDebug.log(SceneDebug.PACKETS, "ChangeDataParameter: %s param=%s value=%s (remote=%s)", girl.getDisplayNameText(), packet.parameterName, packet.value, girl.world.isRemote);
+                  switch (packet.parameterName) {
                      case "pregnant":
-                        var1x.getDataManager().set(SlimeEntity.HORNY_LEVEL, Integer.valueOf(var1.value));
+                        girl.getDataManager().set(SlimeEntity.HORNY_LEVEL, Integer.valueOf(packet.value));
                         break;
                      case "currentModel":
-                        var1x.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, Integer.valueOf(var1.value));
+                        girl.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, Integer.valueOf(packet.value));
                         break;
                      case "currentAction":
-                        if (Action.valueOf(var1.value) != Action.ATTACK || var1x.getCurrentAction() == Action.NULL) {
-                           var1x.setCurrentAction(Action.valueOf(var1.value));
+                        if (Action.valueOf(packet.value) != Action.ATTACK || girl.getCurrentAction() == Action.NULL) {
+                           girl.setCurrentAction(Action.valueOf(packet.value));
                         }
                         break;
                      case "animationFollowUp":
-                        var1x.getDataManager().set(BaseGirlEntity.GIRL_HAND_STATES, var1.value);
+                        girl.getDataManager().set(BaseGirlEntity.GIRL_HAND_STATES, packet.value);
                         break;
                      case "playerSheHasSexWith":
-                        if (var1.value.equals("null")) {
-                           var1x.setInteractionPlayerUUID(null);
+                        if (packet.value.equals("null")) {
+                           girl.setInteractionPlayerUUID(null);
                         } else {
-                           var1x.setInteractionPlayerUUID(UUID.fromString(var1.value));
+                           girl.setInteractionPlayerUUID(UUID.fromString(packet.value));
                         }
                         break;
                      case "targetPos":
-                        String[] var4 = var1.value.split("f");
-                        Vec3d var5 = new Vec3d(Double.parseDouble(var4[0]), Double.parseDouble(var4[1]), Double.parseDouble(var4[2]));
-                        var1x.setTargetPosition(var5);
+                        String[] parts = packet.value.split("f");
+                        Vec3d targetPos = new Vec3d(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
+                        girl.setTargetPosition(targetPos);
                         break;
                      case "master":
-                        var1x.getDataManager().set(BaseGirlEntity.MASTER, var1.value);
+                        girl.getDataManager().set(BaseGirlEntity.MASTER, packet.value);
                         break;
                      case "walk speed":
-                        var1x.getDataManager().set(BaseGirlEntity.WALK_SPEED, var1.value);
+                        girl.getDataManager().set(BaseGirlEntity.WALK_SPEED, packet.value);
                         break;
                      case "shouldbeattargetpos":
-                        var1x.getDataManager().set(BaseGirlEntity.IS_ANCHORED, Boolean.valueOf(var1.value));
+                        girl.getDataManager().set(BaseGirlEntity.IS_ANCHORED, Boolean.valueOf(packet.value));
                   }
                }
             });

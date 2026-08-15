@@ -60,23 +60,23 @@ public class Main {
    public static CommonProxy proxy;
 
    @EventHandler
-   public void preInit(FMLPreInitializationEvent var1) {
+   public void preInit(FMLPreInitializationEvent event) {
       GeckoLib.initialize();
-      proxy.preInitRegistries(var1);
+      proxy.preInitRegistries(event);
    }
 
    @EventHandler
-   public void init(FMLInitializationEvent var1) {
-      proxy.initRegistries(var1);
+   public void init(FMLInitializationEvent event) {
+      proxy.initRegistries(event);
    }
 
    @EventHandler
-   public void postInit(FMLPostInitializationEvent var1) {
-      proxy.postInit(var1);
+   public void postInit(FMLPostInitializationEvent event) {
+      proxy.postInit(event);
    }
 
    @EventHandler
-   public static void onWorldClosed(FMLServerStoppedEvent var0) {
+   public static void onWorldClosed(FMLServerStoppedEvent event) {
       BaseGirlEntity.getGirlEntityList().clear();
       KoboldManager.clearAll();
       KoboldEntity.aY.clear();
@@ -91,9 +91,9 @@ public class Main {
    }
 
    @EventHandler
-   public static void onWorldStart(FMLServerStartingEvent var0) {
-      var0.registerServerCommand(CommandLocateGoblinLair.LOCATE_GOBLIN_LAIR_COMMAND);
-      var0.registerServerCommand(CommandReloadCustomModels.RELOAD_CUSTOM_MODELS_COMMAND);
+   public static void onWorldStart(FMLServerStartingEvent event) {
+      event.registerServerCommand(CommandLocateGoblinLair.LOCATE_GOBLIN_LAIR_COMMAND);
+      event.registerServerCommand(CommandReloadCustomModels.RELOAD_CUSTOM_MODELS_COMMAND);
    }
 
    @SideOnly(Side.CLIENT)
@@ -104,50 +104,50 @@ public class Main {
 
    @SideOnly(Side.CLIENT)
    @EventHandler
-   public void registerReplacedRenderers(FMLInitializationEvent var1) {
+   public void registerReplacedRenderers(FMLInitializationEvent event) {
       GeckoLib.initialize();
    }
 
    public static void setConfigs() throws IOException {
-      File var0 = new File("config");
-      var0.mkdir();
-      File var1 = new File("config/sexmod.json");
-      if (!var1.exists()) {
-         var1.createNewFile();
-         FileWriter var2 = new FileWriter(var1);
-         var2.write("{\"shouldGenBuildings\":true,\"shouldLoadOtherSkins\":false,\"allowFlying\":true}");
-         var2.close();
+      File configDir = new File("config");
+      configDir.mkdir();
+      File configFile = new File("config/sexmod.json");
+      if (!configFile.exists()) {
+         configFile.createNewFile();
+         FileWriter writer = new FileWriter(configFile);
+         writer.write("{\"shouldGenBuildings\":true,\"shouldLoadOtherSkins\":false,\"allowFlying\":true}");
+         writer.close();
       }
 
-      StringBuilder var13 = new StringBuilder();
-      BufferedReader var3 = new BufferedReader(new FileReader(var1));
+      StringBuilder jsonBuilder = new StringBuilder();
+      BufferedReader reader = new BufferedReader(new FileReader(configFile));
       try {
-         String var16;
-         while ((var16 = var3.readLine()) != null) {
-            var13.append(var16);
+         String line;
+         while ((line = reader.readLine()) != null) {
+            jsonBuilder.append(line);
          }
       } finally {
-         var3.close();
+         reader.close();
       }
 
-      String var14 = var13.toString();
-      if (!var14.contains("shouldGenBuildings")) {
-         var1.delete();
-         var1 = new File("config/sexmod.json");
-         var1.createNewFile();
-         FileWriter var15 = new FileWriter(var1);
-         var15.write("{\"shouldGenBuildings\":true,\"shouldLoadOtherSkins\":false,\"allowFlying\":true}");
-         var15.close();
+      String json = jsonBuilder.toString();
+      if (!json.contains("shouldGenBuildings")) {
+         configFile.delete();
+         configFile = new File("config/sexmod.json");
+         configFile.createNewFile();
+         FileWriter writer2 = new FileWriter(configFile);
+         writer2.write("{\"shouldGenBuildings\":true,\"shouldLoadOtherSkins\":false,\"allowFlying\":true}");
+         writer2.close();
          ConfigWorldGenHandler.GENERATION_ENABLED = true;
          GirlModel.enableModelCache = false;
          AbstractPlayerGirlEntity.ag = true;
       } else {
-         int var4 = var14.indexOf("shouldGenBuildings");
-         int var17 = var14.indexOf("shouldLoadOtherSkins");
-         int var6 = var14.indexOf("allowFlying");
-         ConfigWorldGenHandler.GENERATION_ENABLED = 't' == var14.charAt(var4 + 20);
-         GirlModel.enableModelCache = 't' == var14.charAt(var17 + 22);
-         AbstractPlayerGirlEntity.ag = 't' == var14.charAt(var6 + 13);
+         int genIdx = json.indexOf("shouldGenBuildings");
+         int skinIdx = json.indexOf("shouldLoadOtherSkins");
+         int flyIdx = json.indexOf("allowFlying");
+         ConfigWorldGenHandler.GENERATION_ENABLED = 't' == json.charAt(genIdx + 20);
+         GirlModel.enableModelCache = 't' == json.charAt(skinIdx + 22);
+         AbstractPlayerGirlEntity.ag = 't' == json.charAt(flyIdx + 13);
       }
    }
 }

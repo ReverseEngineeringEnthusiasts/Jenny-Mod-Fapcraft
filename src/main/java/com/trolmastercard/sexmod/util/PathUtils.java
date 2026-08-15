@@ -11,32 +11,32 @@ import net.minecraft.util.math.BlockPos;
  * Pathfinding helpers for girl movement goals.
  */
 public class PathUtils {
-   public static BlockPos getPathEnd(Path var0) {
-      if (var0 == null) {
+   public static BlockPos getPathEnd(Path path) {
+      if (path == null) {
          return BlockPos.ORIGIN;
       }
 
-      PathPoint var1 = var0.getFinalPathPoint();
-      return var1 == null ? BlockPos.ORIGIN : new BlockPos(var1.x, var1.y, var1.z);
+      PathPoint endPoint = path.getFinalPathPoint();
+      return endPoint == null ? BlockPos.ORIGIN : new BlockPos(endPoint.x, endPoint.y, endPoint.z);
    }
 
-   public static BlockPos getNavigatorTarget(EntityLiving var0) {
-      PathNavigate var1 = var0.getNavigator();
-      Path var2 = var1.getPath();
-      return getPathEnd(var2);
+   public static BlockPos getNavigatorTarget(EntityLiving entity) {
+      PathNavigate navigator = entity.getNavigator();
+      Path path = navigator.getPath();
+      return getPathEnd(path);
    }
 
-   public static boolean isPathValid(Path var0, BlockPos[] var1) {
-      int var2 = var0.getCurrentPathLength();
-      ArrayList var3 = new ArrayList();
+   public static boolean isPathValid(Path path, BlockPos[] targets) {
+      int length = path.getCurrentPathLength();
+      ArrayList points = new ArrayList();
 
-      for (int var4 = 0; var4 < var2; var4++) {
-         var3.add(var0.getPathPointFromIndex(var4));
+      for (int i = 0; i < length; i++) {
+         points.add(path.getPathPointFromIndex(i));
       }
 
-      for (PathPoint var5 : (java.util.Collection<PathPoint>) (var3) ) {
-         for (BlockPos var9 : var1) {
-            if (var5.x == var9.getX() && var5.y == var9.getY() && var5.z == var9.getZ()) {
+      for (PathPoint point : (java.util.Collection<PathPoint>) (points) ) {
+         for (BlockPos target : targets) {
+            if (point.x == target.getX() && point.y == target.getY() && point.z == target.getZ()) {
                return true;
             }
          }

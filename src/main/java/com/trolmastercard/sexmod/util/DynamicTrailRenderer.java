@@ -37,28 +37,28 @@ public class DynamicTrailRenderer {
    final float randomnessRadius;
    final float maxDistance;
 
-   public DynamicTrailRenderer(int var1, IPositionProvider var2, ITargetProvider var3, BaseGirlEntity var4, float var5, float var6) {
-      this.maxSegmentsCount = var1;
-      this.sourcePositionProvider = var2;
-      this.targetPositionProvider = var3;
-      this.ownerEntity = var4;
-      this.randomnessRadius = var5;
-      this.maxDistance = var6;
+   public DynamicTrailRenderer(int maxSegmentsCount, IPositionProvider sourcePositionProvider, ITargetProvider targetPositionProvider, BaseGirlEntity ownerEntity, float randomnessRadius, float maxDistance) {
+      this.maxSegmentsCount = maxSegmentsCount;
+      this.sourcePositionProvider = sourcePositionProvider;
+      this.targetPositionProvider = targetPositionProvider;
+      this.ownerEntity = ownerEntity;
+      this.randomnessRadius = randomnessRadius;
+      this.maxDistance = maxDistance;
    }
 
-   public void renderTrail(Minecraft var1, Tessellator var2, BufferBuilder var3, float var4) {
+   public void renderTrail(Minecraft minecraft, Tessellator tessellator, BufferBuilder buffer, float partialTicks) {
       if (this.trailSegments.size() < this.maxSegmentsCount) {
-         for (int var5 = 0; var5 < 6; var5++) {
-            Vec3d var6 = this.sourcePositionProvider.getPosition(this.ownerEntity);
+         for (int i = 0; i < 6; i++) {
+            Vec3d sourcePos = this.sourcePositionProvider.getPosition(this.ownerEntity);
             this.trailSegments
                .add(
                   new TrailSegment(
-                     var1.world,
+                     minecraft.world,
                      this.targetPositionProvider.getTargetPosition(this.ownerEntity),
                      new Vec3d(
-                        var6.x + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius,
-                        var6.y + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius,
-                        var6.z + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius
+                        sourcePos.x + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius,
+                        sourcePos.y + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius,
+                        sourcePos.z + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius
                      )
                   )
                );
@@ -67,54 +67,54 @@ public class DynamicTrailRenderer {
 
       GlStateManager.disableCull();
       GlStateManager.disableAlpha();
-      Vec3d var10 = RotationHelper.lerpVec3dDouble(
-         new Vec3d(var1.player.lastTickPosX, var1.player.lastTickPosY, var1.player.lastTickPosZ),
-         var1.player.getPositionVector(),
-         var4
+      Vec3d targetPos = RotationHelper.lerpVec3dDouble(
+         new Vec3d(minecraft.player.lastTickPosX, minecraft.player.lastTickPosY, minecraft.player.lastTickPosZ),
+         minecraft.player.getPositionVector(),
+         partialTicks
       );
-      var3.begin(9, DefaultVertexFormats.POSITION_COLOR);
+      buffer.begin(9, DefaultVertexFormats.POSITION_COLOR);
       this.renderTrailSegments();
-      Vec3d var11 = null;
+      Vec3d lastPos = null;
 
-      for (TrailSegment var8 : this.trailSegments) {
-         Vec3d var9 = RotationHelper.lerpVec3dDouble(var8.offset, var8.velocity, var4);
-         if (var11 == null) {
-            var11 = var9;
+      for (TrailSegment segment : this.trailSegments) {
+         Vec3d segmentPos = RotationHelper.lerpVec3dDouble(segment.offset, segment.velocity, partialTicks);
+         if (lastPos == null) {
+            lastPos = segmentPos;
          }
 
-         if (var11.distanceTo(var9) > this.maxDistance) {
-            var2.draw();
-            var3.begin(9, DefaultVertexFormats.POSITION_COLOR);
+         if (lastPos.distanceTo(segmentPos) > this.maxDistance) {
+            tessellator.draw();
+            buffer.begin(9, DefaultVertexFormats.POSITION_COLOR);
          }
 
-         var3.pos(var9.x - var10.x, var9.y - var10.y, var9.z - var10.z)
+         buffer.pos(segmentPos.x - targetPos.x, segmentPos.y - targetPos.y, segmentPos.z - targetPos.z)
             .color(255, 255, 255, 255)
             .endVertex();
-         var11 = var9;
+         lastPos = segmentPos;
       }
 
-      var2.draw();
+      tessellator.draw();
       GlStateManager.enableCull();
    }
 
    public void updateTrails() {
-      for (TrailSegment var2 : this.trailSegments) {
-         var2.onUpdate();
+      for (TrailSegment segment : this.trailSegments) {
+         segment.onUpdate();
       }
    }
 
    void renderTrailSegments() {
       if (!this.trailSegments.isEmpty() && this.trailSegments.size() > 1) {
-         for (int var1 = 1; var1 < this.trailSegments.size(); var1++) {
-            TrailSegment var2 = this.trailSegments.get(var1);
-            Vec3d var3 = var2.velocity;
+         for (int i = 1; i < this.trailSegments.size(); i++) {
+            TrailSegment segment = this.trailSegments.get(i);
+            Vec3d velocity = segment.velocity;
 
-            int var4;
-            for (var4 = var1 - 1; var4 >= 0 && var3.distanceTo(this.trailSegments.get(var4).velocity) < var3.distanceTo(this.trailSegments.get(var4 + 1).velocity); var4--) {
-               this.trailSegments.set(var4 + 1, this.trailSegments.get(var4));
+            int j;
+            for (j = i - 1; j >= 0 && velocity.distanceTo(this.trailSegments.get(j).velocity) < velocity.distanceTo(this.trailSegments.get(j + 1).velocity); j--) {
+               this.trailSegments.set(j + 1, this.trailSegments.get(j));
             }
 
-            this.trailSegments.set(var4 + 1, var2);
+            this.trailSegments.set(j + 1, segment);
          }
       }
    }

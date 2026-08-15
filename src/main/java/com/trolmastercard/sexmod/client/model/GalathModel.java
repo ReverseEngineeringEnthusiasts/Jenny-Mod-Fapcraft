@@ -21,20 +21,20 @@ public class GalathModel extends ModelBase {
       this.wingModel.setTextureOffset(32, 0).addBox(-4.0F, -4.0F, -4.0F, 8, 8, 8);
    }
 
-   public void render(Entity var1, float var2, float var3, float var4, float var5, float var6, float var7) {
+   public void render(Entity entity, float limbSwing, float spin, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
       GlStateManager.pushMatrix();
       GlStateManager.scale(2.0F, 2.0F, 2.0F);
-      GlStateManager.rotate(var3, 0.0F, 1.0F, 0.0F);
+      GlStateManager.rotate(spin, 0.0F, 1.0F, 0.0F);
       GlStateManager.rotate(60.0F, 0.7071F, 0.0F, 0.7071F);
-      this.bodyModel.render(var7);
+      this.bodyModel.render(scale);
       GlStateManager.scale(0.875F, 0.875F, 0.875F);
       GlStateManager.rotate(60.0F, 0.7071F, 0.0F, 0.7071F);
-      GlStateManager.rotate(var3, 0.0F, 1.0F, 0.0F);
-      this.bodyModel.render(var7);
+      GlStateManager.rotate(spin, 0.0F, 1.0F, 0.0F);
+      this.bodyModel.render(scale);
       GlStateManager.scale(0.875F, 0.875F, 0.875F);
       GlStateManager.rotate(60.0F, 0.7071F, 0.0F, 0.7071F);
-      GlStateManager.rotate(var3, 0.0F, 1.0F, 0.0F);
-      this.wingModel.render(var7);
+      GlStateManager.rotate(spin, 0.0F, 1.0F, 0.0F);
+      this.wingModel.render(scale);
       GlStateManager.popMatrix();
    }
 }

@@ -33,36 +33,36 @@ public class ChestContainerGui extends GuiContainer {
    BaseGirlEntity girl;
    UUID girlUUID;
 
-   public ChestContainerGui(EntityPlayer var1, BaseGirlEntity var2, UUID var3) {
-      super(new GirlInventoryContainer(var1.inventory, (IInventory)var2, var1, var3));
-      this.containerUUID = var3;
-      this.girl = var2;
-      this.girlUUID = var1.getPersistentID();
-      this.playerInventory = var1.inventory;
-      this.chestInventory = (IInventory)var2;
+   public ChestContainerGui(EntityPlayer player, BaseGirlEntity girl, UUID uuid) {
+      super(new GirlInventoryContainer(player.inventory, (IInventory)girl, player, uuid));
+      this.containerUUID = uuid;
+      this.girl = girl;
+      this.girlUUID = player.getPersistentID();
+      this.playerInventory = player.inventory;
+      this.chestInventory = (IInventory)girl;
       this.allowUserInput = false;
-      this.rowCount = ((IInventory)var2).getSizeInventory() / 9;
+      this.rowCount = ((IInventory)girl).getSizeInventory() / 9;
       this.ySize = 114 + this.rowCount * 18;
    }
 
-   public void drawScreen(int var1, int var2, float var3) {
+   public void drawScreen(int mouseX, int mouseY, float partialTicks) {
       this.drawDefaultBackground();
-      super.drawScreen(var1, var2, var3);
-      this.renderHoveredToolTip(var1, var2);
+      super.drawScreen(mouseX, mouseY, partialTicks);
+      this.renderHoveredToolTip(mouseX, mouseY);
    }
 
-   protected void drawGuiContainerForegroundLayer(int var1, int var2) {
+   protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
       this.fontRenderer.drawString(this.girl.getDisplayNameText(), 8, 6, 4210752);
       this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
    }
 
-   protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
+   protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
       GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
       this.mc.getTextureManager().bindTexture(CONTAINER_TEXTURE);
-      int var4 = (this.width - this.xSize) / 2;
-      int var5 = (this.height - this.ySize) / 2;
-      this.drawTexturedModalRect(var4, var5, 0, 0, this.xSize, this.rowCount * 18 + 17);
-      this.drawTexturedModalRect(var4, var5 + this.rowCount * 18 + 17, 0, 126, this.xSize, 96);
+      int left = (this.width - this.xSize) / 2;
+      int top = (this.height - this.ySize) / 2;
+      this.drawTexturedModalRect(left, top, 0, 0, this.xSize, this.rowCount * 18 + 17);
+      this.drawTexturedModalRect(left, top + this.rowCount * 18 + 17, 0, 126, this.xSize, 96);
    }
 
    /**
@@ -75,16 +75,16 @@ public class ChestContainerGui extends GuiContainer {
    public void onGuiClosed() {
       super.onGuiClosed();
 
-      for (ChestContainer var2 : ChestContainer.containers) {
-         if (var2.girlUUID.equals(this.containerUUID)) {
-            ItemStack[] var3 = new ItemStack[63];
-            Minecraft.getMinecraft().player.inventory.mainInventory.toArray(var3);
+      for (ChestContainer container : ChestContainer.containers) {
+         if (container.girlUUID.equals(this.containerUUID)) {
+            ItemStack[] stacks = new ItemStack[63];
+            Minecraft.getMinecraft().player.inventory.mainInventory.toArray(stacks);
 
-            for (int var4 = 0; var4 < 27; var4++) {
-               var3[var4 + 36] = var2.getSlot(var4).getStack();
+            for (int i = 0; i < 27; i++) {
+               stacks[i + 36] = container.getSlot(i).getStack();
             }
 
-            PacketHandler.networkWrapper.sendToServer(new UploadInventoryToServerPacket(this.girl.getGirlId(), this.girlUUID, var3));
+            PacketHandler.networkWrapper.sendToServer(new UploadInventoryToServerPacket(this.girl.getGirlId(), this.girlUUID, stacks));
          }
       }
    }

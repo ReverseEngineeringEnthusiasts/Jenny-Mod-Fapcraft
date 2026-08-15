@@ -35,7 +35,7 @@ public class GuiHandler implements IGuiHandler {
    public GuiHandler() {
    }
 
-   public GuiHandler(boolean var1) {
+   public GuiHandler(boolean unused) {
       this.onGuiOpen();
    }
 
@@ -50,38 +50,38 @@ public class GuiHandler implements IGuiHandler {
     *
     * @return the container, or {@code null} if no girl matches
     */
-   public Object getServerGuiElement(int var1, EntityPlayer var2, World var3, int var4, int var5, int var6) {
-      if (var1 == 0) {
+   public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
+      if (id == 0) {
          try {
-            for (BaseGirlEntity var8 : BaseGirlEntity.getGirlEntityList()) {
-               if (!var8.world.isRemote
-                  && var8.getPosition().getX() == var4
-                  && var8.getPosition().getY() == var5
-                  && var8.getPosition().getZ() == var6) {
-                  if (var8 instanceof LunaEntity) {
-                     return new GirlInventoryContainer2((LunaEntity)var8, var2.inventory, UUID.randomUUID());
+            for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+               if (!girl.world.isRemote
+                  && girl.getPosition().getX() == x
+                  && girl.getPosition().getY() == y
+                  && girl.getPosition().getZ() == z) {
+                  if (girl instanceof LunaEntity) {
+                     return new GirlInventoryContainer2((LunaEntity)girl, player.inventory, UUID.randomUUID());
                   }
 
-                  return new ChestContainer(var8, var2.inventory, UUID.randomUUID());
+                  return new ChestContainer(girl, player.inventory, UUID.randomUUID());
                }
             }
-         } catch (ConcurrentModificationException var11) {
+         } catch (ConcurrentModificationException cme) {
          }
       }
 
-      if (var1 == 1) {
+      if (id == 1) {
          try {
-            for (BaseGirlEntity var13 : BaseGirlEntity.getGirlEntityList()) {
-               if (!var13.world.isRemote
-                  && var13 instanceof IInventory
-                  && var13.getPosition().getX() == var4
-                  && var13.getPosition().getY() == var5
-                  && var13.getPosition().getZ() == var6) {
-                  IInventory var9 = (IInventory)var13;
-                  return new GirlInventoryContainer(var2.inventory, var9, var2, UUID.randomUUID());
+            for (BaseGirlEntity girl2 : BaseGirlEntity.getGirlEntityList()) {
+               if (!girl2.world.isRemote
+                  && girl2 instanceof IInventory
+                  && girl2.getPosition().getX() == x
+                  && girl2.getPosition().getY() == y
+                  && girl2.getPosition().getZ() == z) {
+                  IInventory girlInventory = (IInventory)girl2;
+                  return new GirlInventoryContainer(player.inventory, girlInventory, player, UUID.randomUUID());
                }
             }
-         } catch (ConcurrentModificationException var10) {
+         } catch (ConcurrentModificationException cme2) {
          }
       }
 
@@ -94,37 +94,37 @@ public class GuiHandler implements IGuiHandler {
     *
     * @return the screen, or {@code null} if no girl matches
     */
-   public Object getClientGuiElement(int var1, EntityPlayer var2, World var3, int var4, int var5, int var6) {
-      if (var1 == 0) {
+   public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
+      if (id == 0) {
          try {
-            for (BaseGirlEntity var8 : BaseGirlEntity.getGirlEntityList()) {
-               if (var8.world.isRemote
-                  && var8.getPosition().getX() == var4
-                  && var8.getPosition().getY() == var5
-                  && var8.getPosition().getZ() == var6) {
-                  if (var8 instanceof LunaEntity) {
-                     return new GirlInventoryContainerGui((LunaEntity)var8, var2.inventory, UUID.randomUUID());
+            for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+               if (girl.world.isRemote
+                  && girl.getPosition().getX() == x
+                  && girl.getPosition().getY() == y
+                  && girl.getPosition().getZ() == z) {
+                  if (girl instanceof LunaEntity) {
+                     return new GirlInventoryContainerGui((LunaEntity)girl, player.inventory, UUID.randomUUID());
                   }
 
-                  return new GirlInventoryContainerGui2(var8, var2.inventory, UUID.randomUUID());
+                  return new GirlInventoryContainerGui2(girl, player.inventory, UUID.randomUUID());
                }
             }
-         } catch (ConcurrentModificationException var10) {
+         } catch (ConcurrentModificationException cme) {
          }
       }
 
-      if (var1 == 1) {
+      if (id == 1) {
          try {
-            for (BaseGirlEntity var12 : BaseGirlEntity.getGirlEntityList()) {
-               if (var12.world.isRemote
-                  && var12 instanceof IInventory
-                  && var12.getPosition().getX() == var4
-                  && var12.getPosition().getY() == var5
-                  && var12.getPosition().getZ() == var6) {
-                  return new ChestContainerGui(var2, var12, UUID.randomUUID());
+            for (BaseGirlEntity girl2 : BaseGirlEntity.getGirlEntityList()) {
+               if (girl2.world.isRemote
+                  && girl2 instanceof IInventory
+                  && girl2.getPosition().getX() == x
+                  && girl2.getPosition().getY() == y
+                  && girl2.getPosition().getZ() == z) {
+                  return new ChestContainerGui(player, girl2, UUID.randomUUID());
                }
             }
-         } catch (ConcurrentModificationException var9) {
+         } catch (ConcurrentModificationException cme2) {
          }
       }
 

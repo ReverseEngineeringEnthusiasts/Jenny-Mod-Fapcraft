@@ -44,12 +44,12 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
    String av = null;
    BlockPos aq = null;
 
-   protected AbstractKoboldPlayerEntity(World var1) {
-      super(var1);
+   protected AbstractKoboldPlayerEntity(World world) {
+      super(world);
    }
 
-   protected AbstractKoboldPlayerEntity(World var1, UUID var2) {
-      super(var1, var2);
+   protected AbstractKoboldPlayerEntity(World world, UUID uuid) {
+      super(world, uuid);
    }
 
    @Override
@@ -60,10 +60,10 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
       }
    }
 
-   abstract String buildModelCodeDNA(StringBuilder var1);
+   abstract String buildModelCodeDNA(StringBuilder builder);
 
-   public static String[] getModelCodeParts(BaseGirlEntity var0) {
-      return ((String)var0.getDataManager().get(at)).split("-");
+   public static String[] getModelCodeParts(BaseGirlEntity girl) {
+      return ((String)girl.getDataManager().get(at)).split("-");
    }
 
    /**
@@ -81,12 +81,12 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
             this.clearBoneColors();
             this.ar = true;
          } else {
-            EntityPlayer var1 = this.getOwnerPlayer();
-            if (var1 != null) {
-               String var2 = var1.getEntityData().getString("sexmod:GirlSpecific" + NpcType.getNpcType(this));
+            EntityPlayer player = this.getOwnerPlayer();
+            if (player != null) {
+               String modelCode = player.getEntityData().getString("sexmod:GirlSpecific" + NpcType.getNpcType(this));
                this.ar = false;
-               if (!"".equals(var2)) {
-                  this.setCustomPartList(decodePartIdList(var2));
+               if (!"".equals(modelCode)) {
+                  this.setCustomPartList(decodePartIdList(modelCode));
                }
             }
          }
@@ -101,21 +101,21 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
     */
    void syncModelCodeClient() {
       if (this.world.isRemote) {
-         String var1 = (String)this.entityDataManager.get(as);
-         String var2 = (String)this.entityDataManager.get(at);
-         BlockPos var3 = (BlockPos)this.entityDataManager.get(au);
+         String modelCode = (String)this.entityDataManager.get(as);
+         String boneColors = (String)this.entityDataManager.get(at);
+         BlockPos heldPos = (BlockPos)this.entityDataManager.get(au);
          if (this.ap == null) {
-            this.ap = var1;
-            this.av = var2;
-            this.aq = var3;
+            this.ap = modelCode;
+            this.av = boneColors;
+            this.aq = heldPos;
          } else {
-            if (!this.av.equals(var2) || !this.ap.equals(var1) || !this.aq.equals(var3)) {
+            if (!this.av.equals(boneColors) || !this.ap.equals(modelCode) || !this.aq.equals(heldPos)) {
                this.clearBoneColors();
             }
 
-            this.ap = var1;
-            this.av = var2;
-            this.aq = var3;
+            this.ap = modelCode;
+            this.av = boneColors;
+            this.aq = heldPos;
          }
       }
    }

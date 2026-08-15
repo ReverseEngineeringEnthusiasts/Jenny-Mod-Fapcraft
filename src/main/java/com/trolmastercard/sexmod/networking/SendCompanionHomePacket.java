@@ -40,60 +40,60 @@ public class SendCompanionHomePacket implements IMessage {
    public SendCompanionHomePacket() {
    }
 
-   public SendCompanionHomePacket(UUID var1) {
-      this.girlUUID = var1;
+   public SendCompanionHomePacket(UUID girlUUID) {
+      this.girlUUID = girlUUID;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<SendCompanionHomePacket, IMessage> {
-      public IMessage onMessage(SendCompanionHomePacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(SendCompanionHomePacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
-                        if (!var3.world.isRemote) {
-                           if (var3.getCurrentAction() != Action.THROW_PEARL) {
-                              var3.setCurrentAction(Action.THROW_PEARL);
-                              var3.setYawRotation(
-                                 (float)Math.atan2(var3.posZ - var3.homePos.z, var3.posX - var3.homePos.x)
+                     for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.girlUUID)) {
+                        if (!girl.world.isRemote) {
+                           if (girl.getCurrentAction() != Action.THROW_PEARL) {
+                              girl.setCurrentAction(Action.THROW_PEARL);
+                              girl.setYawRotation(
+                                 (float)Math.atan2(girl.posZ - girl.homePos.z, girl.posX - girl.homePos.x)
                                        * (float) (180.0 / Math.PI)
                                     + 90.0F
                               );
-                              var3.setTargetPosition(var3.getPositionVector());
-                              var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
-                              var3.activeEnderPearl = null;
-                           } else if (var3.activeEnderPearl == null) {
-                              float var6 = (float)var3.getPositionVector().distanceTo(var3.homePos);
-                              var3.activeEnderPearl = new KoboldEggProjectileEntity(var3.world, var3);
-                              var3.activeEnderPearl
+                              girl.setTargetPosition(girl.getPositionVector());
+                              girl.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
+                              girl.activeEnderPearl = null;
+                           } else if (girl.activeEnderPearl == null) {
+                              float distance = (float)girl.getPositionVector().distanceTo(girl.homePos);
+                              girl.activeEnderPearl = new KoboldEggProjectileEntity(girl.world, girl);
+                              girl.activeEnderPearl
                                  .shoot(
-                                    var3.homePos.x - var3.posX,
-                                    var3.homePos.y - var3.posY,
-                                    var3.homePos.z - var3.posZ,
-                                    Math.min(4.0F, var6 * 0.1F),
+                                    girl.homePos.x - girl.posX,
+                                    girl.homePos.y - girl.posY,
+                                    girl.homePos.z - girl.posZ,
+                                    Math.min(4.0F, distance * 0.1F),
                                     0.0F
                                  );
-                              var3.world.spawnEntity(var3.activeEnderPearl);
+                              girl.world.spawnEntity(girl.activeEnderPearl);
                            } else {
-                              WorldServer var4 = (WorldServer)var3.world;
+                              WorldServer worldServer = (WorldServer)girl.world;
 
-                              for (int var5 = 0; var5 < 32; var5++) {
-                                 var4.spawnParticle(
+                              for (int i = 0; i < 32; i++) {
+                                 worldServer.spawnParticle(
                                     EnumParticleTypes.PORTAL,
                                     false,
-                                    var3.posX,
-                                    var3.posY + Reference.RANDOM.nextDouble() * 2.0,
-                                    var3.posZ,
+                                    girl.posX,
+                                    girl.posY + Reference.RANDOM.nextDouble() * 2.0,
+                                    girl.posZ,
                                     32,
                                     0.2,
                                     0.2,
@@ -103,11 +103,11 @@ public class SendCompanionHomePacket implements IMessage {
                                  );
                               }
 
-                              var3.setPosition(var3.homePos.x, var3.homePos.y, var3.homePos.z);
-                              var3.activeEnderPearl = null;
-                              var3.setCurrentAction(Action.NULL);
-                              var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
-                              var3.goHome();
+                              girl.setPosition(girl.homePos.x, girl.homePos.y, girl.homePos.z);
+                              girl.activeEnderPearl = null;
+                              girl.setCurrentAction(Action.NULL);
+                              girl.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
+                              girl.goHome();
                            }
                         }
                      }

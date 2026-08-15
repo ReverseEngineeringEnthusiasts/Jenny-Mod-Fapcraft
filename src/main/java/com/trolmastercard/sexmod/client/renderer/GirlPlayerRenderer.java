@@ -61,11 +61,11 @@ public class GirlPlayerRenderer extends GirlRenderer {
    protected float partialTicks;
    float bowPullProgress = 0.0F;
 
-   public GirlPlayerRenderer(RenderManager var1, AnimatedGeoModel var2) {
-      super(var1, var2, 0.0);
+   public GirlPlayerRenderer(RenderManager renderManager, AnimatedGeoModel model) {
+      super(renderManager, model, 0.0);
    }
 
-   public void doRenderShadowAndFire(Entity var1, double var2, double var4, double var6, float var8, float var9) {
+   public void doRenderShadowAndFire(Entity entity, double x, double y, double z, float entityYaw, float partialTicks) {
    }
 
    /**
@@ -74,14 +74,14 @@ public class GirlPlayerRenderer extends GirlRenderer {
     * {@code false}) and returned — the first-person camera path is the only
     * one that may draw the local player's own girl.
     */
-   boolean isGirlVisible(BaseGirlEntity var1) {
-      if (var1.isLocallyRegistered()) {
+   boolean isGirlVisible(BaseGirlEntity girl) {
+      if (girl.isLocallyRegistered()) {
          return true;
       }
 
-      boolean var2 = isFirstPerson;
+      boolean visible = isFirstPerson;
       isFirstPerson = false;
-      return var2;
+      return visible;
    }
 
    /**
@@ -90,24 +90,24 @@ public class GirlPlayerRenderer extends GirlRenderer {
     * delegates to the normal girl pipeline.
     */
    @Override
-   public void doRenderEntity(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      if (this.isGirlVisible(var1)) {
-         AbstractPlayerGirlEntity var10 = (AbstractPlayerGirlEntity)var1;
-         if (var10.getOwnerUserUUID() != null) {
-            EntityPlayer var11 = Minecraft.getMinecraft().player.world.getPlayerEntityByUUID(var10.getOwnerUserUUID());
-            if (var11 != null) {
-               this.mainhandItem = var11.getHeldItemMainhand();
-               this.offhandItem = var11.getHeldItemOffhand();
-               this.isUsingItem = var10.ah;
-               this.isRendering = var10.ad;
-               this.playerGirl = (AbstractPlayerGirlEntity)var1;
-               this.partialTicks = var9;
-               var10.syncArmor(var11);
-               if (this.isOwnPlayer(var11, var1)) {
-                  this.renderLivingLabel(var1, var11.getName(), var2, var4 + var10.getScaleFactor(), var6, 300);
+   public void doRenderEntity(BaseGirlEntity girl, double x, double y, double z, float entityYaw, float partialTicks) {
+      if (this.isGirlVisible(girl)) {
+         AbstractPlayerGirlEntity playerGirl = (AbstractPlayerGirlEntity)girl;
+         if (playerGirl.getOwnerUserUUID() != null) {
+            EntityPlayer owner = Minecraft.getMinecraft().player.world.getPlayerEntityByUUID(playerGirl.getOwnerUserUUID());
+            if (owner != null) {
+               this.mainhandItem = owner.getHeldItemMainhand();
+               this.offhandItem = owner.getHeldItemOffhand();
+               this.isUsingItem = playerGirl.ah;
+               this.isRendering = playerGirl.ad;
+               this.playerGirl = (AbstractPlayerGirlEntity)girl;
+               this.partialTicks = partialTicks;
+               playerGirl.syncArmor(owner);
+               if (this.isOwnPlayer(owner, girl)) {
+                  this.renderLivingLabel(girl, owner.getName(), x, y + playerGirl.getScaleFactor(), z, 300);
                }
 
-               super.doRenderEntity(var1, var2, var4, var6, var8, var9);
+               super.doRenderEntity(girl, x, y, z, entityYaw, partialTicks);
             }
          }
       }
@@ -119,33 +119,33 @@ public class GirlPlayerRenderer extends GirlRenderer {
     * itself.
     */
    @Override
-   public Entity getRenderEntity(BaseGirlEntity var1) {
-      if (!(var1 instanceof AbstractPlayerGirlEntity)) {
-         return var1;
+   public Entity getRenderEntity(BaseGirlEntity girl) {
+      if (!(girl instanceof AbstractPlayerGirlEntity)) {
+         return girl;
       }
 
-      AbstractPlayerGirlEntity var2 = (AbstractPlayerGirlEntity)var1;
-      EntityPlayer var3 = var2.getOwnerPlayer();
-      return (Entity)(var3 == null ? var1 : var3);
+      AbstractPlayerGirlEntity playerGirl = (AbstractPlayerGirlEntity)girl;
+      EntityPlayer owner = playerGirl.getOwnerPlayer();
+      return (Entity)(owner == null ? girl : owner);
    }
 
    /**
     * Name-label visibility: never for the local player; for others, hidden
     * while the current action hides name tags.
     */
-   boolean isOwnPlayer(EntityPlayer var1, BaseGirlEntity var2) {
-      if (var1.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
+   boolean isOwnPlayer(EntityPlayer player, BaseGirlEntity girl) {
+      if (player.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
          return false;
       }
 
-      Action var3 = var2.getCurrentAction();
-      return var3 == null ? true : !var3.hideNameTag;
+      Action action = girl.getCurrentAction();
+      return action == null ? true : !action.hideNameTag;
    }
 
-   protected void onBoneRenderStart(String var1, GeoBone var2) {
+   protected void onBoneRenderStart(String boneName, GeoBone bone) {
    }
 
-   protected void onBoneRenderingLayer(String var1, GeoBone var2, AbstractPlayerGirlEntity var3, BufferBuilder var4) {
+   protected void onBoneRenderingLayer(String boneName, GeoBone bone, AbstractPlayerGirlEntity playerGirl, BufferBuilder buffer) {
    }
 
    /**
@@ -156,98 +156,98 @@ public class GirlPlayerRenderer extends GirlRenderer {
     * {@link GirlRenderer#renderRecursively} for the shared rules).
     */
    @Override
-   public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
-      String var7 = var2.getName();
+   public void renderRecursively(BufferBuilder buffer, GeoBone bone, float r, float g, float b, float a) {
+      String boneName = bone.getName();
       if (this.isRendering) {
-         if (var7.equals("upperBody")) {
-            var2.setRotationX(var2.getRotationX() - 0.5F);
+         if (boneName.equals("upperBody")) {
+            bone.setRotationX(bone.getRotationX() - 0.5F);
          }
 
-         if (var7.equals("head")) {
-            var2.setRotationX(var2.getRotationX() + 0.5F);
+         if (boneName.equals("head")) {
+            bone.setRotationX(bone.getRotationX() + 0.5F);
          }
       }
 
-      if (var7.equals("head")) {
-         this.renderOverlay(var1, var2, Color.ofRGB(var3, var4, var5));
+      if (boneName.equals("head")) {
+         this.renderOverlay(buffer, bone, Color.ofRGB(r, g, b));
       }
 
-      this.onBoneRenderStart(var7, var2);
-      this.onBoneRenderingLayer(var7, var2, this.playerGirl, var1);
+      this.onBoneRenderStart(boneName, bone);
+      this.onBoneRenderingLayer(boneName, bone, this.playerGirl, buffer);
       if (this.isUsingItem && (this.mainhandItem.getItem() instanceof ItemBow || this.offhandItem.getItem() instanceof ItemBow)) {
-         if (var7.equals("armR")) {
-            var2.setRotationX(var2.getRotationX() - this.playerGirl.rotationPitch / 50.0F);
+         if (boneName.equals("armR")) {
+            bone.setRotationX(bone.getRotationX() - this.playerGirl.rotationPitch / 50.0F);
          }
 
-         if (var7.equals("armL")) {
-            var2.setRotationY(var2.getRotationY() - this.playerGirl.rotationPitch / 50.0F);
+         if (boneName.equals("armL")) {
+            bone.setRotationY(bone.getRotationY() - this.playerGirl.rotationPitch / 50.0F);
          }
 
          if (this.offhandItem.getItem() instanceof ItemBow) {
-            ItemStack var8 = this.offhandItem;
+            ItemStack tempStack = this.offhandItem;
             this.offhandItem = this.mainhandItem;
-            this.mainhandItem = var8;
+            this.mainhandItem = tempStack;
          }
       }
 
       if (this.isUsingItem && this.mainhandItem.getItem() instanceof ItemShield) {
-         if (var7.equals("armR")) {
-            var2.setRotationZ(0.0F);
-            var2.setRotationX(0.5F);
-         } else if (this.offhandItem.getItem() instanceof ItemShield && var7.equals("armL")) {
-            var2.setRotationZ(0.0F);
-            var2.setRotationX(0.5F);
+         if (boneName.equals("armR")) {
+            bone.setRotationZ(0.0F);
+            bone.setRotationX(0.5F);
+         } else if (this.offhandItem.getItem() instanceof ItemShield && boneName.equals("armL")) {
+            bone.setRotationZ(0.0F);
+            bone.setRotationX(0.5F);
          }
       }
 
-      if (var7.equals("weapon") && !this.mainhandItem.isEmpty()) {
-         this.renderEquippedItem(var1, var2, false);
+      if (boneName.equals("weapon") && !this.mainhandItem.isEmpty()) {
+         this.renderEquippedItem(buffer, bone, false);
       }
 
-      if (var7.equals("offhand") && !this.offhandItem.isEmpty()) {
-         this.renderEquippedItem(var1, var2, true);
+      if (boneName.equals("offhand") && !this.offhandItem.isEmpty()) {
+         this.renderEquippedItem(buffer, bone, true);
       }
 
       MATRIX_STACK.push();
-      MATRIX_STACK.translate(var2);
-      MATRIX_STACK.moveToPivot(var2);
-      MATRIX_STACK.rotate(var2);
-      MATRIX_STACK.scale(var2);
-      MATRIX_STACK.moveBackFromPivot(var2);
-      if ("Head2".equals(var7) && !this.shouldRenderHead2()) {
+      MATRIX_STACK.translate(bone);
+      MATRIX_STACK.moveToPivot(bone);
+      MATRIX_STACK.rotate(bone);
+      MATRIX_STACK.scale(bone);
+      MATRIX_STACK.moveBackFromPivot(bone);
+      if ("Head2".equals(boneName) && !this.shouldRenderHead2()) {
          MATRIX_STACK.pop();
-      } else if (("neck".equals(var7) || "head".equals(var7)) && !this.shouldRenderFirstPersonHead()) {
+      } else if (("neck".equals(boneName) || "head".equals(boneName)) && !this.shouldRenderFirstPersonHead()) {
          MATRIX_STACK.pop();
       } else {
-         if (!var2.isHidden) {
-            Vector4f var17 = this.calculateBoneArmorColor(var7, var3, var4, var5);
-            var3 = var17.x;
-            var4 = var17.y;
-            var5 = var17.z;
-            double var9 = var17.w;
-            if (!this.activeCustomPartBones.contains(var7)) {
-               for (GeoCube var12 : var2.childCubes) {
+         if (!bone.isHidden) {
+            Vector4f armorColor = this.calculateBoneArmorColor(boneName, r, g, b);
+            r = armorColor.x;
+            g = armorColor.y;
+            b = armorColor.z;
+            double armorAlpha = armorColor.w;
+            if (!this.activeCustomPartBones.contains(boneName)) {
+               for (GeoCube cube : bone.childCubes) {
                   MATRIX_STACK.push();
                   GlStateManager.pushMatrix();
-                  this.currentRenderingBone = var2;
-                  this.renderCubeGeometry(var1, var12, var3, var4, var5, var6, (double)var9);
+                  this.currentRenderingBone = bone;
+                  this.renderCubeGeometry(buffer, cube, r, g, b, a, (double)armorAlpha);
                   GlStateManager.popMatrix();
                   MATRIX_STACK.pop();
                }
             }
 
-            for (GeoBone var19 : var2.childBones) {
-               if (var9 == 0.0) {
-                  this.renderRecursively(var1, var19, var3, var4, var5, var6);
+            for (GeoBone childBone : bone.childBones) {
+               if (armorAlpha == 0.0) {
+                  this.renderRecursively(buffer, childBone, r, g, b, a);
                } else {
-                  this.renderCustomBones(var1, var19, var3, var4, var5, var6, (double)var9);
+                  this.renderCustomBones(buffer, childBone, r, g, b, a, (double)armorAlpha);
                }
             }
          }
 
          try {
             MATRIX_STACK.pop();
-         } catch (IllegalStateException var13) {
+         } catch (IllegalStateException e) {
          }
       }
    }
@@ -271,15 +271,15 @@ public class GirlPlayerRenderer extends GirlRenderer {
     * bone transform applied; restores the entity texture and vertex buffer
     * afterwards. This is what draws armor/elytra layers on player-girls.
     */
-   public void renderOverlay(BufferBuilder var1, GeoBone var2, Color var3) {
+   public void renderOverlay(BufferBuilder buffer, GeoBone bone, Color color) {
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
-      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
+      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
       GL11.glEnable(2896);
       this.preRenderCallback();
-      new GirlLayerRenderer(this).render(this.playerGirl, this.playerGirl.limbSwing, this.playerGirl.limbSwingAmount, this.partialTicks, 0.0F, 0.0F, 0.0F, var3);
+      new GirlLayerRenderer(this).render(this.playerGirl, this.playerGirl.limbSwing, this.playerGirl.limbSwingAmount, this.partialTicks, 0.0F, 0.0F, 0.0F, color);
       this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.playerGirl)));
-      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
       GL11.glDisable(2896);
@@ -295,27 +295,27 @@ public class GirlPlayerRenderer extends GirlRenderer {
     * (item-use count / active hand / held-item override), then renders the
     * third-person item and restores buffer + texture.
     */
-   public void renderEquippedItem(BufferBuilder var1, GeoBone var2, boolean var3) {
-      ItemRenderer var4 = Minecraft.getMinecraft().getItemRenderer();
+   public void renderEquippedItem(BufferBuilder buffer, GeoBone bone, boolean isOffhand) {
+      ItemRenderer itemRenderer = Minecraft.getMinecraft().getItemRenderer();
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
-      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
+      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
       GL11.glEnable(2896);
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-      ItemStack var5 = var3 ? this.offhandItem : this.mainhandItem;
-      switch (var5.getItem().getItemUseAction(var5)) {
+      ItemStack stack = isOffhand ? this.offhandItem : this.mainhandItem;
+      switch (stack.getItem().getItemUseAction(stack)) {
          case BOW:
-            this.applyBowRotation(var3);
+            this.applyBowRotation(isOffhand);
             break;
          case BLOCK:
-            this.applyShieldBlockingTransform(var3, this.isUsingItem);
+            this.applyShieldBlockingTransform(isOffhand, this.isUsingItem);
       }
 
-      if (this.isUsingItem && !var3 && var5.getItem() instanceof ItemBow) {
+      if (this.isUsingItem && !isOffhand && stack.getItem() instanceof ItemBow) {
          this.bowPullProgress += 0.015F;
-         this.playerGirl.setItemUseCount(Math.round(-this.bowPullProgress * 20.0F + var5.getMaxItemUseDuration()));
-         this.playerGirl.setHeldItemOverride(var5);
+         this.playerGirl.setItemUseCount(Math.round(-this.bowPullProgress * 20.0F + stack.getMaxItemUseDuration()));
+         this.playerGirl.setHeldItemOverride(stack);
          this.playerGirl.setActiveHand(EnumHand.MAIN_HAND);
          this.playerGirl.setHandActiveState();
       } else {
@@ -325,10 +325,10 @@ public class GirlPlayerRenderer extends GirlRenderer {
          this.playerGirl.setHandActiveState();
       }
 
-      this.applyItemPostRotation(var3, var5);
+      this.applyItemPostRotation(isOffhand, stack);
       GlStateManager.scale(0.75F, 0.75F, 0.75F);
-      var4.renderItem(this.playerGirl, var5, TransformType.THIRD_PERSON_RIGHT_HAND);
-      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      itemRenderer.renderItem(this.playerGirl, stack, TransformType.THIRD_PERSON_RIGHT_HAND);
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.playerGirl)));
       GL11.glDisable(2896);
       GlStateManager.popMatrix();
@@ -339,11 +339,11 @@ public class GirlPlayerRenderer extends GirlRenderer {
    /**
     * Base item rotation: 90 degrees for main hand, 200 for offhand.
     */
-   protected void applyItemPostRotation(boolean var1, ItemStack var2) {
-      GlStateManager.rotate(var1 ? 200.0F : 90.0F, 1.0F, 0.0F, 0.0F);
+   protected void applyItemPostRotation(boolean isOffhand, ItemStack stack) {
+      GlStateManager.rotate(isOffhand ? 200.0F : 90.0F, 1.0F, 0.0F, 0.0F);
    }
 
-   protected void applyBowRotation(boolean var1) {
+   protected void applyBowRotation(boolean isOffhand) {
       GlStateManager.rotate(20.0F, 1.0F, 0.0F, 0.0F);
    }
 
@@ -352,17 +352,17 @@ public class GirlPlayerRenderer extends GirlRenderer {
     * actively blocking (isUsingItem) raises it in front of the face (with
     * per-hand offsets).
     */
-   protected void applyShieldBlockingTransform(boolean var1, boolean var2) {
-      if (var1) {
+   protected void applyShieldBlockingTransform(boolean isOffhand, boolean isBlocking) {
+      if (isOffhand) {
          GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
          GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
-         if (var2) {
+         if (isBlocking) {
             GlStateManager.rotate(-90.0F, 0.0F, 1.0F, 0.0F);
             GlStateManager.rotate(35.0F, 0.0F, 0.0F, 1.0F);
             GlStateManager.rotate(-20.0F, 1.0F, 0.0F, 0.0F);
             GlStateManager.translate(0.0F, 0.0F, 0.228F);
          }
-      } else if (var2) {
+      } else if (isBlocking) {
          GlStateManager.rotate(-90.0F, 1.0F, 0.0F, 0.0F);
          GlStateManager.rotate(-90.0F, 0.0F, 0.0F, 1.0F);
          GlStateManager.translate(0.0F, 0.165F, 0.0F);

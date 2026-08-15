@@ -8,15 +8,15 @@ public class Point2D {
    public int x;
    public int y;
 
-   public Point2D(int var1, int var2) {
-      this.x = var1;
-      this.y = var2;
+   public Point2D(int x, int y) {
+      this.x = x;
+      this.y = y;
    }
 
-   public float distanceTo(int var1, int var2) {
-      float var3 = var1 - this.x;
-      float var4 = var2 - this.y;
-      return (float)Math.sqrt(var3 * var3 + var4 * var4);
+   public float distanceTo(int x, int y) {
+      float dx = x - this.x;
+      float dy = y - this.y;
+      return (float)Math.sqrt(dx * dx + dy * dy);
    }
 
    @Override

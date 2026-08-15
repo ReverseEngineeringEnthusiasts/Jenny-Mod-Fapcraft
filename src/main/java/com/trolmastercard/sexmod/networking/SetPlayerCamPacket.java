@@ -28,40 +28,40 @@ public class SetPlayerCamPacket implements IMessage {
    public SetPlayerCamPacket() {
    }
 
-   public SetPlayerCamPacket(float var1, float var2, int var3) {
-      this.camX = var1;
-      this.camY = var2;
-      this.camMode = var3;
+   public SetPlayerCamPacket(float camX, float camY, int camMode) {
+      this.camX = camX;
+      this.camY = camY;
+      this.camMode = camMode;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.camX = var1.readFloat();
-      this.camY = var1.readFloat();
-      this.camMode = var1.readInt();
+   public void fromBytes(ByteBuf buf) {
+      this.camX = buf.readFloat();
+      this.camY = buf.readFloat();
+      this.camMode = buf.readInt();
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeFloat(this.camX);
-      var1.writeFloat(this.camY);
-      var1.writeInt(this.camMode);
+   public void toBytes(ByteBuf buf) {
+      buf.writeFloat(this.camX);
+      buf.writeFloat(this.camY);
+      buf.writeInt(this.camMode);
    }
 
    public static class Handler implements IMessageHandler<SetPlayerCamPacket, IMessage> {
-      public IMessage onMessage(SetPlayerCamPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.CLIENT) {
+      public IMessage onMessage(SetPlayerCamPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.CLIENT) {
             System.out.println(Thread.currentThread().getName());
-            Minecraft var3 = Minecraft.getMinecraft();
-            var3.addScheduledTask(() -> {
-               var3.gameSettings.thirdPersonView = var1.camMode;
-               EntityPlayerSP var2x = var3.player;
-               var2x.rotationYaw = var1.camY;
-               var2x.prevRotationYaw = var1.camY;
-               var2x.prevRotationYawHead = var1.camY;
-               var2x.rotationYawHead = var1.camY;
-               var2x.renderYawOffset = var1.camY;
-               var2x.rotationPitch = var1.camX;
-               var2x.prevRotationPitch = var1.camX;
+            Minecraft minecraft = Minecraft.getMinecraft();
+            minecraft.addScheduledTask(() -> {
+               minecraft.gameSettings.thirdPersonView = packet.camMode;
+               EntityPlayerSP player = minecraft.player;
+               player.rotationYaw = packet.camY;
+               player.prevRotationYaw = packet.camY;
+               player.prevRotationYawHead = packet.camY;
+               player.rotationYawHead = packet.camY;
+               player.renderYawOffset = packet.camY;
+               player.rotationPitch = packet.camX;
+               player.prevRotationPitch = packet.camX;
             });
             return null;
          } else {

@@ -104,9 +104,9 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       0.1F,
       12,
       0.035F,
-      (var0, var1) -> (float)(Math.sin(var1 * 0.3 + -0.2 * var0) * 15.0),
-      (var0, var1) -> (float)(Math.sin(var1 * -0.15 + -0.2 * var0) * 3.0),
-      (var0, var1) -> 0.0F,
+      (progress, time) -> (float)(Math.sin(time * 0.3 + -0.2 * progress) * 15.0),
+      (progress, time) -> (float)(Math.sin(time * -0.15 + -0.2 * progress) * 3.0),
+      (progress, time) -> 0.0F,
       0.03F,
       0.005F
    );
@@ -115,17 +115,17 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       0.0F,
       12,
       0.0F,
-      (var0, var1) -> (float)(Math.sin(var1 * 0.3 + -0.2 * var0) * 15.0),
-      (var0, var1) -> (float)(Math.sin(var1 * -0.15 + -0.2 * var0) * 3.0),
-      (var0, var1) -> 0.0F,
+      (progress, time) -> (float)(Math.sin(time * 0.3 + -0.2 * progress) * 15.0),
+      (progress, time) -> (float)(Math.sin(time * -0.15 + -0.2 * progress) * 3.0),
+      (progress, time) -> 0.0F,
       0.03F,
       0.005F
    );
    boolean initialized = false;
    float animationProgress = 0.0F;
 
-   public GalathRenderer(RenderManager var1, AnimatedGeoModel var2, double var3) {
-      super(var1, var2, var3);
+   public GalathRenderer(RenderManager renderManager, AnimatedGeoModel model, double shadowSize) {
+      super(renderManager, model, shadowSize);
    }
 
    /**
@@ -134,11 +134,11 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * ({@link #ZERO_OFFSET}).
     */
    @Nullable
-   protected Vector3fSexmodSpecial getWingColor(GalathEntity var1) {
-      if (var1.world instanceof SexWorldClient) {
+   protected Vector3fSexmodSpecial getWingColor(GalathEntity galath) {
+      if (galath.world instanceof SexWorldClient) {
          return null;
       } else {
-         return var1.bb ? null : ZERO_OFFSET;
+         return galath.bb ? null : ZERO_OFFSET;
       }
    }
 
@@ -158,18 +158,18 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    @Override
-   protected void drawOverlayLines(Tessellator var1, BufferBuilder var2, BaseGirlEntity var3, Vector3fSexmodSpecial var4, float var5) {
-      renderGirlTint(var1, var2, var3, var4, var5);
+   protected void drawOverlayLines(Tessellator tessellator, BufferBuilder buffer, BaseGirlEntity girl, Vector3fSexmodSpecial color, float lineWidth) {
+      renderGirlTint(tessellator, buffer, girl, color, lineWidth);
    }
 
-   protected void renderMasterbateEffect(GalathEntity var1) {
-      if (var1.getCurrentAction() == Action.MASTERBATE) {
-         float var2 = var1.getYawRotation();
-         var1.rotationYaw = var2;
-         var1.prevRenderYawOffset = var2;
-         var1.renderYawOffset = var2;
-         var1.prevRotationYawHead = var2;
-         var1.rotationYawHead = var2;
+   protected void renderMasterbateEffect(GalathEntity galath) {
+      if (galath.getCurrentAction() == Action.MASTERBATE) {
+         float yaw = galath.getYawRotation();
+         galath.rotationYaw = yaw;
+         galath.prevRenderYawOffset = yaw;
+         galath.renderYawOffset = yaw;
+         galath.prevRotationYawHead = yaw;
+         galath.rotationYawHead = yaw;
       }
    }
 
@@ -179,27 +179,27 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * the normal girl pipeline followed by the dash POV (wing meshes + Galath
     * geometry) and, while hugging Manglelie, her POV render.
     */
-   public void doRenderGalath(GalathEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      Vec3d var10 = getDashPosition(var1, var9);
-      if (var10 != null) {
-         var1.setTargetPositionDirect(var10);
+   public void doRenderGalath(GalathEntity galath, double x, double y, double z, float entityYaw, float partialTicks) {
+      Vec3d dashPos = getDashPosition(galath, partialTicks);
+      if (dashPos != null) {
+         galath.setTargetPositionDirect(dashPos);
       }
 
-      var1.aG = var10;
-      GalathEntity.getAimYaw(var1, var9);
-      this.renderFlightEffect(var1);
-      this.renderRapeCharge(var1);
-      super.doRenderEntity(var1, var2, var4, var6, var8, var9);
-      renderDashPov(var1, var9);
-      if (var1.isHuggingManglelie()) {
-         ManglelieRenderer.renderMangleliePov(var1, var9);
+      galath.aG = dashPos;
+      GalathEntity.getAimYaw(galath, partialTicks);
+      this.renderFlightEffect(galath);
+      this.renderRapeCharge(galath);
+      super.doRenderEntity(galath, x, y, z, entityYaw, partialTicks);
+      renderDashPov(galath, partialTicks);
+      if (galath.isHuggingManglelie()) {
+         ManglelieRenderer.renderMangleliePov(galath, partialTicks);
       }
    }
 
-   void renderRapeCharge(GalathEntity var1) {
-      if (var1.getCurrentAction() == Action.RAPE_CHARGE) {
-         var1.renderYawOffset = var1.getYawRotation();
-         var1.prevRenderYawOffset = var1.renderYawOffset;
+   void renderRapeCharge(GalathEntity galath) {
+      if (galath.getCurrentAction() == Action.RAPE_CHARGE) {
+         galath.renderYawOffset = galath.getYawRotation();
+         galath.prevRenderYawOffset = galath.renderYawOffset;
       }
    }
 
@@ -208,19 +208,19 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * yaw follows her movement direction (atan2 of the delta); when hovering
     * it holds the last direction, so she doesn't spin while bobbing.
     */
-   void renderFlightEffect(GalathEntity var1) {
-      if ((Boolean)var1.getDataManager().get(GalathEntity.bP)) {
-         Vec3d var2 = new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ);
-         Vec3d var3 = var1.getPositionVector().subtract(var2);
-         boolean var4 = Math.abs(var3.x) + Math.abs(var3.z) < 0.05F;
-         if (var4) {
-            var1.renderYawOffset = this.animationProgress;
-            var1.prevRenderYawOffset = this.animationProgress;
+   void renderFlightEffect(GalathEntity galath) {
+      if ((Boolean)galath.getDataManager().get(GalathEntity.bP)) {
+         Vec3d lastPos = new Vec3d(galath.lastTickPosX, galath.lastTickPosY, galath.lastTickPosZ);
+         Vec3d motion = galath.getPositionVector().subtract(lastPos);
+         boolean isHovering = Math.abs(motion.x) + Math.abs(motion.z) < 0.05F;
+         if (isHovering) {
+            galath.renderYawOffset = this.animationProgress;
+            galath.prevRenderYawOffset = this.animationProgress;
          } else {
-            float var5 = (float)(TrigMath.sinDegrees(Math.atan2(var3.z, var3.x)) - 90.0);
-            var1.renderYawOffset = var5;
-            var1.prevRenderYawOffset = var5;
-            this.animationProgress = var5;
+            float yaw = (float)(TrigMath.sinDegrees(Math.atan2(motion.z, motion.x)) - 90.0);
+            galath.renderYawOffset = yaw;
+            galath.prevRenderYawOffset = yaw;
+            this.animationProgress = yaw;
          }
       }
    }
@@ -232,34 +232,34 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * the dash timing fields. {@code az()} == -1 resets and disables the dash.
     */
    @Nullable
-   public static Vec3d getDashPosition(GalathEntity var0, float var1) {
-      float var2 = var0.az();
-      if (var2 == -1.0F) {
-         var0.af = -1L;
-         var0.aH = -1L;
+   public static Vec3d getDashPosition(GalathEntity galath, float partialTicks) {
+      float dashProgress = galath.az();
+      if (dashProgress == -1.0F) {
+         galath.af = -1L;
+         galath.aH = -1L;
          return null;
       }
 
-      EntityLivingBase var3 = var0.getTargetEntity();
-      if (var3 == null) {
+      EntityLivingBase target = galath.getTargetEntity();
+      if (target == null) {
          return null;
       }
 
-      Vec3d var4 = RotationHelper.lerpVec3dDouble(new Vec3d(var3.prevPosX, var3.prevPosY, var3.prevPosZ), var3.getPositionVector(), var1);
-      if (var2 == 24.0F && var0.af == -1L) {
-         var0.af = mc.world.getTotalWorldTime();
-         var0.aH = var0.af + 8L;
+      Vec3d targetPos = RotationHelper.lerpVec3dDouble(new Vec3d(target.prevPosX, target.prevPosY, target.prevPosZ), target.getPositionVector(), partialTicks);
+      if (dashProgress == 24.0F && galath.af == -1L) {
+         galath.af = mc.world.getTotalWorldTime();
+         galath.aH = galath.af + 8L;
       }
 
-      if (ThreadNames.isBetween(var2, 24.0, 32.0)) {
-         Vec3d var9 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 3.0), var0.getYawRotation() + 180.0F);
-         Vec3d var6 = var0.B_clash642();
-         Vec3d var7 = var4.add(0.0, var3.getEyeHeight(), 0.0).add(var9);
-         float var8 = ((float)mc.world.getTotalWorldTime() + var1 - (float)var0.af) / (float)(var0.aH - var0.af);
-         return RotationHelper.lerpVec3dDouble(var6, var7, var8);
-      } else if (ThreadNames.isBetween(var2, 32.0, 54.0)) {
-         Vec3d var5 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 1.5), var0.getYawRotation() + 180.0F);
-         return var4.add(var5);
+      if (ThreadNames.isBetween(dashProgress, 24.0, 32.0)) {
+         Vec3d approachOffset = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 3.0), galath.getYawRotation() + 180.0F);
+         Vec3d startPos = galath.B_clash642();
+         Vec3d endPos = targetPos.add(0.0, target.getEyeHeight(), 0.0).add(approachOffset);
+         float dashProgressT = ((float)mc.world.getTotalWorldTime() + partialTicks - (float)galath.af) / (float)(galath.aH - galath.af);
+         return RotationHelper.lerpVec3dDouble(startPos, endPos, dashProgressT);
+      } else if (ThreadNames.isBetween(dashProgress, 32.0, 54.0)) {
+         Vec3d holdOffset = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 1.5), galath.getYawRotation() + 180.0F);
+         return targetPos.add(holdOffset);
       } else {
          return null;
       }
@@ -270,19 +270,19 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * geometry and wing mesh at the local player (culling/lighting disabled
     * around the pass). This is what the player sees during the dash scene.
     */
-   public static void renderDashPov(BaseGirlEntity var0, float var1) {
-      EntityPlayerSP var2 = mc.player;
-      if (var2 != null) {
-         Tessellator var3 = Tessellator.getInstance();
-         BufferBuilder var4 = var3.getBuffer();
+   public static void renderDashPov(BaseGirlEntity girl, float partialTicks) {
+      EntityPlayerSP player = mc.player;
+      if (player != null) {
+         Tessellator tessellator = Tessellator.getInstance();
+         BufferBuilder buffer = tessellator.getBuffer();
          GlStateManager.pushMatrix();
-         GalathGeometryRender.renderGalathGeometry(mc, var0, var1);
+         GalathGeometryRender.renderGalathGeometry(mc, girl, partialTicks);
          mc.getTextureManager().bindTexture(LINE_TEXTURE);
          GlStateManager.disableCull();
          GlStateManager.disableLighting();
-         renderWingEffect(var0, var4, var3, RotationHelper.lerp(var0.prevRenderYawOffset, var0.renderYawOffset, var1));
-         renderWingGeometry(var0, var4, var3, var1);
-         renderWingMesh(var0, var4, var3);
+         renderWingEffect(girl, buffer, tessellator, RotationHelper.lerp(girl.prevRenderYawOffset, girl.renderYawOffset, partialTicks));
+         renderWingGeometry(girl, buffer, tessellator, partialTicks);
+         renderWingMesh(girl, buffer, tessellator);
          GlStateManager.popMatrix();
          GlStateManager.enableCull();
          GlStateManager.enableLighting();
@@ -294,47 +294,47 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * bone) rotating with world time — the visual effect of the wing
     * animation. Skipped when the effects flag is hidden.
     */
-   static void renderWingGeometry(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
-      if (var0 instanceof GalathEntity) {
-         if ((Boolean)var0.getDataManager().get(GalathEntity.bP)) {
-            if (!(Boolean)var0.getDataManager().get(GalathEntity.HIDE_EFFECTS_FLAG)) {
+   static void renderWingGeometry(BaseGirlEntity girl, BufferBuilder buffer, Tessellator tessellator, float partialTicks) {
+      if (girl instanceof GalathEntity) {
+         if ((Boolean)girl.getDataManager().get(GalathEntity.bP)) {
+            if (!(Boolean)girl.getDataManager().get(GalathEntity.HIDE_EFFECTS_FLAG)) {
                GlStateManager.pushMatrix();
-               Vec3d var4 = var0.getCachedBoneOffset("stars");
-               GlStateManager.translate(var4.x, var4.y, var4.z);
-               float var5 = (float)mc.world.getTotalWorldTime() + var3;
-               float var6 = (float)(Math.sin(var5 * 0.2) * 5.0);
-               float var7 = (float)(Math.cos(var5 * 0.2) * 5.0);
-               float var8 = (float)(var5 * 3.0);
-               GlStateManager.rotate(var6, 1.0F, 0.0F, 0.0F);
-               GlStateManager.rotate(var8, 0.0F, 1.0F, 0.0F);
-               GlStateManager.rotate(var7, 0.0F, 0.0F, 1.0F);
-               float var9 = TrigMath.toRadians(9.0);
-               Vector3fSexmodSpecial var10 = GalathEntity.aa;
+               Vec3d starsOffset = girl.getCachedBoneOffset("stars");
+               GlStateManager.translate(starsOffset.x, starsOffset.y, starsOffset.z);
+               float time = (float)mc.world.getTotalWorldTime() + partialTicks;
+               float rotX = (float)(Math.sin(time * 0.2) * 5.0);
+               float rotZ = (float)(Math.cos(time * 0.2) * 5.0);
+               float rotY = (float)(time * 3.0);
+               GlStateManager.rotate(rotX, 1.0F, 0.0F, 0.0F);
+               GlStateManager.rotate(rotY, 0.0F, 1.0F, 0.0F);
+               GlStateManager.rotate(rotZ, 0.0F, 0.0F, 1.0F);
+               float step = TrigMath.toRadians(9.0);
+               Vector3fSexmodSpecial starColor = GalathEntity.aa;
                mc.getTextureManager().bindTexture(LINE_TEXTURE);
-               var1.begin(3, DefaultVertexFormats.POSITION_TEX_COLOR);
-               GlStateManager.glLineWidth(getRenderOffset(var0, var3, 1.0F, 3.0F));
+               buffer.begin(3, DefaultVertexFormats.POSITION_TEX_COLOR);
+               GlStateManager.glLineWidth(getRenderOffset(girl, partialTicks, 1.0F, 3.0F));
 
-               for (float var11 = 0.0F; var11 < Math.PI * 2; var11 += var9) {
-                  double var12 = Math.sin(var11) * 0.3F;
-                  double var14 = Math.cos(var11) * 0.3F;
-                  var1.pos(var12, 0.0, var14).tex(0.0, 0.0).color(var10.x, var10.y, var10.z, 1.0F).endVertex();
+               for (float angle = 0.0F; angle < Math.PI * 2; angle += step) {
+                  double sinAngle = Math.sin(angle) * 0.3F;
+                  double cosAngle = Math.cos(angle) * 0.3F;
+                  buffer.pos(sinAngle, 0.0, cosAngle).tex(0.0, 0.0).color(starColor.x, starColor.y, starColor.z, 1.0F).endVertex();
                }
 
-               var2.draw();
+               tessellator.draw();
                mc.getTextureManager().bindTexture(STAR_TEXTURE);
-               var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-               var9 = TrigMath.toRadians(60.0);
+               buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+               step = TrigMath.toRadians(60.0);
 
-               for (float var17 = 0.0F; var17 < Math.PI * 2; var17 += var9) {
-                  double var18 = Math.sin(var17) * 0.3F;
-                  double var19 = Math.cos(var17) * 0.3F;
-                  var1.pos(var18 - 0.1F, 0.1F, var19).tex(0.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-                  var1.pos(var18 + 0.1F, 0.1F, var19).tex(1.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-                  var1.pos(var18 + 0.1F, -0.1F, var19).tex(1.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-                  var1.pos(var18 - 0.1F, -0.1F, var19).tex(0.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+               for (float angle2 = 0.0F; angle2 < Math.PI * 2; angle2 += step) {
+                  double sinAngle2 = Math.sin(angle2) * 0.3F;
+                  double cosAngle2 = Math.cos(angle2) * 0.3F;
+                  buffer.pos(sinAngle2 - 0.1F, 0.1F, cosAngle2).tex(0.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+                  buffer.pos(sinAngle2 + 0.1F, 0.1F, cosAngle2).tex(1.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+                  buffer.pos(sinAngle2 + 0.1F, -0.1F, cosAngle2).tex(1.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+                  buffer.pos(sinAngle2 - 0.1F, -0.1F, cosAngle2).tex(0.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
                }
 
-               var2.draw();
+               tessellator.draw();
                GlStateManager.popMatrix();
             }
          }
@@ -346,14 +346,14 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * hair bones) — the trailing hair effect while flying. Skipped during the
     * coin-giving action past its first 100 ticks.
     */
-   static void renderWingEffect(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
-      if (var0.getCurrentAction() != Action.GIVE_COIN || Action.GIVE_COIN.ticksPlaying[1] <= 100) {
-         var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-         Vec3d[][] var4 = GalathGeometryRender.buildBodyBoneMesh(var0, var3, "hairStrandStartR", "hairStrandMidR", "hairStrandEndR", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
-         Vec3d[][] var5 = GalathGeometryRender.buildBodyBoneMesh(var0, var3, "hairStrandStartL", "hairStrandMidL", "hairStrandEndL", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
-         GalathGeometryRender.renderMesh(var1, var4, RIBBON_COLOR_B);
-         GalathGeometryRender.renderMesh(var1, var5, RIBBON_COLOR_B);
-         var2.draw();
+   static void renderWingEffect(BaseGirlEntity girl, BufferBuilder buffer, Tessellator tessellator, float partialTicks) {
+      if (girl.getCurrentAction() != Action.GIVE_COIN || Action.GIVE_COIN.ticksPlaying[1] <= 100) {
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+         Vec3d[][] rightMesh = GalathGeometryRender.buildBodyBoneMesh(girl, partialTicks, "hairStrandStartR", "hairStrandMidR", "hairStrandEndR", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
+         Vec3d[][] leftMesh = GalathGeometryRender.buildBodyBoneMesh(girl, partialTicks, "hairStrandStartL", "hairStrandMidL", "hairStrandEndL", 0.0296875F, 0.06484375F, 0.026124999F, 0.0570625F, "head");
+         GalathGeometryRender.renderMesh(buffer, rightMesh, RIBBON_COLOR_B);
+         GalathGeometryRender.renderMesh(buffer, leftMesh, RIBBON_COLOR_B);
+         tessellator.draw();
       }
    }
 
@@ -362,19 +362,19 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * cached {@code wingRV<0..13>}/{@code wingLV<0..13>} bone offsets, drawn
     * with the Galath texture. Only when wings are animated.
     */
-   static void renderWingMesh(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2) {
-      if (((IGalath)var0).areWingsAnimated()) {
+   static void renderWingMesh(BaseGirlEntity girl, BufferBuilder buffer, Tessellator tessellator) {
+      if (((IGalath)girl).areWingsAnimated()) {
          mc.getTextureManager().bindTexture(GalathNpcModel.GALATH_TEXTURE);
-         Vec3d[] var3 = new Vec3d[14];
-         Vec3d[] var4 = new Vec3d[14];
+         Vec3d[] rightWing = new Vec3d[14];
+         Vec3d[] leftWing = new Vec3d[14];
 
-         for (int var5 = 0; var5 < 14; var5++) {
-            var3[var5] = var0.getCachedBoneOffset("wingRV" + var5);
-            var4[var5] = var0.getCachedBoneOffset("wingLV" + var5);
+         for (int i = 0; i < 14; i++) {
+            rightWing[i] = girl.getCachedBoneOffset("wingRV" + i);
+            leftWing[i] = girl.getCachedBoneOffset("wingLV" + i);
          }
 
-         renderLineStrip(var1, var2, var3);
-         renderLineStrip(var1, var2, var4);
+         renderLineStrip(buffer, tessellator, rightWing);
+         renderLineStrip(buffer, tessellator, leftWing);
       }
    }
 
@@ -382,67 +382,67 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * Emits the two wing strip triangles (quads 0-1-2-11-12-13 and 3..10) with
     * the ribbon texture UVs.
     */
-   static void renderLineStrip(BufferBuilder var0, Tessellator var1, Vec3d[] var2) {
-      var0.begin(4, DefaultVertexFormats.POSITION_TEX_COLOR);
-      var0.pos(var2[0].x, var2[0].y, var2[0].z)
+   static void renderLineStrip(BufferBuilder buffer, Tessellator tessellator, Vec3d[] points) {
+      buffer.begin(4, DefaultVertexFormats.POSITION_TEX_COLOR);
+      buffer.pos(points[0].x, points[0].y, points[0].z)
          .tex(TEXTURE_UV_A.x, TEXTURE_UV_A.y)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[1].x, var2[1].y, var2[1].z)
+      buffer.pos(points[1].x, points[1].y, points[1].z)
          .tex(TEXTURE_UV_A.x + 0.125F, TEXTURE_UV_A.y)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[2].x, var2[2].y, var2[2].z)
+      buffer.pos(points[2].x, points[2].y, points[2].z)
          .tex(TEXTURE_UV_A.x + 0.125F, TEXTURE_UV_A.y + 0.125F)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[11].x, var2[11].y, var2[11].z)
+      buffer.pos(points[11].x, points[11].y, points[11].z)
          .tex(TEXTURE_UV_A.x, TEXTURE_UV_A.y)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[12].x, var2[12].y, var2[12].z)
+      buffer.pos(points[12].x, points[12].y, points[12].z)
          .tex(TEXTURE_UV_A.x + 0.125F, TEXTURE_UV_A.y)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[13].x, var2[13].y, var2[13].z)
+      buffer.pos(points[13].x, points[13].y, points[13].z)
          .tex(TEXTURE_UV_A.x + 0.125F, TEXTURE_UV_A.y + 0.125F)
          .color(255, 255, 255, 255)
          .endVertex();
-      var1.draw();
-      var0.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-      var0.pos(var2[3].x, var2[3].y, var2[3].z)
+      tessellator.draw();
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+      buffer.pos(points[3].x, points[3].y, points[3].z)
          .tex(TEXTURE_UV_B.x, TEXTURE_UV_B.y + 0.125F)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[4].x, var2[4].y, var2[4].z)
+      buffer.pos(points[4].x, points[4].y, points[4].z)
          .tex(TEXTURE_UV_B.x, TEXTURE_UV_B.y)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[5].x, var2[5].y, var2[5].z)
+      buffer.pos(points[5].x, points[5].y, points[5].z)
          .tex(TEXTURE_UV_B.x + 0.125F, TEXTURE_UV_B.y)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[6].x, var2[6].y, var2[6].z)
+      buffer.pos(points[6].x, points[6].y, points[6].z)
          .tex(TEXTURE_UV_B.x + 0.125F, TEXTURE_UV_B.y + 0.125F)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[7].x, var2[7].y, var2[7].z)
+      buffer.pos(points[7].x, points[7].y, points[7].z)
          .tex(TEXTURE_UV_B.x, TEXTURE_UV_B.y + 0.125F)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[8].x, var2[8].y, var2[8].z)
+      buffer.pos(points[8].x, points[8].y, points[8].z)
          .tex(TEXTURE_UV_B.x, TEXTURE_UV_B.y)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[9].x, var2[9].y, var2[9].z)
+      buffer.pos(points[9].x, points[9].y, points[9].z)
          .tex(TEXTURE_UV_B.x + 0.125F, TEXTURE_UV_B.y)
          .color(255, 255, 255, 255)
          .endVertex();
-      var0.pos(var2[10].x, var2[10].y, var2[10].z)
+      buffer.pos(points[10].x, points[10].y, points[10].z)
          .tex(TEXTURE_UV_B.x + 0.125F, TEXTURE_UV_B.y + 0.125F)
          .color(255, 255, 255, 255)
          .endVertex();
-      var1.draw();
+      tessellator.draw();
    }
 
    /**
@@ -450,48 +450,48 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * then the steve (skin) bone and the body2 bone with Manglelie's texture —
     * each in its own buffer flush.
     */
-   protected void renderModelBuffer(GeoModel var1, BufferBuilder var2, GalathEntity var3, float var4, float var5, float var6, float var7, float var8) {
-      GeoBone var9 = var1.topLevelBones.get(0);
-      GeoBone var10 = null;
-      GeoBone var11 = null;
-      GeoBone var12 = null;
-      GeoBone var13 = null;
+   protected void renderModelBuffer(GeoModel model, BufferBuilder buffer, GalathEntity galath, float r, float g, float b, float a, float scale) {
+      GeoBone topBone = model.topLevelBones.get(0);
+      GeoBone bodyBone = null;
+      GeoBone coinBone = null;
+      GeoBone steveBone = null;
+      GeoBone body2Bone = null;
 
-      for (GeoBone var15 : var9.childBones) {
-         switch (var15.getName()) {
+      for (GeoBone bone : topBone.childBones) {
+         switch (bone.getName()) {
             case "steve":
-               var12 = var15;
+               steveBone = bone;
                break;
             case "body":
-               var10 = var15;
+               bodyBone = bone;
                break;
             case "coin":
-               var11 = var15;
+               coinBone = bone;
                break;
             case "body2":
-               var13 = var15;
+               body2Bone = bone;
          }
       }
 
       MATRIX_STACK.push();
-      MATRIX_STACK.translate(var9);
-      MATRIX_STACK.moveToPivot(var9);
-      MATRIX_STACK.rotate(var9);
-      MATRIX_STACK.scale(var9);
-      MATRIX_STACK.moveBackFromPivot(var9);
-      this.renderRecursively(var2, var10, var4, var5, var6, var7);
+      MATRIX_STACK.translate(topBone);
+      MATRIX_STACK.moveToPivot(topBone);
+      MATRIX_STACK.rotate(topBone);
+      MATRIX_STACK.scale(topBone);
+      MATRIX_STACK.moveBackFromPivot(topBone);
+      this.renderRecursively(buffer, bodyBone, r, g, b, a);
       Tessellator.getInstance().draw();
-      this.renderBoneEffect(var2, var11, var3, var8);
-      var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      this.renderBoneEffect(buffer, coinBone, galath, scale);
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
       Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.renderEntity));
 
-      this.renderRecursively(var2, var12, var4, var5, var6, this.renderEntity.getRenderScaleFactor());
+      this.renderRecursively(buffer, steveBone, r, g, b, this.renderEntity.getRenderScaleFactor());
       Tessellator.getInstance().draw();
-      if (var13 != null) {
-         var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      if (body2Bone != null) {
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          Minecraft.getMinecraft().renderEngine.bindTexture(ManglelieNpcModel.MANGLELIE_TEXTURE);
-         this.renderRecursively(var2, var13, var4, var5, var6, this.renderEntity.getRenderScaleFactor());
+         this.renderRecursively(buffer, body2Bone, r, g, b, this.renderEntity.getRenderScaleFactor());
          Tessellator.getInstance().draw();
       }
 
@@ -506,47 +506,47 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * target, and — while hugging Manglelie — her skirt-follow transform.
     */
    @Override
-   protected void onBoneProcessing(BufferBuilder var1, String var2, GeoBone var3) {
-      switch (var2) {
+   protected void onBoneProcessing(BufferBuilder buffer, String boneName, GeoBone bone) {
+      switch (boneName) {
          case "hairBack":
             if (!mc.isGamePaused()) {
-               IBone var18 = this.renderEntity.getAnimationProcessor().getBone("head");
-               float var19 = TrigMath.toDegrees(var18.getRotationX());
-               if (var19 < 0.0F) {
-                  var3.setRotationX(TrigMath.wrapDegrees(-var19));
+               IBone headBone2 = this.renderEntity.getAnimationProcessor().getBone("head");
+               float headPitchDegrees2 = TrigMath.toDegrees(headBone2.getRotationX());
+               if (headPitchDegrees2 < 0.0F) {
+                  bone.setRotationX(TrigMath.wrapDegrees(-headPitchDegrees2));
                } else {
-                  float var21 = Math.min(1.0F, var19 / 45.0F);
-                  var3.setRotationX(TrigMath.wrapDegrees(-var19));
-                  var3.setPositionY(var3.getPositionY() + var21 * 1.5F);
+                  float tiltProgress = Math.min(1.0F, headPitchDegrees2 / 45.0F);
+                  bone.setRotationX(TrigMath.wrapDegrees(-headPitchDegrees2));
+                  bone.setPositionY(bone.getPositionY() + tiltProgress * 1.5F);
                }
             }
             break;
          case "hairDownSideL":
          case "hairDownSideR":
             if (!mc.isGamePaused()) {
-               IBone var6 = this.renderEntity.getAnimationProcessor().getBone("head");
-               float var7 = TrigMath.toDegrees(var6.getRotationX());
-               if (var7 < 0.0F) {
-                  var3.setRotationX(TrigMath.wrapDegrees(-var7 / 2.0F));
+               IBone headBone = this.renderEntity.getAnimationProcessor().getBone("head");
+               float headPitchDegrees = TrigMath.toDegrees(headBone.getRotationX());
+               if (headPitchDegrees < 0.0F) {
+                  bone.setRotationX(TrigMath.wrapDegrees(-headPitchDegrees / 2.0F));
                } else {
-                  float var20 = Math.min(1.0F, var7 / 45.0F);
-                  var3.setRotationX(TrigMath.wrapDegrees(-var7));
-                  var3.setPositionY(var3.getPositionY() + var20);
+                  float tiltProgress2 = Math.min(1.0F, headPitchDegrees / 45.0F);
+                  bone.setRotationX(TrigMath.wrapDegrees(-headPitchDegrees));
+                  bone.setPositionY(bone.getPositionY() + tiltProgress2);
                }
             }
             break;
          case "head":
-            this.handleBlowjobBone(var3);
-            Action var8 = this.renderEntity.getCurrentAction();
-            if (var8 == Action.FLY || var8 == Action.ATTACK_SWORD) {
-               EntityLivingBase var22 = this.renderEntity.getTargetEntity();
-               if (var22 != null) {
-                  float var10 = mc.getRenderPartialTicks();
-                  Vec3d var11 = RotationHelper.lerpVec3dDouble(new Vec3d(this.renderEntity.lastTickPosX, this.renderEntity.lastTickPosY, this.renderEntity.lastTickPosZ), this.renderEntity.getPositionVector(), var10);
-                  Vec3d var12 = RotationHelper.lerpVec3dDouble(new Vec3d(var22.lastTickPosX, var22.lastTickPosY, var22.lastTickPosZ), this.renderEntity.getPositionVector(), var10);
-                  Vec3d var24 = var11.subtract(var12);
-                  float var14 = (float)VectorMath.rotateByYaw(var24, this.renderEntity.renderYawOffset).z;
-                  float var10000 = (float)Math.atan2(var24.y, var14);
+            this.handleBlowjobBone(bone);
+            Action action = this.renderEntity.getCurrentAction();
+            if (action == Action.FLY || action == Action.ATTACK_SWORD) {
+               EntityLivingBase target2 = this.renderEntity.getTargetEntity();
+               if (target2 != null) {
+                  float partialTicks = mc.getRenderPartialTicks();
+                  Vec3d girlPos = RotationHelper.lerpVec3dDouble(new Vec3d(this.renderEntity.lastTickPosX, this.renderEntity.lastTickPosY, this.renderEntity.lastTickPosZ), this.renderEntity.getPositionVector(), partialTicks);
+                  Vec3d targetPos = RotationHelper.lerpVec3dDouble(new Vec3d(target2.lastTickPosX, target2.lastTickPosY, target2.lastTickPosZ), this.renderEntity.getPositionVector(), partialTicks);
+                  Vec3d delta2 = girlPos.subtract(targetPos);
+                  float forwardZ = (float)VectorMath.rotateByYaw(delta2, this.renderEntity.renderYawOffset).z;
+                  float unusedAimPitch = (float)Math.atan2(delta2.y, forwardZ);
                }
             }
             break;
@@ -554,51 +554,51 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
             if (this.renderEntity.ap) {
                GlStateManager.pushMatrix();
                Tessellator.getInstance().draw();
-               com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, var3);
+               com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
                GL11.glEnable(2896);
                GlStateManager.scale(1.5, 1.0, 2.0);
                GlStateManager.translate(0.0, 0.0, 0.05);
                GlStateManager.rotate(110.0F, 1.0F, 0.0F, 0.0F);
                Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, new ItemStack(Items.IRON_SWORD), TransformType.THIRD_PERSON_RIGHT_HAND);
                this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-               var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+               buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
                GL11.glDisable(2896);
                GlStateManager.popMatrix();
             }
             break;
          case "tongue":
-            this.renderPussyLickingBone(var1, var3);
+            this.renderPussyLickingBone(buffer, bone);
             break;
          case "mangTongue":
-            this.renderMorningBlowjobBone(var1, var3);
+            this.renderMorningBlowjobBone(buffer, bone);
             break;
          case "head3":
-            this.handleMorningPose(var3);
+            this.handleMorningPose(bone);
             break;
          case "irisL":
          case "irisR":
-            this.handleMorningBlowjob(var3);
+            this.handleMorningBlowjob(bone);
             break;
          case "irsisFaceR2":
          case "irsisFaceR3":
-            this.handleBlowjobState(var3);
+            this.handleBlowjobState(bone);
             break;
          case "armL":
          case "armR":
             if (this.renderEntity.getCurrentAction() == Action.RAPE_CHARGE) {
-               EntityLivingBase var9 = this.renderEntity.getTargetEntity();
-               if (var9 != null) {
-                  float var15 = this.renderEntity.renderYawOffset;
-                  Vec3d var13 = var9.getPositionVector().subtract(this.renderEntity.getPositionVector());
-                  var13 = VectorMath.rotateByYaw(var13, var15);
-                  double var16 = -ThreadNames.clampDouble(var13.x, -1.0, 1.0);
-                  var3.setRotationZ(var3.getRotationZ() + TrigMath.toRadians(45.0 * var16));
+               EntityLivingBase target = this.renderEntity.getTargetEntity();
+               if (target != null) {
+                  float yaw = this.renderEntity.renderYawOffset;
+                  Vec3d delta = target.getPositionVector().subtract(this.renderEntity.getPositionVector());
+                  delta = VectorMath.rotateByYaw(delta, yaw);
+                  double clampedX = -ThreadNames.clampDouble(delta.x, -1.0, 1.0);
+                  bone.setRotationZ(bone.getRotationZ() + TrigMath.toRadians(45.0 * clampedX));
                }
             }
       }
 
       if (this.renderEntity.isHuggingManglelie()) {
-         ManglelieRenderer.applyBoneTransform(this.renderEntity, var2, var3, true);
+         ManglelieRenderer.applyBoneTransform(this.renderEntity, boneName, bone, true);
       }
    }
 
@@ -607,18 +607,18 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * ribbon; the morning-blowjob draws its own ribbon (with fade-out while
     * {@code aD} is active).
     */
-   void renderPussyLickingBone(BufferBuilder var1, GeoBone var2) {
+   void renderPussyLickingBone(BufferBuilder buffer, GeoBone bone) {
       if (Action.isAnyAction(this.renderEntity, Action.PUSSY_LICKING, Action.MASTERBATE_SITTING)) {
-         this.renderSwordBone(var1, var2);
+         this.renderSwordBone(buffer, bone);
       } else if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW)) {
-         this.renderBoneBlowjob(var1, var2);
+         this.renderBoneBlowjob(buffer, bone);
       }
    }
 
-   void renderMorningBlowjobBone(BufferBuilder var1, GeoBone var2) {
+   void renderMorningBlowjobBone(BufferBuilder buffer, GeoBone bone) {
       if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW) || this.renderEntity.aD) {
-         float var3 = this.renderEntity.aD ? 1.0F - Math.min(0.29F, Action.getActionTickSeconds(this.renderEntity, mc.getRenderPartialTicks())) / 0.29F : 1.0F;
-         this.renderBoneAction(var1, var2, var3);
+         float fade = this.renderEntity.aD ? 1.0F - Math.min(0.29F, Action.getActionTickSeconds(this.renderEntity, mc.getRenderPartialTicks())) / 0.29F : 1.0F;
+         this.renderBoneAction(buffer, bone, fade);
          this.bindTexture(ManglelieNpcModel.MANGLELIE_TEXTURE);
       }
    }
@@ -627,19 +627,19 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * Sway for the morning-blowjob head pose: slow sine on yaw/pitch, scaled
     * down while the intro ({@code aD}) fades in.
     */
-   void handleMorningPose(GeoBone var1) {
+   void handleMorningPose(GeoBone bone) {
       if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW, Action.MORNING_BLOWJOB_FAST)) {
          if (!mc.isGamePaused()) {
-            float var2 = mc.player.ticksExisted + mc.getRenderPartialTicks();
-            float var3 = (float)(Math.sin(var2 * 0.1F) * 0.1F) + 0.2F;
-            float var4 = (float)Math.sin(var2 * 0.1F) * 0.1F;
+            float time = mc.player.ticksExisted + mc.getRenderPartialTicks();
+            float yawSway = (float)(Math.sin(time * 0.1F) * 0.1F) + 0.2F;
+            float pitchSway = (float)Math.sin(time * 0.1F) * 0.1F;
             if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW)) {
-               var1.setRotationY(var1.getRotationY() + var3);
-               var1.setRotationZ(var1.getRotationZ() + var4);
+               bone.setRotationY(bone.getRotationY() + yawSway);
+               bone.setRotationZ(bone.getRotationZ() + pitchSway);
             } else if (this.renderEntity.aD) {
-               float var5 = 1.0F - Math.min(0.5F, Action.getActionTickSeconds(this.renderEntity, mc.getRenderPartialTicks())) / 0.5F;
-               var1.setRotationY(var1.getRotationY() + var3 * var5);
-               var1.setRotationZ(var1.getRotationZ() + var4 * var5);
+               float fade = 1.0F - Math.min(0.5F, Action.getActionTickSeconds(this.renderEntity, mc.getRenderPartialTicks())) / 0.5F;
+               bone.setRotationY(bone.getRotationY() + yawSway * fade);
+               bone.setRotationZ(bone.getRotationZ() + pitchSway * fade);
             }
          }
       }
@@ -648,38 +648,38 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    /**
     * Head sway for the morning-blowjob (counter-sine to the head3 pose).
     */
-   void handleBlowjobBone(GeoBone var1) {
+   void handleBlowjobBone(GeoBone bone) {
       if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW, Action.MORNING_BLOWJOB_FAST)) {
          if (!mc.isGamePaused()) {
-            float var2 = mc.player.ticksExisted + mc.getRenderPartialTicks();
-            float var3 = (float)Math.sin(var2 * -0.1F) * 0.1F;
-            float var4 = (float)Math.sin(var2 * 0.1F) * 0.1F;
+            float time = mc.player.ticksExisted + mc.getRenderPartialTicks();
+            float yawSway = (float)Math.sin(time * -0.1F) * 0.1F;
+            float pitchSway = (float)Math.sin(time * 0.1F) * 0.1F;
             if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW)) {
-               var1.setRotationY(var1.getRotationY() + var3);
-               var1.setRotationZ(var1.getRotationZ() + var4);
+               bone.setRotationY(bone.getRotationY() + yawSway);
+               bone.setRotationZ(bone.getRotationZ() + pitchSway);
             } else if (this.renderEntity.aD) {
-               float var5 = Math.min(0.5F, Action.getActionTickSeconds(this.renderEntity, mc.getRenderPartialTicks())) / 0.5F;
-               var1.setRotationY(var1.getRotationY() + var3 * var5);
-               var1.setRotationZ(var1.getRotationZ() + var4 * var5);
+               float fade = Math.min(0.5F, Action.getActionTickSeconds(this.renderEntity, mc.getRenderPartialTicks())) / 0.5F;
+               bone.setRotationY(bone.getRotationY() + yawSway * fade);
+               bone.setRotationZ(bone.getRotationZ() + pitchSway * fade);
             }
          }
       }
    }
 
-   void handleMorningBlowjob(GeoBone var1) {
+   void handleMorningBlowjob(GeoBone bone) {
       if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW)) {
          if (!mc.isGamePaused()) {
-            float var2 = mc.player.ticksExisted + mc.getRenderPartialTicks();
-            var1.setPositionX((float)(var1.getPositionX() + Math.sin(var2 * 0.1F) * -0.1F));
+            float time = mc.player.ticksExisted + mc.getRenderPartialTicks();
+            bone.setPositionX((float)(bone.getPositionX() + Math.sin(time * 0.1F) * -0.1F));
          }
       }
    }
 
-   void handleBlowjobState(GeoBone var1) {
+   void handleBlowjobState(GeoBone bone) {
       if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW)) {
          if (!mc.isGamePaused()) {
-            float var2 = mc.player.ticksExisted + mc.getRenderPartialTicks();
-            var1.setPositionX((float)(var1.getPositionX() + Math.sin(var2 * 0.1F) * -0.15F));
+            float time = mc.player.ticksExisted + mc.getRenderPartialTicks();
+            bone.setPositionX((float)(bone.getPositionX() + Math.sin(time * 0.1F) * -0.15F));
          }
       }
    }
@@ -688,54 +688,54 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * Ribbon animation driven by the action's time scale: length/width pulse
     * with a phase-offset cosine (used for the sword/licking effects).
     */
-   void renderBoneAction(BufferBuilder var1, GeoBone var2, float var3) {
-      float var4 = Action.getActionTimeScale(this.renderEntity, mc.getRenderPartialTicks());
-      float var5 = var3 * (float)(0.02F * (-0.4F * Math.cos((Math.PI * 2) * var4 + 1.05) + 0.6F));
-      RibbonRenderer.RibbonConfig var6 = new RibbonRenderer.RibbonConfig(
+   void renderBoneAction(BufferBuilder buffer, GeoBone bone, float fadeScale) {
+      float timeScale = Action.getActionTimeScale(this.renderEntity, mc.getRenderPartialTicks());
+      float pulseWidth = fadeScale * (float)(0.02F * (-0.4F * Math.cos((Math.PI * 2) * timeScale + 1.05) + 0.6F));
+      RibbonRenderer.RibbonConfig config = new RibbonRenderer.RibbonConfig(
          RIBBON_COLOR_A,
          0.0F,
          12,
-         var5,
-         (var2x, var3x) -> var3 * (float)(Math.cos((Math.PI * 2) * var4 + 0.35F + -0.2F * var2x) * -10.0),
-         (var0, var1x) -> 0.0F,
-         (var2x, var3x) -> var3 * (float)(Math.cos((Math.PI * 2) * var4 + 1.25 + -0.1F * var2x) * -5.0),
+         pulseWidth,
+         (progress, time) -> fadeScale * (float)(Math.cos((Math.PI * 2) * timeScale + 0.35F + -0.2F * progress) * -10.0),
+         (progress, time) -> 0.0F,
+         (progress, time) -> fadeScale * (float)(Math.cos((Math.PI * 2) * timeScale + 1.25 + -0.1F * progress) * -5.0),
          0.03F,
          0.005F
       );
-      this.renderBoneRibbon(var1, var2, var6);
+      this.renderBoneRibbon(buffer, bone, config);
    }
 
-   void renderBoneBlowjob(BufferBuilder var1, GeoBone var2) {
-      float var3 = Action.getActionTimeScale(this.renderEntity, mc.getRenderPartialTicks());
-      RibbonRenderer.RibbonConfig var4 = new RibbonRenderer.RibbonConfig(
+   void renderBoneBlowjob(BufferBuilder buffer, GeoBone bone) {
+      float timeScale = Action.getActionTimeScale(this.renderEntity, mc.getRenderPartialTicks());
+      RibbonRenderer.RibbonConfig config = new RibbonRenderer.RibbonConfig(
          RIBBON_COLOR_A,
          0.0F,
          12,
          0.02F,
-         (var1x, var2x) -> (float)(Math.cos((Math.PI * 2) * var3 + -0.2F * var1x) * 15.0),
-         (var1x, var2x) -> (float)(Math.cos((Math.PI * 2) * var3 + -0.2F * var1x) * 5.0),
-         (var0, var1x) -> 0.0F,
+         (progress, time) -> (float)(Math.cos((Math.PI * 2) * timeScale + -0.2F * progress) * 15.0),
+         (progress, time) -> (float)(Math.cos((Math.PI * 2) * timeScale + -0.2F * progress) * 5.0),
+         (progress, time) -> 0.0F,
          0.03F,
          0.005F
       );
-      this.renderBoneRibbon(var1, var2, var4);
+      this.renderBoneRibbon(buffer, bone, config);
    }
 
    /**
     * Sword ribbon: full config at progress 0, shrunk to nothing at progress 1,
     * interpolated in between — matches the sword attack swing.
     */
-   void renderSwordBone(BufferBuilder var1, GeoBone var2) {
-      float var3 = this.renderEntity.getSwordAttackProgress(mc.getRenderPartialTicks());
-      if (var3 == 0.0F) {
-         this.renderBoneRibbon(var1, var2, RIBBON_CONFIG_A);
-      } else if (var3 == 1.0F) {
-         this.renderBoneRibbon(var1, var2, RIBBON_CONFIG_B);
+   void renderSwordBone(BufferBuilder buffer, GeoBone bone) {
+      float progress = this.renderEntity.getSwordAttackProgress(mc.getRenderPartialTicks());
+      if (progress == 0.0F) {
+         this.renderBoneRibbon(buffer, bone, RIBBON_CONFIG_A);
+      } else if (progress == 1.0F) {
+         this.renderBoneRibbon(buffer, bone, RIBBON_CONFIG_B);
       } else {
-         RibbonRenderer.RibbonConfig var4 = RIBBON_CONFIG_A.copy();
-         var4.length = RotationHelper.lerp(RIBBON_CONFIG_A.length, 0.0F, var3);
-         var4.width = RotationHelper.lerp(RIBBON_CONFIG_A.width, 0.0F, var3);
-         this.renderBoneRibbon(var1, var2, var4);
+         RibbonRenderer.RibbonConfig config = RIBBON_CONFIG_A.copy();
+         config.length = RotationHelper.lerp(RIBBON_CONFIG_A.length, 0.0F, progress);
+         config.width = RotationHelper.lerp(RIBBON_CONFIG_A.width, 0.0F, progress);
+         this.renderBoneRibbon(buffer, bone, config);
       }
    }
 
@@ -743,15 +743,15 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * Renders a ribbon at the bone: flush pending vertices, apply the bone
     * transform, disable culling, draw the ribbon mesh, restore texture/buffer.
     */
-   void renderBoneRibbon(BufferBuilder var1, GeoBone var2, RibbonRenderer.RibbonConfig var3) {
+   void renderBoneRibbon(BufferBuilder buffer, GeoBone bone, RibbonRenderer.RibbonConfig config) {
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
-      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, var2);
+      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
       GlStateManager.disableCull();
       this.bindTexture(LINE_TEXTURE);
-      RibbonRenderer.renderRibbon(var1, Tessellator.getInstance(), mc, var3);
+      RibbonRenderer.renderRibbon(buffer, Tessellator.getInstance(), mc, config);
       this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       GlStateManager.enableCull();
       GlStateManager.popMatrix();
    }
@@ -762,50 +762,50 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * 105..125-tick window while the coin color lerps dark->bright, then
     * restores the lightmap.
     */
-   void renderBoneEffect(BufferBuilder var1, GeoBone var2, GalathEntity var3, float var4) {
-      if (var3.getCurrentAction() == Action.GIVE_COIN) {
-         tempBuffer = var1;
-         var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+   void renderBoneEffect(BufferBuilder buffer, GeoBone coinBone, GalathEntity galath, float partialTicks) {
+      if (galath.getCurrentAction() == Action.GIVE_COIN) {
+         tempBuffer = buffer;
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          MATRIX_STACK.push();
-         MATRIX_STACK.translate(var2);
-         MATRIX_STACK.moveToPivot(var2);
-         MATRIX_STACK.rotate(var2);
-         MATRIX_STACK.scale(var2);
-         MATRIX_STACK.moveBackFromPivot(var2);
-         if (!this.activeCustomPartBones.contains(var2.getName())) {
-            for (GeoCube var6 : var2.childCubes) {
+         MATRIX_STACK.translate(coinBone);
+         MATRIX_STACK.moveToPivot(coinBone);
+         MATRIX_STACK.rotate(coinBone);
+         MATRIX_STACK.scale(coinBone);
+         MATRIX_STACK.moveBackFromPivot(coinBone);
+         if (!this.activeCustomPartBones.contains(coinBone.getName())) {
+            for (GeoCube cube : coinBone.childCubes) {
                MATRIX_STACK.push();
                GlStateManager.pushMatrix();
-               this.currentRenderingBone = var2;
-               this.renderCubeGeometry(var1, var6, 1.0F, 1.0F, 1.0F, 1.0F, (double)0.0);
+               this.currentRenderingBone = coinBone;
+               this.renderCubeGeometry(buffer, cube, 1.0F, 1.0F, 1.0F, 1.0F, (double)0.0);
                GlStateManager.popMatrix();
                MATRIX_STACK.pop();
             }
          }
 
          Tessellator.getInstance().draw();
-         GeoBone var14 = var2.childBones.get(0);
-         var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+         GeoBone childBone = coinBone.childBones.get(0);
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          GL11.glDisable(2896);
-         float var15 = ThreadNames.clampFloat(Action.GIVE_COIN.ticksPlaying[1] + var4, 105.0F, 125.0F);
-         float var7 = (var15 - 105.0F) / 20.0F;
-         float var8 = RotationHelper.lerp(120.0F, 240.0F, var7);
-         Vector3fSexmodSpecial var9 = RotationHelper.lerpVector3f(GalathCoinRenderer.COIN_COLOR_DARK, GalathCoinRenderer.COIN_COLOR, var7);
-         float var10 = OpenGlHelper.lastBrightnessX;
-         float var11 = OpenGlHelper.lastBrightnessY;
-         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, var8, var8);
+         float coinTicks = ThreadNames.clampFloat(Action.GIVE_COIN.ticksPlaying[1] + partialTicks, 105.0F, 125.0F);
+         float progress = (coinTicks - 105.0F) / 20.0F;
+         float lightmap = RotationHelper.lerp(120.0F, 240.0F, progress);
+         Vector3fSexmodSpecial coinColor = RotationHelper.lerpVector3f(GalathCoinRenderer.COIN_COLOR_DARK, GalathCoinRenderer.COIN_COLOR, progress);
+         float lastBrightnessX = OpenGlHelper.lastBrightnessX;
+         float lastBrightnessY = OpenGlHelper.lastBrightnessY;
+         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightmap, lightmap);
          MATRIX_STACK.push();
-         MATRIX_STACK.translate(var14);
-         MATRIX_STACK.moveToPivot(var14);
-         MATRIX_STACK.rotate(var14);
-         MATRIX_STACK.scale(var14);
-         MATRIX_STACK.moveBackFromPivot(var14);
-         if (!this.activeCustomPartBones.contains(var14.getName())) {
-            for (GeoCube var13 : var14.childCubes) {
+         MATRIX_STACK.translate(childBone);
+         MATRIX_STACK.moveToPivot(childBone);
+         MATRIX_STACK.rotate(childBone);
+         MATRIX_STACK.scale(childBone);
+         MATRIX_STACK.moveBackFromPivot(childBone);
+         if (!this.activeCustomPartBones.contains(childBone.getName())) {
+            for (GeoCube cube2 : childBone.childCubes) {
                MATRIX_STACK.push();
                GlStateManager.pushMatrix();
-               this.currentRenderingBone = var14;
-               this.renderCubeGeometry(var1, var13, var9.x, var9.y, var9.z, 1.0F, (double)0.0);
+               this.currentRenderingBone = childBone;
+               this.renderCubeGeometry(buffer, cube2, coinColor.x, coinColor.y, coinColor.z, 1.0F, (double)0.0);
                GlStateManager.popMatrix();
                MATRIX_STACK.pop();
             }
@@ -815,7 +815,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          MATRIX_STACK.pop();
          Tessellator.getInstance().draw();
          GL11.glEnable(2896);
-         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, var10, var11);
+         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastBrightnessX, lastBrightnessY);
       }
    }
 
@@ -823,17 +823,17 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * Pins all yaw fields to the movement yaw while running, so Galath faces
     * her travel direction.
     */
-   protected Vec3d getBoneWorldPosGalath(GalathEntity var1, float var2, Vec3d var3) {
-      if (var1.getCurrentAction() == Action.RUN) {
-         float var4 = var1.getYawRotation();
-         var1.rotationYaw = var4;
-         var1.prevRenderYawOffset = var4;
-         var1.renderYawOffset = var4;
-         var1.prevRotationYawHead = var4;
-         var1.rotationYawHead = var4;
+   protected Vec3d getBoneWorldPosGalath(GalathEntity galath, float partialTicks, Vec3d pos) {
+      if (galath.getCurrentAction() == Action.RUN) {
+         float yaw = galath.getYawRotation();
+         galath.rotationYaw = yaw;
+         galath.prevRenderYawOffset = yaw;
+         galath.renderYawOffset = yaw;
+         galath.prevRotationYawHead = yaw;
+         galath.rotationYawHead = yaw;
       }
 
-      return var3;
+      return pos;
    }
 
 }

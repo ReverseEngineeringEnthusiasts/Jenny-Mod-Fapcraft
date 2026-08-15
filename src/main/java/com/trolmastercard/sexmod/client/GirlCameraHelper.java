@@ -48,73 +48,73 @@ public class GirlCameraHelper {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onPre(Pre var1) {
-      if (var1.getPartialRenderTick() != 1.2345679F) {
+   public void onPre(Pre event) {
+      if (event.getPartialRenderTick() != 1.2345679F) {
          AbstractPlayerGirlEntity.rebuildPlayerGirlTableFromWorld();
-         AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getEntityPlayer().getPersistentID());
-         if (var2 != null) {
-            var1.setCanceled(true);
-            applyCameraTransform(var2, var1.getEntityPlayer(), var1.getX(), var1.getY(), var1.getZ(), var1.getPartialRenderTick());
+         AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(event.getEntityPlayer().getPersistentID());
+         if (playerGirl != null) {
+            event.setCanceled(true);
+            applyCameraTransform(playerGirl, event.getEntityPlayer(), event.getX(), event.getY(), event.getZ(), event.getPartialRenderTick());
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
-   public static void applyCameraTransform(AbstractPlayerGirlEntity var0, EntityPlayer var1, double var2, double var4, double var6, float var8) {
-      Minecraft var9 = Minecraft.getMinecraft();
-      var1 = var0.resolvePlayerEntity(var1);
-      if (!var1.isInvisibleToPlayer(var9.player) || var0.E_clash458()) {
-         RenderManager var10 = var9.getRenderManager();
-         var0.rotationYaw = var1.rotationYaw;
-         var0.prevRotationYawHead = var1.prevRotationYawHead;
-         var0.rotationYawHead = var1.rotationYawHead;
-         var0.prevRotationPitch = var1.prevRotationPitch;
-         var0.rotationPitch = var1.rotationPitch;
-         var0.prevRotationYaw = var1.prevRotationYaw;
-         var0.prevPosX = var1.prevPosX;
-         var0.prevPosY = var1.prevPosY;
-         var0.prevPosZ = var1.prevPosZ;
-         var0.lastTickPosX = var1.lastTickPosX;
-         var0.lastTickPosY = var1.lastTickPosY;
-         var0.lastTickPosZ = var1.lastTickPosZ;
-         var0.renderYawOffset = var1.renderYawOffset;
-         var0.prevRenderYawOffset = var1.prevRenderYawOffset;
-         var0.ad = var1.isSneaking();
-         var0.aj = var1.isSprinting();
-         var0.ak = var1.isRiding();
-         var0.af = var1.onGround;
-         var0.ah = var1.getItemInUseCount() != 0;
-         double var11 = var1.lastTickPosX - var1.posX;
-         double var13 = var1.posZ - var1.lastTickPosZ;
-         double var15 = (Math.PI / 180.0) * var1.rotationYaw;
-         var0.ao = new Vector2f((float)(var11 * Math.cos(var15) + var13 * Math.sin(var15)), (float)(var11 * Math.sin(var15) + var13 * Math.cos(var15)));
-         float var17 = var0.isRidingSomething() ? getCameraOffset(var0, var1) : 0.0F;
+   public static void applyCameraTransform(AbstractPlayerGirlEntity girl, EntityPlayer player, double x, double y, double z, float partialTicks) {
+      Minecraft mc = Minecraft.getMinecraft();
+      player = girl.resolvePlayerEntity(player);
+      if (!player.isInvisibleToPlayer(mc.player) || girl.E_clash458()) {
+         RenderManager renderManager = mc.getRenderManager();
+         girl.rotationYaw = player.rotationYaw;
+         girl.prevRotationYawHead = player.prevRotationYawHead;
+         girl.rotationYawHead = player.rotationYawHead;
+         girl.prevRotationPitch = player.prevRotationPitch;
+         girl.rotationPitch = player.rotationPitch;
+         girl.prevRotationYaw = player.prevRotationYaw;
+         girl.prevPosX = player.prevPosX;
+         girl.prevPosY = player.prevPosY;
+         girl.prevPosZ = player.prevPosZ;
+         girl.lastTickPosX = player.lastTickPosX;
+         girl.lastTickPosY = player.lastTickPosY;
+         girl.lastTickPosZ = player.lastTickPosZ;
+         girl.renderYawOffset = player.renderYawOffset;
+         girl.prevRenderYawOffset = player.prevRenderYawOffset;
+         girl.ad = player.isSneaking();
+         girl.aj = player.isSprinting();
+         girl.ak = player.isRiding();
+         girl.af = player.onGround;
+         girl.ah = player.getItemInUseCount() != 0;
+         double dX = player.lastTickPosX - player.posX;
+         double dZ = player.posZ - player.lastTickPosZ;
+         double yawRad = (Math.PI / 180.0) * player.rotationYaw;
+         girl.ao = new Vector2f((float)(dX * Math.cos(yawRad) + dZ * Math.sin(yawRad)), (float)(dX * Math.sin(yawRad) + dZ * Math.cos(yawRad)));
+         float cameraOffset = girl.isRidingSomething() ? getCameraOffset(girl, player) : 0.0F;
          GirlPlayerRenderer.isFirstPerson = true;
-         var10.renderEntity(var0, var2, var4 + var17, var6, 90.0F, var8, false);
+         renderManager.renderEntity(girl, x, y + cameraOffset, z, 90.0F, partialTicks, false);
       }
    }
 
-   static float getCameraOffset(AbstractPlayerGirlEntity var0, EntityPlayer var1) {
-      if ((Boolean)var0.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
+   static float getCameraOffset(AbstractPlayerGirlEntity girl, EntityPlayer player) {
+      if ((Boolean)girl.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
          return 0.0F;
       }
 
-      if ((var1.getHeldItemMainhand().getItem() instanceof ItemBow || var1.getHeldItemOffhand().getItem() instanceof ItemBow) && var0.ah) {
-         var0.setCurrentAction(Action.BOW);
+      if ((player.getHeldItemMainhand().getItem() instanceof ItemBow || player.getHeldItemOffhand().getItem() instanceof ItemBow) && girl.ah) {
+         girl.setCurrentAction(Action.BOW);
       }
 
-      if (var0.getCurrentAction() == Action.BOW && !var0.ah) {
-         var0.setCurrentAction(Action.NULL);
+      if (girl.getCurrentAction() == Action.BOW && !girl.ah) {
+         girl.setCurrentAction(Action.NULL);
       }
 
-      if (var0.getCurrentAction() == Action.BOW) {
-         var0.rotationYaw = var0.rotationYawHead;
-         var0.renderYawOffset = var0.rotationYawHead;
-         var0.prevRenderYawOffset = var0.prevRotationYawHead;
+      if (girl.getCurrentAction() == Action.BOW) {
+         girl.rotationYaw = girl.rotationYawHead;
+         girl.renderYawOffset = girl.rotationYawHead;
+         girl.prevRenderYawOffset = girl.prevRotationYawHead;
       }
 
-      if (var0.ak) {
-         return var1.getRidingEntity() instanceof EntityBoat ? 0.4F : 0.2F;
+      if (girl.ak) {
+         return player.getRidingEntity() instanceof EntityBoat ? 0.4F : 0.2F;
       } else {
          return 0.0F;
       }
@@ -122,58 +122,58 @@ public class GirlCameraHelper {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onRenderTickEnd(RenderTickEvent var1) {
-      Minecraft var2 = Minecraft.getMinecraft();
-      if (var2.player != null) {
-         if (var1.phase == Phase.END) {
+   public void onRenderTickEnd(RenderTickEvent event) {
+      Minecraft mc = Minecraft.getMinecraft();
+      if (mc.player != null) {
+         if (event.phase == Phase.END) {
             if (this.playerPos != null) {
-               var2.player.setPosition(this.playerPos.x, this.playerPos.y, this.playerPos.z);
-               var2.player.lastTickPosX = this.playerLastPos.x;
-               var2.player.lastTickPosY = this.playerLastPos.y;
-               var2.player.lastTickPosZ = this.playerLastPos.z;
+               mc.player.setPosition(this.playerPos.x, this.playerPos.y, this.playerPos.z);
+               mc.player.lastTickPosX = this.playerLastPos.x;
+               mc.player.lastTickPosY = this.playerLastPos.y;
+               mc.player.lastTickPosZ = this.playerLastPos.z;
                this.playerPos = null;
                this.playerLastPos = null;
             }
-         } else if (var2.gameSettings.thirdPersonView == 0) {
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
-            if (var3 != null) {
-               if (var3.isSceneActive()) {
-                  this.playerPos = var2.player.getPositionVector();
-                  this.playerLastPos = new Vec3d(var2.player.lastTickPosX, var2.player.lastTickPosY, var2.player.lastTickPosZ);
-                  Vec3d var4 = var3.getCachedBoneOffset("girlCam");
-                  var4 = var3.getOwnerAimVector(var4, var1.renderTickTime);
-                  var4 = var4.add(RotationHelper.lerpVec3dDouble(this.playerLastPos, this.playerPos, var1.renderTickTime));
-                  var2.player.posX = var4.x;
-                  var2.player.posY = var4.y - var2.player.getEyeHeight();
-                  var2.player.posZ = var4.z;
-                  var2.player.lastTickPosX = var4.x;
-                  var2.player.lastTickPosY = var4.y - var2.player.getEyeHeight();
-                  var2.player.lastTickPosZ = var4.z;
-                  Action var5 = var3.getCurrentAction();
-                  float var6 = var3.getYawRotation();
-                  if (!var3.canPerformAction(var5, var2.player)) {
-                     if (var5.flipGirlYaw) {
-                        var6 += 180.0F;
+         } else if (mc.gameSettings.thirdPersonView == 0) {
+            AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(mc.player.getPersistentID());
+            if (playerGirl != null) {
+               if (playerGirl.isSceneActive()) {
+                  this.playerPos = mc.player.getPositionVector();
+                  this.playerLastPos = new Vec3d(mc.player.lastTickPosX, mc.player.lastTickPosY, mc.player.lastTickPosZ);
+                  Vec3d camPos = playerGirl.getCachedBoneOffset("girlCam");
+                  camPos = playerGirl.getOwnerAimVector(camPos, event.renderTickTime);
+                  camPos = camPos.add(RotationHelper.lerpVec3dDouble(this.playerLastPos, this.playerPos, event.renderTickTime));
+                  mc.player.posX = camPos.x;
+                  mc.player.posY = camPos.y - mc.player.getEyeHeight();
+                  mc.player.posZ = camPos.z;
+                  mc.player.lastTickPosX = camPos.x;
+                  mc.player.lastTickPosY = camPos.y - mc.player.getEyeHeight();
+                  mc.player.lastTickPosZ = camPos.z;
+                  Action action = playerGirl.getCurrentAction();
+                  float yaw = playerGirl.getYawRotation();
+                  if (!playerGirl.canPerformAction(action, mc.player)) {
+                     if (action.flipGirlYaw) {
+                        yaw += 180.0F;
                      }
 
-                     if (var2.player.rotationPitch > var5.maxGirlPitch) {
-                        var2.player.rotationPitch = var5.maxGirlPitch;
-                        var2.player.prevRotationPitch = var5.maxGirlPitch;
+                     if (mc.player.rotationPitch > action.maxGirlPitch) {
+                        mc.player.rotationPitch = action.maxGirlPitch;
+                        mc.player.prevRotationPitch = action.maxGirlPitch;
                      }
 
-                     if (var2.player.rotationPitch < var5.minGirlPitch) {
-                        var2.player.rotationPitch = var5.minGirlPitch;
-                        var2.player.prevRotationPitch = var5.minGirlPitch;
+                     if (mc.player.rotationPitch < action.minGirlPitch) {
+                        mc.player.rotationPitch = action.minGirlPitch;
+                        mc.player.prevRotationPitch = action.minGirlPitch;
                      }
 
-                     if (var2.player.rotationYaw > var6 + 90.0F) {
-                        var2.player.rotationYaw = var6 + 90.0F;
-                        var2.player.prevRotationYaw = var6 + 90.0F;
+                     if (mc.player.rotationYaw > yaw + 90.0F) {
+                        mc.player.rotationYaw = yaw + 90.0F;
+                        mc.player.prevRotationYaw = yaw + 90.0F;
                      }
 
-                     if (var2.player.rotationYaw < var6 - 90.0F) {
-                        var2.player.rotationYaw = var6 - 90.0F;
-                        var2.player.prevRotationYaw = var6 - 90.0F;
+                     if (mc.player.rotationYaw < yaw - 90.0F) {
+                        mc.player.rotationYaw = yaw - 90.0F;
+                        mc.player.prevRotationYaw = yaw - 90.0F;
                      }
                   }
                }
@@ -184,16 +184,16 @@ public class GirlCameraHelper {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onCameraSetup(CameraSetup var1) {
-      Minecraft var2 = Minecraft.getMinecraft();
-      if (var2.player != null) {
-         AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
-         if (var3 != null) {
-            if (var3.F_clash231()) {
-               if (var3.isAnchored()) {
-                  var1.setRoll(180.0F);
-                  var1.setPitch(-var1.getPitch());
-                  var1.setYaw(-var1.getYaw());
+   public void onCameraSetup(CameraSetup event) {
+      Minecraft mc = Minecraft.getMinecraft();
+      if (mc.player != null) {
+         AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(mc.player.getPersistentID());
+         if (playerGirl != null) {
+            if (playerGirl.F_clash231()) {
+               if (playerGirl.isAnchored()) {
+                  event.setRoll(180.0F);
+                  event.setPitch(-event.getPitch());
+                  event.setYaw(-event.getYaw());
                }
             }
          }
@@ -202,16 +202,16 @@ public class GirlCameraHelper {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onRenderWorldLast(RenderWorldLastEvent var1) {
-      Minecraft var2 = Minecraft.getMinecraft();
+   public void onRenderWorldLast(RenderWorldLastEvent event) {
+      Minecraft mc = Minecraft.getMinecraft();
       if (this.playerPos != null) {
-         if (var2.gameSettings.thirdPersonView == 0) {
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
-            if (var3 != null) {
-               Vec3d var4 = var2.player.getPositionVector();
-               Vec3d var5 = RotationHelper.lerpVec3dDouble(this.playerLastPos, this.playerPos, var1.getPartialTicks());
-               Vec3d var6 = var5.subtract(var4);
-               applyCameraTransform(var3, var2.player, var6.x, var6.y, var6.z, var1.getPartialTicks());
+         if (mc.gameSettings.thirdPersonView == 0) {
+            AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(mc.player.getPersistentID());
+            if (playerGirl != null) {
+               Vec3d playerPos = mc.player.getPositionVector();
+               Vec3d lerpedPos = RotationHelper.lerpVec3dDouble(this.playerLastPos, this.playerPos, event.getPartialTicks());
+               Vec3d offset = lerpedPos.subtract(playerPos);
+               applyCameraTransform(playerGirl, mc.player, offset.x, offset.y, offset.z, event.getPartialTicks());
                GlStateManager.enableLighting();
                GlStateManager.enableDepth();
                GlStateManager.enableAlpha();
@@ -222,28 +222,28 @@ public class GirlCameraHelper {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onRenderTickStart(RenderTickEvent var1) {
-      Minecraft var2 = Minecraft.getMinecraft();
-      if (var2.player != null) {
-         if (var1.phase != Phase.END) {
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.player.getPersistentID());
-            if (var3 == null) {
+   public void onRenderTickStart(RenderTickEvent event) {
+      Minecraft mc = Minecraft.getMinecraft();
+      if (mc.player != null) {
+         if (event.phase != Phase.END) {
+            AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(mc.player.getPersistentID());
+            if (playerGirl == null) {
                if (this.isSmoothing) {
                   this.isSmoothing = false;
-                  var2.player.eyeHeight = var2.player.getDefaultEyeHeight();
+                  mc.player.eyeHeight = mc.player.getDefaultEyeHeight();
                }
-            } else if (var3.isAnchored()) {
+            } else if (playerGirl.isAnchored()) {
                if (this.isSmoothing) {
                   this.isSmoothing = false;
-                  var2.player.eyeHeight = var2.player.getDefaultEyeHeight();
+                  mc.player.eyeHeight = mc.player.getDefaultEyeHeight();
                }
             } else {
-               if (this.currentGirl != var3) {
-                  applyCameraTransform(var3, var2.player, 0.0, 500.0, 0.0, var1.renderTickTime);
-                  this.currentGirl = var3;
+               if (this.currentGirl != playerGirl) {
+                  applyCameraTransform(playerGirl, mc.player, 0.0, 500.0, 0.0, event.renderTickTime);
+                  this.currentGirl = playerGirl;
                }
 
-               var2.player.eyeHeight = var3.getCameraBoneHeight();
+               mc.player.eyeHeight = playerGirl.getCameraBoneHeight();
                this.isSmoothing = true;
             }
          }

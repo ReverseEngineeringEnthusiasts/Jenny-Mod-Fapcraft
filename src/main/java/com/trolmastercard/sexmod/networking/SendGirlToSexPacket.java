@@ -37,30 +37,30 @@ public class SendGirlToSexPacket implements IMessage {
       this.isValid = false;
    }
 
-   public SendGirlToSexPacket(UUID var1) {
-      this.girlUUID = var1;
+   public SendGirlToSexPacket(UUID girlUUID) {
+      this.girlUUID = girlUUID;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<SendGirlToSexPacket, IMessage> {
-      public IMessage onMessage(SendGirlToSexPacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(SendGirlToSexPacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("received an invalid message @SendGirlToSex :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
-                  if (!var3.world.isRemote && var3 instanceof IBeddableSexGirl) {
-                     SceneDebug.log(SceneDebug.PACKETS, "SendGirlToSexPacket: %s -> goToSexBed (action=%s anchored=%s)", var3.getDisplayNameText(), var3.getCurrentAction(), var3.isAnchored());
-                     ((IBeddableSexGirl)var3).goToSexBed();
+               for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.girlUUID)) {
+                  if (!girl.world.isRemote && girl instanceof IBeddableSexGirl) {
+                     SceneDebug.log(SceneDebug.PACKETS, "SendGirlToSexPacket: %s -> goToSexBed (action=%s anchored=%s)", girl.getDisplayNameText(), girl.getCurrentAction(), girl.isAnchored());
+                     ((IBeddableSexGirl)girl).goToSexBed();
                   }
                }
             });

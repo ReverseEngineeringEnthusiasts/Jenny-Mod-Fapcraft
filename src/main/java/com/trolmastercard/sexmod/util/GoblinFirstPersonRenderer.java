@@ -34,43 +34,43 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GoblinFirstPersonRenderer {
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onRenderWorldLastFirstPerson(RenderWorldLastEvent var1) {
-      Minecraft var2 = Minecraft.getMinecraft();
-      if (var2.gameSettings.thirdPersonView == 0) {
-         UUID var3 = var2.player.getPersistentID();
-         BaseGirlEntity var4 = null;
+   public void onRenderWorldLastFirstPerson(RenderWorldLastEvent event) {
+      Minecraft minecraft = Minecraft.getMinecraft();
+      if (minecraft.gameSettings.thirdPersonView == 0) {
+         UUID playerUuid = minecraft.player.getPersistentID();
+         BaseGirlEntity goblinGirl = null;
 
          try {
-            for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
-               if (var6 != null && !var6.isDead && var6.world.isRemote && var6 instanceof IGoblin) {
-                  IGoblin var7 = (IGoblin)var6;
-                  if (var3.equals(var7.getOwnerUUID())) {
-                     var4 = var6;
+            for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+               if (girl != null && !girl.isDead && girl.world.isRemote && girl instanceof IGoblin) {
+                  IGoblin iGoblin = (IGoblin)girl;
+                  if (playerUuid.equals(iGoblin.getOwnerUUID())) {
+                     goblinGirl = girl;
                      break;
                   }
                }
             }
-         } catch (ConcurrentModificationException var8) {
+         } catch (ConcurrentModificationException exception) {
          }
 
-         if (var4 != null) {
-            Render var9 = var2.getRenderManager().getEntityRenderObject(var4);
-            if (var9 != null) {
-               float var10 = var2.player.rotationYaw;
-               GoblinRenderer.strafeRotation = (float)(var2.player.movementInput.moveStrafe * GoblinRenderer.MOVEMENT_DIR_VECTOR.x);
-               GoblinRenderer.strafeRotation = GoblinRenderer.strafeRotation + -(var10 - GoblinRenderer.lastPlayerYaw) * 3.0F;
+         if (goblinGirl != null) {
+            Render renderer = minecraft.getRenderManager().getEntityRenderObject(goblinGirl);
+            if (renderer != null) {
+               float yaw = minecraft.player.rotationYaw;
+               GoblinRenderer.strafeRotation = (float)(minecraft.player.movementInput.moveStrafe * GoblinRenderer.MOVEMENT_DIR_VECTOR.x);
+               GoblinRenderer.strafeRotation = GoblinRenderer.strafeRotation + -(yaw - GoblinRenderer.lastPlayerYaw) * 3.0F;
                GoblinRenderer.strafeRotation = RotationHelper.lerp(GoblinRenderer.prevStrafeRotation, GoblinRenderer.strafeRotation, 0.1F);
-               float var11 = -var2.player.rotationPitch;
+               float pitch = -minecraft.player.rotationPitch;
                GoblinRenderer.forwardRotation = (float)(
-                  var2.player.movementInput.moveForward * GoblinRenderer.MOVEMENT_DIR_VECTOR.z
-                     + (float)var2.player.motionY * GoblinRenderer.MOVEMENT_DIR_VECTOR.y
+                  minecraft.player.movementInput.moveForward * GoblinRenderer.MOVEMENT_DIR_VECTOR.z
+                     + (float)minecraft.player.motionY * GoblinRenderer.MOVEMENT_DIR_VECTOR.y
                );
-               GoblinRenderer.forwardRotation = GoblinRenderer.forwardRotation + -(var11 - GoblinRenderer.lastPlayerPitch) * 3.0F;
+               GoblinRenderer.forwardRotation = GoblinRenderer.forwardRotation + -(pitch - GoblinRenderer.lastPlayerPitch) * 3.0F;
                GoblinRenderer.forwardRotation = RotationHelper.lerp(GoblinRenderer.prevForwardRotation, GoblinRenderer.forwardRotation, 0.1F);
-               GoblinRenderer.renderEntityInFirstPerson(var4, var1.getPartialTicks());
-               GoblinRenderer.lastPlayerYaw = var10;
+               GoblinRenderer.renderEntityInFirstPerson(goblinGirl, event.getPartialTicks());
+               GoblinRenderer.lastPlayerYaw = yaw;
                GoblinRenderer.prevStrafeRotation = GoblinRenderer.strafeRotation;
-               GoblinRenderer.lastPlayerPitch = var11;
+               GoblinRenderer.lastPlayerPitch = pitch;
                GoblinRenderer.prevForwardRotation = GoblinRenderer.forwardRotation;
                GlStateManager.enableLighting();
                GlStateManager.enableDepth();
@@ -82,24 +82,24 @@ public class GoblinFirstPersonRenderer {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onRenderWorldLastPlayer(RenderWorldLastEvent var1) {
-      Minecraft var2 = Minecraft.getMinecraft();
-      if (var2.player != null) {
-         UUID var3 = var2.player.getPersistentID();
+   public void onRenderWorldLastPlayer(RenderWorldLastEvent event) {
+      Minecraft minecraft = Minecraft.getMinecraft();
+      if (minecraft.player != null) {
+         UUID playerUuid = minecraft.player.getPersistentID();
 
          try {
-            for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {
-               if (var5.world.isRemote && !var5.isDead && var5 instanceof IGoblin) {
-                  IGoblin var6 = (IGoblin)var5;
-                  if (var5.getCurrentAction() == Action.START_THROWING) {
-                     var5.setLocallyRegistered(true);
-                     var2.getRenderManager().renderEntity(var5, 0.0, 0.0, 0.0, var3.equals(var6.getOwnerUUID()) ? -420.69F : 0.0F, var2.getRenderPartialTicks(), false);
-                     var5.setLocallyRegistered(false);
+            for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+               if (girl.world.isRemote && !girl.isDead && girl instanceof IGoblin) {
+                  IGoblin iGoblin = (IGoblin)girl;
+                  if (girl.getCurrentAction() == Action.START_THROWING) {
+                     girl.setLocallyRegistered(true);
+                     minecraft.getRenderManager().renderEntity(girl, 0.0, 0.0, 0.0, playerUuid.equals(iGoblin.getOwnerUUID()) ? -420.69F : 0.0F, minecraft.getRenderPartialTicks(), false);
+                     girl.setLocallyRegistered(false);
                      return;
                   }
                }
             }
-         } catch (ConcurrentModificationException var7) {
+         } catch (ConcurrentModificationException exception) {
          }
 
          GlStateManager.enableLighting();
@@ -110,45 +110,45 @@ public class GoblinFirstPersonRenderer {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onRenderHand(RenderHandEvent var1) {
-      Minecraft var2 = Minecraft.getMinecraft();
-      UUID var3 = var2.player.getPersistentID();
+   public void onRenderHand(RenderHandEvent event) {
+      Minecraft minecraft = Minecraft.getMinecraft();
+      UUID playerUuid = minecraft.player.getPersistentID();
 
       try {
-         for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {
-            if (var5 instanceof IGoblin) {
-               Action var6 = var5.getCurrentAction();
-               if (var6 == Action.PICK_UP || var6 == Action.START_THROWING) {
-                  IGoblin var7 = (IGoblin)var5;
-                  UUID var8 = var7.getOwnerUUID();
-                  if (var3.equals(var8)) {
-                     var1.setCanceled(true);
+         for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+            if (girl instanceof IGoblin) {
+               Action action = girl.getCurrentAction();
+               if (action == Action.PICK_UP || action == Action.START_THROWING) {
+                  IGoblin iGoblin = (IGoblin)girl;
+                  UUID ownerUuid = iGoblin.getOwnerUUID();
+                  if (playerUuid.equals(ownerUuid)) {
+                     event.setCanceled(true);
                      break;
                   }
                }
             }
          }
-      } catch (ConcurrentModificationException var9) {
+      } catch (ConcurrentModificationException exception) {
       }
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onPre(Pre var1) {
-      UUID var2 = var1.getEntityPlayer().getPersistentID();
+   public void onPre(Pre event) {
+      UUID playerUuid = event.getEntityPlayer().getPersistentID();
 
       try {
-         for (BaseGirlEntity var4 : BaseGirlEntity.getGirlEntityList()) {
-            if (var4 instanceof IGoblin) {
-               IGoblin var5 = (IGoblin)var4;
-               Action var6 = var4.getCurrentAction();
-               if ((var6 == Action.PICK_UP || var6 == Action.START_THROWING) && var2.equals(var5.getOwnerUUID())) {
-                  var1.setCanceled(true);
+         for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+            if (girl instanceof IGoblin) {
+               IGoblin iGoblin = (IGoblin)girl;
+               Action action = girl.getCurrentAction();
+               if ((action == Action.PICK_UP || action == Action.START_THROWING) && playerUuid.equals(iGoblin.getOwnerUUID())) {
+                  event.setCanceled(true);
                   break;
                }
             }
          }
-      } catch (ConcurrentModificationException var7) {
+      } catch (ConcurrentModificationException exception) {
       }
    }
 

@@ -15,89 +15,89 @@ import net.minecraft.util.math.Vec3d;
  * points.
  */
 public class VectorMath {
-   public static Vec3d scale(Vec3d var0, double var1) {
-      return new Vec3d(var0.x * var1, var0.y * var1, var0.z * var1);
+   public static Vec3d scale(Vec3d vector, double factor) {
+      return new Vec3d(vector.x * factor, vector.y * factor, vector.z * factor);
    }
 
-   public static double dotProduct(Vector3f var0, Vec3d var1) {
-      return var0.x * var1.x + var0.y * var1.y + var0.z * var1.z;
+   public static double dotProduct(Vector3f a, Vec3d b) {
+      return a.x * b.x + a.y * b.y + a.z * b.z;
    }
 
-   public static double dotProduct(Vec3d var0, Vec3d var1) {
-      return var0.x * var1.x + var0.y * var1.y + var0.z * var1.z;
+   public static double dotProduct(Vec3d a, Vec3d b) {
+      return a.x * b.x + a.y * b.y + a.z * b.z;
    }
 
-   public static Vec3d crossProduct(Vec3d var0, Vec3d var1) {
+   public static Vec3d crossProduct(Vec3d a, Vec3d b) {
       return new Vec3d(
-         var0.y * var1.z - var0.z * var1.y,
-         var0.z * var1.x - var0.x * var1.z,
-         var0.x * var1.y - var0.y * var1.x
+         a.y * b.z - a.z * b.y,
+         a.z * b.x - a.x * b.z,
+         a.x * b.y - a.y * b.x
       );
    }
 
-   public static Vec3d rotateByYaw(double var0, double var2, double var4, float var6) {
-      return rotateByYaw(new Vec3d(var0, var2, var4), var6);
+   public static Vec3d rotateByYaw(double x, double y, double z, float yaw) {
+      return rotateByYaw(new Vec3d(x, y, z), yaw);
    }
 
-   public static Vec3d rotateByYaw(Vec3d var0, float var1) {
-      return rotateByYawPitch(var0, 0.0F, var1);
+   public static Vec3d rotateByYaw(Vec3d vector, float yaw) {
+      return rotateByYawPitch(vector, 0.0F, yaw);
    }
 
-   public static Vec3d rotateByYawPitch(Vec3d var0, float var1, float var2) {
-      Vec3d var3 = new Vec3d(
-         var0.x,
-         var0.y * Math.cos(var1 * (Math.PI / 180.0)) - var0.z * Math.sin(var1 * (Math.PI / 180.0)),
-         var0.y * Math.sin(var1 * (Math.PI / 180.0)) + var0.z * Math.cos(var1 * (Math.PI / 180.0))
+   public static Vec3d rotateByYawPitch(Vec3d vector, float yaw, float pitch) {
+      Vec3d rotated = new Vec3d(
+         vector.x,
+         vector.y * Math.cos(yaw * (Math.PI / 180.0)) - vector.z * Math.sin(yaw * (Math.PI / 180.0)),
+         vector.y * Math.sin(yaw * (Math.PI / 180.0)) + vector.z * Math.cos(yaw * (Math.PI / 180.0))
       );
       return new Vec3d(
-         -Math.sin((var2 + 90.0F) * (Math.PI / 180.0)) * var3.x - Math.sin(var2 * (Math.PI / 180.0)) * var3.z,
-         var3.y,
-         Math.cos((var2 + 90.0F) * (Math.PI / 180.0)) * var3.x + Math.cos(var2 * (Math.PI / 180.0)) * var3.z
+         -Math.sin((pitch + 90.0F) * (Math.PI / 180.0)) * rotated.x - Math.sin(pitch * (Math.PI / 180.0)) * rotated.z,
+         rotated.y,
+         Math.cos((pitch + 90.0F) * (Math.PI / 180.0)) * rotated.x + Math.cos(pitch * (Math.PI / 180.0)) * rotated.z
       );
    }
 
-   public static Vec3d rotate(double var0, double var2, double var4, float var6, float var7) {
-      return rotateByYawPitch(new Vec3d(var0, var2, var4), var6, var7);
+   public static Vec3d rotate(double x, double y, double z, float yaw, float pitch) {
+      return rotateByYawPitch(new Vec3d(x, y, z), yaw, pitch);
    }
 
-   public static Vec3d rotateByEuler(Vec3d var0, float var1, float var2, float var3) {
-      var1 = TrigMath.wrapDegrees(var1);
-      var2 = TrigMath.wrapDegrees(var2);
-      var3 = TrigMath.wrapDegrees(var3);
-      double var4 = (float)Math.sin(var1);
-      double var6 = (float)Math.cos(var1);
-      double var8 = (float)Math.sin(var2);
-      double var10 = (float)Math.cos(var2);
-      double var12 = (float)Math.sin(var3);
-      double var14 = (float)Math.cos(var3);
-      double var16 = var0.y * var6 - var0.z * var4;
-      double var18 = var0.y * var4 + var0.z * var6;
-      var0 = new Vec3d(var0.x, var16, var18);
-      double var20 = var0.x * var10 + var0.z * var8;
-      var18 = -var0.x * var8 + var0.z * var10;
-      var0 = new Vec3d(var20, var0.y, var18);
-      var20 = var0.x * var14 - var0.y * var12;
-      var16 = var0.x * var12 + var0.y * var14;
-      return new Vec3d(var20, var16, var0.z);
+   public static Vec3d rotateByEuler(Vec3d vector, float yaw, float pitch, float roll) {
+      yaw = TrigMath.wrapDegrees(yaw);
+      pitch = TrigMath.wrapDegrees(pitch);
+      roll = TrigMath.wrapDegrees(roll);
+      double sinYaw = (float)Math.sin(yaw);
+      double cosYaw = (float)Math.cos(yaw);
+      double sinPitch = (float)Math.sin(pitch);
+      double cosPitch = (float)Math.cos(pitch);
+      double sinRoll = (float)Math.sin(roll);
+      double cosRoll = (float)Math.cos(roll);
+      double newY = vector.y * cosYaw - vector.z * sinYaw;
+      double newZ = vector.y * sinYaw + vector.z * cosYaw;
+      vector = new Vec3d(vector.x, newY, newZ);
+      double newX = vector.x * cosPitch + vector.z * sinPitch;
+      newZ = -vector.x * sinPitch + vector.z * cosPitch;
+      vector = new Vec3d(newX, vector.y, newZ);
+      newX = vector.x * cosRoll - vector.y * sinRoll;
+      newY = vector.x * sinRoll + vector.y * cosRoll;
+      return new Vec3d(newX, newY, vector.z);
    }
 
-   public static Vec3d MirrorXZ(Vec3d var0) {
-      return new Vec3d(-var0.x, var0.y, -var0.z);
+   public static Vec3d MirrorXZ(Vec3d vector) {
+      return new Vec3d(-vector.x, vector.y, -vector.z);
    }
 
-   public static Vec3d MirrorXY(Vec3d var0) {
-      return new Vec3d(-var0.x, -var0.y, var0.z);
+   public static Vec3d MirrorXY(Vec3d vector) {
+      return new Vec3d(-vector.x, -vector.y, vector.z);
    }
 
-   public static Vec3d MirrorYZ(Vec3d var0) {
-      return new Vec3d(var0.x, -var0.y, -var0.z);
+   public static Vec3d MirrorYZ(Vec3d vector) {
+      return new Vec3d(vector.x, -vector.y, -vector.z);
    }
 
-   static double getLinearFactor(double var0, double var2, double var4) {
-      return (var4 - var0) / (var2 - var0);
+   static double getLinearFactor(double start, double end, double value) {
+      return (value - start) / (end - start);
    }
 
-   public static double getLinearFactor(Vec3d var0, Vec3d var1, Vec3d var2) {
-      return getLinearFactor(var0.x, var1.x, var2.x);
+   public static double getLinearFactor(Vec3d start, Vec3d end, Vec3d value) {
+      return getLinearFactor(start.x, end.x, value.x);
    }
 }

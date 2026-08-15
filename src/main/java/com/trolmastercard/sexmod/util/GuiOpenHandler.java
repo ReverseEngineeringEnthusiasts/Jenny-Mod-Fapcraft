@@ -12,8 +12,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 public class GuiOpenHandler {
    @SubscribeEvent
-   public void onGuiOpen(GuiOpenEvent var1) {
-      if (var1.getGui() instanceof GuiMainMenu || var1.getGui() instanceof GuiMultiplayer) {
+   public void onGuiOpen(GuiOpenEvent event) {
+      if (event.getGui() instanceof GuiMainMenu || event.getGui() instanceof GuiMultiplayer) {
          AbstractPlayerGirlEntity.playerGirlList.clear();
          AbstractPlayerGirlEntity.al.clear();
       }

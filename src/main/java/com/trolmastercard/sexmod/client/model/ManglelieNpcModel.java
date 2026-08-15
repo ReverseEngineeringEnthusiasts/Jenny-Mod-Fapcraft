@@ -59,7 +59,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public ResourceLocation getTextureLocation(BaseGirlEntity var1) {
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/manglelie/manglelie.png");
    }
 
@@ -67,12 +67,12 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * Whether the girl is in a threesome action (slow/fast/cum) — disables the
     * corruption and look poses.
     */
-   public static boolean isInThreesome(BaseGirlEntity var0) {
-      return Action.isAnyAction(var0, Action.THREESOME_SLOW, Action.THREESOME_FAST, Action.THREESOME_CUM);
+   public static boolean isInThreesome(BaseGirlEntity girl) {
+      return Action.isAnyAction(girl, Action.THREESOME_SLOW, Action.THREESOME_FAST, Action.THREESOME_CUM);
    }
 
    @Override
-   public ResourceLocation getAnimationFileLocation(BaseGirlEntity var1) {
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "animations/manglelie/manglelie.animation.json");
    }
 
@@ -82,32 +82,32 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * corruption leg/arm offset.
     */
    @Override
-   public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
-      super.setLivingAnimations(var1, var2, var3);
-      animateModel(var1, this.getAnimationProcessor(), var3.getPartialTick());
-      this.updatePoseBones(var1);
-      this.updateCorruptBones(var1);
-      this.updateThreesomePose(var1);
-      this.updateCorruptPose(var1);
+   public void setLivingAnimations(BaseGirlEntity entity, Integer uniqueID, AnimationEvent event) {
+      super.setLivingAnimations(entity, uniqueID, event);
+      animateModel(entity, this.getAnimationProcessor(), event.getPartialTick());
+      this.updatePoseBones(entity);
+      this.updateCorruptBones(entity);
+      this.updateThreesomePose(entity);
+      this.updateCorruptPose(entity);
    }
 
    /**
     * Static corruption offset on the leg/forearms while Galath runs her
     * corruption actions (not in threesome).
     */
-   void updateCorruptPose(BaseGirlEntity var1) {
+   void updateCorruptPose(BaseGirlEntity entity) {
       if (!this.mc.isGamePaused()) {
-         if (!isInThreesome(var1)) {
-            GalathEntity var2 = ManglelieEntity.getGalathPartnerOf(var1, false);
-            if (var2 != null) {
-               if (Action.isAny(var2.getCurrentAction(), Action.CORRUPT_CUM, Action.CARRY_FAST, Action.CORRUPT_INTRO, Action.CORRUPT_SLOW)) {
-                  AnimationProcessor var3 = this.getAnimationProcessor();
-                  IBone var4 = var3.getBone("legR");
-                  var4.setRotationY(var4.getRotationY() + CORRUPTION_POSE_OFFSET);
-                  IBone var5 = var3.getBone("lowerArmR");
-                  IBone var6 = var3.getBone("lowerArmL");
-                  var5.setRotationX(var5.getRotationX() + CORRUPTION_POSE_OFFSET);
-                  var6.setRotationX(var6.getRotationX() + CORRUPTION_POSE_OFFSET);
+         if (!isInThreesome(entity)) {
+            GalathEntity galath = ManglelieEntity.getGalathPartnerOf(entity, false);
+            if (galath != null) {
+               if (Action.isAny(galath.getCurrentAction(), Action.CORRUPT_CUM, Action.CARRY_FAST, Action.CORRUPT_INTRO, Action.CORRUPT_SLOW)) {
+                  AnimationProcessor processor = this.getAnimationProcessor();
+                  IBone legRBone = processor.getBone("legR");
+                  legRBone.setRotationY(legRBone.getRotationY() + CORRUPTION_POSE_OFFSET);
+                  IBone lowerArmRBone = processor.getBone("lowerArmR");
+                  IBone lowerArmLBone = processor.getBone("lowerArmL");
+                  lowerArmRBone.setRotationX(lowerArmRBone.getRotationX() + CORRUPTION_POSE_OFFSET);
+                  lowerArmLBone.setRotationX(lowerArmLBone.getRotationX() + CORRUPTION_POSE_OFFSET);
                }
             }
          }
@@ -119,24 +119,24 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * ({@code bw}) and its scale follows {@code bm} — Manglelie mirrors
     * Galath's pose in the threesome scenes.
     */
-   void updateThreesomePose(BaseGirlEntity var1) {
-      if (var1 instanceof ManglelieEntity) {
-         if (!isInThreesome(var1)) {
-            ManglelieEntity var2 = (ManglelieEntity)var1;
-            GalathEntity var3 = var2.getGalathPartner(false);
-            if (var3 != null) {
-               IBone var4 = this.getAnimationProcessor().getBone("body");
-               var4.setRotationY(var3.bw + (this.mc.isGamePaused() ? 0.0F : var4.getRotationY()));
-               var4.setScaleX(var3.bm);
-               var4.setScaleY(var3.bm);
-               var4.setScaleZ(var3.bm);
+   void updateThreesomePose(BaseGirlEntity entity) {
+      if (entity instanceof ManglelieEntity) {
+         if (!isInThreesome(entity)) {
+            ManglelieEntity manglelie = (ManglelieEntity)entity;
+            GalathEntity galath = manglelie.getGalathPartner(false);
+            if (galath != null) {
+               IBone bodyBone = this.getAnimationProcessor().getBone("body");
+               bodyBone.setRotationY(galath.bw + (this.mc.isGamePaused() ? 0.0F : bodyBone.getRotationY()));
+               bodyBone.setScaleX(galath.bm);
+               bodyBone.setScaleY(galath.bm);
+               bodyBone.setScaleZ(galath.bm);
             }
          }
       }
    }
 
-   Vec3d getLookVector(@Nonnull Entity var1) {
-      return EntityLookVectorHelper.getEntityLookVector(var1, this.mc.getRenderPartialTicks()).add(0.0, var1.getEyeHeight(), 0.0);
+   Vec3d getLookVector(@Nonnull Entity entity) {
+      return EntityLookVectorHelper.getEntityLookVector(entity, this.mc.getRenderPartialTicks()).add(0.0, entity.getEyeHeight(), 0.0);
    }
 
    /**
@@ -146,112 +146,112 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * four arm bones. The look target is the corrupt entity when present, else
     * Galath's look vector.
     */
-   void updateCorruptBones(BaseGirlEntity var1) {
+   void updateCorruptBones(BaseGirlEntity entity) {
       if (!ClientProxy.IS_PRELOADING) {
-         if (!isInThreesome(var1)) {
+         if (!isInThreesome(entity)) {
             if (!this.mc.isGamePaused()) {
-               ManglelieEntity var2 = (ManglelieEntity)var1;
-               if (var2.isCorrupting()) {
-                  GalathEntity var3 = var2.getGalathPartner(false);
-                  if (var3 != null) {
-                     AnimationProcessor var4 = this.getAnimationProcessor();
-                     IBone var5 = var4.getBone("armL");
-                     IBone var6 = var4.getBone("armR");
-                     IBone var7 = var4.getBone("lowerArmL");
-                     IBone var8 = var4.getBone("lowerArmR");
-                     IBone var9 = var4.getBone("elbowR");
-                     IBone var10 = var4.getBone("elbowL");
-                     Entity var11 = var2.getCorruptEntity();
-                     boolean var12 = var11 == null;
-                     if (var12) {
-                        float var16 = Minecraft.getDebugFPS();
-                        if (var16 == 0.0F) {
-                           var16 = 1.0F;
+               ManglelieEntity manglelie = (ManglelieEntity)entity;
+               if (manglelie.isCorrupting()) {
+                  GalathEntity galath = manglelie.getGalathPartner(false);
+                  if (galath != null) {
+                     AnimationProcessor processor = this.getAnimationProcessor();
+                     IBone armLBone = processor.getBone("armL");
+                     IBone armRBone = processor.getBone("armR");
+                     IBone lowerArmLBone = processor.getBone("lowerArmL");
+                     IBone lowerArmRBone = processor.getBone("lowerArmR");
+                     IBone elbowRBone = processor.getBone("elbowR");
+                     IBone elbowLBone = processor.getBone("elbowL");
+                     Entity corruptEntity = manglelie.getCorruptEntity();
+                     boolean hasNoCorruptEntity = corruptEntity == null;
+                     if (hasNoCorruptEntity) {
+                        float fps2 = Minecraft.getDebugFPS();
+                        if (fps2 == 0.0F) {
+                           fps2 = 1.0F;
                         }
 
-                        if (var2.aj == var12) {
-                           var2.VELOCITY_0 = 0.0F;
+                        if (manglelie.aj == hasNoCorruptEntity) {
+                           manglelie.VELOCITY_0 = 0.0F;
                         } else {
-                           var2.VELOCITY_0 += 1.5F / var16;
+                           manglelie.VELOCITY_0 += 1.5F / fps2;
                         }
 
-                        if (var2.VELOCITY_0 >= 1.0F) {
-                           var2.VELOCITY_0 = 0.0F;
-                           var2.aj = var12;
+                        if (manglelie.VELOCITY_0 >= 1.0F) {
+                           manglelie.VELOCITY_0 = 0.0F;
+                           manglelie.aj = hasNoCorruptEntity;
                         }
 
-                        ManglelieNpcModel.RotationData var15;
-                        if (var2.VELOCITY_0 == 0.0F) {
-                           var15 = this.updateCorruptPose(var3, var6, var5, var7, var8);
+                        ManglelieNpcModel.RotationData rotationData2;
+                        if (manglelie.VELOCITY_0 == 0.0F) {
+                           rotationData2 = this.updateCorruptPose(galath, armRBone, armLBone, lowerArmLBone, lowerArmRBone);
                         } else {
-                           var15 = ManglelieNpcModel.RotationData.lerpRotationData(
-                              this.updateCorruptPose(var3, var6, var5, var7, var8),
-                              this.updateRidePose(var2, var3, var8, var7, var4),
-                              (float)(var2.aj ? RotationHelper.smoothStep(var2.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(var2.VELOCITY_0))
+                           rotationData2 = ManglelieNpcModel.RotationData.lerpRotationData(
+                              this.updateCorruptPose(galath, armRBone, armLBone, lowerArmLBone, lowerArmRBone),
+                              this.updateRidePose(manglelie, galath, lowerArmRBone, lowerArmLBone, processor),
+                              (float)(manglelie.aj ? RotationHelper.smoothStep(manglelie.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(manglelie.VELOCITY_0))
                            );
                         }
 
-                        var6.setRotationX(var15.armRRotation.x);
-                        var6.setRotationY(var15.armRRotation.y);
-                        var6.setRotationZ(var15.armRRotation.z);
-                        var5.setRotationX(var15.armLRotation.x);
-                        var5.setRotationY(var15.armLRotation.y);
-                        var5.setRotationZ(var15.armLRotation.z);
-                        var7.setRotationX(var15.lowerArmLRotation.x);
-                        var7.setRotationY(var15.lowerArmLRotation.y);
-                        var7.setRotationZ(var15.lowerArmLRotation.z);
-                        var8.setRotationX(var15.lowerArmRRotation.x);
-                        var8.setRotationY(var15.lowerArmRRotation.y);
-                        var8.setRotationZ(var15.lowerArmRRotation.z);
-                        var5.setScaleY(var15.armLScale);
-                        var6.setScaleY(var15.armRScale);
-                        var9.setRotationY(var15.elbowRRotationY);
-                        var10.setRotationY(var15.elbowLRotationY);
+                        armRBone.setRotationX(rotationData2.armRRotation.x);
+                        armRBone.setRotationY(rotationData2.armRRotation.y);
+                        armRBone.setRotationZ(rotationData2.armRRotation.z);
+                        armLBone.setRotationX(rotationData2.armLRotation.x);
+                        armLBone.setRotationY(rotationData2.armLRotation.y);
+                        armLBone.setRotationZ(rotationData2.armLRotation.z);
+                        lowerArmLBone.setRotationX(rotationData2.lowerArmLRotation.x);
+                        lowerArmLBone.setRotationY(rotationData2.lowerArmLRotation.y);
+                        lowerArmLBone.setRotationZ(rotationData2.lowerArmLRotation.z);
+                        lowerArmRBone.setRotationX(rotationData2.lowerArmRRotation.x);
+                        lowerArmRBone.setRotationY(rotationData2.lowerArmRRotation.y);
+                        lowerArmRBone.setRotationZ(rotationData2.lowerArmRRotation.z);
+                        armLBone.setScaleY(rotationData2.armLScale);
+                        armRBone.setScaleY(rotationData2.armRScale);
+                        elbowRBone.setRotationY(rotationData2.elbowRRotationY);
+                        elbowLBone.setRotationY(rotationData2.elbowLRotationY);
                      } else {
-                        var2.ZERO_VECTOR = this.getLookVector(var11);
-                        float var14 = Minecraft.getDebugFPS();
-                        if (var14 == 0.0F) {
-                           var14 = 1.0F;
+                        manglelie.ZERO_VECTOR = this.getLookVector(corruptEntity);
+                        float fps = Minecraft.getDebugFPS();
+                        if (fps == 0.0F) {
+                           fps = 1.0F;
                         }
 
-                        if (var2.aj == var12) {
-                           var2.VELOCITY_0 = 0.0F;
+                        if (manglelie.aj == hasNoCorruptEntity) {
+                           manglelie.VELOCITY_0 = 0.0F;
                         } else {
-                           var2.VELOCITY_0 += 1.5F / var14;
+                           manglelie.VELOCITY_0 += 1.5F / fps;
                         }
 
-                        if (var2.VELOCITY_0 >= 1.0F) {
-                           var2.VELOCITY_0 = 0.0F;
-                           var2.aj = var12;
+                        if (manglelie.VELOCITY_0 >= 1.0F) {
+                           manglelie.VELOCITY_0 = 0.0F;
+                           manglelie.aj = hasNoCorruptEntity;
                         }
 
-                        ManglelieNpcModel.RotationData var13;
-                        if (var2.VELOCITY_0 == 0.0F) {
-                           var13 = this.updateRidePose(var2, var3, var8, var7, var4);
+                        ManglelieNpcModel.RotationData rotationData;
+                        if (manglelie.VELOCITY_0 == 0.0F) {
+                           rotationData = this.updateRidePose(manglelie, galath, lowerArmRBone, lowerArmLBone, processor);
                         } else {
-                           var13 = ManglelieNpcModel.RotationData.lerpRotationData(
-                              this.updateCorruptPose(var3, var6, var5, var7, var8),
-                              this.updateRidePose(var2, var3, var8, var7, var4),
-                              (float)(var2.aj ? RotationHelper.smoothStep(var2.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(var2.VELOCITY_0))
+                           rotationData = ManglelieNpcModel.RotationData.lerpRotationData(
+                              this.updateCorruptPose(galath, armRBone, armLBone, lowerArmLBone, lowerArmRBone),
+                              this.updateRidePose(manglelie, galath, lowerArmRBone, lowerArmLBone, processor),
+                              (float)(manglelie.aj ? RotationHelper.smoothStep(manglelie.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(manglelie.VELOCITY_0))
                            );
                         }
 
-                        var6.setRotationX(var13.armRRotation.x);
-                        var6.setRotationY(var13.armRRotation.y);
-                        var6.setRotationZ(var13.armRRotation.z);
-                        var5.setRotationX(var13.armLRotation.x);
-                        var5.setRotationY(var13.armLRotation.y);
-                        var5.setRotationZ(var13.armLRotation.z);
-                        var7.setRotationX(var13.lowerArmLRotation.x);
-                        var7.setRotationY(var13.lowerArmLRotation.y);
-                        var7.setRotationZ(var13.lowerArmLRotation.z);
-                        var8.setRotationX(var13.lowerArmRRotation.x);
-                        var8.setRotationY(var13.lowerArmRRotation.y);
-                        var8.setRotationZ(var13.lowerArmRRotation.z);
-                        var5.setScaleY(var13.armLScale);
-                        var6.setScaleY(var13.armRScale);
-                        var9.setRotationY(var13.elbowRRotationY);
-                        var10.setRotationY(var13.elbowLRotationY);
+                        armRBone.setRotationX(rotationData.armRRotation.x);
+                        armRBone.setRotationY(rotationData.armRRotation.y);
+                        armRBone.setRotationZ(rotationData.armRRotation.z);
+                        armLBone.setRotationX(rotationData.armLRotation.x);
+                        armLBone.setRotationY(rotationData.armLRotation.y);
+                        armLBone.setRotationZ(rotationData.armLRotation.z);
+                        lowerArmLBone.setRotationX(rotationData.lowerArmLRotation.x);
+                        lowerArmLBone.setRotationY(rotationData.lowerArmLRotation.y);
+                        lowerArmLBone.setRotationZ(rotationData.lowerArmLRotation.z);
+                        lowerArmRBone.setRotationX(rotationData.lowerArmRRotation.x);
+                        lowerArmRBone.setRotationY(rotationData.lowerArmRRotation.y);
+                        lowerArmRBone.setRotationZ(rotationData.lowerArmRRotation.z);
+                        armLBone.setScaleY(rotationData.armLScale);
+                        armRBone.setScaleY(rotationData.armRScale);
+                        elbowRBone.setRotationY(rotationData.elbowRRotationY);
+                        elbowLBone.setRotationY(rotationData.elbowLRotationY);
                      }
                   }
                }
@@ -267,68 +267,68 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     *
     * @return the computed arm rotations for this frame
     */
-   ManglelieNpcModel.RotationData updateRidePose(@Nonnull ManglelieEntity var1, @Nonnull GalathEntity var2, IBone var3, IBone var4, AnimationProcessor var5) {
-      ManglelieNpcModel.RotationData var6 = new ManglelieNpcModel.RotationData();
-      var6.lowerArmLRotation = new Vector3fSexmodSpecial(UPPER_ARM_BASE_ANGLE, 0.0F, var3.getRotationZ());
-      var6.lowerArmRRotation = new Vector3fSexmodSpecial(LOWER_ARM_BASE_ANGLE, 0.0F, var4.getRotationZ());
-      float var7 = var2.aE + var5.getBone("upperBody").getRotationX();
-      float var8 = this.mc.getRenderPartialTicks();
-      Vec3d var9 = ManglelieRenderer.getEntityLookVector(var2, var8);
-      Vec3d var10 = var1.getCachedBoneOffset("armR").add(var9);
-      Vec3d var11 = var1.getCachedBoneOffset("armL").add(var9);
-      Vector2f var12 = ThreadNames.getLookAngles(var10, var1.ZERO_VECTOR);
-      Vector2f var13 = ThreadNames.getLookAngles(var11, var1.ZERO_VECTOR);
-      Float var14 = GalathEntity.getAimYaw(var2, var8);
-      float var15 = var14 == null ? RotationHelper.lerpFloat(var2.prevRotationYawHead, var2.rotationYawHead, var8) : var14;
-      float var16 = TrigMath.wrapDegrees(var15);
-      float var17 = var1.getCorruptProgress(var8);
-      float var18 = (float)RotationHelper.easeInOutQuad(Math.min(1.0F, var17));
-      float var19;
-      if (var18 != 1.0F) {
-         var19 = 0.0F;
+   ManglelieNpcModel.RotationData updateRidePose(@Nonnull ManglelieEntity manglelie, @Nonnull GalathEntity galath, IBone lowerArmLBone, IBone lowerArmRBone, AnimationProcessor processor) {
+      ManglelieNpcModel.RotationData rotationData = new ManglelieNpcModel.RotationData();
+      rotationData.lowerArmLRotation = new Vector3fSexmodSpecial(UPPER_ARM_BASE_ANGLE, 0.0F, lowerArmLBone.getRotationZ());
+      rotationData.lowerArmRRotation = new Vector3fSexmodSpecial(LOWER_ARM_BASE_ANGLE, 0.0F, lowerArmRBone.getRotationZ());
+      float upperBodyRotation = galath.aE + processor.getBone("upperBody").getRotationX();
+      float partialTicks = this.mc.getRenderPartialTicks();
+      Vec3d galathLookVec = ManglelieRenderer.getEntityLookVector(galath, partialTicks);
+      Vec3d armRPoint = manglelie.getCachedBoneOffset("armR").add(galathLookVec);
+      Vec3d armLPoint = manglelie.getCachedBoneOffset("armL").add(galathLookVec);
+      Vector2f armRAngles = ThreadNames.getLookAngles(armRPoint, manglelie.ZERO_VECTOR);
+      Vector2f armLAngles = ThreadNames.getLookAngles(armLPoint, manglelie.ZERO_VECTOR);
+      Float aimYaw = GalathEntity.getAimYaw(galath, partialTicks);
+      float headYaw = aimYaw == null ? RotationHelper.lerpFloat(galath.prevRotationYawHead, galath.rotationYawHead, partialTicks) : aimYaw;
+      float wrappedHeadYaw = TrigMath.wrapDegrees(headYaw);
+      float corruptProgress = manglelie.getCorruptProgress(partialTicks);
+      float easedProgress = (float)RotationHelper.easeInOutQuad(Math.min(1.0F, corruptProgress));
+      float swingProgress;
+      if (easedProgress != 1.0F) {
+         swingProgress = 0.0F;
       } else {
-         var19 = (var17 * 28.0F - 28.0F) / 32.0F;
-         var19 = Math.max(0.0F, var19 - 0.5F) * 2.0F;
+         swingProgress = (corruptProgress * 28.0F - 28.0F) / 32.0F;
+         swingProgress = Math.max(0.0F, swingProgress - 0.5F) * 2.0F;
       }
 
-      float var20 = (float)RotationHelper.easeInOutQuad(var19);
-      float var21 = TrigMath.wrapDegrees(RotationHelper.lerp(0.0F, 90.0F, var18));
-      boolean var22 = var1.isLookingAtGalathPoint(var1.ZERO_VECTOR, var8);
-      if (var22) {
-         var6.armRRotation = new Vector3fSexmodSpecial(-var7 + var12.y + TrigMath.wrapDegrees(90.0F), var12.x, 0.0F);
-         var6.armLRotation = new Vector3fSexmodSpecial(
-            -var7 + var13.y + TrigMath.wrapDegrees(90.0F),
-            (float)(var13.x + TrigMath.wrapDegrees(-20.0F) * Math.cos(var12.x + var16 * 1.0F) + RotationHelper.lerp(var21 / 2.0F, 0.0F, var20)),
+      float easedSwingProgress = (float)RotationHelper.easeInOutQuad(swingProgress);
+      float armLift = TrigMath.wrapDegrees(RotationHelper.lerp(0.0F, 90.0F, easedProgress));
+      boolean isLookingAtGalath = manglelie.isLookingAtGalathPoint(manglelie.ZERO_VECTOR, partialTicks);
+      if (isLookingAtGalath) {
+         rotationData.armRRotation = new Vector3fSexmodSpecial(-upperBodyRotation + armRAngles.y + TrigMath.wrapDegrees(90.0F), armRAngles.x, 0.0F);
+         rotationData.armLRotation = new Vector3fSexmodSpecial(
+            -upperBodyRotation + armLAngles.y + TrigMath.wrapDegrees(90.0F),
+            (float)(armLAngles.x + TrigMath.wrapDegrees(-20.0F) * Math.cos(armRAngles.x + wrappedHeadYaw * 1.0F) + RotationHelper.lerp(armLift / 2.0F, 0.0F, easedSwingProgress)),
             0.0F
          );
-         var6.armLScale = 1.0F + Math.abs(Math.abs(var12.x) - Math.abs(var16)) * 0.1909F;
-         var6.elbowLRotationY = TrigMath.wrapDegrees(90.0F);
-         var6.lowerArmLRotation.z = RotationHelper.lerp(var21, 0.0F, var20);
-         if (var19 > 0.5) {
-            var6.lowerArmLRotation.x = UPPER_ARM_BASE_ANGLE + (float)RotationHelper.lerpDouble(ARM_SWING_ANGLE, 0.0, RotationHelper.easeInOutQuad((var19 - 0.5F) * 2.0F));
-         } else if (var19 != 0.0F && var19 < 0.5) {
-            var6.lowerArmLRotation.x = UPPER_ARM_BASE_ANGLE + (float)RotationHelper.lerpDouble(0.0, ARM_SWING_ANGLE, RotationHelper.easeInOutQuad(var19 * 2.0F));
+         rotationData.armLScale = 1.0F + Math.abs(Math.abs(armRAngles.x) - Math.abs(wrappedHeadYaw)) * 0.1909F;
+         rotationData.elbowLRotationY = TrigMath.wrapDegrees(90.0F);
+         rotationData.lowerArmLRotation.z = RotationHelper.lerp(armLift, 0.0F, easedSwingProgress);
+         if (swingProgress > 0.5) {
+            rotationData.lowerArmLRotation.x = UPPER_ARM_BASE_ANGLE + (float)RotationHelper.lerpDouble(ARM_SWING_ANGLE, 0.0, RotationHelper.easeInOutQuad((swingProgress - 0.5F) * 2.0F));
+         } else if (swingProgress != 0.0F && swingProgress < 0.5) {
+            rotationData.lowerArmLRotation.x = UPPER_ARM_BASE_ANGLE + (float)RotationHelper.lerpDouble(0.0, ARM_SWING_ANGLE, RotationHelper.easeInOutQuad(swingProgress * 2.0F));
          }
       } else {
-         var6.armLRotation = new Vector3fSexmodSpecial(-var7 + var13.y + TrigMath.wrapDegrees(90.0F), var13.x, 0.0F);
-         var6.armRRotation = new Vector3fSexmodSpecial(
-            -var7 + var12.y + TrigMath.wrapDegrees(90.0F),
-            (float)(var12.x + TrigMath.wrapDegrees(20.0F) * Math.cos(var13.x + var16 * 1.0F)) - RotationHelper.lerp(var21 / 2.0F, 0.0F, var20),
+         rotationData.armLRotation = new Vector3fSexmodSpecial(-upperBodyRotation + armLAngles.y + TrigMath.wrapDegrees(90.0F), armLAngles.x, 0.0F);
+         rotationData.armRRotation = new Vector3fSexmodSpecial(
+            -upperBodyRotation + armRAngles.y + TrigMath.wrapDegrees(90.0F),
+            (float)(armRAngles.x + TrigMath.wrapDegrees(20.0F) * Math.cos(armLAngles.x + wrappedHeadYaw * 1.0F)) - RotationHelper.lerp(armLift / 2.0F, 0.0F, easedSwingProgress),
             0.0F
          );
-         var6.armRScale = 1.0F + Math.abs(Math.abs(var13.x) - Math.abs(var16)) * 0.1909F;
-         var6.elbowRRotationY = TrigMath.wrapDegrees(90.0F);
-         var6.lowerArmRRotation.z = -RotationHelper.lerp(var21, 0.0F, var20);
-         if (var19 > 0.5) {
-            var6.lowerArmRRotation.x = LOWER_ARM_BASE_ANGLE + (float)RotationHelper.lerpDouble(ARM_SWING_ANGLE, 0.0, RotationHelper.easeInOutQuad((var19 - 0.5F) * 2.0F));
-         } else if (var19 != 0.0F && var19 < 0.5) {
-            var6.lowerArmRRotation.x = LOWER_ARM_BASE_ANGLE + (float)RotationHelper.lerpDouble(0.0, ARM_SWING_ANGLE, RotationHelper.easeInOutQuad(var19 * 2.0F));
+         rotationData.armRScale = 1.0F + Math.abs(Math.abs(armLAngles.x) - Math.abs(wrappedHeadYaw)) * 0.1909F;
+         rotationData.elbowRRotationY = TrigMath.wrapDegrees(90.0F);
+         rotationData.lowerArmRRotation.z = -RotationHelper.lerp(armLift, 0.0F, easedSwingProgress);
+         if (swingProgress > 0.5) {
+            rotationData.lowerArmRRotation.x = LOWER_ARM_BASE_ANGLE + (float)RotationHelper.lerpDouble(ARM_SWING_ANGLE, 0.0, RotationHelper.easeInOutQuad((swingProgress - 0.5F) * 2.0F));
+         } else if (swingProgress != 0.0F && swingProgress < 0.5) {
+            rotationData.lowerArmRRotation.x = LOWER_ARM_BASE_ANGLE + (float)RotationHelper.lerpDouble(0.0, ARM_SWING_ANGLE, RotationHelper.easeInOutQuad(swingProgress * 2.0F));
          }
       }
 
-      var6.armRRotation.y += var16;
-      var6.armLRotation.y += var16;
-      return var6;
+      rotationData.armRRotation.y += wrappedHeadYaw;
+      rotationData.armLRotation.y += wrappedHeadYaw;
+      return rotationData;
    }
 
    /**
@@ -336,21 +336,21 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * bends both arms up with mirrored yaw/z offsets; negative pitch drops the
     * forearms (scaled factors) and spreads the arms slightly.
     */
-   ManglelieNpcModel.RotationData updateCorruptPose(GalathEntity var1, IBone var2, IBone var3, IBone var4, IBone var5) {
-      float var6 = var1.aE;
-      ManglelieNpcModel.RotationData var7 = new ManglelieNpcModel.RotationData();
-      if (var6 > 0.0F) {
-         var7.armRRotation = new Vector3fSexmodSpecial(var2.getRotationX() - var6, var2.getRotationY() - var6 * -25.0F / 45.0F, var2.getRotationZ() + var6 * 12.5F / 45.0F);
-         var7.armLRotation = new Vector3fSexmodSpecial(var3.getRotationX() - var6, var3.getRotationY() + var6 * 15.0F / 45.0F, var3.getRotationZ());
-         var7.lowerArmLRotation = new Vector3fSexmodSpecial(var4.getRotationX(), var4.getRotationY(), var4.getRotationZ());
-         var7.lowerArmRRotation = new Vector3fSexmodSpecial(var5.getRotationX(), var5.getRotationY(), var5.getRotationZ());
-         return var7;
+   ManglelieNpcModel.RotationData updateCorruptPose(GalathEntity galath, IBone armRBone, IBone armLBone, IBone lowerArmLBone, IBone lowerArmRBone) {
+      float headRotation = galath.aE;
+      ManglelieNpcModel.RotationData rotationData = new ManglelieNpcModel.RotationData();
+      if (headRotation > 0.0F) {
+         rotationData.armRRotation = new Vector3fSexmodSpecial(armRBone.getRotationX() - headRotation, armRBone.getRotationY() - headRotation * -25.0F / 45.0F, armRBone.getRotationZ() + headRotation * 12.5F / 45.0F);
+         rotationData.armLRotation = new Vector3fSexmodSpecial(armLBone.getRotationX() - headRotation, armLBone.getRotationY() + headRotation * 15.0F / 45.0F, armLBone.getRotationZ());
+         rotationData.lowerArmLRotation = new Vector3fSexmodSpecial(lowerArmLBone.getRotationX(), lowerArmLBone.getRotationY(), lowerArmLBone.getRotationZ());
+         rotationData.lowerArmRRotation = new Vector3fSexmodSpecial(lowerArmRBone.getRotationX(), lowerArmRBone.getRotationY(), lowerArmRBone.getRotationZ());
+         return rotationData;
       } else {
-         var7.lowerArmRRotation = new Vector3fSexmodSpecial(var5.getRotationX() + 2.0F * var6, var5.getRotationY(), var5.getRotationZ());
-         var7.lowerArmLRotation = new Vector3fSexmodSpecial(var4.getRotationX() + 2.2222223F * var6, var4.getRotationY(), var4.getRotationZ());
-         var7.armRRotation = new Vector3fSexmodSpecial(var2.getRotationX() - var6, var2.getRotationY(), var2.getRotationZ() + var6 * 5.0F / 45.0F);
-         var7.armLRotation = new Vector3fSexmodSpecial(var3.getRotationX() - var6, var3.getRotationY(), var3.getRotationZ() - var6 * 5.0F / 45.0F);
-         return var7;
+         rotationData.lowerArmRRotation = new Vector3fSexmodSpecial(lowerArmRBone.getRotationX() + 2.0F * headRotation, lowerArmRBone.getRotationY(), lowerArmRBone.getRotationZ());
+         rotationData.lowerArmLRotation = new Vector3fSexmodSpecial(lowerArmLBone.getRotationX() + 2.2222223F * headRotation, lowerArmLBone.getRotationY(), lowerArmLBone.getRotationZ());
+         rotationData.armRRotation = new Vector3fSexmodSpecial(armRBone.getRotationX() - headRotation, armRBone.getRotationY(), armRBone.getRotationZ() + headRotation * 5.0F / 45.0F);
+         rotationData.armLRotation = new Vector3fSexmodSpecial(armLBone.getRotationX() - headRotation, armLBone.getRotationY(), armLBone.getRotationZ() - headRotation * 5.0F / 45.0F);
+         return rotationData;
       }
    }
 
@@ -360,43 +360,43 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * Galath with a speed-limited (7 deg/frame at 60fps) wrap-around lerp —
     * state persists in the entity's {@code TICK_0}/{@code ai} fields.
     */
-   void updatePoseBones(BaseGirlEntity var1) {
+   void updatePoseBones(BaseGirlEntity entity) {
       if (!ClientProxy.IS_PRELOADING) {
          if (!this.mc.isGamePaused()) {
-            ManglelieEntity var2 = (ManglelieEntity)var1;
-            if (ManglelieRenderer.isCorrupting(var2)) {
-               GalathEntity var3 = var2.getGalathPartner(false);
-               if (var3 != null) {
-                  AnimationProcessor var4 = this.getAnimationProcessor();
-                  float var5 = var3.aE;
-                  var4.getBone("rotationTool").setRotationX(var5);
-                  IBone var6 = var4.getBone("head");
-                  IBone var7 = var4.getBone("upperBody");
-                  IBone var8 = var4.getBone("boobs");
-                  if (var5 > 0.0F) {
-                     var7.setRotationX(-1.1111112F * var5);
-                     var6.setRotationX(0.1333F * var5);
-                     var8.setRotationX(var5 * 22.5F / 45.0F);
+            ManglelieEntity manglelie = (ManglelieEntity)entity;
+            if (ManglelieRenderer.isCorrupting(manglelie)) {
+               GalathEntity galath = manglelie.getGalathPartner(false);
+               if (galath != null) {
+                  AnimationProcessor processor = this.getAnimationProcessor();
+                  float headRotation = galath.aE;
+                  processor.getBone("rotationTool").setRotationX(headRotation);
+                  IBone headBone = processor.getBone("head");
+                  IBone upperBodyBone = processor.getBone("upperBody");
+                  IBone boobsBone = processor.getBone("boobs");
+                  if (headRotation > 0.0F) {
+                     upperBodyBone.setRotationX(-1.1111112F * headRotation);
+                     headBone.setRotationX(0.1333F * headRotation);
+                     boobsBone.setRotationX(headRotation * 22.5F / 45.0F);
                   } else {
-                     var7.setRotationX(-1.6666666F * var5);
-                     var6.setRotationX(var5 * 0.666F);
+                     upperBodyBone.setRotationX(-1.6666666F * headRotation);
+                     headBone.setRotationX(headRotation * 0.666F);
                   }
 
-                  float var9 = ThreadNames.wrapAngle(var2.TICK_0, var2.af);
-                  float var10 = ThreadNames.wrapAngle(var2.ai, var2.rotationLerp);
-                  float var11 = Minecraft.getDebugFPS();
-                  if (var11 == 0.0F) {
-                     var11 = 1.0F;
+                  float yawError = ThreadNames.wrapAngle(manglelie.TICK_0, manglelie.af);
+                  float pitchError = ThreadNames.wrapAngle(manglelie.ai, manglelie.rotationLerp);
+                  float fps = Minecraft.getDebugFPS();
+                  if (fps == 0.0F) {
+                     fps = 1.0F;
                   }
 
-                  float var12 = 7.0F * (Math.abs(var9) < 7.0F ? var9 : (var9 > 0.0F ? 7.0F : -7.0F)) * (1.0F / var11);
-                  float var13 = 7.0F * (Math.abs(var10) < 7.0F ? var10 : (var10 > 0.0F ? 7.0F : -7.0F)) * (1.0F / var11);
-                  float var14 = var2.TICK_0 + var12;
-                  float var15 = var2.ai + var13;
-                  var6.setRotationY(var6.getRotationY() + var14);
-                  var6.setRotationX(var6.getRotationX() + var15);
-                  var2.TICK_0 = var14;
-                  var2.ai = var15;
+                  float yawStep = 7.0F * (Math.abs(yawError) < 7.0F ? yawError : (yawError > 0.0F ? 7.0F : -7.0F)) * (1.0F / fps);
+                  float pitchStep = 7.0F * (Math.abs(pitchError) < 7.0F ? pitchError : (pitchError > 0.0F ? 7.0F : -7.0F)) * (1.0F / fps);
+                  float newYaw = manglelie.TICK_0 + yawStep;
+                  float newPitch = manglelie.ai + pitchStep;
+                  headBone.setRotationY(headBone.getRotationY() + newYaw);
+                  headBone.setRotationX(headBone.getRotationX() + newPitch);
+                  manglelie.TICK_0 = newYaw;
+                  manglelie.ai = newPitch;
                }
             }
          }
@@ -408,24 +408,24 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * hugs Manglelie): toggles the skirt/cheek bones by the look state and
     * stages the cock bones by the corruption stage ({@code an}).
     */
-   public static void animateModel(BaseGirlEntity var0, AnimationProcessor var1, float var2) {
+   public static void animateModel(BaseGirlEntity girl, AnimationProcessor processor, float partialTicks) {
       if (!ClientProxy.IS_PRELOADING) {
-         boolean var3 = ManglelieRenderer.isGalathLooking(var0);
-         setCheekHidden(var1, var3);
-         setSkirtHidden(var1, var3);
-         animatePose(var0, var1, var2);
+         boolean isGalathLooking = ManglelieRenderer.isGalathLooking(girl);
+         setCheekHidden(processor, isGalathLooking);
+         setSkirtHidden(processor, isGalathLooking);
+         animatePose(girl, processor, partialTicks);
       }
    }
 
    /**
     * Cock-stage bone visibility from the corruption stage counter.
     */
-   static void animatePose(BaseGirlEntity var0, AnimationProcessor var1, float var2) {
-      if (var0 instanceof ManglelieEntity) {
-         for (int var3 = 0; var3 < 3; var3++) {
-            IBone var4 = var1.getBone("cockStage" + var3);
-            if (var4 != null) {
-               var4.setHidden(var3 > ((ManglelieEntity)var0).an);
+   static void animatePose(BaseGirlEntity girl, AnimationProcessor processor, float partialTicks) {
+      if (girl instanceof ManglelieEntity) {
+         for (int i = 0; i < 3; i++) {
+            IBone cockBone = processor.getBone("cockStage" + i);
+            if (cockBone != null) {
+               cockBone.setHidden(i > ((ManglelieEntity)girl).an);
             }
          }
       }
@@ -435,41 +435,41 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * Hides the skirt bone while the look pose is active (the custom ribbon
     * mesh replaces it).
     */
-   static void setSkirtHidden(AnimationProcessor var0, boolean var1) {
-      var0.getBone("skirt").setHidden(!var1);
+   static void setSkirtHidden(AnimationProcessor processor, boolean hidden) {
+      processor.getBone("skirt").setHidden(!hidden);
    }
 
    /**
     * Swaps the below-skirt cheek/side bones against their skirted variants
     * depending on the look pose.
     */
-   static void setCheekHidden(AnimationProcessor var0, boolean var1) {
-      var0.getBone("cheekRBelowSkirt").setHidden(var1);
-      var0.getBone("cheekLBelowSkirt").setHidden(var1);
-      var0.getBone("sideRNoSkirt").setHidden(var1);
-      IBone var2 = var0.getBone("sideRSkirt");
-      IBone var10000;
-      boolean var10001;
-      if (!var1) {
-         var10000 = var2;
-         var10001 = true;
+   static void setCheekHidden(AnimationProcessor processor, boolean hidden) {
+      processor.getBone("cheekRBelowSkirt").setHidden(hidden);
+      processor.getBone("cheekLBelowSkirt").setHidden(hidden);
+      processor.getBone("sideRNoSkirt").setHidden(hidden);
+      IBone sideRSkirtBone = processor.getBone("sideRSkirt");
+      IBone boneToToggle;
+      boolean hiddenState;
+      if (!hidden) {
+         boneToToggle = sideRSkirtBone;
+         hiddenState = true;
       } else {
-         var10000 = var2;
-         var10001 = false;
+         boneToToggle = sideRSkirtBone;
+         hiddenState = false;
       }
 
-      var10000.setHidden(var10001);
-      var0.getBone("sideLNoSkirt").setHidden(var1);
-      IBone var3 = var0.getBone("sideLSkirt");
-      if (!var1) {
-         var10000 = var3;
-         var10001 = true;
+      boneToToggle.setHidden(hiddenState);
+      processor.getBone("sideLNoSkirt").setHidden(hidden);
+      IBone sideLSkirtBone = processor.getBone("sideLSkirt");
+      if (!hidden) {
+         boneToToggle = sideLSkirtBone;
+         hiddenState = true;
       } else {
-         var10000 = var3;
-         var10001 = false;
+         boneToToggle = sideLSkirtBone;
+         hiddenState = false;
       }
 
-      var10000.setHidden(var10001);
+      boneToToggle.setHidden(hiddenState);
    }
 
    /**
@@ -492,17 +492,17 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       /**
     * Component-wise lerp of two pose bundles.
     */
-   static ManglelieNpcModel.RotationData lerpRotationData(ManglelieNpcModel.RotationData var0, ManglelieNpcModel.RotationData var1, float var2) {
-         ManglelieNpcModel.RotationData var3 = new ManglelieNpcModel.RotationData();
-         var3.armRRotation = RotationHelper.lerpVector3f(var0.armRRotation, var1.armRRotation, var2);
-         var3.armLRotation = RotationHelper.lerpVector3f(var0.armLRotation, var1.armLRotation, var2);
-         var3.lowerArmRRotation = RotationHelper.lerpVector3f(var0.lowerArmRRotation, var1.lowerArmRRotation, var2);
-         var3.lowerArmLRotation = RotationHelper.lerpVector3f(var0.lowerArmLRotation, var1.lowerArmLRotation, var2);
-         var3.armRScale = RotationHelper.lerp(var0.armRScale, var1.armRScale, var2);
-         var3.armLScale = RotationHelper.lerp(var0.armLScale, var1.armLScale, var2);
-         var3.elbowLRotationY = RotationHelper.lerp(var0.elbowLRotationY, var1.elbowLRotationY, var2);
-         var3.elbowRRotationY = RotationHelper.lerp(var0.elbowRRotationY, var1.elbowRRotationY, var2);
-         return var3;
+   static ManglelieNpcModel.RotationData lerpRotationData(ManglelieNpcModel.RotationData from, ManglelieNpcModel.RotationData to, float progress) {
+         ManglelieNpcModel.RotationData result = new ManglelieNpcModel.RotationData();
+         result.armRRotation = RotationHelper.lerpVector3f(from.armRRotation, to.armRRotation, progress);
+         result.armLRotation = RotationHelper.lerpVector3f(from.armLRotation, to.armLRotation, progress);
+         result.lowerArmRRotation = RotationHelper.lerpVector3f(from.lowerArmRRotation, to.lowerArmRRotation, progress);
+         result.lowerArmLRotation = RotationHelper.lerpVector3f(from.lowerArmLRotation, to.lowerArmLRotation, progress);
+         result.armRScale = RotationHelper.lerp(from.armRScale, to.armRScale, progress);
+         result.armLScale = RotationHelper.lerp(from.armLScale, to.armLScale, progress);
+         result.elbowLRotationY = RotationHelper.lerp(from.elbowLRotationY, to.elbowLRotationY, progress);
+         result.elbowRRotationY = RotationHelper.lerp(from.elbowRRotationY, to.elbowRRotationY, progress);
+         return result;
       }
    }
 }

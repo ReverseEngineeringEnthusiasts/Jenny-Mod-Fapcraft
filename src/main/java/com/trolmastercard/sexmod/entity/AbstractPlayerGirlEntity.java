@@ -101,39 +101,39 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    int an = -1;
    public boolean ab = true;
 
-   protected AbstractPlayerGirlEntity(World var1) {
-      super(var1);
+   protected AbstractPlayerGirlEntity(World world) {
+      super(world);
       this.setSize(0.01F, 0.01F);
       playerGirlList.add(this);
    }
 
-   protected AbstractPlayerGirlEntity(World var1, UUID var2) {
-      this(var1);
-      this.entityDataManager.set(ai, Optional.of(var2));
+   protected AbstractPlayerGirlEntity(World world, UUID uuid) {
+      this(world);
+      this.entityDataManager.set(ai, Optional.of(uuid));
    }
 
    @Nullable
-   public static AbstractPlayerGirlEntity getPlayerGirlByUUID(UUID var0) {
-      return al.get(var0);
+   public static AbstractPlayerGirlEntity getPlayerGirlByUUID(UUID uuid) {
+      return al.get(uuid);
    }
 
    @Nullable
-   public static AbstractPlayerGirlEntity getPlayerGirlByUUID(@Nonnull EntityPlayer var0) {
-      return al.get(var0.getPersistentID());
+   public static AbstractPlayerGirlEntity getPlayerGirlByUUID(@Nonnull EntityPlayer player) {
+      return al.get(player.getPersistentID());
    }
 
    @Nullable
-   public static AbstractPlayerGirlEntity getPlayerGirlByOwner(UUID var0) {
+   public static AbstractPlayerGirlEntity getPlayerGirlByOwner(UUID uuid) {
       try {
-         for (BaseGirlEntity var2 : getGirlEntityList()) {
-            if (!var2.world.isRemote && var2 instanceof AbstractPlayerGirlEntity) {
-               AbstractPlayerGirlEntity var3 = (AbstractPlayerGirlEntity)var2;
-               if (var0.equals(var3.getOwnerUserUUID())) {
-                  return var3;
+         for (BaseGirlEntity girl : getGirlEntityList()) {
+            if (!girl.world.isRemote && girl instanceof AbstractPlayerGirlEntity) {
+               AbstractPlayerGirlEntity playerGirl = (AbstractPlayerGirlEntity)girl;
+               if (uuid.equals(playerGirl.getOwnerUserUUID())) {
+                  return playerGirl;
                }
             }
          }
-      } catch (ConcurrentModificationException var4) {
+      } catch (ConcurrentModificationException ex) {
       }
 
       return null;
@@ -149,20 +149,20 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
     * (50-block radius) via {@link ForcePlayerGirlUpdatePacket}, so clients
     * other than the owner see the scene action too. SERVER-side.
     */
-   public void sendActionPacket(int var1, Action var2) {
-      PacketHandler.networkWrapper.sendToAllTracking(new ForcePlayerGirlUpdatePacket(this.getOwnerUserUUID(), var1, var2), this.getTargetNetworkPoint());
+   public void sendActionPacket(int actionId, Action action) {
+      PacketHandler.networkWrapper.sendToAllTracking(new ForcePlayerGirlUpdatePacket(this.getOwnerUserUUID(), actionId, action), this.getTargetNetworkPoint());
    }
 
-   public EntityPlayer resolvePlayerEntity(EntityPlayer var1) {
-      return var1;
+   public EntityPlayer resolvePlayerEntity(EntityPlayer player) {
+      return player;
    }
 
    public boolean isRidingSomething() {
       return true;
    }
 
-   public Vec3d getOwnerLookVector(Vec3d var1, float var2) {
-      return var1;
+   public Vec3d getOwnerLookVector(Vec3d vec, float partialTicks) {
+      return vec;
    }
 
    public boolean canBeCollidedWith() {
@@ -185,7 +185,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return true;
    }
 
-   public boolean handleActionRequest(String var1) {
+   public boolean handleActionRequest(String actionName) {
       return false;
    }
 
@@ -196,9 +196,9 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    public String getDisplayNameText() {
       if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
-         EntityPlayer var1 = this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
-         if (var1 != null) {
-            return var1.getName();
+         EntityPlayer player = this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
+         if (player != null) {
+            return player.getName();
          }
       }
 
@@ -208,13 +208,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public void handleInteraction() {
    }
 
-   public abstract void handleOwnerCommand(String var1, UUID var2);
+   public abstract void handleOwnerCommand(String command, UUID uuid);
 
-   public abstract IVanillaModel getHandModel(int var1);
+   public abstract IVanillaModel getHandModel(int index);
 
-   public abstract String getHandTexture(int var1);
+   public abstract String getHandTexture(int index);
 
-   public Vec3i getHandColor(int var1) {
+   public Vec3i getHandColor(int index) {
       return new Vec3i(255, 255, 255);
    }
 
@@ -243,9 +243,9 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
     */
    @SideOnly(Side.CLIENT)
    public static void resetPlayerGirlCamera() {
-      AbstractPlayerGirlEntity var0 = getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
-      if (var0 != null) {
-         var0.resetCameraAndPhysics();
+      AbstractPlayerGirlEntity playerGirl = getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
+      if (playerGirl != null) {
+         playerGirl.resetCameraAndPhysics();
       }
    }
 
@@ -275,10 +275,10 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    protected void resetLocalPlayerClientState() {
       if (this.isControlledByLocalPlayer() || this.hasOwnerUUID()) {
          HandlePlayerMovement.setMovementLock(true);
-         EntityPlayerSP var1 = Minecraft.getMinecraft().player;
-         var1.setInvisible(false);
-         var1.setNoGravity(false);
-         var1.noClip = false;
+         EntityPlayerSP player = Minecraft.getMinecraft().player;
+         player.setInvisible(false);
+         player.setNoGravity(false);
+         player.noClip = false;
          this.entityDataManager.set(IS_ANCHORED, false);
          PacketHandler.networkWrapper.sendToServer(new ResetGirlPacket(this.getGirlId()));
       }
@@ -287,8 +287,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @SideOnly(Side.CLIENT)
    @Override
    public boolean hasCustomParts() {
-      Minecraft var1 = Minecraft.getMinecraft();
-      return !this.hasOwnerUUID() || var1.gameSettings.thirdPersonView != 0;
+      Minecraft mc = Minecraft.getMinecraft();
+      return !this.hasOwnerUUID() || mc.gameSettings.thirdPersonView != 0;
    }
 
    /**
@@ -297,28 +297,28 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
     * switch. Called by subclasses' {@code B_clash233}/{@code onTickClient}
     * pairs on transformation enter/exit.
     */
-   protected void handleOwnerUUID(boolean var1) {
+   protected void handleOwnerUUID(boolean allowFly) {
       if (ag) {
          if (this.getOwnerUserUUID() != null) {
-            EntityPlayer var2 = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
-            if (var2 != null) {
-               var2.capabilities.allowFlying = var1;
-               if (!var1) {
-                  var2.capabilities.isFlying = false;
+            EntityPlayer player = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
+            if (player != null) {
+               player.capabilities.allowFlying = allowFly;
+               if (!allowFly) {
+                  player.capabilities.isFlying = false;
                }
 
-               var2.sendPlayerAbilities();
+               player.sendPlayerAbilities();
             }
          }
       }
    }
 
-   public static boolean hasPlayerGirlWithUUID(UUID var0) {
+   public static boolean hasPlayerGirlWithUUID(UUID uuid) {
       rebuildPlayerGirlTableFromWorld();
 
-      for (Entry var2 : al.entrySet()) {
-         UUID var3 = (UUID)var2.getKey();
-         if (var0.equals(var3)) {
+      for (Entry entry : al.entrySet()) {
+         UUID candidateUuid = (UUID)entry.getKey();
+         if (uuid.equals(candidateUuid)) {
             return true;
          }
       }
@@ -326,8 +326,8 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return false;
    }
 
-   public static boolean isOwnerPlayer(EntityPlayer var0) {
-      return var0 == null ? false : hasPlayerGirlWithUUID(var0.getPersistentID());
+   public static boolean isOwnerPlayer(EntityPlayer player) {
+      return player == null ? false : hasPlayerGirlWithUUID(player.getPersistentID());
    }
 
    public AxisAlignedBB getEntityBoundingBox() {
@@ -335,31 +335,31 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    protected EntityPlayer getNearestPlayer() {
-      List var1 = this.world.playerEntities;
-      EntityPlayer var2 = null;
+      List players = this.world.playerEntities;
+      EntityPlayer nearest = null;
 
-      for (EntityPlayer var4 : (java.util.Collection<EntityPlayer>) (var1) ) {
-         if (!var4.getPersistentID().equals(((Optional)this.entityDataManager.get(ai)).get())) {
-            if (var2 == null) {
-               var2 = var4;
+      for (EntityPlayer player : (java.util.Collection<EntityPlayer>) (players) ) {
+         if (!player.getPersistentID().equals(((Optional)this.entityDataManager.get(ai)).get())) {
+            if (nearest == null) {
+               nearest = player;
             } else {
-               double var5 = var2.getDistanceSq(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z);
-               double var7 = var4.getDistanceSq(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z);
-               if (var7 < var5) {
-                  var2 = var4;
+               double closestDist = nearest.getDistanceSq(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z);
+               double dist = player.getDistanceSq(this.getPositionVec3d().x, this.getPositionVec3d().y, this.getPositionVec3d().z);
+               if (dist < closestDist) {
+                  nearest = player;
                }
             }
          }
       }
 
-      return var2;
+      return nearest;
    }
 
    @SideOnly(Side.CLIENT)
    @Override
    public boolean isLocalPlayerNearby() {
-      EntityPlayer var1 = this.getNearestPlayer();
-      return var1 == null ? false : var1.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID());
+      EntityPlayer player = this.getNearestPlayer();
+      return player == null ? false : player.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID());
    }
 
    public Vec3d getPositionVec3d() {
@@ -372,34 +372,34 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
     * anchors the girl and records the target position/yaw. This is the standard
     * scene-entry funnel for every owner-command action.
     */
-   protected void teleportPlayerToGirl(UUID var1) {
-      EntityPlayerMP var2 = (EntityPlayerMP)this.world.getPlayerEntityByUUID(var1);
-      EntityPlayerMP var3 = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
-      PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), var2);
-      PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), var3);
-      this.setInteractionPlayerUUID(var1);
+   protected void teleportPlayerToGirl(UUID uuid) {
+      EntityPlayerMP player = (EntityPlayerMP)this.world.getPlayerEntityByUUID(uuid);
+      EntityPlayerMP ownerPlayer = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
+      PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), player);
+      PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), ownerPlayer);
+      this.setInteractionPlayerUUID(uuid);
       this.rotationYaw = 0.0F;
       this.rotationYawHead = 0.0F;
-      var2.rotationYaw = 180.0F;
-      var2.rotationYawHead = 180.0F;
-      var2.setNoGravity(true);
-      var2.noClip = true;
-      Vec3d var4 = this.getPositionVector();
-      var2.setPositionAndUpdate(var4.x, var4.y, var4.z + 1.0);
-      var2.capabilities.isFlying = true;
-      var3.capabilities.isFlying = true;
-      this.snapPlayerToPosition(var1);
+      player.rotationYaw = 180.0F;
+      player.rotationYawHead = 180.0F;
+      player.setNoGravity(true);
+      player.noClip = true;
+      Vec3d pos = this.getPositionVector();
+      player.setPositionAndUpdate(pos.x, pos.y, pos.z + 1.0);
+      player.capabilities.isFlying = true;
+      ownerPlayer.capabilities.isFlying = true;
+      this.snapPlayerToPosition(uuid);
       this.entityDataManager.set(IS_ANCHORED, true);
-      this.setTargetPosition(var4);
+      this.setTargetPosition(pos);
       this.setYawRotation(0.0F);
    }
 
-   protected void playStepSound(BlockPos var1, Block var2) {
-      super.playStepSound(var1, var2);
+   protected void playStepSound(BlockPos pos, Block block) {
+      super.playStepSound(pos, block);
    }
 
-   public AxisAlignedBB getPlayerCollisionBox(EntityPlayer var1) {
-      return var1.getEntityBoundingBox();
+   public AxisAlignedBB getPlayerCollisionBox(EntityPlayer player) {
+      return player.getEntityBoundingBox();
    }
 
    /**
@@ -437,10 +437,10 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return false;
    }
 
-   void saveOwnerData(EntityPlayer var1) {
-      NBTTagCompound var2 = var1.getEntityData();
-      String var3 = var2.getString("sexmod:CustomModel" + NpcType.getNpcType(this));
-      this.setCustomModelCode(var3);
+   void saveOwnerData(EntityPlayer player) {
+      NBTTagCompound nbt = player.getEntityData();
+      String modelCode = nbt.getString("sexmod:CustomModel" + NpcType.getNpcType(this));
+      this.setCustomModelCode(modelCode);
    }
 
    @Override
@@ -448,26 +448,26 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       rebuildPlayerGirlTableFromWorld();
       this.tickFollowUpTransitions();
       this.updateCustomModelParts();
-      UUID var1 = this.getOwnerUserUUID();
-      if (var1 != null) {
-         EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
-         if (var2 == null) {
+      UUID uuid = this.getOwnerUserUUID();
+      if (uuid != null) {
+         EntityPlayer player = this.world.getPlayerEntityByUUID(uuid);
+         if (player == null) {
             this.setPositionAndUpdate(this.posX, 0.0, this.posZ);
          } else {
-            this.saveOwnerData(var2);
+            this.saveOwnerData(player);
             if (this.isAnchored()) {
-               Vec3d var3 = this.getTargetPosition();
-               this.setPositionAndUpdate(var3.x, var3.y, var3.z);
+               Vec3d pos = this.getTargetPosition();
+               this.setPositionAndUpdate(pos.x, pos.y, pos.z);
             } else {
-               this.setPositionAndUpdate(var2.posX, var2.posY + 0.0, var2.posZ);
+               this.setPositionAndUpdate(player.posX, player.posY + 0.0, player.posZ);
             }
 
-            Action var4 = this.getCurrentAction();
-            if (var4 == Action.NULL && var2.isSwingInProgress) {
+            Action action = this.getCurrentAction();
+            if (action == Action.NULL && player.isSwingInProgress) {
                this.setCurrentAction(Action.ATTACK);
             }
 
-            if (var4 == Action.ATTACK && !var2.isSwingInProgress) {
+            if (action == Action.ATTACK && !player.isSwingInProgress) {
                this.setCurrentAction(Action.NULL);
             }
          }
@@ -506,9 +506,9 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @SideOnly(Side.CLIENT)
    void handleClientOwner() {
       if (this.hasOwnerUUID()) {
-         Minecraft var1 = Minecraft.getMinecraft();
-         var1.gameSettings.thirdPersonView = 0;
-         var1.entityRenderer.loadEntityShader(var1.getRenderViewEntity());
+         Minecraft mc = Minecraft.getMinecraft();
+         mc.gameSettings.thirdPersonView = 0;
+         mc.entityRenderer.loadEntityShader(mc.getRenderViewEntity());
          HandlePlayerMovement.setMovementLock(true);
       }
    }
@@ -517,11 +517,11 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return this.isAnchored();
    }
 
-   public Vec3d getOwnerAimVector(Vec3d var1, float var2) {
-      return var1;
+   public Vec3d getOwnerAimVector(Vec3d vec, float partialTicks) {
+      return vec;
    }
 
-   public boolean canPerformAction(Action var1, EntityPlayer var2) {
+   public boolean canPerformAction(Action action, EntityPlayer player) {
       return false;
    }
 
@@ -529,7 +529,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return true;
    }
 
-   public void onOwnerInteract(EntityPlayer var1) {
+   public void onOwnerInteract(EntityPlayer player) {
    }
 
    /**
@@ -558,29 +558,29 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
     * renders the same equipment. SERVER or CLIENT; writes are direct data-manager
     * sets.
     */
-   public void syncArmor(EntityPlayer var1) {
+   public void syncArmor(EntityPlayer player) {
       this.entityDataManager.set(HELMET_SLOT, ItemStack.EMPTY);
       this.entityDataManager.set(CHEST_SLOT, ItemStack.EMPTY);
       this.entityDataManager.set(LEGS_SLOT, ItemStack.EMPTY);
       this.entityDataManager.set(BOOTS_SLOT, ItemStack.EMPTY);
 
-      for (ItemStack var3 : var1.getArmorInventoryList()) {
-         if (var3.getItem() instanceof ItemElytra) {
-            this.entityDataManager.set(CHEST_SLOT, var3);
-         } else if (var3.getItem() instanceof ItemArmor) {
-            ItemArmor var4 = (ItemArmor)var3.getItem();
-            switch (var4.getEquipmentSlot()) {
+      for (ItemStack stack : player.getArmorInventoryList()) {
+         if (stack.getItem() instanceof ItemElytra) {
+            this.entityDataManager.set(CHEST_SLOT, stack);
+         } else if (stack.getItem() instanceof ItemArmor) {
+            ItemArmor armor = (ItemArmor)stack.getItem();
+            switch (armor.getEquipmentSlot()) {
                case HEAD:
-                  this.entityDataManager.set(HELMET_SLOT, var3);
+                  this.entityDataManager.set(HELMET_SLOT, stack);
                   break;
                case CHEST:
-                  this.entityDataManager.set(CHEST_SLOT, var3);
+                  this.entityDataManager.set(CHEST_SLOT, stack);
                   break;
                case LEGS:
-                  this.entityDataManager.set(LEGS_SLOT, var3);
+                  this.entityDataManager.set(LEGS_SLOT, stack);
                   break;
                case FEET:
-                  this.entityDataManager.set(BOOTS_SLOT, var3);
+                  this.entityDataManager.set(BOOTS_SLOT, stack);
             }
          }
       }
@@ -592,12 +592,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @Nullable
    public EntityPlayer getOwnerPlayer() {
-      UUID var1 = this.getOwnerUserUUID();
-      return var1 == null ? null : this.world.getPlayerEntityByUUID(var1);
+      UUID uuid = this.getOwnerUserUUID();
+      return uuid == null ? null : this.world.getPlayerEntityByUUID(uuid);
    }
 
-   public void setOwnerId(Optional<UUID> var1) {
-      this.entityDataManager.set(ai, var1);
+   public void setOwnerId(Optional<UUID> uuidOpt) {
+      this.entityDataManager.set(ai, uuidOpt);
    }
 
    public void onTickClient() {
@@ -613,46 +613,46 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
     * modification during world teardown.
     */
    public static void rebuildPlayerGirlTableFromWorld() {
-      ArrayList var0 = new ArrayList();
+      ArrayList toRemove = new ArrayList();
 
       try {
-         for (AbstractPlayerGirlEntity var2 : playerGirlList) {
-            if (var2.getOwnerUserUUID() != null) {
-               al.put(var2.getOwnerUserUUID(), var2);
-               var0.add(var2);
+         for (AbstractPlayerGirlEntity playerGirl : playerGirlList) {
+            if (playerGirl.getOwnerUserUUID() != null) {
+               al.put(playerGirl.getOwnerUserUUID(), playerGirl);
+               toRemove.add(playerGirl);
             }
          }
-      } catch (ConcurrentModificationException var3) {
+      } catch (ConcurrentModificationException ex) {
       }
 
-      for (AbstractPlayerGirlEntity var5 : (java.util.Collection<AbstractPlayerGirlEntity>) (var0) ) {
-         playerGirlList.remove(var5);
+      for (AbstractPlayerGirlEntity playerGirl : (java.util.Collection<AbstractPlayerGirlEntity>) (toRemove) ) {
+         playerGirlList.remove(playerGirl);
       }
 
       rebuildPlayerGirlTableInternal();
    }
 
    static void rebuildPlayerGirlTableInternal() {
-      ArrayList var0 = new ArrayList();
+      ArrayList toRemove = new ArrayList();
 
-      for (Entry var2 : al.entrySet()) {
-         if (((AbstractPlayerGirlEntity)var2.getValue()).isDead) {
-            var0.add(var2.getKey());
+      for (Entry entry : al.entrySet()) {
+         if (((AbstractPlayerGirlEntity)entry.getValue()).isDead) {
+            toRemove.add(entry.getKey());
          }
       }
 
-      for (UUID var4 : (java.util.Collection<UUID>) (var0) ) {
-         al.remove(var4);
+      for (UUID uuid : (java.util.Collection<UUID>) (toRemove) ) {
+         al.remove(uuid);
       }
    }
 
-   protected boolean isOwnerUUID(UUID var1) {
-      if (var1 == null) {
+   protected boolean isOwnerUUID(UUID uuid) {
+      if (uuid == null) {
          return false;
       }
 
-      AbstractPlayerGirlEntity var2 = getPlayerGirlByUUID(var1);
-      return var2 != null;
+      AbstractPlayerGirlEntity playerGirl = getPlayerGirlByUUID(uuid);
+      return playerGirl != null;
    }
 
    /**
@@ -662,25 +662,25 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
     * "first interaction" flag. The flag is consumed (reset to true) on send.
     */
    @Override
-   public void doAction(String var1, UUID var2) {
-      if (!this.handleActionRequest(var1)) {
+   public void doAction(String action, UUID uuid) {
+      if (!this.handleActionRequest(action)) {
          if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
-            PacketHandler.networkWrapper.sendToServer(new SexPromptPacket(var1, var2, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
+            PacketHandler.networkWrapper.sendToServer(new SexPromptPacket(action, uuid, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
             this.ab = true;
          }
       }
    }
 
    @Override
-   public void writeEntityToNBT(NBTTagCompound var1) {
-      super.writeEntityToNBT(var1);
-      var1.setString("owner", ((UUID)((Optional)this.entityDataManager.get(ai)).get()).toString());
+   public void writeEntityToNBT(NBTTagCompound nbt) {
+      super.writeEntityToNBT(nbt);
+      nbt.setString("owner", ((UUID)((Optional)this.entityDataManager.get(ai)).get()).toString());
    }
 
    @Override
-   public void readEntityFromNBT(NBTTagCompound var1) {
-      super.readEntityFromNBT(var1);
-      this.entityDataManager.set(ai, Optional.of(UUID.fromString(var1.getString("owner"))));
+   public void readEntityFromNBT(NBTTagCompound nbt) {
+      super.readEntityFromNBT(nbt);
+      this.entityDataManager.set(ai, Optional.of(UUID.fromString(nbt.getString("owner"))));
       playerGirlList.add(this);
    }
 
@@ -690,28 +690,28 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
     * players ({@link SoundCategory#PLAYERS}).
     */
    @Override
-   public void playSoundAtPosition(SoundEvent var1, float var2, float var3) {
-      Vec3d var4 = this.getPositionVec3d();
+   public void playSoundAtPosition(SoundEvent sound, float volume, float pitch) {
+      Vec3d pos = this.getPositionVec3d();
       if (this.world.isRemote) {
-         this.world.playSound(var4.x, var4.y, var4.z, var1, SoundCategory.NEUTRAL, var2, var3, false);
+         this.world.playSound(pos.x, pos.y, pos.z, sound, SoundCategory.NEUTRAL, volume, pitch, false);
       } else {
          this.world
-            .playSound(null, new BlockPos(var4.x, var4.y, var4.z), var1, SoundCategory.PLAYERS, var2, var3);
+            .playSound(null, new BlockPos(pos.x, pos.y, pos.z), sound, SoundCategory.PLAYERS, volume, pitch);
       }
    }
 
    @Override
-   public void playSound(SoundEvent var1) {
-      this.playSoundAtPosition(var1, 1.0F, 1.0F);
+   public void playSound(SoundEvent sound) {
+      this.playSoundAtPosition(sound, 1.0F, 1.0F);
    }
 
-   public void playRandomSound(SoundEvent[] var1) {
-      this.playSoundAtPosition(var1[this.getRNG().nextInt(var1.length)], 1.0F, 1.0F);
+   public void playRandomSound(SoundEvent[] sounds) {
+      this.playSoundAtPosition(sounds[this.getRNG().nextInt(sounds.length)], 1.0F, 1.0F);
    }
 
    @Override
-   public void playSoundAtVolume(SoundEvent var1, float var2) {
-      this.playSoundAtPosition(var1, var2, 1.0F);
+   public void playSoundAtVolume(SoundEvent sound, float volume) {
+      this.playSoundAtPosition(sound, volume, 1.0F);
    }
 
    @Override

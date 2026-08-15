@@ -42,13 +42,13 @@ public class LunaRodItem extends ItemFishingRod {
       this.setMaxStackSize(1);
       this.addPropertyOverride(new ResourceLocation("cast"), new IItemPropertyGetter() {
          @SideOnly(Side.CLIENT)
-         public float apply(ItemStack var1, @Nullable World var2, @Nullable EntityLivingBase var3) {
-            if (var3 == null) {
+         public float apply(ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity) {
+            if (entity == null) {
                return 0.0F;
-            } else if (!(var3 instanceof LunaEntity)) {
+            } else if (!(entity instanceof LunaEntity)) {
                return 0.0F;
             } else {
-               return var3.getDataManager().get(LunaEntity.af) ? 1.0F : 0.0F;
+               return entity.getDataManager().get(LunaEntity.af) ? 1.0F : 0.0F;
             }
          }
       });
@@ -61,63 +61,63 @@ public class LunaRodItem extends ItemFishingRod {
    }
 
    @SubscribeEvent
-   public static void registerItems(Register<Item> var0) {
-      var0.getRegistry().register(LUNA_ROD);
+   public static void registerItems(Register<Item> event) {
+      event.getRegistry().register(LUNA_ROD);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void onModelRegistry(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent event) {
       ModelLoader.setCustomModelResourceLocation(LUNA_ROD, 0, new ModelResourceLocation("fishing_rod"));
    }
 
-   public ActionResult<ItemStack> castFishingRod(World var1, LunaEntity var2, EnumHand var3) {
-      ItemStack var4 = var2.getHeldItem(var3);
-      if (var2.av != null) {
-         int var5 = var2.av.getCatchResult();
-         var4.damageItem(var5, var2);
-         var2.swingArm(var3);
-         var1.playSound(
+   public ActionResult<ItemStack> castFishingRod(World world, LunaEntity luna, EnumHand hand) {
+      ItemStack stack = luna.getHeldItem(hand);
+      if (luna.av != null) {
+         int catchResult = luna.av.getCatchResult();
+         stack.damageItem(catchResult, luna);
+         luna.swingArm(hand);
+         world.playSound(
             (EntityPlayer)null,
-            var2.posX,
-            var2.posY,
-            var2.posZ,
+            luna.posX,
+            luna.posY,
+            luna.posZ,
             SoundEvents.ENTITY_BOBBER_RETRIEVE,
             SoundCategory.NEUTRAL,
             1.0F,
             0.4F / (itemRand.nextFloat() * 0.4F + 0.8F)
          );
       } else {
-         var1.playSound(
+         world.playSound(
             (EntityPlayer)null,
-            var2.posX,
-            var2.posY,
-            var2.posZ,
+            luna.posX,
+            luna.posY,
+            luna.posZ,
             SoundEvents.ENTITY_BOBBER_THROW,
             SoundCategory.NEUTRAL,
             0.5F,
             0.4F / (itemRand.nextFloat() * 0.4F + 0.8F)
          );
-         if (!var1.isRemote) {
-            SexEntity.ownerLuna = var2;
-            double var10 = var2.getPositionVector().distanceTo(new Vec3d(var2.ai.getX(), var2.ai.getY(), var2.ai.getZ()));
-            SexEntity var7 = new SexEntity(var1, var2, var10 * 0.01);
-            int var8 = EnchantmentHelper.getFishingSpeedBonus(var4);
-            if (var8 > 0) {
-               var7.setFishingLevel(var8);
+         if (!world.isRemote) {
+            SexEntity.ownerLuna = luna;
+            double distance = luna.getPositionVector().distanceTo(new Vec3d(luna.ai.getX(), luna.ai.getY(), luna.ai.getZ()));
+            SexEntity sexEntity = new SexEntity(world, luna, distance * 0.01);
+            int speedBonus = EnchantmentHelper.getFishingSpeedBonus(stack);
+            if (speedBonus > 0) {
+               sexEntity.setFishingLevel(speedBonus);
             }
 
-            int var9 = EnchantmentHelper.getFishingLuckBonus(var4);
-            if (var9 > 0) {
-               var7.setPhase(var9);
+            int luckBonus = EnchantmentHelper.getFishingLuckBonus(stack);
+            if (luckBonus > 0) {
+               sexEntity.setPhase(luckBonus);
             }
 
-            var1.spawnEntity(var7);
+            world.spawnEntity(sexEntity);
          }
 
-         var2.swingArm(var3);
+         luna.swingArm(hand);
       }
 
-      return new ActionResult(EnumActionResult.SUCCESS, var4);
+      return new ActionResult(EnumActionResult.SUCCESS, stack);
    }
 }

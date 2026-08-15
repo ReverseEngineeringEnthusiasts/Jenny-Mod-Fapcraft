@@ -40,193 +40,193 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
  * the callers (tribe bed tracking, {@link SendBlocksPacket}) must handle it.
  */
 public class WorldUtils {
-   public static float normalizeAngleDiff(float var0, float var1) {
-      var0 = TrigMath.NormalizeAngle(var0);
-      var1 = TrigMath.NormalizeAngle(var1);
-      float var2 = Math.abs(var0 - var1);
-      float var3 = 360.0F - var2;
-      float var4 = Math.min(var2, var3);
-      return var0 > var1 ? -var4 : var4;
+   public static float normalizeAngleDiff(float angle1, float angle2) {
+      angle1 = TrigMath.NormalizeAngle(angle1);
+      angle2 = TrigMath.NormalizeAngle(angle2);
+      float diff = Math.abs(angle1 - angle2);
+      float opposite = 360.0F - diff;
+      float minDiff = Math.min(diff, opposite);
+      return angle1 > angle2 ? -minDiff : minDiff;
    }
 
-   public static Vec3d getEntityLookVector(EntityLivingBase var0, float var1) {
-      World var2 = var0.world;
-      if (var2 instanceof SexWorldClient) {
+   public static Vec3d getEntityLookVector(EntityLivingBase entity, float partialTicks) {
+      World world = entity.world;
+      if (world instanceof SexWorldClient) {
          return new Vec3d(0.0, 1.0, 0.0);
       }
 
-      BlockPos var3 = new BlockPos(Math.floor(var0.posX), Math.floor(var0.posY), Math.floor(var0.posZ));
-      HashMap var4 = new HashMap();
-      int var5 = 0;
+      BlockPos pos = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
+      HashMap lightMap = new HashMap();
+      int maxLight = 0;
 
-      for (int var6 = -1; var6 < 2; var6++) {
-         for (int var7 = -1; var7 < 2; var7++) {
-            for (int var8 = -1; var8 < 2; var8++) {
-               int var9 = var2.getLight(var3.add(var6, var7, var8), false);
-               var4.put(new Vec3d(var6, var7, var8), var9);
-               if (var9 > var5) {
-                  var5 = var9;
+      for (int dx = -1; dx < 2; dx++) {
+         for (int dy = -1; dy < 2; dy++) {
+            for (int dz = -1; dz < 2; dz++) {
+               int light = world.getLight(pos.add(dx, dy, dz), false);
+               lightMap.put(new Vec3d(dx, dy, dz), light);
+               if (light > maxLight) {
+                  maxLight = light;
                }
             }
          }
       }
 
-      Vec3d var10 = null;
+      Vec3d bestOffset = null;
 
-      for (Entry var15 : (java.util.Set<Entry>) var4.entrySet()) {
-         if ((Integer)var15.getValue() == var5) {
-            if (var10 != null) {
-               var10 = null;
+      for (Entry entry : (java.util.Set<Entry>) lightMap.entrySet()) {
+         if ((Integer)entry.getValue() == maxLight) {
+            if (bestOffset != null) {
+               bestOffset = null;
                break;
             }
 
-            var10 = (Vec3d)var15.getKey();
+            bestOffset = (Vec3d)entry.getKey();
          }
       }
 
-      if (var10 == null) {
-         var10 = new Vec3d(0.2, 0.8, 0.0);
+      if (bestOffset == null) {
+         bestOffset = new Vec3d(0.2, 0.8, 0.0);
       } else {
-         var10 = new Vec3d(var10.x, var10.y, -var10.z);
-         float var14 = -RotationHelper.lerp(var0.prevRenderYawOffset, var0.renderYawOffset, var1);
-         var10 = VectorMath.rotateByYaw(var10, var14);
+         bestOffset = new Vec3d(bestOffset.x, bestOffset.y, -bestOffset.z);
+         float yaw = -RotationHelper.lerp(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
+         bestOffset = VectorMath.rotateByYaw(bestOffset, yaw);
       }
 
-      return var10.normalize();
+      return bestOffset.normalize();
    }
 
-   public static int getHeightAt(World var0, int var1, int var2) {
-      HashSet var3 = Sets.newHashSet(
+   public static int getHeightAt(World world, int x, int z) {
+      HashSet transparentBlocks = Sets.newHashSet(
          new Block[]{Blocks.GRASS, Blocks.SAND, Blocks.RED_SANDSTONE, Blocks.WATER, Blocks.STONE, Blocks.COBBLESTONE}
       );
-      int var4 = var0.getHeight();
-      boolean var5 = false;
+      int y = world.getHeight();
+      boolean isTransparent = false;
 
-      while (!var5 && var4-- >= 0) {
-         Block var6 = var0.getBlockState(new BlockPos(var1, var4, var2)).getBlock();
-         var5 = var3.contains(var6);
+      while (!isTransparent && y-- >= 0) {
+         Block block = world.getBlockState(new BlockPos(x, y, z)).getBlock();
+         isTransparent = transparentBlocks.contains(block);
       }
 
-      return var4;
+      return y;
    }
 
-   public static BlockPos getSurfaceBlockPos(World var0, BlockPos var1) {
-      return new BlockPos(var1.getX(), getHeightAt(var0, var1.getX(), var1.getZ()), var1.getZ());
+   public static BlockPos getSurfaceBlockPos(World world, BlockPos pos) {
+      return new BlockPos(pos.getX(), getHeightAt(world, pos.getX(), pos.getZ()), pos.getZ());
    }
 
-   public static boolean canPlaceStructure(World var0, BlockPos var1) {
-      return canPlaceBlock(var0, var1, null, null, null);
+   public static boolean canPlaceStructure(World world, BlockPos pos) {
+      return canPlaceBlock(world, pos, null, null, null);
    }
 
-   public static boolean canPlaceBlock(World var0, BlockPos var1, Vec3d var2, EnumFacing var3, EntityPlayer var4) {
-      IBlockState var5 = var0.getBlockState(var1);
-      Block var6 = var5.getBlock();
-      if (var6.isBed(var5, var0, var1, null)) {
+   public static boolean canPlaceBlock(World world, BlockPos pos, Vec3d hitVec, EnumFacing face, EntityPlayer player) {
+      IBlockState state = world.getBlockState(pos);
+      Block block = state.getBlock();
+      if (block.isBed(state, world, pos, null)) {
          return true;
       }
 
-      TileEntity var7 = var0.getTileEntity(var1);
-      if (var7 != null) {
-         ITextComponent var8 = var7.getDisplayName();
-         if (var8 != null && (var8.toString().contains(" bed") || var8.toString().contains("bed "))) {
+      TileEntity tileEntity = world.getTileEntity(pos);
+      if (tileEntity != null) {
+         ITextComponent displayName = tileEntity.getDisplayName();
+         if (displayName != null && (displayName.toString().contains(" bed") || displayName.toString().contains("bed "))) {
             return true;
          }
       }
 
-      if (var3 != null && var2 != null) {
-         String var9 = var6.getPickBlock(var5, new RayTraceResult(var2, var3), var0, var1, var4).getDisplayName().toLowerCase();
-         return var9.contains(" bed") || var9.contains("bed ");
+      if (face != null && hitVec != null) {
+         String blockName = block.getPickBlock(state, new RayTraceResult(hitVec, face), world, pos, player).getDisplayName().toLowerCase();
+         return blockName.contains(" bed") || blockName.contains("bed ");
       } else {
          return false;
       }
    }
 
-   public static void spawnParticles(World var0, EnumParticleTypes var1, Vec3d var2, int var3, double var4, double var6) {
-      for (int var8 = 0; var8 < var3; var8++) {
-         float var9 = (float)var8 / var3;
-         double var10 = (Math.PI * 2) * var9;
-         double var12 = Math.sin(var10);
-         double var14 = Math.cos(var10);
-         var12 *= var4;
-         var14 *= var4;
-         var0.spawnParticle(
-            var1, var2.x + var12, var2.y, var2.z + var14, 0.0, Reference.RANDOM.nextFloat() * var6, 0.0, new int[0]
+   public static void spawnParticles(World world, EnumParticleTypes particleType, Vec3d center, int count, double radius, double speed) {
+      for (int i = 0; i < count; i++) {
+         float progress = (float)i / count;
+         double angle = (Math.PI * 2) * progress;
+         double sin = Math.sin(angle);
+         double cos = Math.cos(angle);
+         sin *= radius;
+         cos *= radius;
+         world.spawnParticle(
+            particleType, center.x + sin, center.y, center.z + cos, 0.0, Reference.RANDOM.nextFloat() * speed, 0.0, new int[0]
          );
       }
    }
 
-   public static BlockPos getStatePos(BlockPos var0, IBlockState var1) {
-      ImmutableMap var2 = var1.getProperties();
-      EnumFacing var3 = null;
-      EnumPartType var4 = null;
-      UnmodifiableIterator var5 = var2.entrySet().iterator();
+   public static BlockPos getStatePos(BlockPos pos, IBlockState state) {
+      ImmutableMap properties = state.getProperties();
+      EnumFacing facing = null;
+      EnumPartType partType = null;
+      UnmodifiableIterator iterator = properties.entrySet().iterator();
 
-      while (var5.hasNext()) {
-         Entry var6 = (Entry)var5.next();
-         if (var6.getKey() instanceof PropertyDirection) {
-            var3 = (EnumFacing)var6.getValue();
-         } else if (var6.getKey() instanceof PropertyEnum) {
-            var4 = (EnumPartType)var6.getValue();
+      while (iterator.hasNext()) {
+         Entry entry = (Entry)iterator.next();
+         if (entry.getKey() instanceof PropertyDirection) {
+            facing = (EnumFacing)entry.getValue();
+         } else if (entry.getKey() instanceof PropertyEnum) {
+            partType = (EnumPartType)entry.getValue();
          }
       }
 
-      if (var3 == null) {
+      if (facing == null) {
          System.out.println("bed is fucked up - it has no facing value");
          return null;
       }
 
-      if (var4 == null) {
+      if (partType == null) {
          System.out.println("bed is fucked up - it has no partType value");
          return null;
       }
 
-      BlockPos var7 = null;
-      if (var4 == EnumPartType.FOOT) {
-         if (var3 == EnumFacing.NORTH) {
-            var7 = var0.north();
+      BlockPos pairedPos = null;
+      if (partType == EnumPartType.FOOT) {
+         if (facing == EnumFacing.NORTH) {
+            pairedPos = pos.north();
          }
 
-         if (var3 == EnumFacing.EAST) {
-            var7 = var0.east();
+         if (facing == EnumFacing.EAST) {
+            pairedPos = pos.east();
          }
 
-         if (var3 == EnumFacing.SOUTH) {
-            var7 = var0.south();
+         if (facing == EnumFacing.SOUTH) {
+            pairedPos = pos.south();
          }
 
-         if (var3 == EnumFacing.WEST) {
-            var7 = var0.west();
+         if (facing == EnumFacing.WEST) {
+            pairedPos = pos.west();
          }
       } else {
-         if (var3 == EnumFacing.NORTH) {
-            var7 = var0.south();
+         if (facing == EnumFacing.NORTH) {
+            pairedPos = pos.south();
          }
 
-         if (var3 == EnumFacing.EAST) {
-            var7 = var0.west();
+         if (facing == EnumFacing.EAST) {
+            pairedPos = pos.west();
          }
 
-         if (var3 == EnumFacing.SOUTH) {
-            var7 = var0.north();
+         if (facing == EnumFacing.SOUTH) {
+            pairedPos = pos.north();
          }
 
-         if (var3 == EnumFacing.WEST) {
-            var7 = var0.east();
+         if (facing == EnumFacing.WEST) {
+            pairedPos = pos.east();
          }
       }
 
-      if (var7 == null) {
+      if (pairedPos == null) {
          System.out.println("bed is fucked up - it appears to be positioned vertically (wtf?)");
          return null;
       } else {
-         return var7;
+         return pairedPos;
       }
    }
 
-   public static Set<? extends EntityPlayer> getNearbyPlayers(Entity var0) {
-      return var0 == null
+   public static Set<? extends EntityPlayer> getNearbyPlayers(Entity entity) {
+      return entity == null
          ? Collections.emptySet()
-         : FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(var0.dimension).getEntityTracker().getTrackingPlayers(var0);
+         : FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(entity.dimension).getEntityTracker().getTrackingPlayers(entity);
    }
 
 }

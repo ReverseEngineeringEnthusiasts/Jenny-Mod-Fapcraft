@@ -54,36 +54,36 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    boolean as = false;
    boolean aq = false;
 
-   public GalathPlayerEntity(World var1) {
-      super(var1);
+   public GalathPlayerEntity(World world) {
+      super(world);
    }
 
-   public GalathPlayerEntity(World var1, UUID var2) {
-      super(var1, var2);
+   public GalathPlayerEntity(World world, UUID uuid) {
+      super(world, uuid);
    }
 
    @Override
-   public IVanillaModel getHandModel(int var1) {
+   public IVanillaModel getHandModel(int index) {
       return new CatModel();
    }
 
    @Override
-   public String getHandTexture(int var1) {
+   public String getHandTexture(int index) {
       return "textures/entity/galath/hand.png";
    }
 
    @Nullable
    @Override
-   protected Action getNextAction(Action var1) {
+   protected Action getNextAction(Action action) {
       return null;
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      if (var1 == Action.CORRUPT_FAST || var1 == Action.CORRUPT_SLOW) {
+   protected Action getCumAction(Action action) {
+      if (action == Action.CORRUPT_FAST || action == Action.CORRUPT_SLOW) {
          return Action.CORRUPT_CUM;
       } else {
-         return var1 == Action.RAPE_ON_GOING ? Action.RAPE_CUM : null;
+         return action == Action.RAPE_ON_GOING ? Action.RAPE_CUM : null;
       }
    }
 
@@ -99,13 +99,13 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
     * teleport the acting player into the scene.
     */
    @Override
-   public void handleOwnerCommand(String var1, UUID var2) {
-      if ("cowgirl".equals(var1)) {
-         this.teleportPlayerToGirl(var2);
+   public void handleOwnerCommand(String command, UUID uuid) {
+      if ("cowgirl".equals(command)) {
+         this.teleportPlayerToGirl(uuid);
          this.setCurrentAction(Action.RAPE_INTRO);
          this.sendActionPacket(this.getOutfitIndex(), Action.RAPE_INTRO);
-      } else if ("mating press".equals(var1)) {
-         this.teleportPlayerToGirl(var2);
+      } else if ("mating press".equals(command)) {
+         this.teleportPlayerToGirl(uuid);
          this.setCurrentAction(Action.CORRUPT_SLOW);
          this.sendActionPacket(this.getOutfitIndex(), Action.CORRUPT_SLOW);
          this.handleGalathPlayerOwner();
@@ -119,10 +119,10 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
     */
    @Override
    public void setCurrentAction(Action action) {
-      Action var2 = this.getCurrentAction();
-      if (var2 != Action.CORRUPT_CUM || action != Action.CORRUPT_FAST && action != Action.CORRUPT_SLOW) {
-         if (var2 != Action.RAPE_CUM || action != Action.RAPE_ON_GOING) {
-            if (var2 != Action.RAPE_CUM || action != Action.RAPE_CUM_IDLE) {
+      Action currentAction = this.getCurrentAction();
+      if (currentAction != Action.CORRUPT_CUM || action != Action.CORRUPT_FAST && action != Action.CORRUPT_SLOW) {
+         if (currentAction != Action.RAPE_CUM || action != Action.RAPE_ON_GOING) {
+            if (currentAction != Action.RAPE_CUM || action != Action.RAPE_CUM_IDLE) {
                if (action == Action.CORRUPT_SLOW) {
                   this.as = false;
                }
@@ -134,10 +134,10 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    void handleGalathPlayerOwner() {
-      EntityPlayer var1 = this.getPlayerEntity();
-      if (var1 != null) {
-         Vec3d var2 = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5F - var1.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
-         var1.setPositionAndUpdate(var2.x, var2.y, var2.z);
+      EntityPlayer player = this.getPlayerEntity();
+      if (player != null) {
+         Vec3d pos = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5F - player.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
+         player.setPositionAndUpdate(pos.x, pos.y, pos.z);
       }
    }
 
@@ -147,8 +147,8 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    @Override
-   public boolean openInteractionMenu(EntityPlayer var1) {
-      openInventoryGui(var1, this, new String[]{"cowgirl", "mating press", "ride"}, false);
+   public boolean openInteractionMenu(EntityPlayer player) {
+      openInventoryGui(player, this, new String[]{"cowgirl", "mating press", "ride"}, false);
       return true;
    }
 
@@ -232,89 +232,89 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    boolean hasNoGalathOwner() {
-      EntityPlayer var1 = this.getOwnerPlayer();
-      return var1 == null
+      EntityPlayer player = this.getOwnerPlayer();
+      return player == null
          ? false
-         : this.world.getBlockState(var1.getPosition().up().up()).getBlock() != Blocks.AIR;
+         : this.world.getBlockState(player.getPosition().up().up()).getBlock() != Blocks.AIR;
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
-      switch (var1.getController().getName()) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
+      switch (event.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
-               this.createAnimation("animation.galath.blink", true, var1);
+               this.createAnimation("animation.galath.blink", true, event);
             } else {
-               this.createAnimation("animation.galath.null", true, var1);
+               this.createAnimation("animation.galath.null", true, event);
             }
             break;
          case "movement":
             this.movementController.setAnimationSpeed(1.0);
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.galath.null", true, var1);
+               this.createAnimation("animation.galath.null", true, event);
             } else if (this.ak) {
-               this.createAnimation("animation.galath.sit", true, var1);
+               this.createAnimation("animation.galath.sit", true, event);
             } else if (!this.af) {
-               this.createAnimation("animation.galath.controlled_flight", true, var1);
+               this.createAnimation("animation.galath.controlled_flight", true, event);
             } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) == 0.0F) {
-               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchidle" : "animation.galath.idle", true, var1);
+               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchidle" : "animation.galath.idle", true, event);
             } else if (this.aj) {
                this.movementController.setAnimationSpeed(1.5);
-               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.run", true, var1);
+               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.run", true, event);
             } else if (this.ao.y >= -0.1F) {
                this.movementController.setAnimationSpeed(2.0);
-               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.walk", true, var1);
+               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.walk", true, event);
             } else {
                this.movementController.setAnimationSpeed(1.5);
-               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.backwards_walk", true, var1);
+               this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.backwards_walk", true, event);
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case CORRUPT_CUM:
-                  this.createAnimation("animation.galath.corrupt_cum", true, var1);
+                  this.createAnimation("animation.galath.corrupt_cum", true, event);
                   break;
                case CORRUPT_FAST:
-                  this.createAnimation("animation.galath.corrupt_" + (this.as ? "hard" : "soft"), true, var1);
+                  this.createAnimation("animation.galath.corrupt_" + (this.as ? "hard" : "soft"), true, event);
                   break;
                case CORRUPT_SLOW:
-                  this.createAnimation("animation.galath.corrupt_slow", true, var1);
+                  this.createAnimation("animation.galath.corrupt_slow", true, event);
                case COWGIRLCUM:
                case RAPE_CHARGE:
                default:
                   break;
                case RAPE_INTRO:
-                  this.createAnimation("animation.galath.rape_intro", true, var1);
+                  this.createAnimation("animation.galath.rape_intro", true, event);
                   break;
                case RAPE_ON_GOING:
-                  this.createAnimation("animation.galath.rape" + this.ar, true, var1);
+                  this.createAnimation("animation.galath.rape" + this.ar, true, event);
                   break;
                case RAPE_CUM:
-                  this.createAnimation("animation.galath.rape_cum", true, var1);
+                  this.createAnimation("animation.galath.rape_cum", true, event);
                   break;
                case RAPE_CUM_IDLE:
-                  this.createAnimation("animation.galath.rape_cum_idle", true, var1);
+                  this.createAnimation("animation.galath.rape_cum_idle", true, event);
                   break;
                case NULL:
                   return PlayState.STOP;
                case STRIP:
-                  this.createAnimation("animation.galath.strip", true, var1);
+                  this.createAnimation("animation.galath.strip", true, event);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.galath.attack" + this.nextAttack, true, var1);
+                  this.createAnimation("animation.galath.attack" + this.nextAttack, true, event);
                   break;
                case BOW:
-                  this.createAnimation("animation.galath.bowcharge", true, var1);
+                  this.createAnimation("animation.galath.bowcharge", true, event);
                   break;
                case RIDE:
                case SIT:
-                  this.createAnimation("animation.galath.sit", true, var1);
+                  this.createAnimation("animation.galath.sit", true, event);
                   break;
                case CORRUPT_INTRO:
-                  this.createAnimation("animation.galath.corrupt_intro", true, var1);
+                  this.createAnimation("animation.galath.corrupt_intro", true, event);
                   break;
                case CONTROLLED_FLIGHT:
-                  this.createAnimation("animation.galath.controlled_flight", true, var1);
+                  this.createAnimation("animation.galath.controlled_flight", true, event);
             }
       }
 
@@ -331,12 +331,12 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
     */
    @SideOnly(Side.CLIENT)
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       this.initAnimationControllers();
       this.actionController
          .registerSoundListener(
-            var1x -> {
-               switch (var1x.sound) {
+            sound -> {
+               switch (sound.sound) {
                   case "attackDone":
                      if (++this.nextAttack == 3) {
                         this.nextAttack = 0;
@@ -353,16 +353,16 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      break;
                   case "setNude":
                      this.ap = true;
-                     Vec3d var4 = this.getPositionVector();
-                     Vec3d var5 = this.getCachedBoneOffset("slipR").add(var4);
-                     Vec3d var6 = this.getCachedBoneOffset("slipL").add(var4);
-                     Vec3d var7 = this.getCachedBoneOffset("turnable").add(var4);
+                     Vec3d pos = this.getPositionVector();
+                     Vec3d slipRPos = this.getCachedBoneOffset("slipR").add(pos);
+                     Vec3d slipLPos = this.getCachedBoneOffset("slipL").add(pos);
+                     Vec3d turnablePos = this.getCachedBoneOffset("turnable").add(pos);
                      this.world
-                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, var5.x, var5.y, var5.z, 0.0, 0.0, 0.0, new int[0]);
+                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, slipRPos.x, slipRPos.y, slipRPos.z, 0.0, 0.0, 0.0, new int[0]);
                      this.world
-                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, var6.x, var6.y, var6.z, 0.0, 0.0, 0.0, new int[0]);
+                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, slipLPos.x, slipLPos.y, slipLPos.z, 0.0, 0.0, 0.0, new int[0]);
                      this.world
-                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, var7.x, var7.y, var7.z, 0.0, 0.0, 0.0, new int[0]);
+                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, turnablePos.x, turnablePos.y, turnablePos.z, 0.0, 0.0, 0.0, new int[0]);
                      break;
                   case "rapeIntroDone":
                      if (this.isControlledByLocalPlayer()) {
@@ -370,12 +370,12 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      }
                      break;
                   case "rape_switch":
-                     Random var8 = this.getRNG();
-                     int var9 = this.ar;
+                     Random random = this.getRNG();
+                     int oldState = this.ar;
 
                      do {
-                        this.ar = var8.nextInt(3);
-                     } while (this.ar == var9);
+                        this.ar = random.nextInt(3);
+                     } while (this.ar == oldState);
 
                      return;
                   case "poundRape":
@@ -394,9 +394,9 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                         return;
                      }
 
-                     Minecraft var18 = Minecraft.getMinecraft();
-                     if (var18.gameSettings.thirdPersonView != 0) {
-                        var18.renderGlobal.loadRenderers();
+                     Minecraft flapMc = Minecraft.getMinecraft();
+                     if (flapMc.gameSettings.thirdPersonView != 0) {
+                        flapMc.renderGlobal.loadRenderers();
                      }
                      break;
                   case "corruptSwitch":
@@ -430,10 +430,10 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      }
 
                      this.aq = true;
-                     EntityPlayerSP var11 = Minecraft.getMinecraft().player;
-                     float var12 = this.getYawRotation() + 220.0F;
-                     Vec3d var13 = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5F - var11.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
-                     PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(var11.getPersistentID().toString(), var13, var12, 15.0F));
+                     EntityPlayerSP corruptPlayer = Minecraft.getMinecraft().player;
+                     float corruptYaw = this.getYawRotation() + 220.0F;
+                     Vec3d corruptPos = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5F - corruptPlayer.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
+                     PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(corruptPlayer.getPersistentID().toString(), corruptPos, corruptYaw, 15.0F));
                      HornyMeterHud.showHornyMeter();
                      break;
                   case "enableBoyCam":
@@ -442,16 +442,16 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      }
                      break;
                   case "creampie":
-                     CummyEntity.registerTrail(new DynamicTrailRenderer(130, var0 -> {
-                        Vec3d var1xx = var0.getBoneWorldPosition("futaCockTip");
-                        Vec3d var2 = var0.getBoneWorldPosition("futaCockTipDirHelp");
-                        return var1xx.subtract(var2).normalize();
-                     }, var0 -> var0.getCachedBoneOffset("futaCockTip").add(var0.getTargetPosition()), this, 0.3F, 0.3F));
+                     CummyEntity.registerTrail(new DynamicTrailRenderer(130, girl -> {
+                        Vec3d cockTipPos = girl.getBoneWorldPosition("futaCockTip");
+                        Vec3d tipDir = girl.getBoneWorldPosition("futaCockTipDirHelp");
+                        return cockTipPos.subtract(tipDir).normalize();
+                     }, girl -> girl.getCachedBoneOffset("futaCockTip").add(girl.getTargetPosition()), this, 0.3F, 0.3F));
                      CummyEntity.registerTrail(
                         new DynamicTrailRenderer(
                            100,
-                           var1xx -> VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.6F), this.getYawRotation()),
-                           var0 -> var0.getCachedBoneOffset("creampiePos").add(var0.getTargetPosition()),
+                           girl -> VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.6F), this.getYawRotation()),
+                           girl -> girl.getCachedBoneOffset("creampiePos").add(girl.getTargetPosition()),
                            this,
                            0.6F,
                            0.5F
@@ -469,17 +469,17 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      if (this.isControlledByLocalPlayer()) {
                         GalathFlightHud.showHud();
                         this.playRandomSound(SoundHandler.MISC_FLAP);
-                        Minecraft var10 = Minecraft.getMinecraft();
-                        EntityPlayerSP var14 = var10.player;
-                        MovementInput var15 = var14.movementInput;
-                        Vec2f var16 = var15.getMoveVector();
-                        if (var16.x != 0.0F || var16.y != 0.0F) {
-                           Vec3d var17 = VectorMath.rotateByYawPitch(
-                              new Vec3d(-var16.x, 0.0, var16.y),
-                              RotationHelper.lerp(var14.prevRotationPitch, var14.rotationPitch, var10.getRenderPartialTicks()),
-                              RotationHelper.lerp(var14.prevRotationYawHead, var14.rotationYawHead, var10.getRenderPartialTicks())
+                        Minecraft mc = Minecraft.getMinecraft();
+                        EntityPlayerSP player = mc.player;
+                        MovementInput input = player.movementInput;
+                        Vec2f moveVec = input.getMoveVector();
+                        if (moveVec.x != 0.0F || moveVec.y != 0.0F) {
+                           Vec3d vel = VectorMath.rotateByYawPitch(
+                              new Vec3d(-moveVec.x, 0.0, moveVec.y),
+                              RotationHelper.lerp(player.prevRotationPitch, player.rotationPitch, mc.getRenderPartialTicks()),
+                              RotationHelper.lerp(player.prevRotationYawHead, player.rotationYawHead, mc.getRenderPartialTicks())
                            );
-                           PacketHandler.networkWrapper.sendToServer(new UpdateVelocityPacket(var17, this.getGirlId()));
+                           PacketHandler.networkWrapper.sendToServer(new UpdateVelocityPacket(vel, this.getGirlId()));
                         }
                      }
                      break;
@@ -502,9 +502,9 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                }
             }
          );
-      var1.addAnimationController(this.actionController);
-      var1.addAnimationController(this.eyesController);
-      var1.addAnimationController(this.movementController);
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.eyesController);
+      data.addAnimationController(this.movementController);
    }
 
 }

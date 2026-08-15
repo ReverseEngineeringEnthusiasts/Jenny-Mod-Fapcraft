@@ -24,73 +24,73 @@ public class UnknownPacket implements IMessage {
    public UnknownPacket() {
    }
 
-   public UnknownPacket(HashMap<String, Float> var1) {
-      this.b = var1;
+   public UnknownPacket(HashMap<String, Float> b) {
+      this.b = b;
    }
 
-   public void fromBytes(ByteBuf var1) {
+   public void fromBytes(ByteBuf buf) {
       if (!(null instanceof ClientProxy)) {
          this.isValid = true;
       } else if (ServerWhitelistManager.isGlobalRenderingDisabled()) {
-         int var2;
+         int count;
          try {
-            var2 = var1.readInt();
-         } catch (IndexOutOfBoundsException var4) {
+            count = buf.readInt();
+         } catch (IndexOutOfBoundsException exception) {
             this.isValid = true;
             return;
          }
 
-         for (int var3 = 0; var3 < var2; var3++) {
-            this.b.put(ByteBufUtils.readUTF8String(var1), var1.readFloat());
+         for (int i = 0; i < count; i++) {
+            this.b.put(ByteBufUtils.readUTF8String(buf), buf.readFloat());
          }
 
          this.isValid = true;
       }
    }
 
-   public void toBytes(ByteBuf var1) {
+   public void toBytes(ByteBuf buf) {
       if (!(null instanceof ClientProxy)) {
-         var1.writeInt(this.b.size());
+         buf.writeInt(this.b.size());
 
-         for (Entry var3 : this.b.entrySet()) {
-            ByteBufUtils.writeUTF8String(var1, (String)var3.getKey());
-            var1.writeFloat((Float)var3.getValue());
+         for (Entry entry : this.b.entrySet()) {
+            ByteBufUtils.writeUTF8String(buf, (String)entry.getKey());
+            buf.writeFloat((Float)entry.getValue());
          }
       }
    }
 
    public static class Handler implements IMessageHandler<UnknownPacket, IMessage> {
-      public IMessage onMessage(UnknownPacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(UnknownPacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("received an invalid Message @RequestServerModelAvailability :(");
             return null;
          }
 
-         if (var2.side.isClient()) {
+         if (ctx.side.isClient()) {
             if (!ServerWhitelistManager.isGlobalRenderingDisabled()) {
                return null;
             }
 
-            ArrayList var3 = new ArrayList();
+            ArrayList enabledModels = new ArrayList();
 
-            for (Entry var5 : var1.b.entrySet()) {
-               String var6 = (String)var5.getKey();
-               if (!ServerWhitelistManager.isModelDisabled(var6)) {
-                  var3.add(var6);
+            for (Entry entry : packet.b.entrySet()) {
+               String modelName = (String)entry.getKey();
+               if (!ServerWhitelistManager.isModelDisabled(modelName)) {
+                  enabledModels.add(modelName);
                } else {
-                  float var7 = ServerWhitelistManager.getModelZOffset(var6);
-                  float var8 = (Float)var5.getValue();
-                  if (var8 > var7) {
-                     var3.add(var6);
+                  float zOffset = ServerWhitelistManager.getModelZOffset(modelName);
+                  float scale = (Float)entry.getValue();
+                  if (scale > zOffset) {
+                     enabledModels.add(modelName);
                   }
                }
             }
 
-            return new DownloadServerModelPacket(var3);
+            return new DownloadServerModelPacket(enabledModels);
          } else {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
-               .addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(new UnknownPacket(ServerWhitelistManager.getModelScales()), var2.getServerHandler().player));
+               .addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(new UnknownPacket(ServerWhitelistManager.getModelScales()), ctx.getServerHandler().player));
             return null;
          }
       }

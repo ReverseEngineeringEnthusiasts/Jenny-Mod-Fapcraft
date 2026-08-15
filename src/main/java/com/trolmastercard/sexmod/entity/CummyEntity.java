@@ -39,17 +39,17 @@ public class CummyEntity {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onRenderWorldLast(RenderWorldLastEvent var1) {
+   public void onRenderWorldLast(RenderWorldLastEvent event) {
       mc.renderEngine.bindTexture(cummyTexture);
       GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-      Tessellator var2 = Tessellator.getInstance();
-      BufferBuilder var3 = var2.getBuffer();
-      float var4 = var1.getPartialTicks();
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder buffer = tessellator.getBuffer();
+      float partialTicks = event.getPartialTicks();
       GlStateManager.disableLighting();
       GlStateManager.enableAlpha();
       if (mc.player != null) {
-         for (DynamicTrailRenderer var6 : trailRenderers) {
-            var6.renderTrail(mc, var2, var3, var4);
+         for (DynamicTrailRenderer renderer : trailRenderers) {
+            renderer.renderTrail(mc, tessellator, buffer, partialTicks);
          }
 
          GlStateManager.enableDepth();
@@ -59,36 +59,36 @@ public class CummyEntity {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onClientTick(ClientTickEvent var1) {
-      if (var1.phase != Phase.END) {
-         for (DynamicTrailRenderer var3 : trailRenderers) {
-            var3.updateTrails();
+   public void onClientTick(ClientTickEvent event) {
+      if (event.phase != Phase.END) {
+         for (DynamicTrailRenderer renderer : trailRenderers) {
+            renderer.updateTrails();
          }
       }
    }
 
-   public static void registerTrail(DynamicTrailRenderer var0) {
-      trailRenderers.add(var0);
+   public static void registerTrail(DynamicTrailRenderer renderer) {
+      trailRenderers.add(renderer);
    }
 
-   public static void createTrail(int var0, IPositionProvider var1, ITargetProvider var2, BaseGirlEntity var3, float var4, float var5) {
-      trailRenderers.add(new DynamicTrailRenderer(var0, var1, var2, var3, var4, var5));
+   public static void createTrail(int maxSegmentsCount, IPositionProvider positionProvider, ITargetProvider targetProvider, BaseGirlEntity girl, float randomnessRadius, float maxDistance) {
+      trailRenderers.add(new DynamicTrailRenderer(maxSegmentsCount, positionProvider, targetProvider, girl, randomnessRadius, maxDistance));
    }
 
    /**
     * Removes every cum trail owned by the given girl (called on scene end so
     * trails do not persist into the next scene).
     */
-   public static void spawnCummyTrails(@Nonnull BaseGirlEntity var0) {
-      ArrayList var1 = new ArrayList();
+   public static void spawnCummyTrails(@Nonnull BaseGirlEntity girl) {
+      ArrayList toRemove = new ArrayList();
 
-      for (DynamicTrailRenderer var3 : trailRenderers) {
-         if (var3.ownerEntity.getGirlId().equals(var0.getGirlId())) {
-            var1.add(var3);
+      for (DynamicTrailRenderer renderer : trailRenderers) {
+         if (renderer.ownerEntity.getGirlId().equals(girl.getGirlId())) {
+            toRemove.add(renderer);
          }
       }
 
-      trailRenderers.removeAll(var1);
+      trailRenderers.removeAll(toRemove);
    }
 
 }

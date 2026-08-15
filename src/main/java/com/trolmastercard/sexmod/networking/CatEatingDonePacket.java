@@ -29,27 +29,27 @@ public class CatEatingDonePacket implements IMessage {
    public CatEatingDonePacket() {
    }
 
-   public CatEatingDonePacket(UUID var1) {
-      this.catUUID = var1;
+   public CatEatingDonePacket(UUID catUUID) {
+      this.catUUID = catUUID;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.catUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+   public void fromBytes(ByteBuf buf) {
+      this.catUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.catUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.catUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<CatEatingDonePacket, IMessage> {
-      public IMessage onMessage(CatEatingDonePacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.SERVER)) {
+      public IMessage onMessage(CatEatingDonePacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.catUUID)) {
-                  if (!var3.world.isRemote && var3 instanceof LunaEntity) {
-                     LunaEntity var4 = (LunaEntity)var3;
-                     var4.onFishingTick();
+               for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.catUUID)) {
+                  if (!girl.world.isRemote && girl instanceof LunaEntity) {
+                     LunaEntity luna = (LunaEntity)girl;
+                     luna.onFishingTick();
                   }
                }
             });

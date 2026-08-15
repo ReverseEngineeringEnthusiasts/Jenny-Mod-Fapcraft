@@ -46,12 +46,12 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    int ar = 1;
    int av = 1;
 
-   protected AlliePlayerEntity(World var1) {
-      super(var1);
+   protected AlliePlayerEntity(World world) {
+      super(world);
    }
 
-   public AlliePlayerEntity(World var1, UUID var2) {
-      super(var1, var2);
+   public AlliePlayerEntity(World world, UUID uuid) {
+      super(world, uuid);
    }
 
    @Override
@@ -69,33 +69,33 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public IVanillaModel getHandModel(int var1) {
+   public IVanillaModel getHandModel(int index) {
       return new BiaModel();
    }
 
    @Override
-   public String getHandTexture(int var1) {
+   public String getHandTexture(int index) {
       return "textures/entity/allie/hand.png";
    }
 
    @Override
-   public void handleOwnerCommand(String var1, UUID var2) {
-      if ("action.names.deepthroat".equals(var1)) {
+   public void handleOwnerCommand(String command, UUID uuid) {
+      if ("action.names.deepthroat".equals(command)) {
          this.setCurrentAction(Action.DEEPTHROAT_START);
          this.sendActionPacket(this.getOutfitIndex(), Action.DEEPTHROAT_START);
-         this.teleportPlayerToGirl(var2);
+         this.teleportPlayerToGirl(uuid);
       }
 
-      if ("Reverse cowgirl".equals(var1)) {
+      if ("Reverse cowgirl".equals(command)) {
          this.setCurrentAction(Action.REVERSE_COWGIRL_START);
          this.sendActionPacket(0, Action.REVERSE_COWGIRL_START);
-         this.teleportPlayerToGirl(var2);
+         this.teleportPlayerToGirl(uuid);
       }
    }
 
    @Override
-   public boolean openInteractionMenu(EntityPlayer var1) {
-      openInventoryGui(var1, this, new String[]{"action.names.deepthroat", "Reverse cowgirl"}, false);
+   public boolean openInteractionMenu(EntityPlayer player) {
+      openInventoryGui(player, this, new String[]{"action.names.deepthroat", "Reverse cowgirl"}, false);
       return true;
    }
 
@@ -128,12 +128,12 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    public void updateAITasks() {
       super.updateAITasks();
       if (this.getOwnerUserUUID() != null) {
-         EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
-         if (var1 != null && this.as == null) {
+         EntityPlayer player = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
+         if (player != null && this.as == null) {
             this.handleOwnerUUID(true);
          }
 
-         this.as = var1;
+         this.as = player;
       }
    }
 
@@ -148,14 +148,14 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    @SideOnly(Side.CLIENT)
    void spawnAllieParticles() {
       if (this.ticksExisted % 10 == 0) {
-         int var1 = this.getRNG().nextInt(8);
-         Vec3d var2 = this.getCachedBoneOffset("tail" + var1).add(this.getPositionVector());
+         int i = this.getRNG().nextInt(8);
+         Vec3d offset = this.getCachedBoneOffset("tail" + i).add(this.getPositionVector());
          this.world
             .spawnParticle(
                EnumParticleTypes.PORTAL,
-               var2.x,
-               var2.y,
-               var2.z,
+               offset.x,
+               offset.y,
+               offset.z,
                this.getRNG().nextGaussian() * 0.01F,
                this.getRNG().nextGaussian() * 0.01F,
                this.getRNG().nextGaussian() * 0.01F,
@@ -175,20 +175,20 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   protected Action getNextAction(Action var1) {
-      if (var1 == Action.DEEPTHROAT_SLOW) {
+   protected Action getNextAction(Action action) {
+      if (action == Action.DEEPTHROAT_SLOW) {
          return Action.DEEPTHROAT_FAST;
       } else {
-         return var1 == Action.REVERSE_COWGIRL_SLOW ? Action.REVERSE_COWGIRL_FAST_START : null;
+         return action == Action.REVERSE_COWGIRL_SLOW ? Action.REVERSE_COWGIRL_FAST_START : null;
       }
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      if (var1 == Action.DEEPTHROAT_FAST || var1 == Action.DEEPTHROAT_SLOW) {
+   protected Action getCumAction(Action action) {
+      if (action == Action.DEEPTHROAT_FAST || action == Action.DEEPTHROAT_SLOW) {
          return Action.DEEPTHROAT_CUM;
       } else {
-         return var1 != Action.REVERSE_COWGIRL_SLOW && var1 != Action.REVERSE_COWGIRL_FAST_START && var1 != Action.REVERSE_COWGIRL_FAST_CONTINUES
+         return action != Action.REVERSE_COWGIRL_SLOW && action != Action.REVERSE_COWGIRL_FAST_START && action != Action.REVERSE_COWGIRL_FAST_CONTINUES
             ? null
             : Action.REVERSE_COWGIRL_CUM;
       }
@@ -202,13 +202,13 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
     * {@code deepthroat_cumDone} -&gt; {@code resetCameraAndPhysics()}.
     */
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       if (this.actionController == null) {
          this.initAnimationControllers();
       }
 
-      AnimationController.ISoundListener var2 = var1x -> {
-         switch (var1x.sound) {
+      AnimationController.ISoundListener soundListener = sound -> {
+         switch (sound.sound) {
             case "attackDone":
                if (++this.nextAttack == 3) {
                   this.nextAttack = 0;
@@ -297,11 +297,11 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "cowgirlSlowDone":
-               int var6 = this.ar;
+               int oldState = this.ar;
 
                do {
                   this.ar = this.getRNG().nextInt(3) + 1;
-               } while (this.ar == var6);
+               } while (this.ar == oldState);
 
                return;
             case "fastMoan":
@@ -318,16 +318,16 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "fastSwitch":
                if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
-                  Action var5 = this.getCurrentAction();
-                  if (var5 == Action.REVERSE_COWGIRL_FAST_START) {
+                  Action action = this.getCurrentAction();
+                  if (action == Action.REVERSE_COWGIRL_FAST_START) {
                      this.setCurrentAction(Action.REVERSE_COWGIRL_FAST_CONTINUES);
                   } else {
                      this.resetAnimationControllerOffset();
-                     int var4 = this.av;
+                     int oldCount = this.av;
 
                      do {
                         this.av = this.getRNG().nextInt(3) + 1;
-                     } while (this.av == var4);
+                     } while (this.av == oldCount);
                   }
                }
                break;
@@ -343,100 +343,100 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                this.playRandomSound(SoundHandler.GIRLS_ALLIE_AFTERSESSIONMOAN);
          }
       };
-      this.actionController.registerSoundListener(var2);
-      var1.addAnimationController(this.actionController);
-      var1.addAnimationController(this.movementController);
+      this.actionController.registerSoundListener(soundListener);
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.movementController);
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
       if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
 
-      switch (var1.getController().getName()) {
+      switch (event.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
-               this.createAnimation("animation.bia.blink", true, var1);
+               this.createAnimation("animation.bia.blink", true, event);
             } else {
-               this.createAnimation("animation.allie.null", true, var1);
+               this.createAnimation("animation.allie.null", true, event);
             }
             break;
          case "movement":
-            double var4 = 4.0
+            double speed = 4.0
                * (
                   Math.abs(this.posX - this.lastTickPosX)
                      + Math.abs(this.posY - this.lastTickPosY)
                      + Math.abs(this.posZ - this.lastTickPosZ)
                );
-            var4 = Math.min(1.0 + var4, 4.0);
-            this.movementController.setAnimationSpeed(var4);
-            this.createAnimation("animation.allie.tail", true, var1);
+            speed = Math.min(1.0 + speed, 4.0);
+            this.movementController.setAnimationSpeed(speed);
+            this.createAnimation("animation.allie.tail", true, event);
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case ALLIE_PREPARE_NORMAL:
-                  this.createAnimation("animation.allie.deepthroat_normal_prepare", false, var1);
+                  this.createAnimation("animation.allie.deepthroat_normal_prepare", false, event);
                   break;
                case DEEPTHROAT_START:
-                  this.createAnimation("animation.allie.deepthroat_start", false, var1);
+                  this.createAnimation("animation.allie.deepthroat_start", false, event);
                   break;
                case DEEPTHROAT_CUM:
-                  this.createAnimation("animation.allie.deepthroat_cum", false, var1);
+                  this.createAnimation("animation.allie.deepthroat_cum", false, event);
                   break;
                case DEEPTHROAT_FAST:
-                  this.createAnimation("animation.allie.deepthroat_fast", true, var1);
+                  this.createAnimation("animation.allie.deepthroat_fast", true, event);
                   break;
                case ALLIE_PREPARE_FIRST_TIME:
-                  this.createAnimation("animation.allie.deepthroat_prepare", false, var1);
+                  this.createAnimation("animation.allie.deepthroat_prepare", false, event);
                   break;
                case DEEPTHROAT_SLOW:
-                  this.createAnimation("animation.allie.deepthroat_slow", true, var1);
+                  this.createAnimation("animation.allie.deepthroat_slow", true, event);
                   break;
                case NULL:
-                  this.createAnimation("animation.allie.null", true, var1);
+                  this.createAnimation("animation.allie.null", true, event);
                   break;
                case SUMMON:
-                  this.createAnimation("animation.allie.summon", false, var1);
+                  this.createAnimation("animation.allie.summon", false, event);
                   break;
                case SUMMON_NORMAL:
-                  this.createAnimation("animation.allie.summon_normal", false, var1);
+                  this.createAnimation("animation.allie.summon_normal", false, event);
                   break;
                case SUMMON_NORMAL_WAIT:
-                  this.createAnimation("animation.allie.summon_normal_wait", true, var1);
+                  this.createAnimation("animation.allie.summon_normal_wait", true, event);
                   break;
                case SUMMON_WAIT:
-                  this.createAnimation("animation.allie.summon_wait", true, var1);
+                  this.createAnimation("animation.allie.summon_wait", true, event);
                   break;
                case RICH_FIRST_TIME:
-                  this.createAnimation("animation.allie.rich", false, var1);
+                  this.createAnimation("animation.allie.rich", false, event);
                   break;
                case RICH_NORMAL:
-                  this.createAnimation("animation.allie.rich_normal", false, var1);
+                  this.createAnimation("animation.allie.rich_normal", false, event);
                   break;
                case SUMMON_SAND:
-                  this.createAnimation("animation.allie.summon_sand", false, var1);
+                  this.createAnimation("animation.allie.summon_sand", false, event);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.allie.attack" + this.nextAttack, false, var1);
+                  this.createAnimation("animation.allie.attack" + this.nextAttack, false, event);
                   break;
                case BOW:
-                  this.createAnimation("animation.allie.bowcharge", false, var1);
+                  this.createAnimation("animation.allie.bowcharge", false, event);
                   break;
                case REVERSE_COWGIRL_START:
-                  this.createAnimation("animation.allie.reverse_cowgirl_start", true, var1);
+                  this.createAnimation("animation.allie.reverse_cowgirl_start", true, event);
                   break;
                case REVERSE_COWGIRL_SLOW:
-                  this.createAnimation("animation.allie.reverse_cowgirl_slow" + this.ar, true, var1);
+                  this.createAnimation("animation.allie.reverse_cowgirl_slow" + this.ar, true, event);
                   break;
                case REVERSE_COWGIRL_FAST_CONTINUES:
-                  this.createAnimation("animation.allie.reverse_cowgirl_fastc" + this.av, true, var1);
+                  this.createAnimation("animation.allie.reverse_cowgirl_fastc" + this.av, true, event);
                   break;
                case REVERSE_COWGIRL_FAST_START:
-                  this.createAnimation("animation.allie.reverse_cowgirl_fasts", true, var1);
+                  this.createAnimation("animation.allie.reverse_cowgirl_fasts", true, event);
                   break;
                case REVERSE_COWGIRL_CUM:
-                  this.createAnimation("animation.allie.reverse_cowgirl_cum", true, var1);
+                  this.createAnimation("animation.allie.reverse_cowgirl_cum", true, event);
             }
       }
 

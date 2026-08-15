@@ -136,8 +136,8 @@ public class ManglelieEntity extends BaseGirlEntity {
    boolean threesomeCumDone = false;
    public int an = 2;
 
-   public ManglelieEntity(World var1) {
-      super(var1);
+   public ManglelieEntity(World world) {
+      super(world);
    }
 
    @Override
@@ -166,8 +166,8 @@ public class ManglelieEntity extends BaseGirlEntity {
       return 0.0F;
    }
 
-   public void setCorrupting(boolean var1) {
-      this.entityDataManager.set(ap, var1);
+   public void setCorrupting(boolean corrupting) {
+      this.entityDataManager.set(ap, corrupting);
    }
 
    public boolean isCorrupting() {
@@ -176,15 +176,15 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    @Nullable
    public UUID getCorruptPlayerUUID() {
-      String var1 = (String)this.entityDataManager.get(ad);
-      if ("".equals(var1)) {
+      String corruptPlayerStr = (String)this.entityDataManager.get(ad);
+      if ("".equals(corruptPlayerStr)) {
          return null;
       }
 
       try {
-         return UUID.fromString(var1);
-      } catch (Exception var3) {
-         var3.printStackTrace();
+         return UUID.fromString(corruptPlayerStr);
+      } catch (Exception ex) {
+         ex.printStackTrace();
          return null;
       }
    }
@@ -195,32 +195,32 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Nullable
-   public GalathEntity getGalathPartner(boolean var1) {
-      UUID var2 = this.getCorruptPlayerUUID();
-      if (var2 == null) {
+   public GalathEntity getGalathPartner(boolean server) {
+      UUID uuid = this.getCorruptPlayerUUID();
+      if (uuid == null) {
          return null;
       }
 
-      BaseGirlEntity var3 = var1 ? BaseGirlEntity.getServerGirlEntity(var2) : BaseGirlEntity.getClientGirlEntity(var2);
-      return !(var3 instanceof GalathEntity) ? null : (GalathEntity)var3;
+      BaseGirlEntity girl = server ? BaseGirlEntity.getServerGirlEntity(uuid) : BaseGirlEntity.getClientGirlEntity(uuid);
+      return !(girl instanceof GalathEntity) ? null : (GalathEntity)girl;
    }
 
-   public void setGalathPartnerUUID(UUID var1) {
-      if (var1 == null) {
+   public void setGalathPartnerUUID(UUID uuid) {
+      if (uuid == null) {
          this.entityDataManager.set(ad, "");
       } else {
-         this.entityDataManager.set(ad, var1.toString());
+         this.entityDataManager.set(ad, uuid.toString());
       }
    }
 
    @Override
    public Float getYawRotation() {
-      float var1 = super.getYawRotation();
+      float yaw = super.getYawRotation();
       if (ManglelieNpcModel.isInThreesome(this)) {
-         var1 += 180.0F;
+         yaw += 180.0F;
       }
 
-      return var1;
+      return yaw;
    }
 
    public void markDespawned() {
@@ -267,10 +267,10 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    void handleGalathPartner() {
-      GalathEntity var1 = this.getGalathPartner(true);
-      if (var1 != null) {
-         if (var1.aF() != null) {
-            if (!this.getGirlId().equals(var1.aF())) {
+      GalathEntity galath = this.getGalathPartner(true);
+      if (galath != null) {
+         if (galath.aF() != null) {
+            if (!this.getGirlId().equals(galath.aF())) {
                System.out.println("removed non-wild mang cuz her mommy disowned her and got another mang");
                this.world.removeEntity(this);
             }
@@ -278,25 +278,25 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
-   public static GalathEntity getGalathPartnerOf(BaseGirlEntity var0, boolean var1) {
-      return !(var0 instanceof ManglelieEntity) ? null : ((ManglelieEntity)var0).getGalathPartner(var1);
+   public static GalathEntity getGalathPartnerOf(BaseGirlEntity girl, boolean server) {
+      return !(girl instanceof ManglelieEntity) ? null : ((ManglelieEntity)girl).getGalathPartner(server);
    }
 
    public long getCorruptStartTime() {
-      String var1 = (String)this.entityDataManager.get(al);
-      if ("".equals(var1)) {
+      String timeStr = (String)this.entityDataManager.get(al);
+      if ("".equals(timeStr)) {
          return -1L;
       }
 
       try {
-         return Long.parseLong(var1);
-      } catch (Exception var2) {
+         return Long.parseLong(timeStr);
+      } catch (Exception ex) {
          return -1L;
       }
    }
 
-   public void setCorruptStartTime(long var1) {
-      this.entityDataManager.set(al, Long.toString(var1));
+   public void setCorruptStartTime(long time) {
+      this.entityDataManager.set(al, Long.toString(time));
       this.corrupting = false;
    }
 
@@ -306,25 +306,25 @@ public class ManglelieEntity extends BaseGirlEntity {
     * and marks the shot as done.
     */
    void handleCorruptTimer() {
-      long var1 = this.getCorruptStartTime();
-      if (var1 != -1L) {
-         long var3 = this.world.getTotalWorldTime();
-         if (!((float)var3 < 28.0F + (float)var1)) {
+      long corruptStart = this.getCorruptStartTime();
+      if (corruptStart != -1L) {
+         long worldTime = this.world.getTotalWorldTime();
+         if (!((float)worldTime < 28.0F + (float)corruptStart)) {
             if (!this.corrupting) {
-               Entity var5 = this.getCorruptEntity();
-               if (var5 != null) {
-                  GalathEntity var6 = this.getGalathPartner(true);
-                  if (var6 != null) {
-                     EntityTippedArrow var7 = new EntityTippedArrow(this.world, this);
-                     Vec3d var8 = var6.getPositionVector().add(0.0, 3.5, 0.0);
-                     var7.setPositionAndUpdate(var8.x, var8.y, var8.z);
-                     Vec3d var9 = var5.getPositionVector();
-                     Vec3d var10 = var9.subtract(var8).normalize();
-                     var7.motionX = var10.x * 4.0;
-                     var7.motionY = var10.y * 4.0;
-                     var7.motionZ = var10.z * 4.0;
-                     BaseGirlEntity.girlPlaySound(var6, SoundEvents.ENTITY_ARROW_SHOOT, true);
-                     this.world.spawnEntity(var7);
+               Entity corruptEntity = this.getCorruptEntity();
+               if (corruptEntity != null) {
+                  GalathEntity galath = this.getGalathPartner(true);
+                  if (galath != null) {
+                     EntityTippedArrow arrow = new EntityTippedArrow(this.world, this);
+                     Vec3d startPos = galath.getPositionVector().add(0.0, 3.5, 0.0);
+                     arrow.setPositionAndUpdate(startPos.x, startPos.y, startPos.z);
+                     Vec3d targetPos = corruptEntity.getPositionVector();
+                     Vec3d dir = targetPos.subtract(startPos).normalize();
+                     arrow.motionX = dir.x * 4.0;
+                     arrow.motionY = dir.y * 4.0;
+                     arrow.motionZ = dir.z * 4.0;
+                     BaseGirlEntity.girlPlaySound(galath, SoundEvents.ENTITY_ARROW_SHOOT, true);
+                     this.world.spawnEntity(arrow);
                      this.corrupting = true;
                   }
                }
@@ -333,13 +333,13 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
-   public void addPotionEffect(PotionEffect var1) {
+   public void addPotionEffect(PotionEffect effect) {
    }
 
    void updateCorruptGravity() {
-      boolean var1 = this.getCorruptPlayerUUID() != null;
-      this.setNoGravity(var1);
-      this.noClip = var1;
+      boolean corrupting = this.getCorruptPlayerUUID() != null;
+      this.setNoGravity(corrupting);
+      this.noClip = corrupting;
    }
 
    public boolean canBeCollidedWith() {
@@ -348,56 +348,56 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    @SideOnly(Side.CLIENT)
    @Override
-   public Vec3d renderCustomModelTransform(Minecraft var1, SexSceneEntity var2, EntityLivingBase var3, float var4) {
+   public Vec3d renderCustomModelTransform(Minecraft mc, SexSceneEntity scene, EntityLivingBase entity, float partialTicks) {
       if (this.isLocallyRegistered()) {
-         return super.renderCustomModelTransform(var1, var2, var3, var4);
+         return super.renderCustomModelTransform(mc, scene, entity, partialTicks);
       }
 
       if (!this.isCorrupting()) {
-         return super.renderCustomModelTransform(var1, var2, var3, var4);
+         return super.renderCustomModelTransform(mc, scene, entity, partialTicks);
       }
 
-      GalathEntity var5 = this.getGalathPartner(false);
-      if (var5 == null) {
-         return super.renderCustomModelTransform(var1, var2, var3, var4);
+      GalathEntity galath = this.getGalathPartner(false);
+      if (galath == null) {
+         return super.renderCustomModelTransform(mc, scene, entity, partialTicks);
       }
 
-      ManglelieRenderer.renderGalathInteract(var5, var4, var2);
-      return ManglelieRenderer.getLookVector(var5, var4);
+      ManglelieRenderer.renderGalathInteract(galath, partialTicks, scene);
+      return ManglelieRenderer.getLookVector(galath, partialTicks);
    }
 
-   public float getCorruptProgress(float var1) {
-      long var2 = this.getCorruptStartTime();
-      if (var2 == -1L) {
+   public float getCorruptProgress(float partialTicks) {
+      long corruptStart = this.getCorruptStartTime();
+      if (corruptStart == -1L) {
          return 0.0F;
       }
 
-      long var4 = this.world.getTotalWorldTime();
-      float var6 = (float)(var4 - var2);
-      return (var6 + var1) / 28.0F;
+      long worldTime = this.world.getTotalWorldTime();
+      float elapsed = (float)(worldTime - corruptStart);
+      return (elapsed + partialTicks) / 28.0F;
    }
 
    @Nullable
    public Entity getCorruptEntity() {
-      int var1 = (Integer)this.entityDataManager.get(ab);
-      return var1 == -1 ? null : this.world.getEntityByID(var1);
+      int corruptId = (Integer)this.entityDataManager.get(ab);
+      return corruptId == -1 ? null : this.world.getEntityByID(corruptId);
    }
 
-   void setCorruptEntity(int var1) {
-      this.entityDataManager.set(ab, var1);
-      this.setCorruptStartTime(var1 == -1 ? -1L : this.world.getTotalWorldTime());
+   void setCorruptEntity(int entityId) {
+      this.entityDataManager.set(ab, entityId);
+      this.setCorruptStartTime(entityId == -1 ? -1L : this.world.getTotalWorldTime());
    }
 
    void handleCorruptEntity() {
-      Entity var1 = this.getCorruptEntity();
-      if (var1 != null) {
-         GalathEntity var2 = this.getGalathPartner(true);
-         if (var2 == null) {
+      Entity corruptEntity = this.getCorruptEntity();
+      if (corruptEntity != null) {
+         GalathEntity galath = this.getGalathPartner(true);
+         if (galath == null) {
             this.setCorruptEntity(-1);
          } else if (!this.isCorrupting()) {
             this.setCorruptEntity(-1);
          } else {
-            if (isGalathBlocked(var1, var2)) {
+            if (isGalathBlocked(corruptEntity, galath)) {
                this.setCorruptEntity(-1);
             }
          }
@@ -409,32 +409,32 @@ public class ManglelieEntity extends BaseGirlEntity {
     * Galath's dimension, daylight-visible, within 15 blocks horizontally and
     * in front of the Galath's aim.
     */
-   public static boolean isGalathBlocked(Entity var0, GalathEntity var1) {
-      if (var0.isDead) {
+   public static boolean isGalathBlocked(Entity entity, GalathEntity galath) {
+      if (entity.isDead) {
          return true;
       }
 
-      if (var0.dimension != var1.dimension) {
+      if (entity.dimension != galath.dimension) {
          return true;
       }
 
-      if (!com.trolmastercard.sexmod.MobPredicates.isValidTarget(var0)) {
+      if (!com.trolmastercard.sexmod.MobPredicates.isValidTarget(entity)) {
          return true;
       }
 
-      if (!com.trolmastercard.sexmod.MobPredicates.isDaylight(var1.world, var1.getTargetPosition().add(0.0, var1.getEyeHeight(), 0.0), var0)) {
+      if (!com.trolmastercard.sexmod.MobPredicates.isDaylight(galath.world, galath.getTargetPosition().add(0.0, galath.getEyeHeight(), 0.0), entity)) {
          return true;
       }
 
-      Vec3d var2 = var0.getPositionVector().subtract(var1.getPositionVector());
-      if (var2.x * var2.x + var2.z * var2.z > 225.0) {
+      Vec3d offset = entity.getPositionVector().subtract(galath.getPositionVector());
+      if (offset.x * offset.x + offset.z * offset.z > 225.0) {
          return true;
       }
 
-      Float var3 = GalathEntity.getAimYaw(var1, 0.0F);
-      float var4 = var3 == null ? var1.rotationYawHead : var3;
-      Vec3d var5 = VectorMath.rotateByYaw(var2, var4);
-      return var5.z < 0.0;
+      Float aimYaw = GalathEntity.getAimYaw(galath, 0.0F);
+      float yaw = aimYaw == null ? galath.rotationYawHead : aimYaw;
+      Vec3d rotated = VectorMath.rotateByYaw(offset, yaw);
+      return rotated.z < 0.0;
    }
 
    /**
@@ -445,17 +445,17 @@ public class ManglelieEntity extends BaseGirlEntity {
    void handleCorruptStart() {
       if (this.getCorruptEntity() == null) {
          if (this.isCorrupting()) {
-            GalathEntity var1 = this.getGalathPartner(true);
-            if (var1 != null) {
-               if (var1.getInteractionPlayerUUID() == null) {
-                  if (var1.getCurrentAction() != Action.MASTERBATE) {
-                     BlockPos var2 = var1.getPosition();
-                     BlockPos var3 = new BlockPos(15.0, 15.0, 15.0);
+            GalathEntity galath = this.getGalathPartner(true);
+            if (galath != null) {
+               if (galath.getInteractionPlayerUUID() == null) {
+                  if (galath.getCurrentAction() != Action.MASTERBATE) {
+                     BlockPos center = galath.getPosition();
+                     BlockPos range = new BlockPos(15.0, 15.0, 15.0);
 
-                     for (EntityMob var6 : this.world
-                        .getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB(var2.add(var3), var2.subtract(var3)))) {
-                        if (!isGalathBlocked(var6, var1)) {
-                           this.setCorruptEntity(var6.getEntityId());
+                     for (EntityMob mob : this.world
+                        .getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB(center.add(range), center.subtract(range)))) {
+                        if (!isGalathBlocked(mob, galath)) {
+                           this.setCorruptEntity(mob.getEntityId());
                            return;
                         }
                      }
@@ -471,15 +471,15 @@ public class ManglelieEntity extends BaseGirlEntity {
     * unbinds it.
     */
    void handleCorruptTick() {
-      Entity var1 = this.getCorruptEntity();
-      if (var1 != null) {
-         GalathEntity var2 = this.getGalathPartner(true);
-         if (var2 != null) {
-            long var3 = this.getCorruptStartTime();
-            if (var3 != -1L) {
-               long var5 = this.world.getTotalWorldTime();
-               long var7 = var5 - this.getCorruptStartTime();
-               if (!((float)var7 < 60.0F)) {
+      Entity corruptEntity = this.getCorruptEntity();
+      if (corruptEntity != null) {
+         GalathEntity galath = this.getGalathPartner(true);
+         if (galath != null) {
+            long corruptStart = this.getCorruptStartTime();
+            if (corruptStart != -1L) {
+               long worldTime = this.world.getTotalWorldTime();
+               long elapsed = worldTime - this.getCorruptStartTime();
+               if (!((float)elapsed < 60.0F)) {
                   this.corrupting = false;
                   this.setCorruptEntity(-1);
                }
@@ -495,17 +495,17 @@ public class ManglelieEntity extends BaseGirlEntity {
     */
    void handlePartnerLook() {
       if (this.galathPartnerUUID != null) {
-         BaseGirlEntity var1 = BaseGirlEntity.getServerGirlEntity(this.galathPartnerUUID);
-         if (var1 instanceof GalathEntity) {
-            GalathEntity var2 = (GalathEntity)var1;
+         BaseGirlEntity partner = BaseGirlEntity.getServerGirlEntity(this.galathPartnerUUID);
+         if (partner instanceof GalathEntity) {
+            GalathEntity galath = (GalathEntity)partner;
             this.setGalathPartnerUUID(this.galathPartnerUUID);
-            var2.setMangleliePartnerUUID(this.getGirlId());
+            galath.setMangleliePartnerUUID(this.getGirlId());
             this.setCorrupting(true);
             this.setCurrentAction(Action.RIDE_MOMMY_HEAD);
             this.galathPartnerUUID = null;
-            if (var2.getCurrentAction() == Action.HUG_MANG) {
-               var2.setAnchored(false);
-               var2.setCurrentAction((Action)null);
+            if (galath.getCurrentAction() == Action.HUG_MANG) {
+               galath.setAnchored(false);
+               galath.setCurrentAction((Action)null);
             }
          }
       }
@@ -528,11 +528,11 @@ public class ManglelieEntity extends BaseGirlEntity {
     */
    void handleThreesomeState() {
       if (this.isCorrupting() && !Action.isAnyAction(this, Action.THREESOME_SLOW, Action.THREESOME_CUM, Action.THREESOME_FAST)) {
-         GalathEntity var1 = this.getGalathPartner(true);
-         if (var1 != null) {
-            if (!var1.isDead && this.getGirlId().equals(var1.aF())) {
+         GalathEntity galath = this.getGalathPartner(true);
+         if (galath != null) {
+            if (!galath.isDead && this.getGirlId().equals(galath.aF())) {
                this.setYawRotation(0.0F);
-               this.setTargetPosition(var1.getPositionVector());
+               this.setTargetPosition(galath.getPositionVector());
                this.setAnchored(true);
             } else {
                Main.LOGGER.warn("A dead mommy has been saved onto a mang. Deleting her and creating a new one");
@@ -543,22 +543,22 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Override
-   public void setYawRotation(float var1) {
-      super.setYawRotation(var1);
+   public void setYawRotation(float yaw) {
+      super.setYawRotation(yaw);
    }
 
    @Override
-   public Vec3d transformRenderOffset(Vec3d var1, float var2) {
+   public Vec3d transformRenderOffset(Vec3d vec, float partialTicks) {
       if (!this.isCorrupting()) {
-         return var1;
+         return vec;
       }
 
       if (ManglelieNpcModel.isInThreesome(this)) {
-         return var1;
+         return vec;
       }
 
-      GalathEntity var3 = this.getGalathPartner(false);
-      return var3 == null ? var1 : ManglelieRenderer.getLookVector(var3, var2);
+      GalathEntity galath = this.getGalathPartner(false);
+      return galath == null ? vec : ManglelieRenderer.getLookVector(galath, partialTicks);
    }
 
    /**
@@ -568,63 +568,63 @@ public class ManglelieEntity extends BaseGirlEntity {
    void handleCorruptInit() {
       if (!this.isCorrupting()) {
          if (this.getCorruptPlayerUUID() == null) {
-            BlockPos var1 = this.getPosition();
-            BlockPos var2 = var1.add(-15.0, -15.0, -15.0);
-            BlockPos var3 = var1.add(15.0, 15.0, 15.0);
-            AxisAlignedBB var4 = new AxisAlignedBB(var2, var3);
-            List var5 = this.world.getEntitiesWithinAABB(GalathEntity.class, var4);
-            GalathEntity var6 = null;
+            BlockPos center = this.getPosition();
+            BlockPos min = center.add(-15.0, -15.0, -15.0);
+            BlockPos max = center.add(15.0, 15.0, 15.0);
+            AxisAlignedBB aabb = new AxisAlignedBB(min, max);
+            List galaths = this.world.getEntitiesWithinAABB(GalathEntity.class, aabb);
+            GalathEntity chosen = null;
 
-            for (GalathEntity var8 : (java.util.Collection<GalathEntity>) (var5) ) {
-               if (!var8.isDead && var8.getMangleliePartner(true) == null && var8.onGround) {
-                  var6 = var8;
+            for (GalathEntity galath : (java.util.Collection<GalathEntity>) (galaths) ) {
+               if (!galath.isDead && galath.getMangleliePartner(true) == null && galath.onGround) {
+                  chosen = galath;
                   break;
                }
             }
 
-            if (var6 == null) {
+            if (chosen == null) {
                if (this.getCurrentAction() == Action.RUN) {
                   this.setCurrentAction((Action)null);
                   this.getNavigator().clearPath();
                }
             } else if (this.getCurrentAction() != Action.RIDE_MOMMY_HEAD) {
                this.setCurrentAction(Action.RUN);
-               Vec3d var11 = this.getPositionVector();
-               Vec3d var12 = var6.getPositionVector();
-               Vec3d var9 = var12.subtract(var11);
-               float var10 = (float)TrigMath.sinDegrees(Math.atan2(var9.z, var9.x)) - 90.0F;
-               this.setYawRotation(var10);
+               Vec3d selfPos = this.getPositionVector();
+               Vec3d partnerPos = chosen.getPositionVector();
+               Vec3d delta = partnerPos.subtract(selfPos);
+               float yaw = (float)TrigMath.sinDegrees(Math.atan2(delta.z, delta.x)) - 90.0F;
+               this.setYawRotation(yaw);
                this.pathNavigator = this.getNavigator();
                this.pathNavigator.clearPath();
-               this.pathNavigator.tryMoveToEntityLiving(var6, 0.65F);
+               this.pathNavigator.tryMoveToEntityLiving(chosen, 0.65F);
             }
          }
       }
    }
 
-   public boolean isLookingAtGalathEntity(Entity var1, float var2) {
-      GalathEntity var3 = this.getGalathPartner(var2 == 1.0F);
-      if (var3 == null) {
+   public boolean isLookingAtGalathEntity(Entity entity, float partialTicks) {
+      GalathEntity galath = this.getGalathPartner(partialTicks == 1.0F);
+      if (galath == null) {
          return false;
       }
 
-      Vec3d var4 = com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(this, var2);
-      return this.isThrowBlocked(com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(var1, var2).subtract(var4), var3, var2);
+      Vec3d lookVec = com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(this, partialTicks);
+      return this.isThrowBlocked(com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(entity, partialTicks).subtract(lookVec), galath, partialTicks);
    }
 
-   public boolean isLookingAtGalathPoint(Vec3d var1, float var2) {
-      GalathEntity var3 = this.getGalathPartner(var2 == 1.0F);
-      if (var3 == null) {
+   public boolean isLookingAtGalathPoint(Vec3d point, float partialTicks) {
+      GalathEntity galath = this.getGalathPartner(partialTicks == 1.0F);
+      if (galath == null) {
          return false;
       }
 
-      Vec3d var4 = com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(this, var2);
-      return this.isThrowBlocked(var1.subtract(var4), var3, var2);
+      Vec3d lookVec = com.trolmastercard.sexmod.util.EntityLookVectorHelper.getEntityLookVector(this, partialTicks);
+      return this.isThrowBlocked(point.subtract(lookVec), galath, partialTicks);
    }
 
-   boolean isThrowBlocked(Vec3d var1, GalathEntity var2, float var3) {
-      Vec3d var4 = VectorMath.rotateByYaw(var1, RotationHelper.lerpFloat(var2.prevRotationYawHead, var2.rotationYawHead, var3));
-      return var4.x > 0.35;
+   boolean isThrowBlocked(Vec3d delta, GalathEntity galath, float partialTicks) {
+      Vec3d rotated = VectorMath.rotateByYaw(delta, RotationHelper.lerpFloat(galath.prevRotationYawHead, galath.rotationYawHead, partialTicks));
+      return rotated.x > 0.35;
    }
 
    @Override
@@ -639,25 +639,25 @@ public class ManglelieEntity extends BaseGirlEntity {
    void handleParticleTick() {
       if (Minecraft.getMinecraft().player.ticksExisted % 7.0F == 0.0F) {
          if (ManglelieRenderer.isCorrupting(this)) {
-            GalathEntity var1 = this.getGalathPartner(false);
-            if (var1 != null) {
-               Entity var2 = this.getCorruptTarget();
-               if (var2 == null) {
+            GalathEntity galath = this.getGalathPartner(false);
+            if (galath != null) {
+               Entity corruptTarget = this.getCorruptTarget();
+               if (corruptTarget == null) {
                   this.af = 0.0F;
                   this.rotationLerp = 0.0F;
                } else {
-                  Vec3d var3 = var2.getPositionVector().add(0.0, var2.getEyeHeight(), 0.0);
-                  Vec3d var4 = var1.getPositionVector().add(var1.getCachedBoneOffset("mangPos")).add(this.getCachedBoneOffset("head"));
-                  Vec3d var5 = var4.subtract(var3);
-                  float var6 = (float)(TrigMath.sinDegrees(Math.atan2(var5.z, var5.x)) + 90.0);
-                  Float var7 = GalathEntity.getAimYaw(var1, 0.0F);
-                  var6 -= var1.rotationYawHead;
-                  if (var7 != null) {
-                     var6 -= var7;
+                  Vec3d targetPos = corruptTarget.getPositionVector().add(0.0, corruptTarget.getEyeHeight(), 0.0);
+                  Vec3d mouthPos = galath.getPositionVector().add(galath.getCachedBoneOffset("mangPos")).add(this.getCachedBoneOffset("head"));
+                  Vec3d delta = mouthPos.subtract(targetPos);
+                  float yaw = (float)(TrigMath.sinDegrees(Math.atan2(delta.z, delta.x)) + 90.0);
+                  Float aimYaw = GalathEntity.getAimYaw(galath, 0.0F);
+                  yaw -= galath.rotationYawHead;
+                  if (aimYaw != null) {
+                     yaw -= aimYaw;
                   }
 
-                  this.af = Math.abs(WorldUtils.normalizeAngleDiff(0.0F, var6)) < 80.0F ? -TrigMath.wrapDegrees(var6) : 0.0F;
-                  this.rotationLerp = this.af == 0.0F ? 0.0F : (float)ThreadNames.clampDouble(-var5.y / 2.0, -0.75, 0.75);
+                  this.af = Math.abs(WorldUtils.normalizeAngleDiff(0.0F, yaw)) < 80.0F ? -TrigMath.wrapDegrees(yaw) : 0.0F;
+                  this.rotationLerp = this.af == 0.0F ? 0.0F : (float)ThreadNames.clampDouble(-delta.y / 2.0, -0.75, 0.75);
                }
             }
          }
@@ -668,60 +668,60 @@ public class ManglelieEntity extends BaseGirlEntity {
     * SERVER: damage is forwarded to her Galath mommy (unless void damage);
     * Mang herself never takes hits.
     */
-   public boolean attackEntityFrom(DamageSource var1, float var2) {
-      if (var1 == DamageSource.OUT_OF_WORLD) {
-         return super.attackEntityFrom(var1, var2);
+   public boolean attackEntityFrom(DamageSource source, float amount) {
+      if (source == DamageSource.OUT_OF_WORLD) {
+         return super.attackEntityFrom(source, amount);
       }
 
-      GalathEntity var3 = this.getGalathPartner(true);
-      if (var3 == null) {
-         return super.attackEntityFrom(var1, var2);
+      GalathEntity galath = this.getGalathPartner(true);
+      if (galath == null) {
+         return super.attackEntityFrom(source, amount);
       }
 
-      var3.attackEntityFrom(var1, var2);
+      galath.attackEntityFrom(source, amount);
       return false;
    }
 
    @Nullable
    Entity getCorruptTarget() {
-      Object var1 = this.getCorruptEntity();
-      if (var1 != null) {
-         return (Entity)var1;
+      Object corruptEntity = this.getCorruptEntity();
+      if (corruptEntity != null) {
+         return (Entity)corruptEntity;
       }
 
-      for (EntityPlayer var3 : this.world.playerEntities) {
-         float var4 = var3.getDistance(this);
-         if (!(var4 > 6.0F) && (var1 == null || ((Entity)var1).getDistance(this) > var4)) {
-            var1 = var3;
+      for (EntityPlayer player : this.world.playerEntities) {
+         float dist = player.getDistance(this);
+         if (!(dist > 6.0F) && (corruptEntity == null || ((Entity)corruptEntity).getDistance(this) > dist)) {
+            corruptEntity = player;
          }
       }
 
-      return (Entity)var1;
+      return (Entity)corruptEntity;
    }
 
    @Override
-   public void writeEntityToNBT(NBTTagCompound var1) {
-      super.writeEntityToNBT(var1);
-      UUID var2 = this.getCorruptPlayerUUID();
-      var1.setString("sexmod:mommy", var2 == null ? "" : var2.toString());
-      var1.setBoolean("sexmod:iswild", this.aq);
+   public void writeEntityToNBT(NBTTagCompound nbt) {
+      super.writeEntityToNBT(nbt);
+      UUID uuid = this.getCorruptPlayerUUID();
+      nbt.setString("sexmod:mommy", uuid == null ? "" : uuid.toString());
+      nbt.setBoolean("sexmod:iswild", this.aq);
       if (this.despawned) {
-         var1.setBoolean("sexmod:despawned", true);
+         nbt.setBoolean("sexmod:despawned", true);
       }
    }
 
-   public void readFromNBT(NBTTagCompound var1) {
-      super.readFromNBT(var1);
-      String var2 = var1.getString("sexmod:mommy");
-      if (!"".equals(var2)) {
-         this.galathPartnerUUID = UUID.fromString(var2);
+   public void readFromNBT(NBTTagCompound nbt) {
+      super.readFromNBT(nbt);
+      String mommyStr = nbt.getString("sexmod:mommy");
+      if (!"".equals(mommyStr)) {
+         this.galathPartnerUUID = UUID.fromString(mommyStr);
       }
 
-      if (var1.getBoolean("sexmod:despawned")) {
+      if (nbt.getBoolean("sexmod:despawned")) {
          this.aa = true;
       }
 
-      this.aq = var1.getBoolean("sexmod:iswild");
+      this.aq = nbt.getBoolean("sexmod:iswild");
    }
 
    @Override
@@ -730,8 +730,8 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Override
-   public void setCustomModelCode(String var1) {
-      super.setCustomModelCode(var1);
+   public void setCustomModelCode(String modelCode) {
+      super.setCustomModelCode(modelCode);
       GirlWorldData.setCustomModelCode(this);
    }
 
@@ -744,13 +744,13 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    @Nullable
    @Override
-   protected Action getNextAction(Action var1) {
+   protected Action getNextAction(Action action) {
       return null;
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      if (Action.isAny(var1, Action.THREESOME_FAST, Action.THREESOME_SLOW)) {
+   protected Action getCumAction(Action action) {
+      if (Action.isAny(action, Action.THREESOME_FAST, Action.THREESOME_SLOW)) {
          this.threesomeSlowStarted = true;
       }
 
@@ -771,18 +771,18 @@ public class ManglelieEntity extends BaseGirlEntity {
          return false;
       }
 
-      BlockPos var1 = this.getPosition();
-      ArrayList var2 = new ArrayList();
-      var2.addAll(BeeWorldData.hivePositions);
-      var2.addAll(BeeWorldData.flowerPositions);
+      BlockPos pos = this.getPosition();
+      ArrayList positions = new ArrayList();
+      positions.addAll(BeeWorldData.hivePositions);
+      positions.addAll(BeeWorldData.flowerPositions);
 
-      for (BlockPos var4 : (java.util.Collection<BlockPos>) (var2) ) {
-         if (Math.sqrt(var1.distanceSq(var4)) < 700.0) {
+      for (BlockPos hivePos : (java.util.Collection<BlockPos>) (positions) ) {
+         if (Math.sqrt(pos.distanceSq(hivePos)) < 700.0) {
             return false;
          }
       }
 
-      BeeWorldData.addHivePosition(var1, BeeWorldData.flowerPositions);
+      BeeWorldData.addHivePosition(pos, BeeWorldData.flowerPositions);
       return true;
    }
 
@@ -793,37 +793,37 @@ public class ManglelieEntity extends BaseGirlEntity {
     * masterbate/pussy-licking mirror actions.
     */
    @Override
-   protected boolean handleActionAnimationOverrides(Action var1, String var2, boolean var3, AnimationEvent var4) {
-      if (var1 == Action.THREESOME_CUM) {
+   protected boolean handleActionAnimationOverrides(Action action, String animationName, boolean started, AnimationEvent event) {
+      if (action == Action.THREESOME_CUM) {
          this.threesomeSlowStarted = false;
          this.threesomeFastStarted = false;
          this.threesomeCumDone = false;
          this.an = 2;
          this.resetCameraAndPhysics();
-         GalathEntity var8 = this.getGalathPartner(false);
-         if (var8 != null) {
-            var8.resetCameraAndPhysics();
-            CummyEntity.spawnCummyTrails(var8);
+         GalathEntity galath = this.getGalathPartner(false);
+         if (galath != null) {
+            galath.resetCameraAndPhysics();
+            CummyEntity.spawnCummyTrails(galath);
          }
 
          CummyEntity.spawnCummyTrails(this);
          return true;
-      } else if (this.threesomeSlowStarted && var1 == Action.THREESOME_FAST) {
+      } else if (this.threesomeSlowStarted && action == Action.THREESOME_FAST) {
          this.setCurrentAction(Action.THREESOME_CUM);
-         this.createAnimation("animation.shared.double_holding_cum", true, var4, true);
-         GalathEntity var7 = this.getGalathPartner(false);
-         if (var7 != null) {
-            var7.setCurrentAction(Action.MASTERBATE_SITTING_CUM);
+         this.createAnimation("animation.shared.double_holding_cum", true, event, true);
+         GalathEntity galath = this.getGalathPartner(false);
+         if (galath != null) {
+            galath.setCurrentAction(Action.MASTERBATE_SITTING_CUM);
          }
 
          return true;
-      } else if ((this.threesomeSlowStarted || var3) && var1 == Action.THREESOME_SLOW) {
+      } else if ((this.threesomeSlowStarted || started) && action == Action.THREESOME_SLOW) {
          this.threesomeFastStarted = false;
          this.setCurrentAction(Action.THREESOME_FAST);
-         this.createAnimation("animation.shared.double_holding_soft", true, var4, true);
-         GalathEntity var6 = this.getGalathPartner(false);
-         if (var6 != null) {
-            var6.ak();
+         this.createAnimation("animation.shared.double_holding_soft", true, event, true);
+         GalathEntity galath = this.getGalathPartner(false);
+         if (galath != null) {
+            galath.ak();
          }
 
          return true;
@@ -832,25 +832,25 @@ public class ManglelieEntity extends BaseGirlEntity {
             return false;
          }
 
-         if (var3 && !this.threesomeFastStarted && var1 == Action.THREESOME_FAST) {
+         if (started && !this.threesomeFastStarted && action == Action.THREESOME_FAST) {
             this.threesomeFastStarted = true;
-            this.createAnimation("animation.shared.double_holding_hard", true, var4, true);
+            this.createAnimation("animation.shared.double_holding_hard", true, event, true);
             return true;
          }
 
-         if (!var3 && var1 == Action.THREESOME_FAST) {
+         if (!started && action == Action.THREESOME_FAST) {
             this.threesomeCumDone = true;
             this.setCurrentAction(Action.THREESOME_SLOW);
-            this.createAnimation("animation.shared.double_holding_back", true, var4, true);
-            GalathEntity var5 = this.getGalathPartner(false);
-            if (var5 != null) {
-               var5.startPussyLicking();
+            this.createAnimation("animation.shared.double_holding_back", true, event, true);
+            GalathEntity galath = this.getGalathPartner(false);
+            if (galath != null) {
+               galath.startPussyLicking();
             }
 
             return true;
-         } else if (this.threesomeCumDone && var1 == Action.THREESOME_SLOW) {
+         } else if (this.threesomeCumDone && action == Action.THREESOME_SLOW) {
             this.threesomeCumDone = false;
-            this.createAnimation("animation.shared.double_holding_slow", true, var4, true);
+            this.createAnimation("animation.shared.double_holding_slow", true, event, true);
             return true;
          } else {
             return false;
@@ -859,28 +859,28 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
-      AnimationController var2 = var1.getController();
-      if (this.eyesController == var2) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
+      AnimationController controller = event.getController();
+      if (this.eyesController == controller) {
          if (this.getCorruptEntity() == null) {
             return PlayState.STOP;
          }
 
-         this.createAnimation("animation.manglelie.angry_face", true, var1);
+         this.createAnimation("animation.manglelie.angry_face", true, event);
          return PlayState.CONTINUE;
-      } else if (this.movementController == var2) {
+      } else if (this.movementController == controller) {
          if (this.getCurrentAction() == Action.NULL && !this.isCorrupting()) {
             if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
                if ((Boolean)this.entityDataManager.get(ar)) {
-                  this.createAnimation("animation.manglelie.scared_run", true, var1);
+                  this.createAnimation("animation.manglelie.scared_run", true, event);
                } else {
-                  this.createAnimation("animation.manglelie.walk", true, var1);
+                  this.createAnimation("animation.manglelie.walk", true, event);
                }
 
                this.rotationYaw = this.rotationYawHead;
                return PlayState.CONTINUE;
             } else {
-               this.createAnimation("animation.manglelie.idle", true, var1);
+               this.createAnimation("animation.manglelie.idle", true, event);
                return PlayState.CONTINUE;
             }
          } else {
@@ -889,27 +889,27 @@ public class ManglelieEntity extends BaseGirlEntity {
       } else {
          switch (this.getCurrentAction()) {
             case RUN:
-               this.createAnimation("animation.manglelie.running", true, var1);
+               this.createAnimation("animation.manglelie.running", true, event);
                break;
             case RIDE_MOMMY_HEAD:
-               this.createAnimation("animation.manglelie.sit_on_galath", true, var1);
+               this.createAnimation("animation.manglelie.sit_on_galath", true, event);
                break;
             case THREESOME_SLOW:
                if (this.threesomeCumDone) {
-                  this.createAnimation("animation.shared.double_holding_back", true, var1);
+                  this.createAnimation("animation.shared.double_holding_back", true, event);
                } else {
-                  this.playRandomizedAnimation("animation.shared.double_holding_slow", 4, 0.33F, var1);
+                  this.playRandomizedAnimation("animation.shared.double_holding_slow", 4, 0.33F, event);
                }
                break;
             case THREESOME_FAST:
                if (this.threesomeFastStarted) {
-                  this.playRandomizedAnimation("animation.shared.double_holding_hard", 3, 0.33F, var1);
+                  this.playRandomizedAnimation("animation.shared.double_holding_hard", 3, 0.33F, event);
                } else {
-                  this.createAnimation("animation.shared.double_holding_soft", true, var1);
+                  this.createAnimation("animation.shared.double_holding_soft", true, event);
                }
                break;
             case THREESOME_CUM:
-               this.createAnimation("animation.shared.double_holding_cum", true, var1);
+               this.createAnimation("animation.shared.double_holding_cum", true, event);
                break;
             default:
                return PlayState.STOP;
@@ -926,11 +926,11 @@ public class ManglelieEntity extends BaseGirlEntity {
     * {@code sexui} shows the horny meter.
     */
    @Override
-   public void registerControllers(AnimationData var1) {
-      var1.addAnimationController(this.movementController);
-      var1.addAnimationController(this.eyesController);
-      this.actionController.registerSoundListener(var1x -> {
-         switch (var1x.sound) {
+   public void registerControllers(AnimationData data) {
+      data.addAnimationController(this.movementController);
+      data.addAnimationController(this.eyesController);
+      this.actionController.registerSoundListener(sound -> {
+         switch (sound.sound) {
             case "pound":
                this.playRandomSound(SoundHandler.MISC_POUNDING);
                if (this.isControlledByLocalPlayer()) {
@@ -955,11 +955,11 @@ public class ManglelieEntity extends BaseGirlEntity {
                this.playRandomSoundAtVolume(SoundHandler.MISC_INSERTS, 6.0F);
                this.playRandomSound(SoundHandler.MISC_POUNDING);
             case "doubleSemen":
-               CummyEntity.registerTrail(new DynamicTrailRenderer(10, var0 -> {
-                  Vec3d var1xx = var0.getBoneWorldPosition("semenEmitter");
-                  Vec3d var2 = var0.getBoneWorldPosition("semenDir");
-                  return var1xx.subtract(var2).normalize();
-               }, var0 -> var0.getCachedBoneOffset("semenEmitter").add(var0.getTargetPosition()), this, 0.3F, 0.3F));
+               CummyEntity.registerTrail(new DynamicTrailRenderer(10, girl -> {
+                  Vec3d emitterPos = girl.getBoneWorldPosition("semenEmitter");
+                  Vec3d semenDir = girl.getBoneWorldPosition("semenDir");
+                  return emitterPos.subtract(semenDir).normalize();
+               }, girl -> girl.getCachedBoneOffset("semenEmitter").add(girl.getTargetPosition()), this, 0.3F, 0.3F));
                break;
             case "blackScreen":
                if (this.isControlledByLocalPlayer()) {
@@ -967,7 +967,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                }
          }
       });
-      var1.addAnimationController(this.actionController);
+      data.addAnimationController(this.actionController);
    }
 
    /**
@@ -976,12 +976,12 @@ public class ManglelieEntity extends BaseGirlEntity {
     */
    public static class b {
       @SubscribeEvent
-      public void handleArrowHit(Arrow var1) {
-         RayTraceResult var2 = var1.getRayTraceResult();
-         EntityArrow var3 = var1.getArrow();
-         if (var3.shootingEntity instanceof ManglelieEntity) {
-            if (var2.entityHit instanceof BaseGirlEntity) {
-               var1.setCanceled(true);
+      public void handleArrowHit(Arrow event) {
+         RayTraceResult rayTrace = event.getRayTraceResult();
+         EntityArrow arrow = event.getArrow();
+         if (arrow.shootingEntity instanceof ManglelieEntity) {
+            if (rayTrace.entityHit instanceof BaseGirlEntity) {
+               event.setCanceled(true);
             }
          }
       }

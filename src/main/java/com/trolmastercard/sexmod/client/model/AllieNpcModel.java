@@ -22,12 +22,12 @@ public class AllieNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public ResourceLocation getTextureLocation(BaseGirlEntity var1) {
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/allie/allie.png");
    }
 
    @Override
-   public ResourceLocation getAnimationFileLocation(BaseGirlEntity var1) {
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "animations/allie/allie.animation.json");
    }
 

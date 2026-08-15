@@ -134,47 +134,47 @@ public class SoundHandler {
    static HashMap<SoundEvent, Integer> lastRandomSound = new HashMap<>();
 
    public static void registerSounds() {
-      for (Field var3 : SoundHandler.class.getDeclaredFields()) {
-         Class var4 = var3.getType();
-         if (var4.isArray() && var4.getComponentType() == SoundEvent.class) {
-            SoundEvent[] var5;
+      for (Field field : SoundHandler.class.getDeclaredFields()) {
+         Class fieldType = field.getType();
+         if (fieldType.isArray() && fieldType.getComponentType() == SoundEvent.class) {
+            SoundEvent[] soundEvents;
             try {
-               var5 = (SoundEvent[])var3.get(null);
-            } catch (Exception var10) {
-               Main.LOGGER.error("Error registering sound: " + var10.getMessage());
+               soundEvents = (SoundEvent[])field.get(null);
+            } catch (Exception exception) {
+               Main.LOGGER.error("Error registering sound: " + exception.getMessage());
                continue;
             }
 
-            String var6 = var3.getName().toLowerCase().replace("_", ".");
-            String[] var7 = var6.split("\\.");
-            String var8 = var7.length > 2 ? var7[2] : var7[1];
+            String soundName = field.getName().toLowerCase().replace("_", ".");
+            String[] parts = soundName.split("\\.");
+            String category = parts.length > 2 ? parts[2] : parts[1];
 
-            for (int var9 = 0; var9 < var5.length; var9++) {
-               var5[var9] = registerSounds(String.format("%s.%s%s", var6, var8, var9));
+            for (int i = 0; i < soundEvents.length; i++) {
+               soundEvents[i] = registerSounds(String.format("%s.%s%s", soundName, category, i));
             }
          }
       }
    }
 
-   public static SoundEvent registerSounds(String var0) {
-      ResourceLocation var1 = new ResourceLocation("sexmod", var0);
-      SoundEvent var2 = new SoundEvent(var1);
-      var2.setRegistryName(var0);
-      ForgeRegistries.SOUND_EVENTS.register(var2);
-      return var2;
+   public static SoundEvent registerSounds(String soundName) {
+      ResourceLocation location = new ResourceLocation("sexmod", soundName);
+      SoundEvent soundEvent = new SoundEvent(location);
+      soundEvent.setRegistryName(soundName);
+      ForgeRegistries.SOUND_EVENTS.register(soundEvent);
+      return soundEvent;
    }
 
-   public static SoundEvent randomSound(SoundEvent[] var0) {
-      lastRandomSound.putIfAbsent(var0[0], -69);
-      int var2 = 0;
+   public static SoundEvent randomSound(SoundEvent[] sounds) {
+      lastRandomSound.putIfAbsent(sounds[0], -69);
+      int attempts = 0;
 
-      int var1;
+      int index;
       do {
-         var1 = Reference.RANDOM.nextInt(var0.length);
-      } while (++var2 < 10 && var1 == lastRandomSound.get(var0[0]));
+         index = Reference.RANDOM.nextInt(sounds.length);
+      } while (++attempts < 10 && index == lastRandomSound.get(sounds[0]));
 
-      lastRandomSound.replace(var0[0], var1);
-      return var0[var1];
+      lastRandomSound.replace(sounds[0], index);
+      return sounds[index];
    }
 
 }

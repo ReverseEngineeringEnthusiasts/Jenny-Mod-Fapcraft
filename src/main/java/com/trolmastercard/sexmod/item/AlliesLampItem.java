@@ -95,130 +95,130 @@ public class AlliesLampItem extends Item implements IAnimatable {
    }
 
    @SubscribeEvent
-   public static void registerItems(Register<Item> var0) {
-      var0.getRegistry().register(ALLIES_LAMP);
+   public static void registerItems(Register<Item> event) {
+      event.getRegistry().register(ALLIES_LAMP);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void onModelRegistry(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent event) {
       ModelLoader.setCustomModelResourceLocation(ALLIES_LAMP, 0, new ModelResourceLocation("sexmod:allies_lamp"));
       ALLIES_LAMP.setTileEntityItemStackRenderer(new AlliesLampRenderer());
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onPre(Pre var1) {
-      NBTTagCompound var2 = Minecraft.getMinecraft().player.getEntityData();
-      if (var2.getBoolean("sexmodAllieInUse")) {
-         var1.setCanceled(true);
+   public void onPre(Pre event) {
+      NBTTagCompound entityData = Minecraft.getMinecraft().player.getEntityData();
+      if (entityData.getBoolean("sexmodAllieInUse")) {
+         event.setCanceled(true);
       }
    }
 
    @SubscribeEvent
-   public void onLootTableLoad(LootTableLoadEvent var1) {
-      HashSet var2 = new HashSet();
-      var2.add(LootTableList.CHESTS_ABANDONED_MINESHAFT);
-      var2.add(LootTableList.CHESTS_DESERT_PYRAMID);
-      var2.add(LootTableList.CHESTS_SIMPLE_DUNGEON);
-      var2.add(LootTableList.CHESTS_WOODLAND_MANSION);
-      if (var2.contains(var1.getName())) {
-         LootPool var3 = var1.getTable().getPool("pool3");
-         if (var3 == null) {
-            var3 = var1.getTable().getPool("pool2");
+   public void onLootTableLoad(LootTableLoadEvent event) {
+      HashSet lootTables = new HashSet();
+      lootTables.add(LootTableList.CHESTS_ABANDONED_MINESHAFT);
+      lootTables.add(LootTableList.CHESTS_DESERT_PYRAMID);
+      lootTables.add(LootTableList.CHESTS_SIMPLE_DUNGEON);
+      lootTables.add(LootTableList.CHESTS_WOODLAND_MANSION);
+      if (lootTables.contains(event.getName())) {
+         LootPool pool = event.getTable().getPool("pool3");
+         if (pool == null) {
+            pool = event.getTable().getPool("pool2");
          }
 
-         if (var3 != null) {
-            var3.addEntry(new LootEntryItem(ALLIES_LAMP, 5, 0, new LootFunction[0], new LootCondition[0], "sexmod:allies_lamp"));
+         if (pool != null) {
+            pool.addEntry(new LootEntryItem(ALLIES_LAMP, 5, 0, new LootFunction[0], new LootCondition[0], "sexmod:allies_lamp"));
          }
       }
    }
 
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       this.controller = new AnimationController<>(this, "controller", 2.0F, this::animationPredicate);
-      var1.addAnimationController(this.controller);
+      data.addAnimationController(this.controller);
    }
 
    @SideOnly(Side.CLIENT)
-   public void addInformation(ItemStack var1, World var2, List<String> var3, ITooltipFlag var4) {
-      NBTTagCompound var5 = var1.getTagCompound();
-      if (var5 != null) {
-         int var6 = 3 - var1.getTagCompound().getInteger("sexmodUses");
-         switch (var6) {
+   public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
+      NBTTagCompound tag = stack.getTagCompound();
+      if (tag != null) {
+         int uses = 3 - stack.getTagCompound().getInteger("sexmodUses");
+         switch (uses) {
             case 0:
-               var3.add("no wishes left");
+               tooltip.add("no wishes left");
                break;
             case 1:
-               var3.add("1 wish left");
+               tooltip.add("1 wish left");
                break;
             case 2:
-               var3.add("2 wishes left");
+               tooltip.add("2 wishes left");
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
-   protected <segs extends IAnimatable> PlayState animationPredicate(AnimationEvent<segs> var1) {
-      EntityPlayerSP var2 = Minecraft.getMinecraft().player;
-      NBTTagCompound var3 = var2.getEntityData();
-      boolean var4 = var3.getBoolean("sexmodAllieInUse");
-      if (!var4) {
-         var1.getController().clearAnimationCache();
+   protected <segs extends IAnimatable> PlayState animationPredicate(AnimationEvent<segs> event) {
+      EntityPlayerSP player = Minecraft.getMinecraft().player;
+      NBTTagCompound entityData = player.getEntityData();
+      boolean inUse = entityData.getBoolean("sexmodAllieInUse");
+      if (!inUse) {
+         event.getController().clearAnimationCache();
          return PlayState.STOP;
       } else {
-         var1.getController().setAnimation(new AnimationBuilder().addAnimation("animation.lamp.rub", ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME));
+         event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.lamp.rub", ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME));
          return PlayState.CONTINUE;
       }
    }
 
-   public void onUpdate(ItemStack var1, World var2, Entity var3, int var4, boolean var5) {
-      if (var3 instanceof EntityPlayer) {
-         EntityPlayer var6 = (EntityPlayer)var3;
-         NBTTagCompound var7 = var3.getEntityData();
-         if (var1.equals(var6.getHeldItemMainhand()) || var1.equals(var6.getHeldItemOffhand())) {
-            boolean var8 = var7.getBoolean("sexmodAllieInUse");
-            int var9 = var7.getInteger("sexmodAllieInUseTicks");
-            if (var8) {
-               var7.setInteger("sexmodAllieInUseTicks", var9 + 1);
-               if (var9 > PARTICLE_START_TICK && var9 < SUMMON_TICK) {
-                  double var10 = (float)(var9 - PARTICLE_START_TICK) / (SUMMON_TICK - PARTICLE_START_TICK);
-                  var10 = RotationHelper.easeInOutQuad(var10);
-                  Vec3d var12 = new Vec3d(0.0, var6.eyeHeight * (1.0 - var10), 0.0);
-                  WorldUtils.spawnParticles(var2, EnumParticleTypes.CRIT_MAGIC, this.getLampOffset(var6).add(var12), (int)(var10 * 150.0), var10 * 0.75, var10);
+   public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+      if (entity instanceof EntityPlayer) {
+         EntityPlayer player = (EntityPlayer)entity;
+         NBTTagCompound entityData = entity.getEntityData();
+         if (stack.equals(player.getHeldItemMainhand()) || stack.equals(player.getHeldItemOffhand())) {
+            boolean inUse = entityData.getBoolean("sexmodAllieInUse");
+            int ticks = entityData.getInteger("sexmodAllieInUseTicks");
+            if (inUse) {
+               entityData.setInteger("sexmodAllieInUseTicks", ticks + 1);
+               if (ticks > PARTICLE_START_TICK && ticks < SUMMON_TICK) {
+                  double progress = (float)(ticks - PARTICLE_START_TICK) / (SUMMON_TICK - PARTICLE_START_TICK);
+                  progress = RotationHelper.easeInOutQuad(progress);
+                  Vec3d offset = new Vec3d(0.0, player.eyeHeight * (1.0 - progress), 0.0);
+                  WorldUtils.spawnParticles(world, EnumParticleTypes.CRIT_MAGIC, this.getLampOffset(player).add(offset), (int)(progress * 150.0), progress * 0.75, progress);
                }
 
-               if (var9 >= SUMMON_TICK) {
-                  WorldUtils.spawnParticles(var2, EnumParticleTypes.CRIT_MAGIC, this.getLampOffset(var6), 150, 0.75, 2.0);
-                  var7.setBoolean("sexmodAllieInUse", false);
-                  var7.setInteger("sexmodAllieInUseTicks", 0);
-                  if (var2.isRemote) {
+               if (ticks >= SUMMON_TICK) {
+                  WorldUtils.spawnParticles(world, EnumParticleTypes.CRIT_MAGIC, this.getLampOffset(player), 150, 0.75, 2.0);
+                  entityData.setBoolean("sexmodAllieInUse", false);
+                  entityData.setInteger("sexmodAllieInUseTicks", 0);
+                  if (world.isRemote) {
                      HandlePlayerMovement.setMovementLock(false);
                   } else {
-                     NBTTagCompound var15 = var1.getTagCompound();
-                     if (var15 == null) {
-                        var15 = new NBTTagCompound();
+                     NBTTagCompound tag = stack.getTagCompound();
+                     if (tag == null) {
+                        tag = new NBTTagCompound();
                      }
 
-                     var15.setInteger("sexmodUses", var15.getInteger("sexmodUses") + 1);
-                     AllieEntity var11 = new AllieEntity(var6.world, var6.getHeldItemMainhand());
-                     var11.setInteractionPlayerUUID(var6.getPersistentID());
-                     Vec3d var16 = this.getLampOffset(var6);
-                     var11.setPositionAndRotation(var16.x, var16.y, var16.z, var6.rotationYaw + 180.0F, var6.rotationPitch);
-                     var11.setTargetPosition(var11.getPositionVector());
-                     var11.setYawRotation(var6.rotationYaw + 180.0F);
-                     var11.setAnchored(true);
-                     var11.setNoGravity(true);
-                     var11.noClip = true;
-                     var6.world.spawnEntity(var11);
-                     BlockPos var13 = var11.getPosition().add(0, -1, 0);
-                     if (var11.world.getBlockState(var13).getBlock().equals(Blocks.SAND)) {
-                        var11.setCurrentAction(Action.SUMMON_SAND);
+                     tag.setInteger("sexmodUses", tag.getInteger("sexmodUses") + 1);
+                     AllieEntity allie = new AllieEntity(player.world, player.getHeldItemMainhand());
+                     allie.setInteractionPlayerUUID(player.getPersistentID());
+                     Vec3d offset2 = this.getLampOffset(player);
+                     allie.setPositionAndRotation(offset2.x, offset2.y, offset2.z, player.rotationYaw + 180.0F, player.rotationPitch);
+                     allie.setTargetPosition(allie.getPositionVector());
+                     allie.setYawRotation(player.rotationYaw + 180.0F);
+                     allie.setAnchored(true);
+                     allie.setNoGravity(true);
+                     allie.noClip = true;
+                     player.world.spawnEntity(allie);
+                     BlockPos pos = allie.getPosition().add(0, -1, 0);
+                     if (allie.world.getBlockState(pos).getBlock().equals(Blocks.SAND)) {
+                        allie.setCurrentAction(Action.SUMMON_SAND);
                      } else {
-                        var11.setCurrentAction(var11.hasLampItem() ? Action.SUMMON : Action.SUMMON_NORMAL);
+                        allie.setCurrentAction(allie.hasLampItem() ? Action.SUMMON : Action.SUMMON_NORMAL);
                      }
 
-                     var1.setTagCompound(var15);
+                     stack.setTagCompound(tag);
                   }
                }
             }
@@ -226,8 +226,8 @@ public class AlliesLampItem extends Item implements IAnimatable {
       }
    }
 
-   Vec3d getLampOffset(EntityPlayer var1) {
-      return var1.getPositionVector().add(VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 2.0), var1.rotationYawHead));
+   Vec3d getLampOffset(EntityPlayer player) {
+      return player.getPositionVector().add(VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 2.0), player.rotationYawHead));
    }
 
    @Override
@@ -237,40 +237,40 @@ public class AlliesLampItem extends Item implements IAnimatable {
 
    public static class a {
       @SubscribeEvent
-      public void onPlayerLoggedOut(PlayerLoggedOutEvent var1) {
-         var1.player.getEntityData().setBoolean("sexmodAllieInUse", false);
+      public void onPlayerLoggedOut(PlayerLoggedOutEvent event) {
+         event.player.getEntityData().setBoolean("sexmodAllieInUse", false);
       }
 
       @SubscribeEvent
-      public void onRightClickItem(RightClickItem var1) {
-         EntityPlayer var2 = var1.getEntityPlayer();
-         EnumHand var3 = var1.getHand();
-         ItemStack var4 = var2.getHeldItem(var3);
-         if (!AbstractPlayerGirlEntity.isOwnerPlayer(var2)) {
-            if (!var2.world.isRemote || HandlePlayerMovement.isSneakingState()) {
-               if (!var2.world.isRemote) {
+      public void onRightClickItem(RightClickItem event) {
+         EntityPlayer player = event.getEntityPlayer();
+         EnumHand hand = event.getHand();
+         ItemStack stack = player.getHeldItem(hand);
+         if (!AbstractPlayerGirlEntity.isOwnerPlayer(player)) {
+            if (!player.world.isRemote || HandlePlayerMovement.isSneakingState()) {
+               if (!player.world.isRemote) {
                   try {
-                     for (BaseGirlEntity var6 : BaseGirlEntity.getGirlEntityList()) {
-                        if (!var6.isDead && var6 instanceof AllieEntity) {
-                           AllieEntity var7 = (AllieEntity)var6;
-                           ItemStack var8 = (ItemStack)var7.getDataManager().get(AllieEntity.LAMP_ITEM);
-                           if (var4.equals(var8)) {
+                     for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+                        if (!girl.isDead && girl instanceof AllieEntity) {
+                           AllieEntity allie = (AllieEntity)girl;
+                           ItemStack lampStack = (ItemStack)allie.getDataManager().get(AllieEntity.LAMP_ITEM);
+                           if (stack.equals(lampStack)) {
                               return;
                            }
                         }
                      }
-                  } catch (ConcurrentModificationException var9) {
+                  } catch (ConcurrentModificationException cme) {
                   }
                }
 
-               if (var4.getItem() == AlliesLampItem.ALLIES_LAMP) {
-                  NBTTagCompound var10 = var4.getTagCompound();
-                  if (var10 == null || var10.getInteger("sexmodUses") < 3) {
-                     NBTTagCompound var11 = var2.getEntityData();
-                     boolean var12 = var11.getBoolean("sexmodAllieInUse");
-                     if (!var12) {
-                        var11.setBoolean("sexmodAllieInUse", true);
-                        var11.setInteger("sexmodAllieInUseTicks", 0);
+               if (stack.getItem() == AlliesLampItem.ALLIES_LAMP) {
+                  NBTTagCompound tag = stack.getTagCompound();
+                  if (tag == null || tag.getInteger("sexmodUses") < 3) {
+                     NBTTagCompound entityData = player.getEntityData();
+                     boolean inUse = entityData.getBoolean("sexmodAllieInUse");
+                     if (!inUse) {
+                        entityData.setBoolean("sexmodAllieInUse", true);
+                        entityData.setInteger("sexmodAllieInUseTicks", 0);
                      }
                   }
                }

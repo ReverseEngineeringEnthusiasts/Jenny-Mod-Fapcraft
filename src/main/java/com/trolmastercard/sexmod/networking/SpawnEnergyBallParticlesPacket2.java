@@ -26,31 +26,31 @@ public class SpawnEnergyBallParticlesPacket2 implements IMessage {
    public SpawnEnergyBallParticlesPacket2() {
    }
 
-   public SpawnEnergyBallParticlesPacket2(Vec3d var1, boolean var2) {
-      this.energyPos = var1;
-      this.isValid = var2;
+   public SpawnEnergyBallParticlesPacket2(Vec3d energyPos, boolean isValid) {
+      this.energyPos = energyPos;
+      this.isValid = isValid;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.energyPos = new Vec3d(var1.readDouble(), var1.readDouble(), var1.readDouble());
-      this.isValid = var1.readBoolean();
+   public void fromBytes(ByteBuf buf) {
+      this.energyPos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+      this.isValid = buf.readBoolean();
       this.isLeftSide = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeDouble(this.energyPos.x);
-      var1.writeDouble(this.energyPos.y);
-      var1.writeDouble(this.energyPos.z);
-      var1.writeBoolean(this.isValid);
+   public void toBytes(ByteBuf buf) {
+      buf.writeDouble(this.energyPos.x);
+      buf.writeDouble(this.energyPos.y);
+      buf.writeDouble(this.energyPos.z);
+      buf.writeBoolean(this.isValid);
    }
 
    public static class Handler implements IMessageHandler<SpawnEnergyBallParticlesPacket2, IMessage> {
-      public IMessage onMessage(SpawnEnergyBallParticlesPacket2 var1, MessageContext var2) {
-         if (var1.isLeftSide && var2.side.equals(Side.CLIENT)) {
-            if (var1.isValid) {
-               DragonEntity.spawnDragonBreath(var1.energyPos);
+      public IMessage onMessage(SpawnEnergyBallParticlesPacket2 packet, MessageContext ctx) {
+         if (packet.isLeftSide && ctx.side.equals(Side.CLIENT)) {
+            if (packet.isValid) {
+               DragonEntity.spawnDragonBreath(packet.energyPos);
             } else {
-               DragonEntity.spawnDragonBreathRandom(var1.energyPos);
+               DragonEntity.spawnDragonBreathRandom(packet.energyPos);
             }
 
             return null;

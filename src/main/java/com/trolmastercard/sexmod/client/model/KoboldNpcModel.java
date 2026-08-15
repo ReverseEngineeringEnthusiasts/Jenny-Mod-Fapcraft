@@ -41,12 +41,12 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public ResourceLocation getTextureLocation(BaseGirlEntity var0) {
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/kobold/kobold.png");
    }
 
    @Override
-   public ResourceLocation getAnimationFileLocation(BaseGirlEntity var1) {
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "animations/kobold/kobold.animation.json");
    }
 
@@ -57,39 +57,39 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
     * {@link SexWorldClient} preload world.
     */
    @Override
-   public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
-      super.setLivingAnimations(var1, var2, var3);
-      if (!(var1.world instanceof SexWorldClient)) {
-         AnimationProcessor var4 = this.getAnimationProcessor();
-         if (!var1.isLocallyRegistered() && var1 instanceof KoboldEntity) {
-            var4.getBone("crown").setHidden(!(Boolean)var1.getDataManager().get(KoboldEntity.aZ));
-            var4.getBone("egg").setHidden(!((KoboldEntity)var1).isRenderEgg);
+   public void setLivingAnimations(BaseGirlEntity entity, Integer uniqueID, AnimationEvent event) {
+      super.setLivingAnimations(entity, uniqueID, event);
+      if (!(entity.world instanceof SexWorldClient)) {
+         AnimationProcessor processor = this.getAnimationProcessor();
+         if (!entity.isLocallyRegistered() && entity instanceof KoboldEntity) {
+            processor.getBone("crown").setHidden(!(Boolean)entity.getDataManager().get(KoboldEntity.aZ));
+            processor.getBone("egg").setHidden(!((KoboldEntity)entity).isRenderEgg);
          } else {
-            var4.getBone("crown").setHidden(true);
-            var4.getBone("egg").setHidden(true);
+            processor.getBone("crown").setHidden(true);
+            processor.getBone("egg").setHidden(true);
          }
 
-         String[] var5 = AbstractNpcOnlyEntity.getModelCodeParts(var1);
-         this.getHornsUp(var4, var5[0]);
-         this.getHornsDown(var4, var5[1]);
-         this.setBoneRotationMulti(var4, var5[2], 0.75F, 1.35F, "boobL", "boobR", "armorBoobs");
-         this.setBoneRotationMulti(var4, var5[3], 1.0F, 1.2F, "eyeL", "eyeR");
-         this.setBoneRotation(var4, var5[3], 1.0F, 1.2F);
-         this.getBoneData(var4, var5[4]);
-         this.parseBoneColor(var4, var5[5]);
-         this.updateBonePose(var1, var4, var5[6]);
-         switch (var1.getCurrentAction()) {
+         String[] modelCodeParts = AbstractNpcOnlyEntity.getModelCodeParts(entity);
+         this.getHornsUp(processor, modelCodeParts[0]);
+         this.getHornsDown(processor, modelCodeParts[1]);
+         this.setBoneRotationMulti(processor, modelCodeParts[2], 0.75F, 1.35F, "boobL", "boobR", "armorBoobs");
+         this.setBoneRotationMulti(processor, modelCodeParts[3], 1.0F, 1.2F, "eyeL", "eyeR");
+         this.setBoneRotation(processor, modelCodeParts[3], 1.0F, 1.2F);
+         this.getBoneData(processor, modelCodeParts[4]);
+         this.parseBoneColor(processor, modelCodeParts[5]);
+         this.updateBonePose(entity, processor, modelCodeParts[6]);
+         switch (entity.getCurrentAction()) {
             case STARTBLOWJOB:
             case SUCKBLOWJOB_BLINK:
             case THRUSTBLOWJOB:
             case CUMBLOWJOB:
-               var4.getBone("tounge").setHidden(false);
+               processor.getBone("tounge").setHidden(false);
                break;
             default:
-               var4.getBone("tounge").setHidden(true);
+               processor.getBone("tounge").setHidden(true);
          }
 
-         this.handleSwingAnimation(var1, var4);
+         this.handleSwingAnimation(entity, processor);
       }
    }
 
@@ -99,34 +99,34 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
     * lower+shift it, mating-press actions raise it — all interpolated from
     * the {@code aE} transition value. See class javadoc pitfall.
     */
-   void handleSwingAnimation(BaseGirlEntity var1, AnimationProcessor var2) {
-      if (var1.actionController.getAnimationState() == AnimationState.Transitioning) {
-         float var3 = (Float)var1.getDataManager().get(KoboldEntity.aE);
-         var3 = 0.25F - var3;
-         switch (var1.getCurrentAction()) {
+   void handleSwingAnimation(BaseGirlEntity entity, AnimationProcessor processor) {
+      if (entity.actionController.getAnimationState() == AnimationState.Transitioning) {
+         float transitionValue = (Float)entity.getDataManager().get(KoboldEntity.aE);
+         transitionValue = 0.25F - transitionValue;
+         switch (entity.getCurrentAction()) {
             case SUCKBLOWJOB_BLINK:
             case THRUSTBLOWJOB:
             case CUMBLOWJOB:
-               IBone var7 = var2.getBone("body");
-               var7.setPositionZ(11.43F + var3 * -7.0F);
+               IBone blowjobBodyBone = processor.getBone("body");
+               blowjobBodyBone.setPositionZ(11.43F + transitionValue * -7.0F);
                return;
             case KOBOLD_ANAL_SLOW:
             case ANAL_FAST:
             case ANAL_CUM:
             case ANAL_START:
-               IBone var6 = var2.getBone("body");
-               var6.setPositionX(1.78F + var3 * -1.5F);
-               var6.setPositionY(13.07F + var3 * -11.0F);
-               var6.setPositionZ(2.05F + var3 * -8.0F);
+               IBone analBodyBone = processor.getBone("body");
+               analBodyBone.setPositionX(1.78F + transitionValue * -1.5F);
+               analBodyBone.setPositionY(13.07F + transitionValue * -11.0F);
+               analBodyBone.setPositionZ(2.05F + transitionValue * -8.0F);
                return;
             case MATING_PRESS_CUM:
             case MATING_PRESS_HARD:
             case MATING_PRESS_SOFT:
             case MATING_PRESS_START:
-               IBone var4 = var2.getBone("body");
-               var4.setPositionX(0.0F);
-               var4.setPositionY(2.85F);
-               var4.setPositionZ(-7.0F + var3 * 4.7F);
+               IBone matingBodyBone = processor.getBone("body");
+               matingBodyBone.setPositionX(0.0F);
+               matingBodyBone.setPositionY(2.85F);
+               matingBodyBone.setPositionZ(-7.0F + transitionValue * 4.7F);
                return;
          }
       }
@@ -136,30 +136,30 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
     * Backpack/tailpack pose from the model code (0..3 combinations of
     * visible/hidden), with the backpack forced visible during PAYMENT.
     */
-   void updateBonePose(BaseGirlEntity var1, AnimationProcessor var2, String var3) {
-      int var4 = Integer.parseInt(var3);
-      IBone var5 = var2.getBone("backpack");
-      IBone var6 = var2.getBone("tailpack");
-      switch (var4) {
+   void updateBonePose(BaseGirlEntity entity, AnimationProcessor processor, String modelCode) {
+      int poseValue = Integer.parseInt(modelCode);
+      IBone backpackBone = processor.getBone("backpack");
+      IBone tailpackBone = processor.getBone("tailpack");
+      switch (poseValue) {
          case 0:
-            var5.setHidden(false);
-            var6.setHidden(true);
+            backpackBone.setHidden(false);
+            tailpackBone.setHidden(true);
             break;
          case 1:
-            var5.setHidden(false);
-            var6.setHidden(false);
+            backpackBone.setHidden(false);
+            tailpackBone.setHidden(false);
             break;
          case 2:
-            var5.setHidden(true);
-            var6.setHidden(false);
+            backpackBone.setHidden(true);
+            tailpackBone.setHidden(false);
             break;
          case 3:
-            var5.setHidden(true);
-            var6.setHidden(true);
+            backpackBone.setHidden(true);
+            tailpackBone.setHidden(true);
       }
 
-      if (var1.getCurrentAction() == Action.PAYMENT) {
-         var5.setHidden(false);
+      if (entity.getCurrentAction() == Action.PAYMENT) {
+         backpackBone.setHidden(false);
       }
    }
 
@@ -167,46 +167,46 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
     * Freckle-head variant selection from the model code (1 = variant 1 pair,
     * 2 = variant 2 pair, else hidden).
     */
-   void parseBoneColor(AnimationProcessor var1, String var2) {
-      int var3 = Integer.parseInt(var2);
-      IBone var4 = var1.getBone("frecklesHR1");
-      IBone var5 = var1.getBone("frecklesHR2");
-      IBone var6 = var1.getBone("frecklesHL1");
-      IBone var7 = var1.getBone("frecklesHL2");
-      var6.setHidden(var3 != 1);
-      var4.setHidden(var3 != 1);
-      var7.setHidden(var3 != 2);
-      var5.setHidden(var3 != 2);
+   void parseBoneColor(AnimationProcessor processor, String modelCode) {
+      int variant = Integer.parseInt(modelCode);
+      IBone frecklesHR1Bone = processor.getBone("frecklesHR1");
+      IBone frecklesHR2Bone = processor.getBone("frecklesHR2");
+      IBone frecklesHL1Bone = processor.getBone("frecklesHL1");
+      IBone frecklesHL2Bone = processor.getBone("frecklesHL2");
+      frecklesHL1Bone.setHidden(variant != 1);
+      frecklesHR1Bone.setHidden(variant != 1);
+      frecklesHL2Bone.setHidden(variant != 2);
+      frecklesHR2Bone.setHidden(variant != 2);
    }
 
    /**
     * Freckle-arm variant selection (same 1/2 semantics as the head variant).
     */
-   void getBoneData(AnimationProcessor var1, String var2) {
-      int var3 = Integer.parseInt(var2);
-      IBone var4 = var1.getBone("frecklesAR1");
-      IBone var5 = var1.getBone("frecklesAR2");
-      IBone var6 = var1.getBone("frecklesAL1");
-      IBone var7 = var1.getBone("frecklesAL2");
-      var6.setHidden(var3 != 1);
-      var4.setHidden(var3 != 1);
-      var7.setHidden(var3 != 2);
-      var5.setHidden(var3 != 2);
+   void getBoneData(AnimationProcessor processor, String modelCode) {
+      int variant = Integer.parseInt(modelCode);
+      IBone frecklesAR1Bone = processor.getBone("frecklesAR1");
+      IBone frecklesAR2Bone = processor.getBone("frecklesAR2");
+      IBone frecklesAL1Bone = processor.getBone("frecklesAL1");
+      IBone frecklesAL2Bone = processor.getBone("frecklesAL2");
+      frecklesAL1Bone.setHidden(variant != 1);
+      frecklesAR1Bone.setHidden(variant != 1);
+      frecklesAL2Bone.setHidden(variant != 2);
+      frecklesAR2Bone.setHidden(variant != 2);
    }
 
    /**
     * Eye-spacing from the model code: shifts both eyes apart/symmetrically by
     * the normalized value (0..1 lerp between the given bounds minus 1).
     */
-   void setBoneRotation(AnimationProcessor var1, String var2, float var3, float var4) {
+   void setBoneRotation(AnimationProcessor processor, String modelCode, float min, float max) {
       if (!Minecraft.getMinecraft().isGamePaused()) {
-         float var5 = Float.parseFloat(var2);
-         var5 /= 100.0F;
-         var5 = var3 + (var4 - var3) * var5 - 1.0F;
-         IBone var6 = var1.getBone("eyeL");
-         var6.setPositionX(var6.getPositionX() + var5);
-         IBone var7 = var1.getBone("eyeR");
-         var7.setPositionX(var7.getPositionX() - var5);
+         float eyeSpacing = Float.parseFloat(modelCode);
+         eyeSpacing /= 100.0F;
+         eyeSpacing = min + (max - min) * eyeSpacing - 1.0F;
+         IBone eyeLBone = processor.getBone("eyeL");
+         eyeLBone.setPositionX(eyeLBone.getPositionX() + eyeSpacing);
+         IBone eyeRBone = processor.getBone("eyeR");
+         eyeRBone.setPositionX(eyeRBone.getPositionX() - eyeSpacing);
       }
    }
 
@@ -214,17 +214,17 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
     * Uniform scale for the named bones from the model code (0..1 lerp between
     * the given bounds) — used for boobs and eyes.
     */
-   void setBoneRotationMulti(AnimationProcessor var1, String var2, float var3, float var4, String... var5) {
-      float var6 = Float.parseFloat(var2);
-      var6 /= 100.0F;
-      var6 = var3 + (var4 - var3) * var6;
+   void setBoneRotationMulti(AnimationProcessor processor, String modelCode, float min, float max, String... boneNames) {
+      float scale = Float.parseFloat(modelCode);
+      scale /= 100.0F;
+      scale = min + (max - min) * scale;
 
-      for (String var10 : var5) {
-         IBone var11 = var1.getBone(var10);
-         if (var11 != null) {
-            var11.setScaleX(var6);
-            var11.setScaleY(var6);
-            var11.setScaleZ(var6);
+      for (String boneName : boneNames) {
+         IBone bone = processor.getBone(boneName);
+         if (bone != null) {
+            bone.setScaleX(scale);
+            bone.setScaleY(scale);
+            bone.setScaleZ(scale);
          }
       }
    }
@@ -233,51 +233,51 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
     * Horn part selection: hides every down-horn variant bone and shows the
     * one chosen by the model code.
     */
-   void getHornsDown(AnimationProcessor var1, String var2) {
-      List var3 = this.getHornBones(var1, "hornDL");
-      List var4 = this.getHornBones(var1, "hornDR");
-      this.hideAllBones(var3);
-      this.hideAllBones(var4);
-      int var5 = Integer.parseInt(var2);
-      var1.getBone("hornDL" + var5).setHidden(false);
-      var1.getBone("hornDR" + var5).setHidden(false);
+   void getHornsDown(AnimationProcessor processor, String modelCode) {
+      List downLeftBones = this.getHornBones(processor, "hornDL");
+      List downRightBones = this.getHornBones(processor, "hornDR");
+      this.hideAllBones(downLeftBones);
+      this.hideAllBones(downRightBones);
+      int variant = Integer.parseInt(modelCode);
+      processor.getBone("hornDL" + variant).setHidden(false);
+      processor.getBone("hornDR" + variant).setHidden(false);
    }
 
    /**
     * Up-horn variant selection (mirror of {@link #getHornsDown}).
     */
-   void getHornsUp(AnimationProcessor var1, String var2) {
-      List var3 = this.getHornBones(var1, "hornUL");
-      List var4 = this.getHornBones(var1, "hornUR");
-      this.hideAllBones(var3);
-      this.hideAllBones(var4);
-      int var5 = Integer.parseInt(var2);
-      var1.getBone("hornUL" + var5).setHidden(false);
-      var1.getBone("hornUR" + var5).setHidden(false);
+   void getHornsUp(AnimationProcessor processor, String modelCode) {
+      List upLeftBones = this.getHornBones(processor, "hornUL");
+      List upRightBones = this.getHornBones(processor, "hornUR");
+      this.hideAllBones(upLeftBones);
+      this.hideAllBones(upRightBones);
+      int variant = Integer.parseInt(modelCode);
+      processor.getBone("hornUL" + variant).setHidden(false);
+      processor.getBone("hornUR" + variant).setHidden(false);
    }
 
    /**
     * Collects all bones sharing the given prefix (numbered suffixes until a
     * null bone) — used for the horn variants.
     */
-   List<IBone> getHornBones(AnimationProcessor var1, String var2) {
-      ArrayList var3 = new ArrayList();
-      int var4 = 0;
+   List<IBone> getHornBones(AnimationProcessor processor, String prefix) {
+      ArrayList bones = new ArrayList();
+      int i = 0;
 
       while (true) {
-         IBone var5 = var1.getBone(var2 + var4);
-         if (var5 == null) {
-            return var3;
+         IBone bone = processor.getBone(prefix + i);
+         if (bone == null) {
+            return bones;
          }
 
-         var3.add(var5);
-         var4++;
+         bones.add(bone);
+         i++;
       }
    }
 
-   void hideAllBones(List<IBone> var1) {
-      for (IBone var3 : var1) {
-         var3.setHidden(true);
+   void hideAllBones(List<IBone> bones) {
+      for (IBone bone : bones) {
+         bone.setHidden(true);
       }
    }
 
@@ -286,19 +286,19 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
     * ceiling or on an unstable surface (the scene poses take over).
     */
    @Override
-   protected void handleAnimationEvent(BaseGirlEntity var1, AnimationProcessor var2, AnimationEvent var3) {
-      if (!(var1.world instanceof SexWorldClient)) {
-         switch (var1.getCurrentAction()) {
+   protected void handleAnimationEvent(BaseGirlEntity entity, AnimationProcessor processor, AnimationEvent event) {
+      if (!(entity.world instanceof SexWorldClient)) {
+         switch (entity.getCurrentAction()) {
             case NULL:
-               if (Math.abs(var1.prevPosX - var1.posX) + Math.abs(var1.prevPosZ - var1.posZ) < 0.0
-                  || var1.onGround && Math.abs(Math.abs(var1.prevPosY) - Math.abs(var1.posY)) > 0.1F
-                  || !((IKobold)var1).isBlockedByCeiling()) {
-                  EntityModelData var4 = (EntityModelData) var3.getExtraDataOfType(EntityModelData.class).get(0);
-                  IBone var5 = var2.getBone("head");
-                  var5.setRotationY(var4.netHeadYaw * (float) (Math.PI / 180.0));
-                  var5.setRotationX(var4.headPitch * (float) (Math.PI / 180.0));
-                  IBone var6 = var2.getBone("body") == null ? var2.getBone("dd") : var2.getBone("body");
-                  var6.setRotationY(0.0F);
+               if (Math.abs(entity.prevPosX - entity.posX) + Math.abs(entity.prevPosZ - entity.posZ) < 0.0
+                  || entity.onGround && Math.abs(Math.abs(entity.prevPosY) - Math.abs(entity.posY)) > 0.1F
+                  || !((IKobold)entity).isBlockedByCeiling()) {
+                  EntityModelData modelData = (EntityModelData) event.getExtraDataOfType(EntityModelData.class).get(0);
+                  IBone headBone = processor.getBone("head");
+                  headBone.setRotationY(modelData.netHeadYaw * (float) (Math.PI / 180.0));
+                  headBone.setRotationX(modelData.headPitch * (float) (Math.PI / 180.0));
+                  IBone bodyBone = processor.getBone("body") == null ? processor.getBone("dd") : processor.getBone("body");
+                  bodyBone.setRotationY(0.0F);
                   return;
                }
          }

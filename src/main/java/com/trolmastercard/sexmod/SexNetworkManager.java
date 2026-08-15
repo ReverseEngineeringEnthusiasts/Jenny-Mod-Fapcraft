@@ -31,8 +31,8 @@ import net.minecraft.network.NetworkManager;
  * must never send or receive anything.
  */
 public class SexNetworkManager extends NetworkManager {
-   public SexNetworkManager(EnumPacketDirection var1) {
-      super(var1);
+   public SexNetworkManager(EnumPacketDirection direction) {
+      super(direction);
    }
 
    /**
@@ -43,7 +43,7 @@ public class SexNetworkManager extends NetworkManager {
     */
    public Channel channel() {
       return new Channel() {
-         public int compareTo(Channel var1) { return 0; }
+         public int compareTo(Channel other) { return 0; }
 
          public ChannelId id() {
             return null;
@@ -125,7 +125,7 @@ public class SexNetworkManager extends NetworkManager {
             return null;
          }
 
-         public ChannelFuture newFailedFuture(Throwable var1) {
+         public ChannelFuture newFailedFuture(Throwable cause) {
             return null;
          }
 
@@ -133,15 +133,15 @@ public class SexNetworkManager extends NetworkManager {
             return null;
          }
 
-         public ChannelFuture bind(SocketAddress var1) {
+         public ChannelFuture bind(SocketAddress localAddress) {
             return null;
          }
 
-         public ChannelFuture connect(SocketAddress var1) {
+         public ChannelFuture connect(SocketAddress remoteAddress) {
             return null;
          }
 
-         public ChannelFuture connect(SocketAddress var1, SocketAddress var2) {
+         public ChannelFuture connect(SocketAddress remoteAddress, SocketAddress localAddress) {
             return null;
          }
 
@@ -157,27 +157,27 @@ public class SexNetworkManager extends NetworkManager {
             return null;
          }
 
-         public ChannelFuture bind(SocketAddress var1, ChannelPromise var2) {
+         public ChannelFuture bind(SocketAddress localAddress, ChannelPromise promise) {
             return null;
          }
 
-         public ChannelFuture connect(SocketAddress var1, ChannelPromise var2) {
+         public ChannelFuture connect(SocketAddress remoteAddress, ChannelPromise promise) {
             return null;
          }
 
-         public ChannelFuture connect(SocketAddress var1, SocketAddress var2, ChannelPromise var3) {
+         public ChannelFuture connect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
             return null;
          }
 
-         public ChannelFuture disconnect(ChannelPromise var1) {
+         public ChannelFuture disconnect(ChannelPromise promise) {
             return null;
          }
 
-         public ChannelFuture close(ChannelPromise var1) {
+         public ChannelFuture close(ChannelPromise promise) {
             return null;
          }
 
-         public ChannelFuture deregister(ChannelPromise var1) {
+         public ChannelFuture deregister(ChannelPromise promise) {
             return null;
          }
 
@@ -185,11 +185,11 @@ public class SexNetworkManager extends NetworkManager {
             return null;
          }
 
-         public ChannelFuture write(Object var1) {
+         public ChannelFuture write(Object msg) {
             return null;
          }
 
-         public ChannelFuture write(Object var1, ChannelPromise var2) {
+         public ChannelFuture write(Object msg, ChannelPromise promise) {
             return null;
          }
 
@@ -197,21 +197,21 @@ public class SexNetworkManager extends NetworkManager {
             return null;
          }
 
-         public ChannelFuture writeAndFlush(Object var1, ChannelPromise var2) {
+         public ChannelFuture writeAndFlush(Object msg, ChannelPromise promise) {
             return null;
          }
 
-         public ChannelFuture writeAndFlush(Object var1) {
+         public ChannelFuture writeAndFlush(Object msg) {
             return null;
          }
 
-         public <T> Attribute<T> attr(AttributeKey<T> var1) {
+         public <T> Attribute<T> attr(AttributeKey<T> key) {
             return new Attribute<T>() {
-               public T setIfAbsent(T var1) {
+               public T setIfAbsent(T key) {
                   return null;
                }
 
-               public T getAndSet(T var1) {
+               public T getAndSet(T key) {
                   return null;
                }
 
@@ -230,20 +230,20 @@ public class SexNetworkManager extends NetworkManager {
                   return null;
                }
 
-               public boolean compareAndSet(T var1, T var2) {
+               public boolean compareAndSet(T key, T actual) {
                   return false;
                }
 
-               public void set(T var1) {
+               public void set(T key) {
                }
             };
          }
 
-         public <T> boolean hasAttr(AttributeKey<T> var1) {
+         public <T> boolean hasAttr(AttributeKey<T> key) {
             return false;
          }
 
-         public int getNextPacketId(Channel var1) {
+         public int getNextPacketId(Channel channel) {
             return 0;
          }
       };

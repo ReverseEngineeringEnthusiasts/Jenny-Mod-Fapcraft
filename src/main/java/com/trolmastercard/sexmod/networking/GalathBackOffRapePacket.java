@@ -23,20 +23,20 @@ import net.minecraftforge.fml.relauncher.Side;
 public class GalathBackOffRapePacket implements IMessage {
    boolean isValid = false;
 
-   public void fromBytes(ByteBuf var1) {
+   public void fromBytes(ByteBuf buf) {
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
+   public void toBytes(ByteBuf buf) {
    }
 
    public static class Handler implements IMessageHandler<GalathBackOffRapePacket, IMessage> {
-      public IMessage onMessage(GalathBackOffRapePacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.SERVER)) {
+      public IMessage onMessage(GalathBackOffRapePacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               BaseGirlEntity var1x = BaseGirlEntity.getGirlByUUID(var2.getServerHandler().player.getPersistentID(), Boolean.valueOf(true));
-               if (var1x instanceof GalathEntity) {
-                  ((GalathEntity)var1x).handleRapeState();
+               BaseGirlEntity girl = BaseGirlEntity.getGirlByUUID(ctx.getServerHandler().player.getPersistentID(), Boolean.valueOf(true));
+               if (girl instanceof GalathEntity) {
+                  ((GalathEntity)girl).handleRapeState();
                }
             });
             return null;

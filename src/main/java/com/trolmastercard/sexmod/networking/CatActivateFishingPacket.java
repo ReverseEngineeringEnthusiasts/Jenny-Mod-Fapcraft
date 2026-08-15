@@ -33,29 +33,29 @@ public class CatActivateFishingPacket implements IMessage {
    public CatActivateFishingPacket() {
    }
 
-   public CatActivateFishingPacket(UUID var1) {
-      this.catUUID = var1;
+   public CatActivateFishingPacket(UUID catUUID) {
+      this.catUUID = catUUID;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.catUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+   public void fromBytes(ByteBuf buf) {
+      this.catUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.catUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.catUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<CatActivateFishingPacket, IMessage> {
-      public IMessage onMessage(CatActivateFishingPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(CatActivateFishingPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var4 : BaseGirlEntity.girlList(var1.catUUID)) {
-                  if (!var4.world.isRemote && var4 instanceof LunaEntity) {
-                     LunaEntity var5 = (LunaEntity)var4;
-                     ItemStack var6 = var5.ao;
-                     LunaRodItem var7 = (LunaRodItem)var6.getItem();
-                     var7.castFishingRod(var2.getServerHandler().player.world, var5, EnumHand.MAIN_HAND);
+               for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.catUUID)) {
+                  if (!girl.world.isRemote && girl instanceof LunaEntity) {
+                     LunaEntity luna = (LunaEntity)girl;
+                     ItemStack stack = luna.ao;
+                     LunaRodItem rodItem = (LunaRodItem)stack.getItem();
+                     rodItem.castFishingRod(ctx.getServerHandler().player.world, luna, EnumHand.MAIN_HAND);
                   }
                }
             });

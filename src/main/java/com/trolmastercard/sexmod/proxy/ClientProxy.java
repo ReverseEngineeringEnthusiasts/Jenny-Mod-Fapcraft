@@ -43,43 +43,43 @@ public class ClientProxy extends CommonProxy {
    public static KeyBinding[] keyBindings;
 
    @Override
-   public void postInit(FMLPostInitializationEvent var1) {
+   public void postInit(FMLPostInitializationEvent event) {
    }
 
    @Override
-   public void preInitRegistries(FMLPreInitializationEvent var1) {
-      super.preInitRegistries(var1);
+   public void preInitRegistries(FMLPreInitializationEvent event) {
+      super.preInitRegistries(event);
       RenderHandler.register();
    }
 
    @Override
-   public void initRegistries(FMLInitializationEvent var1) {
+   public void initRegistries(FMLInitializationEvent event) {
       keyBindings = new KeyBinding[3];
       keyBindings[0] = new KeyBinding("Interact with your goblin", 34, "Sex mod");
       keyBindings[1] = new KeyBinding("open character customisation menu", 76, "Sex mod");
       keyBindings[2] = new KeyBinding("Leave sex scene", 54, "Sex mod");
 
-      for (KeyBinding var5 : keyBindings) {
-         ClientRegistry.registerKeyBinding(var5);
+      for (KeyBinding keyBinding : keyBindings) {
+         ClientRegistry.registerKeyBinding(keyBinding);
       }
 
-      try { Main.setConfigs(); } catch (java.io.IOException var6) { Main.LOGGER.error(var6); }
+      try { Main.setConfigs(); } catch (java.io.IOException z) { Main.LOGGER.error(z); }
       SoundHandler.registerSounds();
       NetworkRegistry.INSTANCE.registerGuiHandler(Main.instance, new GuiHandler(true));
       ForgeEventHandler.registerB(true);
       PacketHandler.register();
-      Minecraft var10 = Minecraft.getMinecraft();
-      RenderManager var11 = var10.getRenderManager();
-      SexWorldClient var12 = new SexWorldClient();
+      Minecraft mc = Minecraft.getMinecraft();
+      RenderManager renderManager = mc.getRenderManager();
+      SexWorldClient preloadWorld = new SexWorldClient();
       IS_PRELOADING = true;
 
       try {
-         for (NpcType var8 : NpcType.values()) {
-            var11.renderEntity((Entity)var8.npcClass.getDeclaredConstructor(World.class).newInstance(var12), 0.0, 0.0, 0.0, 0.0F, 0.0F, false);
+         for (NpcType npcType : NpcType.values()) {
+            renderManager.renderEntity((Entity)npcType.npcClass.getDeclaredConstructor(World.class).newInstance(preloadWorld), 0.0, 0.0, 0.0, 0.0F, 0.0F, false);
          }
-      } catch (Exception var9) {
+      } catch (Exception e) {
          System.out.println("error while preloading:");
-         var9.printStackTrace();
+         e.printStackTrace();
       }
 
       IS_PRELOADING = false;
@@ -89,6 +89,6 @@ public class ClientProxy extends CommonProxy {
       ClientCommandHandler.instance.registerCommand(CommandFuta.FUTA_COMMAND);
       Minecraft.getMinecraft()
          .effectRenderer
-         .registerParticle(625115, (var0, var1x, var2, var4, var6, var8x, var10x, var12x, var14) -> new DragonBreathParticle(var1x, var2, var4, var6));
+         .registerParticle(625115, (particleId, world, x, y, z, xSpeed, ySpeed, zSpeed, params) -> new DragonBreathParticle(world, x, y, z));
    }
 }

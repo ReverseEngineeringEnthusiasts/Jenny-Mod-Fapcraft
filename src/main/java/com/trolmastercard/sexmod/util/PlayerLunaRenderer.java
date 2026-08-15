@@ -18,8 +18,8 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 public class PlayerLunaRenderer extends GirlPlayerRenderer {
    float rotationZ = 0.0F;
 
-   public PlayerLunaRenderer(RenderManager var1, AnimatedGeoModel var2) {
-      super(var1, var2);
+   public PlayerLunaRenderer(RenderManager renderManager, AnimatedGeoModel geoModel) {
+      super(renderManager, geoModel);
    }
 
    @Override
@@ -29,15 +29,15 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
    }
 
    @Override
-   protected ItemStack resolveHeldItemStack(@Nullable ItemStack var1) {
+   protected ItemStack resolveHeldItemStack(@Nullable ItemStack stack) {
       switch (this.renderEntity.getCurrentAction()) {
          case FISHING_IDLE:
          case FISHING_START:
-            ItemStack var2 = ((LunaEntity)this.renderEntity).ao;
-            this.renderEntity.setHeldItem(EnumHand.MAIN_HAND, var2);
-            return var2;
+            ItemStack lunaStack = ((LunaEntity)this.renderEntity).ao;
+            this.renderEntity.setHeldItem(EnumHand.MAIN_HAND, lunaStack);
+            return lunaStack;
          default:
-            return var1;
+            return stack;
       }
    }
 
@@ -46,36 +46,36 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
    }
 
    @Override
-   protected void onBoneRenderStart(String var1, GeoBone var2) {
+   protected void onBoneRenderStart(String boneName, GeoBone bone) {
       if (!Minecraft.getMinecraft().isGamePaused()) {
-         switch (var1) {
+         switch (boneName) {
             case "head":
-               this.rotationZ = var2.getRotationX();
+               this.rotationZ = bone.getRotationX();
                break;
             case "backHair":
                if (!this.isLunaAnchored() && this.rotationZ > 0.0F) {
-                  double var5 = this.rotationZ / TrigMath.wrapDegrees(45.0F);
-                  float var7 = (float)RotationHelper.lerpDouble(0.0, 0.75, var5);
-                  var2.setPositionZ(var7);
-                  var2.setPositionY(var7);
-                  var2.setRotationX(-this.rotationZ);
+                  double t = this.rotationZ / TrigMath.wrapDegrees(45.0F);
+                  float pos = (float)RotationHelper.lerpDouble(0.0, 0.75, t);
+                  bone.setPositionZ(pos);
+                  bone.setPositionY(pos);
+                  bone.setRotationX(-this.rotationZ);
                }
                break;
             case "frontHairL":
             case "frontHairR":
                if (!this.isLunaAnchored()) {
-                  var2.setRotationX(-this.rotationZ);
+                  bone.setRotationX(-this.rotationZ);
                }
          }
       }
    }
 
    @Override
-   protected void applyItemPostRotation(boolean var1, ItemStack var2) {
-      super.applyItemPostRotation(var1, var2);
-      switch (var2.getItem().getItemUseAction(var2)) {
+   protected void applyItemPostRotation(boolean isMainHand, ItemStack stack) {
+      super.applyItemPostRotation(isMainHand, stack);
+      switch (stack.getItem().getItemUseAction(stack)) {
          default:
-            GlStateManager.rotate(var1 ? 60.0F : 150.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(isMainHand ? 60.0F : 150.0F, 1.0F, 0.0F, 0.0F);
             GlStateManager.translate(0.0, 0.08, -0.05);
          case BLOCK:
          case BOW:
@@ -83,22 +83,22 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
    }
 
    @Override
-   protected void applyBowRotation(boolean var1) {
-      GlStateManager.rotate(var1 ? 60.0F : 150.0F, 1.0F, 0.0F, 0.0F);
-      if (var1) {
+   protected void applyBowRotation(boolean isMainHand) {
+      GlStateManager.rotate(isMainHand ? 60.0F : 150.0F, 1.0F, 0.0F, 0.0F);
+      if (isMainHand) {
          GlStateManager.translate(0.12, 0.0, 0.0);
       }
    }
 
    @Override
-   protected void applyShieldBlockingTransform(boolean var1, boolean var2) {
-      super.applyShieldBlockingTransform(var1, var2);
-      if (!var1 && var2) {
+   protected void applyShieldBlockingTransform(boolean isBlocking, boolean isMainHand) {
+      super.applyShieldBlockingTransform(isBlocking, isMainHand);
+      if (!isBlocking && isMainHand) {
          GlStateManager.rotate(120.0F, 0.0F, 1.0F, 0.0F);
-      } else if (!var1 && !var2) {
+      } else if (!isBlocking && !isMainHand) {
          GlStateManager.translate(0.0, 0.3, -0.15);
          GlStateManager.rotate(-45.0F, 1.0F, 0.0F, 0.0F);
-      } else if (var1 && !var2) {
+      } else if (isBlocking && !isMainHand) {
          GlStateManager.translate(-0.025, -0.05, 0.0);
       }
    }

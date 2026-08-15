@@ -64,96 +64,96 @@ public class PlayerGirlEvents {
    static final int eventCooldown = 284453;
 
    @SubscribeEvent
-   public void onPlayerSleepInBed(PlayerSleepInBedEvent var1) {
-      EntityPlayer var2 = var1.getEntityPlayer();
-      AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2);
-      if (var3 != null) {
-         if (var2.isSneaking()) {
-            var1.setResult(SleepResult.OTHER_PROBLEM);
+   public void onPlayerSleepInBed(PlayerSleepInBedEvent event) {
+      EntityPlayer player = event.getEntityPlayer();
+      AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player);
+      if (playerGirl != null) {
+         if (player.isSneaking()) {
+            event.setResult(SleepResult.OTHER_PROBLEM);
          }
       }
    }
 
    @SubscribeEvent
-   public void onGetCollisionBoxes(GetCollisionBoxesEvent var1) {
+   public void onGetCollisionBoxes(GetCollisionBoxesEvent event) {
    }
 
    @SubscribeEvent
-   public void onRightClickBlockPlace(RightClickBlock var1) {
-      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getEntityPlayer().getPersistentID());
-      BlockPos var3 = var1.getPos();
-      World var4 = var1.getEntityPlayer().world;
-      EntityPlayer var5 = var1.getEntityPlayer();
-      if (var2 != null) {
-         if (var2.canBeInteracted()) {
-            if (WorldUtils.canPlaceBlock(var4, var3, var1.getHitVec(), var1.getFace(), var5)) {
-               if ((Boolean)var2.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
-                  var1.setCanceled(true);
-               } else if (var5.isSneaking()) {
-                  ArrayList var6 = new ArrayList();
-                  if (var4.getBlockState(var3.north()).getBlock() == Blocks.AIR) {
-                     var6.add(var3.north());
+   public void onRightClickBlockPlace(RightClickBlock event) {
+      AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(event.getEntityPlayer().getPersistentID());
+      BlockPos clickPos = event.getPos();
+      World world = event.getEntityPlayer().world;
+      EntityPlayer player = event.getEntityPlayer();
+      if (playerGirl != null) {
+         if (playerGirl.canBeInteracted()) {
+            if (WorldUtils.canPlaceBlock(world, clickPos, event.getHitVec(), event.getFace(), player)) {
+               if ((Boolean)playerGirl.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
+                  event.setCanceled(true);
+               } else if (player.isSneaking()) {
+                  ArrayList blocksAround = new ArrayList();
+                  if (world.getBlockState(clickPos.north()).getBlock() == Blocks.AIR) {
+                     blocksAround.add(clickPos.north());
                   }
 
-                  if (var4.getBlockState(var3.east()).getBlock() == Blocks.AIR) {
-                     var6.add(var3.east());
+                  if (world.getBlockState(clickPos.east()).getBlock() == Blocks.AIR) {
+                     blocksAround.add(clickPos.east());
                   }
 
-                  if (var4.getBlockState(var3.south()).getBlock() == Blocks.AIR) {
-                     var6.add(var3.south());
+                  if (world.getBlockState(clickPos.south()).getBlock() == Blocks.AIR) {
+                     blocksAround.add(clickPos.south());
                   }
 
-                  if (var4.getBlockState(var3.west()).getBlock() == Blocks.AIR) {
-                     var6.add(var3.west());
+                  if (world.getBlockState(clickPos.west()).getBlock() == Blocks.AIR) {
+                     blocksAround.add(clickPos.west());
                   }
 
-                  BlockPos var7 = null;
+                  BlockPos nearestPos = null;
 
-                  for (BlockPos var9 : (java.util.Collection<BlockPos>) (var6) ) {
-                     if (var7 == null) {
-                        var7 = var9;
+                  for (BlockPos candidatePos : (java.util.Collection<BlockPos>) (blocksAround) ) {
+                     if (nearestPos == null) {
+                        nearestPos = candidatePos;
                      } else {
-                        Vec3d var10 = var5.getPositionVector();
-                        double var11 = this.interpolate(
-                           var9.getX(), var9.getY(), var9.getZ(), var10.x, var10.y, var10.z
+                        Vec3d playerPos = player.getPositionVector();
+                        double distA = this.interpolate(
+                           candidatePos.getX(), candidatePos.getY(), candidatePos.getZ(), playerPos.x, playerPos.y, playerPos.z
                         );
-                        double var13 = this.interpolate(
-                           var7.getX(), var7.getY(), var7.getZ(), var10.x, var10.y, var10.z
+                        double distB = this.interpolate(
+                           nearestPos.getX(), nearestPos.getY(), nearestPos.getZ(), playerPos.x, playerPos.y, playerPos.z
                         );
-                        if (var11 < var13) {
-                           var7 = var9;
+                        if (distA < distB) {
+                           nearestPos = candidatePos;
                         }
                      }
                   }
 
-                  if (var7 == null) {
-                     var5.sendMessage(new TextComponentString("Bed is obscured"));
+                  if (nearestPos == null) {
+                     player.sendMessage(new TextComponentString("Bed is obscured"));
                   } else {
-                     var5.setPosition(var7.getX() + 0.5, var7.getY(), var7.getZ() + 0.5);
-                     if (var3.north().equals(var7)) {
-                        var5.rotationYaw = 0.0F;
+                     player.setPosition(nearestPos.getX() + 0.5, nearestPos.getY(), nearestPos.getZ() + 0.5);
+                     if (clickPos.north().equals(nearestPos)) {
+                        player.rotationYaw = 0.0F;
                      }
 
-                     if (var3.east().equals(var7)) {
-                        var5.rotationYaw = 90.0F;
+                     if (clickPos.east().equals(nearestPos)) {
+                        player.rotationYaw = 90.0F;
                      }
 
-                     if (var3.south().equals(var7)) {
-                        var5.rotationYaw = 180.0F;
+                     if (clickPos.south().equals(nearestPos)) {
+                        player.rotationYaw = 180.0F;
                      }
 
-                     if (var3.west().equals(var7)) {
-                        var5.rotationYaw = -90.0F;
+                     if (clickPos.west().equals(nearestPos)) {
+                        player.rotationYaw = -90.0F;
                      }
 
-                     if (var1.getWorld().isRemote) {
+                     if (event.getWorld().isRemote) {
                         HandlePlayerMovement.setMovementLock(false);
-                        var2.H_clash570();
+                        playerGirl.H_clash570();
                      } else {
-                        var2.setTargetPosition(new Vec3d(var7.getX() + 0.5, var7.getY() + 0.0F, var7.getZ() + 0.5));
-                        var2.setYawRotation(var5.rotationYaw);
-                        var2.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
-                        var2.handleInteraction();
+                        playerGirl.setTargetPosition(new Vec3d(nearestPos.getX() + 0.5, nearestPos.getY() + 0.0F, nearestPos.getZ() + 0.5));
+                        playerGirl.setYawRotation(player.rotationYaw);
+                        playerGirl.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
+                        playerGirl.handleInteraction();
                      }
                   }
                }
@@ -162,44 +162,44 @@ public class PlayerGirlEvents {
       }
    }
 
-   double interpolate(double var1, double var3, double var5, double var7, double var9, double var11) {
-      double var13 = var1 - var7;
-      double var15 = var3 - var9;
-      double var17 = var5 - var11;
-      return Math.sqrt(var13 * var13 + var15 * var15 + var17 * var17);
+   double interpolate(double x1, double y1, double z1, double x2, double y2, double z2) {
+      double dx = x1 - x2;
+      double dy = y1 - y2;
+      double dz = z1 - z2;
+      return Math.sqrt(dx * dx + dy * dy + dz * dz);
    }
 
    @SubscribeEvent
-   public void onPlayerRespawn(PlayerRespawnEvent var1) {
-      EntityPlayer var2 = var1.player;
-      if (var2 != null) {
-         AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByOwner(var2.getPersistentID());
-         if (var3 != null) {
-            Vec3d var4 = var2.getPositionVector();
-            var3.dimension = var2.dimension;
-            var3.setPositionAndUpdate(var4.x, var4.y, var4.z);
-            var3.updateAITasks();
-            System.out.println(var2.world.isAreaLoaded(var3.getPosition(), 2));
+   public void onPlayerRespawn(PlayerRespawnEvent event) {
+      EntityPlayer player = event.player;
+      if (player != null) {
+         AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByOwner(player.getPersistentID());
+         if (playerGirl != null) {
+            Vec3d respawnPos = player.getPositionVector();
+            playerGirl.dimension = player.dimension;
+            playerGirl.setPositionAndUpdate(respawnPos.x, respawnPos.y, respawnPos.z);
+            playerGirl.updateAITasks();
+            System.out.println(player.world.isAreaLoaded(playerGirl.getPosition(), 2));
          }
       }
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onEntityInteractOpenMenu(EntityInteract var1) {
-      if (var1.getTarget() instanceof EntityPlayer) {
-         if (!var1.getEntityPlayer().isSneaking()) {
-            if (var1.getEntityPlayer().getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
-               EntityPlayerSP var2 = Minecraft.getMinecraft().player;
-               AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.getPersistentID());
-               EntityPlayer var4 = (EntityPlayer)var1.getTarget();
-               AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var4);
-               if (var5 != null) {
-                  if (var3 != null) {
-                     var2.sendStatusMessage(new TextComponentString("no lesbo yet owo"), true);
-                  } else if (var5.isPlayerGirl()) {
-                     if (var5.canOpenInteractionMenu()) {
-                        var5.openInteractionMenu(Minecraft.getMinecraft().player);
+   public void onEntityInteractOpenMenu(EntityInteract event) {
+      if (event.getTarget() instanceof EntityPlayer) {
+         if (!event.getEntityPlayer().isSneaking()) {
+            if (event.getEntityPlayer().getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
+               EntityPlayerSP clientPlayer = Minecraft.getMinecraft().player;
+               AbstractPlayerGirlEntity clientPlayerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(clientPlayer.getPersistentID());
+               EntityPlayer target = (EntityPlayer)event.getTarget();
+               AbstractPlayerGirlEntity targetGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(target);
+               if (targetGirl != null) {
+                  if (clientPlayerGirl != null) {
+                     clientPlayer.sendStatusMessage(new TextComponentString("no lesbo yet owo"), true);
+                  } else if (targetGirl.isPlayerGirl()) {
+                     if (targetGirl.canOpenInteractionMenu()) {
+                        targetGirl.openInteractionMenu(Minecraft.getMinecraft().player);
                      }
                   }
                }
@@ -210,20 +210,20 @@ public class PlayerGirlEvents {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onEntityInteractLesbo(EntityInteract var1) {
-      if (var1.getTarget() instanceof EntityPlayer) {
-         if (var1.getEntityPlayer().getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
-            EntityPlayerSP var2 = Minecraft.getMinecraft().player;
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.getPersistentID());
-            if (var3 != null) {
-               EntityPlayer var4 = (EntityPlayer)var1.getTarget();
-               AbstractPlayerGirlEntity var5 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var4.getPersistentID());
-               if (var5 != null) {
-                  var4.sendStatusMessage(new TextComponentString("no lesbo yet owo"), true);
+   public void onEntityInteractLesbo(EntityInteract event) {
+      if (event.getTarget() instanceof EntityPlayer) {
+         if (event.getEntityPlayer().getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
+            EntityPlayerSP clientPlayer = Minecraft.getMinecraft().player;
+            AbstractPlayerGirlEntity clientPlayerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(clientPlayer.getPersistentID());
+            if (clientPlayerGirl != null) {
+               EntityPlayer target = (EntityPlayer)event.getTarget();
+               AbstractPlayerGirlEntity targetGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(target.getPersistentID());
+               if (targetGirl != null) {
+                  target.sendStatusMessage(new TextComponentString("no lesbo yet owo"), true);
                } else {
-                  if (var3.canOpenInteractionMenu()) {
-                     var3.ab = false;
-                     var3.openInteractionMenu(var4);
+                  if (clientPlayerGirl.canOpenInteractionMenu()) {
+                     clientPlayerGirl.ab = false;
+                     clientPlayerGirl.openInteractionMenu(target);
                   }
                }
             }
@@ -232,26 +232,26 @@ public class PlayerGirlEvents {
    }
 
    @SubscribeEvent
-   public void onRightClickBlockSlime(RightClickBlock var1) {
-      EntityPlayer var2 = var1.getEntityPlayer();
-      AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2);
-      if (var3 != null) {
-         if (var3 instanceof SlimePlayerEntity) {
-            if (var2.isSneaking()) {
-               if (var2.getHeldItemMainhand().equals(ItemStack.EMPTY)) {
-                  if (!(Boolean)var3.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
-                     if (!(var2.rotationPitch < 20.0F)) {
-                        Vec3d var4 = var1.getHitVec();
-                        if (var4 != null) {
-                           Vec3d var5 = new Vec3d(var4.x, Math.floor(var4.y) + 0.0, var4.z);
-                           if (!(var4.distanceTo(var2.getPositionVector()) > 3.0)) {
-                              var2.setPosition(var5.x, Math.floor(var4.y), var5.z);
-                              var3.setTargetPosition(var5);
-                              var3.setYawRotation(var2.rotationYaw);
-                              var3.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
-                              var3.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, 0);
-                              var3.setCurrentAction(Action.STARTDOGGY);
-                              if (var1.getWorld().isRemote && Minecraft.getMinecraft().player.getPersistentID().equals(var2.getPersistentID())) {
+   public void onRightClickBlockSlime(RightClickBlock event) {
+      EntityPlayer player = event.getEntityPlayer();
+      AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player);
+      if (playerGirl != null) {
+         if (playerGirl instanceof SlimePlayerEntity) {
+            if (player.isSneaking()) {
+               if (player.getHeldItemMainhand().equals(ItemStack.EMPTY)) {
+                  if (!(Boolean)playerGirl.getDataManager().get(BaseGirlEntity.IS_ANCHORED)) {
+                     if (!(player.rotationPitch < 20.0F)) {
+                        Vec3d hitVec = event.getHitVec();
+                        if (hitVec != null) {
+                           Vec3d targetPos = new Vec3d(hitVec.x, Math.floor(hitVec.y) + 0.0, hitVec.z);
+                           if (!(hitVec.distanceTo(player.getPositionVector()) > 3.0)) {
+                              player.setPosition(targetPos.x, Math.floor(hitVec.y), targetPos.z);
+                              playerGirl.setTargetPosition(targetPos);
+                              playerGirl.setYawRotation(player.rotationYaw);
+                              playerGirl.getDataManager().set(BaseGirlEntity.IS_ANCHORED, true);
+                              playerGirl.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, 0);
+                              playerGirl.setCurrentAction(Action.STARTDOGGY);
+                              if (event.getWorld().isRemote && Minecraft.getMinecraft().player.getPersistentID().equals(player.getPersistentID())) {
                                  HandlePlayerMovement.setMovementLock(false);
                               }
                            }
@@ -265,14 +265,14 @@ public class PlayerGirlEvents {
    }
 
    @SubscribeEvent
-   public void onLivingHurt(LivingHurtEvent var1) {
-      if (var1.getEntityLiving() instanceof EntityPlayer) {
-         if (var1.getSource() == DamageSource.FALL) {
-            EntityPlayer var2 = (EntityPlayer)var1.getEntityLiving();
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2);
-            if (var3 != null) {
-               if (var3 instanceof AlliePlayerEntity || var3 instanceof BeePlayerEntity) {
-                  var1.setCanceled(true);
+   public void onLivingHurt(LivingHurtEvent event) {
+      if (event.getEntityLiving() instanceof EntityPlayer) {
+         if (event.getSource() == DamageSource.FALL) {
+            EntityPlayer entity = (EntityPlayer)event.getEntityLiving();
+            AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(entity);
+            if (playerGirl != null) {
+               if (playerGirl instanceof AlliePlayerEntity || playerGirl instanceof BeePlayerEntity) {
+                  event.setCanceled(true);
                }
             }
          }
@@ -281,18 +281,18 @@ public class PlayerGirlEvents {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onInitGui(InitGuiEvent var1) {
-      GuiScreen var2 = var1.getGui();
-      if (var2 instanceof GuiInventory || var2 instanceof GuiContainerCreative) {
-         EntityPlayerSP var3 = Minecraft.getMinecraft().player;
-         if (var3 != null) {
-            AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3);
-            if (var4 != null) {
-               if (!var4.A_clash381()) {
-                  List var5 = var1.getButtonList();
-                  String var6 = I18n.format(var4.getOutfitIndex() == 0 ? "action.names.dressup" : "action.names.strip", new Object[0]);
-                  var5.add(new GuiButton(284453, (int)(var2.width * 0.5 - 35.0), (int)(var2.height * 0.87), 70, 20, var6));
-                  var1.setButtonList(var5);
+   public void onInitGui(InitGuiEvent event) {
+      GuiScreen gui = event.getGui();
+      if (gui instanceof GuiInventory || gui instanceof GuiContainerCreative) {
+         EntityPlayerSP player = Minecraft.getMinecraft().player;
+         if (player != null) {
+            AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player);
+            if (playerGirl != null) {
+               if (!playerGirl.A_clash381()) {
+                  List buttonList = event.getButtonList();
+                  String label = I18n.format(playerGirl.getOutfitIndex() == 0 ? "action.names.dressup" : "action.names.strip", new Object[0]);
+                  buttonList.add(new GuiButton(284453, (int)(gui.width * 0.5 - 35.0), (int)(gui.height * 0.87), 70, 20, label));
+                  event.setButtonList(buttonList);
                }
             }
          }
@@ -301,21 +301,21 @@ public class PlayerGirlEvents {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onActionPerformed(ActionPerformedEvent var1) {
-      GuiScreen var2 = var1.getGui();
-      if (var2 instanceof GuiInventory || var2 instanceof GuiContainerCreative) {
-         if (var1.getButton().id == 284453) {
-            Minecraft var3 = Minecraft.getMinecraft();
-            AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3.player.getPersistentID());
-            if (var4 != null) {
-               if (!var4.A_clash381()) {
-                  if (var4.getInteractionPlayerUUID() == null) {
-                     if (var4.getCurrentAction() == Action.NULL) {
-                        var3.gameSettings.thirdPersonView = 2;
-                        var3.entityRenderer.loadEntityShader(null);
-                        var4.setCurrentAction(Action.STRIP);
+   public void onActionPerformed(ActionPerformedEvent event) {
+      GuiScreen gui = event.getGui();
+      if (gui instanceof GuiInventory || gui instanceof GuiContainerCreative) {
+         if (event.getButton().id == 284453) {
+            Minecraft minecraft = Minecraft.getMinecraft();
+            AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(minecraft.player.getPersistentID());
+            if (playerGirl != null) {
+               if (!playerGirl.A_clash381()) {
+                  if (playerGirl.getInteractionPlayerUUID() == null) {
+                     if (playerGirl.getCurrentAction() == Action.NULL) {
+                        minecraft.gameSettings.thirdPersonView = 2;
+                        minecraft.entityRenderer.loadEntityShader(null);
+                        playerGirl.setCurrentAction(Action.STRIP);
                         HandlePlayerMovement.setMovementLock(false);
-                        var3.player.closeScreen();
+                        minecraft.player.closeScreen();
                      }
                   }
                }
@@ -325,16 +325,16 @@ public class PlayerGirlEvents {
    }
 
    @SubscribeEvent
-   public void onLivingDamage(LivingDamageEvent var1) {
-      if (var1.getSource() == DamageSource.FALL) {
-         EntityLivingBase var2 = var1.getEntityLiving();
-         if (var2 instanceof EntityPlayer) {
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var2.getPersistentID());
-            if (var3 != null) {
-               if (var3 instanceof SlimePlayerEntity) {
-                  var1.setResult(Result.DENY);
-                  var1.setAmount(0.0F);
-                  var1.setCanceled(true);
+   public void onLivingDamage(LivingDamageEvent event) {
+      if (event.getSource() == DamageSource.FALL) {
+         EntityLivingBase entity = event.getEntityLiving();
+         if (entity instanceof EntityPlayer) {
+            AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(entity.getPersistentID());
+            if (playerGirl != null) {
+               if (playerGirl instanceof SlimePlayerEntity) {
+                  event.setResult(Result.DENY);
+                  event.setAmount(0.0F);
+                  event.setCanceled(true);
                }
             }
          }

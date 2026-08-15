@@ -47,15 +47,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class SexSceneKeyHandler {
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onKeyInput(KeyInputEvent var1) {
+   public void onKeyInput(KeyInputEvent event) {
       if (ClientProxy.keyBindings[2].isPressed()) {
          SceneDebug.log(SceneDebug.RSHIFT, "R-SHIFT pressed (Leave sex scene)");
-         Minecraft var2 = Minecraft.getMinecraft();
-         if (var2.player == null) {
+         Minecraft mc = Minecraft.getMinecraft();
+         if (mc.player == null) {
             return;
          }
 
-         UUID var3 = var2.player.getPersistentID();
+         UUID playerUuid = mc.player.getPersistentID();
 
          // "Leave sex scene": PROGRESS the scene to its ending when possible —
          // triggerCumAction jumps to the cum/ending animation (fills the meter,
@@ -68,50 +68,50 @@ public class SexSceneKeyHandler {
          // left stuck. The scene-progression path only works because the
          // dismount lerp is fixed; the old revert (9fd5d34) predates that fix.
          try {
-            for (BaseGirlEntity var5 : BaseGirlEntity.getGirlEntityList()) {
-               if (!var5.isDead && var5.world.isRemote && var5.getInteractionPlayerUUID() != null) {
-                  UUID var6 = var5.getInteractionPlayerUUID();
-                  if (var3.equals(var6) || var2.player.getUniqueID().equals(var6)) {
-                     Action before = var5.getCurrentAction();
-                     BaseGirlEntity.triggerCumAction(var3);
-                     if (var5.getCurrentAction() == before) {
+            for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+               if (!girl.isDead && girl.world.isRemote && girl.getInteractionPlayerUUID() != null) {
+                  UUID girlUuid = girl.getInteractionPlayerUUID();
+                  if (playerUuid.equals(girlUuid) || mc.player.getUniqueID().equals(girlUuid)) {
+                     Action before = girl.getCurrentAction();
+                     BaseGirlEntity.triggerCumAction(playerUuid);
+                     if (girl.getCurrentAction() == before) {
                         for (int i = 0; i < 32; i++) {
-                           Action prev = var5.getCurrentAction();
-                           BaseGirlEntity.triggerFastSexAction(var3);
-                           if (var5.getCurrentAction() == prev) {
+                           Action prev = girl.getCurrentAction();
+                           BaseGirlEntity.triggerFastSexAction(playerUuid);
+                           if (girl.getCurrentAction() == prev) {
                               break; // chain end reached
                            }
                         }
                      }
 
-                     if (var5.getCurrentAction() == before) {
-                        SceneDebug.log(SceneDebug.RSHIFT, "R-SHIFT: %s stuck at %s, full exit", var5.getDisplayNameText(), before);
-                        var5.resetCameraAndPhysics();
+                     if (girl.getCurrentAction() == before) {
+                        SceneDebug.log(SceneDebug.RSHIFT, "R-SHIFT: %s stuck at %s, full exit", girl.getDisplayNameText(), before);
+                        girl.resetCameraAndPhysics();
                      } else {
-                        SceneDebug.log(SceneDebug.RSHIFT, "R-SHIFT: %s progressed %s -> %s", var5.getDisplayNameText(), before, var5.getCurrentAction());
+                        SceneDebug.log(SceneDebug.RSHIFT, "R-SHIFT: %s progressed %s -> %s", girl.getDisplayNameText(), before, girl.getCurrentAction());
                      }
                   }
                }
             }
-         } catch (ConcurrentModificationException var7) {
+         } catch (ConcurrentModificationException cme) {
          }
 
-         AbstractPlayerGirlEntity var8 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var3);
-         if (var8 != null && var8.getCurrentAction() != Action.NULL) {
-            Action before = var8.getCurrentAction();
-            BaseGirlEntity.triggerCumAction(var3);
-            if (var8.getCurrentAction() == before) {
+         AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(playerUuid);
+         if (playerGirl != null && playerGirl.getCurrentAction() != Action.NULL) {
+            Action before = playerGirl.getCurrentAction();
+            BaseGirlEntity.triggerCumAction(playerUuid);
+            if (playerGirl.getCurrentAction() == before) {
                for (int i = 0; i < 32; i++) {
-                  Action prev = var8.getCurrentAction();
-                  BaseGirlEntity.triggerFastSexAction(var3);
-                  if (var8.getCurrentAction() == prev) {
+                  Action prev = playerGirl.getCurrentAction();
+                  BaseGirlEntity.triggerFastSexAction(playerUuid);
+                  if (playerGirl.getCurrentAction() == prev) {
                      break;
                   }
                }
             }
 
-            if (var8.getCurrentAction() == before) {
-               var8.resetCameraAndPhysics();
+            if (playerGirl.getCurrentAction() == before) {
+               playerGirl.resetCameraAndPhysics();
             }
          }
       }

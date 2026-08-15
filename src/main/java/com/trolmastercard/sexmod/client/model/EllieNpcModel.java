@@ -37,12 +37,12 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public ResourceLocation getTextureLocation(BaseGirlEntity var0) {
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/ellie/ellie.png");
    }
 
    @Override
-   public ResourceLocation getAnimationFileLocation(BaseGirlEntity var1) {
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "animations/ellie/ellie.animation.json");
    }
 
@@ -53,43 +53,43 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
     * the player's height difference.
     */
    @Override
-   public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
-      super.setLivingAnimations(var1, var2, var3);
-      if (!(var1.world instanceof SexWorldClient)) {
-         if (!(var1 instanceof AbstractPlayerGirlEntity)) {
-            if (var1.getCurrentAction() == Action.SITDOWNIDLE) {
-               EntityPlayer var4 = var1.world.getClosestPlayerToEntity(var1, 15.0);
-               if (var4 != null) {
-                  IBone var5 = this.getAnimationProcessor().getBone("head");
-                  Vec3d var6 = var1.getPositionVector().subtract(var4.getPositionVector());
-                  int var7 = Math.round(var1.getYawRotation());
-                  float var12;
-                  if (var7 == 180) {
-                     var12 = (float)Math.atan2(var6.x, var6.z) * 1.2F;
-                     if (var12 > 0.0F) {
-                        var12 = Math.max(1.5F, Math.min(3.14F, var12));
+   public void setLivingAnimations(BaseGirlEntity entity, Integer uniqueID, AnimationEvent event) {
+      super.setLivingAnimations(entity, uniqueID, event);
+      if (!(entity.world instanceof SexWorldClient)) {
+         if (!(entity instanceof AbstractPlayerGirlEntity)) {
+            if (entity.getCurrentAction() == Action.SITDOWNIDLE) {
+               EntityPlayer nearestPlayer = entity.world.getClosestPlayerToEntity(entity, 15.0);
+               if (nearestPlayer != null) {
+                  IBone headBone = this.getAnimationProcessor().getBone("head");
+                  Vec3d toPlayer = entity.getPositionVector().subtract(nearestPlayer.getPositionVector());
+                  int facingYaw = Math.round(entity.getYawRotation());
+                  float headYaw;
+                  if (facingYaw == 180) {
+                     headYaw = (float)Math.atan2(toPlayer.x, toPlayer.z) * 1.2F;
+                     if (headYaw > 0.0F) {
+                        headYaw = Math.max(1.5F, Math.min(3.14F, headYaw));
                      } else {
-                        var12 = Math.max(-3.14F, Math.min(-1.5F, var12));
+                        headYaw = Math.max(-3.14F, Math.min(-1.5F, headYaw));
                      }
 
-                     if (var12 != 1.5F && var12 != 3.14F && var12 != -3.14F && var12 != -1.5F) {
-                        var12 += 3.0F;
+                     if (headYaw != 1.5F && headYaw != 3.14F && headYaw != -3.14F && headYaw != -1.5F) {
+                        headYaw += 3.0F;
                      } else {
-                        var12 = 0.0F;
+                        headYaw = 0.0F;
                      }
                   } else {
-                     float var9 = this.headYawOffsets.get(var7)[1];
-                     float var10 = this.headYawOffsets.get(var7)[2];
-                     var12 = ((float)(Math.atan2(var6.x, var6.z) + this.headYawOffsets.get(var7)[0]) + var1.getYawRotation()) * 0.8F;
-                     var12 = (float)ThreadNames.clampDouble(var12, var9, var10);
-                     if (var12 == var9 || var12 == var10) {
-                        var12 = 0.0F;
+                     float minClamp = this.headYawOffsets.get(facingYaw)[1];
+                     float maxClamp = this.headYawOffsets.get(facingYaw)[2];
+                     headYaw = ((float)(Math.atan2(toPlayer.x, toPlayer.z) + this.headYawOffsets.get(facingYaw)[0]) + entity.getYawRotation()) * 0.8F;
+                     headYaw = (float)ThreadNames.clampDouble(headYaw, minClamp, maxClamp);
+                     if (headYaw == minClamp || headYaw == maxClamp) {
+                        headYaw = 0.0F;
                      }
                   }
 
-                  float var14 = var12 == 0.0F ? 0.0F : ThreadNames.clampFloat((float)((var4.posY - var1.posY) * 0.5), -0.75F, 0.75F);
-                  var5.setRotationY(var12);
-                  var5.setRotationX(var14);
+                  float headPitch = headYaw == 0.0F ? 0.0F : ThreadNames.clampFloat((float)((nearestPlayer.posY - entity.posY) * 0.5), -0.75F, 0.75F);
+                  headBone.setRotationY(headYaw);
+                  headBone.setRotationX(headPitch);
                }
             }
          }

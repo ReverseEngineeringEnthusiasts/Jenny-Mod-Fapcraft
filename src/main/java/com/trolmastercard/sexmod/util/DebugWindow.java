@@ -11,7 +11,7 @@ public class DebugWindow extends JFrame {
    public boolean isVisible = false;
 
    @SubscribeEvent
-   public void onClientTick(ClientTickEvent var1) {
+   public void onClientTick(ClientTickEvent event) {
       if (!this.isVisible) {
          this.isVisible = true;
          DebugWindow2.showDebugWindow();

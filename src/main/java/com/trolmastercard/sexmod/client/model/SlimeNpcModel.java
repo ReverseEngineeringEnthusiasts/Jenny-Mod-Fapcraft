@@ -32,12 +32,12 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public ResourceLocation getTextureLocation(BaseGirlEntity var1) {
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/slime/slime.png");
    }
 
    @Override
-   public ResourceLocation getAnimationFileLocation(BaseGirlEntity var1) {
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "animations/slime/slime.animation.json");
    }
 
@@ -46,15 +46,15 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
     * actions) and copies the head pose onto the hat bone for plain NPCs.
     */
    @Override
-   public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
-      super.setLivingAnimations(var1, var2, var3);
-      AnimationProcessor var4 = this.getAnimationProcessor();
-      if (!(var1.world instanceof SexWorldClient) && var4.getBone("bedSlime") != null && var4.getBone("bedSlimeLayer") != null) {
-         var4.getBone("bedSlime").setHidden(!Arrays.asList(this.bedSlimeActions).contains(var1.getCurrentAction()));
-         var4.getBone("bedSlimeLayer").setHidden(!Arrays.asList(this.bedSlimeActions).contains(var1.getCurrentAction()));
+   public void setLivingAnimations(BaseGirlEntity entity, Integer uniqueID, AnimationEvent event) {
+      super.setLivingAnimations(entity, uniqueID, event);
+      AnimationProcessor processor = this.getAnimationProcessor();
+      if (!(entity.world instanceof SexWorldClient) && processor.getBone("bedSlime") != null && processor.getBone("bedSlimeLayer") != null) {
+         processor.getBone("bedSlime").setHidden(!Arrays.asList(this.bedSlimeActions).contains(entity.getCurrentAction()));
+         processor.getBone("bedSlimeLayer").setHidden(!Arrays.asList(this.bedSlimeActions).contains(entity.getCurrentAction()));
       }
 
-      if (!(var1 instanceof AbstractPlayerGirlEntity)) {
+      if (!(entity instanceof AbstractPlayerGirlEntity)) {
          this.applyBoneName(new String[]{"head"}, "hat");
       }
    }
@@ -63,30 +63,30 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
     * Sums the named bones' rotations/positions into the target bone — used to
     * bind the hat to the head's current pose.
     */
-   void applyBoneName(String[] var1, String var2) {
-      AnimationProcessor var3 = this.getAnimationProcessor();
-      IBone var4 = var3.getBone(var2);
-      IBone[] var5 = new IBone[var1.length];
+   void applyBoneName(String[] boneNames, String targetBoneName) {
+      AnimationProcessor processor = this.getAnimationProcessor();
+      IBone targetBone = processor.getBone(targetBoneName);
+      IBone[] sourceBones = new IBone[boneNames.length];
 
-      for (int var6 = 0; var6 < var5.length; var6++) {
-         var5[var6] = var3.getBone(var1[var6]);
+      for (int i = 0; i < sourceBones.length; i++) {
+         sourceBones[i] = processor.getBone(boneNames[i]);
       }
 
-      Vector3f var12 = new Vector3f(0.0F, 0.0F, 0.0F);
-      Vector3f var7 = new Vector3f(0.0F, 0.0F, 0.0F);
+      Vector3f rotationSum = new Vector3f(0.0F, 0.0F, 0.0F);
+      Vector3f positionSum = new Vector3f(0.0F, 0.0F, 0.0F);
 
-      for (IBone var11 : var5) {
-         var12.add(new Vector3f(var11.getRotationX(), var11.getRotationY(), var11.getRotationZ()));
-         var7.add(new Vector3f(var11.getPositionX(), var11.getPositionY(), var11.getPositionZ()));
+      for (IBone bone : sourceBones) {
+         rotationSum.add(new Vector3f(bone.getRotationX(), bone.getRotationY(), bone.getRotationZ()));
+         positionSum.add(new Vector3f(bone.getPositionX(), bone.getPositionY(), bone.getPositionZ()));
       }
 
-      var4.setRotationX(var12.x);
-      var4.setRotationY(var12.y);
-      var4.setRotationZ(var12.z);
-      var4.setPositionX(var7.x);
-      var4.setPositionY(var7.y);
-      var4.setPositionZ(var7.z);
-      var4.setPositionZ(var7.z);
+      targetBone.setRotationX(rotationSum.x);
+      targetBone.setRotationY(rotationSum.y);
+      targetBone.setRotationZ(rotationSum.z);
+      targetBone.setPositionX(positionSum.x);
+      targetBone.setPositionY(positionSum.y);
+      targetBone.setPositionZ(positionSum.z);
+      targetBone.setPositionZ(positionSum.z);
    }
 
    @Override

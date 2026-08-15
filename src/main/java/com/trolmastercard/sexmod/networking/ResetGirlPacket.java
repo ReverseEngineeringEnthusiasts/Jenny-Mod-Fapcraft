@@ -56,106 +56,106 @@ public class ResetGirlPacket implements IMessage {
       this.isValid = false;
    }
 
-   public ResetGirlPacket(UUID var1) {
-      this.girlUUID = var1;
+   public ResetGirlPacket(UUID girlUUID) {
+      this.girlUUID = girlUUID;
       this.resetPose = false;
       this.isValid = true;
    }
 
-   public ResetGirlPacket(UUID var1, boolean var2) {
-      this.girlUUID = var1;
-      this.resetPose = var2;
+   public ResetGirlPacket(UUID girlUUID, boolean resetPose) {
+      this.girlUUID = girlUUID;
+      this.resetPose = resetPose;
       this.isValid = true;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.resetPose = var1.readBoolean();
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.resetPose = buf.readBoolean();
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      var1.writeBoolean(this.resetPose);
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      buf.writeBoolean(this.resetPose);
       this.isValid = true;
    }
 
    public static class Handler implements IMessageHandler<ResetGirlPacket, IMessage> {
-      public static void resetGirl(BaseGirlEntity var0) {
-         SceneDebug.log(SceneDebug.RESET, "ResetGirlPacket.resetGirl %s remote=%s anchored=%s action=%s interact=%s", var0.getDisplayNameText(), var0.world.isRemote, var0.isAnchored(), var0.getCurrentAction(), var0.getInteractionPlayerUUID());
-         var0.reinitTasks();
-         if (var0 instanceof AbstractPlayerGirlEntity && var0.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID()) != null) {
+      public static void resetGirl(BaseGirlEntity girl) {
+         SceneDebug.log(SceneDebug.RESET, "ResetGirlPacket.resetGirl %s remote=%s anchored=%s action=%s interact=%s", girl.getDisplayNameText(), girl.world.isRemote, girl.isAnchored(), girl.getCurrentAction(), girl.getInteractionPlayerUUID());
+         girl.reinitTasks();
+         if (girl instanceof AbstractPlayerGirlEntity && girl.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)girl).getOwnerUserUUID()) != null) {
             PacketHandler.networkWrapper
                .sendTo(
                   new SetPlayerMovementPacket(true),
                   (EntityPlayerMP)FMLCommonHandler.instance()
                      .getMinecraftServerInstance()
-                     .getWorld(var0.dimension)
-                     .getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID())
+                     .getWorld(girl.dimension)
+                     .getPlayerEntityByUUID(((AbstractPlayerGirlEntity)girl).getOwnerUserUUID())
                );
-            var0.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, 1);
-            EntityPlayer var1 = var0.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID());
-            var1.capabilities.isFlying = false;
-            var1.setNoGravity(false);
-            var1.noClip = false;
-            var0.setAnchored(false);
-            var0.setCurrentAction(Action.NULL);
+            girl.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, 1);
+            EntityPlayer owner = girl.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)girl).getOwnerUserUUID());
+            owner.capabilities.isFlying = false;
+            owner.setNoGravity(false);
+            owner.noClip = false;
+            girl.setAnchored(false);
+            girl.setCurrentAction(Action.NULL);
 
             // Jar-faithful: the interacting player's physics are restored here,
             // inside the APGE branch only. For NPC girl scenes the player is
             // restored by resetGirls() in onMessage, which runs whenever the
             // girl has an interaction partner (before the resetPose check).
-            if (var0.getInteractionPlayerUUID() != null) {
-               EntityPlayer var2 = var0.world.getPlayerEntityByUUID(var0.getInteractionPlayerUUID());
-               if (var2 != null) {
-                  var2.capabilities.isFlying = false;
-                  var2.setNoGravity(false);
-                  var2.noClip = false;
+            if (girl.getInteractionPlayerUUID() != null) {
+               EntityPlayer interactionPlayer = girl.world.getPlayerEntityByUUID(girl.getInteractionPlayerUUID());
+               if (interactionPlayer != null) {
+                  interactionPlayer.capabilities.isFlying = false;
+                  interactionPlayer.setNoGravity(false);
+                  interactionPlayer.noClip = false;
                }
             }
          }
 
-         var0.setAnchored(false);
-         var0.setInteractionPlayerUUID(null);
-         var0.cameraOriginPos = null;
-         var0.setNoGravity(false);
-         var0.noClip = false;
-         World var3 = var0.world;
-         Vec3d var4 = var0.getPositionVector();
+         girl.setAnchored(false);
+         girl.setInteractionPlayerUUID(null);
+         girl.cameraOriginPos = null;
+         girl.setNoGravity(false);
+         girl.noClip = false;
+         World world = girl.world;
+         Vec3d pos = girl.getPositionVector();
 
-         while (var3.getBlockState(new BlockPos(var4.x, var4.y, var4.z)).getBlock() != Blocks.AIR) {
-            var4 = var4.add(0.0, 1.0, 0.0);
+         while (world.getBlockState(new BlockPos(pos.x, pos.y, pos.z)).getBlock() != Blocks.AIR) {
+            pos = pos.add(0.0, 1.0, 0.0);
          }
 
-         var0.setPositionAndUpdate(var4.x, var4.y, var4.z);
+         girl.setPositionAndUpdate(pos.x, pos.y, pos.z);
       }
 
-      public static void resetGirls(EntityPlayerMP var0) {
-         if (var0 != null) {
-            World var1 = var0.world;
-            Vec3d var2 = var0.getPositionVector();
+      public static void resetGirls(EntityPlayerMP player) {
+         if (player != null) {
+            World world = player.world;
+            Vec3d pos = player.getPositionVector();
 
-            while (var1.getBlockState(new BlockPos(var2.x, var2.y, var2.z)).getBlock() != Blocks.AIR) {
-               var2 = var2.add(0.0, 1.0, 0.0);
+            while (world.getBlockState(new BlockPos(pos.x, pos.y, pos.z)).getBlock() != Blocks.AIR) {
+               pos = pos.add(0.0, 1.0, 0.0);
             }
 
-            var0.setPositionAndUpdate(var2.x, var2.y, var2.z);
-            var0.setInvisible(false);
-            var0.noClip = false;
-            var0.setNoGravity(false);
-            var0.capabilities.isFlying = false;
-            PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), var0);
+            player.setPositionAndUpdate(pos.x, pos.y, pos.z);
+            player.setInvisible(false);
+            player.noClip = false;
+            player.setNoGravity(false);
+            player.capabilities.isFlying = false;
+            PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), player);
          }
       }
 
-      public IMessage onMessage(ResetGirlPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(ResetGirlPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
-                  if (!var3.world.isRemote) {
-                     SceneDebug.log(SceneDebug.RESET, "ResetGirlPacket.onMessage girl=%s resetPose=%s action=%s anchored=%s interact=%s", var3.getDisplayNameText(), var1.resetPose, var3.getCurrentAction(), var3.isAnchored(), var3.getInteractionPlayerUUID());
-                     if (var3.getInteractionPlayerUUID() != null) {
-                        resetGirls(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(var3.getInteractionPlayerUUID()));
+               for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.girlUUID)) {
+                  if (!girl.world.isRemote) {
+                     SceneDebug.log(SceneDebug.RESET, "ResetGirlPacket.onMessage girl=%s resetPose=%s action=%s anchored=%s interact=%s", girl.getDisplayNameText(), packet.resetPose, girl.getCurrentAction(), girl.isAnchored(), girl.getInteractionPlayerUUID());
+                     if (girl.getInteractionPlayerUUID() != null) {
+                        resetGirls(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(girl.getInteractionPlayerUUID()));
                      }
 
                      // Jar-faithful (verified against Fapcraft.1.12.2.v1.1.jar
@@ -164,8 +164,8 @@ public class ResetGirlPacket implements IMessage {
                      // physics via resetGirls + girl release via resetGirl); the
                      // two-arg TRUE packet is the player-only reset used by
                      // strip/doggy transitions where the girl keeps her pose.
-                     if (!var1.resetPose) {
-                        resetGirl(var3);
+                     if (!packet.resetPose) {
+                        resetGirl(girl);
                      }
                   }
                }

@@ -49,115 +49,115 @@ public class PlayerIds {
    static final UUID girlId = UUID.fromString("adf20149-2adc-4a9d-9af5-8e9aeda019d6");
 
    @SubscribeEvent
-   public void onPlayerLoggedIn(PlayerLoggedInEvent var1) {
-      EntityPlayerMP var2 = var1.player.world.getMinecraftServer().getPlayerList().getPlayerByUUID(var1.player.getPersistentID());
-      var2.setInvisible(false);
-      var2.setNoGravity(false);
-      var2.noClip = false;
-      if (!var2.capabilities.isCreativeMode && var2.capabilities.isFlying) {
-         var2.capabilities.isFlying = false;
+   public void onPlayerLoggedIn(PlayerLoggedInEvent event) {
+      EntityPlayerMP player = event.player.world.getMinecraftServer().getPlayerList().getPlayerByUUID(event.player.getPersistentID());
+      player.setInvisible(false);
+      player.setNoGravity(false);
+      player.noClip = false;
+      if (!player.capabilities.isCreativeMode && player.capabilities.isFlying) {
+         player.capabilities.isFlying = false;
       }
 
-      PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), var2);
-      PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(GirlSavedData.hasOwner(var2.getPersistentID())), var2);
+      PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), player);
+      PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(GirlSavedData.hasOwner(player.getPersistentID())), player);
 
-      for (ItemStack var4 : var2.inventory.mainInventory) {
-         if (var4.getItem() == AlliesLampItem.ALLIES_LAMP && var4.hasTagCompound()) {
-            var4.getTagCompound().setUniqueId("user", UUID.randomUUID());
+      for (ItemStack stack : player.inventory.mainInventory) {
+         if (stack.getItem() == AlliesLampItem.ALLIES_LAMP && stack.hasTagCompound()) {
+            stack.getTagCompound().setUniqueId("user", UUID.randomUUID());
          }
       }
 
-      UUID var7 = KoboldManager.getTribeUUID(var2.getPersistentID());
-      if (var7 != null) {
-         HashSet var8 = KoboldManager.getAllTribeBlocks(var7);
-         PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var8, true), var2);
+      UUID tribeUuid = KoboldManager.getTribeUUID(player.getPersistentID());
+      if (tribeUuid != null) {
+         HashSet blocks = KoboldManager.getAllTribeBlocks(tribeUuid);
+         PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(blocks, true), player);
       }
 
       AbstractPlayerGirlEntity.rebuildPlayerGirlTableFromWorld();
-      AbstractPlayerGirlEntity var9 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.player.getPersistentID());
-      World var5 = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
-      this.registerJenny(var5, var2, var9);
-      if (var9 != null) {
-         var9.setAnchored(false);
-         var9.setCurrentAction(Action.NULL);
-         ResetGirlPacket.Handler.resetGirl(var9);
+      AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(event.player.getPersistentID());
+      World world = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
+      this.registerJenny(world, player, playerGirl);
+      if (playerGirl != null) {
+         playerGirl.setAnchored(false);
+         playerGirl.setCurrentAction(Action.NULL);
+         ResetGirlPacket.Handler.resetGirl(playerGirl);
       }
 
-      UUID var6 = var1.player.getPersistentID();
-      if (var6.equals(playerId)) {
-         this.registerBia(var5, var2, var6);
+      UUID playerUuid = event.player.getPersistentID();
+      if (playerUuid.equals(playerId)) {
+         this.registerBia(world, player, playerUuid);
       }
 
-      if (var6.equals(girlId)) {
-         this.registerEllie(var5, var2, var6);
+      if (playerUuid.equals(girlId)) {
+         this.registerEllie(world, player, playerUuid);
       }
 
-      GalathEntity.handlePlayerJoin(var2);
+      GalathEntity.handlePlayerJoin(player);
    }
 
-   void registerBia(World var1, EntityPlayer var2, UUID var3) {
-      BiaPlayerEntity var4 = new BiaPlayerEntity(var1, var3);
-      var4.setNoGravity(true);
-      var4.noClip = true;
-      var4.motionX = 0.0;
-      var4.motionY = 0.0;
-      var4.motionZ = 0.0;
-      var4.setPosition(var2.posX, var2.posY + 69.0, var2.posZ);
-      var1.spawnEntity(var4);
-      var4.B_clash233();
+   void registerBia(World world, EntityPlayer player, UUID uuid) {
+      BiaPlayerEntity bia = new BiaPlayerEntity(world, uuid);
+      bia.setNoGravity(true);
+      bia.noClip = true;
+      bia.motionX = 0.0;
+      bia.motionY = 0.0;
+      bia.motionZ = 0.0;
+      bia.setPosition(player.posX, player.posY + 69.0, player.posZ);
+      world.spawnEntity(bia);
+      bia.B_clash233();
    }
 
-   void registerEllie(World var1, EntityPlayer var2, UUID var3) {
-      ElliePlayerEntity var4 = new ElliePlayerEntity(var1, var3);
-      var4.setNoGravity(true);
-      var4.noClip = true;
-      var4.motionX = 0.0;
-      var4.motionY = 0.0;
-      var4.motionZ = 0.0;
-      var4.setPosition(var2.posX, var2.posY + 69.0, var2.posZ);
-      var1.spawnEntity(var4);
-      var4.B_clash233();
+   void registerEllie(World world, EntityPlayer player, UUID uuid) {
+      ElliePlayerEntity ellie = new ElliePlayerEntity(world, uuid);
+      ellie.setNoGravity(true);
+      ellie.noClip = true;
+      ellie.motionX = 0.0;
+      ellie.motionY = 0.0;
+      ellie.motionZ = 0.0;
+      ellie.setPosition(player.posX, player.posY + 69.0, player.posZ);
+      world.spawnEntity(ellie);
+      ellie.B_clash233();
    }
 
-   void registerJenny(World var1, EntityPlayer var2, AbstractPlayerGirlEntity var3) {
-      Predicate var4 = var0 -> true;
+   void registerJenny(World world, EntityPlayer player, AbstractPlayerGirlEntity existingGirl) {
+      Predicate predicate = girl -> true;
 
-      for (AbstractPlayerGirlEntity var7 : var1.getEntities(AbstractPlayerGirlEntity.class, var4::test)) {
-         if (var7.getOwnerUserUUID().equals(var2.getPersistentID()) && (var3 == null || var7.getEntityId() != var3.getEntityId())) {
-            var1.removeEntity(var7);
+      for (AbstractPlayerGirlEntity playerGirl : world.getEntities(AbstractPlayerGirlEntity.class, predicate::test)) {
+         if (playerGirl.getOwnerUserUUID().equals(player.getPersistentID()) && (existingGirl == null || playerGirl.getEntityId() != existingGirl.getEntityId())) {
+            world.removeEntity(playerGirl);
          }
       }
    }
 
    @SubscribeEvent
-   public void onPlayerLoggedOut(PlayerLoggedOutEvent var1) {
-      EntityPlayer var2 = var1.player;
+   public void onPlayerLoggedOut(PlayerLoggedOutEvent event) {
+      EntityPlayer player = event.player;
 
       try {
-         for (BaseGirlEntity var4 : BaseGirlEntity.getGirlEntityList()) {
-            if (var4 instanceof AbstractPlayerGirlEntity) {
-               ((AbstractPlayerGirlEntity)var4).onOwnerInteract(var2);
+         for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+            if (girl instanceof AbstractPlayerGirlEntity) {
+               ((AbstractPlayerGirlEntity)girl).onOwnerInteract(player);
             }
 
-            if (var4.getInteractionPlayerUUID() != null) {
-               if (var4.getInteractionPlayerUUID().equals(var2.getPersistentID()) || var4.getInteractionPlayerUUID().equals(var2.getUniqueID())) {
-                  ResetGirlPacket.Handler.resetGirl(var4);
-                  var4.setAnchored(false);
-                  var4.setCurrentAction(Action.NULL);
+            if (girl.getInteractionPlayerUUID() != null) {
+               if (girl.getInteractionPlayerUUID().equals(player.getPersistentID()) || girl.getInteractionPlayerUUID().equals(player.getUniqueID())) {
+                  ResetGirlPacket.Handler.resetGirl(girl);
+                  girl.setAnchored(false);
+                  girl.setCurrentAction(Action.NULL);
                }
 
-               if (var4 instanceof AbstractPlayerGirlEntity
-                  && ((AbstractPlayerGirlEntity)var4).getOwnerUserUUID().equals(var2.getPersistentID())
-                  && var4.getInteractionPlayerUUID() != null) {
-                  EntityPlayerMP var5 = (EntityPlayerMP)var1.player.world.getPlayerEntityByUUID(var4.getInteractionPlayerUUID());
-                  PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), var5);
-                  ResetGirlPacket.Handler.resetGirls(var5);
-                  var2.setInvisible(false);
-                  var4.setInteractionPlayerUUID(null);
+               if (girl instanceof AbstractPlayerGirlEntity
+                  && ((AbstractPlayerGirlEntity)girl).getOwnerUserUUID().equals(player.getPersistentID())
+                  && girl.getInteractionPlayerUUID() != null) {
+                  EntityPlayerMP ridingPlayer = (EntityPlayerMP)event.player.world.getPlayerEntityByUUID(girl.getInteractionPlayerUUID());
+                  PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), ridingPlayer);
+                  ResetGirlPacket.Handler.resetGirls(ridingPlayer);
+                  player.setInvisible(false);
+                  girl.setInteractionPlayerUUID(null);
                }
             }
          }
-      } catch (ConcurrentModificationException var6) {
+      } catch (ConcurrentModificationException exception) {
       }
    }
 

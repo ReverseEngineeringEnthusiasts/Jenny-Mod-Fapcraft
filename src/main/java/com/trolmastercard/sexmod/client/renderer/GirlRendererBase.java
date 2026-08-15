@@ -52,8 +52,8 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
    protected static final Vec3i defaultColor = new Vec3i(255, 255, 255);
    static HashMap<Integer, Vec3i> s = new HashMap<>();
 
-   public GirlRendererBase(RenderManager var1, AnimatedGeoModel var2, double var3) {
-      super(var1, var2, var3);
+   public GirlRendererBase(RenderManager renderManager, AnimatedGeoModel model, double shadowSize) {
+      super(renderManager, model, shadowSize);
    }
 
    public static void clearBoneColors() {
@@ -65,32 +65,32 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
     * recomputed only when absent. Call after any model-code change must go
     * through {@link #clearBoneColors()}.
     */
-   protected Vec3i getCachedBoneColor(GeoBone var1) {
-      String var2 = var1.getName();
-      int var3 = var2.hashCode() + this.renderEntity.getPersistentID().hashCode();
-      Vec3i var4 = s.get(var3);
-      if (var4 != null) {
-         return var4;
+   protected Vec3i getCachedBoneColor(GeoBone bone) {
+      String boneName = bone.getName();
+      int cacheKey = boneName.hashCode() + this.renderEntity.getPersistentID().hashCode();
+      Vec3i color = s.get(cacheKey);
+      if (color != null) {
+         return color;
       }
 
-      var4 = this.getBoneColor(var2);
-      s.put(var3, var4);
-      return var4;
+      color = this.getBoneColor(boneName);
+      s.put(cacheKey, color);
+      return color;
    }
 
-   protected abstract Vec3i getBoneColor(String var1);
+   protected abstract Vec3i getBoneColor(String boneName);
 
    /**
     * Hides all children of a bone except the one at the given index.
     */
-   protected static void setBoneHidden(GeoBone var0, int var1) {
-      List var2 = var0.childBones;
+   protected static void setBoneHidden(GeoBone bone, int keepIndex) {
+      List children = bone.childBones;
 
-      for (int var4 = 0; var4 < var2.size(); var4++) {
-         GeoBone var5 = (GeoBone)var2.get(var4);
-         if (var1 == var4) {
-            GeoBone var3 = var5;
-            var3.setHidden(false);
+      for (int i = 0; i < children.size(); i++) {
+         GeoBone child = (GeoBone)children.get(i);
+         if (keepIndex == i) {
+            GeoBone keptBone = child;
+            keptBone.setHidden(false);
             return;
          }
       }
@@ -103,22 +103,22 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
     * then renders the third-person item and re-binds the entity texture.
     */
    @Override
-   protected void renderHeldItem(BufferBuilder var1, GeoBone var2) {
-      ItemStack var3 = this.resolveHeldItemStack(null);
-      float var4 = this.getDefaultScale();
-      Vec3d var5 = this.getItemRenderOffset(var3);
-      if (var3 != null) {
+   protected void renderHeldItem(BufferBuilder buffer, GeoBone bone) {
+      ItemStack heldStack = this.resolveHeldItemStack(null);
+      float scale = this.getDefaultScale();
+      Vec3d rotation = this.getItemRenderOffset(heldStack);
+      if (heldStack != null) {
          GlStateManager.pushMatrix();
          Tessellator.getInstance().draw();
-         com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
+         com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
          GL11.glEnable(2896);
-         GlStateManager.scale(var4, var4, var4);
-         GlStateManager.rotate((float)var5.x, 1.0F, 0.0F, 0.0F);
-         GlStateManager.rotate((float)var5.y, 0.0F, 1.0F, 0.0F);
-         GlStateManager.rotate((float)var5.z, 0.0F, 0.0F, 1.0F);
-         Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, var3, TransformType.THIRD_PERSON_RIGHT_HAND);
+         GlStateManager.scale(scale, scale, scale);
+         GlStateManager.rotate((float)rotation.x, 1.0F, 0.0F, 0.0F);
+         GlStateManager.rotate((float)rotation.y, 0.0F, 1.0F, 0.0F);
+         GlStateManager.rotate((float)rotation.z, 0.0F, 0.0F, 1.0F);
+         Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, heldStack, TransformType.THIRD_PERSON_RIGHT_HAND);
          this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-         var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          GL11.glDisable(2896);
          GlStateManager.popMatrix();
       }
@@ -128,7 +128,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       return 1.0F;
    }
 
-   protected Vec3d getItemRenderOffset(ItemStack var1) {
+   protected Vec3d getItemRenderOffset(ItemStack stack) {
       return new Vec3d(-90.0, 0.0, 0.0);
    }
 
@@ -138,26 +138,26 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
     *
     * @return the chosen child bone
     */
-   protected static GeoBone getChildBone(GeoBone var0, int var1) {
-      List var2 = var0.childBones;
-      GeoBone var3 = null;
-      var2.sort(Comparator.comparingDouble(GeoBone::getPivotY));
+   protected static GeoBone getChildBone(GeoBone bone, int index) {
+      List children = bone.childBones;
+      GeoBone chosen = null;
+      children.sort(Comparator.comparingDouble(GeoBone::getPivotY));
 
-      for (int var4 = 0; var4 < var2.size(); var4++) {
-         GeoBone var5 = (GeoBone)var2.get(var4);
-         if (var1 == var4) {
-            var3 = var5;
-            var3.setHidden(false);
+      for (int i = 0; i < children.size(); i++) {
+         GeoBone child = (GeoBone)children.get(i);
+         if (index == i) {
+            chosen = child;
+            chosen.setHidden(false);
          } else {
-            var5.setHidden(true);
+            child.setHidden(true);
          }
       }
 
-      return var3;
+      return chosen;
    }
 
-   protected Vec3i tintBoneColor(Vec3i var1) {
-      return var1;
+   protected Vec3i tintBoneColor(Vec3i color) {
+      return color;
    }
 
    /**
@@ -167,36 +167,36 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
     * in the {@link SexWorldClient} preload world.
     */
    @Override
-   public void renderCustomBones(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
+   public void renderCustomBones(BufferBuilder buffer, GeoBone bone, float r, float g, float b, float a, double overlayAlpha) {
       if (!(this.renderEntity.world instanceof SexWorldClient)) {
-         String var9 = var2.getName();
-         if (var9.equals("weapon")) {
-            this.renderHeldItem(var1, var2);
+         String boneName = bone.getName();
+         if (boneName.equals("weapon")) {
+            this.renderHeldItem(buffer, bone);
          }
 
-         if (var9.equals("itemRenderer") && this.renderEntity.getCurrentAction() == Action.PAYMENT) {
-            this.renderTradeOverlay(var1, var2);
+         if (boneName.equals("itemRenderer") && this.renderEntity.getCurrentAction() == Action.PAYMENT) {
+            this.renderTradeOverlay(buffer, bone);
          }
 
-         this.onBoneProcessing(var1, var2.getName(), var2);
+         this.onBoneProcessing(buffer, bone.getName(), bone);
          MATRIX_STACK.push();
-         MATRIX_STACK.translate(var2);
-         MATRIX_STACK.moveToPivot(var2);
-         MATRIX_STACK.rotate(var2);
-         MATRIX_STACK.scale(var2);
-         MATRIX_STACK.moveBackFromPivot(var2);
-         if (!var2.isHidden) {
-            for (GeoCube var11 : var2.childCubes) {
+         MATRIX_STACK.translate(bone);
+         MATRIX_STACK.moveToPivot(bone);
+         MATRIX_STACK.rotate(bone);
+         MATRIX_STACK.scale(bone);
+         MATRIX_STACK.moveBackFromPivot(bone);
+         if (!bone.isHidden) {
+            for (GeoCube cube : bone.childCubes) {
                MATRIX_STACK.push();
                GlStateManager.pushMatrix();
-               this.currentRenderingBone = var2;
-               this.renderCubeGeometry(var1, var11, var2, var3, var4, var5, var6, var7);
+               this.currentRenderingBone = bone;
+               this.renderCubeGeometry(buffer, cube, bone, r, g, b, a, overlayAlpha);
                GlStateManager.popMatrix();
                MATRIX_STACK.pop();
             }
 
-            for (GeoBone var13 : var2.childBones) {
-               this.renderCustomBones(var1, var13, var3, var4, var5, var6, var7);
+            for (GeoBone childBone : bone.childBones) {
+               this.renderCustomBones(buffer, childBone, r, g, b, a, overlayAlpha);
             }
          }
 
@@ -205,50 +205,50 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
    }
 
    @Override
-   public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
-      this.renderCustomBones(var1, var2, var3, var4, var5, var6, 0.0);
+   public void renderRecursively(BufferBuilder buffer, GeoBone bone, float r, float g, float b, float a) {
+      this.renderCustomBones(buffer, bone, r, g, b, a, 0.0);
    }
 
    /**
     * Emits a cube's quads with per-vertex tint from the bone color (cached,
     * then light-tinted) and transformed normals (mirrored on zero-size faces).
-    * {@code var8} shifts the texture V coordinate (used by custom-part texture
+    * {@code textureVOffset} shifts the texture V coordinate (used by custom-part texture
     * variants).
     */
-   public void renderCubeGeometry(BufferBuilder var1, GeoCube var2, GeoBone var3, float var4, float var5, float var6, float var7, double var8) {
-      MATRIX_STACK.moveToPivot(var2);
-      MATRIX_STACK.rotate(var2);
-      MATRIX_STACK.moveBackFromPivot(var2);
+   public void renderCubeGeometry(BufferBuilder buffer, GeoCube cube, GeoBone bone, float r, float g, float b, float a, double textureVOffset) {
+      MATRIX_STACK.moveToPivot(cube);
+      MATRIX_STACK.rotate(cube);
+      MATRIX_STACK.moveBackFromPivot(cube);
 
-      for (GeoQuad var13 : var2.quads) {
-         if (var13 != null) {
-            Vector3f var14 = new Vector3f(var13.normal.getX(), var13.normal.getY(), var13.normal.getZ());
-            MATRIX_STACK.getNormalMatrix().transform(var14);
-            if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var14.getX() < 0.0F) {
-               var14.x *= -1.0F;
+      for (GeoQuad quad : cube.quads) {
+         if (quad != null) {
+            Vector3f normal = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
+            MATRIX_STACK.getNormalMatrix().transform(normal);
+            if ((cube.size.y == 0.0F || cube.size.z == 0.0F) && normal.getX() < 0.0F) {
+               normal.x *= -1.0F;
             }
 
-            if ((var2.size.x == 0.0F || var2.size.z == 0.0F) && var14.getY() < 0.0F) {
-               var14.y *= -1.0F;
+            if ((cube.size.x == 0.0F || cube.size.z == 0.0F) && normal.getY() < 0.0F) {
+               normal.y *= -1.0F;
             }
 
-            if ((var2.size.x == 0.0F || var2.size.y == 0.0F) && var14.getZ() < 0.0F) {
-               var14.z *= -1.0F;
+            if ((cube.size.x == 0.0F || cube.size.y == 0.0F) && normal.getZ() < 0.0F) {
+               normal.z *= -1.0F;
             }
 
-            Vec3i var15 = this.getCachedBoneColor(var3);
-            var15 = this.tintBoneColor(var15);
-            Vec3d var16 = BodyParts.getBoneWorldPosition(
-               this, var3, new Vec3d(var15.getX() / 255.0F, var15.getY() / 255.0F, var15.getZ() / 255.0F), var14
+            Vec3i boneColor = this.getCachedBoneColor(bone);
+            boneColor = this.tintBoneColor(boneColor);
+            Vec3d worldColor = BodyParts.getBoneWorldPosition(
+               this, bone, new Vec3d(boneColor.getX() / 255.0F, boneColor.getY() / 255.0F, boneColor.getZ() / 255.0F), normal
             );
 
-            for (GeoVertex var20 : var13.vertices) {
-               Vector4f var21 = new Vector4f(var20.position.getX(), var20.position.getY(), var20.position.getZ(), 1.0F);
-               MATRIX_STACK.getModelMatrix().transform(var21);
-               var1.pos(var21.getX(), var21.getY(), var21.getZ())
-                  .tex(var20.textureU + var8, var20.textureV)
-                  .color((float)var16.x, (float)var16.y, (float)var16.z, var7)
-                  .normal(var14.getX(), var14.getY(), var14.getZ())
+            for (GeoVertex vertex : quad.vertices) {
+               Vector4f matrixPos = new Vector4f(vertex.position.getX(), vertex.position.getY(), vertex.position.getZ(), 1.0F);
+               MATRIX_STACK.getModelMatrix().transform(matrixPos);
+               buffer.pos(matrixPos.getX(), matrixPos.getY(), matrixPos.getZ())
+                  .tex(vertex.textureU + textureVOffset, vertex.textureV)
+                  .color((float)worldColor.x, (float)worldColor.y, (float)worldColor.z, a)
+                  .normal(normal.getX(), normal.getY(), normal.getZ())
                   .endVertex();
             }
          }

@@ -8,5 +8,5 @@ import net.minecraft.util.math.Vec3d;
  * Provides a Vec3d position (used by scene positioning helpers).
  */
 public interface IPositionProvider {
-   Vec3d getPosition(BaseGirlEntity var1);
+   Vec3d getPosition(BaseGirlEntity girl);
 }

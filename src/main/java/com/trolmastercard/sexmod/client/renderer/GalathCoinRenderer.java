@@ -58,40 +58,40 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
     * current spin/fade state. Resets culling/lighting state afterwards.
     */
    @Override
-   public void render(GeoModel var1, GalathCoinItem var2, float var3, float var4, float var5, float var6, float var7) {
+   public void render(GeoModel model, GalathCoinItem coin, float r, float g, float b, float a, float ticks) {
       GlStateManager.disableCull();
       GlStateManager.enableRescaleNormal();
-      BufferBuilder var8 = Tessellator.getInstance().getBuffer();
-      var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-      GeoBone var9 = null;
+      BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      GeoBone pentagramBone = null;
       this.isFlipping = false;
-      GeoBone var10 = var1.topLevelBones.get(0);
+      GeoBone topBone = model.topLevelBones.get(0);
       MATRIX_STACK.push();
-      MATRIX_STACK.translate(var10);
-      MATRIX_STACK.moveToPivot(var10);
-      MATRIX_STACK.rotate(var10);
-      MATRIX_STACK.scale(var10);
-      MATRIX_STACK.moveBackFromPivot(var10);
+      MATRIX_STACK.translate(topBone);
+      MATRIX_STACK.moveToPivot(topBone);
+      MATRIX_STACK.rotate(topBone);
+      MATRIX_STACK.scale(topBone);
+      MATRIX_STACK.moveBackFromPivot(topBone);
 
-      for (GeoBone var12 : var10.childBones) {
-         if ("pentagram".equals(var12.getName())) {
-            var9 = var12;
+      for (GeoBone bone : topBone.childBones) {
+         if ("pentagram".equals(bone.getName())) {
+            pentagramBone = bone;
          } else {
-            this.renderRecursively(var8, var12, var4, var5, var6, var7);
+            this.renderRecursively(buffer, bone, g, b, a, ticks);
          }
       }
 
       Tessellator.getInstance().draw();
-      float var13 = this.getCoinScale(var3);
+      float lightmapValue = this.getCoinScale(r);
       this.currentTint = this.getCoinColor();
       if (!GirlSavedData.debugEnabled) {
-         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, var13, var13);
+         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightmapValue, lightmapValue);
          GL11.glDisable(2896);
       }
 
-      var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
       this.isFlipping = true;
-      this.renderRecursively(var8, var9, var4, var5, var6, var7);
+      this.renderRecursively(buffer, pentagramBone, g, b, a, ticks);
       Tessellator.getInstance().draw();
       GL11.glEnable(2896);
       MATRIX_STACK.pop();
@@ -105,39 +105,39 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
     * spinning up, 240 (dim) while fading, else a sine bob for idle coins; in
     * debug mode it is pinned to 120.
     */
-   float getCoinScale(float var1) {
+   float getCoinScale(float partialTicks) {
       if (mc.player.getHeldItemMainhand() != this.currentItemStack && mc.player.getHeldItemOffhand() != this.currentItemStack) {
-         return this.getCoinBob(var1);
+         return this.getCoinBob(partialTicks);
       } else {
-         long var2 = System.currentTimeMillis();
-         NBTTagCompound var4 = mc.player.getEntityData();
-         long var5 = var4.getLong("sexmod:galath_coin_activation_time");
-         long var7 = var4.getLong("sexmod:galath_coin_deactivation_time");
-         if (var5 != 0L) {
-            return this.getCoinSpin(var2, var5, var1);
-         } else if (var7 != 0L) {
-            return this.getCoinFade(var2, var7, var1);
+         long now = System.currentTimeMillis();
+         NBTTagCompound nbt = mc.player.getEntityData();
+         long activationTime = nbt.getLong("sexmod:galath_coin_activation_time");
+         long deactivationTime = nbt.getLong("sexmod:galath_coin_deactivation_time");
+         if (activationTime != 0L) {
+            return this.getCoinSpin(now, activationTime, partialTicks);
+         } else if (deactivationTime != 0L) {
+            return this.getCoinFade(now, deactivationTime, partialTicks);
          } else {
-            return GirlSavedData.debugEnabled ? 120.0F : this.getCoinBob(var1);
+            return GirlSavedData.debugEnabled ? 120.0F : this.getCoinBob(partialTicks);
          }
       }
    }
 
-   float getCoinFade(long var1, long var3, float var5) {
-      float var6 = (float)(var1 - var3);
-      if (var6 < 1000.0F) {
+   float getCoinFade(long now, long start, float partialTicks) {
+      float elapsed = (float)(now - start);
+      if (elapsed < 1000.0F) {
          return 120.0F;
       } else {
-         return var6 <= 3000.0F ? RotationHelper.lerp(120.0F, 240.0F, (var6 - 1000.0F) / 2000.0F) : 240.0F;
+         return elapsed <= 3000.0F ? RotationHelper.lerp(120.0F, 240.0F, (elapsed - 1000.0F) / 2000.0F) : 240.0F;
       }
    }
 
-   float getCoinSpin(long var1, long var3, float var5) {
-      float var6 = (float)(var1 - var3);
-      if (var6 < 1000.0F) {
+   float getCoinSpin(long now, long start, float partialTicks) {
+      float elapsed = (float)(now - start);
+      if (elapsed < 1000.0F) {
          return 240.0F;
       } else {
-         return var6 <= 3000.0F ? RotationHelper.lerp(240.0F, 120.0F, (var6 - 1000.0F) / 2000.0F) : 120.0F;
+         return elapsed <= 3000.0F ? RotationHelper.lerp(240.0F, 120.0F, (elapsed - 1000.0F) / 2000.0F) : 120.0F;
       }
    }
 
@@ -149,50 +149,50 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       if (mc.player.getHeldItemMainhand() != this.currentItemStack && mc.player.getHeldItemOffhand() != this.currentItemStack) {
          return COIN_COLOR;
       } else {
-         long var1 = System.currentTimeMillis();
-         NBTTagCompound var3 = mc.player.getEntityData();
-         long var4 = var3.getLong("sexmod:galath_coin_activation_time");
-         long var6 = var3.getLong("sexmod:galath_coin_deactivation_time");
-         if (var4 != 0L) {
-            return this.getCoinColorDark(var4, var1);
-         } else if (var6 != 0L) {
-            return this.getCoinColor(var6, var1);
+         long now = System.currentTimeMillis();
+         NBTTagCompound nbt = mc.player.getEntityData();
+         long activationTime = nbt.getLong("sexmod:galath_coin_activation_time");
+         long deactivationTime = nbt.getLong("sexmod:galath_coin_deactivation_time");
+         if (activationTime != 0L) {
+            return this.getCoinColorDark(activationTime, now);
+         } else if (deactivationTime != 0L) {
+            return this.getCoinColor(deactivationTime, now);
          } else {
             return GirlSavedData.debugEnabled ? COIN_COLOR_DARK : COIN_COLOR;
          }
       }
    }
 
-   Vector3fSexmodSpecial getCoinColor(long var1, long var3) {
-      float var5 = (float)(var3 - var1);
-      if (var5 < 1000.0F) {
+   Vector3fSexmodSpecial getCoinColor(long start, long now) {
+      float elapsed = (float)(now - start);
+      if (elapsed < 1000.0F) {
          return COIN_COLOR_DARK;
       } else {
-         return var5 <= 3000.0F ? RotationHelper.lerpVector3f(COIN_COLOR_DARK, COIN_COLOR, (var5 - 1000.0F) / 2000.0F) : COIN_COLOR;
+         return elapsed <= 3000.0F ? RotationHelper.lerpVector3f(COIN_COLOR_DARK, COIN_COLOR, (elapsed - 1000.0F) / 2000.0F) : COIN_COLOR;
       }
    }
 
-   Vector3fSexmodSpecial getCoinColorDark(long var1, long var3) {
-      float var5 = (float)(var3 - var1);
-      if (var5 < 1000.0F) {
+   Vector3fSexmodSpecial getCoinColorDark(long start, long now) {
+      float elapsed = (float)(now - start);
+      if (elapsed < 1000.0F) {
          return COIN_COLOR;
       } else {
-         return var5 <= 3000.0F ? RotationHelper.lerpVector3f(COIN_COLOR, COIN_COLOR_DARK, (var5 - 1000.0F) / 2000.0F) : COIN_COLOR_DARK;
+         return elapsed <= 3000.0F ? RotationHelper.lerpVector3f(COIN_COLOR, COIN_COLOR_DARK, (elapsed - 1000.0F) / 2000.0F) : COIN_COLOR_DARK;
       }
    }
 
-   float getCoinBob(float var1) {
-      return (float)(60.0 * Math.sin((mc.player.ticksExisted + var1) * 0.05F) + 180.0);
+   float getCoinBob(float partialTicks) {
+      return (float)(60.0 * Math.sin((mc.player.ticksExisted + partialTicks) * 0.05F) + 180.0);
    }
 
-   void renderCoinQuads(BufferBuilder var1, GeoCube var2) {
-      for (GeoQuad var6 : var2.quads) {
-         if (var6 != null) {
-            for (GeoVertex var10 : var6.vertices) {
-               Vector4f var11 = new Vector4f(var10.position.getX(), var10.position.getY(), var10.position.getZ(), 1.0F);
-               MATRIX_STACK.getModelMatrix().transform(var11);
-               var1.pos(var11.getX(), var11.getY(), var11.getZ())
-                  .tex(var10.textureU, var10.textureV)
+   void renderCoinQuads(BufferBuilder buffer, GeoCube cube) {
+      for (GeoQuad quad : cube.quads) {
+         if (quad != null) {
+            for (GeoVertex vertex : quad.vertices) {
+               Vector4f pos = new Vector4f(vertex.position.getX(), vertex.position.getY(), vertex.position.getZ(), 1.0F);
+               MATRIX_STACK.getModelMatrix().transform(pos);
+               buffer.pos(pos.getX(), pos.getY(), pos.getZ())
+                  .tex(vertex.textureU, vertex.textureV)
                   .color(this.currentTint.x, this.currentTint.y, this.currentTint.z, 1.0F)
                   .endVertex();
             }
@@ -207,36 +207,36 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
     * coin's flat quads) and emits lit vertices.
     */
    @Override
-   public void renderCube(BufferBuilder var1, GeoCube var2, float var3, float var4, float var5, float var6) {
-      MATRIX_STACK.moveToPivot(var2);
-      MATRIX_STACK.rotate(var2);
-      MATRIX_STACK.moveBackFromPivot(var2);
+   public void renderCube(BufferBuilder buffer, GeoCube cube, float r, float g, float b, float alpha) {
+      MATRIX_STACK.moveToPivot(cube);
+      MATRIX_STACK.rotate(cube);
+      MATRIX_STACK.moveBackFromPivot(cube);
       if (this.isFlipping) {
-         this.renderCoinQuads(var1, var2);
+         this.renderCoinQuads(buffer, cube);
       } else {
-         for (GeoQuad var10 : var2.quads) {
-            if (var10 != null) {
-               Vector3f var11 = new Vector3f(var10.normal.getX(), var10.normal.getY(), var10.normal.getZ());
-               MATRIX_STACK.getNormalMatrix().transform(var11);
-               if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var11.getX() < 0.0F) {
-                  var11.x *= -1.0F;
+         for (GeoQuad quad : cube.quads) {
+            if (quad != null) {
+               Vector3f normal = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
+               MATRIX_STACK.getNormalMatrix().transform(normal);
+               if ((cube.size.y == 0.0F || cube.size.z == 0.0F) && normal.getX() < 0.0F) {
+                  normal.x *= -1.0F;
                }
 
-               if ((var2.size.x == 0.0F || var2.size.z == 0.0F) && var11.getY() < 0.0F) {
-                  var11.y *= -1.0F;
+               if ((cube.size.x == 0.0F || cube.size.z == 0.0F) && normal.getY() < 0.0F) {
+                  normal.y *= -1.0F;
                }
 
-               if ((var2.size.x == 0.0F || var2.size.y == 0.0F) && var11.getZ() < 0.0F) {
-                  var11.z *= -1.0F;
+               if ((cube.size.x == 0.0F || cube.size.y == 0.0F) && normal.getZ() < 0.0F) {
+                  normal.z *= -1.0F;
                }
 
-               for (GeoVertex var15 : var10.vertices) {
-                  Vector4f var16 = new Vector4f(var15.position.getX(), var15.position.getY(), var15.position.getZ(), 1.0F);
-                  MATRIX_STACK.getModelMatrix().transform(var16);
-                  var1.pos(var16.getX(), var16.getY(), var16.getZ())
-                     .tex(var15.textureU, var15.textureV)
-                     .color(var3, var4, var5, var6)
-                     .normal(var11.getX(), var11.getY(), var11.getZ())
+               for (GeoVertex vertex : quad.vertices) {
+                  Vector4f pos = new Vector4f(vertex.position.getX(), vertex.position.getY(), vertex.position.getZ(), 1.0F);
+                  MATRIX_STACK.getModelMatrix().transform(pos);
+                  buffer.pos(pos.getX(), pos.getY(), pos.getZ())
+                     .tex(vertex.textureU, vertex.textureV)
+                     .color(r, g, b, alpha)
+                     .normal(normal.getX(), normal.getY(), normal.getZ())
                      .endVertex();
                }
             }

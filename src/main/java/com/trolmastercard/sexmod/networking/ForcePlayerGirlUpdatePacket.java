@@ -32,35 +32,35 @@ public class ForcePlayerGirlUpdatePacket implements IMessage {
    public ForcePlayerGirlUpdatePacket() {
    }
 
-   public ForcePlayerGirlUpdatePacket(UUID var1, int var2, Action var3) {
-      this.girlUUID = var1;
-      this.modelVersion = var2;
-      this.action = var3;
+   public ForcePlayerGirlUpdatePacket(UUID girlUUID, int modelVersion, Action action) {
+      this.girlUUID = girlUUID;
+      this.modelVersion = modelVersion;
+      this.action = action;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.modelVersion = var1.readInt();
-      this.action = Action.valueOf(ByteBufUtils.readUTF8String(var1));
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.modelVersion = buf.readInt();
+      this.action = Action.valueOf(ByteBufUtils.readUTF8String(buf));
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      var1.writeInt(this.modelVersion);
-      ByteBufUtils.writeUTF8String(var1, this.action.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      buf.writeInt(this.modelVersion);
+      ByteBufUtils.writeUTF8String(buf, this.action.toString());
    }
 
    public static class Handler implements IMessageHandler<ForcePlayerGirlUpdatePacket, IMessage> {
-      public IMessage onMessage(ForcePlayerGirlUpdatePacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.CLIENT)) {
-            AbstractPlayerGirlEntity var3 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.girlUUID);
-            if (var3 == null) {
+      public IMessage onMessage(ForcePlayerGirlUpdatePacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.CLIENT)) {
+            AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(packet.girlUUID);
+            if (playerGirl == null) {
                return null;
             }
 
-            var3.getDataManager().set(BaseGirlEntity.CUR_ACTION, var1.action.toString());
-            var3.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, var1.modelVersion);
+            playerGirl.getDataManager().set(BaseGirlEntity.CUR_ACTION, packet.action.toString());
+            playerGirl.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, packet.modelVersion);
             return null;
          } else {
             System.out.println("received an invalid message @ForcePlayerGirlUpdate :(");

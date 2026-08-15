@@ -28,26 +28,26 @@ public class GalathRapePouncePacket implements IMessage {
    public GalathRapePouncePacket() {
    }
 
-   public GalathRapePouncePacket(boolean var1) {
-      this.isPounce = var1;
+   public GalathRapePouncePacket(boolean isPounce) {
+      this.isPounce = isPounce;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.isPounce = var1.readBoolean();
+   public void fromBytes(ByteBuf buf) {
+      this.isPounce = buf.readBoolean();
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeBoolean(this.isPounce);
+   public void toBytes(ByteBuf buf) {
+      buf.writeBoolean(this.isPounce);
    }
 
    public static class Handler implements IMessageHandler<GalathRapePouncePacket, IMessage> {
-      public IMessage onMessage(GalathRapePouncePacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.SERVER)) {
+      public IMessage onMessage(GalathRapePouncePacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               BaseGirlEntity var2x = BaseGirlEntity.getActiveSceneInfo(var2.getServerHandler().player.getPersistentID());
-               if (var2x instanceof GalathEntity) {
-                  ((GalathEntity)var2x).handleRapeAction(var1.isPounce);
+               BaseGirlEntity girl = BaseGirlEntity.getActiveSceneInfo(ctx.getServerHandler().player.getPersistentID());
+               if (girl instanceof GalathEntity) {
+                  ((GalathEntity)girl).handleRapeAction(packet.isPounce);
                }
             });
             return null;

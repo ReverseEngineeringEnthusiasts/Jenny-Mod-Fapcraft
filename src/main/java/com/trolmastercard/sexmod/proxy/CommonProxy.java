@@ -26,21 +26,21 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class CommonProxy {
    public static final CommonProxy PROXY = new CommonProxy();
 
-   public void preInitRegistries(FMLPreInitializationEvent var1) {
+   public void preInitRegistries(FMLPreInitializationEvent event) {
       GameRegistry.registerWorldGenerator(ConfigWorldGenHandler.getInstance(), 0);
       SexModEntities.registerEntities();
       ItemRegistrationHandler.registerAll();
    }
 
-   public void initRegistries(FMLInitializationEvent var1) {
-      try { Main.setConfigs(); } catch (java.io.IOException var2) { Main.LOGGER.error(var2); }
+   public void initRegistries(FMLInitializationEvent event) {
+      try { Main.setConfigs(); } catch (java.io.IOException e) { Main.LOGGER.error(e); }
       SoundHandler.registerSounds();
       NetworkRegistry.INSTANCE.registerGuiHandler(Main.instance, new GuiHandler());
       ForgeEventHandler.registerB(false);
       PacketHandler.register();
    }
 
-   public void postInit(FMLPostInitializationEvent var1) {
+   public void postInit(FMLPostInitializationEvent event) {
       this.setUpCustomModelsOnServer();
    }
 

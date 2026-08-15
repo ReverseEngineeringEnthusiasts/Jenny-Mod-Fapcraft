@@ -22,7 +22,7 @@ public class WinchesterItem extends Item implements IAnimatable {
    }
 
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData animationData) {
    }
 
    @Override

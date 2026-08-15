@@ -68,64 +68,64 @@ public class InHandMapRenderer {
    float ANIM_OFFSET = 0.0F;
 
    @SubscribeEvent
-   public void onRenderSpecificHand(RenderSpecificHandEvent var1) {
+   public void onRenderSpecificHand(RenderSpecificHandEvent event) {
       AbstractPlayerGirlEntity.rebuildPlayerGirlTableFromWorld();
-      AbstractPlayerGirlEntity var2 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
-      if (var2 != null) {
-         int var3 = var2.getOutfitIndex();
-         this.handModel = var2.getHandModel(var3);
-         this.handTexture = new ResourceLocation("sexmod", var2.getHandTexture(var3));
-         this.handColor = var2.getHandColor(var3);
+      AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(Minecraft.getMinecraft().player.getPersistentID());
+      if (playerGirl != null) {
+         int outfitIndex = playerGirl.getOutfitIndex();
+         this.handModel = playerGirl.getHandModel(outfitIndex);
+         this.handTexture = new ResourceLocation("sexmod", playerGirl.getHandTexture(outfitIndex));
+         this.handColor = playerGirl.getHandColor(outfitIndex);
          if (this.handModel == null) {
             System.out.println("HAND IS NULL uwu did you forget to assign this girl a hand owo?");
          } else {
             this.mc = Minecraft.getMinecraft();
-            float var4 = 0.0F;
-            float var5 = 0.0F;
+            float prevProgress = 0.0F;
+            float curProgress = 0.0F;
 
             try {
-               ItemRenderer var6 = this.mc.getItemRenderer();
+               ItemRenderer itemRenderer = this.mc.getItemRenderer();
                if (DebugMode.isDeobfuscated()) {
                   // deobf/dev environment: MCP names
-                  var4 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "prevEquippedProgressMainHand");
-                  var5 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "equippedProgressMainHand");
+                  prevProgress = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, itemRenderer, "prevEquippedProgressMainHand");
+                  curProgress = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, itemRenderer, "equippedProgressMainHand");
                } else {
                   // obfuscated runtime: SRG names (stable_39: field_187470_g = prevEquippedProgressMainHand,
                   // field_187469_f = equippedProgressMainHand). FML's remapper has no mcp->srg data at
                   // runtime, so the MCP names throw NoSuchFieldException here.
-                  var4 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "field_187470_g");
-                  var5 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "field_187469_f");
+                  prevProgress = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, itemRenderer, "field_187470_g");
+                  curProgress = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, itemRenderer, "field_187469_f");
                }
-               SceneDebug.log(SceneDebug.IN_HAND, "InHandMapRenderer: prev=%.3f cur=%.3f", var4, var5);
+               SceneDebug.log(SceneDebug.IN_HAND, "InHandMapRenderer: prev=%.3f cur=%.3f", prevProgress, curProgress);
 
-               this.PROGRESS_SCALE = 2.0F - (var4 + (var5 - var4) * var1.getPartialTicks());
-            } catch (Exception var9) {
+               this.PROGRESS_SCALE = 2.0F - (prevProgress + (curProgress - prevProgress) * event.getPartialTicks());
+            } catch (Exception exception) {
                System.out.println("couldnt do the reflection thingy");
-               StringWriter var7 = new StringWriter();
-               var9.printStackTrace(new PrintWriter(var7));
-               Minecraft.getMinecraft().player.sendChatMessage(var7.toString());
+               StringWriter stringWriter = new StringWriter();
+               exception.printStackTrace(new PrintWriter(stringWriter));
+               Minecraft.getMinecraft().player.sendChatMessage(stringWriter.toString());
             }
 
-            EntityPlayerSP var10 = this.mc.player;
-            float var11 = var10.getSwingProgress(var1.getPartialTicks());
-            ItemStack var8 = this.mc.player.getHeldItemMainhand();
+            EntityPlayerSP player = this.mc.player;
+            float swingProgress = player.getSwingProgress(event.getPartialTicks());
+            ItemStack stack = this.mc.player.getHeldItemMainhand();
             GlStateManager.color(this.handColor.getX() / 255.0F, this.handColor.getY() / 255.0F, this.handColor.getZ() / 255.0F);
-            if (var1.getHand() == EnumHand.MAIN_HAND) {
-               if (var8.isEmpty() || var8.getItem() instanceof ItemMap) {
-                  var1.setCanceled(true);
-                  this.renderPlayerMap(var8, var1.getPartialTicks(), var10, this.PROGRESS_SCALE, var11);
+            if (event.getHand() == EnumHand.MAIN_HAND) {
+               if (stack.isEmpty() || stack.getItem() instanceof ItemMap) {
+                  event.setCanceled(true);
+                  this.renderPlayerMap(stack, event.getPartialTicks(), player, this.PROGRESS_SCALE, swingProgress);
                   this.isRendering = true;
-               } else if (var5 < var4) {
+               } else if (curProgress < prevProgress) {
                   if (this.isRendering) {
-                     var1.setCanceled(true);
-                     this.renderPlayerMap(var8, var1.getPartialTicks(), var10, this.PROGRESS_SCALE, var11);
+                     event.setCanceled(true);
+                     this.renderPlayerMap(stack, event.getPartialTicks(), player, this.PROGRESS_SCALE, swingProgress);
                   }
                } else {
                   this.isRendering = false;
                }
             } else if (this.mc.player.getHeldItemOffhand().getItem() instanceof ItemMap) {
-               var1.setCanceled(true);
-               this.renderHandMap(EnumHandSide.LEFT, this.PROGRESS_SCALE - 1.0F, var11, this.mc.player.getHeldItemOffhand());
+               event.setCanceled(true);
+               this.renderHandMap(EnumHandSide.LEFT, this.PROGRESS_SCALE - 1.0F, swingProgress, this.mc.player.getHeldItemOffhand());
             }
 
             GlStateManager.resetColor();
@@ -133,27 +133,27 @@ public class InHandMapRenderer {
       }
    }
 
-   void renderPlayerMap(ItemStack var1, float var2, AbstractClientPlayer var3, float var4, float var5) {
-      if (var1.getItem() instanceof ItemMap) {
-         if (var3.getHeldItemOffhand().isEmpty()) {
-            this.renderPlayerMap(var1, this.mc.getRenderPartialTicks(), var3, var5, var2);
+   void renderPlayerMap(ItemStack stack, float partialTicks, AbstractClientPlayer player, float progressScale, float swingProgress) {
+      if (stack.getItem() instanceof ItemMap) {
+         if (player.getHeldItemOffhand().isEmpty()) {
+            this.renderPlayerMap(stack, this.mc.getRenderPartialTicks(), player, swingProgress, partialTicks);
          } else {
-            this.renderHandMap(EnumHandSide.RIGHT, var4 - 1.0F, var5, var1);
+            this.renderHandMap(EnumHandSide.RIGHT, progressScale - 1.0F, swingProgress, stack);
          }
       } else {
-         this.renderMapView(var5, var2);
+         this.renderMapView(swingProgress, partialTicks);
       }
    }
 
-   void renderHandMap(EnumHandSide var1, float var2, float var3, ItemStack var4) {
-      float var5 = var1 == EnumHandSide.RIGHT ? 1.0F : -1.0F;
-      GlStateManager.translate(var5 * 0.125F, -0.125F, 0.0F);
+   void renderHandMap(EnumHandSide handSide, float progressScale, float swingProgress, ItemStack stack) {
+      float side = handSide == EnumHandSide.RIGHT ? 1.0F : -1.0F;
+      GlStateManager.translate(side * 0.125F, -0.125F, 0.0F);
       if (!this.mc.player.isInvisible()) {
          GlStateManager.pushMatrix();
-         GlStateManager.rotate(var5 * 10.0F, 0.0F, 0.0F, 1.0F);
-         this.renderMapPlane(var2, var3, var1);
+         GlStateManager.rotate(side * 10.0F, 0.0F, 0.0F, 1.0F);
+         this.renderMapPlane(progressScale, swingProgress, handSide);
          GlStateManager.translate(-0.5F, -1.1F, 0.0F);
-         if (var1 == EnumHandSide.RIGHT) {
+         if (handSide == EnumHandSide.RIGHT) {
             GlStateManager.translate(0.48F, 0.15F, 0.0F);
          } else {
             GlStateManager.translate(0.44F, 1.3F, 1.0F);
@@ -165,28 +165,28 @@ public class InHandMapRenderer {
       }
 
       GlStateManager.pushMatrix();
-      GlStateManager.translate(var5 * 0.51F, -0.08F + var2 * -1.2F, -0.75F);
-      float var6 = MathHelper.sqrt(var3);
-      float var7 = MathHelper.sin(var6 * (float) Math.PI);
-      float var8 = -0.5F * var7;
-      float var9 = 0.4F * MathHelper.sin(var6 * (float) (Math.PI * 2));
-      float var10 = -0.3F * MathHelper.sin(var3 * (float) Math.PI);
-      GlStateManager.translate(var5 * var8, var9 - 0.3F * var7, var10);
-      GlStateManager.rotate(var7 * -45.0F, 1.0F, 0.0F, 0.0F);
-      GlStateManager.rotate(var5 * var7 * -30.0F, 0.0F, 1.0F, 0.0F);
-      this.renderMapItem(var4);
+      GlStateManager.translate(side * 0.51F, -0.08F + progressScale * -1.2F, -0.75F);
+      float swing = MathHelper.sqrt(swingProgress);
+      float swingSin = MathHelper.sin(swing * (float) Math.PI);
+      float swingSin2 = -0.5F * swingSin;
+      float swingSin3 = 0.4F * MathHelper.sin(swing * (float) (Math.PI * 2));
+      float swingSqSin = -0.3F * MathHelper.sin(swingProgress * (float) Math.PI);
+      GlStateManager.translate(side * swingSin2, swingSin3 - 0.3F * swingSin, swingSqSin);
+      GlStateManager.rotate(swingSin * -45.0F, 1.0F, 0.0F, 0.0F);
+      GlStateManager.rotate(side * swingSin * -30.0F, 0.0F, 1.0F, 0.0F);
+      this.renderMapItem(stack);
       GlStateManager.popMatrix();
    }
 
-   void renderPlayerMap(ItemStack var1, AbstractClientPlayer var2, float var3, float var4) {
-      float var5 = var2.prevRotationPitch + (var2.rotationPitch - var2.prevRotationPitch) * var4;
-      float var6 = MathHelper.sqrt(var3);
-      float var7 = -0.2F * MathHelper.sin(var3 * (float) Math.PI);
-      float var8 = -0.4F * MathHelper.sin(var6 * (float) Math.PI);
-      GlStateManager.translate(0.0F, -var7 / 2.0F, var8);
-      float var9 = this.calculateMapScale(var5);
-      GlStateManager.translate(0.0F, 0.04F + (this.PROGRESS_SCALE - 1.0F) * -1.2F + var9 * -0.5F, -0.72F);
-      GlStateManager.rotate(var9 * -85.0F, 1.0F, 0.0F, 0.0F);
+   void renderPlayerMap(ItemStack stack, AbstractClientPlayer player, float swingProgress, float partialTicks) {
+      float pitch = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
+      float swing = MathHelper.sqrt(swingProgress);
+      float swingSin = -0.2F * MathHelper.sin(swingProgress * (float) Math.PI);
+      float swingSin2 = -0.4F * MathHelper.sin(swing * (float) Math.PI);
+      GlStateManager.translate(0.0F, -swingSin / 2.0F, swingSin2);
+      float scale = this.calculateMapScale(pitch);
+      GlStateManager.translate(0.0F, 0.04F + (this.PROGRESS_SCALE - 1.0F) * -1.2F + scale * -0.5F, -0.72F);
+      GlStateManager.rotate(scale * -85.0F, 1.0F, 0.0F, 0.0F);
       GlStateManager.disableCull();
       GlStateManager.pushMatrix();
       GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
@@ -194,46 +194,46 @@ public class InHandMapRenderer {
       this.renderMapHand(EnumHandSide.LEFT);
       GlStateManager.popMatrix();
       GlStateManager.enableCull();
-      float var10 = MathHelper.sin(var6 * (float) Math.PI);
-      GlStateManager.rotate(var10 * 20.0F, 1.0F, 0.0F, 0.0F);
+      float swingSin3 = MathHelper.sin(swing * (float) Math.PI);
+      GlStateManager.rotate(swingSin3 * 20.0F, 1.0F, 0.0F, 0.0F);
       GlStateManager.scale(2.0F, 2.0F, 2.0F);
-      this.renderMapItem(var1);
+      this.renderMapItem(stack);
       GlStateManager.enableLighting();
    }
 
-   void renderMapItem(ItemStack var1) {
+   void renderMapItem(ItemStack stack) {
       GlStateManager.resetColor();
       GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
       GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
       GlStateManager.scale(0.38F, 0.38F, 0.38F);
       GlStateManager.disableLighting();
       this.mc.getTextureManager().bindTexture(MAP_BACKGROUND);
-      Tessellator var2 = Tessellator.getInstance();
-      BufferBuilder var3 = var2.getBuffer();
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder buffer = tessellator.getBuffer();
       GlStateManager.translate(-0.5F, -0.5F, 0.0F);
       GlStateManager.scale(0.0078125F, 0.0078125F, 0.0078125F);
-      var3.begin(7, DefaultVertexFormats.POSITION_TEX);
-      var3.pos(-7.0, 135.0, 0.0).tex(0.0, 1.0).endVertex();
-      var3.pos(135.0, 135.0, 0.0).tex(1.0, 1.0).endVertex();
-      var3.pos(135.0, -7.0, 0.0).tex(1.0, 0.0).endVertex();
-      var3.pos(-7.0, -7.0, 0.0).tex(0.0, 0.0).endVertex();
-      var2.draw();
-      MapData var4 = ((ItemMap)var1.getItem()).getMapData(var1, this.mc.world);
-      if (var4 != null) {
-         this.mc.entityRenderer.getMapItemRenderer().renderMap(var4, false);
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX);
+      buffer.pos(-7.0, 135.0, 0.0).tex(0.0, 1.0).endVertex();
+      buffer.pos(135.0, 135.0, 0.0).tex(1.0, 1.0).endVertex();
+      buffer.pos(135.0, -7.0, 0.0).tex(1.0, 0.0).endVertex();
+      buffer.pos(-7.0, -7.0, 0.0).tex(0.0, 0.0).endVertex();
+      tessellator.draw();
+      MapData mapData = ((ItemMap)stack.getItem()).getMapData(stack, this.mc.world);
+      if (mapData != null) {
+         this.mc.entityRenderer.getMapItemRenderer().renderMap(mapData, false);
       }
 
       GlStateManager.color(this.handColor.getX() / 255.0F, this.handColor.getY() / 255.0F, this.handColor.getZ() / 255.0F);
    }
 
-   private void renderMapHand(EnumHandSide var1) {
+   private void renderMapHand(EnumHandSide handSide) {
       GlStateManager.pushMatrix();
-      float var2 = var1 == EnumHandSide.RIGHT ? 1.0F : -1.0F;
+      float side = handSide == EnumHandSide.RIGHT ? 1.0F : -1.0F;
       GlStateManager.rotate(92.0F, 0.0F, 1.0F, 0.0F);
       GlStateManager.rotate(45.0F, 1.0F, 0.0F, 0.0F);
-      GlStateManager.rotate(var2 * -41.0F, 0.0F, 0.0F, 1.0F);
-      GlStateManager.translate(var2 * 0.3F, -1.1F, 0.45F);
-      if (var1 == EnumHandSide.RIGHT) {
+      GlStateManager.rotate(side * -41.0F, 0.0F, 0.0F, 1.0F);
+      GlStateManager.translate(side * 0.3F, -1.1F, 0.45F);
+      if (handSide == EnumHandSide.RIGHT) {
          GlStateManager.translate(0.63F, 0.36F, 0.0F);
       } else {
          GlStateManager.translate(1.6F, 0.35F, 0.0F);
@@ -244,16 +244,16 @@ public class InHandMapRenderer {
       GlStateManager.popMatrix();
    }
 
-   private float calculateMapScale(float var1) {
-      float var2 = 1.0F - var1 / 45.0F + 0.1F;
-      var2 = MathHelper.clamp(var2, 0.0F, 1.0F);
-      return -MathHelper.cos(var2 * (float) Math.PI) * 0.5F + 0.5F;
+   private float calculateMapScale(float pitch) {
+      float scale = 1.0F - pitch / 45.0F + 0.1F;
+      scale = MathHelper.clamp(scale, 0.0F, 1.0F);
+      return -MathHelper.cos(scale * (float) Math.PI) * 0.5F + 0.5F;
    }
 
-   void renderMapView(float var1, float var2) {
+   void renderMapView(float progressScale, float partialTicks) {
       GlStateManager.disableCull();
       GlStateManager.pushMatrix();
-      this.renderMapPlane(this.PROGRESS_SCALE, var1, EnumHandSide.RIGHT);
+      this.renderMapPlane(this.PROGRESS_SCALE, progressScale, EnumHandSide.RIGHT);
       Minecraft.getMinecraft().getTextureManager().bindTexture(this.handTexture);
       this.handModel.getModel().render(0.175F);
       GlStateManager.disableBlend();
@@ -261,24 +261,24 @@ public class InHandMapRenderer {
       GlStateManager.popMatrix();
    }
 
-   private void renderMapPlane(float var1, float var2, EnumHandSide var3) {
-      boolean var4 = var3 != EnumHandSide.LEFT;
-      float var5 = var4 ? 1.0F : -1.0F;
-      float var6 = MathHelper.sqrt(var2);
-      float var7 = -0.3F * MathHelper.sin(var6 * (float) Math.PI);
-      float var8 = 0.4F * MathHelper.sin(var6 * (float) (Math.PI * 2));
-      float var9 = -0.4F * MathHelper.sin(var2 * (float) Math.PI);
-      GlStateManager.translate(var5 * (var7 + 0.64000005F), var8 + -0.6F + var1 * -0.6F, var9 + -0.71999997F);
-      GlStateManager.rotate(var5 * 45.0F, 0.0F, 1.0F, 0.0F);
-      float var10 = MathHelper.sin(var2 * var2 * (float) Math.PI);
-      float var11 = MathHelper.sin(var6 * (float) Math.PI);
-      GlStateManager.rotate(var5 * var11 * 70.0F, 0.0F, 1.0F, 0.0F);
-      GlStateManager.rotate(var5 * var10 * -20.0F, 0.0F, 0.0F, 1.0F);
-      GlStateManager.translate(var5 * -1.0F, 3.6F, 3.5F);
-      GlStateManager.rotate(var5 * 120.0F, 0.0F, 0.0F, 1.0F);
+   private void renderMapPlane(float progressScale, float partialTicks, EnumHandSide handSide) {
+      boolean isRight = handSide != EnumHandSide.LEFT;
+      float side = isRight ? 1.0F : -1.0F;
+      float swing = MathHelper.sqrt(partialTicks);
+      float offsetX = -0.3F * MathHelper.sin(swing * (float) Math.PI);
+      float offsetY = 0.4F * MathHelper.sin(swing * (float) (Math.PI * 2));
+      float offsetZ = -0.4F * MathHelper.sin(partialTicks * (float) Math.PI);
+      GlStateManager.translate(side * (offsetX + 0.64000005F), offsetY + -0.6F + progressScale * -0.6F, offsetZ + -0.71999997F);
+      GlStateManager.rotate(side * 45.0F, 0.0F, 1.0F, 0.0F);
+      float swingSq = MathHelper.sin(partialTicks * partialTicks * (float) Math.PI);
+      float swingSin = MathHelper.sin(swing * (float) Math.PI);
+      GlStateManager.rotate(side * swingSin * 70.0F, 0.0F, 1.0F, 0.0F);
+      GlStateManager.rotate(side * swingSq * -20.0F, 0.0F, 0.0F, 1.0F);
+      GlStateManager.translate(side * -1.0F, 3.6F, 3.5F);
+      GlStateManager.rotate(side * 120.0F, 0.0F, 0.0F, 1.0F);
       GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
-      GlStateManager.rotate(var5 * -135.0F, 0.0F, 1.0F, 0.0F);
-      GlStateManager.translate(var5 * 5.6F, 0.0F, 0.0F);
+      GlStateManager.rotate(side * -135.0F, 0.0F, 1.0F, 0.0F);
+      GlStateManager.translate(side * 5.6F, 0.0F, 0.0F);
       GlStateManager.translate(0.5F, 1.1F, 0.0F);
    }
 

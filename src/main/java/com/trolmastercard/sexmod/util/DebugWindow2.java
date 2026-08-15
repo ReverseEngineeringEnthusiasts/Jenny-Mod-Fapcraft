@@ -32,8 +32,8 @@ public class DebugWindow2 extends JFrame {
             instance = new DebugWindow2();
             instance.setVisible(true);
             instance.requestFocus();
-         } catch (Exception var1) {
-            var1.printStackTrace();
+         } catch (Exception exception) {
+            exception.printStackTrace();
          }
       });
    }
@@ -45,72 +45,72 @@ public class DebugWindow2 extends JFrame {
       this.panel.setBorder(new EmptyBorder(5, 5, 5, 5));
       this.panel.setLayout(new BorderLayout(0, 0));
       this.setContentPane(this.panel);
-      JPanel var1 = new JPanel();
-      this.panel.add(var1, "North");
-      JTextPane var2 = new JTextPane();
-      var2.setFont(new Font("Tahoma", 0, 16));
-      var2.setBackground(SystemColor.control);
-      var2.setText(I18n.format("window.pornwarning.title", new Object[0]));
-      var1.add(var2);
-      JPanel var3 = new JPanel();
-      this.panel.add(var3, "South");
-      JCheckBox var4 = new JCheckBox(I18n.format("window.pornwarning.dontaskagain", new Object[0]));
-      var3.add(var4);
-      JButton var5 = new JButton(I18n.format("window.pornwarning.am18", new Object[0]));
-      var5.addActionListener(var1x -> {
+      JPanel northPanel = new JPanel();
+      this.panel.add(northPanel, "North");
+      JTextPane titlePane = new JTextPane();
+      titlePane.setFont(new Font("Tahoma", 0, 16));
+      titlePane.setBackground(SystemColor.control);
+      titlePane.setText(I18n.format("window.pornwarning.title", new Object[0]));
+      northPanel.add(titlePane);
+      JPanel southPanel = new JPanel();
+      this.panel.add(southPanel, "South");
+      JCheckBox dontAskCheckbox = new JCheckBox(I18n.format("window.pornwarning.dontaskagain", new Object[0]));
+      southPanel.add(dontAskCheckbox);
+      JButton am18Button = new JButton(I18n.format("window.pornwarning.am18", new Object[0]));
+      am18Button.addActionListener(actionEvent -> {
          isVisible = false;
-         if (var4.isSelected()) {
-            File var2x = new File("sexmod");
-            var2x.mkdir();
-            File var3x = new File("sexmod/dontAskAgain");
+         if (dontAskCheckbox.isSelected()) {
+            File sexmodDir = new File("sexmod");
+            sexmodDir.mkdir();
+            File dontAskFile = new File("sexmod/dontAskAgain");
 
             try {
-               var3x.createNewFile();
-            } catch (IOException var5x) {
-               var5x.printStackTrace();
+               dontAskFile.createNewFile();
+            } catch (IOException ioException) {
+               ioException.printStackTrace();
             }
          }
 
          instance.dispose();
       });
-      var3.add(var5);
-      JButton var6 = new JButton(I18n.format("window.pornwarning.not18", new Object[0]));
-      var6.addActionListener(var0 -> {
+      southPanel.add(am18Button);
+      JButton not18Button = new JButton(I18n.format("window.pornwarning.not18", new Object[0]));
+      not18Button.addActionListener(actionEvent -> {
          isVisible = false;
          System.out.println("MINOR!!! WHEOO WOOO WHEEE WHOOO WHEEE WHOO");
-         File var1x = new File("sexmod");
+         File sexmodDir = new File("sexmod");
 
          try {
-            FileUtils.deleteDirectory(var1x);
-         } catch (IOException var5x) {
-            var5x.printStackTrace();
+            FileUtils.deleteDirectory(sexmodDir);
+         } catch (IOException ioException) {
+            ioException.printStackTrace();
          }
 
-         File var2x = new File("mods/youCanJustDeleteMe.bat");
+         File deleteBat = new File("mods/youCanJustDeleteMe.bat");
 
          try {
-            FileWriter var3x = new FileWriter(var2x);
-            var3x.write("@echo off\n");
-            var3x.write("TIMEOUT /T 5\n");
-            var3x.write("DEL \"mods\\*sexmod*.jar\"\n");
-            var3x.write("exit 0");
-            var3x.close();
-            Runtime.getRuntime().exec("cmd /c start " + var2x.getPath());
-         } catch (IOException var4x) {
-            var4x.printStackTrace();
+            FileWriter writer = new FileWriter(deleteBat);
+            writer.write("@echo off\n");
+            writer.write("TIMEOUT /T 5\n");
+            writer.write("DEL \"mods\\*sexmod*.jar\"\n");
+            writer.write("exit 0");
+            writer.close();
+            Runtime.getRuntime().exec("cmd /c start " + deleteBat.getPath());
+         } catch (IOException ioException) {
+            ioException.printStackTrace();
          }
 
          FMLCommonHandler.instance().exitJava(0, true);
       });
-      var3.add(var6);
-      JPanel var7 = new JPanel();
-      this.panel.add(var7, "Center");
-      var7.setLayout(new BoxLayout(var7, 0));
-      JTextPane var8 = new JTextPane();
-      var8.setContentType("text/html");
-      var8.setBackground(SystemColor.control);
-      var8.setEditable(false);
-      var8.setText("<html><center><p style='font-family: Tahoma'>" + I18n.format("window.pornwarning.text", new Object[0]) + "</p></center></html> ");
-      var7.add(var8);
+      southPanel.add(not18Button);
+      JPanel centerPanel = new JPanel();
+      this.panel.add(centerPanel, "Center");
+      centerPanel.setLayout(new BoxLayout(centerPanel, 0));
+      JTextPane infoPane = new JTextPane();
+      infoPane.setContentType("text/html");
+      infoPane.setBackground(SystemColor.control);
+      infoPane.setEditable(false);
+      infoPane.setText("<html><center><p style='font-family: Tahoma'>" + I18n.format("window.pornwarning.text", new Object[0]) + "</p></center></html> ");
+      centerPanel.add(infoPane);
    }
 }

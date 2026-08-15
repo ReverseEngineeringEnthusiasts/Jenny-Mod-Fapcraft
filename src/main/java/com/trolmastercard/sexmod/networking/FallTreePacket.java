@@ -37,37 +37,37 @@ public class FallTreePacket implements IMessage {
    public FallTreePacket() {
    }
 
-   public FallTreePacket(BlockPos var1) {
-      this.treePos = var1;
+   public FallTreePacket(BlockPos treePos) {
+      this.treePos = treePos;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.treePos = new BlockPos(var1.readInt(), var1.readInt(), var1.readInt());
+   public void fromBytes(ByteBuf buf) {
+      this.treePos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeInt(this.treePos.getX());
-      var1.writeInt(this.treePos.getY());
-      var1.writeInt(this.treePos.getZ());
+   public void toBytes(ByteBuf buf) {
+      buf.writeInt(this.treePos.getX());
+      buf.writeInt(this.treePos.getY());
+      buf.writeInt(this.treePos.getZ());
    }
 
    public static class Handler implements IMessageHandler<FallTreePacket, IMessage> {
-      public IMessage onMessage(FallTreePacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side.equals(Side.SERVER)) {
+      public IMessage onMessage(FallTreePacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side.equals(Side.SERVER)) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     EntityPlayerMP var3 = var2.getServerHandler().player;
-                     UUID var4 = KoboldManager.getTribeUUID(var3.getPersistentID());
-                     if (var4 == null) {
+                     EntityPlayerMP player = ctx.getServerHandler().player;
+                     UUID tribeUuid = KoboldManager.getTribeUUID(player.getPersistentID());
+                     if (tribeUuid == null) {
                         System.out.println("not tribe for player");
                      } else {
-                        int var5 = KoboldManager.getTribeMemberCount(var4);
-                        int var6 = (int)Math.floor(KoboldManager.getTribeBeds(var4).size() / 2.0);
-                        if (var5 > var6) {
-                           var3.sendMessage(
+                        int memberCount = KoboldManager.getTribeMemberCount(tribeUuid);
+                        int bedCount = (int)Math.floor(KoboldManager.getTribeBeds(tribeUuid).size() / 2.0);
+                        if (memberCount > bedCount) {
+                           player.sendMessage(
                               new TextComponentString(
                                  String.format(
                                     "Ur Tribe will only work for you, if %severyone%s of them has a %sbed",
@@ -77,12 +77,12 @@ public class FallTreePacket implements IMessage {
                                  )
                               )
                            );
-                           var3.sendMessage(new TextComponentString(String.format("%s%d/%d Beds", TextFormatting.YELLOW, var6, var5)));
+                           player.sendMessage(new TextComponentString(String.format("%s%d/%d Beds", TextFormatting.YELLOW, bedCount, memberCount)));
                         } else {
-                           World var7 = var3.world;
-                           BlockPos var8 = this.findGroundPos(var7, var1.treePos);
-                           HashSet var9 = KoboldTask.findConnectedBlocks(var7, var8, var4);
-                           PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(var9, true), var2.getServerHandler().player);
+                           World world = player.world;
+                           BlockPos groundPos = this.findGroundPos(world, packet.treePos);
+                           HashSet blocks = KoboldTask.findConnectedBlocks(world, groundPos, tribeUuid);
+                           PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(blocks, true), ctx.getServerHandler().player);
                         }
                      }
                   }
@@ -101,27 +101,27 @@ public class FallTreePacket implements IMessage {
     *
     * @return the {@link BlockPos} just above the first non-log block
     */
-   BlockPos findGroundPos(World var1, BlockPos var2) {
-         if (var1.getBlockState(var2.add(0, -1, 0)).getBlock() instanceof BlockLog) {
-            return this.findGroundPos(var1, var2.add(0, -1, 0));
-         } else if (var1.getBlockState(var2.add(1, -1, 0)).getBlock() instanceof BlockLog) {
-            return this.findGroundPos(var1, var2.add(1, -1, 0));
-         } else if (var1.getBlockState(var2.add(-1, -1, 0)).getBlock() instanceof BlockLog) {
-            return this.findGroundPos(var1, var2.add(-1, -1, 0));
-         } else if (var1.getBlockState(var2.add(0, -1, 1)).getBlock() instanceof BlockLog) {
-            return this.findGroundPos(var1, var2.add(0, -1, 1));
-         } else if (var1.getBlockState(var2.add(0, -1, -1)).getBlock() instanceof BlockLog) {
-            return this.findGroundPos(var1, var2.add(0, -1, -1));
-         } else if (var1.getBlockState(var2.add(-1, -1, -1)).getBlock() instanceof BlockLog) {
-            return this.findGroundPos(var1, var2.add(-1, -1, -1));
-         } else if (var1.getBlockState(var2.add(1, -1, 1)).getBlock() instanceof BlockLog) {
-            return this.findGroundPos(var1, var2.add(1, -1, 1));
-         } else if (var1.getBlockState(var2.add(-1, -1, 1)).getBlock() instanceof BlockLog) {
-            return this.findGroundPos(var1, var2.add(-1, -1, 1));
+   BlockPos findGroundPos(World world, BlockPos pos) {
+         if (world.getBlockState(pos.add(0, -1, 0)).getBlock() instanceof BlockLog) {
+            return this.findGroundPos(world, pos.add(0, -1, 0));
+         } else if (world.getBlockState(pos.add(1, -1, 0)).getBlock() instanceof BlockLog) {
+            return this.findGroundPos(world, pos.add(1, -1, 0));
+         } else if (world.getBlockState(pos.add(-1, -1, 0)).getBlock() instanceof BlockLog) {
+            return this.findGroundPos(world, pos.add(-1, -1, 0));
+         } else if (world.getBlockState(pos.add(0, -1, 1)).getBlock() instanceof BlockLog) {
+            return this.findGroundPos(world, pos.add(0, -1, 1));
+         } else if (world.getBlockState(pos.add(0, -1, -1)).getBlock() instanceof BlockLog) {
+            return this.findGroundPos(world, pos.add(0, -1, -1));
+         } else if (world.getBlockState(pos.add(-1, -1, -1)).getBlock() instanceof BlockLog) {
+            return this.findGroundPos(world, pos.add(-1, -1, -1));
+         } else if (world.getBlockState(pos.add(1, -1, 1)).getBlock() instanceof BlockLog) {
+            return this.findGroundPos(world, pos.add(1, -1, 1));
+         } else if (world.getBlockState(pos.add(-1, -1, 1)).getBlock() instanceof BlockLog) {
+            return this.findGroundPos(world, pos.add(-1, -1, 1));
          } else {
-            return var1.getBlockState(var2.add(1, -1, -1)).getBlock() instanceof BlockLog
-               ? this.findGroundPos(var1, var2.add(1, -1, -1))
-               : var2;
+            return world.getBlockState(pos.add(1, -1, -1)).getBlock() instanceof BlockLog
+               ? this.findGroundPos(world, pos.add(1, -1, -1))
+               : pos;
          }
       }
 

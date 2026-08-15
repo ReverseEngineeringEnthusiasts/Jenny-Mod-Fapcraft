@@ -52,78 +52,78 @@ public class KoboldStatePacket implements IMessage {
       this.isValid = false;
    }
 
-   public KoboldStatePacket(UUID var1, UUID var2, boolean var3, boolean var4) {
-      this.tribeId = var1;
-      this.isSneaking = var3;
-      this.girlId = var2;
-      this.followMode = var4;
+   public KoboldStatePacket(UUID tribeId, UUID girlId, boolean isSneaking, boolean followMode) {
+      this.tribeId = tribeId;
+      this.isSneaking = isSneaking;
+      this.girlId = girlId;
+      this.followMode = followMode;
       this.isValid = true;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.tribeId = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.isSneaking = var1.readBoolean();
-      this.followMode = var1.readBoolean();
-      String var2 = ByteBufUtils.readUTF8String(var1);
-      this.girlId = var2.equals("null") ? null : UUID.fromString(var2);
+   public void fromBytes(ByteBuf buf) {
+      this.tribeId = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.isSneaking = buf.readBoolean();
+      this.followMode = buf.readBoolean();
+      String girlIdString = ByteBufUtils.readUTF8String(buf);
+      this.girlId = girlIdString.equals("null") ? null : UUID.fromString(girlIdString);
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.tribeId.toString());
-      var1.writeBoolean(this.isSneaking);
-      var1.writeBoolean(this.followMode);
-      ByteBufUtils.writeUTF8String(var1, this.girlId == null ? "null" : this.girlId.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.tribeId.toString());
+      buf.writeBoolean(this.isSneaking);
+      buf.writeBoolean(this.followMode);
+      ByteBufUtils.writeUTF8String(buf, this.girlId == null ? "null" : this.girlId.toString());
    }
 
    public static class Handler implements IMessageHandler<KoboldStatePacket, IMessage> {
-      public static void sendState(UUID var0, UUID var1, boolean var2, boolean var3) {
-         SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket.sendState girl=%s player=%s isSneaking=%s followMode=%s", var0, var1, var2, var3);
+      public static void sendState(UUID tribeId, UUID girlId, boolean isSneaking, boolean followMode) {
+         SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket.sendState girl=%s player=%s isSneaking=%s followMode=%s", tribeId, girlId, isSneaking, followMode);
          try {
-            for (BaseGirlEntity var5 : BaseGirlEntity.girlList(var0)) {
-               if (!var5.world.isRemote) {
-                  SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket: girl %s found (%s), wander=%s watch=%s", var5.getDisplayNameText(), var5.getClass().getSimpleName(), var5.wanderGoal != null, var5.watchClosestGirlGoal != null);
-                  if (var5 instanceof JennyEntity || var5 instanceof EllieEntity || var5 instanceof LunaEntity) {
-                     var5.tasks.removeTask(var5.watchClosestGirlGoal);
-                     var5.tasks.removeTask(var5.wanderGoal);
+            for (BaseGirlEntity girl : BaseGirlEntity.girlList(tribeId)) {
+               if (!girl.world.isRemote) {
+                  SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket: girl %s found (%s), wander=%s watch=%s", girl.getDisplayNameText(), girl.getClass().getSimpleName(), girl.wanderGoal != null, girl.watchClosestGirlGoal != null);
+                  if (girl instanceof JennyEntity || girl instanceof EllieEntity || girl instanceof LunaEntity) {
+                     girl.tasks.removeTask(girl.watchClosestGirlGoal);
+                     girl.tasks.removeTask(girl.wanderGoal);
                   }
 
-                  var5.getNavigator().clearPath();
-                  var5.motionX = 0.0;
-                  var5.motionY = 0.0;
-                  var5.motionZ = 0.0;
-                  if (var5.getInteractionPlayerUUID() == null) {
-                     var5.setInteractionPlayerUUID(var1);
+                  girl.getNavigator().clearPath();
+                  girl.motionX = 0.0;
+                  girl.motionY = 0.0;
+                  girl.motionZ = 0.0;
+                  if (girl.getInteractionPlayerUUID() == null) {
+                     girl.setInteractionPlayerUUID(girlId);
                   }
 
-                  if (var3) {
-                     var5.setTargetPosition(var5.getFrontOffsetVector());
-                     SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket: targetPos=%s", var5.getTargetPosition());
+                  if (followMode) {
+                     girl.setTargetPosition(girl.getFrontOffsetVector());
+                     SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket: targetPos=%s", girl.getTargetPosition());
                   }
 
-                  var5.snapPlayerToPosition(var5.getInteractionPlayerUUID());
-                  SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket: after snap, girl pos=%s", var5.getPositionVector());
-                  if (!var2) {
+                  girl.snapPlayerToPosition(girl.getInteractionPlayerUUID());
+                  SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket: after snap, girl pos=%s", girl.getPositionVector());
+                  if (!isSneaking) {
                      return;
                   }
 
-                  if (!(var5 instanceof IEllie)) {
-                     SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket: %s is not IEllie, no setDismounted", var5.getClass().getSimpleName());
+                  if (!(girl instanceof IEllie)) {
+                     SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket: %s is not IEllie, no setDismounted", girl.getClass().getSimpleName());
                      return;
                   }
 
-                  IEllie var6 = (IEllie)var5;
-                  var6.setDismounted();
-                  SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket: setDismounted() called on %s", var5.getDisplayNameText());
+                  IEllie ellie = (IEllie)girl;
+                  ellie.setDismounted();
+                  SceneDebug.log(SceneDebug.PACKETS, "KoboldStatePacket: setDismounted() called on %s", girl.getDisplayNameText());
                }
             }
-         } catch (ConcurrentModificationException var7) {
+         } catch (ConcurrentModificationException exception) {
          }
       }
 
-      public IMessage onMessage(KoboldStatePacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> sendState(var1.tribeId, var1.girlId, var1.isSneaking, var1.followMode));
+      public IMessage onMessage(KoboldStatePacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> sendState(packet.tribeId, packet.girlId, packet.isSneaking, packet.followMode));
          }
 
          return null;

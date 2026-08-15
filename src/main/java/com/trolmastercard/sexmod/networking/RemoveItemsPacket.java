@@ -29,32 +29,32 @@ public class RemoveItemsPacket implements IMessage {
    public RemoveItemsPacket() {
    }
 
-   public RemoveItemsPacket(UUID var1, ItemStack var2) {
-      this.girlUUID = var1;
-      this.itemStack = var2;
+   public RemoveItemsPacket(UUID girlUUID, ItemStack itemStack) {
+      this.girlUUID = girlUUID;
+      this.itemStack = itemStack;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.itemStack = ByteBufUtils.readItemStack(var1);
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.itemStack = ByteBufUtils.readItemStack(buf);
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      ByteBufUtils.writeItemStack(var1, this.itemStack);
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      ByteBufUtils.writeItemStack(buf, this.itemStack);
    }
 
    public static class Handler implements IMessageHandler<RemoveItemsPacket, IMessage> {
-      public IMessage onMessage(RemoveItemsPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(RemoveItemsPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               InventoryPlayer var1x = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(var1.girlUUID).inventory;
+               InventoryPlayer inventory = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(packet.girlUUID).inventory;
 
-               for (int var2x = 0; var2x < var1x.getSizeInventory(); var2x++) {
-                  ItemStack var3 = var1x.getStackInSlot(var2x);
-                  if (var3.getItem().equals(var1.itemStack.getItem())) {
-                     var3.shrink(var1.itemStack.getCount());
+               for (int i = 0; i < inventory.getSizeInventory(); i++) {
+                  ItemStack stack = inventory.getStackInSlot(i);
+                  if (stack.getItem().equals(packet.itemStack.getItem())) {
+                     stack.shrink(packet.itemStack.getCount());
                      break;
                   }
                }

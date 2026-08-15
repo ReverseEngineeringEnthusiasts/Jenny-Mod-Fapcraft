@@ -10,10 +10,10 @@ public class UnknownScreen {
    public int blue;
    public int alpha;
 
-   public UnknownScreen(int var1, int var2, int var3, int var4) {
-      this.red = var1;
-      this.green = var2;
-      this.blue = var3;
-      this.alpha = var4;
+   public UnknownScreen(int red, int green, int blue, int alpha) {
+      this.red = red;
+      this.green = green;
+      this.blue = blue;
+      this.alpha = alpha;
    }
 }

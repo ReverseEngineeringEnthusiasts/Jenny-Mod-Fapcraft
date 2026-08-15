@@ -9,14 +9,14 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  * Renderer for the Slime NPC.
  */
 public class SlimeRenderer extends GirlRenderer {
-   public SlimeRenderer(RenderManager var1, AnimatedGeoModel var2, double var3) {
-      super(var1, var2, var3);
+   public SlimeRenderer(RenderManager renderManager, AnimatedGeoModel geoModel, double scaleFactor) {
+      super(renderManager, geoModel, scaleFactor);
    }
 
    @Override
    public HashSet<String> getBlacklistedBones() {
-      HashSet var1 = super.getBlacklistedBones();
-      var1.add("figure");
-      return var1;
+      HashSet blacklisted = super.getBlacklistedBones();
+      blacklisted.add("figure");
+      return blacklisted;
    }
 }

@@ -48,16 +48,16 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
    public MatrixStack matrixStack = new MatrixStack();
    public BoneType boneType = null;
 
-   public SexSceneEntity(World var1) {
-      super(var1);
+   public SexSceneEntity(World world) {
+      super(world);
       this.width = 0.1F;
       this.height = 0.1F;
    }
 
-   public SexSceneEntity(World var1, UUID var2, String var3) {
-      this(var1);
-      this.dataManager.set(modelCode, var2.toString());
-      this.dataManager.set(modelData, var3);
+   public SexSceneEntity(World world, UUID uuid, String modelDataStr) {
+      this(world);
+      this.dataManager.set(modelCode, uuid.toString());
+      this.dataManager.set(modelData, modelDataStr);
    }
 
    /**
@@ -65,12 +65,12 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
     * UUID and marks it as a model-bone preview ({@code isItemModel},
     * {@code boneType}) so the renderer shows only the named bone.
     */
-   public static SexSceneEntity createSceneEntity(World var0, UUID var1, BoneType var2) {
-      SexSceneEntity var3 = new SexSceneEntity(var0);
-      var3.getDataManager().set(modelCode, var1.toString());
-      var3.isItemModel = true;
-      var3.boneType = var2;
-      return var3;
+   public static SexSceneEntity createSceneEntity(World world, UUID uuid, BoneType boneType) {
+      SexSceneEntity scene = new SexSceneEntity(world);
+      scene.getDataManager().set(modelCode, uuid.toString());
+      scene.isItemModel = true;
+      scene.boneType = boneType;
+      return scene;
    }
 
    protected void entityInit() {
@@ -80,39 +80,39 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
    }
 
    public AxisAlignedBB getRenderBoundingBox() {
-      BlockPos var1 = this.getPosition();
-      Vec3i var2 = new Vec3i(0.5, 0.5, 0.5);
-      return new AxisAlignedBB(var1.subtract(var2), var1.add(var2));
+      BlockPos pos = this.getPosition();
+      Vec3i halfSize = new Vec3i(0.5, 0.5, 0.5);
+      return new AxisAlignedBB(pos.subtract(halfSize), pos.add(halfSize));
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean isInRangeToRender3d(double var1, double var3, double var5) {
-      double var7 = this.posX - var1;
-      double var9 = this.posY - var3;
-      double var11 = this.posZ - var5;
-      double var13 = var7 * var7 + var9 * var9 + var11 * var11;
-      return this.isInRangeToRenderDist(var13);
+   public boolean isInRangeToRender3d(double x, double y, double z) {
+      double dx = this.posX - x;
+      double dy = this.posY - y;
+      double dz = this.posZ - z;
+      double distSq = dx * dx + dy * dy + dz * dz;
+      return this.isInRangeToRenderDist(distSq);
    }
 
    @SideOnly(Side.CLIENT)
-   public boolean isInRangeToRenderDist(double var1) {
-      return var1 < 11000.0;
+   public boolean isInRangeToRenderDist(double dist) {
+      return dist < 11000.0;
    }
 
    @Nullable
    public UUID getGirlIdFromCode() {
-      String var1 = (String)this.dataManager.get(modelCode);
-      return "".equals(var1) ? null : UUID.fromString(var1);
+      String code = (String)this.dataManager.get(modelCode);
+      return "".equals(code) ? null : UUID.fromString(code);
    }
 
-   public boolean attackEntityFrom(DamageSource var1, float var2) {
-      return var1 != DamageSource.OUT_OF_WORLD ? false : super.attackEntityFrom(var1, var2);
+   public boolean attackEntityFrom(DamageSource source, float amount) {
+      return source != DamageSource.OUT_OF_WORLD ? false : super.attackEntityFrom(source, amount);
    }
 
    @Nullable
    public String getModelCode() {
-      String var1 = (String)this.dataManager.get(modelData);
-      return "".equals(var1) ? null : var1;
+      String data = (String)this.dataManager.get(modelData);
+      return "".equals(data) ? null : data;
    }
 
    public boolean canBePushed() {
@@ -123,8 +123,8 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
       return false;
    }
 
-   public void onDeath(DamageSource var1) {
-      super.onDeath(var1);
+   public void onDeath(DamageSource source) {
+      super.onDeath(source);
    }
 
    @Override
@@ -133,18 +133,18 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
    }
 
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
    }
 
    public Iterable<ItemStack> getArmorInventoryList() {
       return new ArrayList<>();
    }
 
-   public ItemStack getItemStackFromSlot(EntityEquipmentSlot var1) {
+   public ItemStack getItemStackFromSlot(EntityEquipmentSlot slot) {
       return ItemStack.EMPTY;
    }
 
-   public void setItemStackToSlot(EntityEquipmentSlot var1, ItemStack var2) {
+   public void setItemStackToSlot(EntityEquipmentSlot slot, ItemStack stack) {
    }
 
    public EnumHandSide getPrimaryHand() {

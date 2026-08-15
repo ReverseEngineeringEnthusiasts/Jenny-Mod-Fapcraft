@@ -31,25 +31,25 @@ public class BeeOpenChestPacket implements IMessage {
    public BeeOpenChestPacket() {
    }
 
-   public BeeOpenChestPacket(UUID var1, UUID var2) {
-      this.girlUUID = var1;
-      this.playerUUID = var2;
+   public BeeOpenChestPacket(UUID girlUUID, UUID playerUUID) {
+      this.girlUUID = girlUUID;
+      this.playerUUID = playerUUID;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(buf, this.playerUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<BeeOpenChestPacket, IMessage> {
-      public IMessage onMessage(BeeOpenChestPacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(BeeOpenChestPacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("received an invalid message @BeeOpenChest :(");
             return null;
          } else {
@@ -57,19 +57,19 @@ public class BeeOpenChestPacket implements IMessage {
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
-                        if (!var3.world.isRemote && var3 instanceof BeeEntity) {
-                           BeeEntity var4 = (BeeEntity)var3;
-                           if ((Boolean)var4.getDataManager().get(BeeEntity.HORNY_FLAG)) {
-                              EntityPlayerMP var5 = (EntityPlayerMP)var4.world.getPlayerEntityByUUID(var1.playerUUID);
-                              if (var5 != null) {
-                                 var5.openGui(
+                     for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.girlUUID)) {
+                        if (!girl.world.isRemote && girl instanceof BeeEntity) {
+                           BeeEntity bee = (BeeEntity)girl;
+                           if ((Boolean)bee.getDataManager().get(BeeEntity.HORNY_FLAG)) {
+                              EntityPlayerMP player = (EntityPlayerMP)bee.world.getPlayerEntityByUUID(packet.playerUUID);
+                              if (player != null) {
+                                 player.openGui(
                                     Main.instance,
                                     1,
-                                    var3.world,
-                                    var3.getPosition().getX(),
-                                    var3.getPosition().getY(),
-                                    var3.getPosition().getZ()
+                                    girl.world,
+                                    girl.getPosition().getX(),
+                                    girl.getPosition().getY(),
+                                    girl.getPosition().getZ()
                                  );
                                  return;
                               }

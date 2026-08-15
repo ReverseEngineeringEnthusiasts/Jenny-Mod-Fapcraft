@@ -37,17 +37,17 @@ public class KoboldTask {
    List<KoboldEntity> workers = new ArrayList<>();
    EnumFacing facing = EnumFacing.NORTH;
 
-   public KoboldTask(BlockPos var1, KoboldTask.TaskType var2, HashSet<BlockPos> var3) {
-      this.targetPos = var1;
-      this.taskType = var2;
-      this.miningTargets = var3;
+   public KoboldTask(BlockPos targetPos, KoboldTask.TaskType taskType, HashSet<BlockPos> miningTargets) {
+      this.targetPos = targetPos;
+      this.taskType = taskType;
+      this.miningTargets = miningTargets;
    }
 
-   public KoboldTask(BlockPos var1, KoboldTask.TaskType var2, HashSet<BlockPos> var3, EnumFacing var4) {
-      this.targetPos = var1;
-      this.taskType = var2;
-      this.miningTargets = var3;
-      this.facing = var4;
+   public KoboldTask(BlockPos targetPos, KoboldTask.TaskType taskType, HashSet<BlockPos> miningTargets, EnumFacing facing) {
+      this.targetPos = targetPos;
+      this.taskType = taskType;
+      this.miningTargets = miningTargets;
+      this.facing = facing;
    }
 
    public EnumFacing getFacing() {
@@ -66,34 +66,34 @@ public class KoboldTask {
       return this.miningTargets;
    }
 
-   public void addMiningTarget(BlockPos var1) {
-      this.miningTargets.add(var1);
+   public void addMiningTarget(BlockPos pos) {
+      this.miningTargets.add(pos);
    }
 
-   public void addMiningTargets(HashSet<BlockPos> var1) {
-      this.miningTargets.addAll(var1);
+   public void addMiningTargets(HashSet<BlockPos> targets) {
+      this.miningTargets.addAll(targets);
    }
 
-   public void removeMiningTarget(BlockPos var1) {
-      this.miningTargets.remove(var1);
+   public void removeMiningTarget(BlockPos pos) {
+      this.miningTargets.remove(pos);
    }
 
-   public void setMiningTargets(HashSet<BlockPos> var1) {
-      if (!var1.isEmpty()) {
-         this.miningTargets.removeAll(var1);
+   public void setMiningTargets(HashSet<BlockPos> targets) {
+      if (!targets.isEmpty()) {
+         this.miningTargets.removeAll(targets);
       }
    }
 
-   public boolean isMiningTarget(BlockPos var1) {
-      return this.miningTargets.contains(var1);
+   public boolean isMiningTarget(BlockPos pos) {
+      return this.miningTargets.contains(pos);
    }
 
-   public boolean addWorker(KoboldEntity var1) {
+   public boolean addWorker(KoboldEntity kobold) {
       if (this.taskType.targetPos <= this.workers.size()) {
          return false;
       }
 
-      this.workers.add(var1);
+      this.workers.add(kobold);
       return true;
    }
 
@@ -102,171 +102,171 @@ public class KoboldTask {
    }
 
    public void releaseWorkers() {
-      for (KoboldEntity var2 : this.workers) {
-         if (var2.getInteractionPlayerUUID() == null) {
-            var2.setNoGravity(false);
-            var2.noClip = false;
-            var2.setCurrentAction(Action.NULL);
-            var2.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
+      for (KoboldEntity worker : this.workers) {
+         if (worker.getInteractionPlayerUUID() == null) {
+            worker.setNoGravity(false);
+            worker.noClip = false;
+            worker.setCurrentAction(Action.NULL);
+            worker.getDataManager().set(BaseGirlEntity.IS_ANCHORED, false);
          }
       }
 
       this.workers.clear();
    }
 
-   public void removeWorker(KoboldEntity var1) {
-      this.workers.remove(var1);
+   public void removeWorker(KoboldEntity kobold) {
+      this.workers.remove(kobold);
    }
 
    public boolean isFull() {
       return this.taskType.targetPos <= this.workers.size();
    }
 
-   public boolean hasWorker(KoboldEntity var1) {
-      return this.workers.contains(var1);
+   public boolean hasWorker(KoboldEntity kobold) {
+      return this.workers.contains(kobold);
    }
 
-   public static HashSet<BlockPos> findConnectedBlocks(World var0, BlockPos var1, UUID var2) {
-      BlockPos var3 = var1;
+   public static HashSet<BlockPos> findConnectedBlocks(World world, BlockPos startPos, UUID tribeUuid) {
+      BlockPos groundPos = startPos;
 
-      while (!isAboveMineable(var0, var3)) {
-         var3 = var1.down();
+      while (!isAboveMineable(world, groundPos)) {
+         groundPos = startPos.down();
       }
 
-      BlockPos var4 = var1;
+      BlockPos topPos = startPos;
 
-      while (!isMineable(var0, var4)) {
-         var4 = var4.up();
+      while (!isMineable(world, topPos)) {
+         topPos = topPos.up();
       }
 
-      HashSet var5 = new HashSet();
-      int var6 = var4.getY() - var3.getY();
+      HashSet blocks = new HashSet();
+      int height = topPos.getY() - groundPos.getY();
 
-      for (int var7 = 0; var7 <= var6; var7++) {
-         var5.add(var3.add(0, var7, 0));
+      for (int i = 0; i <= height; i++) {
+         blocks.add(groundPos.add(0, i, 0));
       }
 
-      HashSet var15 = findConnectedLogs(var0, var3);
-      HashSet var8 = new HashSet();
+      HashSet logs = findConnectedLogs(world, groundPos);
+      HashSet leafBlocks = new HashSet();
 
-      for (BlockPos var10 : (java.util.Collection<BlockPos>) (var15) ) {
-         if (var10.getX() == var3.getX() && var10.getZ() == var3.getZ()) {
-            var8.add(var10);
+      for (BlockPos log : (java.util.Collection<BlockPos>) (logs) ) {
+         if (log.getX() == groundPos.getX() && log.getZ() == groundPos.getZ()) {
+            leafBlocks.add(log);
          }
       }
 
-      for (BlockPos var18 : (java.util.Collection<BlockPos>) (var8) ) {
-         var15.remove(var18);
+      for (BlockPos log2 : (java.util.Collection<BlockPos>) (leafBlocks) ) {
+         logs.remove(log2);
       }
 
-      var5.addAll(var15);
-      HashSet var17 = new HashSet();
+      blocks.addAll(logs);
+      HashSet overlapping = new HashSet();
 
-      for (BlockPos var11 : (java.util.Collection<BlockPos>) (var5) ) {
-         for (KoboldTask var13 : KoboldManager.getTribeTasks(var2)) {
-            HashSet var14 = var13.getMiningTargets();
-            if (var14.contains(var11)) {
-               var17.add(var11);
+      for (BlockPos block : (java.util.Collection<BlockPos>) (blocks) ) {
+         for (KoboldTask task : KoboldManager.getTribeTasks(tribeUuid)) {
+            HashSet taskTargets = task.getMiningTargets();
+            if (taskTargets.contains(block)) {
+               overlapping.add(block);
                break;
             }
          }
       }
 
-      var5.removeAll(var17);
-      KoboldTask var20 = new KoboldTask(var3, KoboldTask.TaskType.FALL_TREE, var5);
-      KoboldManager.addTask(var2, var20);
-      return var5;
+      blocks.removeAll(overlapping);
+      KoboldTask fallTask = new KoboldTask(groundPos, KoboldTask.TaskType.FALL_TREE, blocks);
+      KoboldManager.addTask(tribeUuid, fallTask);
+      return blocks;
    }
 
-   static boolean isMineable(World var0, BlockPos var1) {
-      Block var2 = var0.getBlockState(var1.up()).getBlock();
-      return !(var2 instanceof BlockLog);
+   static boolean isMineable(World world, BlockPos pos) {
+      Block blockAbove = world.getBlockState(pos.up()).getBlock();
+      return !(blockAbove instanceof BlockLog);
    }
 
-   static boolean isAboveMineable(World var0, BlockPos var1) {
-      IBlockState var2 = var0.getBlockState(var1.down());
-      return !(var2 instanceof BlockLog) && var2.getMaterial() != Material.AIR;
+   static boolean isAboveMineable(World world, BlockPos pos) {
+      IBlockState stateBelow = world.getBlockState(pos.down());
+      return !(stateBelow instanceof BlockLog) && stateBelow.getMaterial() != Material.AIR;
    }
 
-   static HashSet<BlockPos> findConnectedLogs(World var0, BlockPos var1) {
-      return findMineableBlocks(var0, var1, new HashSet<>());
+   static HashSet<BlockPos> findConnectedLogs(World world, BlockPos pos) {
+      return findMineableBlocks(world, pos, new HashSet<>());
    }
 
-   static HashSet<BlockPos> findMineableBlocks(World var0, BlockPos var1, HashSet<BlockPos> var2) {
-      if (var2.contains(var1)) {
+   static HashSet<BlockPos> findMineableBlocks(World world, BlockPos pos, HashSet<BlockPos> visited) {
+      if (visited.contains(pos)) {
          return new HashSet<>();
       }
 
-      var2.add(var1);
-      if (var0.getBlockState(var1.add(1, 0, 0)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(1, 0, 0), var2));
+      visited.add(pos);
+      if (world.getBlockState(pos.add(1, 0, 0)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(1, 0, 0), visited));
       }
 
-      if (var0.getBlockState(var1.add(-1, 0, 0)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(-1, 0, 0), var2));
+      if (world.getBlockState(pos.add(-1, 0, 0)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(-1, 0, 0), visited));
       }
 
-      if (var0.getBlockState(var1.add(0, 0, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(0, 0, 1), var2));
+      if (world.getBlockState(pos.add(0, 0, 1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(0, 0, 1), visited));
       }
 
-      if (var0.getBlockState(var1.add(0, 0, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(0, 0, -1), var2));
+      if (world.getBlockState(pos.add(0, 0, -1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(0, 0, -1), visited));
       }
 
-      if (var0.getBlockState(var1.add(1, 0, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(1, 0, 1), var2));
+      if (world.getBlockState(pos.add(1, 0, 1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(1, 0, 1), visited));
       }
 
-      if (var0.getBlockState(var1.add(-1, 0, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(-1, 0, -1), var2));
+      if (world.getBlockState(pos.add(-1, 0, -1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(-1, 0, -1), visited));
       }
 
-      if (var0.getBlockState(var1.add(-1, 0, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(-1, 0, 1), var2));
+      if (world.getBlockState(pos.add(-1, 0, 1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(-1, 0, 1), visited));
       }
 
-      if (var0.getBlockState(var1.add(1, 0, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(1, 0, -1), var2));
+      if (world.getBlockState(pos.add(1, 0, -1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(1, 0, -1), visited));
       }
 
-      if (var0.getBlockState(var1.add(0, 1, 0)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(0, 1, 0), var2));
+      if (world.getBlockState(pos.add(0, 1, 0)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(0, 1, 0), visited));
       }
 
-      if (var0.getBlockState(var1.add(1, 1, 0)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(1, 1, 0), var2));
+      if (world.getBlockState(pos.add(1, 1, 0)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(1, 1, 0), visited));
       }
 
-      if (var0.getBlockState(var1.add(-1, 1, 0)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(-1, 1, 0), var2));
+      if (world.getBlockState(pos.add(-1, 1, 0)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(-1, 1, 0), visited));
       }
 
-      if (var0.getBlockState(var1.add(0, 1, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(0, 1, 1), var2));
+      if (world.getBlockState(pos.add(0, 1, 1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(0, 1, 1), visited));
       }
 
-      if (var0.getBlockState(var1.add(0, 1, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(0, 1, -1), var2));
+      if (world.getBlockState(pos.add(0, 1, -1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(0, 1, -1), visited));
       }
 
-      if (var0.getBlockState(var1.add(1, 1, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(1, 1, 1), var2));
+      if (world.getBlockState(pos.add(1, 1, 1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(1, 1, 1), visited));
       }
 
-      if (var0.getBlockState(var1.add(-1, 1, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(-1, 1, -1), var2));
+      if (world.getBlockState(pos.add(-1, 1, -1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(-1, 1, -1), visited));
       }
 
-      if (var0.getBlockState(var1.add(-1, 1, 1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(-1, 1, 1), var2));
+      if (world.getBlockState(pos.add(-1, 1, 1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(-1, 1, 1), visited));
       }
 
-      if (var0.getBlockState(var1.add(1, 1, -1)).getBlock() instanceof BlockLog) {
-         var2.addAll(findMineableBlocks(var0, var1.add(1, 1, -1), var2));
+      if (world.getBlockState(pos.add(1, 1, -1)).getBlock() instanceof BlockLog) {
+         visited.addAll(findMineableBlocks(world, pos.add(1, 1, -1), visited));
       }
 
-      return var2;
+      return visited;
    }
 
    public enum TaskType {
@@ -275,8 +275,8 @@ public class KoboldTask {
 
       int targetPos;
 
-      TaskType(int var3) {
-         this.targetPos = var3;
+      TaskType(int id) {
+         this.targetPos = id;
       }
 
       int getMaxWorkers() {

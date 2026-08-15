@@ -53,7 +53,7 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       return INSTANCE;
    }
 
-   public ConfigWorldGenHandler(String var1) {
+   public ConfigWorldGenHandler(String name) {
       this();
    }
 
@@ -90,135 +90,135 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
    }
 
    @SubscribeEvent
-   public void onSave(Save var1) {
-      World var2 = var1.getWorld();
-      var2.getMapStorage().setData("sexmod:generation", this);
+   public void onSave(Save event) {
+      World world = event.getWorld();
+      world.getMapStorage().setData("sexmod:generation", this);
       this.markDirty();
    }
 
    @SubscribeEvent
-   public void onLoad(Load var1) {
-      World var2 = var1.getWorld();
-      var2.getMapStorage().getOrLoadData(ConfigWorldGenHandler.class, "sexmod:generation");
+   public void onLoad(Load event) {
+      World world = event.getWorld();
+      world.getMapStorage().getOrLoadData(ConfigWorldGenHandler.class, "sexmod:generation");
    }
 
-   public void readFromNBT(NBTTagCompound var1) {
+   public void readFromNBT(NBTTagCompound tag) {
       this.clear();
-      NBTTagCompound var2 = var1.getCompoundTag("sexmod:generation");
-      int var3 = 0;
+      NBTTagCompound generation = tag.getCompoundTag("sexmod:generation");
+      int i = 0;
 
       while (true) {
-         String var4 = var2.getString("sexmod:name" + var3);
-         String var5 = var2.getString("sexmod:pos" + var3);
-         if ("".equals(var4) || "".equals(var5)) {
+         String name = generation.getString("sexmod:name" + i);
+         String pos = generation.getString("sexmod:pos" + i);
+         if ("".equals(name) || "".equals(pos)) {
             return;
          }
 
-         this.generatedPositions.add(new ConfigWorldGenHandler.StructureData(parseSpawnEntry(var5), var4));
-         var3++;
+         this.generatedPositions.add(new ConfigWorldGenHandler.StructureData(parseSpawnEntry(pos), name));
+         i++;
       }
    }
 
-   public NBTTagCompound writeToNBT(NBTTagCompound var1) {
-      var1.setTag("sexmod:generation", new NBTTagCompound());
-      NBTTagCompound var2 = new NBTTagCompound();
-      int var3 = 0;
+   public NBTTagCompound writeToNBT(NBTTagCompound tag) {
+      tag.setTag("sexmod:generation", new NBTTagCompound());
+      NBTTagCompound generation = new NBTTagCompound();
+      int i = 0;
 
-      for (ConfigWorldGenHandler.StructureData var5 : this.generatedPositions) {
-         var2.setString("sexmod:name" + var3, var5.girlName);
-         var2.setString("sexmod:pos" + var3++, getChunkHash(var5.pos));
+      for (ConfigWorldGenHandler.StructureData data : this.generatedPositions) {
+         generation.setString("sexmod:name" + i, data.girlName);
+         generation.setString("sexmod:pos" + i++, getChunkHash(data.pos));
       }
 
-      var1.setTag("sexmod:generation", var2);
-      return var1;
+      tag.setTag("sexmod:generation", generation);
+      return tag;
    }
 
-   static String getChunkHash(Point2D var0) {
-      return var0.x + "|" + var0.y;
+   static String getChunkHash(Point2D pos) {
+      return pos.x + "|" + pos.y;
    }
 
-   static Point2D parseSpawnEntry(String var0) {
-      String[] var1 = var0.split("\\|");
-      return new Point2D(Integer.parseInt(var1[0]), Integer.parseInt(var1[1]));
+   static Point2D parseSpawnEntry(String entry) {
+      String[] parts = entry.split("\\|");
+      return new Point2D(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
    }
 
-   public void generate(Random var1, int var2, int var3, World var4, IChunkGenerator var5, IChunkProvider var6) {
+   public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider) {
       if (GENERATION_ENABLED) {
-         if (var4.getWorldType() != WorldType.FLAT) {
-            this.spawnStructures(var4, var1, var2, var3);
-            this.generateChunk(var4, var1, var2, var3);
-            this.generateStructure(var1, var2, var3, var4);
+         if (world.getWorldType() != WorldType.FLAT) {
+            this.spawnStructures(world, random, chunkX, chunkZ);
+            this.generateChunk(world, random, chunkX, chunkZ);
+            this.generateStructure(random, chunkX, chunkZ, world);
          }
       }
    }
 
-   void generateStructure(Random var1, int var2, int var3, World var4) {
+   void generateStructure(Random random, int chunkX, int chunkZ, World world) {
       if (IS_GENERATING) {
          IS_GENERATING = false;
 
-         for (ConfigWorldGenHandler.BiomeRule var6 : this.girlHouseConfigs) {
-            this.placeStructure(var6, var1, var2, var3, var4);
+         for (ConfigWorldGenHandler.BiomeRule rule : this.girlHouseConfigs) {
+            this.placeStructure(rule, random, chunkX, chunkZ, world);
          }
 
          IS_GENERATING = true;
       }
    }
 
-   void placeStructure(ConfigWorldGenHandler.BiomeRule var1, Random var2, int var3, int var4, World var5) {
-      for (ConfigWorldGenHandler.StructureData var7 : this.generatedPositions) {
-         int var8 = var7.girlName.equals(var1.girlName) ? 156 : 62;
-         if (var7.pos.distanceTo(var3, var4) < var8) {
+   void placeStructure(ConfigWorldGenHandler.BiomeRule rule, Random random, int chunkX, int chunkZ, World world) {
+      for (ConfigWorldGenHandler.StructureData data : this.generatedPositions) {
+         int minDistance = data.girlName.equals(rule.girlName) ? 156 : 62;
+         if (data.pos.distanceTo(chunkX, chunkZ) < minDistance) {
             return;
          }
       }
 
-      int var21 = var1.size.getX();
-      int var22 = var1.size.getZ();
-      int var23 = var3 * 16 + (16 - var21) / 2;
-      int var9 = var4 * 16 + (16 - var22) / 2;
-      Biome var10 = var5.provider.getBiomeForCoords(new BlockPos(var23, 80, var9));
-      if (var1.biomes.contains(var10)) {
-         int var11 = Integer.MIN_VALUE;
-         int var12 = Integer.MAX_VALUE;
+      int sizeX = rule.size.getX();
+      int sizeZ = rule.size.getZ();
+      int startX = chunkX * 16 + (16 - sizeX) / 2;
+      int startZ = chunkZ * 16 + (16 - sizeZ) / 2;
+      Biome biome = world.provider.getBiomeForCoords(new BlockPos(startX, 80, startZ));
+      if (rule.biomes.contains(biome)) {
+         int maxHeight = Integer.MIN_VALUE;
+         int minHeight = Integer.MAX_VALUE;
 
-         for (int var13 = var23; var13 < var23 + var21; var13++) {
-            for (int var14 = var9; var14 < var9 + var22; var14++) {
-               int var15 = WorldUtils.getHeightAt(var5, var13, var14);
-               if (var1.flattenGround && var5.getBlockState(new BlockPos(var13, var15, var14)).getBlock() == Blocks.WATER) {
+         for (int x = startX; x < startX + sizeX; x++) {
+            for (int z = startZ; z < startZ + sizeZ; z++) {
+               int height = WorldUtils.getHeightAt(world, x, z);
+               if (rule.flattenGround && world.getBlockState(new BlockPos(x, height, z)).getBlock() == Blocks.WATER) {
                   return;
                }
 
-               if (var15 > var11) {
-                  var11 = var15;
+               if (height > maxHeight) {
+                  maxHeight = height;
                }
 
-               if (var15 < var12) {
-                  var12 = var15;
+               if (height < minHeight) {
+                  minHeight = height;
                }
             }
          }
 
-         if (var11 - var12 <= var1.maxHeightDiff) {
-            int var24 = var11;
-            this.generatedPositions.add(new ConfigWorldGenHandler.StructureData(new Point2D(var3, var4), var1.girlName));
-            var1.generator.generate(var5, var2, new BlockPos(var23, var24, var9));
-            if (var1.flattenGround) {
-               boolean var25 = true;
+         if (maxHeight - minHeight <= rule.maxHeightDiff) {
+            int flatHeight = maxHeight;
+            this.generatedPositions.add(new ConfigWorldGenHandler.StructureData(new Point2D(chunkX, chunkZ), rule.girlName));
+            rule.generator.generate(world, random, new BlockPos(startX, flatHeight, startZ));
+            if (rule.flattenGround) {
+               boolean modified = true;
 
-               for (int var26 = var24 - 1; var25; var26--) {
-                  var25 = false;
-                  Vec3i var16 = new Vec3i(var21 + 2, 0, var22 + 2);
-                  var23--;
-                  var9--;
+               for (int y = flatHeight - 1; modified; y--) {
+                  modified = false;
+                  Vec3i extents = new Vec3i(sizeX + 2, 0, sizeZ + 2);
+                  startX--;
+                  startZ--;
 
-                  for (int var17 = var23; var17 < var23 + var16.getX(); var17++) {
-                     for (int var18 = var9; var18 < var9 + var16.getZ(); var18++) {
-                        BlockPos var19 = new BlockPos(var17, var26, var18);
-                        IBlockState var20 = var5.getBlockState(var19);
-                        if (var20.getBlock().isPassable(var5, var19)) {
-                           var20 = var5.canSeeSky(var19) ? Blocks.GRASS.getDefaultState() : Blocks.DIRT.getDefaultState();
-                           var5.setBlockState(var19, var20);
-                           var25 = true;
+                  for (int x2 = startX; x2 < startX + extents.getX(); x2++) {
+                     for (int z2 = startZ; z2 < startZ + extents.getZ(); z2++) {
+                        BlockPos pos = new BlockPos(x2, y, z2);
+                        IBlockState state = world.getBlockState(pos);
+                        if (state.getBlock().isPassable(world, pos)) {
+                           state = world.canSeeSky(pos) ? Blocks.GRASS.getDefaultState() : Blocks.DIRT.getDefaultState();
+                           world.setBlockState(pos, state);
+                           modified = true;
                         }
                      }
                   }
@@ -228,93 +228,93 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       }
    }
 
-   void spawnStructures(World var1, Random var2, int var3, int var4) {
-      if (!(var2.nextDouble() > 0.004F)) {
-         int var5 = var3 * 16 + 8;
-         int var6 = var4 * 16 + 8;
-         int var7 = WorldUtils.getHeightAt(var1, var5, var6);
-         if (!var1.getBlockState(new BlockPos(var5, var7, var6)).getMaterial().isLiquid()) {
-            KoboldManager.spawnKoboldAt(var1, new Vec3d(var5, var7, var6));
+   void spawnStructures(World world, Random random, int chunkX, int chunkZ) {
+      if (!(random.nextDouble() > 0.004F)) {
+         int x = chunkX * 16 + 8;
+         int z = chunkZ * 16 + 8;
+         int height = WorldUtils.getHeightAt(world, x, z);
+         if (!world.getBlockState(new BlockPos(x, height, z)).getMaterial().isLiquid()) {
+            KoboldManager.spawnKoboldAt(world, new Vec3d(x, height, z));
          }
       }
    }
 
-   void generateChunk(World var1, Random var2, int var3, int var4) {
-      int var5 = 16 * var3 + 3;
-      int var6 = 16 * var4 + 3;
-      int var7 = var2.nextInt(255);
-      BlockPos var8 = new BlockPos(var5, var7, var6);
-      ArrayList var9 = new ArrayList();
+   void generateChunk(World world, Random random, int chunkX, int chunkZ) {
+      int x = 16 * chunkX + 3;
+      int z = 16 * chunkZ + 3;
+      int y = random.nextInt(255);
+      BlockPos origin = new BlockPos(x, y, z);
+      ArrayList spots = new ArrayList();
 
-      for (int var10 = 0; var10 <= GoblinEntity.ah.getX(); var10++) {
-         for (int var11 = -1; var11 <= GoblinEntity.ah.getY(); var11++) {
-            for (int var12 = 0; var12 <= GoblinEntity.ah.getZ(); var12++) {
-               BlockPos var13 = var8.add(var10, var11, var12);
-               Material var14 = var1.getBlockState(var13).getMaterial();
-               boolean var15 = var14.isSolid();
-               if (!var15 && (var11 == -1 || var11 == GoblinEntity.ah.getY())) {
+      for (int x2 = 0; x2 <= GoblinEntity.ah.getX(); x2++) {
+         for (int y2 = -1; y2 <= GoblinEntity.ah.getY(); y2++) {
+            for (int z2 = 0; z2 <= GoblinEntity.ah.getZ(); z2++) {
+               BlockPos pos = origin.add(x2, y2, z2);
+               Material material = world.getBlockState(pos).getMaterial();
+               boolean solid = material.isSolid();
+               if (!solid && (y2 == -1 || y2 == GoblinEntity.ah.getY())) {
                   return;
                }
 
-               if ((var10 == 0 || var10 == GoblinEntity.ah.getX() || var12 == 0 || var12 == GoblinEntity.ah.getZ())
-                  && var11 == 0
-                  && var1.isAirBlock(var13)
-                  && var1.isAirBlock(var13.up())) {
-                  var9.add(var13);
+               if ((x2 == 0 || x2 == GoblinEntity.ah.getX() || z2 == 0 || z2 == GoblinEntity.ah.getZ())
+                  && y2 == 0
+                  && world.isAirBlock(pos)
+                  && world.isAirBlock(pos.up())) {
+                  spots.add(pos);
                }
             }
          }
       }
 
-      if (var9.size() != 0 && var9.size() <= 4) {
-         BlockPos var16 = null;
+      if (spots.size() != 0 && spots.size() <= 4) {
+         BlockPos candidate = null;
 
-         for (BlockPos var19 : (java.util.Collection<BlockPos>) (var9) ) {
-            BlockPos var22 = var19;
-            BlockPos var25 = var8.add(6, 0, 6);
-            var22 = var22.subtract(var25);
-            if (Math.abs(var22.getX()) != Math.abs(var22.getZ())
-               && Math.abs(var22.getX()) != Math.abs(var22.getZ()) - 1
-               && Math.abs(var22.getX()) - 1 != Math.abs(var22.getZ())) {
-               var16 = var22;
+         for (BlockPos spot : (java.util.Collection<BlockPos>) (spots) ) {
+            BlockPos relative = spot;
+            BlockPos center = origin.add(6, 0, 6);
+            relative = relative.subtract(center);
+            if (Math.abs(relative.getX()) != Math.abs(relative.getZ())
+               && Math.abs(relative.getX()) != Math.abs(relative.getZ()) - 1
+               && Math.abs(relative.getX()) - 1 != Math.abs(relative.getZ())) {
+               candidate = relative;
                break;
             }
          }
 
-         if (var16 != null) {
-            Vec3i var24 = new Vec3i(0, 0, 0);
-            float var26 = 0.0F;
-            Rotation var18;
-            Vec3d var20;
-            if (var16.getZ() == -6) {
-               var18 = Rotation.NONE;
-               var20 = GoblinEntity.aB;
-               var26 = 180.0F;
-            } else if (var16.getX() == 5) {
-               var18 = Rotation.CLOCKWISE_90;
-               var20 = GoblinEntity.ao;
-               var24 = new Vec3i(GoblinEntity.ah.getX() - 1, 0, 0);
-               var26 = -90.0F;
-            } else if (var16.getZ() == 5) {
-               var18 = Rotation.CLOCKWISE_180;
-               var20 = GoblinEntity.aM;
-               var24 = new Vec3i(GoblinEntity.ah.getX() - 1, 0, GoblinEntity.ah.getZ() - 1);
+         if (candidate != null) {
+            Vec3i offset = new Vec3i(0, 0, 0);
+            float yaw = 0.0F;
+            Rotation rotation;
+            Vec3d offsetPos;
+            if (candidate.getZ() == -6) {
+               rotation = Rotation.NONE;
+               offsetPos = GoblinEntity.aB;
+               yaw = 180.0F;
+            } else if (candidate.getX() == 5) {
+               rotation = Rotation.CLOCKWISE_90;
+               offsetPos = GoblinEntity.ao;
+               offset = new Vec3i(GoblinEntity.ah.getX() - 1, 0, 0);
+               yaw = -90.0F;
+            } else if (candidate.getZ() == 5) {
+               rotation = Rotation.CLOCKWISE_180;
+               offsetPos = GoblinEntity.aM;
+               offset = new Vec3i(GoblinEntity.ah.getX() - 1, 0, GoblinEntity.ah.getZ() - 1);
             } else {
-               var18 = Rotation.COUNTERCLOCKWISE_90;
-               var20 = GoblinEntity.THROW_OFFSET_U;
-               var24 = new Vec3i(0, 0, GoblinEntity.ah.getZ() - 1);
-               var26 = 90.0F;
+               rotation = Rotation.COUNTERCLOCKWISE_90;
+               offsetPos = GoblinEntity.THROW_OFFSET_U;
+               offset = new Vec3i(0, 0, GoblinEntity.ah.getZ() - 1);
+               yaw = 90.0F;
             }
 
-            new GirlHouseGenerator("goblin").generateStructureRotated(var1, var8.add(0, -1, 0).add(var24), var18);
-            var20.add(var24.getX(), var24.getY(), var24.getZ());
-            var20 = new Vec3d(
-               var8.getX() + var20.x + 0.5, var8.getY() + var20.y, var8.getZ() + var20.z + 0.5
+            new GirlHouseGenerator("goblin").generateStructureRotated(world, origin.add(0, -1, 0).add(offset), rotation);
+            offsetPos.add(offset.getX(), offset.getY(), offset.getZ());
+            offsetPos = new Vec3d(
+               origin.getX() + offsetPos.x + 0.5, origin.getY() + offsetPos.y, origin.getZ() + offsetPos.z + 0.5
             );
-            GoblinEntity var27 = new GoblinEntity(var1, true, var26, var20);
-            var27.forceSpawn = true;
-            var1.spawnEntity(var27);
-            var1.getChunk(var3, var4).markDirty();
+            GoblinEntity goblin = new GoblinEntity(world, true, yaw, offsetPos);
+            goblin.forceSpawn = true;
+            world.spawnEntity(goblin);
+            world.getChunk(chunkX, chunkZ).markDirty();
          }
       }
    }
@@ -323,9 +323,9 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       Point2D pos;
       String girlName;
 
-      public StructureData(Point2D var1, String var2) {
-         this.pos = var1;
-         this.girlName = var2;
+      public StructureData(Point2D pos, String name) {
+         this.pos = pos;
+         this.girlName = name;
       }
    }
 
@@ -337,13 +337,13 @@ public class ConfigWorldGenHandler extends WorldSavedData implements IWorldGener
       public final boolean flattenGround;
       public final int maxHeightDiff;
 
-      public BiomeRule(String var1, HashSet<Biome> var2, Vec3i var3, int var4, boolean var5) {
-         this.girlName = var1;
-         this.biomes = var2;
-         this.size = var3;
-         this.flattenGround = var5;
-         this.maxHeightDiff = var4;
-         this.generator = new GirlHouseGenerator(var1);
+      public BiomeRule(String name, HashSet<Biome> biomes, Vec3i size, int maxHeightDiff, boolean flatten) {
+         this.girlName = name;
+         this.biomes = biomes;
+         this.size = size;
+         this.flattenGround = flatten;
+         this.maxHeightDiff = maxHeightDiff;
+         this.generator = new GirlHouseGenerator(name);
       }
    }
 }

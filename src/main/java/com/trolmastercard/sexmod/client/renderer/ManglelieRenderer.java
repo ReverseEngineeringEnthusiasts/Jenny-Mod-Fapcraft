@@ -80,8 +80,8 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
    };
    boolean initialized = false;
 
-   public ManglelieRenderer(RenderManager var1, AnimatedGeoModel var2, double var3) {
-      super(var1, var2, var3);
+   public ManglelieRenderer(RenderManager renderManager, AnimatedGeoModel model, double shadowSize) {
+      super(renderManager, model, shadowSize);
    }
 
    /**
@@ -105,26 +105,26 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * or already riding mommy — those cases render through the POV/interaction
     * paths (see class javadoc).
     */
-   public void doRenderManglelie(ManglelieEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      if (!this.isManglelieLooking(var1)) {
-         if (!this.canRideMommy(var1)) {
-            if (!isManglelieLooking(var1, 0.5F)) {
-               if (!this.isRidingMommy(var1)) {
-                  super.doRenderEntity(var1, var2, var4, var6, var8, var9);
-                  renderMangleliePov(var1, var9);
+   public void doRenderManglelie(ManglelieEntity manglelie, double x, double y, double z, float entityYaw, float partialTicks) {
+      if (!this.isManglelieLooking(manglelie)) {
+         if (!this.canRideMommy(manglelie)) {
+            if (!isManglelieLooking(manglelie, 0.5F)) {
+               if (!this.isRidingMommy(manglelie)) {
+                  super.doRenderEntity(manglelie, x, y, z, entityYaw, partialTicks);
+                  renderMangleliePov(manglelie, partialTicks);
                }
             }
          }
       }
    }
 
-   boolean isRidingMommy(ManglelieEntity var1) {
-      GalathEntity var2 = var1.getGalathPartner(false);
-      if (var2 == null) {
+   boolean isRidingMommy(ManglelieEntity manglelie) {
+      GalathEntity galath = manglelie.getGalathPartner(false);
+      if (galath == null) {
          return false;
       }
 
-      switch (var2.getCurrentAction()) {
+      switch (galath.getCurrentAction()) {
          case CONTROLLED_FLIGHT:
          case BOOST:
             return true;
@@ -133,19 +133,19 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
    }
 
-   boolean canRideMommy(ManglelieEntity var1) {
-      return var1.getCurrentAction() != Action.RIDE_MOMMY_HEAD ? false : var1.getGalathPartner(false) == null;
+   boolean canRideMommy(ManglelieEntity manglelie) {
+      return manglelie.getCurrentAction() != Action.RIDE_MOMMY_HEAD ? false : manglelie.getGalathPartner(false) == null;
    }
 
-   boolean isManglelieLooking(ManglelieEntity var1) {
-      GalathEntity var2 = var1.getGalathPartner(false);
-      if (var2 == null) {
+   boolean isManglelieLooking(ManglelieEntity manglelie) {
+      GalathEntity galath = manglelie.getGalathPartner(false);
+      if (galath == null) {
          return false;
-      } else if (var2.isDead) {
-         var1.setGalathPartnerUUID(null);
+      } else if (galath.isDead) {
+         manglelie.setGalathPartnerUUID(null);
          return false;
       } else {
-         return var2.isHuggingManglelie();
+         return galath.isHuggingManglelie();
       }
    }
 
@@ -153,14 +153,14 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * Skips the shadow/fire pass while Manglelie looks at Galath or corrupts
     * (the POV render draws her differently).
     */
-   public void doRenderShadowAndFire(Entity var1, double var2, double var4, double var6, float var8, float var9) {
-      if (!(var1 instanceof ManglelieEntity)) {
-         super.doRenderShadowAndFire(var1, var2, var4, var6, var8, var9);
+   public void doRenderShadowAndFire(Entity entity, double x, double y, double z, float entityYaw, float partialTicks) {
+      if (!(entity instanceof ManglelieEntity)) {
+         super.doRenderShadowAndFire(entity, x, y, z, entityYaw, partialTicks);
       } else {
-         ManglelieEntity var10 = (ManglelieEntity)var1;
-         if (!this.isManglelieLooking(var10)) {
-            if (!var10.isCorrupting()) {
-               super.doRenderShadowAndFire(var1, var2, var4, var6, var8, var9);
+         ManglelieEntity manglelie = (ManglelieEntity)entity;
+         if (!this.isManglelieLooking(manglelie)) {
+            if (!manglelie.isCorrupting()) {
+               super.doRenderShadowAndFire(entity, x, y, z, entityYaw, partialTicks);
             }
          }
       }
@@ -168,15 +168,15 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
 
    /**
     * Whether the girl is close enough to her Galath partner for the
-    * look/interact pose (partner's proximity value below {@code var1}).
+    * look/interact pose (partner's proximity value below {@code threshold}).
     */
-   static boolean isManglelieLooking(BaseGirlEntity var0, float var1) {
-      if (!(var0 instanceof ManglelieEntity)) {
+   static boolean isManglelieLooking(BaseGirlEntity girl, float threshold) {
+      if (!(girl instanceof ManglelieEntity)) {
          return false;
       }
 
-      GalathEntity var2 = ((ManglelieEntity)var0).getGalathPartner(false);
-      return var2 == null ? false : var2.bm < var1;
+      GalathEntity galath = ((ManglelieEntity)girl).getGalathPartner(false);
+      return galath == null ? false : galath.bm < threshold;
    }
 
    /**
@@ -186,24 +186,24 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * re-enabled around the pass. Only when the girl is NOT in the close-look
     * pose and the local player exists.
     */
-   public static void renderMangleliePov(BaseGirlEntity var0, float var1) {
-      EntityPlayerSP var2 = mc.player;
-      if (var2 != null) {
-         if (!isManglelieLooking(var0, 0.5F)) {
-            Tessellator var3 = Tessellator.getInstance();
-            BufferBuilder var4 = var3.getBuffer();
+   public static void renderMangleliePov(BaseGirlEntity girl, float partialTicks) {
+      EntityPlayerSP player = mc.player;
+      if (player != null) {
+         if (!isManglelieLooking(girl, 0.5F)) {
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder buffer = tessellator.getBuffer();
             GlStateManager.pushMatrix();
-            if (var0.isLocallyRegistered()) {
+            if (girl.isLocallyRegistered()) {
                GlStateManager.translate(0.0, 0.01, 0.0);
             } else {
-               GalathGeometryRender.renderGalathGeometry(mc, var0, var1);
-               renderManglelieRibbon(var0, var1);
+               GalathGeometryRender.renderGalathGeometry(mc, girl, partialTicks);
+               renderManglelieRibbon(girl, partialTicks);
             }
 
             mc.getTextureManager().bindTexture(LINE_TEXTURE);
             GlStateManager.disableCull();
             GlStateManager.disableLighting();
-            GalathRenderer.renderWingMesh(var0, var4, var3);
+            GalathRenderer.renderWingMesh(girl, buffer, tessellator);
             GlStateManager.popMatrix();
             GlStateManager.enableCull();
             GlStateManager.enableLighting();
@@ -215,14 +215,14 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * Counter-rotates the corruption ribbon by Manglelie's interpolated yaw so
     * it stays screen-aligned while she corrupts (skipped in threesome mode).
     */
-   static void renderManglelieRibbon(BaseGirlEntity var0, float var1) {
-      if (var0 instanceof ManglelieEntity) {
-         ManglelieEntity var2 = (ManglelieEntity)var0;
-         if (var2.isCorrupting()) {
-            if (!ManglelieNpcModel.isInThreesome(var2)) {
-               GalathEntity var3 = var2.getGalathPartner(false);
-               if (var3 != null) {
-                  GlStateManager.rotate(-RotationHelper.lerpFloat(var0.prevRenderYawOffset, var0.renderYawOffset, var1), 0.0F, 1.0F, 0.0F);
+   static void renderManglelieRibbon(BaseGirlEntity girl, float partialTicks) {
+      if (girl instanceof ManglelieEntity) {
+         ManglelieEntity manglelie = (ManglelieEntity)girl;
+         if (manglelie.isCorrupting()) {
+            if (!ManglelieNpcModel.isInThreesome(manglelie)) {
+               GalathEntity galath = manglelie.getGalathPartner(false);
+               if (galath != null) {
+                  GlStateManager.rotate(-RotationHelper.lerpFloat(girl.prevRenderYawOffset, girl.renderYawOffset, partialTicks), 0.0F, 1.0F, 0.0F);
                }
             }
          }
@@ -233,12 +233,12 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * True while the girl (Galath or her Manglelie partner) is NOT in a
     * threesome action — i.e. the look/interact poses are active.
     */
-   public static boolean isGalathLooking(BaseGirlEntity var0) {
-      if (var0 instanceof GalathEntity) {
-         var0 = ((GalathEntity)var0).getMangleliePartner(false);
+   public static boolean isGalathLooking(BaseGirlEntity girl) {
+      if (girl instanceof GalathEntity) {
+         girl = ((GalathEntity)girl).getMangleliePartner(false);
       }
 
-      return var0 == null ? false : !Action.isAnyAction(var0, Action.THREESOME_SLOW, Action.THREESOME_FAST, Action.THREESOME_CUM);
+      return girl == null ? false : !Action.isAnyAction(girl, Action.THREESOME_SLOW, Action.THREESOME_FAST, Action.THREESOME_CUM);
    }
 
    /**
@@ -246,16 +246,16 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * girl's cached {@code skirt_<i>_<j>} bone offsets; only drawn while the
     * look pose is active.
     */
-   static void renderManglelieMesh(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2) {
-      if (isGalathLooking(var0)) {
-         var1.begin(7, DefaultVertexFormats.POSITION_COLOR);
+   static void renderManglelieMesh(BaseGirlEntity girl, BufferBuilder buffer, Tessellator tessellator) {
+      if (isGalathLooking(girl)) {
+         buffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
 
-         for (int var3 = 0; var3 < 39; var3++) {
-            renderManglelieStrip(var0, var1, var3, var3 + 1);
+         for (int i = 0; i < 39; i++) {
+            renderManglelieStrip(girl, buffer, i, i + 1);
          }
 
-         renderManglelieStrip(var0, var1, 39, 0);
-         var2.draw();
+         renderManglelieStrip(girl, buffer, 39, 0);
+         tessellator.draw();
       }
    }
 
@@ -263,22 +263,22 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * Emits one 8-vertex double quad (outer + inner skirt face) between the two
     * strip indices, tinted with the corruption color for the strip parity.
     */
-   static void renderManglelieStrip(BaseGirlEntity var0, BufferBuilder var1, int var2, int var3) {
-      Vec3d var4 = var0.getCachedBoneOffset("skirt_" + var2 + "_0");
-      Vec3d var5 = var0.getCachedBoneOffset("skirt_" + var2 + "_1");
-      Vec3d var6 = var0.getCachedBoneOffset("skirt_" + var2 + "_2");
-      Vec3d var7 = var0.getCachedBoneOffset("skirt_" + var3 + "_0");
-      Vec3d var8 = var0.getCachedBoneOffset("skirt_" + var3 + "_1");
-      Vec3d var9 = var0.getCachedBoneOffset("skirt_" + var3 + "_2");
-      UnknownScreen var10 = var2 % 2 == 0 ? CORRUPTION_COLOR_LIGHT : CORRUPTION_COLOR_DARK;
-      var1.pos(var4.x, var4.y, var4.z).color(var10.red, var10.green, var10.blue, var10.alpha).endVertex();
-      var1.pos(var5.x, var5.y, var5.z).color(var10.red, var10.green, var10.blue, var10.alpha).endVertex();
-      var1.pos(var8.x, var8.y, var8.z).color(var10.red, var10.green, var10.blue, var10.alpha).endVertex();
-      var1.pos(var7.x, var7.y, var7.z).color(var10.red, var10.green, var10.blue, var10.alpha).endVertex();
-      var1.pos(var5.x, var5.y, var5.z).color(var10.red, var10.green, var10.blue, var10.alpha).endVertex();
-      var1.pos(var8.x, var8.y, var8.z).color(var10.red, var10.green, var10.blue, var10.alpha).endVertex();
-      var1.pos(var9.x, var9.y, var9.z).color(var10.red, var10.green, var10.blue, var10.alpha).endVertex();
-      var1.pos(var6.x, var6.y, var6.z).color(var10.red, var10.green, var10.blue, var10.alpha).endVertex();
+   static void renderManglelieStrip(BaseGirlEntity girl, BufferBuilder buffer, int startStrip, int endStrip) {
+      Vec3d startOffset0 = girl.getCachedBoneOffset("skirt_" + startStrip + "_0");
+      Vec3d startOffset1 = girl.getCachedBoneOffset("skirt_" + startStrip + "_1");
+      Vec3d startOffset2 = girl.getCachedBoneOffset("skirt_" + startStrip + "_2");
+      Vec3d endOffset0 = girl.getCachedBoneOffset("skirt_" + endStrip + "_0");
+      Vec3d endOffset1 = girl.getCachedBoneOffset("skirt_" + endStrip + "_1");
+      Vec3d endOffset2 = girl.getCachedBoneOffset("skirt_" + endStrip + "_2");
+      UnknownScreen stripColor = startStrip % 2 == 0 ? CORRUPTION_COLOR_LIGHT : CORRUPTION_COLOR_DARK;
+      buffer.pos(startOffset0.x, startOffset0.y, startOffset0.z).color(stripColor.red, stripColor.green, stripColor.blue, stripColor.alpha).endVertex();
+      buffer.pos(startOffset1.x, startOffset1.y, startOffset1.z).color(stripColor.red, stripColor.green, stripColor.blue, stripColor.alpha).endVertex();
+      buffer.pos(endOffset1.x, endOffset1.y, endOffset1.z).color(stripColor.red, stripColor.green, stripColor.blue, stripColor.alpha).endVertex();
+      buffer.pos(endOffset0.x, endOffset0.y, endOffset0.z).color(stripColor.red, stripColor.green, stripColor.blue, stripColor.alpha).endVertex();
+      buffer.pos(startOffset1.x, startOffset1.y, startOffset1.z).color(stripColor.red, stripColor.green, stripColor.blue, stripColor.alpha).endVertex();
+      buffer.pos(endOffset1.x, endOffset1.y, endOffset1.z).color(stripColor.red, stripColor.green, stripColor.blue, stripColor.alpha).endVertex();
+      buffer.pos(endOffset2.x, endOffset2.y, endOffset2.z).color(stripColor.red, stripColor.green, stripColor.blue, stripColor.alpha).endVertex();
+      buffer.pos(startOffset2.x, startOffset2.y, startOffset2.z).color(stripColor.red, stripColor.green, stripColor.blue, stripColor.alpha).endVertex();
    }
 
    /**
@@ -288,16 +288,16 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * and the offhand bone (not looking).
     */
    @Override
-   protected void onBoneProcessing(BufferBuilder var1, String var2, GeoBone var3) {
-      applyBoneTransform(this.renderEntity, var2, var3, false);
-      Entity var4 = this.renderEntity.getCorruptEntity();
-      if (var4 != null) {
-         if ("weapon".equals(var2) && this.renderEntity.isLookingAtGalathEntity(var4, mc.getRenderPartialTicks())) {
-            this.renderEquippedItem(var1, var3, true);
+   protected void onBoneProcessing(BufferBuilder buffer, String boneName, GeoBone bone) {
+      applyBoneTransform(this.renderEntity, boneName, bone, false);
+      Entity corruptEntity = this.renderEntity.getCorruptEntity();
+      if (corruptEntity != null) {
+         if ("weapon".equals(boneName) && this.renderEntity.isLookingAtGalathEntity(corruptEntity, mc.getRenderPartialTicks())) {
+            this.renderEquippedItem(buffer, bone, true);
          }
 
-         if ("offhand".equals(var2) && !this.renderEntity.isLookingAtGalathEntity(var4, mc.getRenderPartialTicks())) {
-            this.renderEquippedItem(var1, var3, false);
+         if ("offhand".equals(boneName) && !this.renderEntity.isLookingAtGalathEntity(corruptEntity, mc.getRenderPartialTicks())) {
+            this.renderEquippedItem(buffer, bone, false);
          }
       }
    }
@@ -310,15 +310,15 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * clearing the hand. Re-binds the entity texture and restarts the buffer
     * afterwards.
     */
-   public void renderEquippedItem(BufferBuilder var1, GeoBone var2, boolean var3) {
-      ItemRenderer var4 = Minecraft.getMinecraft().getItemRenderer();
+   public void renderEquippedItem(BufferBuilder buffer, GeoBone bone, boolean isOffhand) {
+      ItemRenderer itemRenderer = Minecraft.getMinecraft().getItemRenderer();
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
-      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
+      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
       GL11.glEnable(2896);
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-      if (var3) {
+      if (isOffhand) {
          GlStateManager.translate(-0.01, 0.0, 0.0);
          GlStateManager.rotate(120.0F, 1.0F, 0.0F, 0.0F);
       } else {
@@ -327,12 +327,12 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
 
       GlStateManager.scale(0.7, 0.7, 0.7);
-      ItemStack var5 = new ItemStack(Items.BOW);
-      float var6 = this.renderEntity.getCorruptProgress(mc.getRenderPartialTicks());
-      if (var6 < 1.0F) {
-         float var7 = (float)RotationHelper.easeInOutQuad(var6);
-         this.renderEntity.setItemUseCount((int)(11.0F * (1.0F - var7) + 71980.0F));
-         this.renderEntity.setHeldItemOverride(var5);
+      ItemStack bowStack = new ItemStack(Items.BOW);
+      float corruptProgress = this.renderEntity.getCorruptProgress(mc.getRenderPartialTicks());
+      if (corruptProgress < 1.0F) {
+         float easedProgress = (float)RotationHelper.easeInOutQuad(corruptProgress);
+         this.renderEntity.setItemUseCount((int)(11.0F * (1.0F - easedProgress) + 71980.0F));
+         this.renderEntity.setHeldItemOverride(bowStack);
          this.renderEntity.setActiveHand(EnumHand.MAIN_HAND);
          this.renderEntity.setHandActiveState();
       } else {
@@ -340,8 +340,8 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
          this.renderEntity.clearHandActiveState();
       }
 
-      var4.renderItem(this.renderEntity, var5, TransformType.THIRD_PERSON_RIGHT_HAND);
-      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      itemRenderer.renderItem(this.renderEntity, bowStack, TransformType.THIRD_PERSON_RIGHT_HAND);
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
       GL11.glDisable(2896);
       GlStateManager.popMatrix();
@@ -356,57 +356,57 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * segments follow Manglelie's legs/cheeks while animating. No-op when the
     * game is paused or the driver bone's rotation is negative.
     */
-   public static void applyBoneTransform(BaseGirlEntity var0, String var1, GeoBone var2, boolean var3) {
-      if (var1.contains("skirt_")) {
-         int var4 = parseBoneIndex(var1);
-         if (ThreadNames.isBetween(var4, 17.0, 35.0)) {
+   public static void applyBoneTransform(BaseGirlEntity girl, String boneName, GeoBone bone, boolean isSecondary) {
+      if (boneName.contains("skirt_")) {
+         int boneIndex = parseBoneIndex(boneName);
+         if (ThreadNames.isBetween(boneIndex, 17.0, 35.0)) {
             if (mc.isGamePaused()) {
                return;
             }
 
-            String var5 = var4 < 26 ? "cheekL" : "cheekR";
-            if (var3) {
-               var5 = var5 + "2";
+            String driverBone = boneIndex < 26 ? "cheekL" : "cheekR";
+            if (isSecondary) {
+               driverBone = driverBone + "2";
             }
 
-            float var6 = TrigMath.toDegrees(var0.getAnimationProcessor().getBone(var5).getRotationX());
-            if (var6 < 0.0F) {
+            float driverRotation = TrigMath.toDegrees(girl.getAnimationProcessor().getBone(driverBone).getRotationX());
+            if (driverRotation < 0.0F) {
                return;
             }
 
-            var2.setPositionY(var2.getPositionY() + var6 * 0.01F);
+            bone.setPositionY(bone.getPositionY() + driverRotation * 0.01F);
          }
 
-         if (ThreadNames.isBetween(var4, 1.0, 11.0)) {
-            if (!var1.endsWith("1")) {
+         if (ThreadNames.isBetween(boneIndex, 1.0, 11.0)) {
+            if (!boneName.endsWith("1")) {
                return;
             }
 
-            String var7 = var4 < 6 ? "legR" : "legL";
-            if (var3) {
-               var7 = var7 + "2";
+            String legBone = boneIndex < 6 ? "legR" : "legL";
+            if (isSecondary) {
+               legBone = legBone + "2";
             }
 
-            float var8 = TrigMath.toDegrees(var0.getAnimationProcessor().getBone(var7).getRotationX());
-            if (var8 < 0.0F) {
+            float legRotation = TrigMath.toDegrees(girl.getAnimationProcessor().getBone(legBone).getRotationX());
+            if (legRotation < 0.0F) {
                return;
             }
 
-            var2.setRotationX(TrigMath.wrapDegrees(var8));
-            var2.setPositionY(TrigMath.wrapDegrees(var8 * 0.03F));
+            bone.setRotationX(TrigMath.wrapDegrees(legRotation));
+            bone.setPositionY(TrigMath.wrapDegrees(legRotation * 0.03F));
          }
       }
    }
 
-   static int parseBoneIndex(String var0) {
-      int var1 = var0.indexOf(95);
-      int var2 = var0.indexOf(95, var1 + 1);
-      if (var1 != -1 && var2 != -1) {
-         String var3 = var0.substring(var1 + 1, var2);
+   static int parseBoneIndex(String boneName) {
+      int firstUnderscore = boneName.indexOf(95);
+      int secondUnderscore = boneName.indexOf(95, firstUnderscore + 1);
+      if (firstUnderscore != -1 && secondUnderscore != -1) {
+         String indexString = boneName.substring(firstUnderscore + 1, secondUnderscore);
 
          try {
-            return Integer.parseInt(var3);
-         } catch (NumberFormatException var4) {
+            return Integer.parseInt(indexString);
+         } catch (NumberFormatException e) {
             return -1;
          }
       } else {
@@ -419,37 +419,37 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * {@code body2} bone is drawn normally and the {@code steve} bone is drawn
     * with the girl's render-scale factor, each in its own buffer flush.
     */
-   protected void renderModelBuffer(GeoModel var1, BufferBuilder var2, ManglelieEntity var3, float var4, float var5, float var6, float var7, float var8) {
-      if (!ManglelieNpcModel.isInThreesome(var3)) {
-         super.renderModelBuffer(var1, var2, var3, var4, var5, var6, var7, var8);
+   protected void renderModelBuffer(GeoModel model, BufferBuilder buffer, ManglelieEntity manglelie, float r, float g, float b, float a, float scale) {
+      if (!ManglelieNpcModel.isInThreesome(manglelie)) {
+         super.renderModelBuffer(model, buffer, manglelie, r, g, b, a, scale);
       } else {
-         GeoBone var9 = var1.topLevelBones.get(0);
-         GeoBone var10 = null;
-         GeoBone var11 = null;
+         GeoBone topBone = model.topLevelBones.get(0);
+         GeoBone body2Bone = null;
+         GeoBone steveBone = null;
 
-         for (GeoBone var13 : var9.childBones) {
-            switch (var13.getName()) {
+         for (GeoBone bone : topBone.childBones) {
+            switch (bone.getName()) {
                case "steve":
-                  var11 = var13;
+                  steveBone = bone;
                   break;
                case "body2":
-                  var10 = var13;
+                  body2Bone = bone;
             }
          }
 
          MATRIX_STACK.push();
-         MATRIX_STACK.translate(var9);
-         MATRIX_STACK.moveToPivot(var9);
-         MATRIX_STACK.rotate(var9);
-         MATRIX_STACK.scale(var9);
-         MATRIX_STACK.moveBackFromPivot(var9);
-         this.renderRecursively(var2, var10, var4, var5, var6, var7);
+         MATRIX_STACK.translate(topBone);
+         MATRIX_STACK.moveToPivot(topBone);
+         MATRIX_STACK.rotate(topBone);
+         MATRIX_STACK.scale(topBone);
+         MATRIX_STACK.moveBackFromPivot(topBone);
+         this.renderRecursively(buffer, body2Bone, r, g, b, a);
          Tessellator.getInstance().draw();
-         var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
          Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.renderEntity));
 
-         this.renderRecursively(var2, var11, var4, var5, var6, this.renderEntity.getRenderScaleFactor());
+         this.renderRecursively(buffer, steveBone, r, g, b, this.renderEntity.getRenderScaleFactor());
          Tessellator.getInstance().draw();
          MATRIX_STACK.pop();
       }
@@ -459,15 +459,15 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * Renders the corruption ribbon body mesh (three cloth-body segments
     * between the cached cloth bones) in the main corruption color.
     */
-   static void renderManglelieRibbonMesh(BaseGirlEntity var0, BufferBuilder var1, Tessellator var2, float var3) {
-      var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-      Vec3d[][] var4 = GalathGeometryRender.buildBodyMesh(var0, var3, "clothBoobLconStart", "clothBoobLconEnd", OFFSET_BODY, OFFSET_ARM);
-      Vec3d[][] var5 = GalathGeometryRender.buildBodyMesh(var0, var3, "clothBoobRconStart", "clothBoobRconEnd", OFFSET_BODY, OFFSET_ARM);
-      Vec3d[][] var6 = GalathGeometryRender.buildBodyMesh(var0, var3, "clothBoobMidconStart", "clothBoobMidconEnd", OFFSET_LEG, OFFSET_LEG);
-      GalathGeometryRender.renderMesh(var1, var4, CORRUPTION_COLOR_MAIN);
-      GalathGeometryRender.renderMesh(var1, var5, CORRUPTION_COLOR_MAIN);
-      GalathGeometryRender.renderMesh(var1, var6, CORRUPTION_COLOR_MAIN);
-      var2.draw();
+   static void renderManglelieRibbonMesh(BaseGirlEntity girl, BufferBuilder buffer, Tessellator tessellator, float partialTicks) {
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+      Vec3d[][] leftMesh = GalathGeometryRender.buildBodyMesh(girl, partialTicks, "clothBoobLconStart", "clothBoobLconEnd", OFFSET_BODY, OFFSET_ARM);
+      Vec3d[][] rightMesh = GalathGeometryRender.buildBodyMesh(girl, partialTicks, "clothBoobRconStart", "clothBoobRconEnd", OFFSET_BODY, OFFSET_ARM);
+      Vec3d[][] midMesh = GalathGeometryRender.buildBodyMesh(girl, partialTicks, "clothBoobMidconStart", "clothBoobMidconEnd", OFFSET_LEG, OFFSET_LEG);
+      GalathGeometryRender.renderMesh(buffer, leftMesh, CORRUPTION_COLOR_MAIN);
+      GalathGeometryRender.renderMesh(buffer, rightMesh, CORRUPTION_COLOR_MAIN);
+      GalathGeometryRender.renderMesh(buffer, midMesh, CORRUPTION_COLOR_MAIN);
+      tessellator.draw();
    }
 
    /**
@@ -476,22 +476,22 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * mesh), everything else follows {@link IGirlRenderer#hasParentBone}.
     */
    @Override
-   public boolean hasParentBone(HashSet var1, GeoBone var2) {
-      while (var2.parent != null) {
-         String var3 = var2.getName();
-         if (var3.contains("clothBoob")) {
+   public boolean hasParentBone(HashSet blacklistedBones, GeoBone bone) {
+      while (bone.parent != null) {
+         String boneName = bone.getName();
+         if (boneName.contains("clothBoob")) {
             return true;
          }
 
-         if (var1.contains(var3)) {
+         if (blacklistedBones.contains(boneName)) {
             return false;
          }
 
-         if (var3.startsWith("armor")) {
+         if (boneName.startsWith("armor")) {
             return false;
          }
 
-         var2 = var2.parent;
+         bone = bone.parent;
       }
 
       return true;
@@ -503,61 +503,61 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * partner and returns the partner-relative look position (the corruption
     * pose renders at Galath's location).
     */
-   protected Vec3d getBoneWorldPosManglelie(ManglelieEntity var1, float var2, Vec3d var3) {
-      if (var1.getCurrentAction() == Action.RUN) {
-         float var5 = var1.getYawRotation();
-         var1.rotationYaw = var5;
-         var1.prevRenderYawOffset = var5;
-         var1.renderYawOffset = var5;
-         var1.prevRotationYawHead = var5;
-         var1.rotationYawHead = var5;
-         return var3;
+   protected Vec3d getBoneWorldPosManglelie(ManglelieEntity manglelie, float partialTicks, Vec3d pos) {
+      if (manglelie.getCurrentAction() == Action.RUN) {
+         float yaw = manglelie.getYawRotation();
+         manglelie.rotationYaw = yaw;
+         manglelie.prevRenderYawOffset = yaw;
+         manglelie.renderYawOffset = yaw;
+         manglelie.prevRotationYawHead = yaw;
+         manglelie.rotationYawHead = yaw;
+         return pos;
       }
 
-      if (isCorrupting(var1)) {
-         GalathEntity var4 = var1.getGalathPartner(false);
-         if (var4 != null) {
-            renderGalathInteract(var4, var2, var1);
-            return getLookVector(var4, var2);
+      if (isCorrupting(manglelie)) {
+         GalathEntity galath = manglelie.getGalathPartner(false);
+         if (galath != null) {
+            renderGalathInteract(galath, partialTicks, manglelie);
+            return getLookVector(galath, partialTicks);
          }
       }
 
-      return var3;
+      return pos;
    }
 
    /**
     * Points the girl's head/body yaw at Galath (anchored: aim yaw; else the
     * head yaw + aim), so the corruption look-pose faces her correctly.
     */
-   public static void renderGalathInteract(GalathEntity var0, float var1, EntityLivingBase var2) {
-      if (var0.isAnchored()) {
-         float var7 = var0.getYawRotation();
-         float var8 = var0.getYawRotation();
-         Float var9 = GalathEntity.getAimYaw(var0, var1);
-         if (var9 != null) {
-            var7 = var9;
-            var8 = var9;
+   public static void renderGalathInteract(GalathEntity galath, float partialTicks, EntityLivingBase target) {
+      if (galath.isAnchored()) {
+         float yaw = galath.getYawRotation();
+         float prevYaw = galath.getYawRotation();
+         Float aimYaw2 = GalathEntity.getAimYaw(galath, partialTicks);
+         if (aimYaw2 != null) {
+            yaw = aimYaw2;
+            prevYaw = aimYaw2;
          }
 
-         var2.rotationYaw = var7;
-         var2.prevRenderYawOffset = var8;
-         var2.renderYawOffset = var7;
-         var2.prevRotationYawHead = var8;
-         var2.rotationYawHead = var7;
+         target.rotationYaw = yaw;
+         target.prevRenderYawOffset = prevYaw;
+         target.renderYawOffset = yaw;
+         target.prevRotationYawHead = prevYaw;
+         target.rotationYawHead = yaw;
       } else {
-         float var4 = var0.rotationYawHead;
-         float var5 = var0.prevRotationYawHead;
-         Float var6 = GalathEntity.getAimYaw(var0, var1);
-         if (var6 != null) {
-            var4 = var6;
-            var5 = var6;
+         float headYaw = galath.rotationYawHead;
+         float prevHeadYaw = galath.prevRotationYawHead;
+         Float aimYaw = GalathEntity.getAimYaw(galath, partialTicks);
+         if (aimYaw != null) {
+            headYaw = aimYaw;
+            prevHeadYaw = aimYaw;
          }
 
-         var2.rotationYaw = var4;
-         var2.prevRenderYawOffset = var5;
-         var2.renderYawOffset = var4;
-         var2.prevRotationYawHead = var5;
-         var2.rotationYawHead = var4;
+         target.rotationYaw = headYaw;
+         target.prevRenderYawOffset = prevHeadYaw;
+         target.renderYawOffset = headYaw;
+         target.prevRotationYawHead = prevHeadYaw;
+         target.rotationYawHead = headYaw;
       }
    }
 
@@ -565,16 +565,16 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * Whether Manglelie is in her corruption state and NOT in a threesome (the
     * only state where the corruption render paths apply).
     */
-   public static boolean isCorrupting(ManglelieEntity var0) {
-      return var0.isCorrupting() && !ManglelieNpcModel.isInThreesome(var0);
+   public static boolean isCorrupting(ManglelieEntity manglelie) {
+      return manglelie.isCorrupting() && !ManglelieNpcModel.isInThreesome(manglelie);
    }
 
-   public static Vec3d getLookVector(GalathEntity var0, float var1) {
-      return EntityLookVectorHelper.getAimVector(var0, mc.player, var1).add(var0.getCachedBoneOffset("mangPos"));
+   public static Vec3d getLookVector(GalathEntity galath, float partialTicks) {
+      return EntityLookVectorHelper.getAimVector(galath, mc.player, partialTicks).add(galath.getCachedBoneOffset("mangPos"));
    }
 
-   public static Vec3d getEntityLookVector(GalathEntity var0, float var1) {
-      return EntityLookVectorHelper.getEntityLookVector(var0, var1).add(var0.getCachedBoneOffset("mangPos"));
+   public static Vec3d getEntityLookVector(GalathEntity galath, float partialTicks) {
+      return EntityLookVectorHelper.getEntityLookVector(galath, partialTicks).add(galath.getCachedBoneOffset("mangPos"));
    }
 
 }

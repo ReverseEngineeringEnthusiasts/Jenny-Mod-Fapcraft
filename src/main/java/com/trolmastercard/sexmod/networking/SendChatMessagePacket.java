@@ -33,10 +33,10 @@ public class SendChatMessagePacket implements IMessage {
    int channel;
    UUID playerUUID;
 
-   public SendChatMessagePacket(String var1, int var2, UUID var3) {
-      this.message = var1;
-      this.channel = var2;
-      this.playerUUID = var3;
+   public SendChatMessagePacket(String message, int channel, UUID playerUUID) {
+      this.message = message;
+      this.channel = channel;
+      this.playerUUID = playerUUID;
       this.isValid = true;
    }
 
@@ -44,51 +44,51 @@ public class SendChatMessagePacket implements IMessage {
       this.isValid = false;
    }
 
-   public void fromBytes(ByteBuf var1) {
+   public void fromBytes(ByteBuf buf) {
       try {
-         int var2 = var1.readInt();
-         byte[] var3 = new byte[var2];
+         int length = buf.readInt();
+         byte[] bytes = new byte[length];
 
-         for (int var4 = 0; var4 < var2; var4++) {
-            var3[var4] = var1.readByte();
+         for (int i = 0; i < length; i++) {
+            bytes[i] = buf.readByte();
          }
 
-         this.message = new String(var3);
-         this.channel = var1.readInt();
-         this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+         this.message = new String(bytes);
+         this.channel = buf.readInt();
+         this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
          this.isValid = true;
-      } catch (IndexOutOfBoundsException var5) {
+      } catch (IndexOutOfBoundsException exception) {
          this.isValid = false;
          System.out.println("couldn't read bytes @SendChatMessage :(");
       }
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeInt(this.message.getBytes().length);
-      var1.writeBytes(this.message.getBytes());
-      var1.writeInt(this.channel);
-      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      buf.writeInt(this.message.getBytes().length);
+      buf.writeBytes(this.message.getBytes());
+      buf.writeInt(this.channel);
+      ByteBufUtils.writeUTF8String(buf, this.playerUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<SendChatMessagePacket, IMessage> {
-      public IMessage onMessage(SendChatMessagePacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(SendChatMessagePacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("recieved an unvalid message @SendChatMessage :(");
             return null;
          }
 
-         if (var2.side.isClient()) {
-            Minecraft.getMinecraft().player.sendMessage(new TextComponentString(var1.message));
+         if (ctx.side.isClient()) {
+            Minecraft.getMinecraft().player.sendMessage(new TextComponentString(packet.message));
          } else {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     Vec3d var1x = BaseGirlEntity.girlList(var1.playerUUID).get(0).getPreviousPosition();
+                     Vec3d pos = BaseGirlEntity.girlList(packet.playerUUID).get(0).getPreviousPosition();
                      PacketHandler.networkWrapper
                         .sendToAllAround(
-                           new SendChatMessagePacket(var1.message, var1.channel, var1.playerUUID),
-                           new TargetPoint(var1.channel, var1x.x, var1x.y, var1x.z, 40.0)
+                           new SendChatMessagePacket(packet.message, packet.channel, packet.playerUUID),
+                           new TargetPoint(packet.channel, pos.x, pos.y, pos.z, 40.0)
                         );
                   }
                );

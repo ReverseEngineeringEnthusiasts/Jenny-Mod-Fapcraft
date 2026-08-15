@@ -45,33 +45,33 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
    }
 
    @Override
-   public ResourceLocation getTextureLocation(BaseGirlEntity var0) {
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/goblin/goblin.png");
    }
 
    @Override
-   public ResourceLocation getAnimationFileLocation(BaseGirlEntity var0) { return new ResourceLocation("sexmod", "animations/goblin/goblin.animation.json");
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) { return new ResourceLocation("sexmod", "animations/goblin/goblin.animation.json");
    }
 
    @Override
-   protected boolean canRender(BaseGirlEntity var1) {
-      if (!(var1 instanceof GoblinEntity)) {
-         return super.canRender(var1);
+   protected boolean canRender(BaseGirlEntity girl) {
+      if (!(girl instanceof GoblinEntity)) {
+         return super.canRender(girl);
       }
 
-      GoblinEntity var2 = (GoblinEntity)var1;
-      UUID var3 = var2.getInteractionPlayerUUID();
-      if (var3 == null) {
-         var3 = var2.getOwnerUUID();
+      GoblinEntity goblin = (GoblinEntity)girl;
+      UUID uuid = goblin.getInteractionPlayerUUID();
+      if (uuid == null) {
+         uuid = goblin.getOwnerUUID();
       }
 
-      if (var3 == null) {
+      if (uuid == null) {
          return true;
       }
 
-      World var4 = var2.world;
-      AbstractClientPlayer var5 = (AbstractClientPlayer)var4.getPlayerEntityByUUID(var3);
-      return var5 == null ? true : "default".equals(var5.getSkinType());
+      World world = goblin.world;
+      AbstractClientPlayer player = (AbstractClientPlayer)world.getPlayerEntityByUUID(uuid);
+      return player == null ? true : "default".equals(player.getSkinType());
    }
 
    /**
@@ -81,87 +81,87 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
     * entities — keep them in sync.
     */
    @Override
-   public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
-      super.setLivingAnimations(var1, var2, var3);
-      if (!(var1.world instanceof SexWorldClient)) {
-         AnimationProcessor var4 = this.getAnimationProcessor();
-         if (var1 instanceof GoblinEntity) {
-            IBone var12 = var4.getBone("preggy");
-            var12.setHidden(!(Boolean)var1.getDataManager().get(GoblinEntity.aV));
-            IBone var13 = var4.getBone("body");
-            IBone var14 = var4.getBone("head");
-            Action var15 = var1.getCurrentAction();
-            if ((var15 == Action.BREEDING_SLOW_2 || var15 == Action.BREEDING_FAST_2 || var15 == Action.BREEDING_CUM_2) && this.mc.gameSettings.thirdPersonView == 0) {
-               var13.setPositionY(var13.getPositionY() + 1.5F);
+   public void setLivingAnimations(BaseGirlEntity entity, Integer uniqueID, AnimationEvent event) {
+      super.setLivingAnimations(entity, uniqueID, event);
+      if (!(entity.world instanceof SexWorldClient)) {
+         AnimationProcessor processor = this.getAnimationProcessor();
+         if (entity instanceof GoblinEntity) {
+            IBone preggyBone2 = processor.getBone("preggy");
+            preggyBone2.setHidden(!(Boolean)entity.getDataManager().get(GoblinEntity.aV));
+            IBone bodyBone2 = processor.getBone("body");
+            IBone headBone2 = processor.getBone("head");
+            Action action2 = entity.getCurrentAction();
+            if ((action2 == Action.BREEDING_SLOW_2 || action2 == Action.BREEDING_FAST_2 || action2 == Action.BREEDING_CUM_2) && this.mc.gameSettings.thirdPersonView == 0) {
+               bodyBone2.setPositionY(bodyBone2.getPositionY() + 1.5F);
             }
 
-            IGoblin var16 = (IGoblin)var1;
-            if (var15 == Action.AWAIT_PICK_UP || var15 == Action.VANISH) {
-               this.updateBoneLook(var1, var13, var14);
+            IGoblin goblin2 = (IGoblin)entity;
+            if (action2 == Action.AWAIT_PICK_UP || action2 == Action.VANISH) {
+               this.updateBoneLook(entity, bodyBone2, headBone2);
             }
 
-            if (var15 == Action.SIT) {
-               this.updateBoneLook(var1, var14);
+            if (action2 == Action.SIT) {
+               this.updateBoneLook(entity, headBone2);
             }
 
-            if (var15 == Action.START_THROWING) {
-               if (this.mc.player.getPersistentID().equals(var16.getOwnerUUID())) {
-                  this.applyGoblinBone(var13, var4, var1, var16);
+            if (action2 == Action.START_THROWING) {
+               if (this.mc.player.getPersistentID().equals(goblin2.getOwnerUUID())) {
+                  this.applyGoblinBone(bodyBone2, processor, entity, goblin2);
                } else {
-                  this.applyBoneState(var13, var4, var1);
+                  this.applyBoneState(bodyBone2, processor, entity);
                }
             } else {
-               var13.setHidden(false);
+               bodyBone2.setHidden(false);
             }
 
-            if (!var13.isHidden() && var15 == Action.START_THROWING || var15 == Action.THROWN) {
-               Vec3d var17 = getInterpolatedPosition(var1);
-               var13.setRotationX((float)var17.x);
-               var13.setPositionY((float)var17.y);
-               var13.setPositionZ((float)var17.z);
+            if (!bodyBone2.isHidden() && action2 == Action.START_THROWING || action2 == Action.THROWN) {
+               Vec3d interpolatedPos2 = getInterpolatedPosition(entity);
+               bodyBone2.setRotationX((float)interpolatedPos2.x);
+               bodyBone2.setPositionY((float)interpolatedPos2.y);
+               bodyBone2.setPositionZ((float)interpolatedPos2.z);
             }
 
-            if (var15 == Action.START_THROWING || var15 == Action.PICK_UP) {
-               this.updateThrowPose(var4, var16, var1);
+            if (action2 == Action.START_THROWING || action2 == Action.PICK_UP) {
+               this.updateThrowPose(processor, goblin2, entity);
             }
          } else {
-            IBone var6 = var4.getBone("preggy");
-            var6.setHidden(!(Boolean)var1.getDataManager().get(GoblinEntity.aV));
-            IBone var7 = var4.getBone("body");
-            IBone var8 = var4.getBone("head");
-            Action var9 = var1.getCurrentAction();
-            if ((var9 == Action.BREEDING_SLOW_2 || var9 == Action.BREEDING_FAST_2 || var9 == Action.BREEDING_CUM_2) && this.mc.gameSettings.thirdPersonView == 0) {
-               var7.setPositionY(var7.getPositionY() + 1.5F);
+            IBone preggyBone = processor.getBone("preggy");
+            preggyBone.setHidden(!(Boolean)entity.getDataManager().get(GoblinEntity.aV));
+            IBone bodyBone = processor.getBone("body");
+            IBone headBone = processor.getBone("head");
+            Action action = entity.getCurrentAction();
+            if ((action == Action.BREEDING_SLOW_2 || action == Action.BREEDING_FAST_2 || action == Action.BREEDING_CUM_2) && this.mc.gameSettings.thirdPersonView == 0) {
+               bodyBone.setPositionY(bodyBone.getPositionY() + 1.5F);
             }
 
-            IGoblin var10 = (IGoblin)var1;
-            if (var9 == Action.VANISH) {
-               this.updateBoneLook(var1, var7, var8);
+            IGoblin goblin = (IGoblin)entity;
+            if (action == Action.VANISH) {
+               this.updateBoneLook(entity, bodyBone, headBone);
             }
 
-            if (var9 == Action.START_THROWING) {
-               if (this.mc.player.getPersistentID().equals(var10.getOwnerUUID())) {
-                  this.applyGoblinBone(var7, var4, var1, var10);
+            if (action == Action.START_THROWING) {
+               if (this.mc.player.getPersistentID().equals(goblin.getOwnerUUID())) {
+                  this.applyGoblinBone(bodyBone, processor, entity, goblin);
                } else {
-                  this.applyBoneState(var7, var4, var1);
+                  this.applyBoneState(bodyBone, processor, entity);
                }
             } else {
-               var7.setHidden(false);
+               bodyBone.setHidden(false);
             }
 
-            if (!var7.isHidden() && var9 == Action.START_THROWING || var9 == Action.THROWN) {
-               Vec3d var11 = getInterpolatedPosition(var1);
-               var7.setRotationX((float)var11.x);
-               var7.setPositionY((float)var11.y);
-               var7.setPositionZ((float)var11.z);
+            if (!bodyBone.isHidden() && action == Action.START_THROWING || action == Action.THROWN) {
+               Vec3d interpolatedPos = getInterpolatedPosition(entity);
+               bodyBone.setRotationX((float)interpolatedPos.x);
+               bodyBone.setPositionY((float)interpolatedPos.y);
+               bodyBone.setPositionZ((float)interpolatedPos.z);
             }
 
-            if (var9 == Action.START_THROWING || var9 == Action.PICK_UP) {
-               this.updateThrowPose(var4, var10, var1);
+            if (action == Action.START_THROWING || action == Action.PICK_UP) {
+               this.updateThrowPose(processor, goblin, entity);
             }
 
-            this.updateWalkPose(var4, var1);
-            this.updateIdlePose(var4, var1);
+            this.updateWalkPose(processor, entity);
+            this.updateIdlePose(processor, entity);
          }
       }
    }
@@ -170,12 +170,12 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
     * Hides the body entirely when the owner's own goblin is being thrown in
     * first person (the POV path renders it instead).
     */
-   void updateIdlePose(AnimationProcessor var1, BaseGirlEntity var2) {
-      if (var2.getCurrentAction() == Action.START_THROWING) {
-         if (this.mc.gameSettings.thirdPersonView == 0 && this.mc.player.getPersistentID().equals(((AbstractPlayerGirlEntity)var2).getOwnerUserUUID())) {
-            IBone var3 = var1.getBone("body");
-            if (var3 != null) {
-               var3.setHidden(true);
+   void updateIdlePose(AnimationProcessor processor, BaseGirlEntity goblin) {
+      if (goblin.getCurrentAction() == Action.START_THROWING) {
+         if (this.mc.gameSettings.thirdPersonView == 0 && this.mc.player.getPersistentID().equals(((AbstractPlayerGirlEntity)goblin).getOwnerUserUUID())) {
+            IBone bodyBone = processor.getBone("body");
+            if (bodyBone != null) {
+               bodyBone.setHidden(true);
             }
          }
       }
@@ -185,15 +185,15 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
     * While the goblin is picked up, onlookers see it lowered by 32 px (dangling
     * in the owner's hands); the owner in first person keeps the POV placement.
     */
-   void updateWalkPose(AnimationProcessor var1, BaseGirlEntity var2) {
-      if (var2.getCurrentAction() == Action.PICK_UP) {
-         if (this.mc.gameSettings.thirdPersonView != 0 || !this.mc.player.getPersistentID().equals(((IGoblin)var2).getOwnerUUID())) {
-            IBone var3 = var1.getBone("body");
-            if (var3 != null) {
-               IBone var4 = var1.getBone("steve");
-               if (var4 != null) {
-                  var3.setPositionY(var3.getPositionY() - 32.0F);
-                  var4.setPositionY(var4.getPositionY() - 32.0F);
+   void updateWalkPose(AnimationProcessor processor, BaseGirlEntity goblin) {
+      if (goblin.getCurrentAction() == Action.PICK_UP) {
+         if (this.mc.gameSettings.thirdPersonView != 0 || !this.mc.player.getPersistentID().equals(((IGoblin)goblin).getOwnerUUID())) {
+            IBone bodyBone = processor.getBone("body");
+            if (bodyBone != null) {
+               IBone steveBone = processor.getBone("steve");
+               if (steveBone != null) {
+                  bodyBone.setPositionY(bodyBone.getPositionY() - 32.0F);
+                  steveBone.setPositionY(steveBone.getPositionY() - 32.0F);
                }
             }
          }
@@ -205,22 +205,22 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
     * interpolated limb swing (60-degree amplitude) while throwing or being
     * picked up.
     */
-   void updateThrowPose(AnimationProcessor var1, IGoblin var2, BaseGirlEntity var3) {
-      UUID var4 = var2.getOwnerUUID();
-      if (var4 != null) {
-         EntityPlayer var5 = var3.world.getPlayerEntityByUUID(var4);
-         if (var5 != null) {
-            float var6 = RotationHelper.lerp(var5.prevLimbSwingAmount, var5.limbSwingAmount, this.mc.getRenderPartialTicks());
-            float var7 = var5.limbSwing;
-            float var8 = (float)Math.sin(var7);
-            IBone var9 = var1.getBone("LeftLeg");
-            IBone var10 = var1.getBone("RightLeg");
-            float var11 = TrigMath.wrapDegrees(60.0F * var8 * var6);
-            var9.setRotationX(var11);
-            var10.setRotationX(-var11);
+   void updateThrowPose(AnimationProcessor processor, IGoblin goblin, BaseGirlEntity entity) {
+      UUID ownerUuid = goblin.getOwnerUUID();
+      if (ownerUuid != null) {
+         EntityPlayer owner = entity.world.getPlayerEntityByUUID(ownerUuid);
+         if (owner != null) {
+            float limbSwingAmount = RotationHelper.lerp(owner.prevLimbSwingAmount, owner.limbSwingAmount, this.mc.getRenderPartialTicks());
+            float limbSwing = owner.limbSwing;
+            float swingSin = (float)Math.sin(limbSwing);
+            IBone leftLegBone = processor.getBone("LeftLeg");
+            IBone rightLegBone = processor.getBone("RightLeg");
+            float swingAngle = TrigMath.wrapDegrees(60.0F * swingSin * limbSwingAmount);
+            leftLegBone.setRotationX(swingAngle);
+            rightLegBone.setRotationX(-swingAngle);
          }
       } else {
-         var3.getInteractionPlayerUUID();
+         entity.getInteractionPlayerUUID();
       }
    }
 
@@ -228,47 +228,47 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
     * Head-only look at the nearest player within 15 blocks, gated by the
     * goblin's facing (only looks when the player is in front of it).
     */
-   void updateBoneLook(BaseGirlEntity var1, IBone var2) {
-      EntityPlayer var3 = var1.world.getClosestPlayerToEntity(var1, 15.0);
-      if (var3 != null) {
-         Vec3d var4 = var3.getPositionVector();
-         Vec3d var5 = var1.getPositionVector();
-         Vec3d var6 = var4.subtract(var5);
-         float var7 = var1.rotationYaw;
-         boolean var8 = false;
-         switch ((int)var7) {
+   void updateBoneLook(BaseGirlEntity entity, IBone headBone) {
+      EntityPlayer player = entity.world.getClosestPlayerToEntity(entity, 15.0);
+      if (player != null) {
+         Vec3d playerPos = player.getPositionVector();
+         Vec3d entityPos = entity.getPositionVector();
+         Vec3d delta = playerPos.subtract(entityPos);
+         float yaw = entity.rotationYaw;
+         boolean inFront = false;
+         switch ((int)yaw) {
             case -90:
-               var8 = var4.x > var5.x;
+               inFront = playerPos.x > entityPos.x;
                break;
             case 0:
-               var8 = var4.z > var5.z;
+               inFront = playerPos.z > entityPos.z;
                break;
             case 90:
-               var8 = var4.x < var5.x;
+               inFront = playerPos.x < entityPos.x;
                break;
             case 180:
-               var8 = var4.z < var5.z;
+               inFront = playerPos.z < entityPos.z;
          }
 
-         if (!var8) {
-            var2.setRotationY(0.0F);
+         if (!inFront) {
+            headBone.setRotationY(0.0F);
          } else {
-            float var9 = 0.0F;
-            switch ((int)var7) {
+            float facingOffset = 0.0F;
+            switch ((int)yaw) {
                case 0:
-                  var9 = -90.0F;
+                  facingOffset = -90.0F;
                   break;
                case 90:
-                  var9 = 180.0F;
+                  facingOffset = 180.0F;
                   break;
                case 180:
-                  var9 = 90.0F;
+                  facingOffset = 90.0F;
             }
 
-            float var10 = (float)(-(MathHelper.atan2(var6.z, var6.x) * (180.0 / Math.PI) + var9));
-            float var11 = ThreadNames.clampFloat((float)(var3.getEyeHeight() + var4.y - (var1.getEyeHeight() + var5.y)), -0.75F, 0.75F);
-            var2.setRotationY(TrigMath.wrapDegrees(var10));
-            var2.setRotationX(var11);
+            float yawAngle = (float)(-(MathHelper.atan2(delta.z, delta.x) * (180.0 / Math.PI) + facingOffset));
+            float pitch = ThreadNames.clampFloat((float)(player.getEyeHeight() + playerPos.y - (entity.getEyeHeight() + entityPos.y)), -0.75F, 0.75F);
+            headBone.setRotationY(TrigMath.wrapDegrees(yawAngle));
+            headBone.setRotationX(pitch);
          }
       }
    }
@@ -277,16 +277,16 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
     * Body+head look at the nearest player (vanishing pose): body yaw + head
     * pitch, clamped by the height difference.
     */
-   void updateBoneLook(BaseGirlEntity var1, IBone var2, IBone var3) {
-      EntityPlayer var4 = var1.world.getClosestPlayerToEntity(var1, 15.0);
-      if (var4 != null) {
-         Vec3d var5 = var4.getPositionVector();
-         Vec3d var6 = var1.getPositionVector();
-         Vec3d var7 = var5.subtract(var6);
-         float var8 = (float)(-(Math.atan2(var7.z, var7.x) * (180.0 / Math.PI))) + 90.0F;
-         float var9 = ThreadNames.clampFloat((float)(var4.getEyeHeight() + var5.y - (var1.getEyeHeight() + var6.y)), -0.75F, 0.75F);
-         var2.setRotationY(TrigMath.wrapDegrees(var8));
-         var3.setRotationX(var9);
+   void updateBoneLook(BaseGirlEntity entity, IBone bodyBone, IBone headBone) {
+      EntityPlayer player = entity.world.getClosestPlayerToEntity(entity, 15.0);
+      if (player != null) {
+         Vec3d playerPos = player.getPositionVector();
+         Vec3d entityPos = entity.getPositionVector();
+         Vec3d delta = playerPos.subtract(entityPos);
+         float yaw = (float)(-(Math.atan2(delta.z, delta.x) * (180.0 / Math.PI))) + 90.0F;
+         float pitch = ThreadNames.clampFloat((float)(player.getEyeHeight() + playerPos.y - (entity.getEyeHeight() + entityPos.y)), -0.75F, 0.75F);
+         bodyBone.setRotationY(TrigMath.wrapDegrees(yaw));
+         headBone.setRotationX(pitch);
       }
    }
 
@@ -294,12 +294,12 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
     * Start-throw body state for non-owners: locally registered goblins hide
     * the body; real ones show it with the steve skin hidden.
     */
-   void applyBoneState(IBone var1, AnimationProcessor var2, BaseGirlEntity var3) {
-      if (var3.isLocallyRegistered()) {
-         var1.setHidden(true);
+   void applyBoneState(IBone bodyBone, AnimationProcessor processor, BaseGirlEntity goblin) {
+      if (goblin.isLocallyRegistered()) {
+         bodyBone.setHidden(true);
       } else {
-         var1.setHidden(false);
-         var2.getBone("steve").setHidden(true);
+         bodyBone.setHidden(false);
+         processor.getBone("steve").setHidden(true);
       }
    }
 
@@ -308,15 +308,15 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
     * previews, else hidden until the throw progress passes 15 ticks; steve
     * skin always hidden during the throw.
     */
-   void applyGoblinBone(IBone var1, AnimationProcessor var2, BaseGirlEntity var3, IGoblin var4) {
-      if (var3.isLocallyRegistered()) {
-         var1.setHidden(true);
+   void applyGoblinBone(IBone bodyBone, AnimationProcessor processor, BaseGirlEntity goblin, IGoblin goblinApi) {
+      if (goblin.isLocallyRegistered()) {
+         bodyBone.setHidden(true);
       } else {
-         var1.setHidden(var4.getThrowProgress() < 15);
+         bodyBone.setHidden(goblinApi.getThrowProgress() < 15);
       }
 
-      if (!var3.isLocallyRegistered()) {
-         var2.getBone("steve").setHidden(true);
+      if (!goblin.isLocallyRegistered()) {
+         processor.getBone("steve").setHidden(true);
       }
    }
 

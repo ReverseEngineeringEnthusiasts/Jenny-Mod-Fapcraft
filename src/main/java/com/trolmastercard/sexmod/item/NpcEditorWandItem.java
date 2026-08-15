@@ -45,42 +45,42 @@ public class NpcEditorWandItem extends Item {
       this.maxStackSize = 1;
    }
 
-   public void onUpdate(ItemStack var1, World var2, Entity var3, int var4, boolean var5) {
-      if (var2.isRemote) {
-         this.applyEditor(var3, var1);
+   public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+      if (world.isRemote) {
+         this.applyEditor(entity, stack);
       }
 
-      super.onUpdate(var1, var2, var3, var4, var5);
+      super.onUpdate(stack, world, entity, slot, selected);
    }
 
    @SideOnly(Side.CLIENT)
-   void applyEditor(Entity var1, ItemStack var2) {
-      if (var1 instanceof EntityPlayer) {
-         EntityPlayer var3 = (EntityPlayer)var1;
-         if (!var2.equals(var3.getHeldItemMainhand()) && !var2.equals(var3.getHeldItemOffhand())) {
-            var2.setItemDamage(0);
+   void applyEditor(Entity entity, ItemStack stack) {
+      if (entity instanceof EntityPlayer) {
+         EntityPlayer player = (EntityPlayer)entity;
+         if (!stack.equals(player.getHeldItemMainhand()) && !stack.equals(player.getHeldItemOffhand())) {
+            stack.setItemDamage(0);
          } else {
-            RayTraceResult var4 = Minecraft.getMinecraft().objectMouseOver;
-            var2.setItemDamage(var4 != null && BaseGirlEntity.isValidGirl(var4.entityHit) ? 1 : 0);
+            RayTraceResult rayTrace = Minecraft.getMinecraft().objectMouseOver;
+            stack.setItemDamage(rayTrace != null && BaseGirlEntity.isValidGirl(rayTrace.entityHit) ? 1 : 0);
          }
       }
    }
 
    @SubscribeEvent
-   public void onEntityInteract(EntityInteract var1) {
-      Entity var2 = var1.getTarget();
-      if (var2 instanceof BaseGirlEntity) {
-         if (BaseGirlEntity.isValidGirl(var2)) {
-            EntityPlayer var3 = var1.getEntityPlayer();
-            if (var3 != null) {
-               ItemStack var4 = var3.getHeldItemMainhand();
-               if (var4.getItem() != EDITOR_WAND) {
-                  var4 = var3.getHeldItemOffhand();
+   public void onEntityInteract(EntityInteract event) {
+      Entity target = event.getTarget();
+      if (target instanceof BaseGirlEntity) {
+         if (BaseGirlEntity.isValidGirl(target)) {
+            EntityPlayer player = event.getEntityPlayer();
+            if (player != null) {
+               ItemStack stack = player.getHeldItemMainhand();
+               if (stack.getItem() != EDITOR_WAND) {
+                  stack = player.getHeldItemOffhand();
                }
 
-               if (var4.getItem() == EDITOR_WAND) {
-                  var1.setCanceled(true);
-                  if (var1.getWorld().isRemote) {
+               if (stack.getItem() == EDITOR_WAND) {
+                  event.setCanceled(true);
+                  if (event.getWorld().isRemote) {
                      if (ServerWhitelistManager.isGlobalRenderingDisabled) {
                         ServerWhitelistManager.isGlobalRenderingDisabled = 0 != ServerWhitelistManager.getModelCount(true);
                         if (ServerWhitelistManager.isGlobalRenderingDisabled) {
@@ -88,7 +88,7 @@ public class NpcEditorWandItem extends Item {
                         }
                      }
 
-                     ClothingScreen.openClothingScreen(((BaseGirlEntity)var2).asGirl());
+                     ClothingScreen.openClothingScreen(((BaseGirlEntity)target).asGirl());
                   }
                }
             }
@@ -97,28 +97,28 @@ public class NpcEditorWandItem extends Item {
    }
 
    @SubscribeEvent
-   public void onAttackEntity(AttackEntityEvent var1) {
-      Entity var2 = var1.getTarget();
-      if (var2 != null) {
-         if (var2 instanceof BaseGirlEntity) {
-            EntityPlayer var3 = var1.getEntityPlayer();
-            if (var3 != null) {
-               ItemStack var4 = var3.getHeldItemMainhand();
-               if (var4.getItem() != EDITOR_WAND) {
-                  var4 = var3.getHeldItemOffhand();
+   public void onAttackEntity(AttackEntityEvent event) {
+      Entity target = event.getTarget();
+      if (target != null) {
+         if (target instanceof BaseGirlEntity) {
+            EntityPlayer player = event.getEntityPlayer();
+            if (player != null) {
+               ItemStack stack = player.getHeldItemMainhand();
+               if (stack.getItem() != EDITOR_WAND) {
+                  stack = player.getHeldItemOffhand();
                }
 
-               if (var4.getItem() == EDITOR_WAND) {
-                  var1.setCanceled(true);
-                  if (var3.world.isRemote) {
-                     BaseGirlEntity var5 = (BaseGirlEntity)var2;
-                     String var6 = var5.getCustomModelCode();
-                     String var7 = BaseGirlEntity.encodePartIdList(BaseGirlEntity.getAllPartIdsForGirl(var5.getGirlId()));
-                     var3.sendMessage(
-                        new TextComponentString(String.format("%s's model-code: %s%s$%s", var5.getDisplayNameText(), TextFormatting.YELLOW, var6, var7))
+               if (stack.getItem() == EDITOR_WAND) {
+                  event.setCanceled(true);
+                  if (player.world.isRemote) {
+                     BaseGirlEntity girl = (BaseGirlEntity)target;
+                     String code = girl.getCustomModelCode();
+                     String parts = BaseGirlEntity.encodePartIdList(BaseGirlEntity.getAllPartIdsForGirl(girl.getGirlId()));
+                     player.sendMessage(
+                        new TextComponentString(String.format("%s's model-code: %s%s$%s", girl.getDisplayNameText(), TextFormatting.YELLOW, code, parts))
                      );
-                     var3.sendMessage(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
-                     ThreadNames.copyToClipboard(String.format("%s$%s", var6, var7));
+                     player.sendMessage(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
+                     ThreadNames.copyToClipboard(String.format("%s$%s", code, parts));
                   }
                }
             }
@@ -127,46 +127,46 @@ public class NpcEditorWandItem extends Item {
    }
 
    @SubscribeEvent
-   public void onLeftClickBlock(LeftClickBlock var1) {
-      if (this.canEdit(var1.getEntityPlayer(), var1.getWorld())) {
-         var1.setCanceled(true);
+   public void onLeftClickBlock(LeftClickBlock event) {
+      if (this.canEdit(event.getEntityPlayer(), event.getWorld())) {
+         event.setCanceled(true);
       }
    }
 
    @SubscribeEvent
-   public void onLeftClickEmpty(LeftClickEmpty var1) {
-      this.canEdit(var1.getEntityPlayer(), var1.getWorld());
+   public void onLeftClickEmpty(LeftClickEmpty event) {
+      this.canEdit(event.getEntityPlayer(), event.getWorld());
    }
 
-   boolean canEdit(EntityPlayer var1, World var2) {
-      if (var1 == null) {
+   boolean canEdit(EntityPlayer player, World world) {
+      if (player == null) {
          return false;
       }
 
-      ItemStack var3 = var1.getHeldItemMainhand();
-      if (var3.getItem() != EDITOR_WAND) {
-         var3 = var1.getHeldItemOffhand();
+      ItemStack stack = player.getHeldItemMainhand();
+      if (stack.getItem() != EDITOR_WAND) {
+         stack = player.getHeldItemOffhand();
       }
 
-      if (var3.getItem() != EDITOR_WAND) {
+      if (stack.getItem() != EDITOR_WAND) {
          return false;
-      } else if (!var2.isRemote) {
+      } else if (!world.isRemote) {
          return true;
       } else {
-         AbstractPlayerGirlEntity var4 = AbstractPlayerGirlEntity.getPlayerGirlByUUID(var1.getPersistentID());
-         if (var4 == null) {
-            var1.sendStatusMessage(new TextComponentString("you gotta turn into the girl, you want to copy the model-code off"), true);
+         AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player.getPersistentID());
+         if (playerGirl == null) {
+            player.sendStatusMessage(new TextComponentString("you gotta turn into the girl, you want to copy the model-code off"), true);
             return true;
          } else {
-            String var5 = var4.getCustomModelCode();
-            String var6 = BaseGirlEntity.encodePartIdList(BaseGirlEntity.getAllPartIdsForGirl(var4.getGirlId()));
-            var1.sendMessage(
+            String code = playerGirl.getCustomModelCode();
+            String parts = BaseGirlEntity.encodePartIdList(BaseGirlEntity.getAllPartIdsForGirl(playerGirl.getGirlId()));
+            player.sendMessage(
                new TextComponentString(
-                  String.format("%s's model-code: %s%s$%s", ThreadNames.capitalizeFirst(NpcType.getNpcType(var4).toString()), TextFormatting.YELLOW, var5, var6)
+                  String.format("%s's model-code: %s%s$%s", ThreadNames.capitalizeFirst(NpcType.getNpcType(playerGirl).toString()), TextFormatting.YELLOW, code, parts)
                )
             );
-            var1.sendMessage(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
-            ThreadNames.copyToClipboard(String.format("%s$%s", var5, var6));
+            player.sendMessage(new TextComponentString(TextFormatting.ITALIC + "copied to clipboard"));
+            ThreadNames.copyToClipboard(String.format("%s$%s", code, parts));
             return true;
          }
       }
@@ -179,13 +179,13 @@ public class NpcEditorWandItem extends Item {
    }
 
    @SubscribeEvent
-   public static void registerItems(Register<Item> var0) {
-      var0.getRegistry().register(EDITOR_WAND);
+   public static void registerItems(Register<Item> event) {
+      event.getRegistry().register(EDITOR_WAND);
    }
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public static void onModelRegistry(ModelRegistryEvent var0) {
+   public static void onModelRegistry(ModelRegistryEvent event) {
       ModelLoader.setCustomModelResourceLocation(EDITOR_WAND, 0, new ModelResourceLocation("sexmod:npc_editor_wand"));
       ModelLoader.setCustomModelResourceLocation(EDITOR_WAND, 1, new ModelResourceLocation("sexmod:npc_editor_wand_active"));
    }

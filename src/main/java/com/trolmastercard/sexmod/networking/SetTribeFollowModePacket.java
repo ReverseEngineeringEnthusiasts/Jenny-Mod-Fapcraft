@@ -26,26 +26,26 @@ public class SetTribeFollowModePacket implements IMessage {
    public SetTribeFollowModePacket() {
    }
 
-   public SetTribeFollowModePacket(boolean var1) {
-      this.followMode = var1;
+   public SetTribeFollowModePacket(boolean followMode) {
+      this.followMode = followMode;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.followMode = var1.readBoolean();
+   public void fromBytes(ByteBuf buf) {
+      this.followMode = buf.readBoolean();
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeBoolean(this.followMode);
+   public void toBytes(ByteBuf buf) {
+      buf.writeBoolean(this.followMode);
    }
 
    public static class Handler implements IMessageHandler<SetTribeFollowModePacket, IMessage> {
-      public IMessage onMessage(SetTribeFollowModePacket var1, MessageContext var2) {
-         if (var1.isValid && !var2.side.isClient()) {
+      public IMessage onMessage(SetTribeFollowModePacket packet, MessageContext ctx) {
+         if (packet.isValid && !ctx.side.isClient()) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               UUID var2x = KoboldManager.getTribeUUID(var2.getServerHandler().player.getPersistentID());
-               if (var2x != null) {
-                  KoboldManager.setTribeFollowMode(var2x, var1.followMode);
+               UUID tribeUuid = KoboldManager.getTribeUUID(ctx.getServerHandler().player.getPersistentID());
+               if (tribeUuid != null) {
+                  KoboldManager.setTribeFollowMode(tribeUuid, packet.followMode);
                }
             });
             return null;

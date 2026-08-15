@@ -146,8 +146,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    boolean ae = false;
    boolean ad = false;
 
-   public LunaEntity(World var1) {
-      super(var1);
+   public LunaEntity(World world) {
+      super(world);
       this.slashSwordRot = 230;
       this.stabSwordRot = 150;
       this.holdBowRot = 320;
@@ -204,19 +204,19 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       return 1.34F;
    }
 
-   public boolean processInteract(EntityPlayer var1, EnumHand var2) {
-      if (super.processInteract(var1, var2)) {
+   public boolean processInteract(EntityPlayer player, EnumHand hand) {
+      if (super.processInteract(player, hand)) {
          return true;
       }
 
-      ItemStack var3 = var1.getHeldItem(var2);
-      boolean var4 = var3.getItem() == Items.NAME_TAG;
-      if (var4) {
-         var3.interactWithEntity(var1, this, var2);
+      ItemStack stack = player.getHeldItem(hand);
+      boolean isNameTag = stack.getItem() == Items.NAME_TAG;
+      if (isNameTag) {
+         stack.interactWithEntity(player, this, hand);
          return true;
       }
 
-      if (this.world.isRemote && !this.openInteractionMenu(var1)) {
+      if (this.world.isRemote && !this.openInteractionMenu(player)) {
          this.sendChatMessage(I18n.format("bia.dialogue.busy", new Object[0]));
       }
 
@@ -224,20 +224,20 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    @Override
-   public boolean openInteractionMenu(EntityPlayer var1) {
-      String[] var2 = new String[]{"action.names.sex", "action.names.touchboobs", "action.names.headpat"};
-      ItemStack[] var3 = new ItemStack[]{new ItemStack(Items.FISH, 3, 0), new ItemStack(Items.FISH, 2, 1), null};
-      onPlayerApproach(var1, this, var2, var3);
+   public boolean openInteractionMenu(EntityPlayer player) {
+      String[] options = new String[]{"action.names.sex", "action.names.touchboobs", "action.names.headpat"};
+      ItemStack[] rewards = new ItemStack[]{new ItemStack(Items.FISH, 3, 0), new ItemStack(Items.FISH, 2, 1), null};
+      onPlayerApproach(player, this, options, rewards);
       return true;
    }
 
    @SideOnly(Side.CLIENT)
-   protected static void onPlayerApproach(EntityPlayer var0, BaseGirlEntity var1, String[] var2, ItemStack[] var3) {
-      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(var1, var0, var2, var3, true));
+   protected static void onPlayerApproach(EntityPlayer player, BaseGirlEntity girl, String[] options, ItemStack[] rewards) {
+      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(girl, player, options, rewards, true));
    }
 
-   public void setHeldItemStack(ItemStack var1) {
-      this.entityDataManager.set(ag, var1);
+   public void setHeldItemStack(ItemStack stack) {
+      this.entityDataManager.set(ag, stack);
    }
 
    @Override
@@ -266,15 +266,15 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       }
 
       if (this.ay) {
-         double var1 = this.getTargetPosition().distanceTo(this.getPositionVector());
-         if (!(var1 < 0.5) && this.ak <= 200) {
+         double dist = this.getTargetPosition().distanceTo(this.getPositionVector());
+         if (!(dist < 0.5) && this.ak <= 200) {
             if (++this.ak == 60 || this.ak == 120) {
-               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna: walking to bed ak=%d dist=%.2f", this.ak, var1);
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna: walking to bed ak=%d dist=%.2f", this.ak, dist);
                this.getNavigator().clearPath();
                this.getNavigator().tryMoveToXYZ(this.getTargetPosition().x, this.getTargetPosition().y, this.getTargetPosition().z, 0.2);
             }
          } else {
-            SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna: arrived at bed, WAIT_CAT (dist=%.2f ak=%d)", var1, this.ak);
+            SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna: arrived at bed, WAIT_CAT (dist=%.2f ak=%d)", dist, this.ak);
             this.ay = false;
             this.ak = 0;
             this.entityDataManager.set(IS_ANCHORED, true);
@@ -292,8 +292,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          if (!this.getPositionVector().equals(this.getTargetPosition()) && this.aw <= 40) {
             this.rotationYaw = this.getYawRotation();
             this.setNoGravity(false);
-            Vec3d var3 = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.aw);
-            this.setPosition(var3.x, var3.y, var3.z);
+            Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.aw);
+            this.setPosition(pos.x, pos.y, pos.z);
          } else {
             this.ac = false;
             this.aw = 0;
@@ -309,11 +309,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    void syncHeldItem() {
-      ItemStack var1 = this.ao;
-      ItemStack var2 = (ItemStack)this.entityDataManager.get(az);
-      if (!var2.equals(ItemStack.EMPTY)) {
-         Map var3 = EnchantmentHelper.getEnchantments(var2);
-         EnchantmentHelper.setEnchantments(var3, var1);
+      ItemStack heldItem = this.ao;
+      ItemStack syncedItem = (ItemStack)this.entityDataManager.get(az);
+      if (!syncedItem.equals(ItemStack.EMPTY)) {
+         Map enchantments = EnchantmentHelper.getEnchantments(syncedItem);
+         EnchantmentHelper.setEnchantments(enchantments, heldItem);
       }
    }
 
@@ -328,23 +328,23 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    void handleNearbyPlayer() {
-      EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
-      if (var1 != null) {
-         if (!(var1.getDistance(this) > 1.25F)) {
+      EntityPlayer player = this.world.getClosestPlayerToEntity(this, 10.0);
+      if (player != null) {
+         if (!(player.getDistance(this) > 1.25F)) {
             if (this.ab % 10 == 0) {
-               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.handleNearbyPlayer remote=%s ab=%d playerDist=%.2f", this.world.isRemote, this.ab, var1.getDistance(this));
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.handleNearbyPlayer remote=%s ab=%d playerDist=%.2f", this.world.isRemote, this.ab, player.getDistance(this));
             }
             if (this.world.isRemote) {
-               this.setFishingLevelFor(var1, this.ab);
+               this.setFishingLevelFor(player, this.ab);
             } else if (this.ab == 25) {
                SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.handleNearbyPlayer SERVER: ab==25 -> COWGIRL_SITTING_INTRO");
-               this.setInteractionPlayerUUID(var1.getPersistentID());
-               var1.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
-               var1.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVector().y, this.getPositionVector().z);
+               this.setInteractionPlayerUUID(player.getPersistentID());
+               player.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
+               player.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVector().y, this.getPositionVector().z);
                this.setCurrentAction(Action.COWGIRL_SITTING_INTRO);
-               var1.setRotationYawHead(this.getYawRotation() + 180.0F);
-               var1.rotationYaw = this.getYawRotation() + 180.0F;
-               var1.prevRotationYaw = this.getYawRotation() + 180.0F;
+               player.setRotationYawHead(this.getYawRotation() + 180.0F);
+               player.rotationYaw = this.getYawRotation() + 180.0F;
+               player.prevRotationYaw = this.getYawRotation() + 180.0F;
                this.cameraYaw = this.getYawRotation() + 180.0F;
                this.positionPlayerRelative(0.0, -0.075F, -0.7109375, 0.0F, 0.0F);
                this.entityDataManager.set(OUTFIT_INDEX, 0);
@@ -356,19 +356,19 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    @SideOnly(Side.CLIENT)
-   void setFishingLevelFor(EntityPlayer var1, int var2) {
-      if (var2 == 0) {
-         EntityPlayerSP var3 = Minecraft.getMinecraft().player;
-         if (var3.getPersistentID().equals(var1.getPersistentID())) {
+   void setFishingLevelFor(EntityPlayer player, int level) {
+      if (level == 0) {
+         EntityPlayerSP localPlayer = Minecraft.getMinecraft().player;
+         if (player.getPersistentID().equals(localPlayer.getPersistentID())) {
             BeeScreen.enableInteraction();
-            var3.setVelocity(0.0, 0.0, 0.0);
+            localPlayer.setVelocity(0.0, 0.0, 0.0);
             HandlePlayerMovement.setMovementLock(false);
          }
       }
 
-      if (var2 == 25) {
-         EntityPlayerSP var4 = Minecraft.getMinecraft().player;
-         if (var4.getPersistentID().equals(var1.getPersistentID())) {
+      if (level == 25) {
+         EntityPlayerSP localPlayer = Minecraft.getMinecraft().player;
+         if (player.getPersistentID().equals(localPlayer.getPersistentID())) {
             Minecraft.getMinecraft().gameSettings.thirdPersonView = 2;
          }
       }
@@ -379,8 +379,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       this.entityDataManager.set(IS_ANCHORED, false);
       this.setCurrentAction(Action.NULL);
       this.ar = true;
-      BlockPos var1 = this.getNearestBed(this.getPosition());
-      if (var1 == null) {
+      BlockPos bedPos = this.getNearestBed(this.getPosition());
+      if (bedPos == null) {
          this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
          PacketHandler.networkWrapper
             .sendToAllAround(
@@ -390,66 +390,66 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                this.getTargetNetworkPoint()
             );
       } else {
-         Vec3d var2 = new Vec3d(var1.getX(), var1.getY(), var1.getZ());
-         int[] var3 = new int[]{0, 180, -90, 90};
-         Vec3d[][] var4 = new Vec3d[][]{
+         Vec3d bedVec = new Vec3d(bedPos.getX(), bedPos.getY(), bedPos.getZ());
+         int[] yaws = new int[]{0, 180, -90, 90};
+         Vec3d[][] offsets = new Vec3d[][]{
             {new Vec3d(0.5, 0.0, -0.5), new Vec3d(0.0, 0.0, -1.0)},
             {new Vec3d(0.5, 0.0, 1.5), new Vec3d(0.0, 0.0, 1.0)},
             {new Vec3d(-0.5, 0.0, 0.5), new Vec3d(-1.0, 0.0, 0.0)},
             {new Vec3d(1.5, 0.0, 0.5), new Vec3d(1.0, 0.0, 0.0)}
          };
-         int var5 = -1;
+         int bestIndex = -1;
 
-         for (int var6 = 0; var6 < var4.length; var6++) {
-            Vec3d var7 = var2.add(var4[var6][1]);
-            if (this.world.getBlockState(new BlockPos(var7.x, var7.y, var7.z)).getBlock()
+         for (int i = 0; i < offsets.length; i++) {
+            Vec3d offsetVec = bedVec.add(offsets[i][1]);
+            if (this.world.getBlockState(new BlockPos(offsetVec.x, offsetVec.y, offsetVec.z)).getBlock()
                == Blocks.AIR) {
-               if (var5 == -1) {
-                  var5 = var6;
+               if (bestIndex == -1) {
+                  bestIndex = i;
                } else {
-                  double var8 = this.getPosition()
+                  double bestDist = this.getPosition()
                      .distanceSq(
-                        var2.add(var4[var5][0]).x,
-                        var2.add(var4[var5][0]).y,
-                        var2.add(var4[var5][0]).z
+                        bedVec.add(offsets[bestIndex][0]).x,
+                        bedVec.add(offsets[bestIndex][0]).y,
+                        bedVec.add(offsets[bestIndex][0]).z
                      );
-                  double var10 = this.getPosition()
+                  double dist = this.getPosition()
                      .distanceSq(
-                        var2.add(var4[var6][0]).x,
-                        var2.add(var4[var6][0]).y,
-                        var2.add(var4[var6][0]).z
+                        bedVec.add(offsets[i][0]).x,
+                        bedVec.add(offsets[i][0]).y,
+                        bedVec.add(offsets[i][0]).z
                      );
-                  if (var10 < var8) {
-                     var5 = var6;
+                  if (dist < bestDist) {
+                     bestIndex = i;
                   }
                }
             }
          }
 
-         if (var5 == -1) {
+         if (bestIndex == -1) {
             this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
             this.sendChatMessage("Heh.. the bed is obscured.. but I already ate the fish so nya~ hehe");
             return;
          }
 
-         Vec3d var12 = var2.add(var4[var5][0]);
-         this.setYawRotation(var3[var5]);
-         this.setTargetPosition(new Vec3d(var12.x, var12.y, var12.z));
+         Vec3d bedOffset = bedVec.add(offsets[bestIndex][0]);
+         this.setYawRotation(yaws[bestIndex]);
+         this.setTargetPosition(new Vec3d(bedOffset.x, bedOffset.y, bedOffset.z));
          this.cameraYaw = this.getYawRotation();
          this.getNavigator().clearPath();
-         this.getNavigator().tryMoveToXYZ(var12.x, var12.y, var12.z, 0.2);
+         this.getNavigator().tryMoveToXYZ(bedOffset.x, bedOffset.y, bedOffset.z, 0.2);
          this.ay = true;
          this.ak = 0;
       }
    }
 
    public void dropHeldItem() {
-      EntityItem var1 = new EntityItem(this.world, this.posX, this.posY, this.posZ, (ItemStack)this.entityDataManager.get(ag));
-      Vec3d var2 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.rotationYaw);
-      var1.motionX = var2.x;
-      var1.motionY = var2.y;
-      var1.motionZ = var2.z;
-      this.world.spawnEntity(var1);
+      EntityItem item = new EntityItem(this.world, this.posX, this.posY, this.posZ, (ItemStack)this.entityDataManager.get(ag));
+      Vec3d throwVec = VectorMath.rotateByYaw(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.rotationYaw);
+      item.motionX = throwVec.x;
+      item.motionY = throwVec.y;
+      item.motionZ = throwVec.z;
+      this.world.spawnEntity(item);
       this.entityDataManager.set(ag, ItemStack.EMPTY);
    }
 
@@ -491,9 +491,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
             if (this.av != null && this.av.lureTimer == 15) {
                ((LunaRodItem)this.ao.getItem()).castFishingRod(this.world, this, EnumHand.MAIN_HAND);
                this.al = this.world.getTotalWorldTime() + 20L;
-               ItemStack var1 = (ItemStack)this.entityDataManager.get(ag);
-               if (var1 != ItemStack.EMPTY) {
-                  if (var1.getItem() instanceof ItemFood) {
+               ItemStack heldItem = (ItemStack)this.entityDataManager.get(ag);
+               if (heldItem != ItemStack.EMPTY) {
+                  if (heldItem.getItem() instanceof ItemFood) {
                      this.setCurrentAction(Action.FISHING_EAT);
                   } else {
                      this.setCurrentAction(Action.FISHING_THROW_AWAY);
@@ -551,30 +551,30 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
    void handleFishingMove() {
       if (this.ai != null) {
-         PathNavigate var1 = this.getNavigator();
-         var1.tryMoveToXYZ(this.ai.getX(), this.ai.getY(), this.ai.getZ(), 0.35F);
-         Path var2 = var1.getPath();
-         if (var2 != null) {
-            if (var2.getCurrentPathLength() > var2.getCurrentPathIndex() + 1) {
-               PathPoint var3 = var2.getPathPointFromIndex(var2.getCurrentPathIndex() + 1);
-               PathPoint var4 = var2.getPathPointFromIndex(var2.getCurrentPathLength() - 1);
-               Vec3d var5 = new Vec3d(var4.x, var4.y, var4.z);
-               BlockPos var6 = new BlockPos(var3.x, var3.y, var3.z);
-               if (this.getPositionVector().distanceTo(var5) < 0.75) {
-                  var1.clearPath();
-                  this.setPosition(var5.x, var5.y, var5.z);
+         PathNavigate navigator = this.getNavigator();
+         navigator.tryMoveToXYZ(this.ai.getX(), this.ai.getY(), this.ai.getZ(), 0.35F);
+         Path path = navigator.getPath();
+         if (path != null) {
+            if (path.getCurrentPathLength() > path.getCurrentPathIndex() + 1) {
+               PathPoint nextPoint = path.getPathPointFromIndex(path.getCurrentPathIndex() + 1);
+               PathPoint finalPoint = path.getPathPointFromIndex(path.getCurrentPathLength() - 1);
+               Vec3d finalVec = new Vec3d(finalPoint.x, finalPoint.y, finalPoint.z);
+               BlockPos pos = new BlockPos(nextPoint.x, nextPoint.y, nextPoint.z);
+               if (this.getPositionVector().distanceTo(finalVec) < 0.75) {
+                  navigator.clearPath();
+                  this.setPosition(finalVec.x, finalVec.y, finalVec.z);
                }
 
-               if (this.world.getBlockState(var6.add(0, 1, 0)).getBlock() == Blocks.WATER) {
-                  var1.clearPath();
+               if (this.world.getBlockState(pos.add(0, 1, 0)).getBlock() == Blocks.WATER) {
+                  navigator.clearPath();
                }
 
-               if (this.world.getBlockState(var6).getBlock() == Blocks.WATER) {
-                  var1.clearPath();
+               if (this.world.getBlockState(pos).getBlock() == Blocks.WATER) {
+                  navigator.clearPath();
                }
 
-               if (this.world.getBlockState(var6.add(0, -1, 0)).getBlock() == Blocks.WATER) {
-                  var1.clearPath();
+               if (this.world.getBlockState(pos.add(0, -1, 0)).getBlock() == Blocks.WATER) {
+                  navigator.clearPath();
                }
             }
          }
@@ -582,14 +582,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    void findFishingSpot() {
-      int var1 = 0;
-      BlockPos var2 = null;
-      int var3 = 0;
+      int attempts = 0;
+      BlockPos spot = null;
+      int bestDepth = 0;
 
-      while (++var1 < 50) {
-         BlockPos var4 = this.findNearestStructureBlock(
+      while (++attempts < 50) {
+         BlockPos candidate = this.findNearestStructureBlock(
             this.getPosition(),
-            var1 + 1,
+            attempts + 1,
             Blocks.WATER,
             60,
             10,
@@ -605,104 +605,104 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                )
             )
          );
-         if (var4 == null) {
+         if (candidate == null) {
             break;
          }
 
-         while (this.world.getBlockState(var4.add(0, 1, 0)).getBlock() == Blocks.WATER) {
-            var4 = var4.add(0, 1, 0);
+         while (this.world.getBlockState(candidate.add(0, 1, 0)).getBlock() == Blocks.WATER) {
+            candidate = candidate.add(0, 1, 0);
          }
 
-         int var5 = 1;
+         int depth = 1;
 
-         for (BlockPos var6 = var4; this.world.getBlockState(var6.add(0, -1, 0)).getBlock() == Blocks.WATER; var5++) {
-            var6 = var6.add(0, -1, 0);
+         for (BlockPos probe = candidate; this.world.getBlockState(probe.add(0, -1, 0)).getBlock() == Blocks.WATER; depth++) {
+            probe = probe.add(0, -1, 0);
          }
 
-         if (!this.an.contains(var4)) {
-            if (var2 == null) {
-               var2 = var4;
-               var3 = var5;
-            } else if (var5 > var3) {
-               var2 = var4;
-               var3 = var5;
-               if (var3 >= 6) {
+         if (!this.an.contains(candidate)) {
+            if (spot == null) {
+               spot = candidate;
+               bestDepth = depth;
+            } else if (depth > bestDepth) {
+               spot = candidate;
+               bestDepth = depth;
+               if (bestDepth >= 6) {
                   break;
                }
             }
          }
       }
 
-      if (var2 != null) {
-         if (this.ai == null || this.at < var3) {
-            this.ai = var2;
-            this.at = var3;
+      if (spot != null) {
+         if (this.ai == null || this.at < bestDepth) {
+            this.ai = spot;
+            this.at = bestDepth;
          }
 
-         if (this.ai.equals(var2)) {
+         if (this.ai.equals(spot)) {
             this.as = 0;
          } else if (++this.as > 20) {
-            this.ai = var2;
-            this.at = var3;
+            this.ai = spot;
+            this.at = bestDepth;
          }
       }
    }
 
    void handleFishingPath() {
-      Path var1 = this.getNavigator().getPath();
-      if (var1 != null) {
-         PathPoint var2 = var1.getFinalPathPoint();
-         PathPoint var3 = new PathPoint(
+      Path path = this.getNavigator().getPath();
+      if (path != null) {
+         PathPoint finalPoint = path.getFinalPathPoint();
+         PathPoint targetPoint = new PathPoint(
             ThreadNames.roundToInt(this.posX), ThreadNames.roundToInt(this.posY), ThreadNames.roundToInt(this.posZ)
          );
-         if (var2 != null) {
-            this.entityDataManager.set(yFlag, var2.distanceTo(var3));
+         if (finalPoint != null) {
+            this.entityDataManager.set(yFlag, finalPoint.distanceTo(targetPoint));
          }
       }
    }
 
    @Override
-   public void doAction(String var1, UUID var2) {
-      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.doAction %s player=%s (remote=%s)", var1, var2, this.world.isRemote);
-      super.doAction(var1, var2);
-      if ("action.names.touchboobs".equals(var1)) {
-         this.setInteractionPlayerUUID(var2);
-         this.triggerActionSync(true, true, var2);
+   public void doAction(String action, UUID uuid) {
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.doAction %s player=%s (remote=%s)", action, uuid, this.world.isRemote);
+      super.doAction(action, uuid);
+      if ("action.names.touchboobs".equals(action)) {
+         this.setInteractionPlayerUUID(uuid);
+         this.triggerActionSync(true, true, uuid);
          this.changeDataParameterFromClient("animationFollowUp", "touch_boobs");
          this.changeDataParameterFromClient("currentModel", "0");
          HandlePlayerMovement.setMovementLock(false);
       }
 
-      if ("action.names.sex".equals(var1)) {
-         this.setInteractionPlayerUUID(var2);
-         this.triggerActionSync(true, true, var2);
+      if ("action.names.sex".equals(action)) {
+         this.setInteractionPlayerUUID(uuid);
+         this.triggerActionSync(true, true, uuid);
          this.changeDataParameterFromClient("animationFollowUp", "sex");
          HandlePlayerMovement.setMovementLock(false);
       }
 
-      if ("action.names.headpat".equals(var1)) {
-         this.setInteractionPlayerUUID(var2);
-         this.triggerActionSync(true, true, var2);
+      if ("action.names.headpat".equals(action)) {
+         this.setInteractionPlayerUUID(uuid);
+         this.triggerActionSync(true, true, uuid);
          HandlePlayerMovement.setMovementLock(false);
          this.changeDataParameterFromClient("animationFollowUp", "headpat");
       }
    }
 
    @Override
-   protected Action getNextAction(Action var1) {
-      if (var1 == Action.TOUCH_BOOBS_SLOW) {
+   protected Action getNextAction(Action action) {
+      if (action == Action.TOUCH_BOOBS_SLOW) {
          return Action.TOUCH_BOOBS_FAST;
       } else {
-         return var1 == Action.COWGIRL_SITTING_SLOW ? Action.COWGIRL_SITTING_FAST : null;
+         return action == Action.COWGIRL_SITTING_SLOW ? Action.COWGIRL_SITTING_FAST : null;
       }
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      if (var1 == Action.TOUCH_BOOBS_SLOW || var1 == Action.TOUCH_BOOBS_FAST) {
+   protected Action getCumAction(Action action) {
+      if (action == Action.TOUCH_BOOBS_SLOW || action == Action.TOUCH_BOOBS_FAST) {
          return Action.TOUCH_BOOBS_CUM;
       } else {
-         return var1 != Action.COWGIRL_SITTING_FAST && var1 != Action.COWGIRL_SITTING_SLOW ? null : Action.COWGIRL_SITTING_CUM;
+         return action != Action.COWGIRL_SITTING_FAST && action != Action.COWGIRL_SITTING_SLOW ? null : Action.COWGIRL_SITTING_CUM;
       }
    }
 
@@ -738,7 +738,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       }
    }
 
-   protected void playHurtSound(DamageSource var1) {
+   protected void playHurtSound(DamageSource source) {
       this.playRandomSound(SoundHandler.GIRLS_LUNA_OUU);
    }
 
@@ -758,101 +758,101 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
       if (this.world instanceof SexWorldClient) {
          return PlayState.STOP;
       }
 
-      switch (var1.getController().getName()) {
+      switch (event.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.cat.null", true, var1);
+               this.createAnimation("animation.cat.null", true, event);
             } else {
-               this.createAnimation("animation.cat.blink", true, var1);
+               this.createAnimation("animation.cat.blink", true, event);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.cat.null", true, var1);
+               this.createAnimation("animation.cat.null", true, event);
             } else if (this.isRiding()) {
-               this.createAnimation("animation.cat.sit", true, var1);
+               this.createAnimation("animation.cat.sit", true, event);
             } else if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
                if (this.onGround && Math.abs(Math.abs(this.prevPosY) - Math.abs(this.posY)) < 0.1F) {
-                  this.createAnimation(this.entityDataManager.get(yFlag) < 3.0F ? "animation.cat.walk" : "animation.cat.run", true, var1);
+                  this.createAnimation(this.entityDataManager.get(yFlag) < 3.0F ? "animation.cat.walk" : "animation.cat.run", true, event);
                } else {
-                  this.createAnimation("animation.cat.fly", true, var1);
+                  this.createAnimation("animation.cat.fly", true, event);
                }
 
                this.rotationYaw = this.rotationYawHead;
             } else {
-               this.createAnimation("animation.cat.idle" + (this.ad ? "2" : ""), true, var1);
+               this.createAnimation("animation.cat.idle" + (this.ad ? "2" : ""), true, event);
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.createAnimation("animation.cat.null", true, var1);
+                  this.createAnimation("animation.cat.null", true, event);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.cat.attack" + this.nextAttack, false, var1);
+                  this.createAnimation("animation.cat.attack" + this.nextAttack, false, event);
                   break;
                case RIDE:
                case SIT:
-                  this.createAnimation("animation.cat.sit", true, var1);
+                  this.createAnimation("animation.cat.sit", true, event);
                   break;
                case BOW:
-                  this.createAnimation("animation.cat.bowcharge", false, var1);
+                  this.createAnimation("animation.cat.bowcharge", false, event);
                   break;
                case THROW_PEARL:
-                  this.createAnimation("animation.cat.throwpearl", true, var1);
+                  this.createAnimation("animation.cat.throwpearl", true, event);
                   break;
                case DOWNED:
-                  this.createAnimation("animation.cat.downed", true, var1);
+                  this.createAnimation("animation.cat.downed", true, event);
                   break;
                case FISHING_START:
-                  this.createAnimation("animation.cat.start_fishing", false, var1);
+                  this.createAnimation("animation.cat.start_fishing", false, event);
                   break;
                case FISHING_IDLE:
-                  this.createAnimation("animation.cat.idle_fishing", true, var1);
+                  this.createAnimation("animation.cat.idle_fishing", true, event);
                   break;
                case FISHING_EAT:
-                  this.createAnimation("animation.cat.eat_fishing", false, var1);
+                  this.createAnimation("animation.cat.eat_fishing", false, event);
                   break;
                case FISHING_THROW_AWAY:
-                  this.createAnimation("animation.cat.throw_away", false, var1);
+                  this.createAnimation("animation.cat.throw_away", false, event);
                   break;
                case PAYMENT:
-                  this.createAnimation("animation.cat.payment", false, var1);
+                  this.createAnimation("animation.cat.payment", false, event);
                   break;
                case TOUCH_BOOBS_INTRO:
-                  this.createAnimation("animation.cat.touch_boobs_intro", false, var1);
+                  this.createAnimation("animation.cat.touch_boobs_intro", false, event);
                   break;
                case TOUCH_BOOBS_SLOW:
-                  this.createAnimation("animation.cat.touch_boobs_slow" + (this.ae ? "1" : ""), true, var1);
+                  this.createAnimation("animation.cat.touch_boobs_slow" + (this.ae ? "1" : ""), true, event);
                   break;
                case TOUCH_BOOBS_FAST:
-                  this.createAnimation("animation.cat.touch_boobs_fast", true, var1);
+                  this.createAnimation("animation.cat.touch_boobs_fast", true, event);
                   break;
                case TOUCH_BOOBS_CUM:
-                  this.createAnimation("animation.cat.touch_boobs_cum", false, var1);
+                  this.createAnimation("animation.cat.touch_boobs_cum", false, event);
                   break;
                case WAIT_CAT:
-                  this.createAnimation("animation.cat.wait", false, var1);
+                  this.createAnimation("animation.cat.wait", false, event);
                   break;
                case COWGIRL_SITTING_INTRO:
-                  this.createAnimation("animation.cat.sitting_intro", false, var1);
+                  this.createAnimation("animation.cat.sitting_intro", false, event);
                   break;
                case COWGIRL_SITTING_SLOW:
-                  this.createAnimation("animation.cat.sitting_slow", true, var1);
+                  this.createAnimation("animation.cat.sitting_slow", true, event);
                   break;
                case COWGIRL_SITTING_FAST:
-                  this.createAnimation("animation.cat.sitting_fast", true, var1);
+                  this.createAnimation("animation.cat.sitting_fast", true, event);
                   break;
                case COWGIRL_SITTING_CUM:
-                  this.createAnimation("animation.cat.sitting_cum", false, var1);
+                  this.createAnimation("animation.cat.sitting_cum", false, event);
                   break;
                case HEAD_PAT:
-                  this.createAnimation("animation.cat.head_pat", true, var1);
+                  this.createAnimation("animation.cat.head_pat", true, event);
             }
       }
 
@@ -860,13 +860,13 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       if (this.actionController == null) {
          this.initAnimationControllers();
       }
 
-      AnimationController.ISoundListener var2 = var1x -> {
-         switch (var1x.sound) {
+      AnimationController.ISoundListener soundListener = sound -> {
+         switch (sound.sound) {
             case "attackSound":
                this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
                break;
@@ -944,9 +944,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                break;
             case "paymentMSG3":
                this.sendChatMessage("nyyyaaaa~ :D");
-               int[] var4 = new int[]{1, 7, 10, 11};
-               int var5 = var4[this.getRNG().nextInt(var4.length)];
-               this.playSound(SoundHandler.GIRLS_LUNA_CUTENYA[var5]);
+               int[] soundIds = new int[]{1, 7, 10, 11};
+               int soundId = soundIds[this.getRNG().nextInt(soundIds.length)];
+               this.playSound(SoundHandler.GIRLS_LUNA_CUTENYA[soundId]);
                break;
             case "paymentMSG4":
                this.sendChatMessage("tankuuuu owowowo");
@@ -1117,27 +1117,27 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
             case "sitting_fastDone":
                if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
                   this.setCurrentAction(Action.COWGIRL_SITTING_SLOW);
-                  Vec3d var8 = new Vec3d(0.0, -0.075F, -0.7109375);
-                  Vec3d var9 = VectorMath.rotateByYaw(var8, this.getYawRotation() + 180.0F);
+                  Vec3d headOffset = new Vec3d(0.0, -0.075F, -0.7109375);
+                  Vec3d rotatedHead = VectorMath.rotateByYaw(headOffset, this.getYawRotation() + 180.0F);
                   Minecraft.getMinecraft()
                      .player
                      .setPosition(
-                        this.getTargetPosition().x + var9.x,
-                        this.getTargetPosition().y + var9.y,
-                        this.getTargetPosition().z + var9.z
+                        this.getTargetPosition().x + rotatedHead.x,
+                        this.getTargetPosition().y + rotatedHead.y,
+                        this.getTargetPosition().z + rotatedHead.z
                      );
                }
                break;
             case "sitting_fastTp":
                if (this.isControlledByLocalPlayer()) {
-                  Vec3d var6 = new Vec3d(0.0, -0.160625, -0.9925);
-                  Vec3d var7 = VectorMath.rotateByYaw(var6, this.getYawRotation() + 180.0F);
+                  Vec3d backOffset = new Vec3d(0.0, -0.160625, -0.9925);
+                  Vec3d rotatedBack = VectorMath.rotateByYaw(backOffset, this.getYawRotation() + 180.0F);
                   Minecraft.getMinecraft()
                      .player
                      .setPosition(
-                        this.getTargetPosition().x + var7.x,
-                        this.getTargetPosition().y + var7.y,
-                        this.getTargetPosition().z + var7.z
+                        this.getTargetPosition().x + rotatedBack.x,
+                        this.getTargetPosition().y + rotatedBack.y,
+                        this.getTargetPosition().z + rotatedBack.z
                      );
                }
                break;
@@ -1154,25 +1154,25 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          }
       };
       this.movementController.transitionLengthTicks = 10.0;
-      this.actionController.registerSoundListener(var2);
-      var1.addAnimationController(this.actionController);
-      var1.addAnimationController(this.movementController);
-      var1.addAnimationController(this.eyesController);
+      this.actionController.registerSoundListener(soundListener);
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.movementController);
+      data.addAnimationController(this.eyesController);
    }
 
    @Override
-   public void readEntityFromNBT(NBTTagCompound var1) {
-      super.readEntityFromNBT(var1);
+   public void readEntityFromNBT(NBTTagCompound nbt) {
+      super.readEntityFromNBT(nbt);
       this.setNoGravity(false);
    }
 
    public static class a {
       @SubscribeEvent
-      public void onEntityJoinWorld(EntityJoinWorldEvent var1) {
-         Entity var2 = var1.getEntity();
-         if (var2 instanceof EntityCreeper) {
-            EntityCreeper var3 = (EntityCreeper)var2;
-            var3.tasks.addTask(3, new EntityAIAvoidEntity(var3, LunaEntity.class, 6.0F, 1.0, 1.2));
+      public void onEntityJoinWorld(EntityJoinWorldEvent event) {
+         Entity entity = event.getEntity();
+         if (entity instanceof EntityCreeper) {
+            EntityCreeper creeper = (EntityCreeper)entity;
+            creeper.tasks.addTask(3, new EntityAIAvoidEntity(creeper, LunaEntity.class, 6.0F, 1.0, 1.2));
          }
       }
    }

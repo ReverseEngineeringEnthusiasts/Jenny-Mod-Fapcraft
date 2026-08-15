@@ -108,8 +108,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    };
    int ah = 1;
 
-   public BiaEntity(World var1) {
-      super(var1);
+   public BiaEntity(World world) {
+      super(world);
       this.setSize(0.49F, 1.65F);
       this.slashSwordRot = 140;
       this.stabSwordRot = 50;
@@ -140,13 +140,13 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
    @Override
    public void setCurrentAction(Action action) {
-      Action var2 = this.getCurrentAction();
-      if (var2 == Action.ANAL_CUM || var2 == Action.PRONE_DOGGY_CUM) {
+      Action currentAction = this.getCurrentAction();
+      if (currentAction == Action.ANAL_CUM || currentAction == Action.PRONE_DOGGY_CUM) {
          this.entityDataManager.set(GIRL_HAND_STATES, "");
       }
 
-      if (var2 != Action.ANAL_CUM || action != Action.ANAL_FAST && action != Action.ANAL_SLOW) {
-         if (var2 != Action.PRONE_DOGGY_CUM || action != Action.PRONE_DOGGY_HARD && action != Action.PRONE_DOGGY_SOFT) {
+      if (currentAction != Action.ANAL_CUM || action != Action.ANAL_FAST && action != Action.ANAL_SLOW) {
+         if (currentAction != Action.PRONE_DOGGY_CUM || action != Action.PRONE_DOGGY_HARD && action != Action.PRONE_DOGGY_SOFT) {
             super.setCurrentAction(action);
          }
       }
@@ -173,13 +173,13 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
             try {
                TARGET_POS.equals(null);
-            } catch (NullPointerException var2) {
+            } catch (NullPointerException ex) {
                this.setTargetPosition(this.getFrontOffsetVector());
             }
 
             this.setNoGravity(false);
-            Vec3d var1 = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.ag);
-            this.setPosition(var1.x, var1.y, var1.z);
+            Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.ag);
+            this.setPosition(pos.x, pos.y, pos.z);
          } else {
             this.yFlag = false;
             this.ag = 0;
@@ -216,8 +216,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       }
    }
 
-   public boolean processInteract(EntityPlayer var1, EnumHand var2) {
-      if (super.processInteract(var1, var2)) {
+   public boolean processInteract(EntityPlayer player, EnumHand hand) {
+      if (super.processInteract(player, hand)) {
          return true;
       }
 
@@ -225,14 +225,14 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          return true;
       }
 
-      ItemStack var3 = var1.getHeldItem(var2);
-      boolean var4 = var3.getItem() == Items.NAME_TAG;
-      if (var4) {
-         var3.interactWithEntity(var1, this, var2);
+      ItemStack stack = player.getHeldItem(hand);
+      boolean isNameTag = stack.getItem() == Items.NAME_TAG;
+      if (isNameTag) {
+         stack.interactWithEntity(player, this, hand);
          return true;
       }
 
-      if (this.world.isRemote && !this.openInteractionMenu(var1)) {
+      if (this.world.isRemote && !this.openInteractionMenu(player)) {
          this.sendChatMessage(I18n.format("bia.dialogue.busy", new Object[0]));
       }
 
@@ -240,21 +240,21 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    }
 
    @Override
-   public boolean openInteractionMenu(EntityPlayer var1) {
+   public boolean openInteractionMenu(EntityPlayer player) {
       if (this.getInteractionPlayerUUID() == null
          && (!this.hasMaster() || ((String)this.entityDataManager.get(MASTER)).equals(Minecraft.getMinecraft().player.getPersistentID().toString()))) {
-         String[] var2 = new String[]{
+         String[] options = new String[]{
             this.entityDataManager.get(OUTFIT_INDEX) == 1 ? "action.names.strip" : "action.names.dressup", "action.names.talk", "action.names.headpat"
          };
-         openInventoryGui(var1, this, var2, true);
+         openInventoryGui(player, this, options, true);
          return true;
       } else {
          return false;
       }
    }
 
-   void openBiaInventory(EntityPlayer var1) {
-      openInventoryGui(var1, this, new String[]{"action.names.anal", "doggy"}, false);
+   void openBiaInventory(EntityPlayer player) {
+      openInventoryGui(player, this, new String[]{"action.names.anal", "doggy"}, false);
    }
 
    @Override
@@ -283,18 +283,18 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    }
 
    void handleAnalState() {
-      Action var1 = this.getCurrentAction();
-      if (var1 == Action.ANAL_WAIT || var1 == Action.SITDOWNIDLE) {
-         EntityPlayer var2 = this.world.getClosestPlayerToEntity(this, 10.0);
-         if (var2 != null) {
-            if (!(var2.getDistance(this) > 1.0F)) {
+      Action action = this.getCurrentAction();
+      if (action == Action.ANAL_WAIT || action == Action.SITDOWNIDLE) {
+         EntityPlayer player = this.world.getClosestPlayerToEntity(this, 10.0);
+         if (player != null) {
+            if (!(player.getDistance(this) > 1.0F)) {
                if (this.ac == -1) {
-                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState action=%s ac==-1 (world remote=%s)", var1, this.world.isRemote);
+                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState action=%s ac==-1 (world remote=%s)", action, this.world.isRemote);
                   if (this.world.isRemote) {
                      BeeScreen.enableInteraction();
                      HandlePlayerMovement.setMovementLock(false);
                   } else {
-                     this.setInteractionPlayerUUID(var2.getPersistentID());
+                     this.setInteractionPlayerUUID(player.getPersistentID());
                   }
 
                   // jar-faithful countdown: BaseGirlEntity's static j == 22 ticks
@@ -302,29 +302,29 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                   SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: ac set to 22");
                } else if (--this.ac <= 0) {
                   this.ac = -1;
-                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: countdown done, starting scene action=%s (remote=%s)", var1, this.world.isRemote);
-                  var2.noClip = true;
-                  var2.setNoGravity(true);
-                  if (var1 == Action.ANAL_WAIT) {
+                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: countdown done, starting scene action=%s (remote=%s)", action, this.world.isRemote);
+                  player.noClip = true;
+                  player.setNoGravity(true);
+                  if (action == Action.ANAL_WAIT) {
                      if (!this.world.isRemote) {
                         this.setCurrentAction(Action.ANAL_START);
-                        Vec3d var7 = this.getTargetPosition().add(VectorMath.rotateByYaw(-0.3, -1.0, -0.5, this.getYawRotation()));
-                        var2.setPositionAndUpdate(var7.x, var7.y, var7.z);
+                        Vec3d pos = this.getTargetPosition().add(VectorMath.rotateByYaw(-0.3, -1.0, -0.5, this.getYawRotation()));
+                        player.setPositionAndUpdate(pos.x, pos.y, pos.z);
                      } else if (this.isControlledByLocalPlayer()) {
                         HornyMeterHud.showHornyMeter();
                      }
                   } else {
-                     float var3 = this.getYawRotation();
-                     var2.rotationYaw = var3;
-                     var2.rotationPitch = 60.0F;
+                     float yaw = this.getYawRotation();
+                     player.rotationYaw = yaw;
+                     player.rotationPitch = 60.0F;
                      if (!this.world.isRemote) {
                         this.setOutfitIndex(0);
                         this.setCurrentAction(Action.PRONE_DOGGY_INTRO);
-                        Vec3d var4 = this.getTargetPosition();
-                        Vec3d var5 = var4.add(VectorMath.rotateByYaw(0.0, 0.0, 1.0, var3));
-                        this.setTargetPosition(var5);
-                        Vec3d var6 = var4.add(VectorMath.rotateByYaw(0.0, 1.1875 - var2.getEyeHeight(), 0.5, var3));
-                        var2.setPositionAndUpdate(var6.x, var6.y, var6.z);
+                        Vec3d targetPos = this.getTargetPosition();
+                        Vec3d followPos = targetPos.add(VectorMath.rotateByYaw(0.0, 0.0, 1.0, yaw));
+                        this.setTargetPosition(followPos);
+                        Vec3d playerPos = targetPos.add(VectorMath.rotateByYaw(0.0, 1.1875 - player.getEyeHeight(), 0.5, yaw));
+                        player.setPositionAndUpdate(playerPos.x, playerPos.y, playerPos.z);
                         this.setAnchored(true);
                      }
                   }
@@ -341,11 +341,11 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    public void resetAnimationControllerTicks() {
       super.resetAnimationControllerTicks();
       if (this.getCurrentAction() == Action.PRONE_DOGGY_HARD) {
-         int var1 = this.ah;
+         int oldState = this.ah;
 
          do {
             this.ah = this.getRNG().nextInt(3) + 1;
-         } while (var1 == this.ah);
+         } while (oldState == this.ah);
       }
    }
 
@@ -358,21 +358,21 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    }
 
    @Override
-   public void doAction(String var1, UUID var2) {
-      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.doAction %s player=%s (remote=%s)", var1, var2, this.world.isRemote);
-      super.doAction(var1, var2);
-      switch (var1) {
+   public void doAction(String action, UUID uuid) {
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.doAction %s player=%s (remote=%s)", action, uuid, this.world.isRemote);
+      super.doAction(action, uuid);
+      switch (action) {
          case "action.names.talk":
             this.setInteractionPlayerUUID(Minecraft.getMinecraft().player.getPersistentID());
             this.changeDataParameterFromClient("playerSheHasSexWith", Minecraft.getMinecraft().player.getPersistentID().toString());
             this.changeDataParameterFromClient("animationFollowUp", "talkHorny");
-            this.triggerAnalAction(var2);
+            this.triggerAnalAction(uuid);
             break;
          case "action.names.headpat":
             this.setInteractionPlayerUUID(Minecraft.getMinecraft().player.getPersistentID());
             this.changeDataParameterFromClient("playerSheHasSexWith", Minecraft.getMinecraft().player.getPersistentID().toString());
             this.changeDataParameterFromClient("animationFollowUp", "Headpat");
-            this.triggerAnalAction(var2);
+            this.triggerAnalAction(uuid);
             break;
          case "action.names.anal":
             this.changeDataParameterFromClient("animationFollowUp", "anal");
@@ -390,76 +390,76 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       }
    }
 
-   public void onDeath(DamageSource var1) {
-      super.onDeath(var1);
+   public void onDeath(DamageSource source) {
+      super.onDeath(source);
       if (!this.world.isRemote) {
-         EntityItem var2 = new EntityItem(
+         EntityItem item = new EntityItem(
             this.world,
             this.posX,
             this.posY,
             this.posZ,
             new ItemStack(Blocks.WOOL, this.getRNG().nextInt(4), 12)
          );
-         this.world.spawnEntity(var2);
+         this.world.spawnEntity(item);
       }
    }
 
-   void triggerAnalAction(UUID var1) {
-      this.triggerActionSync(true, true, var1);
+   void triggerAnalAction(UUID uuid) {
+      this.triggerActionSync(true, true, uuid);
       HandlePlayerMovement.setMovementLock(false);
    }
 
    Vector4d getBedVector() {
-      BlockPos var1 = null;
-      int var2 = 0;
+      BlockPos bedPos = null;
+      int attempts = 0;
 
-      while (!this.isValidBed(var1)) {
-         var1 = this.findNearestBed(this.getPosition(), var2);
-         if (++var2 == 50) {
+      while (!this.isValidBed(bedPos)) {
+         bedPos = this.findNearestBed(this.getPosition(), attempts);
+         if (++attempts == 50) {
             break;
          }
       }
 
-      if (var1 != null && var2 != 50) {
+      if (bedPos != null && attempts != 50) {
          this.tasks.removeTask(this.wanderGoal);
          this.tasks.removeTask(this.watchClosestGirlGoal);
-         Vec3d var3 = new Vec3d(var1.getX(), var1.getY(), var1.getZ());
-         int var4 = -1;
+         Vec3d bedVec = new Vec3d(bedPos.getX(), bedPos.getY(), bedPos.getZ());
+         int bestIndex = -1;
 
-         for (int var5 = 0; var5 < this.ad.length; var5++) {
-            Vec3d var6 = var3.add(this.ad[var5][1]);
-            Vec3d var7 = var3.subtract(this.ad[var5][1]);
-            Block var8 = this.world.getBlockState(new BlockPos(var6.x, var6.y, var6.z)).getBlock();
-            if (var8 == Blocks.AIR && WorldUtils.canPlaceStructure(this.world, new BlockPos(var7))) {
-               if (var4 == -1) {
-                  var4 = var5;
+         for (int i = 0; i < this.ad.length; i++) {
+            Vec3d offsetPos = bedVec.add(this.ad[i][1]);
+            Vec3d offsetNeg = bedVec.subtract(this.ad[i][1]);
+            Block block = this.world.getBlockState(new BlockPos(offsetPos.x, offsetPos.y, offsetPos.z)).getBlock();
+            if (block == Blocks.AIR && WorldUtils.canPlaceStructure(this.world, new BlockPos(offsetNeg))) {
+               if (bestIndex == -1) {
+                  bestIndex = i;
                } else {
-                  double var9 = this.getPosition()
+                  double bestDist = this.getPosition()
                      .distanceSq(
-                        var3.add(this.ad[var4][0]).x,
-                        var3.add(this.ad[var4][0]).y,
-                        var3.add(this.ad[var4][0]).z
+                        bedVec.add(this.ad[bestIndex][0]).x,
+                        bedVec.add(this.ad[bestIndex][0]).y,
+                        bedVec.add(this.ad[bestIndex][0]).z
                      );
-                  double var11 = this.getPosition()
+                  double dist = this.getPosition()
                      .distanceSq(
-                        var3.add(this.ad[var5][0]).x,
-                        var3.add(this.ad[var5][0]).y,
-                        var3.add(this.ad[var5][0]).z
+                        bedVec.add(this.ad[i][0]).x,
+                        bedVec.add(this.ad[i][0]).y,
+                        bedVec.add(this.ad[i][0]).z
                      );
-                  if (var11 < var9) {
-                     var4 = var5;
+                  if (dist < bestDist) {
+                     bestIndex = i;
                   }
                }
             }
          }
 
-         if (var4 == -1) {
+         if (bestIndex == -1) {
             this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
             this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
             return null;
          } else {
-            Vec3d var13 = var3.add(this.ad[var4][0]);
-            return new Vector4d(var13.x, var13.y, var13.z, this.ai[var4]);
+            Vec3d bedOffset = bedVec.add(this.ad[bestIndex][0]);
+            return new Vector4d(bedOffset.x, bedOffset.y, bedOffset.z, this.ai[bestIndex]);
          }
       } else {
          this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
@@ -468,23 +468,23 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       }
    }
 
-   boolean isValidBed(BlockPos var1) {
-      if (var1 == null) {
+   boolean isValidBed(BlockPos pos) {
+      if (pos == null) {
          return false;
-      } else if (WorldUtils.canPlaceStructure(this.world, var1.north()) && this.world.isAirBlock(var1.south())) {
+      } else if (WorldUtils.canPlaceStructure(this.world, pos.north()) && this.world.isAirBlock(pos.south())) {
          return true;
-      } else if (WorldUtils.canPlaceStructure(this.world, var1.east()) && this.world.isAirBlock(var1.west())) {
+      } else if (WorldUtils.canPlaceStructure(this.world, pos.east()) && this.world.isAirBlock(pos.west())) {
          return true;
       } else {
-         return WorldUtils.canPlaceStructure(this.world, var1.south()) && this.world.isAirBlock(var1.north())
+         return WorldUtils.canPlaceStructure(this.world, pos.south()) && this.world.isAirBlock(pos.north())
             ? true
-            : WorldUtils.canPlaceStructure(this.world, var1.west()) && this.world.isAirBlock(var1.east());
+            : WorldUtils.canPlaceStructure(this.world, pos.west()) && this.world.isAirBlock(pos.east());
       }
    }
 
    Vector4d findNearestBedVector() {
-      BlockPos var1 = this.getNearestBed(this.getPosition());
-      if (var1 == null) {
+      BlockPos bedPos = this.getNearestBed(this.getPosition());
+      if (bedPos == null) {
          this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
          this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
          return null;
@@ -492,76 +492,76 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
       this.tasks.removeTask(this.wanderGoal);
       this.tasks.removeTask(this.watchClosestGirlGoal);
-      Vec3d var2 = new Vec3d(var1.getX(), var1.getY(), var1.getZ());
-      int var3 = -1;
+      Vec3d bedVec = new Vec3d(bedPos.getX(), bedPos.getY(), bedPos.getZ());
+      int bestIndex = -1;
 
-      for (int var4 = 0; var4 < this.ad.length; var4++) {
-         Vec3d var5 = var2.add(this.ad[var4][1]);
-         if (this.world.getBlockState(new BlockPos(var5.x, var5.y, var5.z)).getBlock()
+      for (int i = 0; i < this.ad.length; i++) {
+         Vec3d offsetPos = bedVec.add(this.ad[i][1]);
+         if (this.world.getBlockState(new BlockPos(offsetPos.x, offsetPos.y, offsetPos.z)).getBlock()
             == Blocks.AIR) {
-            if (var3 == -1) {
-               var3 = var4;
+            if (bestIndex == -1) {
+               bestIndex = i;
             } else {
-               double var6 = this.getPosition()
+               double bestDist = this.getPosition()
                   .distanceSq(
-                     var2.add(this.ad[var3][0]).x,
-                     var2.add(this.ad[var3][0]).y,
-                     var2.add(this.ad[var3][0]).z
+                     bedVec.add(this.ad[bestIndex][0]).x,
+                     bedVec.add(this.ad[bestIndex][0]).y,
+                     bedVec.add(this.ad[bestIndex][0]).z
                   );
-               double var8 = this.getPosition()
+               double dist = this.getPosition()
                   .distanceSq(
-                     var2.add(this.ad[var4][0]).x,
-                     var2.add(this.ad[var4][0]).y,
-                     var2.add(this.ad[var4][0]).z
+                     bedVec.add(this.ad[i][0]).x,
+                     bedVec.add(this.ad[i][0]).y,
+                     bedVec.add(this.ad[i][0]).z
                   );
-               if (var8 < var6) {
-                  var3 = var4;
+               if (dist < bestDist) {
+                  bestIndex = i;
                }
             }
          }
       }
 
-      if (var3 == -1) {
+      if (bestIndex == -1) {
          this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
          this.sendChatMessage(I18n.format("jenny.dialogue.bedobscured", new Object[0]));
          return null;
       } else {
-         Vec3d var10 = var2.add(this.ad[var3][0]);
-         return new Vector4d(var10.x, var10.y, var10.z, this.ai[var3]);
+         Vec3d bedOffset = bedVec.add(this.ad[bestIndex][0]);
+         return new Vector4d(bedOffset.x, bedOffset.y, bedOffset.z, this.ai[bestIndex]);
       }
    }
 
    @Override
    public void goToSexBed() {
-      String var1 = (String)this.entityDataManager.get(GIRL_HAND_STATES);
-      Vector4d var2 = var1.equals("anal") ? this.findNearestBedVector() : this.getBedVector();
-      if (var2 != null) {
-         Vec3d var3 = new Vec3d(var2.getX(), var2.getY(), var2.getZ());
-         this.setYawRotation((float)var2.getW());
-         this.setTargetPosition(var3);
+      String stateStr = (String)this.entityDataManager.get(GIRL_HAND_STATES);
+      Vector4d bedVec4 = stateStr.equals("anal") ? this.findNearestBedVector() : this.getBedVector();
+      if (bedVec4 != null) {
+         Vec3d pos = new Vec3d(bedVec4.getX(), bedVec4.getY(), bedVec4.getZ());
+         this.setYawRotation((float)bedVec4.getW());
+         this.setTargetPosition(pos);
          this.cameraYaw = this.getYawRotation();
          this.getNavigator().clearPath();
-         this.getNavigator().tryMoveToXYZ(var3.x, var3.y, var3.z, 0.35);
+         this.getNavigator().tryMoveToXYZ(pos.x, pos.y, pos.z, 0.35);
          this.af = true;
          this.zFlag = 0;
       }
    }
 
    @Override
-   protected Action getNextAction(Action var1) {
-      if (var1 == Action.ANAL_SLOW) {
+   protected Action getNextAction(Action action) {
+      if (action == Action.ANAL_SLOW) {
          return Action.ANAL_FAST;
       } else {
-         return var1 == Action.PRONE_DOGGY_INTRO ? Action.PRONE_DOGGY_INSERT : null;
+         return action == Action.PRONE_DOGGY_INTRO ? Action.PRONE_DOGGY_INSERT : null;
       }
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      if (var1 == Action.ANAL_SLOW || var1 == Action.ANAL_FAST) {
+   protected Action getCumAction(Action action) {
+      if (action == Action.ANAL_SLOW || action == Action.ANAL_FAST) {
          return Action.ANAL_CUM;
       } else {
-         return var1 != Action.PRONE_DOGGY_SOFT && var1 != Action.PRONE_DOGGY_HARD ? null : Action.PRONE_DOGGY_CUM;
+         return action != Action.PRONE_DOGGY_SOFT && action != Action.PRONE_DOGGY_HARD ? null : Action.PRONE_DOGGY_CUM;
       }
    }
 
@@ -600,123 +600,123 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
       if (this.world instanceof SexWorldClient) {
          return null;
       }
 
-      switch (var1.getController().getName()) {
+      switch (event.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
-               this.createAnimation("animation.bia.fhappy", true, var1);
+               this.createAnimation("animation.bia.fhappy", true, event);
             } else {
-               this.createAnimation("animation.bia.null", true, var1);
+               this.createAnimation("animation.bia.null", true, event);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.bia.null", true, var1);
+               this.createAnimation("animation.bia.null", true, event);
             } else if (this.isRiding()) {
-               this.createAnimation("animation.bia.sit", true, var1);
+               this.createAnimation("animation.bia.sit", true, event);
             } else if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
                switch (this.getWalkType()) {
                   case RUN:
-                     this.createAnimation("animation.bia.run", true, var1);
+                     this.createAnimation("animation.bia.run", true, event);
                      break;
                   case FAST_WALK:
-                     this.createAnimation("animation.bia.fastwalk", true, var1);
+                     this.createAnimation("animation.bia.fastwalk", true, event);
                      break;
                   case WALK:
-                     this.createAnimation("animation.bia.walk", true, var1);
+                     this.createAnimation("animation.bia.walk", true, event);
                }
 
                this.rotationYaw = this.rotationYawHead;
             } else {
-               this.createAnimation("animation.bia.idle", true, var1);
+               this.createAnimation("animation.bia.idle", true, event);
             }
             break;
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.createAnimation("animation.bia.null", true, var1);
+                  this.createAnimation("animation.bia.null", true, event);
                   break;
                case STRIP:
-                  this.createAnimation("animation.bia.strip", false, var1);
+                  this.createAnimation("animation.bia.strip", false, event);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.bia.attack" + this.nextAttack, false, var1);
+                  this.createAnimation("animation.bia.attack" + this.nextAttack, false, event);
                   break;
                case BOW:
-                  this.createAnimation("animation.bia.bowcharge", false, var1);
+                  this.createAnimation("animation.bia.bowcharge", false, event);
                   break;
                case RIDE:
-                  this.createAnimation("animation.bia.ride", true, var1);
+                  this.createAnimation("animation.bia.ride", true, event);
                   break;
                case SIT:
-                  this.createAnimation("animation.bia.sit", true, var1);
+                  this.createAnimation("animation.bia.sit", true, event);
                   break;
                case THROW_PEARL:
-                  this.createAnimation("animation.bia.throwpearl", false, var1);
+                  this.createAnimation("animation.bia.throwpearl", false, event);
                   break;
                case DOWNED:
-                  this.createAnimation("animation.bia.downed", true, var1);
+                  this.createAnimation("animation.bia.downed", true, event);
                   break;
                case TALK_HORNY:
-                  this.createAnimation("animation.bia.talk_horny2", true, var1);
+                  this.createAnimation("animation.bia.talk_horny2", true, event);
                   break;
                case TALK_IDLE:
-                  this.createAnimation("animation.bia.talk_idle2", true, var1);
+                  this.createAnimation("animation.bia.talk_idle2", true, event);
                   break;
                case TALK_RESPONSE:
-                  this.createAnimation("animation.bia.talk_response", true, var1);
+                  this.createAnimation("animation.bia.talk_response", true, event);
                   break;
                case ANAL_PREPARE:
-                  this.createAnimation("animation.bia.anal_prepare", false, var1);
+                  this.createAnimation("animation.bia.anal_prepare", false, event);
                   break;
                case ANAL_WAIT:
-                  this.createAnimation("animation.bia.anal_wait", false, var1);
+                  this.createAnimation("animation.bia.anal_wait", false, event);
                   break;
                case ANAL_START:
-                  this.createAnimation("animation.bia.anal_start", true, var1);
+                  this.createAnimation("animation.bia.anal_start", true, event);
                   break;
                case ANAL_SLOW:
-                  this.createAnimation("animation.bia.anal_slow", true, var1);
+                  this.createAnimation("animation.bia.anal_slow", true, event);
                   break;
                case ANAL_FAST:
-                  this.createAnimation("animation.bia.anal_fast", true, var1);
+                  this.createAnimation("animation.bia.anal_fast", true, event);
                   break;
                case ANAL_CUM:
-                  this.createAnimation("animation.bia.anal_cum", false, var1);
+                  this.createAnimation("animation.bia.anal_cum", false, event);
                   break;
                case HEAD_PAT:
-                  this.createAnimation("animation.bia.headpat", false, var1);
+                  this.createAnimation("animation.bia.headpat", false, event);
                   break;
                case SITDOWN:
-                  this.createAnimation("animation.bia.sitdown", false, var1);
+                  this.createAnimation("animation.bia.sitdown", false, event);
                   break;
                case SITDOWNIDLE:
-                  this.createAnimation("animation.bia.sitdownidle", true, var1);
+                  this.createAnimation("animation.bia.sitdownidle", true, event);
                   break;
                case PRONE_DOGGY_INTRO:
-                  this.createAnimation("animation.bia.prone_doggy_intro", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_intro", true, event);
                   break;
                case PRONE_DOGGY_INSERT:
-                  this.createAnimation("animation.bia.prone_doggy_insert", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_insert", true, event);
                   break;
                case PRONE_DOGGY_SOFT:
-                  this.createAnimation("animation.bia.prone_doggy_soft", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_soft", true, event);
                   break;
                case PRONE_DOGGY_HARD:
-                  this.createAnimation("animation.bia.prone_doggy_hard" + this.ah, true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_hard" + this.ah, true, event);
                   break;
                case PRONE_DOGGY_CUM:
-                  this.createAnimation("animation.bia.prone_doggy_cum", true, var1);
+                  this.createAnimation("animation.bia.prone_doggy_cum", true, event);
                   break;
                case WAVE_IDLE:
-                  this.createAnimation("animation.bia.wave_idle", true, var1);
+                  this.createAnimation("animation.bia.wave_idle", true, event);
                   break;
                case WAVE:
-                  this.createAnimation("animation.bia.wave", true, var1);
+                  this.createAnimation("animation.bia.wave", true, event);
             }
       }
 
@@ -725,13 +725,13 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
    @SideOnly(Side.CLIENT)
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       if (this.actionController == null) {
          this.initAnimationControllers();
       }
 
-      AnimationController.ISoundListener var2 = var1x -> {
-         switch (var1x.sound) {
+      AnimationController.ISoundListener soundListener = sound -> {
+         switch (sound.sound) {
             case "attackDone":
                this.setCurrentAction(Action.NULL);
                if (++this.nextAttack == 3) {
@@ -853,7 +853,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                break;
             case "doggy_cumDone":
             case "anal_cumDone":
-               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.sound %s (remote=%s, controlled=%s)", var1x.sound, this.world.isRemote, this.isControlledByLocalPlayer());
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.sound %s (remote=%s, controlled=%s)", sound.sound, this.world.isRemote, this.isControlledByLocalPlayer());
                if (this.isControlledByLocalPlayer()) {
                   HornyMeterHud.resetHornyMeter();
                   this.resetCameraAndPhysics();
@@ -920,10 +920,10 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                this.playSound(SoundHandler.GIRLS_BIA_MMM[7]);
          }
       };
-      this.actionController.registerSoundListener(var2);
-      var1.addAnimationController(this.actionController);
-      var1.addAnimationController(this.movementController);
-      var1.addAnimationController(this.eyesController);
+      this.actionController.registerSoundListener(soundListener);
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.movementController);
+      data.addAnimationController(this.eyesController);
    }
 
 }

@@ -26,27 +26,27 @@ import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 public class LunaRenderer extends GirlRenderer {
    float rotR;
 
-   public LunaRenderer(RenderManager var1, AnimatedGeoModel var2, double var3) {
-      super(var1, var2, var3);
+   public LunaRenderer(RenderManager renderManager, AnimatedGeoModel geoModel, double scaleFactor) {
+      super(renderManager, geoModel, scaleFactor);
    }
 
    @Override
-   protected ItemStack resolveHeldItemStack(@Nullable ItemStack var1) {
+   protected ItemStack resolveHeldItemStack(@Nullable ItemStack stack) {
       switch (this.renderEntity.getCurrentAction()) {
          case FISHING_IDLE:
          case FISHING_START:
-            ItemStack var2 = ((LunaEntity)this.renderEntity).ao;
-            ItemStack var3 = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.az);
-            if (var3.equals(ItemStack.EMPTY)) {
-               return var2;
+            ItemStack lunaStack = ((LunaEntity)this.renderEntity).ao;
+            ItemStack cachedStack = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.az);
+            if (cachedStack.equals(ItemStack.EMPTY)) {
+               return lunaStack;
             }
 
-            Map var4 = EnchantmentHelper.getEnchantments(var3);
-            EnchantmentHelper.setEnchantments(var4, var2);
-            this.renderEntity.setHeldItem(EnumHand.MAIN_HAND, var2);
-            return var2;
+            Map enchantments = EnchantmentHelper.getEnchantments(cachedStack);
+            EnchantmentHelper.setEnchantments(enchantments, lunaStack);
+            this.renderEntity.setHeldItem(EnumHand.MAIN_HAND, lunaStack);
+            return lunaStack;
          default:
-            return var1;
+            return stack;
       }
    }
 
@@ -55,19 +55,19 @@ public class LunaRenderer extends GirlRenderer {
    }
 
    @Override
-   protected void onBoneProcessing(BufferBuilder var1, String var2, GeoBone var3) {
+   protected void onBoneProcessing(BufferBuilder buffer, String boneName, GeoBone bone) {
       if (!Minecraft.getMinecraft().isGamePaused()) {
-         switch (var2) {
+         switch (boneName) {
             case "head":
-               this.rotR = var3.getRotationX();
+               this.rotR = bone.getRotationX();
                break;
             case "backHair":
                if (!this.isAnchored()) {
-                  double var11 = this.rotR / TrigMath.wrapDegrees(45.0F);
-                  float var12 = (float)RotationHelper.lerpDouble(0.0, 0.75, var11);
-                  var3.setPositionZ(var12);
-                  var3.setPositionY(var12);
-                  var3.setRotationX(-this.rotR);
+                  double t = this.rotR / TrigMath.wrapDegrees(45.0F);
+                  float pos = (float)RotationHelper.lerpDouble(0.0, 0.75, t);
+                  bone.setPositionZ(pos);
+                  bone.setPositionY(pos);
+                  bone.setRotationX(-this.rotR);
                }
                break;
             case "sideHairR":
@@ -76,26 +76,26 @@ public class LunaRenderer extends GirlRenderer {
                   break;
                }
 
-               double var6 = this.rotR / TrigMath.wrapDegrees(45.0F);
-               float var8 = (float)RotationHelper.lerpDouble(0.0, 1.3F, var6);
-               var3.setPositionZ(-var8);
-               var3.setPositionY(var8);
+               double t2 = this.rotR / TrigMath.wrapDegrees(45.0F);
+               float pos2 = (float)RotationHelper.lerpDouble(0.0, 1.3F, t2);
+               bone.setPositionZ(-pos2);
+               bone.setPositionY(pos2);
             case "frontHairL":
             case "frontHairR":
                if (!this.isAnchored()) {
-                  var3.setRotationX(-this.rotR);
+                  bone.setRotationX(-this.rotR);
                }
                break;
             case "offhand":
-               LunaEntity var9 = (LunaEntity)this.renderEntity;
-               ItemStack var10 = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.ag);
-               if (!var10.equals(ItemStack.EMPTY) && var9.zFlag == 1.0F) {
+               LunaEntity luna = (LunaEntity)this.renderEntity;
+               ItemStack itemStack = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.ag);
+               if (!itemStack.equals(ItemStack.EMPTY) && luna.zFlag == 1.0F) {
                   GlStateManager.pushMatrix();
                   Tessellator.getInstance().draw();
-                  com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var3);
+                  com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
                   GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
-                  GlStateManager.scale(var9.aa, var9.aa, var9.aa);
-                  Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, var10, TransformType.THIRD_PERSON_RIGHT_HAND);
+                  GlStateManager.scale(luna.aa, luna.aa, luna.aa);
+                  Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, itemStack, TransformType.THIRD_PERSON_RIGHT_HAND);
                   GirlRenderer.tempBuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
                   this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
                   GlStateManager.popMatrix();

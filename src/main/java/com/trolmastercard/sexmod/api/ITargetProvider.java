@@ -8,5 +8,5 @@ import net.minecraft.util.math.Vec3d;
  * Provides a target entity (used by scene targeting helpers).
  */
 public interface ITargetProvider {
-   Vec3d getTargetPosition(BaseGirlEntity var1);
+   Vec3d getTargetPosition(BaseGirlEntity girl);
 }

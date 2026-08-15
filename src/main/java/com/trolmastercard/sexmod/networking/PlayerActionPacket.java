@@ -29,40 +29,40 @@ public class PlayerActionPacket implements IMessage {
    public PlayerActionPacket() {
    }
 
-   public PlayerActionPacket(UUID var1, UUID var2) {
-      this.girlUUID = var1;
-      this.playerUUID = var2;
+   public PlayerActionPacket(UUID girlUUID, UUID playerUUID) {
+      this.girlUUID = girlUUID;
+      this.playerUUID = playerUUID;
       this.isValid = true;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
-      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+      this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
-      ByteBufUtils.writeUTF8String(var1, this.playerUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
+      ByteBufUtils.writeUTF8String(buf, this.playerUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<PlayerActionPacket, IMessage> {
-      public IMessage onMessage(PlayerActionPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.SERVER) {
+      public IMessage onMessage(PlayerActionPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance()
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     for (BaseGirlEntity var2x : BaseGirlEntity.getGirlEntityList()) {
-                        if (!var2x.world.isRemote && var2x.getGirlId().equals(var1.girlUUID)) {
-                           ((EntityPlayerMP)var2x.world.getPlayerEntityByUUID(var1.playerUUID))
+                     for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+                        if (!girl.world.isRemote && girl.getGirlId().equals(packet.girlUUID)) {
+                           ((EntityPlayerMP)girl.world.getPlayerEntityByUUID(packet.playerUUID))
                               .openGui(
                                  Main.instance,
                                  0,
-                                 var2x.world,
-                                 var2x.getPosition().getX(),
-                                 var2x.getPosition().getY(),
-                                 var2x.getPosition().getZ()
+                                 girl.world,
+                                 girl.getPosition().getX(),
+                                 girl.getPosition().getY(),
+                                 girl.getPosition().getZ()
                               );
                         }
                      }

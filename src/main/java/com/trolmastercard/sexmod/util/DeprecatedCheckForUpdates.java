@@ -57,6 +57,6 @@ public class DeprecatedCheckForUpdates {
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
-   public void onClientTick(ClientTickEvent var1) {
+   public void onClientTick(ClientTickEvent event) {
    }
 }

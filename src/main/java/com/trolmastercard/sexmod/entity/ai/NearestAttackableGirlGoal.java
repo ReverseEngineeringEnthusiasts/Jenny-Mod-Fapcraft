@@ -18,18 +18,18 @@ public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<K
    private final int targetRadius;
    private final boolean isValid;
 
-   public NearestAttackableGirlGoal(EntityCreature var1, boolean var2, boolean var3) {
-      this(var1, var2, false, var3);
+   public NearestAttackableGirlGoal(EntityCreature creature, boolean mustSee, boolean nearbyOnly) {
+      this(creature, mustSee, false, nearbyOnly);
    }
 
-   public NearestAttackableGirlGoal(EntityCreature var1, boolean var2, boolean var3, boolean var4) {
-      this(var1, 10, var2, var3, null, var4);
+   public NearestAttackableGirlGoal(EntityCreature creature, boolean mustSee, boolean nearbyOnly, boolean onlyNearby) {
+      this(creature, 10, mustSee, nearbyOnly, null, onlyNearby);
    }
 
-   public NearestAttackableGirlGoal(EntityCreature var1, int var2, boolean var3, boolean var4, @Nullable Predicate var5, boolean var6) {
-      super(var1, KoboldEntity.class, var2, var3, var4, var5);
-      this.targetRadius = var2;
-      this.isValid = var6;
+   public NearestAttackableGirlGoal(EntityCreature creature, int targetChance, boolean checkSight, boolean onlyNearby, @Nullable Predicate targetSelector, boolean isValid) {
+      super(creature, KoboldEntity.class, targetChance, checkSight, onlyNearby, targetSelector);
+      this.targetRadius = targetChance;
+      this.isValid = isValid;
    }
 
    /**
@@ -38,8 +38,8 @@ public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<K
     */
    public boolean shouldExecute() {
       if (this.isValid) {
-         float var1 = this.taskOwner.getBrightness();
-         if (var1 >= 0.5F) {
+         float brightness = this.taskOwner.getBrightness();
+         if (brightness >= 0.5F) {
             return false;
          }
       }
@@ -48,25 +48,25 @@ public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<K
          return false;
       }
 
-      List var5 = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass, this.getTargetableArea(this.getTargetDistance()), this.targetEntitySelector);
-      if (var5.isEmpty()) {
+      List candidates = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass, this.getTargetableArea(this.getTargetDistance()), this.targetEntitySelector);
+      if (candidates.isEmpty()) {
          return false;
       }
 
-      ArrayList var2 = new ArrayList();
+      ArrayList masters = new ArrayList();
 
-      for (KoboldEntity var4 : (java.util.Collection<KoboldEntity>) (var5) ) {
-         if (var4.hasMaster()) {
-            var2.add(var4);
+      for (KoboldEntity kobold : (java.util.Collection<KoboldEntity>) (candidates) ) {
+         if (kobold.hasMaster()) {
+            masters.add(kobold);
          }
       }
 
-      if (var2.isEmpty()) {
+      if (masters.isEmpty()) {
          return false;
       }
 
-      var2.sort(this.sorter);
-      this.targetEntity = (KoboldEntity) var2.get(0);
+      masters.sort(this.sorter);
+      this.targetEntity = (KoboldEntity) masters.get(0);
       return true;
    }
 

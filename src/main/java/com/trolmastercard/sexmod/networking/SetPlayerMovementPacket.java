@@ -24,8 +24,8 @@ public class SetPlayerMovementPacket implements IMessage {
    boolean isValid;
    boolean isSprinting;
 
-   public SetPlayerMovementPacket(boolean var1) {
-      this.isSprinting = var1;
+   public SetPlayerMovementPacket(boolean isSprinting) {
+      this.isSprinting = isSprinting;
       this.isValid = true;
    }
 
@@ -33,27 +33,27 @@ public class SetPlayerMovementPacket implements IMessage {
       this.isValid = false;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.isSprinting = var1.readBoolean();
+   public void fromBytes(ByteBuf buf) {
+      this.isSprinting = buf.readBoolean();
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      var1.writeBoolean(this.isSprinting);
+   public void toBytes(ByteBuf buf) {
+      buf.writeBoolean(this.isSprinting);
       this.isValid = true;
    }
 
    public static class Handler implements IMessageHandler<SetPlayerMovementPacket, IMessage> {
-      public IMessage onMessage(SetPlayerMovementPacket var1, MessageContext var2) {
-         if (var1.isValid && var2.side == Side.CLIENT) {
-            HandlePlayerMovement.setMovementLock(var1.isSprinting);
+      public IMessage onMessage(SetPlayerMovementPacket packet, MessageContext ctx) {
+         if (packet.isValid && ctx.side == Side.CLIENT) {
+            HandlePlayerMovement.setMovementLock(packet.isSprinting);
 
             try {
                Minecraft.getMinecraft().player.setVelocity(0.0, 0.0, 0.0);
-            } catch (Exception var3) {
+            } catch (Exception exception) {
             }
 
-            if (var1.isSprinting) {
+            if (packet.isSprinting) {
                HornyMeterHud.hideHornyMeter();
             }
 

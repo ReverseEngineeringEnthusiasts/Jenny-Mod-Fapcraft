@@ -23,44 +23,44 @@ public class CommandWhitelistServer extends CommandBase implements IClientComman
       return "whitelistserver";
    }
 
-   public String getUsage(ICommandSender var1) {
+   public String getUsage(ICommandSender sender) {
       return "/whitelistserver";
    }
 
-   public boolean allowUsageWithoutPrefix(ICommandSender var1, String var2) {
+   public boolean allowUsageWithoutPrefix(ICommandSender sender, String args) {
       return false;
    }
 
-   public boolean checkPermission(MinecraftServer var1, ICommandSender var2) {
+   public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
       return true;
    }
 
-   public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
-      String var4 = ServerWhitelistManager.getCustomModelsKey();
-      if (var4 == null) {
-         var2.sendMessage(new TextComponentString(TextFormatting.YELLOW + "This is a multiplayer feature only"));
-      } else if (ServerWhitelistManager.isModelWhitelisted(var4)) {
-         var2.sendMessage(new TextComponentString(TextFormatting.GREEN + "Server is already whitelisted :)"));
+   public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+      String key = ServerWhitelistManager.getCustomModelsKey();
+      if (key == null) {
+         sender.sendMessage(new TextComponentString(TextFormatting.YELLOW + "This is a multiplayer feature only"));
+      } else if (ServerWhitelistManager.isModelWhitelisted(key)) {
+         sender.sendMessage(new TextComponentString(TextFormatting.GREEN + "Server is already whitelisted :)"));
       } else {
-         boolean var5 = var3.length > 0 && "confirm".equals(var3[0]);
-         if (!var5) {
-            var2.sendMessage(
+         boolean confirmed = args.length > 0 && "confirm".equals(args[0]);
+         if (!confirmed) {
+            sender.sendMessage(
                new TextComponentString(
                   TextFormatting.YELLOW + "By whitelisting this server, you allow the server to send you the custom models that are used on it"
                )
             );
-            var2.sendMessage(new TextComponentString(TextFormatting.RED + "ONLY WHITELIST SERVERS, WHOSE SERVER OWNER YOU KNOW AND TRUST"));
-            var2.sendMessage(new TextComponentString(TextFormatting.YELLOW + "to confirm your decision type:"));
-            var2.sendMessage(new TextComponentString(TextFormatting.GREEN + "/whitelistserver confirm"));
+            sender.sendMessage(new TextComponentString(TextFormatting.RED + "ONLY WHITELIST SERVERS, WHOSE SERVER OWNER YOU KNOW AND TRUST"));
+            sender.sendMessage(new TextComponentString(TextFormatting.YELLOW + "to confirm your decision type:"));
+            sender.sendMessage(new TextComponentString(TextFormatting.GREEN + "/whitelistserver confirm"));
          } else {
-            ServerWhitelistManager.initWhitelistFile(var4);
-            var2.sendMessage(new TextComponentString(TextFormatting.GREEN + "confirmed :)"));
+            ServerWhitelistManager.initWhitelistFile(key);
+            sender.sendMessage(new TextComponentString(TextFormatting.GREEN + "confirmed :)"));
             ServerWhitelistManager.reloadCustomModels();
          }
       }
    }
 
-   private static CommandException wrapException(CommandException var0) {
-      return var0;
+   private static CommandException wrapException(CommandException exception) {
+      return exception;
    }
 }

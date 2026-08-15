@@ -17,30 +17,30 @@ import net.minecraft.world.World;
  */
 public class MobPredicates {
    /**
-    * Whether {@code var0} is an acceptable combat target. Creepers, zombie
+    * Whether {@code target} is an acceptable combat target. Creepers, zombie
     * pigmen, guardians and endermen are excluded (explosive/reflection hazards).
     *
     * @return {@code false} for the excluded vanilla mobs, {@code true} otherwise
     */
-   public static boolean isValidTarget(Entity var0) {
-      if (var0 instanceof EntityCreeper) {
+   public static boolean isValidTarget(Entity target) {
+      if (target instanceof EntityCreeper) {
          return false;
-      } else if (var0 instanceof EntityPigZombie) {
+      } else if (target instanceof EntityPigZombie) {
          return false;
       } else {
-         return var0 instanceof EntityGuardian ? false : !(var0 instanceof EntityEnderman);
+         return target instanceof EntityGuardian ? false : !(target instanceof EntityEnderman);
       }
    }
 
    /**
-    * Checks whether the line of sight from {@code var1} to the entity's eye
+    * Checks whether the line of sight from {@code from} to the entity's eye
     * position is unobstructed (no block hit), i.e. the entity is "in daylight".
     *
     * @return {@code true} if no block occludes the ray, {@code false} otherwise
     */
-   public static boolean isDaylight(World var0, Vec3d var1, Entity var2) {
-      RayTraceResult var3 = var0.rayTraceBlocks(var1, var2.getPositionVector().add(0.0, var2.getEyeHeight(), 0.0), true, true, false);
-      return var3 == null ? true : var3.typeOfHit != Type.BLOCK;
+   public static boolean isDaylight(World world, Vec3d from, Entity entity) {
+      RayTraceResult result = world.rayTraceBlocks(from, entity.getPositionVector().add(0.0, entity.getEyeHeight(), 0.0), true, true, false);
+      return result == null ? true : result.typeOfHit != Type.BLOCK;
    }
 
 }

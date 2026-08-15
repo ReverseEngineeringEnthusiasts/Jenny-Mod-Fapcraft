@@ -54,65 +54,65 @@ public class DownloadServerModelPacket implements IMessage {
    public DownloadServerModelPacket() {
    }
 
-   public DownloadServerModelPacket(List<String> var1) {
-      this.modelNames = var1;
+   public DownloadServerModelPacket(List<String> modelNames) {
+      this.modelNames = modelNames;
    }
 
-   public DownloadServerModelPacket(byte[] var1, DownloadServerModelPacket.DownloadServerModelPacketType var2, String var3) {
-      this.modelData = var1;
-      this.packetType = var2;
-      this.modelName = var3;
+   public DownloadServerModelPacket(byte[] modelData, DownloadServerModelPacket.DownloadServerModelPacketType packetType, String modelName) {
+      this.modelData = modelData;
+      this.packetType = packetType;
+      this.modelName = modelName;
    }
 
    public int getModelIndex() {
       return this.modelIndex;
    }
 
-   public void setModelIndex(int var1) {
-      this.modelIndex = var1;
+   public void setModelIndex(int modelIndex) {
+      this.modelIndex = modelIndex;
    }
 
-   public void fromBytes(ByteBuf var1) {
+   public void fromBytes(ByteBuf buf) {
       if (null instanceof ClientProxy) {
          if (ServerWhitelistManager.isGlobalRenderingDisabled()) {
-            this.modelName = ByteBufUtils.readUTF8String(var1);
-            this.packetType = DownloadServerModelPacket.DownloadServerModelPacketType.valueOf(ByteBufUtils.readUTF8String(var1));
-            this.modelIndex = var1.readInt();
-            int var4 = var1.readInt();
-            this.modelData = new byte[var4];
+            this.modelName = ByteBufUtils.readUTF8String(buf);
+            this.packetType = DownloadServerModelPacket.DownloadServerModelPacketType.valueOf(ByteBufUtils.readUTF8String(buf));
+            this.modelIndex = buf.readInt();
+            int dataLength = buf.readInt();
+            this.modelData = new byte[dataLength];
 
-            for (int var5 = 0; var5 < var4; var5++) {
-               this.modelData[var5] = var1.readByte();
+            for (int i = 0; i < dataLength; i++) {
+               this.modelData[i] = buf.readByte();
             }
 
             this.isValid = true;
          }
       } else {
-         int var2 = var1.readInt();
+         int nameCount = buf.readInt();
 
-         for (int var3 = 0; var3 < var2; var3++) {
-            this.modelNames.add(ByteBufUtils.readUTF8String(var1));
+         for (int i = 0; i < nameCount; i++) {
+            this.modelNames.add(ByteBufUtils.readUTF8String(buf));
          }
 
          this.isValid = true;
       }
    }
 
-   public void toBytes(ByteBuf var1) {
+   public void toBytes(ByteBuf buf) {
       if (null instanceof ClientProxy) {
-         var1.writeInt(this.modelNames.size());
+         buf.writeInt(this.modelNames.size());
 
-         for (String var7 : this.modelNames) {
-            ByteBufUtils.writeUTF8String(var1, var7);
+         for (String name : this.modelNames) {
+            ByteBufUtils.writeUTF8String(buf, name);
          }
       } else {
-         ByteBufUtils.writeUTF8String(var1, this.modelName);
-         ByteBufUtils.writeUTF8String(var1, this.packetType.toString());
-         var1.writeInt(this.modelIndex);
-         var1.writeInt(this.modelData.length);
+         ByteBufUtils.writeUTF8String(buf, this.modelName);
+         ByteBufUtils.writeUTF8String(buf, this.packetType.toString());
+         buf.writeInt(this.modelIndex);
+         buf.writeInt(this.modelData.length);
 
-         for (byte var5 : this.modelData) {
-            var1.writeByte(var5);
+         for (byte b : this.modelData) {
+            buf.writeByte(b);
          }
       }
    }
@@ -121,8 +121,8 @@ public class DownloadServerModelPacket implements IMessage {
       static int packetCounter = 0;
 
       @SideOnly(Side.CLIENT)
-      void sendModelMessage(String var1) {
-         Minecraft.getMinecraft().player.sendMessage(new TextComponentString(var1));
+      void sendModelMessage(String message) {
+         Minecraft.getMinecraft().player.sendMessage(new TextComponentString(message));
       }
 
       @SideOnly(Side.CLIENT)
@@ -130,45 +130,45 @@ public class DownloadServerModelPacket implements IMessage {
          Minecraft.getMinecraft().addScheduledTask(() -> ServerWhitelistManager.getModelCount(true));
       }
 
-      public IMessage onMessage(DownloadServerModelPacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(DownloadServerModelPacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("received an invalid Message @DownloadServerModel :(");
             return null;
          }
 
-         if (!var2.side.isClient()) {
-            MinecraftServer var24 = FMLCommonHandler.instance().getMinecraftServerInstance();
-            var24.addScheduledTask(() -> {
-               List var3x = var1.modelNames;
-               ArrayList var4x = new ArrayList();
+         if (!ctx.side.isClient()) {
+            MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+            server.addScheduledTask(() -> {
+               List requested = packet.modelNames;
+               ArrayList packets = new ArrayList();
 
-               for (String var6x : (java.util.Collection<String>) (var3x) ) {
-                  String var7x = "sexmod_custom_models/" + var6x;
+               for (String typeEnding : (java.util.Collection<String>) (requested) ) {
+                  String serverDir = "sexmod_custom_models/" + typeEnding;
 
-                  for (DownloadServerModelPacket.DownloadServerModelPacketType var11x : DownloadServerModelPacket.DownloadServerModelPacketType.values()) {
-                     File var12 = new File(var7x + "/" + var6x + var11x.ending);
-                     if (!var12.exists()) {
-                        System.out.println(var12.getAbsolutePath() + " doesnt exist lol");
+                  for (DownloadServerModelPacket.DownloadServerModelPacketType fileType : DownloadServerModelPacket.DownloadServerModelPacketType.values()) {
+                     File modelFile = new File(serverDir + "/" + typeEnding + fileType.ending);
+                     if (!modelFile.exists()) {
+                        System.out.println(modelFile.getAbsolutePath() + " doesnt exist lol");
                      } else {
-                        byte[] var13;
+                        byte[] fileBytes;
                         try {
-                           var13 = FileUtils.readFileToByteArray(var12);
-                        } catch (IOException var15) {
-                           throw new RuntimeException(var15);
+                           fileBytes = FileUtils.readFileToByteArray(modelFile);
+                        } catch (IOException ioEx) {
+                           throw new RuntimeException(ioEx);
                         }
 
-                        if (var13 != null) {
-                           var4x.add(new DownloadServerModelPacket(var13, var11x, var6x));
+                        if (fileBytes != null) {
+                           packets.add(new DownloadServerModelPacket(fileBytes, fileType, typeEnding));
                         }
                      }
                   }
                }
 
-               int var16 = var4x.size();
+               int totalPackets = packets.size();
 
-               for (DownloadServerModelPacket var18 : (java.util.Collection<DownloadServerModelPacket>) (var4x) ) {
-                  var18.setModelIndex(var16);
-                  var24.addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(var18, var2.getServerHandler().player));
+               for (DownloadServerModelPacket chunkPacket : (java.util.Collection<DownloadServerModelPacket>) (packets) ) {
+                  chunkPacket.setModelIndex(totalPackets);
+                  server.addScheduledTask(() -> PacketHandler.networkWrapper.sendTo(chunkPacket, ctx.getServerHandler().player));
                }
             });
             return null;
@@ -178,77 +178,77 @@ public class DownloadServerModelPacket implements IMessage {
             return null;
          }
 
-         String var3 = var1.modelName;
-         DownloadServerModelPacket.DownloadServerModelPacketType var4 = var1.packetType;
-         byte[] var5 = var1.modelData;
-         String var6 = ServerWhitelistManager.getCurrentGroup() + "/" + var3;
-         File var7 = new File(var6);
-         var7.mkdirs();
-         File var8 = new File(var6 + "/" + var3 + var4.ending);
+         String modelName = packet.modelName;
+         DownloadServerModelPacket.DownloadServerModelPacketType packetType = packet.packetType;
+         byte[] modelData = packet.modelData;
+         String groupPath = ServerWhitelistManager.getCurrentGroup() + "/" + modelName;
+         File dirFile = new File(groupPath);
+         dirFile.mkdirs();
+         File modelFile = new File(groupPath + "/" + modelName + packetType.ending);
 
          try {
-            FileOutputStream var9 = new FileOutputStream(var8);
-            Object var10 = null;
-            boolean var19 = false;
+            FileOutputStream outputStream = new FileOutputStream(modelFile);
+            Object suppressible = null;
+            boolean completed = false;
 
             label106: {
-               Throwable var11;
+               Throwable caught;
                try {
-                  var19 = true;
-                  var9.write(var5);
-                  var19 = false;
+                  completed = true;
+                  outputStream.write(modelData);
+                  completed = false;
                   break label106;
-               } catch (Throwable var21) {
-                  var11 = var21;
-                  var19 = false;
+               } catch (Throwable exception) {
+                  caught = exception;
+                  completed = false;
                } finally {
-                  if (var19) {
-                     if (var9 != null) {
-                        if (var10 != null) {
+                  if (completed) {
+                     if (outputStream != null) {
+                        if (suppressible != null) {
                            try {
-                              var9.close();
-                           } catch (Throwable var20) {
-                              ((Throwable) var10).addSuppressed(var20);
+                              outputStream.close();
+                           } catch (Throwable closeEx) {
+                              ((Throwable) suppressible).addSuppressed(closeEx);
                            }
                         } else {
-                           var9.close();
+                           outputStream.close();
                         }
                      }
                   }
                }
 
-               throw var11;
+               throw caught;
             }
 
-            if (var9 != null) {
-               var9.close();
+            if (outputStream != null) {
+               outputStream.close();
             }
-         } catch (Throwable var23) {
-            var23.printStackTrace();
+         } catch (Throwable ioEx) {
+            ioEx.printStackTrace();
          }
 
-         int var25 = 0;
-         int var26 = DownloadServerModelPacket.DownloadServerModelPacketType.values().length;
+         int downloadedCount = 0;
+         int totalTypes = DownloadServerModelPacket.DownloadServerModelPacketType.values().length;
 
-         for (DownloadServerModelPacket.DownloadServerModelPacketType var14 : DownloadServerModelPacket.DownloadServerModelPacketType.values()) {
-            if (new File(var6 + "/" + var3 + var14.ending).exists()) {
-               var25++;
+         for (DownloadServerModelPacket.DownloadServerModelPacketType type : DownloadServerModelPacket.DownloadServerModelPacketType.values()) {
+            if (new File(groupPath + "/" + modelName + type.ending).exists()) {
+               downloadedCount++;
             }
          }
 
-         if (var25 == var26) {
+         if (downloadedCount == totalTypes) {
             this.sendModelMessage(
-               String.format("%sSuccessfully downloaded the custom model '%s%s%s'!", TextFormatting.GREEN, TextFormatting.YELLOW, var3, TextFormatting.GREEN)
+               String.format("%sSuccessfully downloaded the custom model '%s%s%s'!", TextFormatting.GREEN, TextFormatting.YELLOW, modelName, TextFormatting.GREEN)
             );
          } else {
             this.sendModelMessage(
                String.format(
-                  "%sdownloading custom model '%s%s%s' (%s/%s)...", TextFormatting.GRAY, TextFormatting.YELLOW, var3, TextFormatting.GRAY, var25, var26
+                  "%sdownloading custom model '%s%s%s' (%s/%s)...", TextFormatting.GRAY, TextFormatting.YELLOW, modelName, TextFormatting.GRAY, downloadedCount, totalTypes
                )
             );
          }
 
-         if (++packetCounter < var1.modelIndex) {
+         if (++packetCounter < packet.modelIndex) {
             return null;
          }
 
@@ -266,8 +266,8 @@ public class DownloadServerModelPacket implements IMessage {
 
       public String ending;
 
-      DownloadServerModelPacketType(String var3) {
-         this.ending = var3;
+      DownloadServerModelPacketType(String ending) {
+         this.ending = ending;
       }
    }
 }

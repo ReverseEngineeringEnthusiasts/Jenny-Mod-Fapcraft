@@ -29,11 +29,11 @@ public class TrailSegment {
    Vec3d velocity;
    Vec3d position;
 
-   public TrailSegment(World var1, Vec3d var2, Vec3d var3) {
-      this.world = var1;
-      this.velocity = var2;
-      this.offset = var2;
-      this.position = var3;
+   public TrailSegment(World world, Vec3d velocity, Vec3d position) {
+      this.world = world;
+      this.velocity = velocity;
+      this.offset = velocity;
+      this.position = position;
    }
 
    public void onUpdate() {
@@ -47,56 +47,56 @@ public class TrailSegment {
             this.velocity.y + this.position.y * 0.05F,
             this.velocity.z + this.position.z * 0.05F
          );
-         BlockPos var1 = new BlockPos(this.offset);
-         BlockPos var2 = null;
+         BlockPos hitPos = new BlockPos(this.offset);
+         BlockPos lastHitPos = null;
 
-         for (BlockPos var4 : bresenhamLine(new BlockPos(this.offset), new BlockPos(this.velocity))) {
-            if (this.world.getBlockState(var4).getBlock() != Blocks.AIR) {
-               var2 = var4;
+         for (BlockPos blockPos : bresenhamLine(new BlockPos(this.offset), new BlockPos(this.velocity))) {
+            if (this.world.getBlockState(blockPos).getBlock() != Blocks.AIR) {
+               lastHitPos = blockPos;
                break;
             }
 
-            var1 = var4;
+            hitPos = blockPos;
          }
 
-         if (var2 != null) {
-            int var23 = var2.getX();
-            int var24 = var1.getX();
-            if (var23 - var24 != 0) {
-               double var25 = Math.max(var23, var24);
-               double var27 = (this.offset.y - this.velocity.y) / (this.offset.x - this.velocity.x);
-               double var29 = this.velocity.y - var27 * this.velocity.x;
-               double var31 = var27 * var25 + var29;
-               double var33 = (this.offset.z - this.velocity.z) / (this.offset.x - this.velocity.x);
-               double var35 = this.velocity.z - var33 * this.velocity.x;
-               double var37 = var33 * var25 + var35;
-               this.velocity = new Vec3d(var25 + 0.03F * (var23 > var24 ? -1 : 1), var31, var37);
+         if (lastHitPos != null) {
+            int hitX = lastHitPos.getX();
+            int lastX = hitPos.getX();
+            if (hitX - lastX != 0) {
+               double maxX = Math.max(hitX, lastX);
+               double slopeXY = (this.offset.y - this.velocity.y) / (this.offset.x - this.velocity.x);
+               double interceptY = this.velocity.y - slopeXY * this.velocity.x;
+               double y = slopeXY * maxX + interceptY;
+               double slopeZY = (this.offset.z - this.velocity.z) / (this.offset.x - this.velocity.x);
+               double interceptZ = this.velocity.z - slopeZY * this.velocity.x;
+               double z = slopeZY * maxX + interceptZ;
+               this.velocity = new Vec3d(maxX + 0.03F * (hitX > lastX ? -1 : 1), y, z);
                this.position = new Vec3d(0.0, 0.0, 0.0);
             } else {
-               int var5 = var2.getY();
-               int var6 = var1.getY();
-               if (var5 - var6 != 0) {
-                  double var26 = Math.max(var5, var6);
-                  double var28 = (this.offset.x - this.velocity.x) / (this.offset.y - this.velocity.y);
-                  double var30 = this.velocity.x - var28 * this.velocity.y;
-                  double var32 = var28 * var26 + var30;
-                  double var34 = (this.offset.z - this.velocity.z) / (this.offset.y - this.velocity.y);
-                  double var36 = this.velocity.z - var34 * this.velocity.y;
-                  double var38 = var34 * var26 + var36;
-                  this.velocity = new Vec3d(var32, var26 + 0.03F * (var5 > var6 ? -1 : 1), var38);
+               int hitY = lastHitPos.getY();
+               int lastY = hitPos.getY();
+               if (hitY - lastY != 0) {
+                  double maxY = Math.max(hitY, lastY);
+                  double slopeXY2 = (this.offset.x - this.velocity.x) / (this.offset.y - this.velocity.y);
+                  double x = this.velocity.x - slopeXY2 * this.velocity.y;
+                  double x2 = slopeXY2 * maxY + x;
+                  double slopeZY2 = (this.offset.z - this.velocity.z) / (this.offset.y - this.velocity.y);
+                  double z2 = this.velocity.z - slopeZY2 * this.velocity.y;
+                  double z3 = slopeZY2 * maxY + z2;
+                  this.velocity = new Vec3d(x2, maxY + 0.03F * (hitY > lastY ? -1 : 1), z3);
                   this.position = new Vec3d(0.0, 0.0, 0.0);
                } else {
-                  int var7 = var2.getZ();
-                  int var8 = var1.getZ();
-                  if (var7 - var8 != 0) {
-                     double var9 = Math.max(var7, var8);
-                     double var11 = (this.offset.y - this.velocity.y) / (this.offset.z - this.velocity.z);
-                     double var13 = this.velocity.y - var11 * this.velocity.z;
-                     double var15 = var11 * var9 + var13;
-                     double var17 = (this.offset.x - this.velocity.x) / (this.offset.z - this.velocity.z);
-                     double var19 = this.velocity.x - var17 * this.velocity.z;
-                     double var21 = var17 * var9 + var19;
-                     this.velocity = new Vec3d(var21, var15, var9 + 0.03F * (var7 > var8 ? -1 : 1));
+                  int hitZ = lastHitPos.getZ();
+                  int lastZ = hitPos.getZ();
+                  if (hitZ - lastZ != 0) {
+                     double maxZ = Math.max(hitZ, lastZ);
+                     double slopeYZ = (this.offset.y - this.velocity.y) / (this.offset.z - this.velocity.z);
+                     double y2 = this.velocity.y - slopeYZ * this.velocity.z;
+                     double y3 = slopeYZ * maxZ + y2;
+                     double slopeXZ = (this.offset.x - this.velocity.x) / (this.offset.z - this.velocity.z);
+                     double x3 = this.velocity.x - slopeXZ * this.velocity.z;
+                     double x4 = slopeXZ * maxZ + x3;
+                     this.velocity = new Vec3d(x4, y3, maxZ + 0.03F * (hitZ > lastZ ? -1 : 1));
                      this.position = new Vec3d(0.0, 0.0, 0.0);
                   }
                }
@@ -105,48 +105,48 @@ public class TrailSegment {
       }
    }
 
-   static List<BlockPos> bresenhamLine(BlockPos var0, BlockPos var1) {
-      ArrayList var2 = new ArrayList();
-      var2.add(var0);
-      int var3 = var0.getX();
-      int var4 = var0.getY();
-      int var5 = var0.getZ();
-      int var6 = var1.getX();
-      int var7 = var1.getY();
-      int var8 = var1.getZ();
-      int var9 = Math.abs(var6 - var3);
-      int var10 = Math.abs(var7 - var4);
-      int var11 = Math.abs(var8 - var5);
-      int var12 = var3 < var6 ? 1 : -1;
-      int var13 = var4 < var7 ? 1 : -1;
-      int var14 = var5 < var8 ? 1 : -1;
-      int var15 = Math.max(var9, Math.max(var10, var11));
-      int var16 = var3;
-      int var17 = var4;
-      int var18 = var5;
-      int var19 = var15 / 2;
-      int var20 = var15 / 2;
-      int var21 = var15 / 2;
+   static List<BlockPos> bresenhamLine(BlockPos start, BlockPos end) {
+      ArrayList points = new ArrayList();
+      points.add(start);
+      int x0 = start.getX();
+      int y0 = start.getY();
+      int z0 = start.getZ();
+      int x1 = end.getX();
+      int y1 = end.getY();
+      int z1 = end.getZ();
+      int dx = Math.abs(x1 - x0);
+      int dy = Math.abs(y1 - y0);
+      int dz = Math.abs(z1 - z0);
+      int sx = x0 < x1 ? 1 : -1;
+      int sy = y0 < y1 ? 1 : -1;
+      int sz = z0 < z1 ? 1 : -1;
+      int maxStep = Math.max(dx, Math.max(dy, dz));
+      int x = x0;
+      int y = y0;
+      int z = z0;
+      int errX = maxStep / 2;
+      int errY = maxStep / 2;
+      int errZ = maxStep / 2;
 
-      for (int var22 = 0; var22 < var15; var22++) {
-         var2.add(new BlockPos(var16, var17, var18));
-         var19 -= var9;
-         var20 -= var10;
-         var21 -= var11;
-         if (var19 < 0) {
-            var16 += var12;
-            var19 += var15;
-         } else if (var20 < 0) {
-            var17 += var13;
-            var20 += var15;
-         } else if (var21 < 0) {
-            var18 += var14;
-            var21 += var15;
+      for (int i = 0; i < maxStep; i++) {
+         points.add(new BlockPos(x, y, z));
+         errX -= dx;
+         errY -= dy;
+         errZ -= dz;
+         if (errX < 0) {
+            x += sx;
+            errX += maxStep;
+         } else if (errY < 0) {
+            y += sy;
+            errY += maxStep;
+         } else if (errZ < 0) {
+            z += sz;
+            errZ += maxStep;
          }
       }
 
-      var2.add(var1);
-      return var2;
+      points.add(end);
+      return points;
    }
 
 }

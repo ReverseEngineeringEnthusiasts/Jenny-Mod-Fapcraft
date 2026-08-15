@@ -7,5 +7,5 @@ import com.trolmastercard.sexmod.entity.GalathEntity;
  * Executable action hook for galath AI states.
  */
 public interface IGalathExecute {
-   boolean canExecute(GalathEntity var1);
+   boolean canExecute(GalathEntity galath);
 }

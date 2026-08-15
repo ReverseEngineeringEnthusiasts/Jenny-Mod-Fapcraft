@@ -34,47 +34,47 @@ public class ResetControllerPacket implements IMessage {
       this.isValid = false;
    }
 
-   public ResetControllerPacket(UUID var1) {
-      this.girlUUID = var1;
+   public ResetControllerPacket(UUID girlUUID) {
+      this.girlUUID = girlUUID;
       this.isValid = true;
    }
 
-   public void fromBytes(ByteBuf var1) {
-      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(var1));
+   public void fromBytes(ByteBuf buf) {
+      this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       this.isValid = true;
    }
 
-   public void toBytes(ByteBuf var1) {
-      ByteBufUtils.writeUTF8String(var1, this.girlUUID.toString());
+   public void toBytes(ByteBuf buf) {
+      ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
    }
 
    public static class Handler implements IMessageHandler<ResetControllerPacket, IMessage> {
-      public IMessage onMessage(ResetControllerPacket var1, MessageContext var2) {
-         if (!var1.isValid) {
+      public IMessage onMessage(ResetControllerPacket packet, MessageContext ctx) {
+         if (!packet.isValid) {
             System.out.println("received an invalid message @ResetController :(");
             return null;
          }
 
-         if (var2.side.isServer()) {
-            BaseGirlEntity var7 = BaseGirlEntity.getServerGirlEntity(var1.girlUUID);
-            if (var7 == null) {
+         if (ctx.side.isServer()) {
+            BaseGirlEntity serverGirl = BaseGirlEntity.getServerGirlEntity(packet.girlUUID);
+            if (serverGirl == null) {
                return null;
             }
 
-            UUID var4 = var2.getServerHandler().player.getPersistentID();
-            var7.getCurrentAction().ticksPlaying = new int[]{0, 0};
+            UUID playerUuid = ctx.getServerHandler().player.getPersistentID();
+            serverGirl.getCurrentAction().ticksPlaying = new int[]{0, 0};
 
-            for (EntityPlayerMP var6 : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
-               if (!var4.equals(var6.getPersistentID()) && var6.getDistance(var7) < 100.0F) {
-                  PacketHandler.networkWrapper.sendTo(new ResetControllerPacket(var1.girlUUID), var6);
+            for (EntityPlayerMP otherPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+               if (!playerUuid.equals(otherPlayer.getPersistentID()) && otherPlayer.getDistance(serverGirl) < 100.0F) {
+                  PacketHandler.networkWrapper.sendTo(new ResetControllerPacket(packet.girlUUID), otherPlayer);
                }
             }
 
             return null;
          } else {
-            BaseGirlEntity var3 = BaseGirlEntity.getClientGirlEntity(var1.girlUUID);
-            if (var3 != null) {
-               var3.resetAnimationControllerTicks();
+            BaseGirlEntity clientGirl = BaseGirlEntity.getClientGirlEntity(packet.girlUUID);
+            if (clientGirl != null) {
+               clientGirl.resetAnimationControllerTicks();
             }
 
             return null;

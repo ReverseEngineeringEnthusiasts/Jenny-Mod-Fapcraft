@@ -34,41 +34,41 @@ public class RotationHelper {
     * {@link #lerpVec3dDouble(Vec3d, Vec3d, double)}</b> — int arguments
     * auto-widen and the multiply version flings the girl 40x (see class doc).
     */
-   public static Vec3d lerpVec3d(Vec3d var0, Vec3d var1, int var2) {
-      if (var2 == 0) {
-         return var1;
+   public static Vec3d lerpVec3d(Vec3d from, Vec3d to, int steps) {
+      if (steps == 0) {
+         return to;
       }
 
-      Vec3d var3 = var1.subtract(var0);
-      return var0.add(var3.x / var2, var3.y / var2, var3.z / var2);
+      Vec3d delta = to.subtract(from);
+      return from.add(delta.x / steps, delta.y / steps, delta.z / steps);
    }
 
-   public static double lerpDouble(double var0, double var2, double var4) {
-      return var0 + (var2 - var0) * var4;
+   public static double lerpDouble(double from, double to, double t) {
+      return from + (to - from) * t;
    }
 
-   public static float lerp(float var0, float var1, float var2) {
-      return var0 + (var1 - var0) * var2;
+   public static float lerp(float from, float to, float t) {
+      return from + (to - from) * t;
    }
 
-   public static float lerpFloat(float var0, float var1, double var2) {
-      float var4 = var1 - var0;
+   public static float lerpFloat(float from, float to, double t) {
+      float diff = to - from;
 
-      while (var4 < -Math.PI) {
-         var4 = (float)(var4 + (Math.PI * 2));
+      while (diff < -Math.PI) {
+         diff = (float)(diff + (Math.PI * 2));
       }
 
-      while (var4 >= Math.PI) {
-         var4 = (float)(var4 - (Math.PI * 2));
+      while (diff >= Math.PI) {
+         diff = (float)(diff - (Math.PI * 2));
       }
 
-      return (float)(var0 + var4 * var2);
+      return (float)(from + diff * t);
    }
 
-   public static float lerpAngleDegrees(float var0, float var1, double var2) {
-      double var4 = Math.toRadians(var0);
-      double var6 = Math.toRadians(var1);
-      return (float)Math.toDegrees(lerpAngleDegrees((float)var4, (float)var6, var2));
+   public static float lerpAngleDegrees(float from, float to, double t) {
+      double fromRad = Math.toRadians(from);
+      double toRad = Math.toRadians(to);
+      return (float)Math.toDegrees(lerpAngleDegrees((float)fromRad, (float)toRad, t));
    }
 
    /**
@@ -76,69 +76,69 @@ public class RotationHelper {
     * ({@code a + (b-a)*t}). Used by render interpolation with partial ticks.
     * Do NOT use for the girls' step lerps (see class doc).
     */
-   public static Vec3d lerpVec3dDouble(Vec3d var0, Vec3d var1, double var2) {
-      Vec3d var4 = var1.subtract(var0);
-      return var0.add(new Vec3d(var4.x * var2, var4.y * var2, var4.z * var2));
+   public static Vec3d lerpVec3dDouble(Vec3d from, Vec3d to, double t) {
+      Vec3d delta = to.subtract(from);
+      return from.add(new Vec3d(delta.x * t, delta.y * t, delta.z * t));
    }
 
-   public static Vector3fSexmodSpecial lerpVector3f(Vector3fSexmodSpecial var0, Vector3fSexmodSpecial var1, double var2) {
-      Vector3fSexmodSpecial var4 = var1.add(var0);
-      return var0.subtract(var4.scale((float)var2));
+   public static Vector3fSexmodSpecial lerpVector3f(Vector3fSexmodSpecial from, Vector3fSexmodSpecial to, double t) {
+      Vector3fSexmodSpecial sum = to.add(from);
+      return from.subtract(sum.scale((float)t));
    }
 
-   public static Vec3i lerpVec3i(Vec3i var0, Vec3i var1, double var2) {
-      Vec3d var4 = new Vec3d(
-         var1.getX() - var0.getX(), var1.getY() - var0.getY(), var1.getZ() - var0.getZ()
+   public static Vec3i lerpVec3i(Vec3i from, Vec3i to, double t) {
+      Vec3d delta = new Vec3d(
+         to.getX() - from.getX(), to.getY() - from.getY(), to.getZ() - from.getZ()
       );
       return new Vec3i(
-         var0.getX() + var4.x * var2, var0.getY() + var4.y * var2, var0.getZ() + var4.z * var2
+         from.getX() + delta.x * t, from.getY() + delta.y * t, from.getZ() + delta.z * t
       );
    }
 
-   public static UnknownScreen lerpColor(UnknownScreen var0, UnknownScreen var1, double var2) {
-      UnknownScreen var4 = new UnknownScreen(var1.red - var0.red, var1.green - var0.green, var1.blue - var0.blue, var1.alpha - var0.alpha);
-      return new UnknownScreen((int)(var0.red + var4.red * var2), (int)(var0.green + var4.green * var2), (int)(var0.blue + var4.blue * var2), (int)(var0.alpha + var4.alpha * var2));
+   public static UnknownScreen lerpColor(UnknownScreen from, UnknownScreen to, double t) {
+      UnknownScreen diff = new UnknownScreen(to.red - from.red, to.green - from.green, to.blue - from.blue, to.alpha - from.alpha);
+      return new UnknownScreen((int)(from.red + diff.red * t), (int)(from.green + diff.green * t), (int)(from.blue + diff.blue * t), (int)(from.alpha + diff.alpha * t));
    }
 
-   public static double easeInOutQuad(double var0) {
-      return 1.0 - Math.pow(1.0 - var0, 4.0);
+   public static double easeInOutQuad(double t) {
+      return 1.0 - Math.pow(1.0 - t, 4.0);
    }
 
-   public static double easeInOutCubic(double var0) {
-      return 1.0 - Math.pow(1.0 - var0, 3.0);
+   public static double easeInOutCubic(double t) {
+      return 1.0 - Math.pow(1.0 - t, 3.0);
    }
 
-   public static double easeOutBack(double var0) {
-      double var2 = 1.70158;
-      double var4 = 2.70158;
-      return 1.0 + var4 * Math.pow(var0 - 1.0, 3.0) + var2 * Math.pow(var0 - 1.0, 2.0);
+   public static double easeOutBack(double t) {
+      double c1 = 1.70158;
+      double c3 = 2.70158;
+      return 1.0 + c3 * Math.pow(t - 1.0, 3.0) + c1 * Math.pow(t - 1.0, 2.0);
    }
 
-   public static double easeInBack(double var0) {
-      double var2 = 1.70158;
-      double var4 = 2.70158;
-      return var4 * var0 * var0 * var0 - var2 * var0 * var0;
+   public static double easeInBack(double t) {
+      double c1 = 1.70158;
+      double c3 = 2.70158;
+      return c3 * t * t * t - c1 * t * t;
    }
 
-   public static double smoothSine(double var0) {
-      return Math.sin(var0 * Math.PI / 2.0);
+   public static double smoothSine(double t) {
+      return Math.sin(t * Math.PI / 2.0);
    }
 
-   public static double easeInCubic(double var0) {
-      return var0 * var0 * var0;
+   public static double easeInCubic(double t) {
+      return t * t * t;
    }
 
-   public static double smoothStep(double var0) {
-      return -(Math.cos(Math.PI * var0) - 1.0) / 2.0;
+   public static double smoothStep(double t) {
+      return -(Math.cos(Math.PI * t) - 1.0) / 2.0;
    }
 
-   public static double easeInQuad(double var0) {
-      return 1.0 - Math.cos(Math.PI * var0 / 2.0);
+   public static double easeInQuad(double t) {
+      return 1.0 - Math.cos(Math.PI * t / 2.0);
    }
 
-   public static double lerpAngle(double var0, double var2, double var4) {
-      double var6 = (1.0 - Math.cos(var4 * Math.PI)) / 2.0;
-      return var0 * (1.0 - var6) + var2 * var6;
+   public static double lerpAngle(double from, double to, double t) {
+      double smooth = (1.0 - Math.cos(t * Math.PI)) / 2.0;
+      return from * (1.0 - smooth) + to * smooth;
    }
 
 }

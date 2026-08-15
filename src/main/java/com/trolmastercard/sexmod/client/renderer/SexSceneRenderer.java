@@ -87,11 +87,11 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    Vec3d lightingPos;
 
    @Override
-   public ResourceLocation getEntityTexture(SexSceneEntity var1) {
+   public ResourceLocation getEntityTexture(SexSceneEntity sceneEntity) {
       return new ResourceLocation("sexmod", "textures/entity/kobold/egg.png");
    }
-   public SexSceneRenderer(RenderManager var1, AnimatedGeoModel<?> var2) {
-      super(var1, (AnimatedGeoModel<SexSceneEntity>) (AnimatedGeoModel) var2);
+   public SexSceneRenderer(RenderManager renderManager, AnimatedGeoModel<?> model) {
+      super(renderManager, (AnimatedGeoModel<SexSceneEntity>) (AnimatedGeoModel) model);
       this.mc = Minecraft.getMinecraft();
       this.initBoneMaps();
    }
@@ -112,8 +112,8 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       this.bodyBoneMap.put("customLowerArmL", "lowerArmL");
       this.bodyBoneMap.put("customArmR", "armR");
       this.bodyBoneMap.put("customLowerArmR", "lowerArmR");
-      this.boneRotations.put("lowerArmR", var0 -> TrigMath.wrapDegrees(var0.getRightArmAngle()));
-      this.boneRotations.put("lowerArmL", var0 -> TrigMath.wrapDegrees(var0.getLeftArmAngle()));
+      this.boneRotations.put("lowerArmR", girl -> TrigMath.wrapDegrees(girl.getRightArmAngle()));
+      this.boneRotations.put("lowerArmL", girl -> TrigMath.wrapDegrees(girl.getLeftArmAngle()));
    }
 
    /**
@@ -122,13 +122,13 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * removed from the girl's custom-part set (and the new set uploaded to the
     * server) so stale parts don't linger client-side.
     */
-   boolean shouldRenderItemModel(SexSceneEntity var1) {
-      String var2 = var1.getModelCode();
-      if (var1.isItemModel) {
+   boolean shouldRenderItemModel(SexSceneEntity sceneEntity) {
+      String modelCode = sceneEntity.getModelCode();
+      if (sceneEntity.isItemModel) {
          return false;
       }
 
-      if (ServerWhitelistManager.isModelDisabled(var2)) {
+      if (ServerWhitelistManager.isModelDisabled(modelCode)) {
          return false;
       }
 
@@ -136,16 +136,16 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
          return true;
       }
 
-      UUID var3 = var1.getGirlIdFromCode();
-      BaseGirlEntity var4 = BaseGirlEntity.getClientGirlEntity(var3);
-      if (var4 == null) {
+      UUID girlUuid = sceneEntity.getGirlIdFromCode();
+      BaseGirlEntity girl = BaseGirlEntity.getClientGirlEntity(girlUuid);
+      if (girl == null) {
          return true;
       }
 
-      HashSet var5 = var4.getCustomPartsSet();
-      var5.remove(var2);
-      String var6 = BaseGirlEntity.encodeCustomParts(var5);
-      PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(var6, var1.getGirlIdFromCode()));
+      HashSet customParts = girl.getCustomPartsSet();
+      customParts.remove(modelCode);
+      String encodedParts = BaseGirlEntity.encodeCustomParts(customParts);
+      PacketHandler.networkWrapper.sendToServer(new UploadModelStringPacket(encodedParts, sceneEntity.getGirlIdFromCode()));
       return true;
    }
 
@@ -157,24 +157,24 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * world — they exist only for the render call. CLIENT-side.
     */
    @SideOnly(Side.CLIENT)
-   public static void renderSexSceneEffects(BaseGirlEntity var0, float var1) {
-      if (!var0.isDead) {
-         if (var0.world.isRemote) {
-            if (var0.hasCustomParts()) {
-               RenderManager var2 = Minecraft.getMinecraft().getRenderManager();
+   public static void renderSexSceneEffects(BaseGirlEntity girl, float partialTicks) {
+      if (!girl.isDead) {
+         if (girl.world.isRemote) {
+            if (girl.hasCustomParts()) {
+               RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
 
-               for (String var4 : var0.getCustomPartsSet()) {
-                  SexSceneEntity var5 = new SexSceneEntity(var0.world, var0.getGirlId(), var4);
+               for (String partCode : girl.getCustomPartsSet()) {
+                  SexSceneEntity scenePart = new SexSceneEntity(girl.world, girl.getGirlId(), partCode);
                   isCustom = true;
-                  var2.renderEntity(var5, 0.0, 0.0, 0.0, 0.0F, var1, false);
+                  renderManager.renderEntity(scenePart, 0.0, 0.0, 0.0, 0.0F, partialTicks, false);
                }
             }
          }
       }
    }
 
-   public boolean shouldRender(SexSceneEntity var1, ICamera var2, double var3, double var5, double var7) {
-      return super.shouldRender(var1, var2, var3, var5, var7);
+   public boolean shouldRender(SexSceneEntity entity, ICamera camera, double x, double y, double z) {
+      return super.shouldRender(entity, camera, x, y, z);
    }
 
    /**
@@ -182,10 +182,10 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * {@code isCustom} flag (consumed on read) admit the render — all other
     * angles are ignored. See class javadoc for the sentinel semantics.
     */
-   boolean isRenderAngle(float var1) {
-      if (var1 == 2.876945F) {
+   boolean isRenderAngle(float yaw) {
+      if (yaw == 2.876945F) {
          return true;
-      } else if (var1 == 1.876945F) {
+      } else if (yaw == 1.876945F) {
          return true;
       } else if (isCustom) {
          isCustom = false;
@@ -200,18 +200,18 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * SEXMOD lights the part from the entity's look vector (fake shading),
     * FULLBRIGHT disables GL lighting, DEFAULT keeps world lighting.
     */
-   void renderModelData(ServerWhitelistManager.ModelData var1, SexSceneEntity var2, float var3) {
-      if (var1 != null && var1.getLightingType() != LightingType.DEFAULT) {
+   void renderModelData(ServerWhitelistManager.ModelData modelData, SexSceneEntity sceneEntity, float partialTicks) {
+      if (modelData != null && modelData.getLightingType() != LightingType.DEFAULT) {
          GL11.glDisable(2896);
-         this.lightingPos = var1.getLightingType() == LightingType.SEXMOD ? WorldUtils.getEntityLookVector(var2, var3) : null;
+         this.lightingPos = modelData.getLightingType() == LightingType.SEXMOD ? WorldUtils.getEntityLookVector(sceneEntity, partialTicks) : null;
       } else {
          this.lightingPos = null;
       }
    }
 
    @Override
-   public void doRender(SexSceneEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      this.doRenderScene(var1, var2, var4, var6, var8, var9);
+   public void doRender(SexSceneEntity entity, double x, double y, double z, float entityYaw, float partialTicks) {
+      this.doRenderScene(entity, x, y, z, entityYaw, partialTicks);
    }
 
    /**
@@ -221,51 +221,51 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * (sentinel angles) render at their world position. Tint = the host's
     * block light level (clamped 10..15).
     */
-   public void doRenderScene(SexSceneEntity var1, double var2, double var4, double var6, float var8, float var9) {
-      if (this.isRenderAngle(var9)) {
+   public void doRenderScene(SexSceneEntity entity, double x, double y, double z, float entityYaw, float partialTicks) {
+      if (this.isRenderAngle(partialTicks)) {
          if (!ServerWhitelistManager.isGlobalRenderingDisabled) {
-            if (!this.shouldRenderItemModel(var1)) {
-               var1.matrixStack = new MatrixStack();
-               ServerWhitelistManager.ModelData var10 = ServerWhitelistManager.getModelDataForGirl(var1.getModelCode());
-               this.sceneEntity = var1;
-               this.modelData = var10;
-               this.renderModelData(var10, var1, var9);
-               if (var9 != 1.876945F && var9 != 2.876945F) {
-                  UUID var11 = var1.getGirlIdFromCode();
-                  if (var11 != null) {
-                     BaseGirlEntity var13 = BaseGirlEntity.getClientGirlEntity(var11);
-                     if (var13 != null) {
-                        if (var10 == null || var10.isDisabled() || var13.getOutfitIndex() != 0) {
-                           Object var12;
-                           if (!(var13 instanceof AbstractPlayerGirlEntity)) {
-                              var12 = var13;
+            if (!this.shouldRenderItemModel(entity)) {
+               entity.matrixStack = new MatrixStack();
+               ServerWhitelistManager.ModelData modelData = ServerWhitelistManager.getModelDataForGirl(entity.getModelCode());
+               this.sceneEntity = entity;
+               this.modelData = modelData;
+               this.renderModelData(modelData, entity, partialTicks);
+               if (partialTicks != 1.876945F && partialTicks != 2.876945F) {
+                  UUID girlUuid = entity.getGirlIdFromCode();
+                  if (girlUuid != null) {
+                     BaseGirlEntity girl = BaseGirlEntity.getClientGirlEntity(girlUuid);
+                     if (girl != null) {
+                        if (modelData == null || modelData.isDisabled() || girl.getOutfitIndex() != 0) {
+                           Object renderEntity;
+                           if (!(girl instanceof AbstractPlayerGirlEntity)) {
+                              renderEntity = girl;
                            } else {
-                              UUID var14 = ((AbstractPlayerGirlEntity)var13).getOwnerUserUUID();
-                              if (var14 == null) {
+                              UUID ownerUuid = ((AbstractPlayerGirlEntity)girl).getOwnerUserUUID();
+                              if (ownerUuid == null) {
                                  return;
                               }
 
-                              EntityPlayer var15 = var1.world.getPlayerEntityByUUID(var14);
-                              var12 = var15 == null ? var13 : var15;
+                              EntityPlayer owner = entity.world.getPlayerEntityByUUID(ownerUuid);
+                              renderEntity = owner == null ? girl : owner;
                            }
 
-                           Vec3d var19 = var13.renderCustomModelTransform(this.mc, var1, (EntityLivingBase)var12, var9);
-                           BlockPos var20 = new BlockPos(
-                              Math.floor(((EntityLivingBase)var12).posX),
-                              Math.floor(((EntityLivingBase)var12).posY),
-                              Math.floor(((EntityLivingBase)var12).posZ)
+                           Vec3d transformPos = girl.renderCustomModelTransform(this.mc, entity, (EntityLivingBase)renderEntity, partialTicks);
+                           BlockPos lightPos = new BlockPos(
+                              Math.floor(((EntityLivingBase)renderEntity).posX),
+                              Math.floor(((EntityLivingBase)renderEntity).posY),
+                              Math.floor(((EntityLivingBase)renderEntity).posZ)
                            );
-                           int var16 = ((EntityLivingBase)var12).world.getLight(var20, true);
-                           Vec3d var17 = new Vec3d(1.0, 1.0, 1.0);
-                           float var18 = ThreadNames.clampFloat(var16, 10.0F, 15.0F) / 15.0F;
-                           this.colorScale = new Vec3d(var17.x * var18, var17.y * var18, var17.z * var18);
+                           int lightLevel = ((EntityLivingBase)renderEntity).world.getLight(lightPos, true);
+                           Vec3d whiteColor = new Vec3d(1.0, 1.0, 1.0);
+                           float lightScale = ThreadNames.clampFloat(lightLevel, 10.0F, 15.0F) / 15.0F;
+                           this.colorScale = new Vec3d(whiteColor.x * lightScale, whiteColor.y * lightScale, whiteColor.z * lightScale);
                            GlStateManager.pushMatrix();
-                           GlStateManager.translate(var19.x, var19.y, var19.z);
-                           if (var13.isAnchored()) {
-                              GlStateManager.rotate(var13.getYawRotation(), 0.0F, 1.0F, 0.0F);
+                           GlStateManager.translate(transformPos.x, transformPos.y, transformPos.z);
+                           if (girl.isAnchored()) {
+                              GlStateManager.rotate(girl.getYawRotation(), 0.0F, 1.0F, 0.0F);
                            }
 
-                           super.doRender(var1, 0.0, 0.0, 0.0, var8, var9);
+                           super.doRender(entity, 0.0, 0.0, 0.0, entityYaw, partialTicks);
                            GlStateManager.popMatrix();
                            GL11.glEnable(2896);
                         }
@@ -273,7 +273,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                   }
                } else {
                   this.colorScale = new Vec3d(1.0, 1.0, 1.0);
-                  super.doRender(var1, var2, var4, var6, var8, var9);
+                  super.doRender(entity, x, y, z, entityYaw, partialTicks);
                   GL11.glEnable(2896);
                }
             }
@@ -287,53 +287,53 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * fields of the temp entity are overwritten — the entity code tolerates
     * this); otherwise the host entity's lerped position is used.
     */
-   public static Vec3d getSceneEntityPosition(Minecraft var0, SexSceneEntity var1, EntityLivingBase var2, BaseGirlEntity var3, float var4) {
-      Vec3d var5;
-      if (var3.isAnchored()) {
-         Vec3d var6 = var3.getTargetPosition();
-         float var7 = var3.getYawRotation();
-         var1.prevPosX = var6.x;
-         var1.prevPosY = var6.y;
-         var1.prevPosZ = var6.z;
-         var1.lastTickPosX = var6.x;
-         var1.lastTickPosY = var6.y;
-         var1.lastTickPosZ = var6.z;
-         var1.posX = var6.x;
-         var1.posY = var6.y;
-         var1.posZ = var6.z;
-         var1.rotationYaw = var7;
-         var1.prevRotationYaw = var7;
-         var1.rotationYawHead = var7;
-         var1.prevRotationYawHead = var7;
-         var1.renderYawOffset = var7;
-         var1.prevRenderYawOffset = var7;
-         var1.rotationPitch = var7;
-         var1.prevRotationPitch = var7;
-         var5 = var6;
+   public static Vec3d getSceneEntityPosition(Minecraft mc, SexSceneEntity sceneEntity, EntityLivingBase host, BaseGirlEntity girl, float partialTicks) {
+      Vec3d result;
+      if (girl.isAnchored()) {
+         Vec3d targetPos = girl.getTargetPosition();
+         float yaw = girl.getYawRotation();
+         sceneEntity.prevPosX = targetPos.x;
+         sceneEntity.prevPosY = targetPos.y;
+         sceneEntity.prevPosZ = targetPos.z;
+         sceneEntity.lastTickPosX = targetPos.x;
+         sceneEntity.lastTickPosY = targetPos.y;
+         sceneEntity.lastTickPosZ = targetPos.z;
+         sceneEntity.posX = targetPos.x;
+         sceneEntity.posY = targetPos.y;
+         sceneEntity.posZ = targetPos.z;
+         sceneEntity.rotationYaw = yaw;
+         sceneEntity.prevRotationYaw = yaw;
+         sceneEntity.rotationYawHead = yaw;
+         sceneEntity.prevRotationYawHead = yaw;
+         sceneEntity.renderYawOffset = yaw;
+         sceneEntity.prevRenderYawOffset = yaw;
+         sceneEntity.rotationPitch = yaw;
+         sceneEntity.prevRotationPitch = yaw;
+         result = targetPos;
       } else {
-         var1.rotationYaw = var2.rotationYaw;
-         var1.prevRotationYaw = var2.prevRotationYaw;
-         var1.rotationYawHead = var2.rotationYawHead;
-         var1.prevRotationYawHead = var2.prevRotationYawHead;
-         var1.renderYawOffset = var2.renderYawOffset;
-         var1.prevRenderYawOffset = var2.prevRenderYawOffset;
-         var1.rotationPitch = var2.rotationPitch;
-         var1.prevRotationPitch = var2.prevRotationPitch;
-         var1.prevPosX = var2.prevPosX;
-         var1.prevPosY = var2.prevPosY;
-         var1.prevPosZ = var2.prevPosZ;
-         var1.lastTickPosX = var2.lastTickPosX;
-         var1.lastTickPosY = var2.lastTickPosY;
-         var1.lastTickPosZ = var2.lastTickPosZ;
-         var1.posX = var2.posX;
-         var1.posY = var2.posY;
-         var1.posZ = var2.posZ;
-         var5 = RotationHelper.lerpVec3dDouble(new Vec3d(var2.lastTickPosX, var2.lastTickPosY, var2.lastTickPosZ), var2.getPositionVector(), var4);
+         sceneEntity.rotationYaw = host.rotationYaw;
+         sceneEntity.prevRotationYaw = host.prevRotationYaw;
+         sceneEntity.rotationYawHead = host.rotationYawHead;
+         sceneEntity.prevRotationYawHead = host.prevRotationYawHead;
+         sceneEntity.renderYawOffset = host.renderYawOffset;
+         sceneEntity.prevRenderYawOffset = host.prevRenderYawOffset;
+         sceneEntity.rotationPitch = host.rotationPitch;
+         sceneEntity.prevRotationPitch = host.prevRotationPitch;
+         sceneEntity.prevPosX = host.prevPosX;
+         sceneEntity.prevPosY = host.prevPosY;
+         sceneEntity.prevPosZ = host.prevPosZ;
+         sceneEntity.lastTickPosX = host.lastTickPosX;
+         sceneEntity.lastTickPosY = host.lastTickPosY;
+         sceneEntity.lastTickPosZ = host.lastTickPosZ;
+         sceneEntity.posX = host.posX;
+         sceneEntity.posY = host.posY;
+         sceneEntity.posZ = host.posZ;
+         result = RotationHelper.lerpVec3dDouble(new Vec3d(host.lastTickPosX, host.lastTickPosY, host.lastTickPosZ), host.getPositionVector(), partialTicks);
       }
 
-      EntityPlayerSP var8 = var0.player;
-      Vec3d var9 = RotationHelper.lerpVec3dDouble(new Vec3d(var8.lastTickPosX, var8.lastTickPosY, var8.lastTickPosZ), var8.getPositionVector(), var4);
-      return var5.subtract(var9);
+      EntityPlayerSP localPlayer = mc.player;
+      Vec3d localPlayerPos = RotationHelper.lerpVec3dDouble(new Vec3d(localPlayer.lastTickPosX, localPlayer.lastTickPosY, localPlayer.lastTickPosZ), localPlayer.getPositionVector(), partialTicks);
+      return result.subtract(localPlayerPos);
    }
 
    /**
@@ -342,19 +342,19 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * the entity's own matrix stack.
     */
    @Override
-   public void render(GeoModel var1, SexSceneEntity var2, float var3, float var4, float var5, float var6, float var7) {
+   public void render(GeoModel model, SexSceneEntity entity, float partialTicks, float r, float g, float b, float a) {
       GlStateManager.disableCull();
       GlStateManager.enableRescaleNormal();
-      BufferBuilder var8 = Tessellator.getInstance().getBuffer();
-      var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
-      for (GeoBone var10 : var1.topLevelBones) {
-         if (var3 != 1.876945F) {
-            this.renderBone(var2, var10, var3);
+      for (GeoBone bone : model.topLevelBones) {
+         if (partialTicks != 1.876945F) {
+            this.renderBone(entity, bone, partialTicks);
          }
 
-         var2.matrixStack.translate(-var10.getPivotX() / 16.0F, -var10.getPivotY() / 16.0F, -var10.getPivotZ() / 16.0F);
-         this.renderRecursively(var8, var10, var4, var5, var6, var7);
+         entity.matrixStack.translate(-bone.getPivotX() / 16.0F, -bone.getPivotY() / 16.0F, -bone.getPivotZ() / 16.0F);
+         this.renderRecursively(buffer, bone, r, g, b, a);
       }
 
       Tessellator.getInstance().draw();
@@ -366,37 +366,37 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * The host entity whose pose the part follows: the owning player for
     * player-girls, else the girl itself.
     */
-   EntityLivingBase getRenderEntityLiving(SexSceneEntity var1) {
-      BaseGirlEntity var3 = this.getRenderGirl(var1);
-      if (var3 == null) {
+   EntityLivingBase getRenderEntityLiving(SexSceneEntity sceneEntity) {
+      BaseGirlEntity girl = this.getRenderGirl(sceneEntity);
+      if (girl == null) {
          return null;
       }
 
-      Object var2;
-      if (!(var3 instanceof AbstractPlayerGirlEntity)) {
-         var2 = var3;
+      Object renderEntity;
+      if (!(girl instanceof AbstractPlayerGirlEntity)) {
+         renderEntity = girl;
       } else {
-         EntityPlayer var4 = var1.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var3).getOwnerUserUUID());
-         var2 = var4 == null ? var3 : var4;
+         EntityPlayer owner = sceneEntity.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)girl).getOwnerUserUUID());
+         renderEntity = owner == null ? girl : owner;
       }
 
-      return (EntityLivingBase)var2;
+      return (EntityLivingBase)renderEntity;
    }
 
    /**
     * The host girl for the part (registry lookup, fallback to the client girl
     * list).
     */
-   BaseGirlEntity getRenderGirl(SexSceneEntity var1) {
-      UUID var2 = var1.getGirlIdFromCode();
-      BaseGirlEntity var3 = GirlRegistry.getGirl(var2);
-      return var3 != null ? var3 : BaseGirlEntity.getClientGirlEntity(var2);
+   BaseGirlEntity getRenderGirl(SexSceneEntity sceneEntity) {
+      UUID girlUuid = sceneEntity.getGirlIdFromCode();
+      BaseGirlEntity girl = GirlRegistry.getGirl(girlUuid);
+      return girl != null ? girl : BaseGirlEntity.getClientGirlEntity(girlUuid);
    }
 
-   void renderBone(SexSceneEntity var1, GeoBone var2, float var3) {
-      String var4 = this.getBoneName(var1);
-      if (var4 != null) {
-         this.renderBoneEffect(var1, var2, var3, var4);
+   void renderBone(SexSceneEntity sceneEntity, GeoBone bone, float partialTicks) {
+      String boneName = this.getBoneName(sceneEntity);
+      if (boneName != null) {
+         this.renderBoneEffect(sceneEntity, bone, partialTicks, boneName);
       }
    }
 
@@ -405,25 +405,25 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * by the girl's bone matrix stack for the mapped bone name; item models
     * are scaled 0.5 and rotated by {@code ClothingScreen.currentModelYaw}.
     */
-   void renderBoneEffect(SexSceneEntity var1, GeoBone var2, float var3, String var4) {
-      BaseGirlEntity var5 = this.getRenderGirl(var1);
-      this.getRenderEntityLiving(var1);
-      var1.matrixStack = var5.getBoneMatrixStack(var4, false);
-      if (var1.isItemModel && var3 == 2.876945F) {
-         var1.matrixStack.scale(0.5F, 0.5F, 0.5F);
-         var1.matrixStack.rotateY((float)Math.toRadians(-ClothingScreen.currentModelYaw));
+   void renderBoneEffect(SexSceneEntity sceneEntity, GeoBone bone, float partialTicks, String boneName) {
+      BaseGirlEntity girl = this.getRenderGirl(sceneEntity);
+      this.getRenderEntityLiving(sceneEntity);
+      sceneEntity.matrixStack = girl.getBoneMatrixStack(boneName, false);
+      if (sceneEntity.isItemModel && partialTicks == 2.876945F) {
+         sceneEntity.matrixStack.scale(0.5F, 0.5F, 0.5F);
+         sceneEntity.matrixStack.rotateY((float)Math.toRadians(-ClothingScreen.currentModelYaw));
       }
    }
 
-   String getBoneName(SexSceneEntity var1) {
-      if (var1.isItemModel) {
-         return var1.boneType.boneName;
+   String getBoneName(SexSceneEntity sceneEntity) {
+      if (sceneEntity.isItemModel) {
+         return sceneEntity.boneType.boneName;
       } else {
-         ServerWhitelistManager.ModelData var2 = ServerWhitelistManager.getModelDataForGirl(var1.getModelCode());
-         if (var2 == null) {
+         ServerWhitelistManager.ModelData modelData = ServerWhitelistManager.getModelDataForGirl(sceneEntity.getModelCode());
+         if (modelData == null) {
             return null;
          } else {
-            return BoneType.CUSTOM_BONE.equals(var2.getBoneType()) ? var2.getModelName() : var2.getBoneType().boneName;
+            return BoneType.CUSTOM_BONE.equals(modelData.getBoneType()) ? modelData.getModelName() : modelData.getBoneType().boneName;
          }
       }
    }
@@ -433,32 +433,32 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * render, children (unless hidden), pop (with IllegalStateException guard).
     */
    @Override
-   public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
+   public void renderRecursively(BufferBuilder buffer, GeoBone bone, float r, float g, float b, float a) {
       this.sceneEntity.matrixStack.push();
-      this.sceneEntity.matrixStack.translate(var2);
-      this.sceneEntity.matrixStack.moveToPivot(var2);
-      this.sceneEntity.matrixStack.rotate(var2);
-      this.sceneEntity.matrixStack.scale(var2);
-      this.sceneEntity.matrixStack.moveBackFromPivot(var2);
-      if (!var2.isHidden()) {
-         for (GeoCube var8 : var2.childCubes) {
+      this.sceneEntity.matrixStack.translate(bone);
+      this.sceneEntity.matrixStack.moveToPivot(bone);
+      this.sceneEntity.matrixStack.rotate(bone);
+      this.sceneEntity.matrixStack.scale(bone);
+      this.sceneEntity.matrixStack.moveBackFromPivot(bone);
+      if (!bone.isHidden()) {
+         for (GeoCube cube : bone.childCubes) {
             this.sceneEntity.matrixStack.push();
             GlStateManager.pushMatrix();
-            this.renderCube(var1, var8, var3, var4, var5, var6);
+            this.renderCube(buffer, cube, r, g, b, a);
             GlStateManager.popMatrix();
             this.sceneEntity.matrixStack.pop();
          }
       }
 
-      if (!var2.childBonesAreHiddenToo()) {
-         for (GeoBone var11 : var2.childBones) {
-            this.renderRecursively(var1, var11, var3, var4, var5, var6);
+      if (!bone.childBonesAreHiddenToo()) {
+         for (GeoBone childBone : bone.childBones) {
+            this.renderRecursively(buffer, childBone, r, g, b, a);
          }
       }
 
       try {
          this.sceneEntity.matrixStack.pop();
-      } catch (IllegalStateException var9) {
+      } catch (IllegalStateException e) {
       }
    }
 
@@ -468,38 +468,38 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     * emitted through the entity matrix stack.
     */
    @Override
-   public void renderCube(BufferBuilder var1, GeoCube var2, float var3, float var4, float var5, float var6) {
-      this.sceneEntity.matrixStack.moveToPivot(var2);
-      this.sceneEntity.matrixStack.rotate(var2);
-      this.sceneEntity.matrixStack.moveBackFromPivot(var2);
+   public void renderCube(BufferBuilder buffer, GeoCube cube, float r, float g, float b, float a) {
+      this.sceneEntity.matrixStack.moveToPivot(cube);
+      this.sceneEntity.matrixStack.rotate(cube);
+      this.sceneEntity.matrixStack.moveBackFromPivot(cube);
 
-      for (GeoQuad var10 : var2.quads) {
-         if (var10 != null) {
-            Vector3f var11 = new Vector3f(var10.normal.getX(), var10.normal.getY(), var10.normal.getZ());
-            this.sceneEntity.matrixStack.getNormalMatrix().transform(var11);
-            if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var11.getX() < 0.0F) {
-               var11.x *= -1.0F;
+      for (GeoQuad quad : cube.quads) {
+         if (quad != null) {
+            Vector3f normal = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
+            this.sceneEntity.matrixStack.getNormalMatrix().transform(normal);
+            if ((cube.size.y == 0.0F || cube.size.z == 0.0F) && normal.getX() < 0.0F) {
+               normal.x *= -1.0F;
             }
 
-            if ((var2.size.x == 0.0F || var2.size.z == 0.0F) && var11.getY() < 0.0F) {
-               var11.y *= -1.0F;
+            if ((cube.size.x == 0.0F || cube.size.z == 0.0F) && normal.getY() < 0.0F) {
+               normal.y *= -1.0F;
             }
 
-            if ((var2.size.x == 0.0F || var2.size.y == 0.0F) && var11.getZ() < 0.0F) {
-               var11.z *= -1.0F;
+            if ((cube.size.x == 0.0F || cube.size.y == 0.0F) && normal.getZ() < 0.0F) {
+               normal.z *= -1.0F;
             }
 
             if (this.lightingPos != null) {
-               this.colorScale = BodyParts.offsetBonePosition(this.colorScale, var11, this.lightingPos);
+               this.colorScale = BodyParts.offsetBonePosition(this.colorScale, normal, this.lightingPos);
             }
 
-            for (GeoVertex var15 : var10.vertices) {
-               Vector4f var16 = new Vector4f(var15.position.getX(), var15.position.getY(), var15.position.getZ(), 1.0F);
-               this.sceneEntity.matrixStack.getModelMatrix().transform(var16);
-               var1.pos(var16.getX(), var16.getY(), var16.getZ())
-                  .tex(var15.textureU, var15.textureV)
-                  .color((float)this.colorScale.x, (float)this.colorScale.y, (float)this.colorScale.z, var6)
-                  .normal(var11.getX(), var11.getY(), var11.getZ())
+            for (GeoVertex vertex : quad.vertices) {
+               Vector4f matrixPos = new Vector4f(vertex.position.getX(), vertex.position.getY(), vertex.position.getZ(), 1.0F);
+               this.sceneEntity.matrixStack.getModelMatrix().transform(matrixPos);
+               buffer.pos(matrixPos.getX(), matrixPos.getY(), matrixPos.getZ())
+                  .tex(vertex.textureU, vertex.textureV)
+                  .color((float)this.colorScale.x, (float)this.colorScale.y, (float)this.colorScale.z, a)
+                  .normal(normal.getX(), normal.getY(), normal.getZ())
                   .endVertex();
             }
          }

@@ -79,8 +79,8 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
       .getSerializer()
       .createKey(111);
 
-   protected AbstractGirlNpcEntity(World var1) {
-      super(var1);
+   protected AbstractGirlNpcEntity(World world) {
+      super(world);
       if (this.inventory.getStackInSlot(0) == ItemStack.EMPTY) {
          this.inventory.setStackInSlot(0, new ItemStack(Items.IRON_SWORD));
       }
@@ -127,7 +127,7 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
          if (!this.hasMaster()) {
             this.heal(1.0F);
          } else {
-            List var1 = this.world
+            List mobs = this.world
                .getEntitiesWithinAABB(
                   EntityMob.class,
                   new AxisAlignedBB(
@@ -135,8 +135,8 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
                      new BlockPos(this.posX + 7.0, this.posY + 1.0, this.posZ + 7.0)
                   )
                );
-            int var2 = var1.isEmpty() ? 4 : 1;
-            this.heal(var2);
+            int healAmount = mobs.isEmpty() ? 4 : 1;
+            this.heal(healAmount);
             ((WorldServer)this.world)
                .spawnParticle(
                   EnumParticleTypes.HEART,
@@ -144,7 +144,7 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
                   this.posX,
                   this.posY + 1.0 + Reference.RANDOM.nextDouble(),
                   this.posZ,
-                  var2,
+                  healAmount,
                   1.0,
                   1.0,
                   1.0,
@@ -178,41 +178,41 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
     */
    @SideOnly(Side.CLIENT)
    @Override
-   public void doAction(String var1, UUID var2) {
-      if ("action.names.followme".equals(var1)) {
-         this.changeDataParameterFromClient("master", var2.toString());
-      } else if ("action.names.stopfollowme".equals(var1)) {
+   public void doAction(String actionName, UUID playerUuid) {
+      if ("action.names.followme".equals(actionName)) {
+         this.changeDataParameterFromClient("master", playerUuid.toString());
+      } else if ("action.names.stopfollowme".equals(actionName)) {
          this.goHome();
-      } else if ("action.names.equipment".equals(var1)) {
-         EntityPlayerSP var3 = Minecraft.getMinecraft().player;
-         PacketHandler.networkWrapper.sendToServer(new PlayerActionPacket(this.getGirlId(), var3.getPersistentID()));
-      } else if ("action.names.gohome".equals(var1)) {
+      } else if ("action.names.equipment".equals(actionName)) {
+         EntityPlayerSP player = Minecraft.getMinecraft().player;
+         PacketHandler.networkWrapper.sendToServer(new PlayerActionPacket(this.getGirlId(), player.getPersistentID()));
+      } else if ("action.names.gohome".equals(actionName)) {
          this.goHome();
          PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
-      } else if ("action.names.setnewhome".equals(var1)) {
+      } else if ("action.names.setnewhome".equals(actionName)) {
          this.onArriveHome();
          PacketHandler.networkWrapper.sendToServer(new SetNewHomePacket(this.getGirlId(), new Vec3d(this.getPosition())));
       }
    }
 
    @Override
-   public void writeEntityToNBT(NBTTagCompound var1) {
-      var1.setTag("inventory", this.inventory.serializeNBT());
-      super.writeEntityToNBT(var1);
+   public void writeEntityToNBT(NBTTagCompound nbt) {
+      nbt.setTag("inventory", this.inventory.serializeNBT());
+      super.writeEntityToNBT(nbt);
    }
 
    @Override
-   public void readEntityFromNBT(NBTTagCompound var1) {
-      super.readEntityFromNBT(var1);
-      this.inventory.deserializeNBT(var1.getCompoundTag("inventory"));
+   public void readEntityFromNBT(NBTTagCompound nbt) {
+      super.readEntityFromNBT(nbt);
+      this.inventory.deserializeNBT(nbt.getCompoundTag("inventory"));
    }
 
-   public boolean hasCapability(Capability var1, EnumFacing var2) {
-      return var1 == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(var1, var2);
+   public boolean hasCapability(Capability capability, EnumFacing facing) {
+      return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(capability, facing);
    }
 
-   public Object getCapability(Capability var1, EnumFacing var2) {
-      return var1 == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ? this.inventory : super.getCapability(var1, var2);
+   public Object getCapability(Capability capability, EnumFacing facing) {
+      return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ? this.inventory : super.getCapability(capability, facing);
    }
 
 }

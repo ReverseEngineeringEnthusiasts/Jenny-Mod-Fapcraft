@@ -18,36 +18,36 @@ import net.minecraft.world.gen.structure.template.TemplateManager;
 public class GirlHouseGenerator extends WorldGenerator implements IWorldGen {
    public String structureName;
 
-   public GirlHouseGenerator(String var1) {
-      this.structureName = var1;
+   public GirlHouseGenerator(String structureName) {
+      this.structureName = structureName;
    }
 
-   public void generateStructure(World var1, BlockPos var2) {
-      MinecraftServer var3 = var1.getMinecraftServer();
-      TemplateManager var4 = worldServer.getStructureTemplateManager();
-      ResourceLocation var5 = new ResourceLocation("sexmod", this.structureName);
-      Template var6 = var4.get(var3, var5);
-      if (var6 != null) {
-         IBlockState var7 = var1.getBlockState(var2);
-         var1.notifyBlockUpdate(var2, var7, var7, 3);
-         var6.addBlocksToWorld(var1, var2, settings);
+   public void generateStructure(World world, BlockPos pos) {
+      MinecraftServer server = world.getMinecraftServer();
+      TemplateManager templateManager = worldServer.getStructureTemplateManager();
+      ResourceLocation location = new ResourceLocation("sexmod", this.structureName);
+      Template template = templateManager.get(server, location);
+      if (template != null) {
+         IBlockState state = world.getBlockState(pos);
+         world.notifyBlockUpdate(pos, state, state, 3);
+         template.addBlocksToWorld(world, pos, settings);
       }
    }
 
-   public void generateStructureRotated(World var1, BlockPos var2, Rotation var3) {
-      MinecraftServer var4 = var1.getMinecraftServer();
-      TemplateManager var5 = worldServer.getStructureTemplateManager();
-      ResourceLocation var6 = new ResourceLocation("sexmod", this.structureName);
-      Template var7 = var5.get(var4, var6);
-      if (var7 != null) {
-         IBlockState var8 = var1.getBlockState(var2);
-         var1.notifyBlockUpdate(var2, var8, var8, 2);
-         var7.addBlocksToWorld(var1, var2, settings.setRotation(var3));
+   public void generateStructureRotated(World world, BlockPos pos, Rotation rotation) {
+      MinecraftServer server = world.getMinecraftServer();
+      TemplateManager templateManager = worldServer.getStructureTemplateManager();
+      ResourceLocation location = new ResourceLocation("sexmod", this.structureName);
+      Template template = templateManager.get(server, location);
+      if (template != null) {
+         IBlockState state = world.getBlockState(pos);
+         world.notifyBlockUpdate(pos, state, state, 2);
+         template.addBlocksToWorld(world, pos, settings.setRotation(rotation));
       }
    }
 
-   public boolean generate(World var1, Random var2, BlockPos var3) {
-      this.generateStructure(var1, var3);
+   public boolean generate(World world, Random random, BlockPos pos) {
+      this.generateStructure(world, pos);
       return true;
    }
 }

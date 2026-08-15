@@ -99,8 +99,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    int aa = 1;
    boolean aj = false;
 
-   public EllieEntity(World var1) {
-      super(var1);
+   public EllieEntity(World world) {
+      super(world);
       this.slashSwordRot = -85;
       this.stabSwordRot = -175;
       this.holdBowRot = -85;
@@ -145,16 +145,16 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     */
    @Override
    public void setDismounted() {
-      UUID var1 = this.getInteractionPlayerUUID();
-      if (var1 == null) {
+      UUID uuid = this.getInteractionPlayerUUID();
+      if (uuid == null) {
          this.resetSitState();
       } else {
-         EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
-         if (var2 == null) {
+         EntityPlayer player = this.world.getPlayerEntityByUUID(uuid);
+         if (player == null) {
             this.resetSitState();
          } else {
-            float var3 = var2.rotationYaw - 180.0F;
-            this.setYawRotation(var3);
+            float yaw = player.rotationYaw - 180.0F;
+            this.setYawRotation(yaw);
             this.setCurrentAction(Action.CARRY_INTRO);
             this.setAnchored(true);
          }
@@ -167,19 +167,19 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    /**
-    * CLIENT: the interaction-menu gate. With the sex flag ({@code var2})
+    * CLIENT: the interaction-menu gate. With the sex flag ({@code dressUp})
     * offers cowgirl/missionary; otherwise opens the dress-up strip menu when
     * already nude, or the "Face fuck" dialogue when dressed.
     */
-   public boolean canJoinPlayer(EntityPlayer var1, boolean var2) {
-      if (var2) {
-         openInventoryGui(var1, this, new String[]{"action.names.cowgirl", "action.names.missionary"}, false);
+   public boolean canJoinPlayer(EntityPlayer player, boolean dressUp) {
+      if (dressUp) {
+         openInventoryGui(player, this, new String[]{"action.names.cowgirl", "action.names.missionary"}, false);
          return true;
       } else if ((Integer)this.entityDataManager.get(OUTFIT_INDEX) == 0) {
-         openInventoryGui(var1, this, new String[]{"action.names.dressup"}, true);
+         openInventoryGui(player, this, new String[]{"action.names.dressup"}, true);
          return true;
       } else {
-         openInventoryGui(var1, this, new String[]{"Face fuck"}, true);
+         openInventoryGui(player, this, new String[]{"Face fuck"}, true);
          return true;
       }
    }
@@ -200,10 +200,10 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     * {@link #U()} reads the stored choice server-side.
     */
    @Override
-   public void doAction(String var1, UUID var2) {
-      super.doAction(var1, var2);
+   public void doAction(String action, UUID uuid) {
+      super.doAction(action, uuid);
       this.aq = true;
-      switch (var1) {
+      switch (action) {
          case "action.names.missionary":
             this.setCurrentAction(Action.HUGSELECTED);
             this.changeDataParameterFromClient("animationFollowUp", "Missionary");
@@ -218,13 +218,13 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             this.changeDataParameterFromClient("animationFollowUp", "");
             break;
          case "Face fuck":
-            this.triggerActionSync(true, true, var2);
+            this.triggerActionSync(true, true, uuid);
             HandlePlayerMovement.setMovementLock(false);
       }
    }
 
    @Override
-   protected void alignPlayerToGirl(EntityPlayerMP var1, boolean var2) {
+   protected void alignPlayerToGirl(EntityPlayerMP playerMP, boolean force) {
    }
 
    /**
@@ -235,14 +235,14 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     */
    @Override
    public void setCurrentAction(Action action) {
-      Action var2 = this.getCurrentAction();
+      Action currentAction = this.getCurrentAction();
       if (action == Action.HUGSELECTED && !this.world.isRemote) {
          this.ai = 79;
       }
 
-      if (var2 != Action.MISSIONARY_CUM || action != Action.MISSIONARY_FAST && action != Action.MISSIONARY_SLOW) {
-         if (var2 != Action.COWGIRLCUM || action != Action.COWGIRLSLOW && action != Action.COWGIRLFAST) {
-            if (var2 != Action.CARRY_CUM || action != Action.CARRY_SLOW && action != Action.CARRY_FAST) {
+      if (currentAction != Action.MISSIONARY_CUM || action != Action.MISSIONARY_FAST && action != Action.MISSIONARY_SLOW) {
+         if (currentAction != Action.COWGIRLCUM || action != Action.COWGIRLSLOW && action != Action.COWGIRLFAST) {
+            if (currentAction != Action.CARRY_CUM || action != Action.CARRY_SLOW && action != Action.CARRY_FAST) {
                if (action == Action.CARRY_INTRO) {
                   this.ak = 0;
                }
@@ -289,13 +289,13 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          if (++this.ak >= 110) {
             this.ak = -1;
             if (this.getCurrentAction() == Action.CARRY_INTRO) {
-               UUID var1 = this.getInteractionPlayerUUID();
-               if (var1 != null) {
-                  EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
-                  if (var2 != null) {
-                     float var3 = this.getYawRotation();
-                     Vec3d var4 = this.getTargetPosition().add(VectorMath.rotateByYaw(new Vec3d(0.0, 2.5625F - var2.getEyeHeight(), -0.3125), 180.0F + var3));
-                     var2.setPositionAndUpdate(var4.x, var4.y, var4.z);
+               UUID uuid = this.getInteractionPlayerUUID();
+               if (uuid != null) {
+                  EntityPlayer player = this.world.getPlayerEntityByUUID(uuid);
+                  if (player != null) {
+                     float yaw = this.getYawRotation();
+                     Vec3d pos = this.getTargetPosition().add(VectorMath.rotateByYaw(new Vec3d(0.0, 2.5625F - player.getEyeHeight(), -0.3125), 180.0F + yaw));
+                     player.setPositionAndUpdate(pos.x, pos.y, pos.z);
                   }
                }
             }
@@ -305,10 +305,10 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    void handleSitIdle() {
       if (this.getCurrentAction() == Action.SITDOWNIDLE) {
-         EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
-         if (var1 != null) {
-            if (!(this.getDistance(var1) > 1.5F)) {
-               if (var1.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
+         EntityPlayer player = this.world.getClosestPlayerToEntity(this, 10.0);
+         if (player != null) {
+            if (!(this.getDistance(player) > 1.5F)) {
+               if (player.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
                   BeeScreen.enableInteraction();
                }
             }
@@ -345,53 +345,53 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     */
    @Override
    protected void U() {
-      String var1 = (String)this.entityDataManager.get(GIRL_HAND_STATES);
-      if ("Missionary".equals(var1)) {
+      String handState = (String)this.entityDataManager.get(GIRL_HAND_STATES);
+      if ("Missionary".equals(handState)) {
          this.entityDataManager.set(OUTFIT_INDEX, 0);
          this.setCurrentAction(Action.MISSIONARY_START);
-         UUID var2 = this.getInteractionPlayerUUID();
-         if (var2 == null) {
+         UUID uuid = this.getInteractionPlayerUUID();
+         if (uuid == null) {
             return;
          }
 
-         EntityPlayer var3 = this.world.getPlayerEntityByUUID(var2);
-         if (var3 == null) {
+         EntityPlayer player = this.world.getPlayerEntityByUUID(uuid);
+         if (player == null) {
             this.resetCameraAndPhysics();
             return;
          }
 
-         var3.setNoGravity(true);
-         var3.noClip = true;
-         Vec3d var4 = this.getTargetPosition();
-         var3.rotationYaw = this.getYawRotation();
-         Vec3d var5 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.1), var3.rotationYaw);
-         var4 = var4.add(var5);
-         var3.setPositionAndUpdate(var4.x, var4.y, var4.z);
-         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var3);
+         player.setNoGravity(true);
+         player.noClip = true;
+         Vec3d pos = this.getTargetPosition();
+         player.rotationYaw = this.getYawRotation();
+         Vec3d offset = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.1), player.rotationYaw);
+         pos = pos.add(offset);
+         player.setPositionAndUpdate(pos.x, pos.y, pos.z);
+         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)player);
       }
 
-      if ("cowgirl".equals(var1)) {
+      if ("cowgirl".equals(handState)) {
          this.entityDataManager.set(OUTFIT_INDEX, 0);
          this.setCurrentAction(Action.COWGIRLSTART);
-         UUID var6 = this.getInteractionPlayerUUID();
-         if (var6 == null) {
+         UUID uuid = this.getInteractionPlayerUUID();
+         if (uuid == null) {
             return;
          }
 
-         EntityPlayer var7 = this.world.getPlayerEntityByUUID(var6);
-         if (var7 == null) {
+         EntityPlayer player = this.world.getPlayerEntityByUUID(uuid);
+         if (player == null) {
             this.resetCameraAndPhysics();
             return;
          }
 
-         var7.setNoGravity(true);
-         var7.noClip = true;
-         Vec3d var9 = this.getTargetPosition();
-         var7.rotationYaw = this.getYawRotation() + 180.0F;
-         Vec3d var11 = VectorMath.rotateByYaw(new Vec3d(0.0, 1.0 - var7.eyeHeight, -1.8125), var7.rotationYaw);
-         var9 = var9.add(var11);
-         var7.setPositionAndUpdate(var9.x, var9.y, var9.z);
-         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var7);
+         player.setNoGravity(true);
+         player.noClip = true;
+         Vec3d pos = this.getTargetPosition();
+         player.rotationYaw = this.getYawRotation() + 180.0F;
+         Vec3d offset = VectorMath.rotateByYaw(new Vec3d(0.0, 1.0 - player.eyeHeight, -1.8125), player.rotationYaw);
+         pos = pos.add(offset);
+         player.setPositionAndUpdate(pos.x, pos.y, pos.z);
+         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)player);
       }
    }
 
@@ -403,11 +403,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    void handleSitTransition() {
       if (this.getCurrentAction() == Action.SITDOWNIDLE && this.af < 0) {
-         EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
-         if (var1 != null) {
-            if (!(this.getDistance(var1) > 1.5F)) {
+         EntityPlayer player = this.world.getClosestPlayerToEntity(this, 10.0);
+         if (player != null) {
+            if (!(this.getDistance(player) > 1.5F)) {
                this.af = 20;
-               this.setInteractionPlayerUUID(var1.getPersistentID());
+               this.setInteractionPlayerUUID(player.getPersistentID());
             }
          }
       }
@@ -449,20 +449,20 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             this.resetGirlState();
             this.resetSitState();
          } else {
-            EntityPlayer var1 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
-            if (var1 != null) {
-               var1.setNoGravity(false);
-               var1.noClip = false;
+            EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
+            if (player != null) {
+               player.setNoGravity(false);
+               player.noClip = false;
             }
 
-            Vec3d var2 = (Vec3d)this.am[0];
-            int var3 = (Integer)this.am[1];
-            if (var2.distanceTo(this.getPositionVector()) > 1.0) {
-               this.getNavigator().tryMoveToXYZ(var2.x, var2.y, var2.z, 0.35F);
+            Vec3d sitPos = (Vec3d)this.am[0];
+            int yaw = (Integer)this.am[1];
+            if (sitPos.distanceTo(this.getPositionVector()) > 1.0) {
+               this.getNavigator().tryMoveToXYZ(sitPos.x, sitPos.y, sitPos.z, 0.35F);
                this.tickPathVelocity();
             } else {
-               this.setTargetPosition(var2);
-               this.setYawRotation(var3);
+               this.setTargetPosition(sitPos);
+               this.setYawRotation(yaw);
                this.setCurrentAction(Action.SITDOWN);
                this.entityDataManager.set(IS_ANCHORED, true);
                this.al = 109;
@@ -488,56 +488,56 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     * range.
     */
    Object[] getRandomSitPose() {
-      int var1 = -1;
-      int var2 = 0;
-      Vec3d[][] var4 = new Vec3d[][]{
+      int bestIndex = -1;
+      int attempts = 0;
+      Vec3d[][] offsets = new Vec3d[][]{
          {new Vec3d(0.5, 0.0, -0.18), new Vec3d(0.0, 0.0, -1.0), new Vec3d(0.0, 0.0, 1.0)},
          {new Vec3d(0.5, 0.0, 1.18), new Vec3d(0.0, 0.0, 1.0), new Vec3d(0.0, 0.0, -1.0)},
          {new Vec3d(-0.18, 0.0, 0.5), new Vec3d(-1.0, 0.0, 0.0), new Vec3d(1.0, 0.0, 0.0)},
          {new Vec3d(1.18, 0.0, 0.5), new Vec3d(1.0, 0.0, 0.0), new Vec3d(-1.0, 0.0, 0.0)}
       };
-      int[] var5 = new int[]{0, 180, -90, 90};
+      int[] yaws = new int[]{0, 180, -90, 90};
 
-      Vec3d var3;
+      Vec3d bedVec;
       do {
-         BlockPos var6 = this.findNearestBed(this.getPosition(), ++var2);
-         if (var6 == null) {
+         BlockPos bedPos = this.findNearestBed(this.getPosition(), ++attempts);
+         if (bedPos == null) {
             return null;
          }
 
-         var3 = new Vec3d(var6.getX(), var6.getY(), var6.getZ());
+         bedVec = new Vec3d(bedPos.getX(), bedPos.getY(), bedPos.getZ());
 
-         for (int var7 = 0; var7 < var4.length; var7++) {
-            Vec3d var8 = var3.add(var4[var7][1]);
-            Block var9 = this.world.getBlockState(new BlockPos(var8.x, var8.y, var8.z)).getBlock();
-            Vec3d var10 = var3.add(var4[var7][2]);
-            Block var11 = this.world.getBlockState(new BlockPos(var10.x, var10.y, var10.z)).getBlock();
-            if (var9 == Blocks.AIR && var11 == Blocks.BED) {
-               if (var1 == -1) {
-                  var1 = var7;
+         for (int i = 0; i < offsets.length; i++) {
+            Vec3d offsetVec = bedVec.add(offsets[i][1]);
+            Block block = this.world.getBlockState(new BlockPos(offsetVec.x, offsetVec.y, offsetVec.z)).getBlock();
+            Vec3d headVec = bedVec.add(offsets[i][2]);
+            Block headBlock = this.world.getBlockState(new BlockPos(headVec.x, headVec.y, headVec.z)).getBlock();
+            if (block == Blocks.AIR && headBlock == Blocks.BED) {
+               if (bestIndex == -1) {
+                  bestIndex = i;
                } else {
-                  double var12 = this.getPosition()
+                  double bestDist = this.getPosition()
                      .distanceSq(
-                        var3.add(var4[var1][0]).x,
-                        var3.add(var4[var1][0]).y,
-                        var3.add(var4[var1][0]).z
+                        bedVec.add(offsets[bestIndex][0]).x,
+                        bedVec.add(offsets[bestIndex][0]).y,
+                        bedVec.add(offsets[bestIndex][0]).z
                      );
-                  double var14 = this.getPosition()
+                  double dist = this.getPosition()
                      .distanceSq(
-                        var3.add(var4[var7][0]).x,
-                        var3.add(var4[var7][0]).y,
-                        var3.add(var4[var7][0]).z
+                        bedVec.add(offsets[i][0]).x,
+                        bedVec.add(offsets[i][0]).y,
+                        bedVec.add(offsets[i][0]).z
                      );
-                  if (var14 < var12) {
-                     var1 = var7;
+                  if (dist < bestDist) {
+                     bestIndex = i;
                   }
                }
             }
          }
-      } while (var1 == -1);
+      } while (bestIndex == -1);
 
-      Vec3d var16 = var3.add(var4[var1][0]);
-      return new Object[]{var16, var5[var1]};
+      Vec3d sitOffset = bedVec.add(offsets[bestIndex][0]);
+      return new Object[]{sitOffset, yaws[bestIndex]};
    }
 
    /**
@@ -548,19 +548,19 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     */
    void handleHornyPotion() {
       if (this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null) {
-         EntityPlayer var1 = this.world.getClosestPlayerToEntity(this, 10.0);
-         if (var1 != null) {
+         EntityPlayer player = this.world.getClosestPlayerToEntity(this, 10.0);
+         if (player != null) {
             this.removeActivePotionEffect(HornyPotion.HORNY_POTION);
-            this.setInteractionPlayerUUID(var1.getPersistentID());
-            float var2 = (float)(Math.atan2(this.posZ - var1.posZ, this.posX - var1.posX) * (180.0 / Math.PI));
-            this.setYawRotation(var2);
+            this.setInteractionPlayerUUID(player.getPersistentID());
+            float yaw = (float)(Math.atan2(this.posZ - player.posZ, this.posX - player.posX) * (180.0 / Math.PI));
+            this.setYawRotation(yaw);
             this.setTargetPosition(this.getPositionVector());
             this.entityDataManager.set(IS_ANCHORED, true);
             this.setCurrentAction(Action.DASH);
             this.zFlag = 16;
             this.setNoGravity(true);
             this.noClip = true;
-            PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)var1);
+            PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)player);
             this.tasks.removeTask(this.wanderGoal);
             this.tasks.removeTask(this.watchClosestGirlGoal);
          }
@@ -574,20 +574,20 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     */
    void handleSitUpFinish() {
       if (--this.zFlag == 0) {
-         UUID var1 = this.getInteractionPlayerUUID();
-         if (var1 == null) {
+         UUID uuid = this.getInteractionPlayerUUID();
+         if (uuid == null) {
             this.resetSitState();
          } else {
-            EntityPlayer var2 = this.world.getPlayerEntityByUUID(var1);
-            if (var2 == null) {
+            EntityPlayer player = this.world.getPlayerEntityByUUID(uuid);
+            if (player == null) {
                this.resetSitState();
             } else {
-               var2.setNoGravity(true);
-               var2.noClip = true;
-               Vec3d var3 = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, -0.5), var2.rotationYaw);
-               Vec3d var4 = var3.add(var2.getPositionVector());
-               this.setTargetPosition(var4);
-               this.setYawRotation(var2.rotationYaw);
+               player.setNoGravity(true);
+               player.noClip = true;
+               Vec3d backVec = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, -0.5), player.rotationYaw);
+               Vec3d sitPos = backVec.add(player.getPositionVector());
+               this.setTargetPosition(sitPos);
+               this.setYawRotation(player.rotationYaw);
                this.setCurrentAction(Action.HUG);
                this.yFlag = 150;
             }
@@ -619,8 +619,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     * a scene (bound to a player or the caller is in one), otherwise opens
     * {@link #canJoinPlayer(EntityPlayer, boolean)}.
     */
-   protected boolean processInteract(EntityPlayer var1, EnumHand var2) {
-      if (getActiveSceneInfo(var1) != null) {
+   protected boolean processInteract(EntityPlayer player, EnumHand hand) {
+      if (getActiveSceneInfo(player) != null) {
          return false;
       }
 
@@ -629,67 +629,67 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       }
 
       if (this.world.isRemote) {
-         this.canJoinPlayer(var1, false);
+         this.canJoinPlayer(player, false);
       }
 
       return true;
    }
 
    @Override
-   protected Action getCumAction(Action var1) {
-      if (var1 == Action.COWGIRLFAST || var1 == Action.COWGIRLSLOW) {
+   protected Action getCumAction(Action action) {
+      if (action == Action.COWGIRLFAST || action == Action.COWGIRLSLOW) {
          return Action.COWGIRLCUM;
-      } else if (var1 == Action.MISSIONARY_FAST || var1 == Action.MISSIONARY_SLOW) {
+      } else if (action == Action.MISSIONARY_FAST || action == Action.MISSIONARY_SLOW) {
          return Action.MISSIONARY_CUM;
       } else {
-         return var1 != Action.CARRY_SLOW && var1 != Action.CARRY_FAST ? null : Action.CARRY_CUM;
+         return action != Action.CARRY_SLOW && action != Action.CARRY_FAST ? null : Action.CARRY_CUM;
       }
    }
 
    @Override
-   protected Action getNextAction(Action var1) {
-      if (var1 == Action.COWGIRLSLOW) {
+   protected Action getNextAction(Action action) {
+      if (action == Action.COWGIRLSLOW) {
          return Action.COWGIRLFAST;
-      } else if (var1 == Action.MISSIONARY_SLOW) {
+      } else if (action == Action.MISSIONARY_SLOW) {
          return Action.MISSIONARY_FAST;
       } else {
-         return var1 == Action.CARRY_SLOW ? Action.CARRY_FAST : null;
+         return action == Action.CARRY_SLOW ? Action.CARRY_FAST : null;
       }
    }
 
    @Override
-   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> var1) {
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
       if (this.world instanceof SexWorldClient) {
          return null;
       }
 
-      switch (var1.getController().getName()) {
+      switch (event.getController().getName()) {
          case "eyes":
             if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
-               this.createAnimation("animation.ellie.eyes", true, var1);
+               this.createAnimation("animation.ellie.eyes", true, event);
             } else {
-               this.createAnimation("animation.ellie.null", true, var1);
+               this.createAnimation("animation.ellie.null", true, event);
             }
             break;
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.ellie.null", true, var1);
+               this.createAnimation("animation.ellie.null", true, event);
             } else {
-               double var4 = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
-               if (var4 == 0.0) {
-                  this.createAnimation(this.isBedBlocked() ? "animation.ellie.crouchidle" : "animation.ellie.idle", true, var1);
+               double moved = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
+               if (moved == 0.0) {
+                  this.createAnimation(this.isBedBlocked() ? "animation.ellie.crouchidle" : "animation.ellie.idle", true, event);
                } else if (this.isBedBlocked()) {
-                  this.createAnimation("animation.ellie.crouchwalk", true, var1);
+                  this.createAnimation("animation.ellie.crouchwalk", true, event);
                } else {
                   switch (this.getWalkType()) {
                      case RUN:
-                        this.createAnimation("animation.ellie.run", true, var1);
+                        this.createAnimation("animation.ellie.run", true, event);
                         return PlayState.CONTINUE;
                      case FAST_WALK:
-                        this.createAnimation("animation.ellie.fastwalk", true, var1);
+                        this.createAnimation("animation.ellie.fastwalk", true, event);
                         return PlayState.CONTINUE;
                      case WALK:
-                        this.createAnimation("animation.ellie.walk", true, var1);
+                        this.createAnimation("animation.ellie.walk", true, event);
                   }
                }
             }
@@ -697,82 +697,82 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
          case "action":
             switch (this.getCurrentAction()) {
                case NULL:
-                  this.createAnimation("animation.ellie.null", true, var1);
+                  this.createAnimation("animation.ellie.null", true, event);
                   break;
                case STRIP:
-                  this.createAnimation("animation.ellie.strip", false, var1);
+                  this.createAnimation("animation.ellie.strip", false, event);
                   break;
                case DASH:
-                  this.createAnimation("animation.ellie.dash", false, var1);
+                  this.createAnimation("animation.ellie.dash", false, event);
                   break;
                case HUG:
-                  this.createAnimation("animation.ellie.hug", false, var1);
+                  this.createAnimation("animation.ellie.hug", false, event);
                   break;
                case HUGIDLE:
-                  this.createAnimation("animation.ellie.hugidle", true, var1);
+                  this.createAnimation("animation.ellie.hugidle", true, event);
                   break;
                case HUGSELECTED:
-                  this.createAnimation("animation.ellie.hugselected", false, var1);
+                  this.createAnimation("animation.ellie.hugselected", false, event);
                   break;
                case SITDOWN:
-                  this.createAnimation("animation.ellie.sitdown", false, var1);
+                  this.createAnimation("animation.ellie.sitdown", false, event);
                   break;
                case SITDOWNIDLE:
-                  this.createAnimation("animation.ellie.sitdownidle", true, var1);
+                  this.createAnimation("animation.ellie.sitdownidle", true, event);
                   break;
                case COWGIRLSTART:
-                  this.createAnimation("animation.ellie.cowgirlstart", false, var1);
+                  this.createAnimation("animation.ellie.cowgirlstart", false, event);
                   break;
                case COWGIRLSLOW:
-                  this.createAnimation("animation.ellie.cowgirlslow2", true, var1);
+                  this.createAnimation("animation.ellie.cowgirlslow2", true, event);
                   break;
                case COWGIRLFAST:
-                  this.createAnimation("animation.ellie.cowgirlfast", true, var1);
+                  this.createAnimation("animation.ellie.cowgirlfast", true, event);
                   break;
                case COWGIRLCUM:
-                  this.createAnimation("animation.ellie.cowgirlcum", true, var1);
+                  this.createAnimation("animation.ellie.cowgirlcum", true, event);
                   break;
                case ATTACK:
-                  this.createAnimation("animation.ellie.attack" + this.nextAttack, false, var1);
+                  this.createAnimation("animation.ellie.attack" + this.nextAttack, false, event);
                   break;
                case BOW:
-                  this.createAnimation("animation.ellie.bowcharge", false, var1);
+                  this.createAnimation("animation.ellie.bowcharge", false, event);
                   break;
                case RIDE:
-                  this.createAnimation("animation.ellie.ride", true, var1);
+                  this.createAnimation("animation.ellie.ride", true, event);
                   break;
                case SIT:
-                  this.createAnimation("animation.ellie.sit", true, var1);
+                  this.createAnimation("animation.ellie.sit", true, event);
                   break;
                case THROW_PEARL:
-                  this.createAnimation("animation.ellie.throwpearl", false, var1);
+                  this.createAnimation("animation.ellie.throwpearl", false, event);
                   break;
                case DOWNED:
-                  this.createAnimation("animation.ellie.downed", true, var1);
+                  this.createAnimation("animation.ellie.downed", true, event);
                   break;
                case MISSIONARY_START:
-                  this.createAnimation("animation.ellie.missionary_start", false, var1);
+                  this.createAnimation("animation.ellie.missionary_start", false, event);
                   break;
                case MISSIONARY_SLOW:
-                  this.createAnimation("animation.ellie.missionary_slow", true, var1);
+                  this.createAnimation("animation.ellie.missionary_slow", true, event);
                   break;
                case MISSIONARY_FAST:
-                  this.createAnimation("animation.ellie.missionary_fast", true, var1);
+                  this.createAnimation("animation.ellie.missionary_fast", true, event);
                   break;
                case MISSIONARY_CUM:
-                  this.createAnimation("animation.ellie.missionary_cum", false, var1);
+                  this.createAnimation("animation.ellie.missionary_cum", false, event);
                   break;
                case CARRY_INTRO:
-                  this.createAnimation("animation.ellie.carry_intro", false, var1);
+                  this.createAnimation("animation.ellie.carry_intro", false, event);
                   break;
                case CARRY_SLOW:
-                  this.createAnimation("animation.ellie.carry_slow" + this.aa, true, var1);
+                  this.createAnimation("animation.ellie.carry_slow" + this.aa, true, event);
                   break;
                case CARRY_FAST:
-                  this.createAnimation("animation.ellie.carry_fast", true, var1);
+                  this.createAnimation("animation.ellie.carry_fast", true, event);
                   break;
                case CARRY_CUM:
-                  this.createAnimation("animation.ellie.carry_cum", true, var1);
+                  this.createAnimation("animation.ellie.carry_cum", true, event);
             }
       }
 
@@ -791,13 +791,13 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     */
    @SideOnly(Side.CLIENT)
    @Override
-   public void registerControllers(AnimationData var1) {
+   public void registerControllers(AnimationData data) {
       if (this.actionController == null) {
          this.initAnimationControllers();
       }
 
-      AnimationController.ISoundListener var2 = var1x -> {
-         switch (var1x.sound) {
+      AnimationController.ISoundListener soundListener = sound -> {
+         switch (sound.sound) {
             case "becomeNude":
                if (this.isLocalPlayerNearby()) {
                   this.changeDataParameterFromClient("currentModel", this.entityDataManager.get(OUTFIT_INDEX) == 1 ? "0" : "1");
@@ -1015,11 +1015,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "carry_slowDone":
-               int var4 = this.aa;
+               int oldState = this.aa;
 
                do {
                   this.aa = this.getRNG().nextInt(4) + 1;
-               } while (this.aa == var4);
+               } while (this.aa == oldState);
 
                return;
             case "carry_fastDone":
@@ -1028,10 +1028,10 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
          }
       };
-      this.actionController.registerSoundListener(var2);
-      var1.addAnimationController(this.actionController);
-      var1.addAnimationController(this.movementController);
-      var1.addAnimationController(this.eyesController);
+      this.actionController.registerSoundListener(soundListener);
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.movementController);
+      data.addAnimationController(this.eyesController);
    }
 
 }

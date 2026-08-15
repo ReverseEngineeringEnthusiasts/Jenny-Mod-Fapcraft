@@ -144,16 +144,16 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    Matrix4f globalModelMatrix = null;
    protected GeoBone currentRenderingBone = null;
 
-   public GirlRenderer(RenderManager var1, AnimatedGeoModel<?> var2, double var3) {
-      super(var1, (AnimatedGeoModel<T>) (AnimatedGeoModel) var2);
-      this.CACHE_C = var3;
+   public GirlRenderer(RenderManager renderManager, AnimatedGeoModel<?> model, double shadowOffset) {
+      super(renderManager, (AnimatedGeoModel<T>) (AnimatedGeoModel) model);
+      this.CACHE_C = shadowOffset;
       mc = Minecraft.getMinecraft();
       this.shadowSize = 0.2F;
    }
 
    @Override
-   public ResourceLocation getEntityTexture(T var1) {
-      return super.getEntityTexture(var1);
+   public ResourceLocation getEntityTexture(T entity) {
+      return super.getEntityTexture(entity);
    }
 
    /**
@@ -161,60 +161,60 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * freshly tinted one; in the preload world / without an interaction player
     * the local player's profile id is used. Cache lives in the static map.
     */
-   protected ResourceLocation getSkinTexture(T var1) {
-      ResourceLocation var2;
-      if (!(var1.world instanceof SexWorldClient) && var1.getInteractionPlayerUUID() != null) {
-         var2 = l.get(var1.getInteractionPlayerUUID());
-         if (var2 == null) {
-            return this.getTintedSkinTexture(var1.getInteractionPlayerUUID(), var1.world);
+   protected ResourceLocation getSkinTexture(T girl) {
+      ResourceLocation cachedTexture;
+      if (!(girl.world instanceof SexWorldClient) && girl.getInteractionPlayerUUID() != null) {
+         cachedTexture = l.get(girl.getInteractionPlayerUUID());
+         if (cachedTexture == null) {
+            return this.getTintedSkinTexture(girl.getInteractionPlayerUUID(), girl.world);
          }
       } else {
-         var2 = l.get(mc.getSession().getProfile().getId());
-         if (var2 == null) {
-            return this.getTintedSkinTexture(mc.getSession().getProfile().getId(), var1.world);
+         cachedTexture = l.get(mc.getSession().getProfile().getId());
+         if (cachedTexture == null) {
+            return this.getTintedSkinTexture(mc.getSession().getProfile().getId(), girl.world);
          }
       }
 
-      return var2;
+      return cachedTexture;
    }
 
    /**
-    * Fetches the player skin for {@code var1} ({@link SkinFetcher}), repaints
+    * Fetches the player skin for {@code uuid} ({@link SkinFetcher}), repaints
     * the head-top/face pixels with the mod's skin-tone colors, registers it as
     * a dynamic texture and caches it. On any fetch error falls back to the
     * bundled steve texture (or an empty 64x64 image) and still caches.
     */
-   protected ResourceLocation getTintedSkinTexture(UUID var1, World var2) {
-      BufferedImage var3;
+   protected ResourceLocation getTintedSkinTexture(UUID uuid, World world) {
+      BufferedImage skinImage;
       try {
-         var3 = SkinFetcher.fetchSkin(var1);
-         Graphics var4 = var3.getGraphics();
-         var4.setColor(this.BASE_SKIN_COLOR);
-         var4.fillRect(0, 0, 4, 3);
-         var4.setColor(this.BLUSH_COLOR);
-         var4.fillRect(4, 0, 3, 3);
-      } catch (Exception var5) {
+         skinImage = SkinFetcher.fetchSkin(uuid);
+         Graphics graphics = skinImage.getGraphics();
+         graphics.setColor(this.BASE_SKIN_COLOR);
+         graphics.fillRect(0, 0, 4, 3);
+         graphics.setColor(this.BLUSH_COLOR);
+         graphics.fillRect(4, 0, 3, 3);
+      } catch (Exception e) {
          if (!this.fallbackSkinLoaded) {
             this.fallbackSkinLoaded = true;
          }
 
          try {
-            var3 = ImageIO.read(mc.getResourceManager().getResource(new ResourceLocation("sexmod", "textures/player/steve.png")).getInputStream());
-         } catch (Exception var6) {
-            var3 = new BufferedImage(64, 64, 2);
+            skinImage = ImageIO.read(mc.getResourceManager().getResource(new ResourceLocation("sexmod", "textures/player/steve.png")).getInputStream());
+         } catch (Exception e2) {
+            skinImage = new BufferedImage(64, 64, 2);
          }
       }
 
-      l.put(var1, this.renderManager.renderEngine.getDynamicTextureLocation("player" + var1, new DynamicTexture(var3)));
-      return l.get(var1);
+      l.put(uuid, this.renderManager.renderEngine.getDynamicTextureLocation("player" + uuid, new DynamicTexture(skinImage)));
+      return l.get(uuid);
    }
 
    /**
     * Yaw for rendering: the pinned scene yaw when anchored, else the
     * interpolated render-yaw-offset (partial ticks).
     */
-   protected static float getInterpolatedYaw(BaseGirlEntity var0, float var1) {
-      return var0.isAnchored() ? var0.getYawRotation() : RotationHelper.lerp(var0.prevRenderYawOffset, var0.renderYawOffset, var1);
+   protected static float getInterpolatedYaw(BaseGirlEntity girl, float partialTicks) {
+      return girl.isAnchored() ? girl.getYawRotation() : RotationHelper.lerp(girl.prevRenderYawOffset, girl.renderYawOffset, partialTicks);
    }
 
    protected void renderLeftEye() {
@@ -223,14 +223,14 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected void renderRightEye() {
    }
 
-   float rayTraceBoneDistance(World var1, Vec3d var2, float var3, float var4) {
-      RayTraceResult var5 = this.rayTraceBlocks(var2, var2.add(VectorMath.rotateByYawPitch(new Vec3d(0.0, 0.0, -4.0), var3, var4)), var1);
-      if (var5 == null) {
+   float rayTraceBoneDistance(World world, Vec3d eyePos, float yaw, float pitch) {
+      RayTraceResult hit = this.rayTraceBlocks(eyePos, eyePos.add(VectorMath.rotateByYawPitch(new Vec3d(0.0, 0.0, -4.0), yaw, pitch)), world);
+      if (hit == null) {
          return 4.0F;
       }
 
-      Vec3d var6 = var5.hitVec;
-      return var6 == null ? 4.0F : (float)var2.distanceTo(var6);
+      Vec3d hitVec = hit.hitVec;
+      return hitVec == null ? 4.0F : (float)eyePos.distanceTo(hitVec);
    }
 
    /**
@@ -241,66 +241,66 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     *
     * @return {@code true} if the girl may be drawn
     */
-   boolean canRenderPlayer(T var1, EntityPlayer var2) {
-      if (var1 instanceof AbstractPlayerGirlEntity) {
+   boolean canRenderPlayer(T girl, EntityPlayer player) {
+      if (girl instanceof AbstractPlayerGirlEntity) {
          return true;
       }
 
-      World var3 = var1.world;
-      Vec3d var4 = var1.getPositionVector();
-      float var5 = var1.width * 1.5F;
-      float var6 = var1.height * 1.5F;
-      Vec3d var7 = var2.getPositionVector().add(0.0, var2.getEyeHeight(), 0.0);
-      int var8 = mc.gameSettings.thirdPersonView;
-      if (var8 != 0) {
+      World world = girl.world;
+      Vec3d girlPos = girl.getPositionVector();
+      float halfWidth = girl.width * 1.5F;
+      float height = girl.height * 1.5F;
+      Vec3d eyePos = player.getPositionVector().add(0.0, player.getEyeHeight(), 0.0);
+      int thirdPersonView = mc.gameSettings.thirdPersonView;
+      if (thirdPersonView != 0) {
          return true;
       }
 
-      if (var8 > 0) {
-         float var9 = var2.rotationYaw;
-         float var10 = var2.rotationPitch;
-         if (var8 == 2) {
-            var10 += 180.0F;
+      if (thirdPersonView > 0) {
+         float yaw = player.rotationYaw;
+         float pitch = player.rotationPitch;
+         if (thirdPersonView == 2) {
+            pitch += 180.0F;
          }
 
-         float var11 = 4.0F;
-         Vec3d var12 = var7.add(
-            MathHelper.sin(var9 * (float) (Math.PI / 180.0)) * MathHelper.cos(var10 * (float) (Math.PI / 180.0)) * var11,
-            MathHelper.sin(var10 * (float) (Math.PI / 180.0)) * var11,
-            -MathHelper.cos(var9 * (float) (Math.PI / 180.0)) * MathHelper.cos(var10 * (float) (Math.PI / 180.0)) * var11
+         float distance = 4.0F;
+         Vec3d cameraPos = eyePos.add(
+            MathHelper.sin(yaw * (float) (Math.PI / 180.0)) * MathHelper.cos(pitch * (float) (Math.PI / 180.0)) * distance,
+            MathHelper.sin(pitch * (float) (Math.PI / 180.0)) * distance,
+            -MathHelper.cos(yaw * (float) (Math.PI / 180.0)) * MathHelper.cos(pitch * (float) (Math.PI / 180.0)) * distance
          );
-         BlockPos var13 = new BlockPos(var12);
-         boolean var14 = var3.isAirBlock(var13);
-         if (!var14) {
-            var7 = var12;
-         } else if (var3.isAirBlock(var13.add(0, 1, 0))) {
-            var7 = new Vec3d(var12.x, var13.getY() + 1, var12.z);
+         BlockPos cameraBlock = new BlockPos(cameraPos);
+         boolean isAir = world.isAirBlock(cameraBlock);
+         if (!isAir) {
+            eyePos = cameraPos;
+         } else if (world.isAirBlock(cameraBlock.add(0, 1, 0))) {
+            eyePos = new Vec3d(cameraPos.x, cameraBlock.getY() + 1, cameraPos.z);
          }
       }
 
-      Vec3d[] var16 = new Vec3d[]{
-         var4.add(-var5 / 2.0F, 0.0, -var5 / 2.0F),
-         var4.add(-var5 / 2.0F, 0.0, var5 / 2.0F),
-         var4.add(var5 / 2.0F, 0.0, -var5 / 2.0F),
-         var4.add(var5 / 2.0F, 0.0, var5 / 2.0F),
-         var4.add(-var5 / 2.0F, var6, -var5 / 2.0F),
-         var4.add(-var5 / 2.0F, var6, var5 / 2.0F),
-         var4.add(var5 / 2.0F, var6, -var5 / 2.0F),
-         var4.add(var5 / 2.0F, var6, var5 / 2.0F)
+      Vec3d[] corners = new Vec3d[]{
+         girlPos.add(-halfWidth / 2.0F, 0.0, -halfWidth / 2.0F),
+         girlPos.add(-halfWidth / 2.0F, 0.0, halfWidth / 2.0F),
+         girlPos.add(halfWidth / 2.0F, 0.0, -halfWidth / 2.0F),
+         girlPos.add(halfWidth / 2.0F, 0.0, halfWidth / 2.0F),
+         girlPos.add(-halfWidth / 2.0F, height, -halfWidth / 2.0F),
+         girlPos.add(-halfWidth / 2.0F, height, halfWidth / 2.0F),
+         girlPos.add(halfWidth / 2.0F, height, -halfWidth / 2.0F),
+         girlPos.add(halfWidth / 2.0F, height, halfWidth / 2.0F)
       };
 
-      for (Vec3d var20 : var16) {
-         RayTraceResult var21 = this.rayTraceBlocks(var7, var20, var3);
-         if (var21 == null) {
+      for (Vec3d corner : corners) {
+         RayTraceResult hit = this.rayTraceBlocks(eyePos, corner, world);
+         if (hit == null) {
             return true;
          }
 
-         IBlockState var15 = var3.getBlockState(var21.getBlockPos());
-         if (var15.isTranslucent()) {
+         IBlockState blockState = world.getBlockState(hit.getBlockPos());
+         if (blockState.isTranslucent()) {
             return true;
          }
 
-         if (var15.getBlock().getRenderLayer() != BlockRenderLayer.SOLID) {
+         if (blockState.getBlock().getRenderLayer() != BlockRenderLayer.SOLID) {
             return true;
          }
       }
@@ -312,30 +312,30 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * The set of bones currently replaced by custom parts: from the
     * {@link ClothingScreen} preview (locally registered) or the girl's own
     * custom-part set; disabled models' bones are added regardless of
-    * {@code var2}. Empty while {@code ClientProxy.IS_PRELOADING}.
+    * {@code isNudeOutfit}. Empty while {@code ClientProxy.IS_PRELOADING}.
     */
-   HashSet<String> getActiveBones(Boolean var1, boolean var2) {
+   HashSet<String> getActiveBones(Boolean isPreview, boolean isNudeOutfit) {
       if (ClientProxy.IS_PRELOADING) {
          return new HashSet<>();
       }
 
-      HashSet var3;
-      if (var1) {
-         var3 = ClothingScreen.getCustomBoneNames();
+      HashSet boneNameSet;
+      if (isPreview) {
+         boneNameSet = ClothingScreen.getCustomBoneNames();
       } else {
-         var3 = this.renderEntity.getCustomPartsSet();
+         boneNameSet = this.renderEntity.getCustomPartsSet();
       }
 
-      HashSet var4 = new HashSet();
+      HashSet resultSet = new HashSet();
 
-      for (String var6 : (java.util.Collection<String>) (var3) ) {
-         ServerWhitelistManager.ModelData var7 = ServerWhitelistManager.getModelDataForGirl(var6);
-         if (var7 != null && (var7.isDisabled() || !var2)) {
-            var4.addAll(var7.getCustomPartBones());
+      for (String boneName : (java.util.Collection<String>) (boneNameSet) ) {
+         ServerWhitelistManager.ModelData modelData = ServerWhitelistManager.getModelDataForGirl(boneName);
+         if (modelData != null && (modelData.isDisabled() || !isNudeOutfit)) {
+            resultSet.addAll(modelData.getCustomPartBones());
          }
       }
 
-      return var4;
+      return resultSet;
    }
 
    /**
@@ -345,21 +345,21 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * bone offsets ({@code BodyParts.updateCustomBones/updateBoneOffset}) and
     * renders the buffer with early/late hooks.
     */
-   public void renderModel(GeoModel var1, T var2, float var3, float var4, float var5, float var6, float var7) {
-      if (mc.player == null || var2.isLocallyRegistered() || !var2.shouldRenderModel() || this.canRenderPlayer(var2, mc.player)) {
+   public void renderModel(GeoModel model, T entity, float partialTicks, float r, float g, float b, float a) {
+      if (mc.player == null || entity.isLocallyRegistered() || !entity.shouldRenderModel() || this.canRenderPlayer(entity, mc.player)) {
          GlStateManager.enableRescaleNormal();
-         this.captureGlobalMatrix((T)var2, var3, var4, var5, var6, var7);
-         this.renderLate((T)var2, var3, var4, var5, var6, var7);
-         BufferBuilder var8 = Tessellator.getInstance().getBuffer();
-         var8.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+         this.captureGlobalMatrix((T)entity, partialTicks, r, g, b, a);
+         this.renderLate((T)entity, partialTicks, r, g, b, a);
+         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
          this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
          this.activeCustomPartBones.clear();
-         this.activeCustomPartBones = this.getActiveBones(var2.isLocallyRegistered(), var2.getOutfitIndex() == 0);
+         this.activeCustomPartBones = this.getActiveBones(entity.isLocallyRegistered(), entity.getOutfitIndex() == 0);
          this.getSkinTexture((T) this.renderEntity);
-         BodyParts.updateCustomBones(var2.getAnimationProcessor().getModelRendererList(), this.getBlacklistedBones(), this);
-         BodyParts.updateBoneOffset(var2, var3);
-         this.renderModelBuffer(var1, var8, (T)var2, var4, var5, var6, var7, var3);
-         this.renderAfter((T)var2, var3, var4, var5, var6, var7);
+         BodyParts.updateCustomBones(entity.getAnimationProcessor().getModelRendererList(), this.getBlacklistedBones(), this);
+         BodyParts.updateBoneOffset(entity, partialTicks);
+         this.renderModelBuffer(model, buffer, (T)entity, r, g, b, a, partialTicks);
+         this.renderAfter((T)entity, partialTicks, r, g, b, a);
          GlStateManager.disableRescaleNormal();
          GlStateManager.enableCull();
          GL20.glUseProgram(0);
@@ -371,53 +371,53 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * skin body), flushes, then renders the steve bone in a second pass with
     * the girl's skin texture and {@code getRenderScaleFactor()}.
     */
-   protected void renderModelBuffer(GeoModel var1, BufferBuilder var2, T var3, float var4, float var5, float var6, float var7, float var8) {
-      GeoBone var9 = null;
+   protected void renderModelBuffer(GeoModel model, BufferBuilder buffer, T entity, float r, float g, float b, float a, float scale) {
+      GeoBone steveBone = null;
 
-      for (GeoBone var11 : var1.topLevelBones) {
-         if (var11.getName().equals("steve")) {
-            var9 = var11;
+      for (GeoBone bone : model.topLevelBones) {
+         if (bone.getName().equals("steve")) {
+            steveBone = bone;
          } else {
-            this.renderRecursively(var2, var11, var4, var5, var6, var7);
+            this.renderRecursively(buffer, bone, r, g, b, a);
          }
       }
 
       Tessellator.getInstance().draw();
       this.renderRightEye();
-      if (var9 != null) {
-         var2.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      if (steveBone != null) {
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
          Minecraft.getMinecraft().renderEngine.bindTexture(this.getSkinTexture(this.renderEntity));
 
-         this.renderRecursively(var2, var9, var4, var5, var6, this.renderEntity.getRenderScaleFactor());
+         this.renderRecursively(buffer, steveBone, r, g, b, this.renderEntity.getRenderScaleFactor());
          Tessellator.getInstance().draw();
       }
    }
 
-   String buildModelCode(String var1) {
-      StringBuilder var2 = new StringBuilder();
+   String buildModelCode(String path) {
+      StringBuilder builder = new StringBuilder();
 
       try {
-         BufferedReader var3 = new BufferedReader(new FileReader(var1));
+         BufferedReader reader = new BufferedReader(new FileReader(path));
 
-         String var4;
-         while ((var4 = var3.readLine()) != null) {
-            var2.append(var4).append("//\n");
+         String line;
+         while ((line = reader.readLine()) != null) {
+            builder.append(line).append("//\n");
          }
 
-         var3.close();
-      } catch (IOException var5) {
-         var5.printStackTrace();
+         reader.close();
+      } catch (IOException e) {
+         e.printStackTrace();
       }
 
-      return var2.toString();
+      return builder.toString();
    }
 
-   protected void renderNameTag(double var1, double var3, double var5) {
+   protected void renderNameTag(double x, double y, double z) {
       if (!this.renderEntity.isLocallyRegistered()) {
          if (!this.renderEntity.getCurrentAction().hideNameTag) {
             if (mc.getRenderManager().renderViewEntity != null) {
-               this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName(), var1, var3 + this.renderEntity.getScaleFactor(), var5, 300);
+               this.renderLivingLabel(this.renderEntity, this.renderEntity.getEffectiveDisplayName(), x, y + this.renderEntity.getScaleFactor(), z, 300);
             }
          }
       }
@@ -428,22 +428,22 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * the girl behind the horse's head (relative to the local player) and
     * copies the ridden entity's yaw onto her.
     */
-   Vec3d getRidingOffset(EntityPlayer var1, float var2) {
-      EntityLiving var3 = (EntityLiving)var1.getRidingEntity();
-      EntityPlayerSP var4 = mc.player;
-      Vec3d var5 = var3.getLookVec();
-      Vec3d var6 = RotationHelper.lerpVec3dDouble(new Vec3d(var1.lastTickPosX, var1.lastTickPosY, var1.lastTickPosZ), var1.getPositionVector(), var2);
-      Vec3d var7 = RotationHelper.lerpVec3dDouble(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
-      var7 = var6.subtract(var7);
-      this.renderEntity.renderYawOffset = var3.renderYawOffset;
-      return new Vec3d(var7.x + var5.x * -0.5, var7.y + 0.15F, var7.z + var5.z * -0.5);
+   Vec3d getRidingOffset(EntityPlayer player, float partialTicks) {
+      EntityLiving ridingEntity = (EntityLiving)player.getRidingEntity();
+      EntityPlayerSP localPlayer = mc.player;
+      Vec3d lookVec = ridingEntity.getLookVec();
+      Vec3d playerPos = RotationHelper.lerpVec3dDouble(new Vec3d(player.lastTickPosX, player.lastTickPosY, player.lastTickPosZ), player.getPositionVector(), partialTicks);
+      Vec3d localPlayerPos = RotationHelper.lerpVec3dDouble(new Vec3d(localPlayer.lastTickPosX, localPlayer.lastTickPosY, localPlayer.lastTickPosZ), localPlayer.getPositionVector(), partialTicks);
+      localPlayerPos = playerPos.subtract(localPlayerPos);
+      this.renderEntity.renderYawOffset = ridingEntity.renderYawOffset;
+      return new Vec3d(localPlayerPos.x + lookVec.x * -0.5, localPlayerPos.y + 0.15F, localPlayerPos.z + lookVec.z * -0.5);
    }
 
    /**
     * Hook for subclasses to override the final bone world position.
     */
-   protected Vec3d getBoneWorldPos(T var1, float var2, Vec3d var3) {
-      return var3;
+   protected Vec3d getBoneWorldPos(T entity, float partialTicks, Vec3d pos) {
+      return pos;
    }
 
    /**
@@ -460,47 +460,47 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * {@link RotationHelper#lerpVec3dDouble} (PROGRESS) — correct for render
     * interpolation; do not switch to the INT step variant.
     */
-   Vec3d getBoneWorldPos(T var1, float var2, double var3, double var5, double var7) {
-      Vec3d var9 = new Vec3d(var3, var5, var7);
-      if (var1.world instanceof SexWorldClient) {
-         return var9;
+   Vec3d getBoneWorldPos(T entity, float partialTicks, double x, double y, double z) {
+      Vec3d pos = new Vec3d(x, y, z);
+      if (entity.world instanceof SexWorldClient) {
+         return pos;
       }
 
-      if (var1.shouldRenderNameTag() && (!(var1 instanceof AbstractPlayerGirlEntity) || mc.gameSettings.thirdPersonView != 0)) {
-         this.renderNameTag(var3, var5, var7);
+      if (entity.shouldRenderNameTag() && (!(entity instanceof AbstractPlayerGirlEntity) || mc.gameSettings.thirdPersonView != 0)) {
+         this.renderNameTag(x, y, z);
       }
 
-      EntityPlayer var10 = var1.getMasterPlayer();
-      if (var10 != null && var10.isRiding() && var10.getRidingEntity() instanceof EntityHorse && ((EntityHorse)var10.getRidingEntity()).isHorseSaddled()) {
-         return this.getRidingOffset(var10, var2);
+      EntityPlayer master = entity.getMasterPlayer();
+      if (master != null && master.isRiding() && master.getRidingEntity() instanceof EntityHorse && ((EntityHorse)master.getRidingEntity()).isHorseSaddled()) {
+         return this.getRidingOffset(master, partialTicks);
       }
 
-      if (!var1.isAnchored()) {
-         return var9;
+      if (!entity.isAnchored()) {
+         return pos;
       }
 
-      if (!(var1 instanceof AbstractPlayerGirlEntity) || !((AbstractPlayerGirlEntity)var1).hasOwnerUUID() || mc.gameSettings.thirdPersonView == 0) {
-         Vec3d var11 = RotationHelper.lerpVec3dDouble(
-            new Vec3d(mc.player.lastTickPosX, mc.player.lastTickPosY, mc.player.lastTickPosZ), mc.player.getPositionVector(), var2
+      if (!(entity instanceof AbstractPlayerGirlEntity) || !((AbstractPlayerGirlEntity)entity).hasOwnerUUID() || mc.gameSettings.thirdPersonView == 0) {
+         Vec3d lerpedPlayerPos = RotationHelper.lerpVec3dDouble(
+            new Vec3d(mc.player.lastTickPosX, mc.player.lastTickPosY, mc.player.lastTickPosZ), mc.player.getPositionVector(), partialTicks
          );
-         var9 = var1.getTargetPosition().subtract(var11);
+         pos = entity.getTargetPosition().subtract(lerpedPlayerPos);
       }
 
-      float var12 = var1.getYawRotation();
-      var1.rotationYaw = var12;
-      var1.prevRenderYawOffset = var12;
-      var1.renderYawOffset = var12;
-      var1.prevRotationYawHead = var12;
-      var1.rotationYawHead = var12;
-      return var9;
+      float yaw = entity.getYawRotation();
+      entity.rotationYaw = yaw;
+      entity.prevRenderYawOffset = yaw;
+      entity.renderYawOffset = yaw;
+      entity.prevRotationYawHead = yaw;
+      entity.rotationYawHead = yaw;
+      return pos;
    }
 
-   protected void onBoneRenderStart(T var1) {
+   protected void onBoneRenderStart(T entity) {
    }
 
    @Override
-   public void doRender(T var1, double var2, double var4, double var6, float var8, float var9) {
-      this.doRenderEntity(var1, var2, var4, var6, var8, var9);
+   public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {
+      this.doRenderEntity(entity, x, y, z, entityYaw, partialTicks);
    }
 
    /**
@@ -516,81 +516,81 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * The camera bone pass must run after the model is drawn so
     * {@code GirlModel.CAMERA_PLACEMENTS} reflect this frame's pose.
     */
-   public void doRenderEntity(T var1, double var2, double var4, double var6, float var8, float var9) {
-      this.renderEntity = (T)var1;
-      Vec3d var10 = this.getBoneWorldPos((T)var1, var9, var2, var4, var6);
-      var10 = this.getBoneWorldPos((T)var1, var9, var10);
-      var2 = var10.x;
-      var4 = var10.y;
-      var6 = var10.z;
-      this.onBoneRenderStart((T)var1);
-      if (var1.getLeashed()) {
-         this.renderLeash(var1, var2, var4 + this.CACHE_C, var6, var9);
+   public void doRenderEntity(T entity, double x, double y, double z, float entityYaw, float partialTicks) {
+      this.renderEntity = (T)entity;
+      Vec3d boneWorldPos = this.getBoneWorldPos((T)entity, partialTicks, x, y, z);
+      boneWorldPos = this.getBoneWorldPos((T)entity, partialTicks, boneWorldPos);
+      x = boneWorldPos.x;
+      y = boneWorldPos.y;
+      z = boneWorldPos.z;
+      this.onBoneRenderStart((T)entity);
+      if (entity.getLeashed()) {
+         this.renderLeash(entity, x, y + this.CACHE_C, z, partialTicks);
       }
 
       GlStateManager.pushMatrix();
-      GlStateManager.translate(var2, var4, var6);
+      GlStateManager.translate(x, y, z);
       GL11.glDisable(2896);
       GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
       GlStateManager.enableNormalize();
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-      boolean var11 = var1.getRidingEntity() != null && var1.getRidingEntity().shouldRiderSit();
-      if (var11) {
-         EntityModelData var32 = new EntityModelData();
-         var32.isSitting = var11;
-         var32.isChild = var1.isChild();
-         float var33 = Interpolations.lerpYaw(var1.prevRenderYawOffset, var1.renderYawOffset, var9);
-         float var35 = Interpolations.lerpYaw(var1.prevRotationYawHead, var1.rotationYawHead, var9);
-         float var36 = var35 - var33;
-         if (var1.getRidingEntity() instanceof EntityLivingBase) {
-            EntityLivingBase var38 = (EntityLivingBase)var1.getRidingEntity();
-            var33 = Interpolations.lerpYaw(var38.prevRenderYawOffset, var38.renderYawOffset, var9);
-            var36 = var35 - var33;
-            float var40 = MathHelper.wrapDegrees(var36);
-            if (var40 < -85.0F) {
-               var40 = -85.0F;
+      boolean isSitting = entity.getRidingEntity() != null && entity.getRidingEntity().shouldRiderSit();
+      if (isSitting) {
+         EntityModelData ridingModelData = new EntityModelData();
+         ridingModelData.isSitting = isSitting;
+         ridingModelData.isChild = entity.isChild();
+         float ridingRenderYawOffset = Interpolations.lerpYaw(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
+         float ridingRotationYawHead = Interpolations.lerpYaw(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
+         float ridingHeadYawDelta = ridingRotationYawHead - ridingRenderYawOffset;
+         if (entity.getRidingEntity() instanceof EntityLivingBase) {
+            EntityLivingBase ridingEntity = (EntityLivingBase)entity.getRidingEntity();
+            ridingRenderYawOffset = Interpolations.lerpYaw(ridingEntity.prevRenderYawOffset, ridingEntity.renderYawOffset, partialTicks);
+            ridingHeadYawDelta = ridingRotationYawHead - ridingRenderYawOffset;
+            float clampedHeadYawDelta = MathHelper.wrapDegrees(ridingHeadYawDelta);
+            if (clampedHeadYawDelta < -85.0F) {
+               clampedHeadYawDelta = -85.0F;
             }
 
-            if (var40 >= 85.0F) {
-               var40 = 85.0F;
+            if (clampedHeadYawDelta >= 85.0F) {
+               clampedHeadYawDelta = 85.0F;
             }
 
-            var33 = var35 - var40;
-            if (var40 * var40 > 2500.0F) {
-               var33 += var40 * 0.2F;
+            ridingRenderYawOffset = ridingRotationYawHead - clampedHeadYawDelta;
+            if (clampedHeadYawDelta * clampedHeadYawDelta > 2500.0F) {
+               ridingRenderYawOffset += clampedHeadYawDelta * 0.2F;
             }
 
-            var36 = var35 - var33;
+            ridingHeadYawDelta = ridingRotationYawHead - ridingRenderYawOffset;
          }
 
-         float var39 = Interpolations.lerp(var1.prevRotationPitch, var1.rotationPitch, var9);
-         float var41 = this.handleRotationFloat((T)var1, var9);
-         this.applyRotations((T)var1, var41, var33, var9);
-         float var42 = 0.0F;
-         float var43 = 0.0F;
-         var32.headPitch = -var39;
-         var32.netHeadYaw = -var36;
-         AnimationEvent var44 = new AnimationEvent<>(var1, var43, var42, var9, false, Collections.singletonList(var32));
-         GeoModelProvider var45 = super.getGeoModelProvider();
-         ResourceLocation var46 = var45.getModelLocation(var1);
-         GeoModel var47 = var45.getModel(var46);
-         if (var45 instanceof IAnimatableModel) {
-            ((IAnimatableModel)var45).setLivingAnimations(var1, var1.getUniqueID().hashCode(), var44);
+         float ridingPitch = Interpolations.lerp(entity.prevRotationPitch, entity.rotationPitch, partialTicks);
+         float ridingRotationFloat = this.handleRotationFloat((T)entity, partialTicks);
+         this.applyRotations((T)entity, ridingRotationFloat, ridingRenderYawOffset, partialTicks);
+         float ridingLimbSwingAmount = 0.0F;
+         float ridingLimbSwing = 0.0F;
+         ridingModelData.headPitch = -ridingPitch;
+         ridingModelData.netHeadYaw = -ridingHeadYawDelta;
+         AnimationEvent ridingAnimationEvent = new AnimationEvent<>(entity, ridingLimbSwing, ridingLimbSwingAmount, partialTicks, false, Collections.singletonList(ridingModelData));
+         GeoModelProvider ridingModelProvider = super.getGeoModelProvider();
+         ResourceLocation ridingModelLocation = ridingModelProvider.getModelLocation(entity);
+         GeoModel ridingModel = ridingModelProvider.getModel(ridingModelLocation);
+         if (ridingModelProvider instanceof IAnimatableModel) {
+            ((IAnimatableModel)ridingModelProvider).setLivingAnimations(entity, entity.getUniqueID().hashCode(), ridingAnimationEvent);
          }
 
          GlStateManager.pushMatrix();
          GlStateManager.translate(0.0F, 0.01F, 0.0F);
-         Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture((T)var1));
-         software.bernie.geckolib3.core.util.Color var48 = this.getRenderColor((T)var1, var9);
-         boolean var49 = this.setDoRenderBrightness((T)var1, var9);
-         this.renderModel(var47, (T)var1, var9, var48.getRed() / 255.0F, var48.getBlue() / 255.0F, var48.getGreen() / 255.0F, var48.getAlpha() / 255.0F);
-         if (var49) {
+         Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture((T)entity));
+         software.bernie.geckolib3.core.util.Color ridingRenderColor = this.getRenderColor((T)entity, partialTicks);
+         boolean ridingHurtColorSet = this.setDoRenderBrightness((T)entity, partialTicks);
+         this.renderModel(ridingModel, (T)entity, partialTicks, ridingRenderColor.getRed() / 255.0F, ridingRenderColor.getBlue() / 255.0F, ridingRenderColor.getGreen() / 255.0F, ridingRenderColor.getAlpha() / 255.0F);
+         if (ridingHurtColorSet) {
             RenderHurtColor.unset();
          }
 
-         for (GeoLayerRenderer var53 : this.layerRenderers) {
-            var53.render((T)var1, var43, var42, var9, var43, var36, var39, var48);
+         for (GeoLayerRenderer ridingLayerRenderer : this.layerRenderers) {
+            ridingLayerRenderer.render((T)entity, ridingLimbSwing, ridingLimbSwingAmount, partialTicks, ridingLimbSwing, ridingHeadYawDelta, ridingPitch, ridingRenderColor);
          }
 
          GL11.glEnable(2896);
@@ -598,58 +598,58 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          GlStateManager.disableNormalize();
          GlStateManager.popMatrix();
          GlStateManager.popMatrix();
-         this.applyCameraBone((T)var1);
-         SexSceneRenderer.renderSexSceneEffects(var1, var9);
-         Vector3fSexmodSpecial var52 = this.getAdditionalOverlayColor((T)var1);
-         if (var52 != null) {
-            this.renderGirlColor(var1, var9, var52);
+         this.applyCameraBone((T)entity);
+         SexSceneRenderer.renderSexSceneEffects(entity, partialTicks);
+         Vector3fSexmodSpecial ridingOverlayColor = this.getAdditionalOverlayColor((T)entity);
+         if (ridingOverlayColor != null) {
+            this.renderGirlColor(entity, partialTicks, ridingOverlayColor);
          }
       } else {
-         EntityModelData var12 = new EntityModelData();
-         var12.isSitting = var11;
-         var12.isChild = var1.isChild();
-         float var13 = Interpolations.lerpYaw(var1.prevRenderYawOffset, var1.renderYawOffset, var9);
-         float var14 = Interpolations.lerpYaw(var1.prevRotationYawHead, var1.rotationYawHead, var9);
-         float var15 = var14 - var13;
-         float var16 = Interpolations.lerp(var1.prevRotationPitch, var1.rotationPitch, var9);
-         float var17 = this.handleRotationFloat((T)var1, var9);
-         this.applyRotations((T)var1, var17, var13, var9);
-         float var18 = 0.0F;
-         float var19 = 0.0F;
-         if (var1.isEntityAlive()) {
-            var18 = Interpolations.lerp(var1.prevLimbSwingAmount, var1.limbSwingAmount, var9);
-            var19 = var1.limbSwing - var1.limbSwingAmount * (1.0F - var9);
-            if (var1.isChild()) {
-               var19 *= 3.0F;
+         EntityModelData modelData = new EntityModelData();
+         modelData.isSitting = isSitting;
+         modelData.isChild = entity.isChild();
+         float renderYawOffset = Interpolations.lerpYaw(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
+         float rotationYawHead = Interpolations.lerpYaw(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
+         float headYawDelta = rotationYawHead - renderYawOffset;
+         float pitch = Interpolations.lerp(entity.prevRotationPitch, entity.rotationPitch, partialTicks);
+         float rotationFloat = this.handleRotationFloat((T)entity, partialTicks);
+         this.applyRotations((T)entity, rotationFloat, renderYawOffset, partialTicks);
+         float limbSwingAmount = 0.0F;
+         float limbSwing = 0.0F;
+         if (entity.isEntityAlive()) {
+            limbSwingAmount = Interpolations.lerp(entity.prevLimbSwingAmount, entity.limbSwingAmount, partialTicks);
+            limbSwing = entity.limbSwing - entity.limbSwingAmount * (1.0F - partialTicks);
+            if (entity.isChild()) {
+               limbSwing *= 3.0F;
             }
 
-            if (var18 > 1.0F) {
-               var18 = 1.0F;
+            if (limbSwingAmount > 1.0F) {
+               limbSwingAmount = 1.0F;
             }
          }
 
-         var12.headPitch = -var16;
-         var12.netHeadYaw = -var15;
-         AnimationEvent var20 = new AnimationEvent<>(var1, var19, var18, var9, !(var18 > -0.15F) || !(var18 < 0.15F), Collections.singletonList(var12));
-         GeoModelProvider var21 = super.getGeoModelProvider();
-         ResourceLocation var22 = var21.getModelLocation(var1);
-         GeoModel var23 = var21.getModel(var22);
-         if (var21 instanceof IAnimatableModel) {
-            ((IAnimatableModel)var21).setLivingAnimations(var1, var1.getUniqueID().hashCode(), var20);
+         modelData.headPitch = -pitch;
+         modelData.netHeadYaw = -headYawDelta;
+         AnimationEvent animationEvent = new AnimationEvent<>(entity, limbSwing, limbSwingAmount, partialTicks, !(limbSwingAmount > -0.15F) || !(limbSwingAmount < 0.15F), Collections.singletonList(modelData));
+         GeoModelProvider modelProvider = super.getGeoModelProvider();
+         ResourceLocation modelLocation = modelProvider.getModelLocation(entity);
+         GeoModel model = modelProvider.getModel(modelLocation);
+         if (modelProvider instanceof IAnimatableModel) {
+            ((IAnimatableModel)modelProvider).setLivingAnimations(entity, entity.getUniqueID().hashCode(), animationEvent);
          }
 
          GlStateManager.pushMatrix();
          GlStateManager.translate(0.0F, 0.01F, 0.0F);
-         Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture((T)var1));
-         software.bernie.geckolib3.core.util.Color var24 = this.getRenderColor((T)var1, var9);
-         boolean var25 = this.setDoRenderBrightness((T)var1, var9);
-         this.renderModel(var23, (T)var1, var9, var24.getRed() / 255.0F, var24.getBlue() / 255.0F, var24.getGreen() / 255.0F, var24.getAlpha() / 255.0F);
-         if (var25) {
+         Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture((T)entity));
+         software.bernie.geckolib3.core.util.Color renderColor = this.getRenderColor((T)entity, partialTicks);
+         boolean hurtColorSet = this.setDoRenderBrightness((T)entity, partialTicks);
+         this.renderModel(model, (T)entity, partialTicks, renderColor.getRed() / 255.0F, renderColor.getBlue() / 255.0F, renderColor.getGreen() / 255.0F, renderColor.getAlpha() / 255.0F);
+         if (hurtColorSet) {
             RenderHurtColor.unset();
          }
 
-         for (GeoLayerRenderer var27 : this.layerRenderers) {
-            var27.render((T)var1, var19, var18, var9, var19, var15, var16, var24);
+         for (GeoLayerRenderer layerRenderer : this.layerRenderers) {
+            layerRenderer.render((T)entity, limbSwing, limbSwingAmount, partialTicks, limbSwing, headYawDelta, pitch, renderColor);
          }
 
          GL11.glEnable(2896);
@@ -657,11 +657,11 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          GlStateManager.disableNormalize();
          GlStateManager.popMatrix();
          GlStateManager.popMatrix();
-         this.applyCameraBone((T)var1);
-         SexSceneRenderer.renderSexSceneEffects(var1, var9);
-         Vector3fSexmodSpecial var50 = this.getAdditionalOverlayColor((T)var1);
-         if (var50 != null) {
-            this.renderGirlColor(var1, var9, var50);
+         this.applyCameraBone((T)entity);
+         SexSceneRenderer.renderSexSceneEffects(entity, partialTicks);
+         Vector3fSexmodSpecial overlayColor = this.getAdditionalOverlayColor((T)entity);
+         if (overlayColor != null) {
+            this.renderGirlColor(entity, partialTicks, overlayColor);
          }
       }
    }
@@ -672,25 +672,25 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * the model matrices into the girl's bone-position cache — consumed by the
     * scene camera and effect renderers. Must run after the model render.
     */
-   void applyCameraBone(T var1) {
-      ArrayList var2 = new ArrayList<>(GirlModel.CAMERA_PLACEMENTS);
-      var2.addAll(var1.boneTrackingList);
+   void applyCameraBone(T entity) {
+      ArrayList boneNames = new ArrayList<>(GirlModel.CAMERA_PLACEMENTS);
+      boneNames.addAll(entity.boneTrackingList);
 
-      for (String var4 : (java.util.Collection<String>) (var2) ) {
-         MatrixStack var5 = var1.getBoneMatrixStack(var4, !var1.isLocallyRegistered());
-         Matrix4f var6 = var5.getModelMatrix();
-         Vec3d var7 = new Vec3d(-var6.m03, var6.m13, -var6.m23);
-         var1.setBoneWorldPosition(var4, var7);
+      for (String boneName : (java.util.Collection<String>) (boneNames) ) {
+         MatrixStack matrixStack = entity.getBoneMatrixStack(boneName, !entity.isLocallyRegistered());
+         Matrix4f modelMatrix = matrixStack.getModelMatrix();
+         Vec3d worldPos = new Vec3d(-modelMatrix.m03, modelMatrix.m13, -modelMatrix.m23);
+         entity.setBoneWorldPosition(boneName, worldPos);
       }
    }
 
    @Nullable
-   protected Vector3fSexmodSpecial getAdditionalOverlayColor(T var1) {
+   protected Vector3fSexmodSpecial getAdditionalOverlayColor(T entity) {
       return null;
    }
 
-   public Entity getRenderEntity(BaseGirlEntity var1) {
-      return var1;
+   public Entity getRenderEntity(BaseGirlEntity girl) {
+      return girl;
    }
 
    /**
@@ -698,23 +698,23 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * girl (target position when anchored, else lerped) relative to the local
     * player, with line width from {@link #getRenderOffset}.
     */
-   void renderGirlColor(BaseGirlEntity var1, float var2, Vector3fSexmodSpecial var3) {
-      EntityPlayerSP var4 = mc.player;
-      var3 = new Vector3fSexmodSpecial(var3.x / 255.0F, var3.y / 255.0F, var3.z / 255.0F);
-      Tessellator var5 = Tessellator.getInstance();
-      BufferBuilder var6 = var5.getBuffer();
+   void renderGirlColor(BaseGirlEntity girl, float partialTicks, Vector3fSexmodSpecial overlayColor) {
+      EntityPlayerSP localPlayer = mc.player;
+      overlayColor = new Vector3fSexmodSpecial(overlayColor.x / 255.0F, overlayColor.y / 255.0F, overlayColor.z / 255.0F);
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder buffer = tessellator.getBuffer();
       GlStateManager.pushMatrix();
       GlStateManager.translate(0.0, 0.01, 0.0);
-      Entity var7 = this.getRenderEntity(var1);
-      Vec3d var8 = var1.isAnchored()
-         ? var1.getTargetPosition()
-         : RotationHelper.lerpVec3dDouble(new Vec3d(var7.lastTickPosX, var7.lastTickPosY, var7.lastTickPosZ), var7.getPositionVector(), var2);
-      Vec3d var9 = RotationHelper.lerpVec3dDouble(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var2);
-      Vec3d var10 = var8.subtract(var9);
-      GlStateManager.translate(var10.x, var10.y, var10.z);
+      Entity renderEntity = this.getRenderEntity(girl);
+      Vec3d girlPos = girl.isAnchored()
+         ? girl.getTargetPosition()
+         : RotationHelper.lerpVec3dDouble(new Vec3d(renderEntity.lastTickPosX, renderEntity.lastTickPosY, renderEntity.lastTickPosZ), renderEntity.getPositionVector(), partialTicks);
+      Vec3d localPlayerPos = RotationHelper.lerpVec3dDouble(new Vec3d(localPlayer.lastTickPosX, localPlayer.lastTickPosY, localPlayer.lastTickPosZ), localPlayer.getPositionVector(), partialTicks);
+      Vec3d offset = girlPos.subtract(localPlayerPos);
+      GlStateManager.translate(offset.x, offset.y, offset.z);
       mc.getTextureManager().bindTexture(LINE_TEXTURE);
-      float var11 = getRenderOffset(var1, var2, 1.0F, 5.0F);
-      this.drawOverlayLines(var5, var6, var1, var3, var11);
+      float lineWidth = getRenderOffset(girl, partialTicks, 1.0F, 5.0F);
+      this.drawOverlayLines(tessellator, buffer, girl, overlayColor, lineWidth);
       GlStateManager.popMatrix();
    }
 
@@ -722,61 +722,61 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * Line width scaled by the girl's distance from the camera (5 blocks = max
     * width, closer = thinner), clamped 0..1 progress.
     */
-   protected static float getRenderOffset(BaseGirlEntity var0, float var1, float var2, float var3) {
-      EntityPlayerSP var4 = mc.player;
-      Entity var5 = ((GirlRenderer)mc.getRenderManager().getEntityRenderObject(var0)).getRenderEntity(var0);
-      Vec3d var6 = var0.isAnchored()
-         ? var0.getTargetPosition()
-         : RotationHelper.lerpVec3dDouble(new Vec3d(var5.lastTickPosX, var5.lastTickPosY, var5.lastTickPosZ), var5.getPositionVector(), var1);
-      Vec3d var7 = RotationHelper.lerpVec3dDouble(new Vec3d(var4.lastTickPosX, var4.lastTickPosY, var4.lastTickPosZ), var4.getPositionVector(), var1);
-      Vec3d var8 = ActiveRenderInfo.getCameraPosition().add(var7);
-      float var9 = (float)var8.distanceTo(var6);
-      float var10 = Math.abs(var9) / 5.0F;
-      return RotationHelper.lerp(var3, var2, ThreadNames.clampFloat(var10, 0.0F, 1.0F));
+   protected static float getRenderOffset(BaseGirlEntity girl, float partialTicks, float minWidth, float maxWidth) {
+      EntityPlayerSP localPlayer = mc.player;
+      Entity renderEntity = ((GirlRenderer)mc.getRenderManager().getEntityRenderObject(girl)).getRenderEntity(girl);
+      Vec3d girlPos = girl.isAnchored()
+         ? girl.getTargetPosition()
+         : RotationHelper.lerpVec3dDouble(new Vec3d(renderEntity.lastTickPosX, renderEntity.lastTickPosY, renderEntity.lastTickPosZ), renderEntity.getPositionVector(), partialTicks);
+      Vec3d playerPos = RotationHelper.lerpVec3dDouble(new Vec3d(localPlayer.lastTickPosX, localPlayer.lastTickPosY, localPlayer.lastTickPosZ), localPlayer.getPositionVector(), partialTicks);
+      Vec3d cameraPos = ActiveRenderInfo.getCameraPosition().add(playerPos);
+      float distance = (float)cameraPos.distanceTo(girlPos);
+      float clampedDistance = Math.abs(distance) / 5.0F;
+      return RotationHelper.lerp(maxWidth, minWidth, ThreadNames.clampFloat(clampedDistance, 0.0F, 1.0F));
    }
 
-   protected void drawOverlayLines(Tessellator var1, BufferBuilder var2, BaseGirlEntity var3, Vector3fSexmodSpecial var4, float var5) {
+   protected void drawOverlayLines(Tessellator tessellator, BufferBuilder buffer, BaseGirlEntity girl, Vector3fSexmodSpecial color, float lineWidth) {
    }
 
    /**
     * Draws a single colored line segment between two cached bone offsets.
     */
-   protected static void renderNameLabel(BufferBuilder var0, Tessellator var1, BaseGirlEntity var2, String var3, String var4, float var5, float var6, float var7, float var8) {
-      var0.begin(1, DefaultVertexFormats.POSITION_TEX_COLOR);
-      GlStateManager.glLineWidth(var8);
-      Vec3d var9 = var2.getCachedBoneOffset(var3);
-      Vec3d var10 = var2.getCachedBoneOffset(var4);
-      var0.pos(var9.x, var9.y, var9.z)
+   protected static void renderNameLabel(BufferBuilder buffer, Tessellator tessellator, BaseGirlEntity girl, String startBone, String endBone, float r, float g, float b, float width) {
+      buffer.begin(1, DefaultVertexFormats.POSITION_TEX_COLOR);
+      GlStateManager.glLineWidth(width);
+      Vec3d startPos = girl.getCachedBoneOffset(startBone);
+      Vec3d endPos = girl.getCachedBoneOffset(endBone);
+      buffer.pos(startPos.x, startPos.y, startPos.z)
          .tex(0.0, 0.0)
-         .color(var5, var6, var7, 1.0F)
+         .color(r, g, b, 1.0F)
          .endVertex();
-      var0.pos(var10.x, var10.y, var10.z)
+      buffer.pos(endPos.x, endPos.y, endPos.z)
          .tex(0.0, 0.0)
-         .color(var5, var6, var7, 1.0F)
+         .color(r, g, b, 1.0F)
          .endVertex();
-      var1.draw();
+      tessellator.draw();
    }
 
    /**
     * Draws the bra-string tint chain (all {@code braString*} segments) in the
     * given color — used by the corruption/buff overlay renderers.
     */
-   protected static void renderGirlTint(Tessellator var0, BufferBuilder var1, BaseGirlEntity var2, Vector3fSexmodSpecial var3, float var4) {
-      renderNameLabel(var1, var0, var2, "braStringMidStartR", "braStringMidMid1R", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringMidMid1R", "braStringMidMid2R", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringMidMid2R", "braStringMidMid3R", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringMidMid3R", "braStringMidEndR", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringMidEndR", "braStringBackR", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringBackR", "braStringRightEndR", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringRightEndR", "braStringRightStartR", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringRightR", "braStringRightL", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringMidStartL", "braStringMidMid1L", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringMidMid1L", "braStringMidMid2L", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringMidMid2L", "braStringMidMid3L", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringMidMid3L", "braStringMidEndL", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringMidEndL", "braStringBackL", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringBackL", "braStringLeftEndL", var3.x, var3.y, var3.z, var4);
-      renderNameLabel(var1, var0, var2, "braStringLeftEndL", "braStringLeftStartL", var3.x, var3.y, var3.z, var4);
+   protected static void renderGirlTint(Tessellator tessellator, BufferBuilder buffer, BaseGirlEntity girl, Vector3fSexmodSpecial color, float width) {
+      renderNameLabel(buffer, tessellator, girl, "braStringMidStartR", "braStringMidMid1R", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringMidMid1R", "braStringMidMid2R", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringMidMid2R", "braStringMidMid3R", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringMidMid3R", "braStringMidEndR", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringMidEndR", "braStringBackR", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringBackR", "braStringRightEndR", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringRightEndR", "braStringRightStartR", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringRightR", "braStringRightL", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringMidStartL", "braStringMidMid1L", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringMidMid1L", "braStringMidMid2L", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringMidMid2L", "braStringMidMid3L", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringMidMid3L", "braStringMidEndL", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringMidEndL", "braStringBackL", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringBackL", "braStringLeftEndL", color.x, color.y, color.z, width);
+      renderNameLabel(buffer, tessellator, girl, "braStringLeftEndL", "braStringLeftStartL", color.x, color.y, color.z, width);
    }
 
    /**
@@ -784,24 +784,24 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * girl pitches nose-down (clamped by flight time) and banks into the turn
     * like the owner.
     */
-   protected void applyRotations(T var1, float var2, float var3, float var4) {
-      super.applyRotations((T)var1, var2, var3, var4);
-      if (var1 instanceof AbstractPlayerGirlEntity) {
-         UUID var5 = ((AbstractPlayerGirlEntity)var1).getOwnerUserUUID();
-         if (var5 != null) {
-            EntityPlayer var6 = var1.world.getPlayerEntityByUUID(var5);
-            if (var6 != null) {
-               if (var6.isElytraFlying()) {
-                  float var7 = var6.getTicksElytraFlying() + var4;
-                  float var8 = MathHelper.clamp(var7 * var7 / 100.0F, 0.0F, 1.0F);
-                  GlStateManager.rotate(var8 * (-90.0F - var6.rotationPitch), 1.0F, 0.0F, 0.0F);
-                  Vec3d var9 = var6.getLook(var4);
-                  double var10 = var6.motionX * var6.motionX + var6.motionZ * var6.motionZ;
-                  double var12 = var9.x * var9.x + var9.z * var9.z;
-                  if (var10 > 0.0 && var12 > 0.0) {
-                     double var14 = (var6.motionX * var9.x + var6.motionZ * var9.z) / (Math.sqrt(var10) * Math.sqrt(var12));
-                     double var16 = var6.motionX * var9.z - var6.motionZ * var9.x;
-                     GlStateManager.rotate((float)(Math.signum(var16) * Math.acos(var14)) * 180.0F / (float) Math.PI, 0.0F, 1.0F, 0.0F);
+   protected void applyRotations(T entity, float rotationFloat, float renderYawOffset, float partialTicks) {
+      super.applyRotations((T)entity, rotationFloat, renderYawOffset, partialTicks);
+      if (entity instanceof AbstractPlayerGirlEntity) {
+         UUID ownerUuid = ((AbstractPlayerGirlEntity)entity).getOwnerUserUUID();
+         if (ownerUuid != null) {
+            EntityPlayer owner = entity.world.getPlayerEntityByUUID(ownerUuid);
+            if (owner != null) {
+               if (owner.isElytraFlying()) {
+                  float elytraTicks = owner.getTicksElytraFlying() + partialTicks;
+                  float flightProgress = MathHelper.clamp(elytraTicks * elytraTicks / 100.0F, 0.0F, 1.0F);
+                  GlStateManager.rotate(flightProgress * (-90.0F - owner.rotationPitch), 1.0F, 0.0F, 0.0F);
+                  Vec3d lookVec = owner.getLook(partialTicks);
+                  double motionSq = owner.motionX * owner.motionX + owner.motionZ * owner.motionZ;
+                  double lookSq = lookVec.x * lookVec.x + lookVec.z * lookVec.z;
+                  if (motionSq > 0.0 && lookSq > 0.0) {
+                     double cosAngle = (owner.motionX * lookVec.x + owner.motionZ * lookVec.z) / (Math.sqrt(motionSq) * Math.sqrt(lookSq));
+                     double crossZ = owner.motionX * lookVec.z - owner.motionZ * lookVec.x;
+                     GlStateManager.rotate((float)(Math.signum(crossZ) * Math.acos(cosAngle)) * 180.0F / (float) Math.PI, 0.0F, 1.0F, 0.0F);
                   }
                }
             }
@@ -809,101 +809,101 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
    }
 
-   protected void onBoneProcessing(BufferBuilder var1, String var2, GeoBone var3) {
+   protected void onBoneProcessing(BufferBuilder buffer, String boneName, GeoBone bone) {
    }
 
    /**
     * Vanilla-style leash render (two brown strip passes with a sagging curve)
     * between the girl and her leash holder.
     */
-   protected void renderLeash(BaseGirlEntity var1, double var2, double var4, double var6, float var8) {
-      Entity var9 = var1.getLeashHolder();
-      var4 -= (1.6 - var1.height) * 0.5;
-      Tessellator var10 = Tessellator.getInstance();
-      BufferBuilder var11 = var10.getBuffer();
-      double var12 = RotationHelper.lerp(var9.prevRotationYaw, var9.rotationYaw, var8 * 0.5F) * (float) (Math.PI / 180.0);
-      double var14 = RotationHelper.lerp(var9.prevRotationPitch, var9.rotationPitch, var8 * 0.5F) * (float) (Math.PI / 180.0);
-      double var16 = Math.cos(var12);
-      double var18 = Math.sin(var12);
-      double var20 = Math.sin(var14);
-      if (var9 instanceof EntityHanging) {
-         var16 = 0.0;
-         var18 = 0.0;
-         var20 = -1.0;
+   protected void renderLeash(BaseGirlEntity girl, double x, double y, double z, float partialTicks) {
+      Entity holder = girl.getLeashHolder();
+      y -= (1.6 - girl.height) * 0.5;
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder buffer = tessellator.getBuffer();
+      double holderYaw = RotationHelper.lerp(holder.prevRotationYaw, holder.rotationYaw, partialTicks * 0.5F) * (float) (Math.PI / 180.0);
+      double holderPitch = RotationHelper.lerp(holder.prevRotationPitch, holder.rotationPitch, partialTicks * 0.5F) * (float) (Math.PI / 180.0);
+      double cosYaw = Math.cos(holderYaw);
+      double sinYaw = Math.sin(holderYaw);
+      double sinPitch = Math.sin(holderPitch);
+      if (holder instanceof EntityHanging) {
+         cosYaw = 0.0;
+         sinYaw = 0.0;
+         sinPitch = -1.0;
       }
 
-      double var22 = Math.cos(var14);
-      double var24 = RotationHelper.lerpDouble(var9.prevPosX, var9.posX, var8) - var16 * 0.7 - var18 * 0.5 * var22;
-      double var26 = RotationHelper.lerpDouble(var9.prevPosY + var9.getEyeHeight() * 0.7, var9.posY + var9.getEyeHeight() * 0.7, var8)
-         - var20 * 0.5
+      double cosPitch = Math.cos(holderPitch);
+      double holderX = RotationHelper.lerpDouble(holder.prevPosX, holder.posX, partialTicks) - cosYaw * 0.7 - sinYaw * 0.5 * cosPitch;
+      double holderY = RotationHelper.lerpDouble(holder.prevPosY + holder.getEyeHeight() * 0.7, holder.posY + holder.getEyeHeight() * 0.7, partialTicks)
+         - sinPitch * 0.5
          - 0.25;
-      double var28 = RotationHelper.lerpDouble(var9.prevPosZ, var9.posZ, var8) - var18 * 0.7 + var16 * 0.5 * var22;
-      double var30 = RotationHelper.lerp(var1.prevRenderYawOffset, var1.renderYawOffset, var8) * (float) (Math.PI / 180.0) + (Math.PI / 2);
-      var16 = Math.cos(var30) * var1.width * 0.4;
-      var18 = Math.sin(var30) * var1.width * 0.4;
-      double var32 = RotationHelper.lerpDouble(var1.prevPosX, var1.posX, var8) + var16;
-      double var34 = RotationHelper.lerpDouble(var1.prevPosY, var1.posY, var8);
-      double var36 = RotationHelper.lerpDouble(var1.prevPosZ, var1.posZ, var8) + var18;
-      var2 += var16;
-      var6 += var18;
-      double var38 = (float)(var24 - var32);
-      double var40 = (float)(var26 - var34);
-      double var42 = (float)(var28 - var36);
+      double holderZ = RotationHelper.lerpDouble(holder.prevPosZ, holder.posZ, partialTicks) - sinYaw * 0.7 + cosYaw * 0.5 * cosPitch;
+      double girlYaw = RotationHelper.lerp(girl.prevRenderYawOffset, girl.renderYawOffset, partialTicks) * (float) (Math.PI / 180.0) + (Math.PI / 2);
+      cosYaw = Math.cos(girlYaw) * girl.width * 0.4;
+      sinYaw = Math.sin(girlYaw) * girl.width * 0.4;
+      double girlX = RotationHelper.lerpDouble(girl.prevPosX, girl.posX, partialTicks) + cosYaw;
+      double girlY = RotationHelper.lerpDouble(girl.prevPosY, girl.posY, partialTicks);
+      double girlZ = RotationHelper.lerpDouble(girl.prevPosZ, girl.posZ, partialTicks) + sinYaw;
+      x += cosYaw;
+      z += sinYaw;
+      double deltaX = (float)(holderX - girlX);
+      double deltaY = (float)(holderY - girlY);
+      double deltaZ = (float)(holderZ - girlZ);
       GlStateManager.disableTexture2D();
       GlStateManager.disableLighting();
       GlStateManager.disableCull();
-      var11.begin(5, DefaultVertexFormats.POSITION_COLOR);
+      buffer.begin(5, DefaultVertexFormats.POSITION_COLOR);
 
-      for (int var44 = 0; var44 <= 24; var44++) {
-         float var45 = 0.5F;
-         float var46 = 0.4F;
-         float var47 = 0.3F;
-         if (var44 % 2 == 0) {
-            var45 = 0.35F;
-            var46 = 0.28F;
-            var47 = 0.21000001F;
+      for (int segment = 0; segment <= 24; segment++) {
+         float r = 0.5F;
+         float g = 0.4F;
+         float b = 0.3F;
+         if (segment % 2 == 0) {
+            r = 0.35F;
+            g = 0.28F;
+            b = 0.21000001F;
          }
 
-         float var48 = var44 / 24.0F;
-         var11.pos(
-               var2 + var38 * var48 + 0.0, var4 + var40 * (var48 * var48 + var48) * 0.5 + ((24.0F - var44) / 18.0F + 0.125F), var6 + var42 * var48
+         float progress = segment / 24.0F;
+         buffer.pos(
+               x + deltaX * progress + 0.0, y + deltaY * (progress * progress + progress) * 0.5 + ((24.0F - segment) / 18.0F + 0.125F), z + deltaZ * progress
             )
-            .color(var45, var46, var47, 1.0F)
+            .color(r, g, b, 1.0F)
             .endVertex();
-         var11.pos(
-               var2 + var38 * var48 + 0.025, var4 + var40 * (var48 * var48 + var48) * 0.5 + ((24.0F - var44) / 18.0F + 0.125F) + 0.025, var6 + var42 * var48
+         buffer.pos(
+               x + deltaX * progress + 0.025, y + deltaY * (progress * progress + progress) * 0.5 + ((24.0F - segment) / 18.0F + 0.125F) + 0.025, z + deltaZ * progress
             )
-            .color(var45, var46, var47, 1.0F)
+            .color(r, g, b, 1.0F)
             .endVertex();
       }
 
-      var10.draw();
-      var11.begin(5, DefaultVertexFormats.POSITION_COLOR);
+      tessellator.draw();
+      buffer.begin(5, DefaultVertexFormats.POSITION_COLOR);
 
-      for (int var54 = 0; var54 <= 24; var54++) {
-         float var55 = 0.5F;
-         float var56 = 0.4F;
-         float var57 = 0.3F;
-         if (var54 % 2 == 0) {
-            var55 = 0.35F;
-            var56 = 0.28F;
-            var57 = 0.21000001F;
+      for (int segment2 = 0; segment2 <= 24; segment2++) {
+         float r2 = 0.5F;
+         float g2 = 0.4F;
+         float b2 = 0.3F;
+         if (segment2 % 2 == 0) {
+            r2 = 0.35F;
+            g2 = 0.28F;
+            b2 = 0.21000001F;
          }
 
-         float var58 = var54 / 24.0F;
-         var11.pos(
-               var2 + var38 * var58 + 0.0, var4 + var40 * (var58 * var58 + var58) * 0.5 + ((24.0F - var54) / 18.0F + 0.125F) + 0.025, var6 + var42 * var58
+         float progress2 = segment2 / 24.0F;
+         buffer.pos(
+               x + deltaX * progress2 + 0.0, y + deltaY * (progress2 * progress2 + progress2) * 0.5 + ((24.0F - segment2) / 18.0F + 0.125F) + 0.025, z + deltaZ * progress2
             )
-            .color(var55, var56, var57, 1.0F)
+            .color(r2, g2, b2, 1.0F)
             .endVertex();
-         var11.pos(
-               var2 + var38 * var58 + 0.025, var4 + var40 * (var58 * var58 + var58) * 0.5 + ((24.0F - var54) / 18.0F + 0.125F), var6 + var42 * var58 + 0.025
+         buffer.pos(
+               x + deltaX * progress2 + 0.025, y + deltaY * (progress2 * progress2 + progress2) * 0.5 + ((24.0F - segment2) / 18.0F + 0.125F), z + deltaZ * progress2 + 0.025
             )
-            .color(var55, var56, var57, 1.0F)
+            .color(r2, g2, b2, 1.0F)
             .endVertex();
       }
 
-      var10.draw();
+      tessellator.draw();
       GlStateManager.enableLighting();
       GlStateManager.enableTexture2D();
       GlStateManager.enableCull();
@@ -917,76 +917,76 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * when the bone carries an armor overlay (nonzero overlay alpha).
     */
    @Override
-   public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
+   public void renderRecursively(BufferBuilder buffer, GeoBone bone, float r, float g, float b, float a) {
       if (!(this.renderEntity.world instanceof SexWorldClient)) {
-         String var7 = var2.getName();
-         if (var7.equals("weapon") && this.renderEntity instanceof AbstractGirlNpcEntity) {
-            this.renderHeldItem(var1, var2);
+         String boneName = bone.getName();
+         if (boneName.equals("weapon") && this.renderEntity instanceof AbstractGirlNpcEntity) {
+            this.renderHeldItem(buffer, bone);
          }
 
-         if (var7.equals("itemRenderer") && this.renderEntity.getCurrentAction() == Action.PAYMENT) {
-            this.renderTradeOverlay(var1, var2);
+         if (boneName.equals("itemRenderer") && this.renderEntity.getCurrentAction() == Action.PAYMENT) {
+            this.renderTradeOverlay(buffer, bone);
          }
 
-         if (var7.equals("ballL") || var7.equals("ballR") || var7.equals("cock")) {
-            var6 = 1.0F;
+         if (boneName.equals("ballL") || boneName.equals("ballR") || boneName.equals("cock")) {
+            a = 1.0F;
          }
 
-         tempBuffer = var1;
-         this.onBoneProcessing(var1, var7, var2);
+         tempBuffer = buffer;
+         this.onBoneProcessing(buffer, boneName, bone);
          MATRIX_STACK.push();
-         MATRIX_STACK.translate(var2);
-         MATRIX_STACK.moveToPivot(var2);
-         MATRIX_STACK.rotate(var2);
-         MATRIX_STACK.scale(var2);
-         MATRIX_STACK.moveBackFromPivot(var2);
-         if ("Head2".equals(var7) && !this.shouldRenderHead2()) {
+         MATRIX_STACK.translate(bone);
+         MATRIX_STACK.moveToPivot(bone);
+         MATRIX_STACK.rotate(bone);
+         MATRIX_STACK.scale(bone);
+         MATRIX_STACK.moveBackFromPivot(bone);
+         if ("Head2".equals(boneName) && !this.shouldRenderHead2()) {
             MATRIX_STACK.pop();
-         } else if (!this.isBoneAllowedForRender(var7)) {
+         } else if (!this.isBoneAllowedForRender(boneName)) {
             MATRIX_STACK.pop();
          } else {
-            if (!var2.isHidden) {
-               Vector4f var8 = this.calculateBoneArmorColor(var7, var3, var4, var5);
-               var3 = var8.x;
-               var4 = var8.y;
-               var5 = var8.z;
-               double var9 = var8.w;
-               if (!this.activeCustomPartBones.contains(var7)) {
-                  for (GeoCube var12 : var2.childCubes) {
+            if (!bone.isHidden) {
+               Vector4f armorColor = this.calculateBoneArmorColor(boneName, r, g, b);
+               r = armorColor.x;
+               g = armorColor.y;
+               b = armorColor.z;
+               double armorAlpha = armorColor.w;
+               if (!this.activeCustomPartBones.contains(boneName)) {
+                  for (GeoCube cube : bone.childCubes) {
                      MATRIX_STACK.push();
-                     this.currentRenderingBone = var2;
-                     this.renderCubeGeometry(var1, var12, var3, var4, var5, var6, var9);
+                     this.currentRenderingBone = bone;
+                     this.renderCubeGeometry(buffer, cube, r, g, b, a, armorAlpha);
                      MATRIX_STACK.pop();
                   }
                }
 
-               for (GeoBone var18 : var2.childBones) {
-                  if (var9 == 0.0) {
-                     this.renderRecursively(var1, var18, var3, var4, var5, var6);
+               for (GeoBone childBone : bone.childBones) {
+                  if (armorAlpha == 0.0) {
+                     this.renderRecursively(buffer, childBone, r, g, b, a);
                   } else {
-                     this.renderCustomBones(var1, var18, var3, var4, var5, var6, var9);
+                     this.renderCustomBones(buffer, childBone, r, g, b, a, armorAlpha);
                   }
                }
             }
 
             try {
                MATRIX_STACK.pop();
-            } catch (IllegalStateException var13) {
+            } catch (IllegalStateException e) {
             }
          }
       }
    }
 
-   protected Vector4f createOverlayColor(float var1, float var2, float var3) {
-      return new Vector4f(var1, var2, var3, 0.0F);
+   protected Vector4f createOverlayColor(float r, float g, float b) {
+      return new Vector4f(r, g, b, 0.0F);
    }
 
    /**
     * Armor bones only render on NPC girls (the player's own armor is drawn by
     * the vanilla player renderer).
     */
-   boolean isBoneAllowedForRender(String var1) {
-      return !var1.startsWith("armor") ? true : this.renderEntity instanceof AbstractGirlNpcEntity;
+   boolean isBoneAllowedForRender(String boneName) {
+      return !boneName.startsWith("armor") ? true : this.renderEntity instanceof AbstractGirlNpcEntity;
    }
 
    /**
@@ -995,60 +995,60 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * dye color. Returns the unchanged base color otherwise. The alpha encodes
     * the armor overlay strength.
     */
-   protected Vector4f calculateBoneArmorColor(String var1, float var2, float var3, float var4) {
-      if (!var1.startsWith("armor")) {
-         return this.createOverlayColor(var2, var3, var4);
+   protected Vector4f calculateBoneArmorColor(String boneName, float r, float g, float b) {
+      if (!boneName.startsWith("armor")) {
+         return this.createOverlayColor(r, g, b);
       }
 
       if (!(this.renderEntity instanceof AbstractGirlNpcEntity)) {
-         return this.createOverlayColor(var2, var3, var4);
+         return this.createOverlayColor(r, g, b);
       }
 
       if ((Integer)this.renderEntity.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) == 0) {
-         return this.createOverlayColor(var2, var3, var4);
+         return this.createOverlayColor(r, g, b);
       }
 
-      GeoModelProvider var5 = this.getGeoModelProvider();
-      if (!(var5 instanceof GirlModel)) {
-         return this.createOverlayColor(var2, var3, var4);
+      GeoModelProvider modelProvider = this.getGeoModelProvider();
+      if (!(modelProvider instanceof GirlModel)) {
+         return this.createOverlayColor(r, g, b);
       }
 
-      GirlModel var6 = (GirlModel)var5;
-      ItemStack var7 = var6.getItemStackForBone(this.renderEntity, var1);
-      if (!(var7.getItem() instanceof ItemArmor)) {
-         return this.createOverlayColor(var2, var3, var4);
+      GirlModel girlModel = (GirlModel)modelProvider;
+      ItemStack armorStack = girlModel.getItemStackForBone(this.renderEntity, boneName);
+      if (!(armorStack.getItem() instanceof ItemArmor)) {
+         return this.createOverlayColor(r, g, b);
       }
 
-      ItemArmor var8 = (ItemArmor)var7.getItem();
-      ArmorMaterial var9 = var8.getArmorMaterial();
-      float var10 = 0.0F;
-      switch (var9) {
+      ItemArmor armorItem = (ItemArmor)armorStack.getItem();
+      ArmorMaterial armorMaterial = armorItem.getArmorMaterial();
+      float overlayStrength = 0.0F;
+      switch (armorMaterial) {
          case GOLD:
-            var10 = 1.0F;
+            overlayStrength = 1.0F;
             break;
          case CHAIN:
          case IRON:
-            var10 = 2.0F;
+            overlayStrength = 2.0F;
             break;
          case LEATHER:
-            var10 = 4.0F;
-            int var11 = var8.getColor(var7);
-            float var12 = (var11 >> 16 & 0xFF) / 255.0F;
-            float var13 = (var11 >> 8 & 0xFF) / 255.0F;
-            float var14 = (var11 & 0xFF) / 255.0F;
-            var2 *= var12;
-            var3 *= var13;
-            var4 *= var14;
+            overlayStrength = 4.0F;
+            int dyeColor = armorItem.getColor(armorStack);
+            float rTint = (dyeColor >> 16 & 0xFF) / 255.0F;
+            float gTint = (dyeColor >> 8 & 0xFF) / 255.0F;
+            float bTint = (dyeColor & 0xFF) / 255.0F;
+            r *= rTint;
+            g *= gTint;
+            b *= bTint;
       }
 
-      return new Vector4f(var2, var3, var4, 72.0F * var10 / 4096.0F);
+      return new Vector4f(r, g, b, 72.0F * overlayStrength / 4096.0F);
    }
 
    /**
     * Captures the current model matrix for custom-part world-position
     * computation later in the frame.
     */
-   public void captureGlobalMatrix(T var1, float var2, float var3, float var4, float var5, float var6) {
+   public void captureGlobalMatrix(T entity, float partialTicks, float r, float g, float b, float a) {
       this.globalModelMatrix = (Matrix4f)MATRIX_STACK.getModelMatrix().clone();
    }
 
@@ -1058,38 +1058,38 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * armor tinting, with per-cube GL pushes and forced opacity on the genital
     * bones. Skipped in the {@link SexWorldClient} preload world.
     */
-   public void renderCustomBones(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6, double var7) {
+   public void renderCustomBones(BufferBuilder buffer, GeoBone bone, float r, float g, float b, float a, double overlayAlpha) {
       if (!(this.renderEntity.world instanceof SexWorldClient)) {
-         String var9 = var2.getName();
-         if (var9.equals("weapon")) {
-            this.renderHeldItem(var1, var2);
+         String boneName = bone.getName();
+         if (boneName.equals("weapon")) {
+            this.renderHeldItem(buffer, bone);
          }
 
-         if (var9.equals("ballL") || var9.equals("ballR") || var9.equals("cock")) {
-            var6 = 1.0F;
+         if (boneName.equals("ballL") || boneName.equals("ballR") || boneName.equals("cock")) {
+            a = 1.0F;
          }
 
-         this.onBoneProcessing(var1, var2.getName(), var2);
+         this.onBoneProcessing(buffer, bone.getName(), bone);
          MATRIX_STACK.push();
-         MATRIX_STACK.translate(var2);
-         MATRIX_STACK.moveToPivot(var2);
-         MATRIX_STACK.rotate(var2);
-         MATRIX_STACK.scale(var2);
-         MATRIX_STACK.moveBackFromPivot(var2);
-         if (!var2.isHidden) {
-            if (!this.activeCustomPartBones.contains(var9)) {
-               for (GeoCube var11 : var2.childCubes) {
+         MATRIX_STACK.translate(bone);
+         MATRIX_STACK.moveToPivot(bone);
+         MATRIX_STACK.rotate(bone);
+         MATRIX_STACK.scale(bone);
+         MATRIX_STACK.moveBackFromPivot(bone);
+         if (!bone.isHidden) {
+            if (!this.activeCustomPartBones.contains(boneName)) {
+               for (GeoCube cube : bone.childCubes) {
                   MATRIX_STACK.push();
                   GlStateManager.pushMatrix();
-                  this.currentRenderingBone = var2;
-                  this.renderCubeGeometry(var1, var11, var3, var4, var5, var6, var7);
+                  this.currentRenderingBone = bone;
+                  this.renderCubeGeometry(buffer, cube, r, g, b, a, overlayAlpha);
                   GlStateManager.popMatrix();
                   MATRIX_STACK.pop();
                }
             }
 
-            for (GeoBone var13 : var2.childBones) {
-               this.renderCustomBones(var1, var13, var3, var4, var5, var6, var7);
+            for (GeoBone childBone : bone.childBones) {
+               this.renderCustomBones(buffer, childBone, r, g, b, a, overlayAlpha);
             }
          }
 
@@ -1105,36 +1105,36 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       return !this.renderEntity.isControlledByLocalPlayer() ? true : mc.gameSettings.thirdPersonView != 0;
    }
 
-   public void renderCubeGeometry(BufferBuilder var1, GeoCube var2, float var3, float var4, float var5, float var6, double var7) {
-      MATRIX_STACK.moveToPivot(var2);
-      MATRIX_STACK.rotate(var2);
-      MATRIX_STACK.moveBackFromPivot(var2);
+   public void renderCubeGeometry(BufferBuilder buffer, GeoCube cube, float r, float g, float b, float a, double textureVOffset) {
+      MATRIX_STACK.moveToPivot(cube);
+      MATRIX_STACK.rotate(cube);
+      MATRIX_STACK.moveBackFromPivot(cube);
 
-      for (GeoQuad var12 : var2.quads) {
-         if (var12 != null) {
-            Vector3f var13 = new Vector3f(var12.normal.getX(), var12.normal.getY(), var12.normal.getZ());
-            MATRIX_STACK.getNormalMatrix().transform(var13);
-            if ((var2.size.y == 0.0F || var2.size.z == 0.0F) && var13.getX() < 0.0F) {
-               var13.x *= -1.0F;
+      for (GeoQuad quad : cube.quads) {
+         if (quad != null) {
+            Vector3f normal = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
+            MATRIX_STACK.getNormalMatrix().transform(normal);
+            if ((cube.size.y == 0.0F || cube.size.z == 0.0F) && normal.getX() < 0.0F) {
+               normal.x *= -1.0F;
             }
 
-            if ((var2.size.x == 0.0F || var2.size.z == 0.0F) && var13.getY() < 0.0F) {
-               var13.y *= -1.0F;
+            if ((cube.size.x == 0.0F || cube.size.z == 0.0F) && normal.getY() < 0.0F) {
+               normal.y *= -1.0F;
             }
 
-            if ((var2.size.x == 0.0F || var2.size.y == 0.0F) && var13.getZ() < 0.0F) {
-               var13.z *= -1.0F;
+            if ((cube.size.x == 0.0F || cube.size.y == 0.0F) && normal.getZ() < 0.0F) {
+               normal.z *= -1.0F;
             }
 
-            Vec3d var14 = BodyParts.getBoneWorldPosition(this, this.currentRenderingBone, new Vec3d(var3, var4, var5), var13);
+            Vec3d worldColor = BodyParts.getBoneWorldPosition(this, this.currentRenderingBone, new Vec3d(r, g, b), normal);
 
-            for (GeoVertex var18 : var12.vertices) {
-               Vector4f var19 = new Vector4f(var18.position.getX(), var18.position.getY(), var18.position.getZ(), 1.0F);
-               MATRIX_STACK.getModelMatrix().transform(var19);
-               var1.pos(var19.getX(), var19.getY(), var19.getZ())
-                  .tex(var18.textureU + var7, var18.textureV)
-                  .color((float)var14.x, (float)var14.y, (float)var14.z, var6)
-                  .normal(var13.getX(), var13.getY(), var13.getZ())
+            for (GeoVertex vertex : quad.vertices) {
+               Vector4f matrixPos = new Vector4f(vertex.position.getX(), vertex.position.getY(), vertex.position.getZ(), 1.0F);
+               MATRIX_STACK.getModelMatrix().transform(matrixPos);
+               buffer.pos(matrixPos.getX(), matrixPos.getY(), matrixPos.getZ())
+                  .tex(vertex.textureU + textureVOffset, vertex.textureV)
+                  .color((float)worldColor.x, (float)worldColor.y, (float)worldColor.z, a)
+                  .normal(normal.getX(), normal.getY(), normal.getZ())
                   .endVertex();
             }
          }
@@ -1172,20 +1172,20 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * bone transform + rotations, fan 2nd/3rd items sideways, then re-bind the
     * entity texture and restart the buffer.
     */
-   protected void renderTradeOverlay(BufferBuilder var1, GeoBone var2) {
-      ItemStack var3 = this.getPaymentItemStack();
-      if (var3 != null) {
-         ItemRenderer var4 = Minecraft.getMinecraft().getItemRenderer();
+   protected void renderTradeOverlay(BufferBuilder buffer, GeoBone bone) {
+      ItemStack paymentStack = this.getPaymentItemStack();
+      if (paymentStack != null) {
+         ItemRenderer itemRenderer = Minecraft.getMinecraft().getItemRenderer();
 
-         for (int var5 = 0; var5 < var3.getCount(); var5++) {
+         for (int i = 0; i < paymentStack.getCount(); i++) {
             GlStateManager.pushMatrix();
             Tessellator.getInstance().draw();
-            com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, var2);
+            com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
             GL11.glEnable(2896);
-            GL11.glRotated(var2.getRotationX() + 2.5, 0.0, 0.0, 1.0);
-            GL11.glRotated(var2.getRotationY(), 0.0, 1.0, 0.0);
-            GL11.glRotated(var2.getRotationZ(), 1.0, 0.0, 0.0);
-            switch (var5) {
+            GL11.glRotated(bone.getRotationX() + 2.5, 0.0, 0.0, 1.0);
+            GL11.glRotated(bone.getRotationY(), 0.0, 1.0, 0.0);
+            GL11.glRotated(bone.getRotationZ(), 1.0, 0.0, 0.0);
+            switch (i) {
                case 1:
                   GL11.glRotated(-15.0, 0.0, 0.0, 1.0);
                   GlStateManager.translate(0.0, 0.0, -0.025);
@@ -1196,17 +1196,17 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
             }
 
             GlStateManager.scale(this.renderEntity.scaleFactor, this.renderEntity.scaleFactor, this.renderEntity.scaleFactor);
-            var4.renderItem(this.renderEntity, new ItemStack(var3.getItem(), 1), TransformType.THIRD_PERSON_RIGHT_HAND);
+            itemRenderer.renderItem(this.renderEntity, new ItemStack(paymentStack.getItem(), 1), TransformType.THIRD_PERSON_RIGHT_HAND);
             this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-            var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+            buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
             GL11.glDisable(2896);
             GlStateManager.popMatrix();
          }
       }
    }
 
-   protected ItemStack resolveHeldItemStack(@Nullable ItemStack var1) {
-      return var1;
+   protected ItemStack resolveHeldItemStack(@Nullable ItemStack stack) {
+      return stack;
    }
 
    /**
@@ -1216,47 +1216,47 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * (thrust offset + rotation) or slash rotations from the entity's swing
     * state. Resets the buffer + texture binding afterwards.
     */
-   protected void renderHeldItem(BufferBuilder var1, GeoBone var2) {
+   protected void renderHeldItem(BufferBuilder buffer, GeoBone bone) {
       if (this.renderEntity != null) {
          if (this.renderEntity instanceof AbstractGirlNpcEntity) {
-            EntityDataManager var3 = this.renderEntity.getDataManager();
-            AbstractGirlNpcEntity var4 = (AbstractGirlNpcEntity)this.renderEntity;
-            int var5 = (Integer)var3.get(AbstractGirlNpcEntity.ATTACK_MODE);
-            if (var4.getCurrentAction() != Action.BOW) {
+            EntityDataManager dataManager = this.renderEntity.getDataManager();
+            AbstractGirlNpcEntity girl = (AbstractGirlNpcEntity)this.renderEntity;
+            int attackMode = (Integer)dataManager.get(AbstractGirlNpcEntity.ATTACK_MODE);
+            if (girl.getCurrentAction() != Action.BOW) {
                this.bowPullProgress = 0.0F;
             }
 
-            ItemStack var6 = null;
-            if (var5 == 1) {
-               var6 = (ItemStack)var3.get(AbstractGirlNpcEntity.WEAPON);
-            } else if (var5 == 2) {
-               var6 = (ItemStack)var3.get(AbstractGirlNpcEntity.BOW);
+            ItemStack heldStack = null;
+            if (attackMode == 1) {
+               heldStack = (ItemStack)dataManager.get(AbstractGirlNpcEntity.WEAPON);
+            } else if (attackMode == 2) {
+               heldStack = (ItemStack)dataManager.get(AbstractGirlNpcEntity.BOW);
             }
 
-            var6 = this.resolveHeldItemStack(var6);
-            if (var6 != null) {
-               if (var6.getItem().equals(Items.BOW) && var4.getCurrentAction() == Action.BOW) {
+            heldStack = this.resolveHeldItemStack(heldStack);
+            if (heldStack != null) {
+               if (heldStack.getItem().equals(Items.BOW) && girl.getCurrentAction() == Action.BOW) {
                   this.bowPullProgress += 0.015F;
-                  var4.setItemUseCount(Math.round(-this.bowPullProgress * 20.0F + var6.getMaxItemUseDuration()));
-                  var4.setHeldItemOverride(var6);
+                  girl.setItemUseCount(Math.round(-this.bowPullProgress * 20.0F + heldStack.getMaxItemUseDuration()));
+                  girl.setHeldItemOverride(heldStack);
                }
 
                GlStateManager.pushMatrix();
                Tessellator.getInstance().draw();
-               com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, var2);
+               com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
                GL11.glEnable(2896);
-               if (var6.getItem() instanceof ItemBow) {
-                  GL11.glRotatef(var4.holdBowRot, 1.0F, 0.0F, 0.0F);
-               } else if (var4.getCurrentAction() == Action.ATTACK && var4.nextAttack == 0) {
-                  GlStateManager.translate(var4.swordOffsetStab.x, var4.swordOffsetStab.y, var4.swordOffsetStab.z);
-                  GL11.glRotatef(var4.stabSwordRot, 1.0F, 0.0F, 0.0F);
+               if (heldStack.getItem() instanceof ItemBow) {
+                  GL11.glRotatef(girl.holdBowRot, 1.0F, 0.0F, 0.0F);
+               } else if (girl.getCurrentAction() == Action.ATTACK && girl.nextAttack == 0) {
+                  GlStateManager.translate(girl.swordOffsetStab.x, girl.swordOffsetStab.y, girl.swordOffsetStab.z);
+                  GL11.glRotatef(girl.stabSwordRot, 1.0F, 0.0F, 0.0F);
                } else {
-                  GL11.glRotatef(var4.slashSwordRot, 1.0F, 0.0F, 0.0F);
+                  GL11.glRotatef(girl.slashSwordRot, 1.0F, 0.0F, 0.0F);
                }
 
-               Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, var6, TransformType.THIRD_PERSON_RIGHT_HAND);
+               Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, heldStack, TransformType.THIRD_PERSON_RIGHT_HAND);
                this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-               var1.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+               buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
                GL11.glDisable(2896);
                GlStateManager.popMatrix();
             }
@@ -1269,115 +1269,115 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * used for the occlusion check. Returns the first solid block hit or
     * {@code null} (NaN inputs or no hit within 200 steps).
     */
-   RayTraceResult rayTraceBlocks(Vec3d var1, Vec3d var2, World var3) {
-      if (Double.isNaN(var1.x) || Double.isNaN(var1.y) || Double.isNaN(var1.z)) {
+   RayTraceResult rayTraceBlocks(Vec3d start, Vec3d end, World world) {
+      if (Double.isNaN(start.x) || Double.isNaN(start.y) || Double.isNaN(start.z)) {
          return null;
       }
 
-      if (!Double.isNaN(var2.x) && !Double.isNaN(var2.y) && !Double.isNaN(var2.z)) {
-         int var4 = MathHelper.floor(var2.x);
-         int var5 = MathHelper.floor(var2.y);
-         int var6 = MathHelper.floor(var2.z);
-         int var7 = MathHelper.floor(var1.x);
-         int var8 = MathHelper.floor(var1.y);
-         int var9 = MathHelper.floor(var1.z);
-         BlockPos var10 = new BlockPos(var7, var8, var9);
-         IBlockState var11 = var3.getBlockState(var10);
-         if (var11.getCollisionBoundingBox(var3, var10) != Block.NULL_AABB && var11.getBlock().getRenderLayer() == BlockRenderLayer.SOLID) {
-            return var11.collisionRayTrace(var3, var10, var1, var2);
+      if (!Double.isNaN(end.x) && !Double.isNaN(end.y) && !Double.isNaN(end.z)) {
+         int endX = MathHelper.floor(end.x);
+         int endY = MathHelper.floor(end.y);
+         int endZ = MathHelper.floor(end.z);
+         int currentX = MathHelper.floor(start.x);
+         int currentY = MathHelper.floor(start.y);
+         int currentZ = MathHelper.floor(start.z);
+         BlockPos currentPos = new BlockPos(currentX, currentY, currentZ);
+         IBlockState blockState = world.getBlockState(currentPos);
+         if (blockState.getCollisionBoundingBox(world, currentPos) != Block.NULL_AABB && blockState.getBlock().getRenderLayer() == BlockRenderLayer.SOLID) {
+            return blockState.collisionRayTrace(world, currentPos, start, end);
          }
 
-         int var12 = 200;
+         int steps = 200;
 
-         while (var12-- >= 0) {
-            if (Double.isNaN(var1.x) || Double.isNaN(var1.y) || Double.isNaN(var1.z)) {
+         while (steps-- >= 0) {
+            if (Double.isNaN(start.x) || Double.isNaN(start.y) || Double.isNaN(start.z)) {
                return null;
             }
 
-            if (var7 == var4 && var8 == var5 && var9 == var6) {
+            if (currentX == endX && currentY == endY && currentZ == endZ) {
                return null;
             }
 
-            boolean var13 = true;
-            boolean var14 = true;
-            boolean var15 = true;
-            double var16 = 999.0;
-            double var18 = 999.0;
-            double var20 = 999.0;
-            if (var4 > var7) {
-               var16 = var7 + 1.0;
-            } else if (var4 < var7) {
-               var16 = var7 + 0.0;
+            boolean stepX = true;
+            boolean stepY = true;
+            boolean stepZ = true;
+            double nextX = 999.0;
+            double nextY = 999.0;
+            double nextZ = 999.0;
+            if (endX > currentX) {
+               nextX = currentX + 1.0;
+            } else if (endX < currentX) {
+               nextX = currentX + 0.0;
             } else {
-               var13 = false;
+               stepX = false;
             }
 
-            if (var5 > var8) {
-               var18 = var8 + 1.0;
-            } else if (var5 < var8) {
-               var18 = var8 + 0.0;
+            if (endY > currentY) {
+               nextY = currentY + 1.0;
+            } else if (endY < currentY) {
+               nextY = currentY + 0.0;
             } else {
-               var14 = false;
+               stepY = false;
             }
 
-            if (var6 > var9) {
-               var20 = var9 + 1.0;
-            } else if (var6 < var9) {
-               var20 = var9 + 0.0;
+            if (endZ > currentZ) {
+               nextZ = currentZ + 1.0;
+            } else if (endZ < currentZ) {
+               nextZ = currentZ + 0.0;
             } else {
-               var15 = false;
+               stepZ = false;
             }
 
-            double var22 = 999.0;
-            double var24 = 999.0;
-            double var26 = 999.0;
-            double var28 = var2.x - var1.x;
-            double var30 = var2.y - var1.y;
-            double var32 = var2.z - var1.z;
-            if (var13) {
-               var22 = (var16 - var1.x) / var28;
+            double tMaxX = 999.0;
+            double tMaxY = 999.0;
+            double tMaxZ = 999.0;
+            double deltaX = end.x - start.x;
+            double deltaY = end.y - start.y;
+            double deltaZ = end.z - start.z;
+            if (stepX) {
+               tMaxX = (nextX - start.x) / deltaX;
             }
 
-            if (var14) {
-               var24 = (var18 - var1.y) / var30;
+            if (stepY) {
+               tMaxY = (nextY - start.y) / deltaY;
             }
 
-            if (var15) {
-               var26 = (var20 - var1.z) / var32;
+            if (stepZ) {
+               tMaxZ = (nextZ - start.z) / deltaZ;
             }
 
-            if (var22 == -0.0) {
-               var22 = -1.0E-4;
+            if (tMaxX == -0.0) {
+               tMaxX = -1.0E-4;
             }
 
-            if (var24 == -0.0) {
-               var24 = -1.0E-4;
+            if (tMaxY == -0.0) {
+               tMaxY = -1.0E-4;
             }
 
-            if (var26 == -0.0) {
-               var26 = -1.0E-4;
+            if (tMaxZ == -0.0) {
+               tMaxZ = -1.0E-4;
             }
 
-            EnumFacing var34;
-            if (var22 < var24 && var22 < var26) {
-               var34 = var4 > var7 ? EnumFacing.WEST : EnumFacing.EAST;
-               var1 = new Vec3d(var16, var1.y + var30 * var22, var1.z + var32 * var22);
-            } else if (var24 < var26) {
-               var34 = var5 > var8 ? EnumFacing.DOWN : EnumFacing.UP;
-               var1 = new Vec3d(var1.x + var28 * var24, var18, var1.z + var32 * var24);
+            EnumFacing facing;
+            if (tMaxX < tMaxY && tMaxX < tMaxZ) {
+               facing = endX > currentX ? EnumFacing.WEST : EnumFacing.EAST;
+               start = new Vec3d(nextX, start.y + deltaY * tMaxX, start.z + deltaZ * tMaxX);
+            } else if (tMaxY < tMaxZ) {
+               facing = endY > currentY ? EnumFacing.DOWN : EnumFacing.UP;
+               start = new Vec3d(start.x + deltaX * tMaxY, nextY, start.z + deltaZ * tMaxY);
             } else {
-               var34 = var6 > var9 ? EnumFacing.NORTH : EnumFacing.SOUTH;
-               var1 = new Vec3d(var1.x + var28 * var26, var1.y + var30 * var26, var20);
+               facing = endZ > currentZ ? EnumFacing.NORTH : EnumFacing.SOUTH;
+               start = new Vec3d(start.x + deltaX * tMaxZ, start.y + deltaY * tMaxZ, nextZ);
             }
 
-            var7 = MathHelper.floor(var1.x) - (var34 == EnumFacing.EAST ? 1 : 0);
-            var8 = MathHelper.floor(var1.y) - (var34 == EnumFacing.UP ? 1 : 0);
-            var9 = MathHelper.floor(var1.z) - (var34 == EnumFacing.SOUTH ? 1 : 0);
-            var10 = new BlockPos(var7, var8, var9);
-            IBlockState var35 = var3.getBlockState(var10);
-            if ((var35.getMaterial() == Material.PORTAL || var35.getCollisionBoundingBox(var3, var10) != Block.NULL_AABB)
-               && var35.getBlock().getRenderLayer() == BlockRenderLayer.SOLID) {
-               return var35.collisionRayTrace(var3, var10, var1, var2);
+            currentX = MathHelper.floor(start.x) - (facing == EnumFacing.EAST ? 1 : 0);
+            currentY = MathHelper.floor(start.y) - (facing == EnumFacing.UP ? 1 : 0);
+            currentZ = MathHelper.floor(start.z) - (facing == EnumFacing.SOUTH ? 1 : 0);
+            currentPos = new BlockPos(currentX, currentY, currentZ);
+            IBlockState hitState = world.getBlockState(currentPos);
+            if ((hitState.getMaterial() == Material.PORTAL || hitState.getCollisionBoundingBox(world, currentPos) != Block.NULL_AABB)
+               && hitState.getBlock().getRenderLayer() == BlockRenderLayer.SOLID) {
+               return hitState.collisionRayTrace(world, currentPos, start, end);
             }
          }
 
