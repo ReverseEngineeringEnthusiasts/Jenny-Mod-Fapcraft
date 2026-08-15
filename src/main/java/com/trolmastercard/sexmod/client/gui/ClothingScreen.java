@@ -383,17 +383,21 @@ public class ClothingScreen extends GuiScreen {
                   File folder = new File(ServerWhitelistManager.getGlobalModelOverride());
                   SceneDebug.log(SceneDebug.CLOTHING, "ClothingScreen: opening folder %s (exists=%s)", folder.getAbsolutePath(), folder.exists());
                   if (folder.exists() || folder.mkdirs()) {
-                     try { Desktop.getDesktop().open(folder); } catch (IOException ioe) { }
+                     if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+                        try { Desktop.getDesktop().open(folder); } catch (IOException ioe) { }
+                     }
                   }
                } else {
                   y -= 20;
                   if (this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20)) {
-                     try {
-                        Desktop.getDesktop().browse(new URI("http://fapcraft.org/assets/video/tutorial/girl_wand.mp4"));
-                     } catch (URISyntaxException urie) {
-                        throw new RuntimeException(urie);
-                     } catch (IOException ioe) {
-                        throw new RuntimeException(ioe);
+                     if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                        try {
+                           Desktop.getDesktop().browse(new URI("https://web.archive.org/web/20241120012617/http://fapcraft.org/assets/video/tutorial/girl_wand.mp4"));
+                        } catch (URISyntaxException urie) {
+                           throw new RuntimeException(urie);
+                        } catch (IOException ioe) {
+                           throw new RuntimeException(ioe);
+                        }
                      }
                   }
                }
