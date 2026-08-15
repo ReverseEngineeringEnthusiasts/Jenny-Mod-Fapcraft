@@ -184,6 +184,20 @@
             <goals><goal>run</goal></goals>
             <configuration>
               <target>
+                <javac srcdir="${project.basedir}/tools"
+                       includes="MCRepack.java"
+                       destdir="${project.basedir}/tools"
+                       includeantruntime="false"
+                       fork="true"
+                       failonerror="true"
+                       source="8"
+                       target="8">
+                  <classpath>
+                    <pathelement path="${project.basedir}/lib-repo/local/asm/7.1/asm-7.1.jar" />
+                    <pathelement path="${project.basedir}/lib-repo/local/asm-commons/7.1/asm-commons-7.1.jar" />
+                    <pathelement path="${project.basedir}/lib-repo/local/asm-tree/7.1/asm-tree-7.1.jar" />
+                  </classpath>
+                </javac>
                 <java classname="MCRepack" fork="true" failonerror="true">
                   <classpath>
                     <pathelement path="${project.basedir}/tools" />
