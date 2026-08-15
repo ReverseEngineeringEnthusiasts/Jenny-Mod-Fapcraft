@@ -143,6 +143,50 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Galath — the flying succubus boss girl (implements
+ * {@link IEntityMultiPart}, {@link IGalath}). Wild Galaths spawn near wither
+ * skeleton/blaze hives, fly via the {@link GalathFlightData} state machine and
+ * attack players/mobs with dragon charges ({@link DragonEntity}), sword
+ * attacks and a rape pounce. Defeating her (knockout) lets a player "corrupt"
+ * her; once corrupted she grants a {@link GalathCoinItem} and becomes the
+ * player's bound succubus with cowgirl/anal/threesome/morning-blowjob scenes
+ * and the Manglelie partnership.
+ * <p>
+ * <b>State.</b> Own data keys (do not reorder): {@code bq} (111) = target
+ * entity id, {@code aP} (112) = attack/sword progress, {@code bN}/{@code b7}
+ * (113/114) = left/right energy-ball alive flags, {@code ay} (115) = mirror
+ * side, {@code bH} (116) = sword attack progress, {@code b8} (117) = flight
+ * target pos ("x|y|z"), {@code bP} (118) = paralyzed flag,
+ * {@code bO} (119) = rape progress, {@code HIDE_EFFECTS_FLAG} (120) =
+ * knock-out state, {@code WildSlimeFaceLayer} (121) = Manglelie partner UUID,
+ * {@code bT} (122) = sprint flag. The two {@link SexEntityPart} hitboxes
+ * ({@code b2}, {@code energyBallHitboxRight}) back the energy-ball attack.
+ * <p>
+ * <b>Flow.</b> Wild: {@code updateAITasks} -&gt; {@link #ao()} drives the
+ * flight state machine ({@link #initFlightData()} picks a random
+ * {@link GalathFlightData} action when a target is in range, see
+ * {@link #I_clash687()}); {@link #setFlightVelocity(Vec3d)} (dragon hit)
+ * sends her into {@link Action#KNOCK_OUT_FLY} -&gt; KNOCK_OUT_GROUND
+ * ({@link #handleKnockout()}) -&gt; KNOCK_OUT_STAND_UP. The corrupting player
+ * then right-clicks ({@link #processGirlInteract(EntityPlayer, EnumHand)})
+ * which starts {@link Action#CORRUPT_INTRO}; {@code handleCorruptCum} (server)
+ * advances CORRUPT_CUM -&gt; {@link Action#GIVE_COIN} -&gt;
+ * {@link #ap()} grants the coin and binds the master.
+ * Tamed: scenes enter through {@link #processMasterInteract} +
+ * {@link #doAction(String, UUID)}; {@link #handleRapeState()} and
+ * {@link #handleRapeCum()}/{@link #Y_clash648()} end rape/corrupt scenes
+ * (player reset via {@link SetPlayerMovementPacket}).
+ * <p>
+ * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} blocks transitions out
+ * of GALATH_DE_SUMMON, guards all cum loops, persists cum time via
+ * {@link GirlSavedData} and fires the GIVE_COIN/HUG_MANG/MORNING_BLOWJOB_CUM
+ * teardown hooks. The boss bar ({@code aO}) is only visible for wild Galaths
+ * ({@link #an()}); {@code despawned} girls only update the Manglelie world
+ * data. {@link #getAimYaw(GalathEntity, float)} mutates the render yaw — many
+ * systems depend on it. The energy-ball hitboxes must be active exactly while
+ * {@code ad} is in [9, 30] (see {@link #resetEnergyBalls()}).
+ */
 public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IGalath {
    public static final float a2 = 0.6F;
    public static final float b6 = 0.6F;
@@ -499,6 +543,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * SERVER: ends the rape scene — once the RAPE_ON_GOING loop leaves for
+    * RAPE_CUM she switches to flight repositioning (CHANGE_POSITION) and
+    * releases the player.
+    */
    public void handleRapeState() {
       Action var1 = this.getCurrentAction();
       if (var1 == Action.RAPE_ON_GOING) {
@@ -557,6 +606,13 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.velocity = this.velocity.scale(0.9);
    }
 
+   /**
+    * BOTH sides: the per-tick split — tamed girls tick the master systems
+    * ({@link #E_clash646()} gravity + {@link #au()}), wild girls tick the
+    * flight UI (boss bar, gravity, flight data) and the wild systems
+    * ({@link #R_clash650()}). CLIENT additionally ticks the coin-give
+    * particles ({@link #X_clash645()}).
+    */
    @Override
    public void onUpdate() {
       boolean var1 = this.hasMaster();
@@ -584,6 +640,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return false;
    }
 
+   /**
+    * CLIENT: the GIVE_COIN scene — at tick 95 summons the coin for the local
+    * player, and during ticks 25-38 spawns the dragon-breath particles
+    * streaming between the two hands (progress lerp between the weapon and
+    * offhand bones).
+    */
    @SideOnly(Side.CLIENT)
    void X_clash645() {
       if (this.getCurrentAction() == Action.GIVE_COIN) {
@@ -610,6 +672,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.setNoGravity(this.getRidingPlayer() != null);
    }
 
+   /**
+    * SERVER: tamed per-tick systems — soft fall damping, riding-player yaw
+    * sync, the carry camera pitch, the boost impulse, wing/effect flags, and
+    * the rape/corrupt scene enders ({@link #handleRapeCum()},
+    * {@link #Y_clash648()}).
+    */
    void au() {
       if (!this.isInWater() && !this.hasNoGravity() && this.motionY < 0.0 && this.getCurrentAction() != Action.MASTERBATE) {
          this.motionY *= 0.4F;
@@ -627,6 +695,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * SERVER: ends the rape scene — 28 ticks into RAPE_CUM she un-anchors,
+    * resets to NULL and releases the player (positioned on solid ground with
+    * movement restored).
+    */
    void handleRapeCum() {
       if (!this.world.isRemote) {
          if (this.getCurrentAction() == Action.RAPE_CUM) {
@@ -733,6 +806,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * SERVER: the corrupt-scene ender — 30 ticks into CORRUPT_CUM advances to
+    * the coin-give scene ({@link Action#GIVE_COIN}).
+    */
    void handleCorruptCum() {
       if (!this.world.isRemote) {
          if (this.getCurrentAction() == Action.CORRUPT_CUM) {
@@ -802,6 +879,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    public void addPotionEffect(PotionEffect var1) {
    }
 
+   /**
+    * CLIENT: tracks the energy-ball attack — spawns dragon-breath particles
+    * along the weapon bone while the sword is drawn ({@code bu}).
+    */
    void af_clash657() {
       if (this.world.isRemote) {
          if (this.bu) {
@@ -860,6 +941,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return var1 == null ? super.getEffectiveDisplayName() : String.format("%s %s[%s]", super.getEffectiveDisplayName(), TextFormatting.DARK_PURPLE, var1.getName());
    }
 
+   /**
+    * SERVER: places the two energy-ball hitbox parts at the summoning hands
+    * while the summon action is charging ({@code ad} in [9, 30]); both parts
+    * are inactive outside that window.
+    */
    void resetEnergyBalls() {
       this.b2.isActive = false;
       this.energyBallHitboxRight.isActive = false;
@@ -922,6 +1008,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.bg = TrigMath.toRadians(ThreadNames.clampDouble(var2.x * 40.0, -50.0, 50.0));
    }
 
+   /**
+    * SERVER: the paralysis knock — dragon explosions call this; once
+    * paralyzed she stops the flight action, is flung away from the source
+    * ({@link Action#KNOCK_OUT_FLY}) and broadcasts the "time to corrupt her"
+    * message with the effect particles.
+    */
    public void setFlightVelocity(Vec3d var1) {
       if (!(Boolean)this.entityDataManager.get(bP)) {
          this.entityDataManager.set(bP, true);
@@ -952,6 +1044,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.entityDataManager.set(HIDE_EFFECTS_FLAG, true);
    }
 
+   /**
+    * BOTH sides, every AI tick: the tamed/wild split — wild girls (no
+    * master) tick the flight state machine, boss bar and knock-out recovery;
+    * tamed girls follow their owner (or the Manglelie partnership) and run
+    * the scene/morning-blowjob helpers.
+    */
    @Override
    public void updateAITasks() {
       if (this.despawned) {
@@ -1297,6 +1395,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.as();
    }
 
+   /**
+    * SERVER: the tamed rape/corrupt scenes' shared tick — targets the
+    * nearest player or mob in a radius (7 tamed / 20 wild), picks flight
+    * actions (see {@link #initFlightData()}), keeps the energy-ball
+    * hitboxes synced and watches the flight target validity.
+    */
    void ao() {
       if (!Action.isAnyAction(this, Action.MASTERBATE, Action.HUG_MANG)) {
          if (this.getInteractionPlayerUUID() == null) {
@@ -1345,6 +1449,13 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * SERVER: the state-machine gate — guards the cum loops and
+    * GALATH_DE_SUMMON, persists the cum time via {@link GirlSavedData} for
+    * the tamed cum scenes, and fires the GIVE_COIN ({@link #ap()}),
+    * HUG_MANG ({@link #al()}) and MORNING_BLOWJOB_CUM ({@link #aE()})
+    * teardown hooks.
+    */
    @Override
    public void setCurrentAction(Action action) {
       Action var2 = this.getCurrentAction();
@@ -1386,6 +1497,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * SERVER: the morning-blowjob teardown — resets the bound player and the
+    * girl after MORNING_BLOWJOB_CUM.
+    */
    void aE() {
       EntityPlayer var1 = this.getPlayerEntity();
       if (var1 != null) {
@@ -1403,6 +1518,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * SERVER: the coin grant — swaps the player's main hand for the
+    * {@link GalathCoinItem}, unbinds the scene, binds her to the player as
+    * master and explains the coin mechanic in chat.
+    */
    void ap() {
       EntityPlayer var1 = this.getPlayerEntity();
       if (var1 != null) {
@@ -1727,6 +1847,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * SERVER: selects and starts the next flight action — if a scene player is
+    * bound the current action stops; otherwise a random executable
+    * {@link GalathFlightData} action is started (with the attack cooldown
+    * collapsing into CHANGE_POSITION when it applies).
+    */
    void initFlightData() {
       if (!(Boolean)this.entityDataManager.get(bP)) {
          GalathFlightData var1 = this.bZ;
@@ -1766,6 +1892,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.bZ = null;
    }
 
+   /**
+    * SERVER: acquires a flight target — the nearest player (wild) or mob
+    * (tamed) within the search box, and switches to CHANGE_POSITION to
+    * approach it. See {@link #getPlayerInBox(AxisAlignedBB)} /
+    * {@link #getMobInBox(AxisAlignedBB)}.
+    */
    void I_clash687() {
       if (!this.hasFlightTarget()) {
          if (this.getInteractionPlayerUUID() == null) {
@@ -1887,6 +2019,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return this.hasMaster() ? this.processMasterInteract(var1, var2) : this.processGirlInteract(var1, var2);
    }
 
+   /**
+    * SERVER: tamed interaction — only the master may interact; the action
+    * menu depends on held items (no coin) and context: ride while airborne,
+    * cowgirl/anal (+ threesome with a Manglelie) on the ground.
+    */
    boolean processMasterInteract(EntityPlayer var1, EnumHand var2) {
       if (!var1.getPersistentID().equals(this.getMasterUUID())) {
          return false;
@@ -1918,6 +2055,13 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * CLIENT: master-action dispatch — {@code ride} shows the flight HUD and
+    * requests riding; {@code anal}/{@code cowgirl}/{@code threesome} arm the
+    * scene after a 1200 ms delay thread (anchor + start the action + bind
+    * the player; the threesome also starts Manglelie on
+    * {@link Action#THREESOME_SLOW} + {@link Action#PUSSY_LICKING}).
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void doAction(String var1, UUID var2) {
@@ -1974,6 +2118,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * SERVER: the corruption trigger — a knocked-out (paralyzed) Galath being
+    * right-clicked by a non-owner player starts {@link Action#CORRUPT_INTRO}
+    * anchored and locks the player in.
+    */
    boolean processGirlInteract(EntityPlayer var1, EnumHand var2) {
       if (!(Boolean)this.entityDataManager.get(bP)) {
          return super.processInteract(var1, var2);
@@ -2021,6 +2170,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return -1 == var1 ? null : (EntityLivingBase)this.world.getEntityByID(var1);
    }
 
+   /**
+    * SERVER: computes the aim yaw toward the flight target (progress-lerped
+    * positions) and applies it to the render yaw. Returns null outside the
+    * aiming actions (FLY/SUMMON_SKELETON/RAPE_PREPARE) — callers must handle
+    * null (see {@link ManglelieEntity#isLookingAtGalathPoint(Vec3d, float)}).
+    */
    public static Float getAimYaw(GalathEntity var0, float var1) {
       Action var2 = var0.getCurrentAction();
       if (var2 != Action.FLY && var2 != Action.SUMMON_SKELETON && var2 != Action.RAPE_PREPARE) {
@@ -2160,6 +2315,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * SERVER: per-tick rape damage — while RAPE_ON_GOING/RAPE_INTRO the bound
+    * player takes 1 HP (non-creative, survives at 1), and Galath heals 1.5
+    * per pulse when {@code var1} is set.
+    */
    public void handleRapeAction(boolean var1) {
       Action var2 = this.getCurrentAction();
       if (var2 == Action.RAPE_ON_GOING || var2 == Action.RAPE_INTRO) {
@@ -2421,6 +2581,15 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
+   /**
+    * CLIENT: registers the action (via {@link GirlAnimationController}),
+    * movement and eyes controllers plus the sound listener that drives the
+    * wild fight (charge sounds, sword render toggles, stars) and the tamed
+    * scenes (rape switch/UI, corrupt switch, coin cam, morning blowjob,
+    * creampie trails). {@code blackScreenTamed} only black-screens wild
+    * girls; {@code flapControlled} sends the flight input as
+    * {@link UpdateVelocityPacket}.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {
@@ -2748,6 +2917,18 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       var1.addAnimationController(this.movementController);
    }
 
+   /**
+    * Event handlers for the Galath fight/taming lifecycle: replaces wither
+    * skeleton/blaze spawns near hives with wild Galaths
+    * ({@code canSpawn}), jump = flight boost while riding ({@code onKeyInput}),
+    * unmount resets ({@code onMount}), death is intercepted — wild girls
+    * enter the knockout + "corrupt her" broadcast, tamed girls de-summon to
+    * the coin ({@code onLivingDeath}), player respawn mid-scene resets the
+    * girl ({@code onRespawn}), the SUMMON_SKELETON energy balls are rendered
+    * as growing dragons ({@code onRenderWorldLast}), and waking up with a
+    * tamed Galath spawns the morning-blowjob scene when the bed has free
+    * space ({@code onWake}, see {@link #spawnStructure(World, BlockPos, EnumFacing)}).
+    */
    public static class a {
       boolean hasRidingPlayer(GalathEntity var1) {
          return var1.getRidingPlayer() != null;
@@ -2898,6 +3079,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          GlStateManager.enableAlpha();
       }
 
+         /**
+       * SERVER: checks the bed-side space requirement for the morning blowjob —
+       * the block south/east/north/west of the bed head (and one above) must be
+       * free of solid blocks, else the scene cannot spawn.
+       */
       boolean spawnStructure(World var1, BlockPos var2, EnumFacing var3) {
          if (var3 == EnumFacing.NORTH) {
             var2 = var2.west();

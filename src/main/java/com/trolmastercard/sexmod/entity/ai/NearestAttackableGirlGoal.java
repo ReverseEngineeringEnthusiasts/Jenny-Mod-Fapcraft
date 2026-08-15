@@ -9,6 +9,11 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 
+/**
+ * <b>Role.</b> Nearest-target goal that only attacks tamed kobolds
+ * ({@code hasMaster()}), with optional darkness requirement and a
+ * radius-chance gate. Used for hostile mobs that hunt kobold tribe members.
+ */
 public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<KoboldEntity> {
    private final int targetRadius;
    private final boolean isValid;
@@ -27,6 +32,10 @@ public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<K
       this.isValid = var6;
    }
 
+   /**
+    * Filters candidates: skips daylight when {@code isValid} is set, applies
+    * the 1/radius random gate, then picks the nearest kobold with a master.
+    */
    public boolean shouldExecute() {
       if (this.isValid) {
          float var1 = this.taskOwner.getBrightness();

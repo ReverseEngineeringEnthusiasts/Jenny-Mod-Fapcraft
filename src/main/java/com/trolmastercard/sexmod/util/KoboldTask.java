@@ -15,6 +15,20 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * <b>Role.</b> A single tribe work order (MINE / FALL_TREE): target position,
+ * facing, the set of blocks to break and the kobolds assigned as workers. Created
+ * by {@link MinePacket}/{@link FallTreePacket} and executed by the kobold AI;
+ * persisted by {@link KoboldManager.TribeWorldSavedData}.
+ * <p>
+ * <b>Capacity.</b> {@code TaskType} caps workers (FALL_TREE: 1, MINE: 3);
+ * {@link #addWorker} and {@link #isFull} must agree on that cap.
+ * <p>
+ * <b>Pitfalls.</b> {@link #releaseWorkers} restores physics + anchor flags and
+ * only skips kobolds that are themselves in an interaction. The static
+ * {@link #findConnectedBlocks} flood-fills logs both horizontally and one level
+ * up and registers the FALL_TREE task itself — callers must not double-register.
+ */
 public class KoboldTask {
    public static final int maxWorkers = 30;
    BlockPos targetPos;

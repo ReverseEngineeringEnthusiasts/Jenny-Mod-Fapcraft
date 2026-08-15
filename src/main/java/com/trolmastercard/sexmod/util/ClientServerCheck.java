@@ -4,6 +4,15 @@ import com.trolmastercard.sexmod.Main;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+/**
+ * <b>Role.</b> Best-effort CLIENT/SERVER thread detector, used by
+ * {@link ThreadNames#createDaemonThread} to name daemon threads. Decides by
+ * thread name first ("server"/"client" substring); falls back to
+ * {@code isCallingFromMinecraftThread()} with a warning when the name is
+ * ambiguous.
+ *
+ * @return {@code true} if the calling thread is a server thread
+ */
 public class ClientServerCheck {
    public static boolean getInstance() {
       String var0 = Thread.currentThread().getName().toLowerCase();

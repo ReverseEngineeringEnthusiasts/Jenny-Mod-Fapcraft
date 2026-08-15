@@ -12,6 +12,18 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.Vec3d;
 
+/**
+ * <b>Role.</b> CLIENT-side ribbon/trail renderer used by girl scene effects
+ * (energy tendrils etc.). Maintains a ring of {@link TrailSegment}s that are
+ * spawned from the source position provider, drift toward the target provider
+ * with jitter, and are drawn as a sorted translucent polyline with per-segment
+ * partial-tick interpolation.
+ * <p>
+ * <b>Pitfalls.</b> {@code renderTrailSegments} insertion-sorts segments by
+ * distance (bubble pass) so the strip renders back-to-front — reordering logic
+ * must stay. {@link RotationHelper#lerpVec3dDouble} here is correct (render
+ * interpolation by partial ticks); do not swap to the INT step variant.
+ */
 public class DynamicTrailRenderer {
    static final int MAX_TICKS_AGE = 30;
    static final int SEGMENTS_PER_TICK = 6;

@@ -8,6 +8,11 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * Forge death handler: cleans dead girls out of the global girl list
+ * ({@code BaseGirlEntity.GLOBAL_GIRL_CACHE} / getGirlEntityList removals)
+ * and handles girl-specific death bookkeeping.
+ */
 public class LivingDeathHandler {
    @SubscribeEvent(priority = EventPriority.LOW)
    public void onLivingDeath(LivingDeathEvent var1) {

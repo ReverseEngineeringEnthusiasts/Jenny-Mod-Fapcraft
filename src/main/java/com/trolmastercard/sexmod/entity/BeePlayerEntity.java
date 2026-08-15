@@ -18,6 +18,13 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Player-form Bee — the transformation with the single citizen
+ * scene (start/slow/fast/cum). Flight is granted to the owner while the
+ * transformation is active ({@code B_clash233}/{@code onTickClient} pair).
+ * Progression and scene end run in the sound listener
+ * ({@code sex_cumDone} -&gt; {@code resetCameraAndPhysics()}).
+ */
 public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    protected BeePlayerEntity(World var1) {
       super(var1);
@@ -56,6 +63,11 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
       return "textures/entity/bee/hand.png";
    }
 
+   /**
+    * SERVER: the single owner command (sex) — broadcasts, strips, starts
+    * {@link Action#CITIZEN_START} and positions the acting player in front of
+    * the girl.
+    */
    @Override
    public void handleOwnerCommand(String var1, UUID var2) {
       this.sendActionPacket(0, Action.CITIZEN_START);
@@ -152,6 +164,12 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * citizen scene; {@code sex_startDone}/{@code sex_fastDone} -&gt;
+    * {@link Action#CITIZEN_SLOW} (jump keeps fast), {@code sex_cumDone} -&gt;
+    * {@code resetCameraAndPhysics()}.
+    */
    @Override
    public void registerControllers(AnimationData var1) {
       if (this.actionController == null) {

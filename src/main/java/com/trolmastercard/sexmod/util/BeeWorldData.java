@@ -10,6 +10,9 @@ import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * WorldSavedData for bee companions (tamed bee state per world).
+ */
 public class BeeWorldData extends WorldSavedData {
    public static final List<BlockPos> hivePositions = new ArrayList<>();
    public static final List<BlockPos> flowerPositions = new ArrayList<>();

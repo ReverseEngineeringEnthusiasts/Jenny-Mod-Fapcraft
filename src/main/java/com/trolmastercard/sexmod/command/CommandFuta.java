@@ -18,6 +18,13 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.IClientCommand;
 
+/**
+ * <b>Role.</b> Client-side toggle for the Galath futa feature: {@code /futa
+ * true|false} persists the flag to {@code sexmod/futa} (read back in the
+ * constructor) and, when enabled, spawns dragon-breath particles at the
+ * {@code cockParticles} bone of every local Galath. Registered by
+ * {@link ClientProxy}.
+ */
 public class CommandFuta extends CommandBase implements IClientCommand {
    static final String CONFIG_FILE_PATH = "sexmod/futa";
    static final int PARTICLE_COUNT = 10;

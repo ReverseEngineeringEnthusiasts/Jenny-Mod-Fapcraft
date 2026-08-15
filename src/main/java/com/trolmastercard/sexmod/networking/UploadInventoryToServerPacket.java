@@ -17,6 +17,19 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER inventory upload from the girl's chest GUI — writes
+ * the 36 player-inventory slots plus the girl's armor slots back onto the server.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Slots 0-35 go into
+ * the interacting player's inventory; slot 36+ into the girl's inventory (7 slots
+ * for Luna, 6 for other {@link AbstractGirlNpcEntity}s, 27 for
+ * {@link BeeEntityBase} — the target layout depends on the girl type).
+ * <p>
+ * <b>Pitfall.</b> The payload layout must match what the client GUI sent; a
+ * length mismatch throws {@link ArrayIndexOutOfBoundsException} on the server.
+ * The {@code girlUUID} resolves the girl, {@code playerUUID} the inventory owner.
+ */
 public class UploadInventoryToServerPacket implements IMessage {
    boolean isValid = false;
    ItemStack[] d;

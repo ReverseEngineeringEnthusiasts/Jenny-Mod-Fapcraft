@@ -54,6 +54,33 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Player-form Goblin (implements {@link IGoblin}) — the
+ * transformation that can itself be picked up and thrown like the NPC goblin.
+ * When carried (owner UUID set), the girl renders on the owner's shoulder and
+ * the OWNING player's entity is the one thrown; when unowned it behaves like a
+ * normal player girl with nelson/paizuri scenes and the breeding scenes of the
+ * NPC queen.
+ * <p>
+ * <b>State.</b> Own keys: {@code ax} (122) = carrying player's UUID,
+ * {@code aA} (126) = pregnancy flag (NELSON_CUM). Inherits the kobold DNA keys
+ * (119-121) via {@link AbstractKoboldPlayerEntity}; {@code setCustomPartList}
+ * packs the trailing model-part index 9.
+ * <p>
+ * <b>Flow.</b> {@link #handlePlayerThrow(EntityPlayer)} starts the pickup;
+ * {@link #updatePlayerThrowProgress()} launches the carrying player at tick 15
+ * and unbinds at tick 39; {@link #handleThrowAction()} glues the transformed
+ * player to the carrier's head while unthrown. Scenes start via
+ * {@link #handleOwnerCommand(String, UUID)} (anal -&gt; nelson, paizuri);
+ * {@link #handlePlayerInteract()}/{@link #handlePlayerLook()} position the
+ * player for paizuri/nelson.
+ * <p>
+ * <b>Pitfalls.</b> {@link #isAnchored()} is true whenever carried
+ * (owner != null) — many scene checks depend on it. {@link #isPlayerGirl()}
+ * returns false while carried. {@link #onOwnerInteract(EntityPlayer)} resets
+ * the girl when the carrier interacts. The inner class {@code a} handles the
+ * client-side fake-player rendering and the sneak+click pickup trigger.
+ */
 public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IGoblin {
    public static final float aI = 2.0F;
    public static final DataParameter<String> ax = EntityDataManager.createKey(GoblinPlayerEntity.class, DataSerializers.STRING)
@@ -113,6 +140,11 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       this.entityDataManager.register(ax, "");
    }
 
+   /**
+    * SERVER: owner commands — {@code anal} starts {@link Action#NELSON_INTRO},
+    * {@code paizuri} starts {@link Action#PAIZURI_START}. Both broadcast,
+    * strip and teleport the acting player into the scene.
+    */
    @Override
    public void handleOwnerCommand(String var1, UUID var2) {
       if ("anal".equals(var1)) {
@@ -176,6 +208,12 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       return RotationHelper.lerpVec3dDouble(var6, var5, var2);
    }
 
+   /**
+    * SERVER: the pickup trigger (sneak+click by a non-transformed player on
+    * the carried player's entity) — binds the carrier and starts
+    * {@link Action#PICK_UP} with the 45-tick hold countdown, locking the
+    * carrying player's physics.
+    */
    void handlePlayerThrow(EntityPlayer var1) {
       if (this.getCurrentAction() == Action.NULL) {
          if (this.getOwnerUUID() == null) {
@@ -322,6 +360,12 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       }
    }
 
+   /**
+    * BOTH sides: dispatches the throw glue ({@link #handleThrowAction()}),
+    * the throw flight ({@link #updatePlayerThrowProgress()}) and the CLIENT
+    * local action handling (owner revival, action diffing for the nelson
+    * switch).
+    */
    @Override
    public void onUpdate() {
       GoblinEntity.handleGoblinThrowAction(this);
@@ -342,6 +386,10 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       return this.getOwnerUUID() != null;
    }
 
+   /**
+    * SERVER (mirrored on CLIENT): while carried (owner set) and not yet
+    * thrown, keeps the transformed player glued 2 blocks above the carrier.
+    */
    void handleThrowAction() {
       Action var1 = this.getCurrentAction();
       if (var1 != Action.THROWN) {
@@ -362,6 +410,12 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       }
    }
 
+   /**
+    * SERVER (mirrored on CLIENT): throw flight for the transformed player —
+    * at tick 15 the carrying player is launched with the carrier's aim, at
+    * tick 39 the throw ends (THROWN) and the owner/interaction bindings
+    * clear.
+    */
    void updatePlayerThrowProgress() {
       GoblinPlayerEntity var1 = this;
       int var2 = var1.getThrowProgress();
@@ -567,6 +621,11 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       }
    }
 
+   /**
+    * Guards the state machine: refuses re-entry into loop phases while the
+    * cum animation plays, positions the player for paizuri/nelson on the
+    * server and toggles the pregnancy flag ({@code aA}) on NELSON_CUM.
+    */
    @Override
    public void setCurrentAction(Action action) {
       Action var2 = this.getCurrentAction();
@@ -626,6 +685,10 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       return this.getOwnerUUID() == null;
    }
 
+   /**
+    * SERVER: the carrier's interaction — resets the girl, un-anchors and
+    * unbinds the carrier.
+    */
    @Override
    public void onOwnerInteract(EntityPlayer var1) {
       if (var1.getPersistentID().equals(this.getOwnerUUID())) {
@@ -803,6 +866,17 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * catch dialogue, paizuri, nelson and breeding scenes. Key transitions:
+    * {@code catchDone} -&gt; {@link Action#CATCH_BJ}, {@code paizuri_startDone}
+    * -&gt; {@link Action#PAIZURI_IDLE}, {@code neslon_introDone} -&gt;
+    * {@link Action#NELSON_SLOW}, {@code breedingIntroDone} -&gt;
+    * {@link Action#BREEDING_SLOW_0}, jump on the ready keyframes switches
+    * fast/hard, {@code paizuriCumDone}/{@code nelson_cumDone} -&gt;
+    * {@code resetCameraAndPhysics()} + NULL. Movement controller uses a
+    * 2-tick transition.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {
@@ -1052,6 +1126,16 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       var1.addAnimationController(this.eyesController);
    }
 
+   /**
+    * CLIENT-only event handler for the goblin transformation: hides the
+    * first-person hand while a goblin is carried ({@code onRenderHand}),
+    * glues the carried player to the carrier's head every tick
+    * ({@code onPlayerTick}/{@code onRenderTickSync}), re-renders fake player
+    * entities of carried goblins ({@code onRenderWorldLast} with the
+    * clear/kill fake-player pair around each frame), and starts the
+    * pickup/throw when a non-transformed player sneaks+clicks a carried
+    * goblin player ({@code onEntityInteract}).
+    */
    public static class a {
       HashSet<EntityPlayer> playersToRender = new HashSet<>();
 

@@ -48,6 +48,30 @@ import software.bernie.geckolib3.geo.render.GeoBuilder;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.resource.GeckoLibCache;
 
+/**
+ * <b>Role.</b> Custom-model management on both sides.
+ * <p>
+ * CLIENT: registers the whitelist file ({@code sexmod/custom_models/whitelisted_servers.txt}),
+ * decides whether a server may push models ({@link #isGlobalRenderingDisabled()}
+ * — the current server IP must be whitelisted), and loads custom models
+ * ({@code .cfg} + {@code .png} + {@code .geo.json}) from
+ * {@code sexmod/custom_models/<server>/} into GeckoLib
+ * ({@link #registerModel}), exposing them via
+ * {@link #getModelDataForGirl(String)}, {@link #getModelParts(BaseGirlEntity)},
+ * {@link #getModelResource(String)} etc.
+ * <p>
+ * SERVER: {@link #loadCustomModels(false)} registers model *names* (no textures/
+ * geo) so {@link DownloadServerModelPacket} can serve the files.
+ * <p>
+ * <b>Flow.</b> {@link ChatHandler} triggers a reload on server connect / world
+ * join (via {@link UnknownPacket}) and a full cache clear on disconnect; the
+ * editor wand and model-code commands read the registered {@link ModelData}.
+ * <p>
+ * <b>Pitfalls.</b> {@code "cross"} is a reserved model name (internal fallback)
+ * and {@code #}/spaces are illegal in model names — validation lives in
+ * {@link ModelData}'s constructor. {@link #getCurrentGroup()} differs per side
+ * (client: per-server folder; server: shared folder).
+ */
 public class ServerWhitelistManager {
    public static final String CUSTOM_MODELS_DIR = "sexmod/custom_models";
    static final String WHITELIST_FILE = "sexmod/custom_models/whitelisted_servers.txt";
@@ -525,7 +549,13 @@ public class ServerWhitelistManager {
    }
 
    @SideOnly(Side.CLIENT)
-   public static class ChatHandler {
+   /**
+ * <b>Role.</b> Client-side events for the custom-model lifecycle: the
+ * {@code id} chat command (girl UUID lookup), model (re)load on server connect,
+ * the model-download request when first joining a whitelisted server, and cache
+ * cleanup on disconnect.
+ */
+public static class ChatHandler {
       boolean hasSentId = false;
 
       @SideOnly(Side.CLIENT)
@@ -582,7 +612,19 @@ public class ServerWhitelistManager {
 
    }
 
-   public static class ModelData {
+   /**
+ * <b>Role.</b> Parsed representation of one custom model's {@code .cfg} file:
+ * wear type ({@link BoneType}), allowed girls ({@link NpcType}s), lighting,
+ * author/model-code, bones to hide, nude-mode enable, GUI scale/position and the
+ * registered textures. The constructor validates every field and stores the
+ * first problem in {@link #errorMessage} (callers abort registration on a
+ * non-null message).
+ * <p>
+ * <b>Pitfall.</b> The cfg property names are part of the user-facing mod
+ * format (docs/examples depend on them) — renaming a property breaks every
+ * existing custom model.
+ */
+public static class ModelData {
       BoneType boneType;
       HashSet<NpcType> allowedNpcTypes = new HashSet<>();
       HashSet<String> customPartBones = new HashSet<>();

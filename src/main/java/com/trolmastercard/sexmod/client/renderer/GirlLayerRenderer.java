@@ -18,6 +18,20 @@ import software.bernie.geckolib3.core.util.Color;
 import software.bernie.geckolib3.renderers.geo.GeoLayerRenderer;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
+/**
+ * Geckolib layer that renders a vanilla {@link ModelElytra} on girl entities
+ * ({@link AbstractGirlNpcEntity} incl. player-girls) when their chest slot
+ * holds an elytra.
+ * <p>
+ * <b>Animation source.</b> The elytra pose is driven by
+ * {@code setRotationAngles} using the owning player's limb/head angles when
+ * the girl is a player-girl with a known owner ({@code getOwnerUserUUID}),
+ * otherwise the girl's own angles — so a girl wearing her owner's elytra
+ * flaps in sync with him.
+ * <p>
+ * CLIENT-side render thread only; attached to the girl renderer via geckolib's
+ * layer system.
+ */
 public class GirlLayerRenderer extends GeoLayerRenderer {
    private static final ResourceLocation elytraTexture = new ResourceLocation("textures/entity/elytra.png");
    private final ModelElytra elytraModel = new ModelElytra();
@@ -26,6 +40,12 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
       super(var1);
    }
 
+   /**
+    * Renders the elytra model over the girl when her chest slot is an elytra:
+    * binds the vanilla elytra texture, pushes a 0.125 offset, applies the
+    * layer's rotation angles from the owner player (or the girl itself), and
+    * renders. No-op for non-girl entities or non-elytra chest items.
+    */
    @Override
    public void render(EntityLivingBase var1, float var2, float var3, float var4, float var5, float var6, float var7, Color var8) {
       if (var1 instanceof AbstractGirlNpcEntity) {
@@ -100,6 +120,10 @@ public class GirlLayerRenderer extends GeoLayerRenderer {
       }
    }
 
+   /**
+    * Prepares the vanilla layer transform (rescale-normal on, mirrored scale,
+    * -1.501 translate) and returns the standard 1/16 model scale.
+    */
    public float renderLayer() {
       GlStateManager.enableRescaleNormal();
       GlStateManager.scale(-1.0F, -1.0F, 1.0F);

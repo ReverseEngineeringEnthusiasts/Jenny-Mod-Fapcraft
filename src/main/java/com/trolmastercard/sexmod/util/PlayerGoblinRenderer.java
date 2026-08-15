@@ -26,6 +26,9 @@ import net.minecraft.util.math.Vec3i;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Renderer for the player-form Goblin (horny potion).
+ */
 public class PlayerGoblinRenderer extends AbstractPlayerKoblinGoboldRenderer {
    GoblinPlayerEntity playerGirl = null;
    boolean isShoulderIdle = false;

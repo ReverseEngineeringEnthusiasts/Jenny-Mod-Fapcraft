@@ -16,6 +16,13 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
+/**
+ * <b>Role.</b> Common (server-capable) half of the mod bootstrap: registers the
+ * world generator, entities, items, sounds, the GUI handler and
+ * {@link PacketHandler}; on a dedicated server also loads the custom-model
+ * registry ({@link ServerWhitelistManager#loadCustomModels(false)}) so model
+ * files can be served to clients.
+ */
 public class CommonProxy {
    public static final CommonProxy PROXY = new CommonProxy();
 

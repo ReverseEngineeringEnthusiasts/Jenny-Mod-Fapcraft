@@ -17,6 +17,21 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER upload of a custom model code (+ optional part-id
+ * list) for a girl, from the clothing editor / {@code /setmodelcode} command.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. For NPC girls the
+ * code/part list is stored on the entity ({@code setCustomModelCode}/
+ * {@code setCustomPartList}); for transformed player-girls it is persisted on
+ * the player's NBT ({@code sexmod:CustomModel<type>} and, if the part list
+ * passed validation, {@code sexmod:GirlSpecific<type>}).
+ * <p>
+ * <b>Validation.</b> {@link #isValidModelCode(BaseGirlEntity, List)} rejects a
+ * part-id list unless every id is strictly smaller than the girl's current ids —
+ * part ids encode nested "hide parent, show child" choices, so a non-decreasing
+ * list would be a no-op or a rollback.
+ */
 public class UploadModelStringPacket implements IMessage {
    boolean isValid = false;
    String modelCode;
@@ -103,7 +118,12 @@ public class UploadModelStringPacket implements IMessage {
          }
       }
 
-      boolean isValidModelCode(BaseGirlEntity var1, List<Integer> var2) {
+      /**
+    * True if every part id in {@code var2} is strictly smaller than the
+    * corresponding current id of the girl. SERVER-side validation for the custom
+    * part list; a mismatched list size is invalid.
+    */
+   boolean isValidModelCode(BaseGirlEntity var1, List<Integer> var2) {
          ArrayList var3 = var1.getCustomPartIdList();
 
          try {

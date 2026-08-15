@@ -8,11 +8,31 @@ import org.lwjgl.BufferUtils;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.util.MatrixStack;
 
+/**
+ * Matrix utilities for geckolib bone rendering. Provides the bridge between
+ * geckolib's {@link MatrixStack}/{@link GeoBone} transforms and vanilla OpenGL
+ * state, used by renderers that must place vanilla-rendered parts (or custom
+ * geometry) at a bone's exact pose.
+ * <p>
+ * <b>CLIENT-side only.</b> The shared static buffer {@code b}/{@code floatBuffer}
+ * are overwritten on every call; callers must consume the GL state immediately and
+ * must not hold references across renders.
+ */
 public class MatrixHelper {
    public static final float[] b = new float[16];
    public static final FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(16);
    private static final Matrix4f matrix = new Matrix4f();
 
+   /**
+    * Applies a bone's model-space transform onto the current OpenGL matrix:
+    * the {@link MatrixStack}'s model matrix is transposed, uploaded via
+    * {@link GlStateManager#multMatrix}, then translated to the bone's rotation
+    * point (pixels converted to blocks, /16).
+    * <p>
+    * Must be called on the render thread between matrix pushes; the caller is
+    * responsible for {@code glPushMatrix}/{@code glPopMatrix} around it. Side
+    * effect: clobbers the shared static {@code b} and {@code floatBuffer}.
+    */
    public static void applyBoneTransform(MatrixStack var0, GeoBone var1) {
       matrix.set(var0.getModelMatrix());
       matrix.transpose();
@@ -24,6 +44,10 @@ public class MatrixHelper {
       GlStateManager.translate(var1.rotationPointX / 16.0F, var1.rotationPointY / 16.0F, var1.rotationPointZ / 16.0F);
    }
 
+   /**
+    * Flattens a {@link Matrix4f} into a 16-element column-major float array.
+    * {@code target} must have length >= 16.
+    */
    public static void toFloatArray(float[] var0, Matrix4f var1) {
       var0[0] = var1.m00;
       var0[1] = var1.m01;

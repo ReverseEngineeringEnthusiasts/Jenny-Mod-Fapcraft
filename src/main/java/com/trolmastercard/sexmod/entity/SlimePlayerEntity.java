@@ -22,6 +22,17 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Player-form Slime — the transformation with the same blowjob and
+ * doggy scene set as the slime NPC (no pregnancy lifecycle).
+ * <p>
+ * <b>Scene flow.</b> The only owner command is {@code blowjob} (starts
+ * {@link Action#SUCKBLOWJOB} directly); the doggy scene waits in
+ * {@link Action#WAITDOGGY} inside {@link #updateAITasks()} for a player within
+ * 1 block, then locks both players in and starts {@link Action#DOGGYSTART}.
+ * Progression and scene end run in the {@code ISoundListener}
+ * ({@code bjcDone}/{@code doggyCumDone} -&gt; {@code resetCameraAndPhysics()}).
+ */
 public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    boolean ap = false;
    int aq = 0;
@@ -105,6 +116,12 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * SERVER (and CLIENT mirror): the doggy bed phase — waits in
+    * {@link Action#WAITDOGGY} for a player within 1 block, locks them in
+    * (movement lock, noClip, noGravity, flying) and starts
+    * {@link Action#DOGGYSTART}.
+    */
    @Override
    public void updateAITasks() {
       super.updateAITasks();
@@ -226,6 +243,12 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * blowjob/doggy scenes; {@code bjcDone}/{@code doggyCumDone} -&gt;
+    * {@code resetCameraAndPhysics()}, {@code undress}/{@code dress} -&gt;
+    * outfit change + reset.
+    */
    @Override
    public void registerControllers(AnimationData var1) {
       if (this.actionController == null) {

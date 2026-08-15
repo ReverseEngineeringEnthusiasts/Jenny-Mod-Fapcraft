@@ -31,6 +31,24 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
+/**
+ * Direction-pad command screen for the dragon staff: while the player holds
+ * the mouse in one of four quadrants and releases (closes the screen), a
+ * context-dependent command fires — bottom-left = mark/unmark the targeted
+ * chest/bed ({@link SendBlocksPacket}), top-left = toggle tribe follow mode
+ * ({@link SetTribeFollowModePacket}), bottom-right = toggle the staff's
+ * rendering mode ({@link DragonStaffRenderer#toggleStaffRendering()}),
+ * top-right = fell the targeted log / mine the targeted breakable block
+ * ({@link FallTreePacket} / {@link MinePacket} / {@link CancelTaskPacket}).
+ * <p>
+ * Which quadrants are offered depends on the looked-at block: chest/bed
+ * enable the mark command, logs and breakable materials (clay/rock/sand/
+ * ground, within 3 blocks of ground support and below the player) enable the
+ * mine command. Closing the screen commits the action with the highest
+ * quadrant accumulation — must fire exactly once.
+ * <p>
+ * CLIENT-side only; any mouse release closes the screen.
+ */
 public class StructureCommandScreen extends GuiScreen {
    static final float SIZE_100 = 100.0F;
    static final float OFFSET_15 = 15.0F;
@@ -65,6 +83,10 @@ public class StructureCommandScreen extends GuiScreen {
       this.targetBlockState = var1.world.getBlockState(this.targetBlockPos);
    }
 
+   /**
+    * Commits the command of the most-accumulated quadrant (see class javadoc).
+    * No-op when the player closed without holding a quadrant.
+    */
    public void onGuiClosed() {
       super.onGuiClosed();
       List var1 = Arrays.asList(this.animBottomLeft, this.animTopLeft, this.animBottomRight, this.animTopRight);
@@ -88,6 +110,11 @@ public class StructureCommandScreen extends GuiScreen {
       }
    }
 
+   /**
+    * Toggles the mark state of the targeted chest/bed: sends
+    * {@link SendBlocksPacket} with the inverse of the current
+    * {@link StructureMarkerRenderer} mark. Only valid for beds and chests.
+    */
    void updateTargetState() {
       IBlockState var1 = this.mc.world.getBlockState(this.targetBlockPos);
       if (var1.getBlock() instanceof BlockBed || var1.getBlock() instanceof BlockChest) {
@@ -95,14 +122,26 @@ public class StructureCommandScreen extends GuiScreen {
       }
    }
 
+   /**
+    * Sends {@link SetTribeFollowModePacket} with the inverted current erasing
+    * flag ({@code isErasing}).
+    */
    void toggleFollowMode() {
       PacketHandler.networkWrapper.sendToServer(new SetTribeFollowModePacket(!isErasing));
    }
 
+   /**
+    * Toggles the dragon staff's renderer mode ({@link DragonStaffRenderer}).
+    */
    void toggleStaffView() {
       DragonStaffRenderer.toggleStaffRendering();
    }
 
+   /**
+    * Log command: for a targeted log, sends {@link FallTreePacket}, or
+    * {@link CancelTaskPacket} when the position is already marked; same for a
+    * minable material via {@link MinePacket}. Exactly one packet per close.
+    */
    void handleLogBlock() {
       Block var1 = this.targetBlockState.getBlock();
       if (var1 instanceof BlockLog) {
@@ -125,6 +164,13 @@ public class StructureCommandScreen extends GuiScreen {
       }
    }
 
+   /**
+    * Resolves the mining target for the looked-at block.
+    *
+    * @return {@code [groundPos, facing]} if the target material is breakable,
+    *         the player is at/below the target, and the ground support is at
+    *         most 3 blocks below; otherwise {@code null}
+    */
    @Nullable
    Object[] getTargetMaterial() {
       Material var1 = this.mc.world.getBlockState(this.targetBlockPos).getMaterial();
@@ -149,6 +195,12 @@ public class StructureCommandScreen extends GuiScreen {
       return this.targetBlockPos.getY() - var3.getY() > 3 ? null : new Object[]{var3, this.targetFacing};
    }
 
+   /**
+    * Draws the four quadrant buttons with entrance animation and per-quadrant
+    * hover accumulation (the values {@link #onGuiClosed()} reads). Only the
+    * quadrants valid for the targeted block are offered, and active states
+    * (erasing/staff rendering/marked) overlay a highlight icon.
+    */
    public void drawScreen(int var1, int var2, float var3) {
       super.drawScreen(var1, var2, var3);
       GL11.glEnable(3042);
@@ -269,6 +321,10 @@ public class StructureCommandScreen extends GuiScreen {
       return 1.0 + var5 * Math.pow(var1 - 1.0, 3.0) + var3 * Math.pow(var1 - 1.0, 2.0);
    }
 
+   /**
+    * Any mouse release closes the screen, committing the held quadrant's
+    * command ({@link #onGuiClosed()}).
+    */
    protected void mouseReleased(int var1, int var2, int var3) {
       this.mc.player.closeScreen();
       super.mouseReleased(var1, var2, var3);

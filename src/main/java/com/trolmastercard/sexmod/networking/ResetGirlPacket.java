@@ -3,6 +3,7 @@ package com.trolmastercard.sexmod.networking;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
+import com.trolmastercard.sexmod.util.SceneDebug;
 import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -19,6 +20,33 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * Scene-end packet, CLIENT -&gt; SERVER.
+ * <p>
+ * <b>The {@code resetPose} flag is INVERTED relative to intuition</b>
+ * (jar-verified against the original bytecode):
+ * <ul>
+ *   <li><b>single-arg ctor</b> {@code ResetGirlPacket(uuid)} = resetPose
+ *       {@code false} = <b>FULL scene-end reset</b>: restores the interacting
+ *       player's physics ({@link Handler#resetGirls}) AND releases the girl
+ *       ({@link Handler#resetGirl} — re-adds AI tasks, un-anchors, clears the
+ *       interaction partner, restores gravity/noClip, teleports her to air).</li>
+ *   <li><b>two-arg ctor</b> {@code ResetGirlPacket(uuid, true)} = resetPose
+ *       {@code true} = <b>player-only reset</b> used by strip/doggy
+ *       transitions where the girl keeps her pose.</li>
+ * </ul>
+ * <p>
+ * The natural scene end sends the single-arg form: the cum animation's
+ * {@code xxx_cumDone} sound keyframe calls
+ * {@link BaseGirlEntity#resetCameraAndPhysics()} -&gt;
+ * {@code resetLocalPlayerClientState()} which sends this packet with the
+ * girl's UUID. The R-Shift keybind ({@code SexSceneKeyHandler}) sends it too.
+ * <p>
+ * <b>Pitfall:</b> this boolean was once inverted in the remap — the full
+ * reset only ran on {@code true}, so every natural scene end left the girl
+ * anchored/noGravity/still-interacting. Never "fix" the branch condition
+ * without re-verifying against the original jar.
+ */
 public class ResetGirlPacket implements IMessage {
    boolean isValid;
    UUID girlUUID;
@@ -54,6 +82,7 @@ public class ResetGirlPacket implements IMessage {
 
    public static class Handler implements IMessageHandler<ResetGirlPacket, IMessage> {
       public static void resetGirl(BaseGirlEntity var0) {
+         SceneDebug.log(SceneDebug.RESET, "ResetGirlPacket.resetGirl %s remote=%s anchored=%s action=%s interact=%s", var0.getDisplayNameText(), var0.world.isRemote, var0.isAnchored(), var0.getCurrentAction(), var0.getInteractionPlayerUUID());
          var0.reinitTasks();
          if (var0 instanceof AbstractPlayerGirlEntity && var0.world.getPlayerEntityByUUID(((AbstractPlayerGirlEntity)var0).getOwnerUserUUID()) != null) {
             PacketHandler.networkWrapper
@@ -124,6 +153,7 @@ public class ResetGirlPacket implements IMessage {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                for (BaseGirlEntity var3 : BaseGirlEntity.girlList(var1.girlUUID)) {
                   if (!var3.world.isRemote) {
+                     SceneDebug.log(SceneDebug.RESET, "ResetGirlPacket.onMessage girl=%s resetPose=%s action=%s anchored=%s interact=%s", var3.getDisplayNameText(), var1.resetPose, var3.getCurrentAction(), var3.isAnchored(), var3.getInteractionPlayerUUID());
                      if (var3.getInteractionPlayerUUID() != null) {
                         resetGirls(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(var3.getInteractionPlayerUUID()));
                      }

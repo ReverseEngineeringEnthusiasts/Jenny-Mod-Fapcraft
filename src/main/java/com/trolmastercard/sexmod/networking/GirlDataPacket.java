@@ -14,6 +14,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> SERVER->CLIENT payload for the girl customization screen. Sent when
+ * the player right-clicks a girl with the editor wand; carries the per-NPC-type
+ * "girl-specific" custom model data (e.g. {@code sexmod:GirlSpecific<type>})
+ * stored on the sender's player NBT.
+ * <p>
+ * <b>Handler.</b> CLIENT-side. Schedules
+ * {@link #applyGirlData(HashMap)} on the client thread which opens a
+ * {@link GirlScreenBase} populated with the received data.
+ */
 public class GirlDataPacket implements IMessage {
    boolean isValid = false;
    EntityPlayer player;

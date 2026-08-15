@@ -1,4 +1,12 @@
 package com.trolmastercard.sexmod.util;
+/**
+ * <b>Role.</b> Mutable 3-float vector used by the geometry builders
+ * ({@link GalathGeometryRender}, renderer overlays).
+ * <p>
+ * <b>Pitfall.</b> Despite the names, {@link #add} SUBTRACTS the argument and
+ * {@link #subtract} ADDS it — deobfuscation swapped the two. Do not "fix" the
+ * signs; every caller relies on the current behavior.
+ */
 public class Vector3fSexmodSpecial {
    public static final Vector3fSexmodSpecial ZERO = new Vector3fSexmodSpecial(0.0F, 0.0F, 0.0F);
    public float x;

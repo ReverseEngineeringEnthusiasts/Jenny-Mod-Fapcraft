@@ -3,6 +3,7 @@ package com.trolmastercard.sexmod.util;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
+import com.trolmastercard.sexmod.util.SceneDebug;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.MovementInput;
@@ -13,12 +14,49 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * CLIENT-side player input interceptor for scenes (horny-potion player-girls
+ * and NPC scenes alike).
+ * <p>
+ * <b>Movement lock.</b> {@link #setMovementLock(boolean)} toggles the mod's
+ * input lock (static {@code isSneaking} flag, confusingly named). While
+ * unlocked (in a scene), {@code onInputUpdate} zeroes all movement and maps
+ * the keys to scene controls:
+ * <ul>
+ *   <li><b>sneak (shift)</b> — {@code triggerFastSexAction}: advance the
+ *       action chain one step ({@code getNextAction}); also exposes
+ *       {@link #isJumping} (yes, it mirrors sneak).</li>
+ *   <li><b>jump (space)</b> — {@code resetPlayerGirlCamera} (player-girls), or
+ *       {@code triggerCumAction} when the cum meter
+ *       ({@link HornyMeterHud#meterValue}) is full — the standard scene
+ *       ending input. Exposed as {@link #isInAction}.</li>
+ * </ul>
+ * While locked, the mouse is captured ({@link #onMouse}) so the player cannot
+ * click away from the scene.
+ * <p>
+ * <b>Pitfall:</b> the lock must be released (true) at scene end — the natural
+ * end does this via {@code resetCameraAndPhysics} ->
+ * {@code resetLocalPlayerClientState}; the R-Shift keybind
+ * ({@code SexSceneKeyHandler}) does it through the same client exit path when
+ * the scene cannot progress.
+ */
 public class HandlePlayerMovement {
+   /** True while the mod's input lock is engaged (idle); false during scenes. */
    private static boolean isSneaking = true;
+
+   /** Mirrors the sneak key while in a scene (used by action "Done" checks). */
    public static boolean isJumping = false;
+
+   /** Mirrors the jump key while in a scene (cum-meter expansion check). */
    public static boolean isInAction = false;
+
+   /** The latest MovementInput from {@link #onInputUpdate}. */
    public static MovementInput input;
 
+   /**
+    * CLIENT input hook: captures movement while a scene is active and maps
+    * sneak/jump to the scene controls (see class doc).
+    */
    @SubscribeEvent
    public void onInputUpdate(InputUpdateEvent var1) {
       input = var1.getMovementInput();
@@ -54,6 +92,7 @@ public class HandlePlayerMovement {
    }
 
    public static void setMovementLock(boolean var0) {
+      SceneDebug.log(SceneDebug.MOVEMENT, "setMovementLock(%s) (was %s)", var0, isSneaking);
       isSneaking = var0;
       if (!var0) {
          handlePlayerMovementTick();

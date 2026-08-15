@@ -32,6 +32,35 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> The Slime NPC — a jump-happy slime girl with a pregnancy
+ * lifecycle: it hops around (procedural jump animation, no AI tasks), gets
+ * "impregnated" by the horny potion, grows, then births a
+ * {@link WildSlimeEntity} that matures back into a new Slime. Scenes: blowjob
+ * and doggy (same action set as Jenny).
+ * <p>
+ * <b>State.</b> Own data keys: {@code TICKS_UNTIL_BIRTH} (113) = pregnancy
+ * progress (0..2400; 1 = undress, 2 = pregnant start, 4+ = scene-ready),
+ * {@code TARGET_YAW} (112) = hop direction, {@code HORNY_LEVEL} (111) =
+ * countdown to birthing a wild slime (-1 = not pregnant). {@code slimeState}
+ * drives the idle jump animation cycle (IDLE/JUMP_START/JUMP_AIR/JUMP_END).
+ * <p>
+ * <b>Scene flow.</b> {@link #checkInteractionTrigger()} (server, AI tick)
+ * anchors the slime when pregnant: if progress &gt;= 4 she starts the doggy
+ * bed intro by herself, otherwise the nearest player within 1 block gets
+ * locked in and she starts doggy or blowjob. Cum ends via the
+ * {@code bjcDone}/{@code doggyCumDone} sounds -&gt;
+ * {@code resetCameraAndPhysics()} + {@code pregnant = 2400}
+ * ({@code changeDataParameterFromClient}) which starts the growth.
+ * <p>
+ * <b>Pitfalls.</b> {@code writeEntityToNBT}/{@code readEntityFromNBT}
+ * deliberately cross-write {@code hornyLevel} and {@code ticksUntilBirth}
+ * (swapped keys — jar behavior, keep as-is). {@link #setCurrentAction(Action)}
+ * guards the cum loops. {@code handleJumpState} only runs while the action is
+ * {@link Action#NULL}; the slime jumps by itself every ~50 ticks, adding
+ * pregnancy progress at tick 50 (server) and snapping yaw to the target
+ * angle. {@code fall} is intentionally a no-op.
+ */
 public class SlimeEntity extends BaseGirlEntity {
    static final double PREG_SCALE_0_7 = 0.7F;
    static final float PREG_SCALE_0_9 = 0.9F;
@@ -145,6 +174,11 @@ public class SlimeEntity extends BaseGirlEntity {
       this.entityDataManager.set(OUTFIT_INDEX, 1);
    }
 
+   /**
+    * SERVER, every AI tick: the horny-potion trigger — when dosed and idle
+    * she removes the potion, starts the undress (if dressed) and arms the
+    * pregnancy progress at 2.
+    */
    @Override
    public void updateAITasks() {
       super.updateAITasks();
@@ -160,6 +194,11 @@ public class SlimeEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * BOTH sides: pregnancy particles (hearts every 10 ticks once pregnant),
+    * the jump-state machine while idle, and CLIENT-side interaction
+    * positioning + horny-level particles.
+    */
    @Override
    public void onUpdate() {
       super.onUpdate();
@@ -201,6 +240,11 @@ public class SlimeEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * SERVER: counts the horny level down each AI tick; when it goes below 0 a
+    * {@link WildSlimeEntity} is spawned in place and the pregnancy flag
+    * clears.
+    */
    void handleHornyJump() {
       int var1 = (Integer)this.entityDataManager.get(HORNY_LEVEL);
       if (var1 != -1) {
@@ -214,6 +258,12 @@ public class SlimeEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * SERVER: the pregnancy scene trigger — once progress reaches 4 and she is
+    * on the ground with no action, she self-starts the doggy bed intro
+    * (anchored); below 4, the nearest player within 1 block gets locked into
+    * a doggy or blowjob scene.
+    */
    void checkInteractionTrigger() {
       int var1 = (Integer)this.entityDataManager.get(TICKS_UNTIL_BIRTH);
       if (var1 >= 2) {
@@ -249,6 +299,13 @@ public class SlimeEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * The procedural jump machine. CLIENT: cycles the jump animation states on
+    * takeoff/landing and locks yaw to {@code TARGET_YAW}. SERVER: every ~50
+    * ticks performs the hop (stop, face target, launch) and increments
+    * {@code TICKS_UNTIL_BIRTH} at tick 50, triggering the undress at
+    * progress 1. {@code TARGET_YAW} aims at the nearest player once pregnant.
+    */
    void handleJumpState() {
       if (this.world.isRemote) {
          if (this.jumpTicks == 90.0) {
@@ -294,6 +351,10 @@ public class SlimeEntity extends BaseGirlEntity {
       this.wasOnGround = this.onGround;
    }
 
+   /**
+    * SERVER: ends one hop — zeroes motion, jumps, rotates to the target yaw
+    * and launches toward it at 0.7 blocks/tick. Resets the hop counter.
+    */
    void stopMovement() {
       this.motionX = 0.0;
       this.motionY = 0.0;
@@ -309,6 +370,10 @@ public class SlimeEntity extends BaseGirlEntity {
       this.jumpTicks = 0;
    }
 
+   /**
+    * SERVER: computes the hop target yaw — random when not pregnant, otherwise
+    * aimed at the nearest player (who is not already in a scene).
+    */
    float getBirthProgress() {
       int var1 = (Integer)this.entityDataManager.get(TICKS_UNTIL_BIRTH);
       if ((Integer)this.entityDataManager.get(HORNY_LEVEL) != -1) {
@@ -398,6 +463,13 @@ public class SlimeEntity extends BaseGirlEntity {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * pregnancy undress/dress, the jump cycle and the blowjob/doggy scenes.
+    * Scene end: {@code bjcDone}/{@code doggyCumDone} -&gt;
+    * {@code resetCameraAndPhysics()} and pregnancy start
+    * ({@code pregnant = 2400}); {@code undress} -&gt; nude + NULL action.
+    */
    @Override
    public void registerControllers(AnimationData var1) {
       AnimationController.ISoundListener var2 = var1x -> {

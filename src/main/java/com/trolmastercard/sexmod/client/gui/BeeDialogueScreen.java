@@ -16,6 +16,21 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 
+/**
+ * Dialogue GUI for interacting with a bee companion ({@link BeeEntityBase}):
+ * "follow me / stop following", "go home", "set home here" and — when the bee
+ * is horny (HORNY_FLAG data-manager entry) — opening the bee's chest inventory.
+ * <p>
+ * <b>Flow.</b> Opened by right-clicking the bee. All actions are sent to the
+ * server as packets ({@code ChangeDataParameterPacket} toggling the
+ * {@code master} data parameter, {@code SendCompanionHomePacket},
+ * {@code SetNewHomePacket} at the bee's current position, or
+ * {@link BeeOpenChestPacket} on the horny-icon click). The follow-mode buttons
+ * flip a local flag and print localized feedback chat lines.
+ * <p>
+ * CLIENT-side only. Does not pause the game; the buttons slide in with
+ * {@code animProgress} on draw.
+ */
 public class BeeDialogueScreen extends GuiScreen {
    BeeEntityBase beeEntity;
    EntityPlayer player;
@@ -33,6 +48,11 @@ public class BeeDialogueScreen extends GuiScreen {
       return false;
    }
 
+   /**
+    * Builds the three dialogue buttons (follow toggle, go home, set home) and
+    * the horny-bee icon; button positions and sizes animate in from the left
+    * based on {@code animProgress}. Button list is rebuilt every frame.
+    */
    public void drawScreen(int var1, int var2, float var3) {
       super.drawScreen(var1, var2, var3);
       this.buttonList.clear();
@@ -57,6 +77,12 @@ public class BeeDialogueScreen extends GuiScreen {
       this.drawTexturedModalRect(var5 / 2 - 20, 20, this.beeEntity.getDataManager().get(BeeEntityBase.HORNY_FLAG) ? 0 : 40, 130, 40, 40);
    }
 
+   /**
+    * Handles a click on the horny-bee chest icon (center of the screen, only
+    * when {@code HORNY_FLAG} is set): sends {@link BeeOpenChestPacket} to the
+    * server and closes this GUI, letting the server open the girl-inventory
+    * chest container instead.
+    */
    protected void mouseClicked(int var1, int var2, int var3) {
       ScaledResolution var4 = new ScaledResolution(this.mc);
       int var5 = var4.getScaledWidth();
@@ -68,6 +94,12 @@ public class BeeDialogueScreen extends GuiScreen {
       super.mouseClicked(var1, var2, var3);
    }
 
+   /**
+    * Dispatches the dialogue buttons to their server packets and closes the
+    * screen. Button 0 toggles follow mode (writes the player UUID to the bee's
+    * {@code master} data parameter, or clears it); button 1 sends the bee home;
+    * button 2 pins the bee's current position as its new home.
+    */
    protected void actionPerformed(GuiButton var1) {
       super.actionPerformed(var1);
       if (var1.id == 0) {

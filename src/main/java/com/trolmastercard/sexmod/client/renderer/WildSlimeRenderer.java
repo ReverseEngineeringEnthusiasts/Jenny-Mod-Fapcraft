@@ -7,6 +7,14 @@ import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * Renderer for the wild slime entity: a vanilla {@link RenderLiving} using the
+ * mod's {@link GoblinModel} as the body shape with the vanilla slime texture,
+ * squish/scaling driven by the entity's squish factor, plus the
+ * {@link WildSlimeFaceLayer} face.
+ * <p>
+ * CLIENT-side render thread only.
+ */
 public class WildSlimeRenderer extends RenderLiving<WildSlimeEntity> {
    private static final ResourceLocation slimeTexture = new ResourceLocation("textures/entity/slime/slime.png");
 
@@ -21,6 +29,10 @@ public class WildSlimeRenderer extends RenderLiving<WildSlimeEntity> {
       super.doRender(var1, var2, var4, var6, var8, var9);
    }
 
+   /**
+    * Scales the model by the slime's squish formula (interpolated squish
+    * factor, vanilla slime deformation) with a near-1.0 base scale.
+    */
    @Override
    protected void preRenderCallback(WildSlimeEntity var1, float var2) {
       GlStateManager.scale(0.999F, 0.999F, 0.999F);

@@ -22,6 +22,19 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.MatrixStack;
 
+/**
+ * <b>Role.</b> An invisible marker entity used as the render/placement anchor
+ * for custom models: the scene-position reference ({@link #modelCode} = girl
+ * UUID, {@link #modelData} = model DNA) and the item-preview mode
+ * ({@link #isItemModel} + {@link #boneType}) for the inventory/wardrobe
+ * screens. It is what {@link BaseGirlEntity#renderCustomModelTransform} and
+ * the girl renderers use to position scene models.
+ * <p>
+ * <b>State.</b> Data keys 101 ({@code modelCode}) and 102 ({@code modelData}),
+ * both strings. Tiny (0.1 x 0.1), non-collidable, never pushed, and only
+ * damageable by out-of-world damage. No controllers are registered
+ * (geckolib is driven from the referenced girl instead).
+ */
 public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
    static final float DESPAWN_DISTANCE = 11000.0F;
    public static final DataParameter<String> modelCode = EntityDataManager.createKey(SexSceneEntity.class, DataSerializers.STRING)
@@ -47,6 +60,11 @@ public class SexSceneEntity extends EntityLivingBase implements IAnimatable {
       this.dataManager.set(modelData, var3);
    }
 
+   /**
+    * Factory for the item-preview variant: links the scene entity to a girl
+    * UUID and marks it as a model-bone preview ({@code isItemModel},
+    * {@code boneType}) so the renderer shows only the named bone.
+    */
    public static SexSceneEntity createSceneEntity(World var0, UUID var1, BoneType var2) {
       SexSceneEntity var3 = new SexSceneEntity(var0);
       var3.getDataManager().set(modelCode, var1.toString());

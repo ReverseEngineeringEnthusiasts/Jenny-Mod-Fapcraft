@@ -19,6 +19,20 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * HUD for Galath's escape minigame: the player must press the WASD key
+ * matching the blinking direction prompt to fill a progress bar. Correct keys
+ * add progress, wrong keys subtract it; the prompt cycles every 35 ticks.
+ * <p>
+ * <b>Flow.</b> {@link #showMinigame()} starts it; filling progress to 1.0 (and
+ * then pressing an unrelated key) triggers {@link #startMinigame()}, which
+ * sends {@link GalathBackOffRapePacket} to the server and fails the minigame;
+ * failure flashes the bar red for 20 ticks and hides the HUD. Leaving the
+ * world resets all state.
+ * <p>
+ * CLIENT-side only; state is static, so only one minigame can be active at a
+ * time. Progress decays by {@value #KEY_DECAY} per tick when idle.
+ */
 @SideOnly(Side.CLIENT)
 public class EscapeMinigameHud extends Gui {
    static final ResourceLocation HUD_TEXTURE = new ResourceLocation("sexmod", "textures/gui/escape_minigame_ui.png");
@@ -39,6 +53,13 @@ public class EscapeMinigameHud extends Gui {
    static Minecraft mc = Minecraft.getMinecraft();
    static boolean hasStarted = false;
 
+   /**
+    * Per-tick state machine (CLIENT-side, called from the client tick event):
+    * resets everything when the world is gone; on failure counts up to 20 ticks
+    * then hides the HUD; otherwise advances the blink timer, decays progress
+    * and picks the next key prompt every 35 ticks (or immediately when none is
+    * set).
+    */
    public static void tickHud() {
       if (showHud) {
          if (mc.world == null) {
@@ -72,6 +93,10 @@ public class EscapeMinigameHud extends Gui {
       }
    }
 
+   /**
+    * Picks a random direction different from the currently shown one, so the
+    * prompt never repeats twice in a row.
+    */
    static void pickNextKey() {
       EscapeDirectionKey var0 = currentKey;
       Random var1 = new Random();
@@ -81,6 +106,12 @@ public class EscapeMinigameHud extends Gui {
       } while (var0 == currentKey);
    }
 
+   /**
+    * Called once per minigame when the player completes the bar: sends
+    * {@link GalathBackOffRapePacket} to the server (Galath backs off) and
+    * immediately ends the minigame as a "failure" for display purposes.
+    * Guarded by {@code hasStarted} so it fires exactly once.
+    */
    static void startMinigame() {
       if (showHud) {
          if (!hasStarted) {
@@ -91,6 +122,10 @@ public class EscapeMinigameHud extends Gui {
       }
    }
 
+   /**
+    * Resets all static state and shows the HUD. Must be called from the CLIENT
+    * tick thread (also resets any prior failure state).
+    */
    public static void showMinigame() {
       showHud = true;
       hasStarted = false;
@@ -105,6 +140,11 @@ public class EscapeMinigameHud extends Gui {
       failTimer = 0.0F;
    }
 
+   /**
+    * Renders the HUD: the prompt card slides in from below the screen, the
+    * four WASD icons (blinking prompt highlighted) and the progress bar. On
+    * failure the whole card slides back out with an ease-in-out curve.
+    */
    @SubscribeEvent
    public void onRenderGameOverlay(RenderGameOverlayEvent var1) {
       if (showHud) {
@@ -143,6 +183,12 @@ public class EscapeMinigameHud extends Gui {
       }
    }
 
+   /**
+    * Evaluates movement-key presses against the current prompt: a matching key
+    * adds {@value #KEY_PRESS_SPEED} to progress, a wrong key subtracts
+    * {@value #KEY_PRESS_SPEED}/2; pressing any other key with full progress
+    * completes the minigame.
+    */
    @SubscribeEvent
    public void onKeyInput(KeyInputEvent var1) {
       GameSettings var2 = Minecraft.getMinecraft().gameSettings;

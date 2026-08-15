@@ -54,6 +54,22 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+/**
+ * <b>Role.</b> The Allies lamp — summons an {@link AllieEntity} over a
+ * 95-tick rub animation (3 wishes per stack, tracked in {@code sexmodUses} NBT).
+ * <p>
+ * <b>Flow.</b> Right-click starts {@code sexmodAllieInUse} on the player's
+ * entity data; {@link #onUpdate} advances the tick counter (client shows the
+ * rub animation + ramping particles, server spawns the Allie at the lamp offset
+ * at tick 95). {@code AlliesLampItem.a} handles the right-click start (blocked
+ * for player-girls / while an Allie holds the same lamp instance) and resets the
+ * flag on logout. The lamp is also injected into dungeon/mineshaft loot tables.
+ * <p>
+ * <b>Pitfall.</b> The {@code sexmodAllieInUse} flag lives on the *player's*
+ * entity data and gates the first-person hand render
+ * ({@link AlliesLampItem#onPre}) — it must be reset on logout or the player's
+ * hand stays hidden after a disconnect.
+ */
 public class AlliesLampItem extends Item implements IAnimatable {
    static final String ALLIE_IN_USE_KEY = "sexmodAllieInUse";
    static final String ALLIE_IN_USE_TICKS_KEY = "sexmodAllieInUseTicks";

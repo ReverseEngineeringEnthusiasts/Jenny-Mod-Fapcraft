@@ -18,6 +18,26 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * <b>Role.</b> Tribe-block marker sync between the dragon-staff UI and the
+ * server's {@link KoboldManager} state.
+ * <p>
+ * SERVER->CLIENT (usual direction): {@code isBreaking=true} adds the blocks to
+ * {@link StructureMarkerRenderer#renderMarkers(HashSet)} (red/green/blue
+ * highlight), {@code isBreaking=false} removes them ({@code setMarkers}). Used by
+ * {@link FallTreePacket}, {@link MinePacket}, {@link CancelTaskPacket} and on
+ * login ({@code PlayerIds}).
+ * <p>
+ * CLIENT->SERVER (dragon-staff clicks on a marked bed/chest): the SERVER-side
+ * handler (scheduled on the main thread) resolves double-blocks (bed halves,
+ * double chests) via {@link WorldUtils#getStatePos} and adds/removes them from
+ * the tribe's bed/chest sets, echoing the resolved pair back to the client so
+ * the markers match.
+ * <p>
+ * <b>Pitfall.</b> A single-block payload is the only accepted CLIENT->SERVER
+ * form; multi-block payloads are ignored server-side (they are only valid as
+ * SERVER->CLIENT echo batches).
+ */
 public class SendBlocksPacket implements IMessage {
    boolean isValid = false;
    HashSet<BlockPos> blockPositions = new HashSet<>();

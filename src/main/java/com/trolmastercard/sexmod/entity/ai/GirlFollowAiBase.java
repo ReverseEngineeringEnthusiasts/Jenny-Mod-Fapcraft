@@ -12,6 +12,21 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * <b>Role.</b> Base class for the girl follow goals. Runs while the girl has
+ * a master UUID in the {@code MASTER} data key (110); the subclass state
+ * machine picks one of {@link GirlFollowAiBaseState#ATTACK}/{@link #FOLLOW}/
+ * {@link #IDLE}/{@link #RIDE}/{@link #DOWNED} each tick. Shared helpers:
+ * teleport-fallback navigation ({@link #updateNavigation()}), speed/state
+ * derivation from the master's sprint state ({@link #getFollowDistance()}).
+ * <p>
+ * <b>Pitfalls.</b> {@link #resetTask()} clears the master binding and nulls
+ * the cached navigator/data-manager — a reset followed by a re-start
+ * re-derives them in {@link #startExecuting()}. The
+ * {@link #onLivingDeath(LivingDeathEvent)} handler cancels girl deaths while
+ * a master is bound. {@code resetTask} sets {@link Action#NULL} via
+ * {@code setCurrentAction} — routed through the packet on the client.
+ */
 public abstract class GirlFollowAiBase extends EntityAIBase {
    public BaseGirlEntity girl;
    public EntityPlayer master;
@@ -28,6 +43,11 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
       this.dataManager = var1.getDataManager();
    }
 
+   /**
+    * Teleport-fallback navigation: tries up to 20 random offsets around the
+    * master; if none is teleportable the girl snaps onto the master's
+    * position. Always zeroes her motion afterwards.
+    */
    protected void updateNavigation() {
       int var2 = 0;
 

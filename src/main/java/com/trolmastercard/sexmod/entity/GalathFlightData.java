@@ -39,6 +39,43 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 
+/**
+ * <b>Role.</b> The wild Galath's flight action state machine. Each enum
+ * constant bundles a start/update/finish callback set (via
+ * {@link IGalathStart}/{@link IGalathUpdate}/{@link IGalathFinish}/
+ * {@link GalathActionListener}/{@link IGalathExecute}) that drives one
+ * behaviour:
+ * <ul>
+ * <li>{@link #CHANGE_POSITION} — pick a new flight position near the target
+ * (weighted by open air space), glide there, then pick the next action.</li>
+ * <li>{@link #SUMMON_SKELETON} — charge the two energy balls ({@code ad}
+ * ticks) and spawn {@link DragonEntity} charges at the target from the hands
+ * (mirrored by the {@code ay} data key); only while fewer than 2 skeleton
+ * charges exist.</li>
+ * <li>{@link #ATTACK_SWORD} — lunge at the target, damage at sword-progress
+ * 36/40, then back off to flight.</li>
+ * <li>{@link #RAPE} — hover-then-pounce onto a grounded player; on contact
+ * clears the skeleton charges and starts the rape scene
+ * ({@link Action#RAPE_INTRO}, player movement locked, entity look packet).
+ * The pounce path is an eased progress lerp along a parabolic flight path
+ * (uses {@link RotationHelper#lerpDouble} with ease curves), with the
+ * progress stored in the {@code bO} data key.</li>
+ * </ul>
+ * <p>
+ * <b>Flow.</b> {@link GalathEntity#initFlightData()} picks a random constant
+ * whose {@code canExecuteAction} predicate passes and calls
+ * {@link #executeStart(GalathEntity)}; every AI tick
+ * {@link #executeUpdate(GalathEntity)} runs the movement lambda, and when it
+ * reports finished, {@link #checkFinished(GalathEntity)} runs the finish
+ * lambda so the next action can be chosen.
+ * <p>
+ * <b>Pitfalls.</b> {@code applyAttackCoolDown} constants must end with the
+ * attack cooldown collapse (initFlightData switches to CHANGE_POSITION after
+ * them). {@code onlyDoThisOnPlayers} actions must never be picked for mob
+ * targets. The RAPE pounce MUST use progress lerps (0..1) on the segment
+ * halves — this is a path interpolation, not the 40-tick dismount lerp, so
+ * {@code lerpVec3dDouble} is correct here.
+ */
 public enum GalathFlightData {
    CHANGE_POSITION(
       var0 -> {

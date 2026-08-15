@@ -9,6 +9,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> SERVER->CLIENT camera snap during girl scenes — forces the
+ * client's view (third-person mode, yaw, pitch) to match the scene's camera
+ * setup. Sent as part of scene entry/exit so all observers see the scene from
+ * the intended angle.
+ * <p>
+ * <b>Handler.</b> CLIENT-side; schedules the actual work on the client thread.
+ * Sets {@code thirdPersonView} and writes yaw/pitch (current and previous) into
+ * the local {@link EntityPlayerSP} so interpolation does not fight the snap.
+ */
 public class SetPlayerCamPacket implements IMessage {
    boolean isValid = false;
    float camX;

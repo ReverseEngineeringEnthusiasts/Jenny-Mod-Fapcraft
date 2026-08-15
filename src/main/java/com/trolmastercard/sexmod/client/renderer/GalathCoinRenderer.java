@@ -22,6 +22,21 @@ import software.bernie.geckolib3.geo.render.built.GeoQuad;
 import software.bernie.geckolib3.geo.render.built.GeoVertex;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
+/**
+ * Item renderer for the Galath coin: renders the geckolib coin model with a
+ * red tint, a special "pentagram" bone, and animation states driven by the
+ * player's persistent NBT timestamps.
+ * <p>
+ * <b>Animation.</b> While held, the coin alternates between an activation
+ * spin-up and a deactivation fade over 2-second windows (timestamps
+ * {@code sexmod:galath_coin_activation_time}/{@code _deactivation_time}):
+ * during spin the lightmap/scale value is 240 -> 120 and the tint goes
+ * bright -> dark; during fade it reverses. Idle (not held) coins bob with a
+ * sine and stay bright red.
+ * <p>
+ * CLIENT-side render thread only. The pentagram bone is drawn in a separate
+ * full-bright pass with per-vertex tint; the rest uses normal lighting.
+ */
 public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
    public static final Vector3fSexmodSpecial COIN_COLOR = new Vector3fSexmodSpecial(0.84705883F, 0.11764706F, 0.35686275F);
    public static final Vector3fSexmodSpecial COIN_COLOR_DARK = new Vector3fSexmodSpecial(0.44705883F, 0.44705883F, 0.44705883F);
@@ -36,6 +51,12 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       super(new GalathCoinModel());
    }
 
+   /**
+    * Custom render pass: draws all bones except the pentagram with normal
+    * lighting, then draws the pentagram bone full-bright in a separate tinted
+    * pass (lightmap + color from {@link #getCoinColor()}), driven by the
+    * current spin/fade state. Resets culling/lighting state afterwards.
+    */
    @Override
    public void render(GeoModel var1, GalathCoinItem var2, float var3, float var4, float var5, float var6, float var7) {
       GlStateManager.disableCull();
@@ -79,6 +100,11 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       GlStateManager.resetColor();
    }
 
+   /**
+    * Resolves the coin's scale/brightness value: 120 (full-bright) while
+    * spinning up, 240 (dim) while fading, else a sine bob for idle coins; in
+    * debug mode it is pinned to 120.
+    */
    float getCoinScale(float var1) {
       if (mc.player.getHeldItemMainhand() != this.currentItemStack && mc.player.getHeldItemOffhand() != this.currentItemStack) {
          return this.getCoinBob(var1);
@@ -115,6 +141,10 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       }
    }
 
+   /**
+    * Resolves the coin's tint color: dark while spinning up (lerping back to
+    * bright over 2s), bright while fading, static bright when idle.
+    */
    Vector3fSexmodSpecial getCoinColor() {
       if (mc.player.getHeldItemMainhand() != this.currentItemStack && mc.player.getHeldItemOffhand() != this.currentItemStack) {
          return COIN_COLOR;
@@ -170,6 +200,12 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       }
    }
 
+   /**
+    * Cube pass: transforms vertices by the model matrix and emits them. In
+    * flipping mode (pentagram pass) it emits tinted vertices without normals;
+    * otherwise it computes and mirrors normals for zero-size cube faces (the
+    * coin's flat quads) and emits lit vertices.
+    */
    @Override
    public void renderCube(BufferBuilder var1, GeoCube var2, float var3, float var4, float var5, float var6) {
       MATRIX_STACK.moveToPivot(var2);

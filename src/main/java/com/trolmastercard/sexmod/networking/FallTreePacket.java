@@ -18,6 +18,18 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER request to fell a tree with the tribe. Sent from the
+ * dragon-staff UI when the player marks a log ("cut tree").
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Validates the tribe
+ * bed requirement (members may not exceed {@code beds/2}); if it holds, walks
+ * down the log with {@link #findGroundPos(World, BlockPos)} to the ground block,
+ * computes the connected log blocks via
+ * {@link KoboldTask#findConnectedBlocks(World, BlockPos, UUID)} (which also
+ * creates the {@code FALL_TREE} task) and echoes the blocks back to the client as
+ * a {@link SendBlocksPacket} for marker highlighting.
+ */
 public class FallTreePacket implements IMessage {
    Boolean isValid = false;
    BlockPos treePos;
@@ -82,7 +94,14 @@ public class FallTreePacket implements IMessage {
          }
       }
 
-      BlockPos findGroundPos(World var1, BlockPos var2) {
+      /**
+    * Recursively follows {@link BlockLog} blocks downwards (including diagonals)
+    * to find the lowest ground block of the tree. SERVER-side helper; recursion
+    * terminates because the tree has finite height.
+    *
+    * @return the {@link BlockPos} just above the first non-log block
+    */
+   BlockPos findGroundPos(World var1, BlockPos var2) {
          if (var1.getBlockState(var2.add(0, -1, 0)).getBlock() instanceof BlockLog) {
             return this.findGroundPos(var1, var2.add(0, -1, 0));
          } else if (var1.getBlockState(var2.add(1, -1, 0)).getBlock() instanceof BlockLog) {

@@ -18,6 +18,26 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER horny-potion transformation — toggles the sending
+ * player between his vanilla self and a player-girl entity of the given
+ * {@link NpcType}.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread.
+ * <ul>
+ * <li>{@code npcType == null} ("player"): revert — remove every entity matching
+ *     the girl's id with {@code world.removeEntity}, clear the girl registry
+ *     entry ({@code AbstractPlayerGirlEntity.al}) and un-set the owner id.</li>
+ * <li>{@code npcType != null}: spawn a fresh player-girl of that type 69 blocks
+ *     above the player (reflection constructor {@code (World, UUID)}), gravity
+ *     off, no-clip, and call {@code B_clash233()} to finalize her state.</li>
+ * </ul>
+ * <p>
+ * <b>Pitfall.</b> The revert branch removes entities ({@code world.removeEntity})
+ * — the concurrent-modification guard around the girl-list iteration must stay.
+ * The spawn height is intentionally far above the player; her AI drops her in
+ * place.
+ */
 public class UpdatePlayerModelPacket implements IMessage {
    boolean isValid = false;
    NpcType npcType;

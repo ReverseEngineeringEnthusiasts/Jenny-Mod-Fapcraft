@@ -9,6 +9,9 @@ import net.minecraft.item.ItemStack;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Renderer for the player-form Slime (horny potion).
+ */
 public class PlayerSlimeRenderer extends GirlPlayerRenderer {
    Vector3f scaleSnapshot = new Vector3f(0.0F, 0.0F, 0.0F);
    Vector3f positionSnapshot = new Vector3f(0.0F, 0.0F, 0.0F);

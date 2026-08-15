@@ -15,6 +15,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER "give me a tribe egg" request from the dragon-staff
+ * UI. Gives the player a {@link KoboldEggItem} dyed in the tribe color and tagged
+ * with the tribe UUID, so hatching it produces a kobold of *their* tribe.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. No-op if the sender
+ * has no tribe. The egg carries {@code tribeID} NBT which
+ * {@link KoboldEggItem} reads when placing the egg entity.
+ */
 public class SendEggPacket implements IMessage {
    boolean isValid;
 

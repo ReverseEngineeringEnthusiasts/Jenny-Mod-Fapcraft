@@ -9,6 +9,13 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 
+/**
+ * Small name-input screen for claiming a kobold tribe: a single text field
+ * (max 15 chars) and a "set" button that sends {@link ClaimTribePacket} with
+ * the trimmed name to the server. Does not pause the game.
+ * <p>
+ * CLIENT-side only. Nothing is sent when the field is empty.
+ */
 public class TribeNameScreen extends GuiScreen {
    static final int MAX_NAME_LENGTH = 15;
    static final int WIDTH_100 = 100;
@@ -42,6 +49,10 @@ public class TribeNameScreen extends GuiScreen {
       super.drawScreen(var1, var2, var3);
    }
 
+   /**
+    * Clamps the tribe name to {@value #MAX_NAME_LENGTH} characters while
+    * typing.
+    */
    protected void keyTyped(char var1, int var2) {
       this.nameField.textboxKeyTyped(var1, var2);
       String var3 = this.nameField.getText();
@@ -52,6 +63,10 @@ public class TribeNameScreen extends GuiScreen {
       super.keyTyped(var1, var2);
    }
 
+   /**
+    * Sends {@link ClaimTribePacket} with the entered name (non-empty after
+    * trimming) and closes the screen.
+    */
    protected void actionPerformed(GuiButton var1) {
       super.actionPerformed(var1);
       String var2 = this.nameField.getText().trim();

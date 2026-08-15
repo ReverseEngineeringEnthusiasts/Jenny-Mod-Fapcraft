@@ -15,6 +15,17 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER request to make the cat-girl Luna cast her fishing
+ * rod. Sent from the interaction menu ("go fishing") after the player hands her a
+ * {@link LunaRodItem}.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Finds the
+ * {@link LunaEntity} by UUID and calls
+ * {@link LunaRodItem#castFishingRod(World, LunaEntity, EnumHand)} with the rod
+ * she is holding — spawning the {@code SexEntity} bobber (SERVER side; the
+ * entity spawn itself syncs to clients).
+ */
 public class CatActivateFishingPacket implements IMessage {
    boolean isValid = false;
    UUID catUUID;

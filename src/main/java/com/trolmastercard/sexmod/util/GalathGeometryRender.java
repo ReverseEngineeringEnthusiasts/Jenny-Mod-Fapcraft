@@ -12,6 +12,18 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import software.bernie.geckolib3.core.processor.IBone;
 
+/**
+ * <b>Role.</b> CLIENT-side geometry construction for the Galath model's custom
+ * translucent overlays (body/wing meshes drawn in the editor and in-game).
+ * Builds quad meshes from bone offsets and rotation parameters: {@link #buildBodyBoneMesh}
+ * = wing mesh + body mesh; {@link #buildBodyMesh} = body line + wing mesh.
+ * <p>
+ * <b>Pitfalls.</b> The 8/12-point vertex layouts are indexed by the mesh
+ * builders — reordering a vertex breaks the quads. Bones are resolved via
+ * {@link BaseGirlEntity#getAnimationProcessor()} and
+ * {@code getCachedBoneOffset}; a missing bone yields zeroed vertices
+ * (tolerated, renders nothing).
+ */
 public class GalathGeometryRender {
    public static Vec3d[][] buildBodyBoneMesh(
       BaseGirlEntity var0, float var1, String var2, String var3, String var4, float var5, float var6, float var7, float var8, String var9

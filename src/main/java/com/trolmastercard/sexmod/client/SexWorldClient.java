@@ -20,6 +20,23 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Client-only throwaway "preload" world, a flat plains world that is created
+ * exclusively in {@code ClientProxy.initRegistries} (the {@code NpcType} loop)
+ * so geckolib models/animation data can be loaded once at startup.
+ * <p>
+ * <b>It is NOT the scene world.</b> Nothing is ever spawned or rendered in it;
+ * its only job is to be a valid {@link WorldClient} for model construction.
+ * Overrides deliberately neuter gameplay: no weather, no block updates, no
+ * freezing/snowing, solid ground only at {@code y <= 63}, zero creature counts,
+ * full sun brightness, biome always plains, mining always forbidden.
+ * <p>
+ * <b>Pitfall:</b> entity code checks {@code world instanceof SexWorldClient}
+ * to skip animation/preview logic — keep this type check working. Any
+ * constructor change must keep the {@link ClientNetHandlerOverride} +
+ * {@link SexNetworkManager} stub wiring intact, otherwise client startup
+ * crashes while building the preload world.
+ */
 public class SexWorldClient extends WorldClient {
    public Biome getBiomeForCoordsBody(BlockPos var1) {
       return new BiomePlains(false, new BiomeProperties("Plains").setBaseHeight(0.125F).setHeightVariation(0.05F).setHeightVariation(0.8F).setRainfall(0.4F));

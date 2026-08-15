@@ -24,6 +24,39 @@ import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * <b>Role.</b> CLIENT-side custom in-hand map rendering for transformed
+ * player-girls: when the local player is a player-girl, holding a map (or
+ * anything, while the item-switch animation is running) renders the map +
+ * the girl's hand model in first person instead of the vanilla arm.
+ * <p>
+ * <b>State.</b> Per-outfit hand model/texture/color from
+ * {@link AbstractPlayerGirlEntity#getHandModel(int)} etc.; {@code PROGRESS_SCALE}
+ * derives from the vanilla {@link ItemRenderer} equipped-progress fields read
+ * via {@link ObfuscationReflectionHelper}.
+ * <p>
+ * <b>CRITICAL PITFALL (SRG names).</b> The reflection branch is environment-
+ * dependent: in a deobfuscated (dev) environment the MCP names
+ * {@code prevEquippedProgressMainHand}/{@code equippedProgressMainHand} are
+ * used; in the obfuscated runtime the SRG names {@code field_187470_g} /
+ * {@code field_187469_f} MUST be used — FML's remapper has no MCP->SRG data at
+ * runtime and the MCP names throw {@link NoSuchFieldException} there. Keep both
+ * branches; do not unify them.
+ */
+/**
+ * CLIENT: replaces the vanilla in-hand map render with a custom girl-hand
+ * version while the player is transformed (holds a map). Renders the map
+ * plane plus the girl's hand model.
+ * <p>
+ * <b>Pitfall (reflection fix):</b> the {@code ItemRenderer} progress fields
+ * are read via {@code ObfuscationReflectionHelper}. In the obfuscated runtime
+ * the MCP names throw {@code NoSuchFieldException} (FML has no mcp-&gt;srg
+ * field data at runtime) — the obfuscated branch MUST pass the SRG names
+ * {@code field_187470_g} (prevEquippedProgressMainHand) and
+ * {@code field_187469_f} (equippedProgressMainHand). Only the dev/deobf
+ * branch uses the MCP names. The remap once collapsed both branches to the
+ * MCP names, spamming the chat every frame.
+ */
 public class InHandMapRenderer {
    Minecraft mc;
    float PROGRESS_SCALE = 2.0F;
@@ -53,12 +86,17 @@ public class InHandMapRenderer {
             try {
                ItemRenderer var6 = this.mc.getItemRenderer();
                if (DebugMode.isDeobfuscated()) {
+                  // deobf/dev environment: MCP names
                   var4 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "prevEquippedProgressMainHand");
                   var5 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "equippedProgressMainHand");
                } else {
-                  var4 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "prevEquippedProgressMainHand");
-                  var5 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "equippedProgressMainHand");
+                  // obfuscated runtime: SRG names (stable_39: field_187470_g = prevEquippedProgressMainHand,
+                  // field_187469_f = equippedProgressMainHand). FML's remapper has no mcp->srg data at
+                  // runtime, so the MCP names throw NoSuchFieldException here.
+                  var4 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "field_187470_g");
+                  var5 = (Float)ObfuscationReflectionHelper.getPrivateValue(ItemRenderer.class, var6, "field_187469_f");
                }
+               SceneDebug.log(SceneDebug.IN_HAND, "InHandMapRenderer: prev=%.3f cur=%.3f", var4, var5);
 
                this.PROGRESS_SCALE = 2.0F - (var4 + (var5 - var4) * var1.getPartialTicks());
             } catch (Exception var9) {

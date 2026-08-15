@@ -15,6 +15,17 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER hard teleport of a player (by UUID) to a position
+ * with optional yaw/pitch. Used by scene transitions and admin-style commands;
+ * the client is reset via the connection's {@code setPlayerLocation} so vanilla
+ * interpolation cannot fight the teleport.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Wraps yaw/pitch,
+ * sets position/angles + head rotation, zeroes motion and confirms the move to
+ * the player's connection. Unknown UUID -> logs the available players and
+ * returns.
+ */
 public class TeleportPlayerPacket implements IMessage {
    boolean isValid;
    String girlId;

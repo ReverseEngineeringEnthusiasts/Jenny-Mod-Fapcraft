@@ -24,6 +24,11 @@ import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+/**
+ * <b>Role.</b> Kobold egg — placing it spawns a {@link KoboldEggEntity} colored
+ * by the item's metadata (wool color); a {@code tribeID} NBT tag (written by
+ * {@link SendEggPacket}) binds the hatched kobold to that tribe.
+ */
 public class KoboldEggItem extends Item implements IAnimatable {
    private final AnimationFactory animationFactory = new AnimationFactory(this);
    public static KoboldEggItem KOBOLD_EGG_ITEM = new KoboldEggItem();

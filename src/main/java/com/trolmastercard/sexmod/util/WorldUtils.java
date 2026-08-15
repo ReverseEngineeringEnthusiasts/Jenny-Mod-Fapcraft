@@ -28,6 +28,17 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+/**
+ * <b>Role.</b> World helpers for girl AI, bed placement and tribe logic:
+ * angle normalization, light-based look-vector estimation, surface height,
+ * structure/bed placement checks, ring particles, double-block (bed/chest)
+ * resolution and entity tracking queries.
+ * <p>
+ * <b>Pitfalls.</b> {@link #getEntityLookVector} deliberately returns straight-up
+ * inside {@link SexWorldClient} (the preload world has no light data) — keep
+ * that branch. {@link #getStatePos} returns {@code null} for malformed beds and
+ * the callers (tribe bed tracking, {@link SendBlocksPacket}) must handle it.
+ */
 public class WorldUtils {
    public static float normalizeAngleDiff(float var0, float var1) {
       var0 = TrigMath.NormalizeAngle(var0);

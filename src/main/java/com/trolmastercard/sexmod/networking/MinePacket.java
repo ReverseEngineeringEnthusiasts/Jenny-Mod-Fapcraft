@@ -21,6 +21,18 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER "mine this area" command from the dragon-staff UI.
+ * Sent when the player selects a block and a facing; the tribe kobolds dig a
+ * 30-block corridor through it.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Validates the bed
+ * requirement (see {@link FallTreePacket}); computes the 30x3 tunnel blocks with
+ * {@link #getMineableBlocks(BlockPos, EnumFacing)}, rejects the request if any of
+ * them is unbreakable (bedrock), then registers a {@code MINE} {@link KoboldTask}
+ * and echoes the target blocks to the client as a
+ * {@link SendBlocksPacket} (markers).
+ */
 public class MinePacket implements IMessage {
    boolean isValid = false;
    BlockPos targetPos;
@@ -97,7 +109,14 @@ public class MinePacket implements IMessage {
          }
       }
 
-      HashSet<BlockPos> getMineableBlocks(BlockPos var1, EnumFacing var2) {
+      /**
+    * Computes the 3-block-high, 30-block-long tunnel cross-section starting at
+    * {@code var1} extending along {@code var2}. SERVER-side helper for the mine
+    * command.
+    *
+    * @return all {@link BlockPos} that the kobolds will have to break
+    */
+   HashSet<BlockPos> getMineableBlocks(BlockPos var1, EnumFacing var2) {
          HashSet var3 = new HashSet();
          BlockPos var4 = var1;
 
@@ -117,7 +136,11 @@ public class MinePacket implements IMessage {
          return var3;
       }
 
-      BlockPos getNextBlock(EnumFacing var1) {
+      /**
+    * Lateral offset of the tunnel cross-section: the vector perpendicular to the
+    * facing direction (rotated 90 degrees in the horizontal plane).
+    */
+   BlockPos getNextBlock(EnumFacing var1) {
          Vec3i var2 = var1.getDirectionVec();
          return new BlockPos(var2.getZ(), var2.getY(), -var2.getX());
       }

@@ -11,6 +11,16 @@ import net.minecraft.pathfinding.PathNavigateGround;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.math.BlockPos;
 
+/**
+ * <b>Role.</b> Door interaction for girl NPCs: scans for a wooden door within
+ * 3 blocks ahead on the current path, opens it when close enough, walks
+ * through and closes it behind. Requires a {@link PathNavigateGround}
+ * navigator (doors are ground-only).
+ * <p>
+ * <b>Pitfalls.</b> The constructor throws for non-ground navigators — only
+ * add this goal to ground-walking girls. The close happens when the entity
+ * passes the door plane ({@code approachX * dx + approachZ * dz < 0}).
+ */
 public class DoorInteractAiGoal extends EntityAIBase {
    protected EntityLiving entity;
    protected BlockPos doorPosition = BlockPos.ORIGIN;

@@ -57,6 +57,39 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Manglelie ("Mang") — the small imp girl bound to a Galath as
+ * her "daughter". Wild Mangles wander near hives; when a Galath finds one
+ * (see {@link GalathEntity#at()}) she adopts it and it rides her head
+ * ({@link Action#RIDE_MOMMY_HEAD}). The corrupting mechanic: while the tamed
+ * Galath is in the corrupt state, Mang picks a nearby mob, holds it in a
+ * magical beam (arrow shot from the Galath at 28 ticks), and after ~60 ticks
+ * the mob converts into a threesome scene (slow/fast/cum, shared animations
+ * with the Galath).
+ * <p>
+ * <b>State.</b> Own data keys (do not reorder): {@code ad} (111) = Galath
+ * partner UUID, {@code ap} (112) = corrupting flag, {@code ab} (113) = corrupt
+ * target entity id (-1 none), {@code al} (114) = corrupt start world time,
+ * {@code ar} (115) = scared-flag (set by {@link AvoidPlayerGoal}).
+ * {@code aa} = despawned flag, {@code aq} = wild flag.
+ * <p>
+ * <b>Flow.</b> {@link #handleCorruptInit()} seeks an unbound Galath within 15
+ * blocks and runs to her; {@link #handlePartnerLook()} binds the pair
+ * (Galath gets {@code setMangleliePartnerUUID}); the corrupt cycle is
+ * {@link #handleCorruptStart()} (pick a valid target mob) -&gt;
+ * {@link #handleCorruptTimer()} (28 ticks, then the arrow shot) -&gt;
+ * {@link #handleCorruptTick()} (60 ticks total, then release) with the
+ * threesome actions handled by {@link #handleThreesomeState()} and the
+ * animation overrides in {@link #handleActionAnimationOverrides(Action, String, boolean, AnimationEvent)}.
+ * <p>
+ * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} persists the cum time on
+ * {@link Action#THREESOME_CUM} (server) and guards the threesome loops.
+ * {@link #updateAITasks()} despawns her when the {@code aa} flag is set or
+ * her mommy disowns her. Damage is forwarded to the Galath
+ * ({@link #attackEntityFrom(DamageSource, float)}). The eyes controller only
+ * animates while a corrupt target exists. {@link #getYawRotation()} flips
+ * 180 degrees during the threesome render.
+ */
 public class ManglelieEntity extends BaseGirlEntity {
    public static final String ac = "sexmod:mommy";
    public static final float am = 60.0F;
@@ -194,6 +227,12 @@ public class ManglelieEntity extends BaseGirlEntity {
       this.despawned = true;
    }
 
+   /**
+    * BOTH sides, every AI tick: dispatches the whole Mang state machine —
+    * model-code load, threesome positioning, partner binding, the corrupt
+    * seek/start/tick/timer/finish cycle and gravity control; removes herself
+    * when the despawn flag is set.
+    */
    @Override
    public void updateAITasks() {
       if (this.aa) {
@@ -261,6 +300,11 @@ public class ManglelieEntity extends BaseGirlEntity {
       this.corrupting = false;
    }
 
+   /**
+    * SERVER: the corrupt timer — 28 ticks after the corrupt start she fires
+    * an arrow from the Galath's position (3.5 above) at the corrupt target
+    * and marks the shot as done.
+    */
    void handleCorruptTimer() {
       long var1 = this.getCorruptStartTime();
       if (var1 != -1L) {
@@ -360,6 +404,11 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * SERVER: valid-corrupt-target test — the target must be alive, in the
+    * Galath's dimension, daylight-visible, within 15 blocks horizontally and
+    * in front of the Galath's aim.
+    */
    public static boolean isGalathBlocked(Entity var0, GalathEntity var1) {
       if (var0.isDead) {
          return true;
@@ -388,6 +437,11 @@ public class ManglelieEntity extends BaseGirlEntity {
       return var5.z < 0.0;
    }
 
+   /**
+    * SERVER: the corrupt target selection — while corrupting with no bound
+    * entity, scans for a valid mob (per {@link #isGalathBlocked(Entity, GalathEntity)})
+    * within 15 blocks of the Galath and binds its entity id.
+    */
    void handleCorruptStart() {
       if (this.getCorruptEntity() == null) {
          if (this.isCorrupting()) {
@@ -412,6 +466,10 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * SERVER: releases the corrupt target 60 ticks after the start and
+    * unbinds it.
+    */
    void handleCorruptTick() {
       Entity var1 = this.getCorruptEntity();
       if (var1 != null) {
@@ -430,6 +488,11 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * SERVER: completes the adoption — binds the Galath partner UUID both
+    * ways, marks her corrupting and rides the mommy's head; un-anchors the
+    * Galath if she was mid-hug.
+    */
    void handlePartnerLook() {
       if (this.galathPartnerUUID != null) {
          BaseGirlEntity var1 = BaseGirlEntity.getServerGirlEntity(this.galathPartnerUUID);
@@ -459,6 +522,10 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * SERVER: the threesome position lock — while corrupting with no threesome
+    * action running, keeps her anchored on the Galath's head.
+    */
    void handleThreesomeState() {
       if (this.isCorrupting() && !Action.isAnyAction(this, Action.THREESOME_SLOW, Action.THREESOME_CUM, Action.THREESOME_FAST)) {
          GalathEntity var1 = this.getGalathPartner(true);
@@ -494,6 +561,10 @@ public class ManglelieEntity extends BaseGirlEntity {
       return var3 == null ? var1 : ManglelieRenderer.getLookVector(var3, var2);
    }
 
+   /**
+    * SERVER: seeks an unbound Galath within 15 blocks and runs to her (RUN +
+    * pathing); stands still when none is found.
+    */
    void handleCorruptInit() {
       if (!this.isCorrupting()) {
          if (this.getCorruptPlayerUUID() == null) {
@@ -593,6 +664,10 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * SERVER: damage is forwarded to her Galath mommy (unless void damage);
+    * Mang herself never takes hits.
+    */
    public boolean attackEntityFrom(DamageSource var1, float var2) {
       if (var1 == DamageSource.OUT_OF_WORLD) {
          return super.attackEntityFrom(var1, var2);
@@ -711,6 +786,12 @@ public class ManglelieEntity extends BaseGirlEntity {
       return true;
    }
 
+   /**
+    * CLIENT: the threesome action overrides — THREESOME_CUM ends the scene
+    * (reset both girls, clear cum trails), the slow/fast transitions swap
+    * between the soft/hard/back shared animations and drive the Galath's
+    * masterbate/pussy-licking mirror actions.
+    */
    @Override
    protected boolean handleActionAnimationOverrides(Action var1, String var2, boolean var3, AnimationEvent var4) {
       if (var1 == Action.THREESOME_CUM) {
@@ -838,6 +919,12 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * threesome (pound sounds, cum trails from the {@code semenEmitter} bone,
+    * black screen) — {@code cs0/1/2} select the pose variant ({@code an}),
+    * {@code sexui} shows the horny meter.
+    */
    @Override
    public void registerControllers(AnimationData var1) {
       var1.addAnimationController(this.movementController);
@@ -883,6 +970,10 @@ public class ManglelieEntity extends BaseGirlEntity {
       var1.addAnimationController(this.actionController);
    }
 
+   /**
+    * Forge handler: Mang's arrows must never damage other girls — the
+    * projectile impact on a {@link BaseGirlEntity} is cancelled.
+    */
    public static class b {
       @SubscribeEvent
       public void handleArrowHit(Arrow var1) {

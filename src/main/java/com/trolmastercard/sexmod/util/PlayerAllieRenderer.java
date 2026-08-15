@@ -16,6 +16,9 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Renderer for the player-form Allie (horny potion).
+ */
 public class PlayerAllieRenderer extends GirlPlayerRenderer {
    static final float BOB_SCALE_8 = 8.0F;
    static final float BOB_SCALE_1_68 = 1.68F;

@@ -10,6 +10,25 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * <b>Role.</b> Base class for the player-form kobold/goblin transformations
+ * ({@link KoboldPlayerEntity}, {@link GoblinPlayerEntity}). Manages the
+ * custom-model "DNA" string (the {@code APPEARANCE_DNA} twin of
+ * {@link AbstractNpcOnlyEntity}) plus the three shared player-specific keys.
+ * <p>
+ * <b>State.</b> Data-manager keys with EXPLICIT ids — do not reorder or
+ * re-id: {@code as} (119) = skin/body color name, {@code au} (120) = eye
+ * color as {@link BlockPos}, {@code at} (121) = model-code DNA string.
+ * The DNA string is only registered on the server or on non-{@link SexWorldClient}
+ * worlds; the client twin is synced via {@code syncModelCodeClient()}.
+ * <p>
+ * <b>Pitfalls.</b> The 119/120/121 ids are shared with
+ * {@link AbstractNpcOnlyEntity#CURRENT_ACTION}/{@code ACTION_TARGET_POS}/
+ * {@code APPEARANCE_DNA} — both classes are never instantiated as the same
+ * entity, but any id change here MUST be mirrored there. {@code syncModelCodeClient}
+ * clears bone colors whenever the synced triplet changes, so the renderer
+ * cache never shows stale skin/eye colors after a wardrobe edit.
+ */
 public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntity {
    public static final DataParameter<String> as = EntityDataManager.createKey(AbstractKoboldPlayerEntity.class, DataSerializers.STRING)
       .getSerializer()
@@ -47,6 +66,12 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
       return ((String)var0.getDataManager().get(at)).split("-");
    }
 
+   /**
+    * CLIENT/SERVER: rebuilds the owner-bound custom part list once, when the
+    * first update arrives. On the server the part list is loaded from the
+    * owning player's persistent data ({@code "sexmod:GirlSpecific" + npc type});
+    * on the client the one-shot flag just gates {@code clearBoneColors()}.
+    */
    @Override
    public void onUpdate() {
       super.onUpdate();
@@ -68,6 +93,12 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
       }
    }
 
+   /**
+    * CLIENT-side: watches the synced skin/eye/DNA triplet and clears the
+    * renderer's bone-color cache whenever any of the three changed, then
+    * caches the new values. Keeps the rendered kobold in sync with server
+    * wardrobe edits.
+    */
    void syncModelCodeClient() {
       if (this.world.isRemote) {
          String var1 = (String)this.entityDataManager.get(as);

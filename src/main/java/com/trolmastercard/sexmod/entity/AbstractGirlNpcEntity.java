@@ -30,6 +30,25 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
+/**
+ * <b>Role.</b> Base class for the NPC (non-player) girls that follow and fight
+ * alongside a player — Jenny, Bia, Luna, Ellie, Bee, Goblin and the rest.
+ * Adds a 7-slot inventory ({@link ItemStackHandler}), weapon/bow/armor slots
+ * synced via the data manager, an attack-mode parameter and the follow AI
+ * ({@link GirlFollowGoal}).
+ * <p>
+ * <b>State.</b> Data-manager keys {@code WEAPON/BOW/HELMET_SLOT/CHEST_SLOT/LEGS_SLOT/BOOTS_SLOT}
+ * (IDs 117..112) mirror {@link #inventory} slots 0..5 every AI tick;
+ * {@code ATTACK_MODE} (ID 111) is set by the follow goal (0 = idle, 1 = melee,
+ * 2 = bow). IDs 111-117 must NOT be reordered — they are a contiguous block
+ * above the {@link BaseGirlEntity} keys and are referenced by the client
+ * renderer and {@link GirlFollowGoal}.
+ * <p>
+ * <b>Pitfalls.</b> {@link #updateAITasks()} force-sets {@code HAND_STATES} to
+ * {@code "1"} every tick (combat hand-raise flag) — do not "fix" this. The
+ * {@code downed} flag is cleared here when the girl has no master; combat
+ * downed-state transitions live in {@link GirlFollowGoal.a}.
+ */
 public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
    public int nextAttack = 1;
    public int slashSwordRot;
@@ -92,6 +111,15 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
    public void onArriveHome() {
    }
 
+   /**
+    * Called on both sides every AI tick. Regenerates the girl (heal + heart
+    * particles) every 80 ticks when hurt, clears the {@code downed} flag when
+    * unbounded, and re-syncs the inventory slots into the data manager so the
+    * client renderer and follow-goal see current equipment.
+    * <p>
+    * SERVER-side for the heal/particle branch (uses {@link WorldServer});
+    * the data-manager writes run on both sides.
+    */
    @Override
    public void updateAITasks() {
       super.updateAITasks();
@@ -139,6 +167,15 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
       this.entityDataManager.set(BOOTS_SLOT, this.inventory.getStackInSlot(5));
    }
 
+   /**
+    * CLIENT-side action dispatch from the interaction GUI:
+    * {@code followme} binds the acting player as master (via
+    * {@link ChangeDataParameterPacket} through {@code changeDataParameterFromClient}),
+    * {@code stopfollowme}/{@code gohome} send the girl home, {@code equipment}
+    * opens the equipment GUI and {@code setnewhome} stores a new home position.
+    * Ordering: the packet names must stay in sync with {@link GirlFollowGoal}
+    * and the GUI action strings.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void doAction(String var1, UUID var2) {

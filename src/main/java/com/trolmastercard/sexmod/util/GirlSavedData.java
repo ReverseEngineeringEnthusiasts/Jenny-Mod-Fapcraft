@@ -24,6 +24,25 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import org.apache.logging.log4j.Level;
 
+/**
+ * <b>Role.</b> Galath/Manglelie ownership persistence — a
+ * {@link WorldSavedData} ("sexmod:galath_owner_ship") storing player<->galath
+ * pairs, per-owner last-cum-dosage time and the set of manglelie-owned players.
+ * This is the *ownership* system, NOT the scene system
+ * (see {@link KoboldManager} and the networking scene packets for that).
+ * <p>
+ * <b>State.</b> {@code h} = bidirectional player UUID <-> girl UUID map,
+ * {@code b} = last cum-time per player (drives despawn/cooldown), {@code
+ * mangOwnershipSet} = players who own a manglelie. Static accessors are used by
+ * {@link GalathCoinItem}, {@link RequestRidingPacket} and the galath AI.
+ * <p>
+ * <b>Server tick.</b> Ownership is dropped (and the client informed via
+ * {@link InformOfOwnershipPacket}) when the owner is online but his galath is
+ * gone — no stale pairs survive a missing girl.
+ * <p>
+ * <b>Pitfall.</b> {@link #debugEnabled} is a *client-side* mirror of "am I
+ * owned" (see {@link InformOfOwnershipPacket}); do not use it for server logic.
+ */
 public class GirlSavedData extends WorldSavedData {
    public static boolean debugEnabled = true;
    public static final float CUM_TIMEOUT = 60.0F;

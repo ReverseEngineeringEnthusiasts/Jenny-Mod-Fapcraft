@@ -30,6 +30,31 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Allie — the summoned lamp genie girl (from the Allies Lamp item,
+ * {@link AllieEntity#LAMP_ITEM} key 111). Not a world-spawned NPC: she is
+ * summoned for the lamp holder, grants wishes, and despawns when idle
+ * ({@link #updateAITasks()} removes her on {@link Action#NULL}). Scenes:
+ * deepthroat and reverse cowgirl, plus the make-me-rich wish.
+ * <p>
+ * <b>Scene flow.</b> The summon intro ({@code summonDone} -&gt;
+ * {@link Action#SUMMON_WAIT}) opens the interaction menu; the choice is
+ * stored in {@code GIRL_HAND_STATES} by the {@code animationFollowUp} packet
+ * path and {@code deepthroat_prepareDone} dispatches it (reverse cowgirl
+ * or deepthroat + {@link KoboldStatePacket} to lock the player in). Scene end
+ * via {@code cowgirl_cumDone}/{@code deepthroat_cumDone} -&gt;
+ * {@code resetCameraAndPhysics()} + inventory upload
+ * ({@link UploadInventoryToServerPacket2}).
+ * <p>
+ * <b>Pitfalls.</b> {@link #updateAITasks()} despawns her whenever the action
+ * returns to {@link Action#NULL} — any scene teardown must happen before that
+ * or she vanishes mid-flow. {@code LAMP_SCALE} is a despawn animation
+ * (1.0 -&gt; 0 triggers the upload and locks movement, {@code -69} = done).
+ * {@link #setCurrentAction(Action)} fires {@link #handleAllieOwner()} on
+ * {@link Action#REVERSE_COWGIRL_START} (server). The reverse-cowgirl loop
+ * variant counters are {@code stateIndex} (slow, 1..3) and {@code stateCount}
+ * (fast-continues).
+ */
 public class AllieEntity extends BaseGirlEntity {
    public static final int LAMP_RANGE = 300;
    public static final int LAMP_SLOTS = 8;
@@ -76,6 +101,11 @@ public class AllieEntity extends BaseGirlEntity {
       return var1 == null ? true : var1.getInteger("sexmodUses") == 1;
    }
 
+   /**
+    * SERVER: lifecycle guard — Allie only exists while summoned: she removes
+    * herself when idle (NULL action) or when her interaction player leaves
+    * the world.
+    */
    @Override
    public void updateAITasks() {
       super.updateAITasks();
@@ -100,6 +130,12 @@ public class AllieEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * CLIENT: per-tick — drives the despawn animation (LAMP_SCALE shrinking,
+    * uploads the inventory and locks movement at 0), opens the interaction
+    * menu once when {@code isLampActive} is set, fires the portal-puff
+    * particles and the one-shot spawn burst.
+    */
    @Override
    public void onUpdate() {
       super.onUpdate();
@@ -155,6 +191,10 @@ public class AllieEntity extends BaseGirlEntity {
       this.isLampActive = false;
    }
 
+   /**
+    * CLIENT: opens the interaction menu (once per activation) offering the
+    * deepthroat, reverse-cowgirl and make-me-rich actions.
+    */
    @Override
    public boolean openInteractionMenu(EntityPlayer var1) {
       this.stateFlag2 = false;
@@ -183,6 +223,11 @@ public class AllieEntity extends BaseGirlEntity {
       }
    }
 
+   /**
+    * Guards the state machine: refuses re-entry into loop phases while the
+    * cum animation plays and repositions the interacting player onto her
+    * target position when the reverse-cowgirl starts (SERVER).
+    */
    @Override
    public void setCurrentAction(Action action) {
       if (this.getCurrentAction() != Action.DEEPTHROAT_CUM || action != Action.DEEPTHROAT_FAST && action != Action.DEEPTHROAT_SLOW) {
@@ -281,6 +326,16 @@ public class AllieEntity extends BaseGirlEntity {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * summon dialogue, wish and the deepthroat/reverse-cowgirl scenes.
+    * {@code deepthroat_prepareDone} dispatches the stored scene choice
+    * ({@code GIRL_HAND_STATES}); {@code cowgirlSlowDone}/{@code cowgirlFastDone}
+    * re-roll the loop variant counters; jump on {@code fastSwitch} toggles
+    * the fast-continues variant; {@code cowgirl_cumDone}/
+    * {@code deepthroat_cumDone} -&gt; {@code resetCameraAndPhysics()} +
+    * inventory upload; {@code disappear} starts the despawn scale.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {

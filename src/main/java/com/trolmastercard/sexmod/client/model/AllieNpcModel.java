@@ -6,6 +6,11 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.util.TrailSegment;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * Geckolib model for the Allie NPC: three outfit geo variants (nude, armored,
+ * nude-2) with the shared Allie texture and the standard armor/nude bone
+ * groups.
+ */
 public class AllieNpcModel extends GirlModel<BaseGirlEntity> {
    @Override
    protected ResourceLocation[] getModelLocations() {

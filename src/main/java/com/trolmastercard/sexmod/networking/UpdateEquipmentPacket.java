@@ -12,6 +12,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * SERVER-bound packet: updates a girl's equipment/held items (used by the
+ * girl inventory screens). See GirlInventoryContainer* for the UI side.
+ */
 public class UpdateEquipmentPacket implements IMessage {
    boolean isValid;
    UUID girlUUID;

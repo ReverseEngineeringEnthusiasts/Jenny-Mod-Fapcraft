@@ -1,4 +1,7 @@
 package com.trolmastercard.sexmod.util;
+/**
+ * Integer rectangle value type.
+ */
 public class Rectangle {
    public int x;
    public int y;

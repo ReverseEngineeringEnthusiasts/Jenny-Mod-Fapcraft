@@ -3,6 +3,17 @@ package com.trolmastercard.sexmod.util;
 import javax.vecmath.Vector3f;
 import net.minecraft.util.math.Vec3d;
 
+/**
+ * <b>Role.</b> Vector math helpers for the renderers and scene code: scaling,
+ * dot/cross products, yaw/pitch and Euler rotations, mirroring and linear-factor
+ * interpolation.
+ * <p>
+ * <b>Pitfall.</b> {@link #rotateByYawPitch} uses the Minecraft convention
+ * (yaw + 90 shift, x/z plane) — feeding it raw degrees from a different
+ * convention rotates meshes sideways. {@link #getLinearFactor} divides by
+ * {@code (b-a)}; a zero denominator yields NaN — callers must ensure distinct
+ * points.
+ */
 public class VectorMath {
    public static Vec3d scale(Vec3d var0, double var1) {
       return new Vec3d(var0.x * var1, var0.y * var1, var0.z * var1);

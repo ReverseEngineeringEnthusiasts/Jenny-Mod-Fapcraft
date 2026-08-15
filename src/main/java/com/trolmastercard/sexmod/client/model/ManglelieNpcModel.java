@@ -22,6 +22,23 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
 
+/**
+ * Geckolib model for Manglelie: the manglelie geo (with a combined Galath pose
+ * variant for outfit index 2) whose per-frame pass runs the corruption arm/
+ * head animation, the ride-mommy pose blend, the threesome pose (body follows
+ * Galath's published rotation/scale) and the skirt/cheek visibility for the
+ * look pose.
+ * <p>
+ * <b>Corruption animation.</b> While corrupting, the arms swing toward/away
+ * from Galath with a frame-rate independent blend cycle
+ * ({@code VELOCITY_0}/{@code aj} on the entity) between the corrupt pose and
+ * the ride pose; the head tracks Galath with a speed-limited chase
+ * ({@code TICK_0}/{@code ai}). The entity fields are written by this class —
+ * do not move this logic.
+ * <p>
+ * CLIENT-side only; skipped in the {@link SexWorldClient} preload world and
+ * during preloading.
+ */
 public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
    public static final float HEAD_ROTATION_SPEED = 7.0F;
    public static final float headRotSpeed = 0.75F;
@@ -46,6 +63,10 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       return new ResourceLocation("sexmod", "textures/entity/manglelie/manglelie.png");
    }
 
+   /**
+    * Whether the girl is in a threesome action (slow/fast/cum) — disables the
+    * corruption and look poses.
+    */
    public static boolean isInThreesome(BaseGirlEntity var0) {
       return Action.isAnyAction(var0, Action.THREESOME_SLOW, Action.THREESOME_FAST, Action.THREESOME_CUM);
    }
@@ -55,6 +76,11 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       return new ResourceLocation("sexmod", "animations/manglelie/manglelie.animation.json");
    }
 
+   /**
+    * Per-frame pass: shared animation (skirt/cheek/cock-stage bones), then
+    * the corruption arm/head poses, threesome body coupling and the
+    * corruption leg/arm offset.
+    */
    @Override
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       super.setLivingAnimations(var1, var2, var3);
@@ -65,6 +91,10 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       this.updateCorruptPose(var1);
    }
 
+   /**
+    * Static corruption offset on the leg/forearms while Galath runs her
+    * corruption actions (not in threesome).
+    */
    void updateCorruptPose(BaseGirlEntity var1) {
       if (!this.mc.isGamePaused()) {
          if (!isInThreesome(var1)) {
@@ -84,6 +114,11 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Threesome coupling: the body yaw follows Galath's published rotation
+    * ({@code bw}) and its scale follows {@code bm} — Manglelie mirrors
+    * Galath's pose in the threesome scenes.
+    */
    void updateThreesomePose(BaseGirlEntity var1) {
       if (var1 instanceof ManglelieEntity) {
          if (!isInThreesome(var1)) {
@@ -104,6 +139,13 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       return EntityLookVectorHelper.getEntityLookVector(var1, this.mc.getRenderPartialTicks()).add(0.0, var1.getEyeHeight(), 0.0);
    }
 
+   /**
+    * Corruption arm animation: blends between the corrupt pose and the ride
+    * pose on a frame-rate independent cycle (entity fields {@code VELOCITY_0}
+    * + {@code aj}) and applies the resulting rotations/scales/elbows to all
+    * four arm bones. The look target is the corrupt entity when present, else
+    * Galath's look vector.
+    */
    void updateCorruptBones(BaseGirlEntity var1) {
       if (!ClientProxy.IS_PRELOADING) {
          if (!isInThreesome(var1)) {
@@ -218,6 +260,13 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Ride-pose arm data: arms reach toward Galath's look point (aim angles
+    * from the bone offsets), with scale/elbow corrections and a staged arm
+    * swing during the corruption progress phases.
+    *
+    * @return the computed arm rotations for this frame
+    */
    ManglelieNpcModel.RotationData updateRidePose(@Nonnull ManglelieEntity var1, @Nonnull GalathEntity var2, IBone var3, IBone var4, AnimationProcessor var5) {
       ManglelieNpcModel.RotationData var6 = new ManglelieNpcModel.RotationData();
       var6.lowerArmLRotation = new Vector3fSexmodSpecial(UPPER_ARM_BASE_ANGLE, 0.0F, var3.getRotationZ());
@@ -282,6 +331,11 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       return var6;
    }
 
+   /**
+    * Corrupt-pose arm data from Galath's head rotation: positive head pitch
+    * bends both arms up with mirrored yaw/z offsets; negative pitch drops the
+    * forearms (scaled factors) and spreads the arms slightly.
+    */
    ManglelieNpcModel.RotationData updateCorruptPose(GalathEntity var1, IBone var2, IBone var3, IBone var4, IBone var5) {
       float var6 = var1.aE;
       ManglelieNpcModel.RotationData var7 = new ManglelieNpcModel.RotationData();
@@ -300,6 +354,12 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Corruption head/body tracking: the rotation tool follows Galath's head
+    * rotation, the upper body/head/boobs bend by it, and the head chases
+    * Galath with a speed-limited (7 deg/frame at 60fps) wrap-around lerp —
+    * state persists in the entity's {@code TICK_0}/{@code ai} fields.
+    */
    void updatePoseBones(BaseGirlEntity var1) {
       if (!ClientProxy.IS_PRELOADING) {
          if (!this.mc.isGamePaused()) {
@@ -343,6 +403,11 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Shared pose pass (also called from {@code GalathNpcModel} while Galath
+    * hugs Manglelie): toggles the skirt/cheek bones by the look state and
+    * stages the cock bones by the corruption stage ({@code an}).
+    */
    public static void animateModel(BaseGirlEntity var0, AnimationProcessor var1, float var2) {
       if (!ClientProxy.IS_PRELOADING) {
          boolean var3 = ManglelieRenderer.isGalathLooking(var0);
@@ -352,6 +417,9 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Cock-stage bone visibility from the corruption stage counter.
+    */
    static void animatePose(BaseGirlEntity var0, AnimationProcessor var1, float var2) {
       if (var0 instanceof ManglelieEntity) {
          for (int var3 = 0; var3 < 3; var3++) {
@@ -363,10 +431,18 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Hides the skirt bone while the look pose is active (the custom ribbon
+    * mesh replaces it).
+    */
    static void setSkirtHidden(AnimationProcessor var0, boolean var1) {
       var0.getBone("skirt").setHidden(!var1);
    }
 
+   /**
+    * Swaps the below-skirt cheek/side bones against their skirted variants
+    * depending on the look pose.
+    */
    static void setCheekHidden(AnimationProcessor var0, boolean var1) {
       var0.getBone("cheekRBelowSkirt").setHidden(var1);
       var0.getBone("cheekLBelowSkirt").setHidden(var1);
@@ -396,6 +472,10 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       var10000.setHidden(var10001);
    }
 
+   /**
+    * Per-frame arm pose bundle (rotations, scales, elbow yaws) lerped between
+    * the corrupt and ride poses during the corruption cycle.
+    */
    private static class RotationData {
       private Vector3fSexmodSpecial armRRotation;
       private Vector3fSexmodSpecial armLRotation;
@@ -409,7 +489,10 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       private RotationData() {
       }
 
-      static ManglelieNpcModel.RotationData lerpRotationData(ManglelieNpcModel.RotationData var0, ManglelieNpcModel.RotationData var1, float var2) {
+      /**
+    * Component-wise lerp of two pose bundles.
+    */
+   static ManglelieNpcModel.RotationData lerpRotationData(ManglelieNpcModel.RotationData var0, ManglelieNpcModel.RotationData var1, float var2) {
          ManglelieNpcModel.RotationData var3 = new ManglelieNpcModel.RotationData();
          var3.armRRotation = RotationHelper.lerpVector3f(var0.armRRotation, var1.armRRotation, var2);
          var3.armLRotation = RotationHelper.lerpVector3f(var0.armLRotation, var1.armLRotation, var2);

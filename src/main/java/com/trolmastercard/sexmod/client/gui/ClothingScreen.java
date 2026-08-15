@@ -9,6 +9,7 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.UploadModelStringPacket;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.RotationHelper;
+import com.trolmastercard.sexmod.util.SceneDebug;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import com.trolmastercard.sexmod.util.Point2D;
 import java.io.IOException;
@@ -44,6 +45,19 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * The girl wand's customization GUI — cycles the target girl's custom model
+ * parts (bone toggles with {@code <}/{@code >} and {@code +}/{@code -}),
+ * rotates the preview model, and hosts the custom-model folder/tutorial
+ * buttons. Opened via {@link #openClothingScreen(BaseGirlEntity)} (the K key
+ * while transformed, or right-clicking a girl with the wand).
+ * <p>
+ * <b>Pitfall (crash fix):</b> the folder button MUST check
+ * {@code exists()}/{@code mkdirs()} before {@code java.awt.Desktop.open()} —
+ * opening the not-yet-existing {@code sexmod/custom_models/singleplayer}
+ * directory throws {@code IllegalArgumentException} (NOT IOException) and
+ * crashes the whole client.
+ */
 public class ClothingScreen extends GuiScreen {
    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/clothing_icons.png");
    static final int SCROLLBAR_SIZE = 20;
@@ -364,7 +378,11 @@ public class ClothingScreen extends GuiScreen {
             } else {
                var5 -= 20;
                if (this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20)) {
-                  try { Desktop.getDesktop().open(new File(ServerWhitelistManager.getGlobalModelOverride())); } catch (IOException var9) { }
+                  File var10 = new File(ServerWhitelistManager.getGlobalModelOverride());
+                  SceneDebug.log(SceneDebug.CLOTHING, "ClothingScreen: opening folder %s (exists=%s)", var10.getAbsolutePath(), var10.exists());
+                  if (var10.exists() || var10.mkdirs()) {
+                     try { Desktop.getDesktop().open(var10); } catch (IOException var9) { }
+                  }
                } else {
                   var5 -= 20;
                   if (this.isMouseOverPart(var1, var2, var4, var5, var4 + 20, var5 + 20)) {

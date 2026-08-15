@@ -8,6 +8,16 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Base class for geckolib girl models. Replaces geckolib's default animation
+ * processor with the caching {@link GirlAnimationProcessor} (via reflection on
+ * the private {@code animationProcessor} field — keep the field name in sync
+ * with the geckolib version) and re-registers all top-level bones after each
+ * model load so the name-based bone cache stays correct.
+ * <p>
+ * CLIENT-side only. {@link #getModel} throws {@link GeoModelException} when
+ * the geo file is missing — model files must exist.
+ */
 public abstract class GirlModelBase<T extends IAnimatable> extends AnimatedGeoModel<T> {
    protected GirlModelBase() {
       try {
@@ -19,6 +29,10 @@ public abstract class GirlModelBase<T extends IAnimatable> extends AnimatedGeoMo
       }
    }
 
+   /**
+    * Loads the geo model, clears the bone cache and registers every top-level
+    * bone (the {@link GirlAnimationProcessor} cache is populated here).
+    */
    @Override
    public GeoModel getModel(ResourceLocation var1) {
       GeoModel var2 = super.getModel(var1);

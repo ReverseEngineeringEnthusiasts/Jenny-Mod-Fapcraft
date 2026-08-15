@@ -12,6 +12,18 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * Screen for the girl's equipment chest ({@link GirlInventoryContainer}, the
+ * 27-slot girl inventory + vanilla player inventory), sized by the girl's row
+ * count. Draws the generic-54 chest texture with a dynamic height and shows the
+ * girl's name as title.
+ * <p>
+ * <b>Save flow.</b> On close it scans {@link ChestContainer#containers} for the
+ * open container matching {@code containerUUID}, builds a 63-slot snapshot
+ * (player main inventory 0..35, girl slots 36..62) and sends
+ * {@link UploadInventoryToServerPacket} — the girl's inventory is thus synced
+ * only when the GUI closes. CLIENT-side only.
+ */
 public class ChestContainerGui extends GuiContainer {
    private static final ResourceLocation CONTAINER_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
    private final IInventory playerInventory;
@@ -53,6 +65,13 @@ public class ChestContainerGui extends GuiContainer {
       this.drawTexturedModalRect(var4, var5 + this.rowCount * 18 + 17, 0, 126, this.xSize, 96);
    }
 
+   /**
+    * Serializes the current container contents (player inventory + girl's 27
+    * equipment slots, index 36+) into a 63-element stack array and sends it to
+    * the server as {@link UploadInventoryToServerPacket}. Must only run once
+    * per container lifetime — closing the screen is what persists the girl's
+    * gear.
+    */
    public void onGuiClosed() {
       super.onGuiClosed();
 

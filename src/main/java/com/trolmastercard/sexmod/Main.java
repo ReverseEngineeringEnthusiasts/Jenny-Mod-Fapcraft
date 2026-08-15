@@ -36,6 +36,20 @@ import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib3.GeckoLib;
 
 @Mod(modid = "sexmod", name = "Fapcraft", version = "1.1.0", dependencies = "after:geckolib")
+/**
+ * <b>Role.</b> Mod entry point ({@code @Mod sexmod}). Wires the proxies through
+ * the Forge lifecycle (pre-init/init/post-init), registers the server commands,
+ * and resets all global state on world close: girl list, {@link KoboldManager},
+ * tribe UI values, {@link GirlSavedData}, worldgen config, {@link GirlRegistry},
+ * {@link ServerWhitelistManager} and {@link GirlWorldData}, plus client-side
+ * marker/bone-color caches.
+ * <p>
+ * <b>Pitfall.</b> {@link #onWorldClosed} must clear everything that holds
+ * entity references — stale statics across world reloads cause ghost girls and
+ * tribe desyncs. {@link #setConfigs()} reads/writes {@code config/sexmod.json}
+ * (worldgen toggle, skin loading, flying) and must keep its exact JSON layout,
+ * since the values are parsed by character offset.
+ */
 public class Main {
    public static final Logger LOGGER = LogManager.getLogger("sexmod");
 

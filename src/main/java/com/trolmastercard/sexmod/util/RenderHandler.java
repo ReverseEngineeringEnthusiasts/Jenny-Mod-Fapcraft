@@ -55,6 +55,9 @@ import com.trolmastercard.sexmod.entity.SlimePlayerEntity;
 import com.trolmastercard.sexmod.entity.WildSlimeEntity;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
+/**
+ * Registers all entity renderers with the RenderManager (CLIENT).
+ */
 public class RenderHandler {
    public static void register() {
       RenderingRegistry.registerEntityRenderingHandler(KoboldEntity.class, var0 -> new KoboldRenderer(var0, new KoboldNpcModel(), -0.4));

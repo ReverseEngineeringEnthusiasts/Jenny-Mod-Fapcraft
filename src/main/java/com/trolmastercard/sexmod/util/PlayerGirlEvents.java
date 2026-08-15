@@ -39,6 +39,27 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> Event handlers around the player-girl transformation
+ * ({@link AbstractPlayerGirlEntity}) and the player's interactions with other
+ * player-girls:
+ * <ul>
+ * <li>bed placement / sleep restrictions while transformed (girl must be
+ *     placed into her bed, not the player's)</li>
+ * <li>bed-side placement of the player next to the girl's bed ({@code H_clash570}
+ *     client-side, anchored target server-side)</li>
+ * <li>respawn sync of the player-girl to the player's new position</li>
+ * <li>interaction menu between player-girls (lesbo prompt), slime doggy start,
+ *     fall-damage immunity (Allie/Bee/Slime forms)</li>
+ * <li>dressup/strip button injected into the vanilla inventory GUI (id
+ *     {@code 284453})</li>
+ * </ul>
+ * <p>
+ * <b>Pitfalls.</b> {@link HandlePlayerMovement#setMovementLock(false)} is
+ * released on both sides when the girl is bed-placed or strips — forgetting the
+ * server-side unlock leaves the player unable to move. The GUI button id and
+ * {@code eventCooldown} are the same constant; keep them equal.
+ */
 public class PlayerGirlEvents {
    static final int eventCooldown = 284453;
 

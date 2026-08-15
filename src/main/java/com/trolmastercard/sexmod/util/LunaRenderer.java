@@ -20,6 +20,9 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
+/**
+ * Renderer for the Luna NPC.
+ */
 public class LunaRenderer extends GirlRenderer {
    float rotR;
 

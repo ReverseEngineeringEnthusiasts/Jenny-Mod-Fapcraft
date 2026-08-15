@@ -17,6 +17,19 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
+/**
+ * Billboard renderer for the {@link DragonEntity} energy ball: a translucent
+ * cyan/magenta quad pair (outer + inner core) that always faces the player.
+ * <p>
+ * <b>Color animation.</b> At full scale (SCALE_1_0 == 1) the outer/inner
+ * colors continuously lerp between cyan and magenta (sine of world time);
+ * while shrinking (scale < 1, e.g. when the ball is consumed) both layers fade
+ * from white-tinted to cyan, tracking the scale.
+ * <p>
+ * CLIENT-side render thread only. Position interpolation uses
+ * {@link RotationHelper#lerpVec3dDouble} (PROGRESS lerp — correct for render
+ * interpolation).
+ */
 public class DragonRenderer extends Render<DragonEntity> {
    public static DragonRenderer instance;
    static final UnknownScreen COLOR_CYAN = new UnknownScreen(0, 255, 251, 255);
@@ -34,6 +47,11 @@ public class DragonRenderer extends Render<DragonEntity> {
       return new ResourceLocation("sexmod", "textures/entity/galath/energy_ball.png");
    }
 
+   /**
+    * Draws the energy ball relative to the local player: full-bright, 50%
+    * alpha, billboarded against the player's view, two-layer quad with
+    * animated colors (see class javadoc). Restores lighting/alpha state after.
+    */
    @Override
    public void doRender(DragonEntity var1, double var2, double var4, double var6, float var8, float var9) {
       GL11.glDisable(2896);
@@ -78,6 +96,10 @@ public class DragonRenderer extends Render<DragonEntity> {
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, OpenGlHelper.lastBrightnessX, OpenGlHelper.lastBrightnessY);
    }
 
+   /**
+    * Emits one billboard quad (0.5x0.5) with the given color and a tiny z
+    * offset to avoid z-fighting between the two layers.
+    */
    void renderDragonColor(BufferBuilder var1, UnknownScreen var2, float var3) {
       var1.pos(-0.25, 0.0, var3).tex(0.0, 0.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();
       var1.pos(0.25, 0.0, var3).tex(1.0, 0.0).color(var2.red, var2.green, var2.blue, var2.alpha).endVertex();

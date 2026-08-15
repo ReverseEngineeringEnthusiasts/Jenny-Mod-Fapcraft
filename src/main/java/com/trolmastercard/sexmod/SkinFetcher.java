@@ -13,9 +13,31 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Downloads a player's Minecraft skin texture from the Mojang session server
+ * and caches/returns it as a {@link BufferedImage} for custom NPC/player-girl
+ * textures.
+ * <p>
+ * CLIENT-side only (network + {@link Minecraft} resource access). Fails safe:
+ * any exception (network error, malformed JSON, missing texture URL) falls back
+ * to the bundled {@code steve.png} texture; if even that cannot be loaded it
+ * returns {@code null} — callers must null-check the result.
+ * <p>
+ * <b>Pitfall:</b> this performs a synchronous HTTP request on the calling
+ * thread; do not invoke it from the render thread during frame rendering.
+ */
 public class SkinFetcher {
    public static final int maxCacheSize = 3;
 
+   /**
+    * Fetches the skin for {@code var0} by querying the Mojang session profile
+    * endpoint, base64-decoding the skin {@code value}, extracting the texture
+    * URL and downloading the PNG.
+    *
+    * @param var0 the player UUID (hyphens stripped for the API call)
+    * @return the skin image, the bundled steve texture on any failure, or
+    *         {@code null} if even the fallback is unavailable
+    */
    @SideOnly(Side.CLIENT)
    public static BufferedImage fetchSkin(UUID var0) {
       try {

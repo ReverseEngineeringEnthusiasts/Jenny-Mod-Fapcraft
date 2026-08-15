@@ -12,6 +12,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER "eat/reel in" tick for Luna's fishing minigame. Sent
+ * by the client while Luna is eating a caught fish, advancing her bobber state.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Calls
+ * {@link LunaEntity#onFishingTick()} on the Luna entity matching the UUID so the
+ * fishing catch timer / reel-in logic runs on the server. Must only be sent while
+ * her {@code SexEntity} bobber is active; a stray packet with no matching girl is
+ * ignored.
+ */
 public class CatEatingDonePacket implements IMessage {
    boolean isValid = false;
    UUID catUUID;

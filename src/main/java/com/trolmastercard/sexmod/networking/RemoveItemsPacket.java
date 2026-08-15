@@ -12,6 +12,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER inventory cleanup — removes one stack of the given
+ * item type from the target player's inventory. Used when a girl gives/takes
+ * items and the client-side inventory preview must stay in sync with the server.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Finds the player by
+ * the "girl UUID" (here used as the player UUID of the transformed girl) and
+ * shrinks the first matching stack by the sent count.
+ */
 public class RemoveItemsPacket implements IMessage {
    boolean isValid = false;
    UUID girlUUID;

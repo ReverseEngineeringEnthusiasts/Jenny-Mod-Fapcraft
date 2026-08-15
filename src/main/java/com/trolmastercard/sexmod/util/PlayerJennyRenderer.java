@@ -5,6 +5,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Renderer for the player-form Jenny (horny potion).
+ */
 public class PlayerJennyRenderer extends GirlPlayerRenderer {
    public PlayerJennyRenderer(RenderManager var1, AnimatedGeoModel var2) {
       super(var1, var2);

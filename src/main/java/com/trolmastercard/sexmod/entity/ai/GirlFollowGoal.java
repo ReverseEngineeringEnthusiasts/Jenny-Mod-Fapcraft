@@ -33,6 +33,26 @@ import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * <b>Role.</b> The combat follow goal for the NPC girls
+ * ({@link AbstractGirlNpcEntity}) — the girl's full companion behaviour:
+ * follows the master, rides the master's mount, attacks hostile mobs and
+ * anything that attacked the girl or her master (melee with her weapon, or a
+ * charged bow shot from the bow slot), wanders near the master when idle and
+ * enters the downed state at 0 HP.
+ * <p>
+ * <b>Flow.</b> {@link #getCurrentState()} evaluates the world each tick
+ * (ride -&gt; target -&gt; attacker -&gt; master's target -&gt; nearby mobs -
+ * &gt; follow/idle); {@link #setState(...)} executes the chosen state.
+ * Combat data is mirrored into {@code ATTACK_MODE} (0 idle, 1 melee, 2 bow)
+ * and the weapon damage is computed from the held item's attribute modifiers
+ * ({@link #startAttack()}).
+ * <p>
+ * <b>Pitfalls.</b> The inner class {@code a} owns the downed mechanic: damage
+ * that would kill a bound girl instead downs her (action DOWNED, 1 HP
+ * remaining), healing to full revives her, and death drops the inventory.
+ * {@code updateTask} force-clears the BOW action each tick.
+ */
 public class GirlFollowGoal extends GirlFollowAiBase {
    AbstractGirlNpcEntity girl;
    EntityLivingBase target;
@@ -73,6 +93,11 @@ public class GirlFollowGoal extends GirlFollowAiBase {
          && !var1.equals(this.master);
    }
 
+   /**
+    * ATTACK/FOLLOW/IDLE/RIDE/DOWNED execution: melee lunge + swing, bow
+    * charge + shot (32-tick cycle), follow/navigate, wander, ride
+    * positioning on the master's mount, or stop.
+    */
    @Override
    protected void setState(GirlFollowAiBase.GirlFollowAiBaseState var1) {
       switch (var1) {
@@ -256,6 +281,10 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       }
    }
 
+   /**
+    * SERVER: fires the arrow at the current target with drop compensation,
+    * skeleton-style shooting sound and 4.5 base damage.
+    */
    public void shootArrow() {
       EntityArrow var1 = this.createArrow();
       double var2 = this.target.posX - this.girl.posX;
@@ -289,6 +318,12 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       return var1;
    }
 
+   /**
+    * SERVER: the melee swing — computes damage from the held weapon's
+    * attack-damage/speed modifiers plus enchantments (sharpness, knockback,
+    * fire aspect, sweeping), applies knockback and hits the target (and
+    * sweep-adjacent enemies).
+    */
    void startAttack() {
       this.girl.setCurrentAction(Action.ATTACK);
       this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 1);
@@ -370,6 +405,11 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       }
    }
 
+   /**
+    * Combat event handlers: lethal damage downs a bound girl instead of
+    * killing her ({@code downed} + {@link Action#DOWNED}), full heal revives
+    * her, and death drops her inventory (SERVER).
+    */
    public static class a {
       @SubscribeEvent
       public void onLivingHurt(LivingHurtEvent var1) {

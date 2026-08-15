@@ -10,6 +10,17 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER input for the Galath rape scene — the player chose
+ * to pounce (or not) when prompted by {@code handleRapeState}.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Resolves the active
+ * scene girl for the sender via
+ * {@link BaseGirlEntity#getActiveSceneInfo(playerId)} and calls
+ * {@link GalathEntity#handleRapeAction(boolean)} with the pounce decision; the
+ * girl picks the corresponding scene branch server-side. Ordering constraint:
+ * only valid while a Galath rape scene is active for that player.
+ */
 public class GalathRapePouncePacket implements IMessage {
    boolean isValid = false;
    boolean isPounce;

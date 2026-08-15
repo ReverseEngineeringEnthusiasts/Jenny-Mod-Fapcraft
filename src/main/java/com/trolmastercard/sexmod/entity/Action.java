@@ -6,6 +6,61 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import software.bernie.geckolib3.core.builder.Animation;
 import software.bernie.geckolib3.core.controller.AnimationController;
 
+/**
+ * The scene/action state machine shared by every girl (NPC and player-girl).
+ * <p>
+ * A girl's current state is stored in the {@link BaseGirlEntity#CUR_ACTION}
+ * data-manager entry as this enum's {@code name()}. Transitions happen through
+ * {@link BaseGirlEntity#setCurrentAction(Action)} — on the CLIENT that routes
+ * through {@code ChangeDataParameterPacket("currentAction", ...)} to the
+ * SERVER, so both sides stay in sync via the entity data manager.
+ * <p>
+ * <b>Action semantics.</b> Each constant carries:
+ * <ul>
+ *   <li>{@link #transitionTick} — geckolib controller transition length for
+ *       the animation switch (frames).</li>
+ *   <li>{@link #hasPlayer} — whether the interaction player is part of the
+ *       scene (scene actions = true, idle/AI actions = false).</li>
+ *   <li>{@link #autoBlink} — whether the eyes controller plays the blink
+ *       animation while this action runs.</li>
+ *   <li>{@link #maxGirlPitch}/{@link #minGirlPitch} — camera pitch clamp range
+ *       used by the scene camera.</li>
+ *   <li>{@link #flipGirlYaw} — whether the camera view is flipped 180&deg;
+ *       (reverse/behind camera scenes).</li>
+ *   <li>{@link #useBoyCam} — whether the camera follows the player instead of
+ *       the girl.</li>
+ *   <li>{@link #hideNameTag} — suppress the name tag while active.</li>
+ *   <li>{@link #length}/{@link #followUp} — optional timed auto-transition
+ *       (see below).</li>
+ * </ul>
+ * <p>
+ * <b>Progression.</b> Three advancement mechanisms:
+ * <ol>
+ *   <li><b>Sound-keyframe transitions</b> (primary): the animation's
+ *       {@code xxxDone}/{@code xxxMSG1..N} sound events are caught in each
+ *       girl's {@code registerControllers} sound listener, which calls
+ *       {@link BaseGirlEntity#setCurrentAction} to advance the scene.</li>
+ *   <li><b>Auto follow-up</b>: actions constructed with a
+ *       {@code (..., length, followUp)} tail advance on the SERVER after
+ *       {@code length} ticks via
+ *       {@link BaseGirlEntity#tickFollowUpTransitions()}.</li>
+ *   <li><b>Input</b>: {@code HandlePlayerMovement} maps sneak to
+ *       {@code triggerFastSexAction} ({@link BaseGirlEntity#getNextAction})
+ *       and jump-with-full-meter to {@code triggerCumAction}
+ *       ({@link BaseGirlEntity#getCumAction}).</li>
+ * </ol>
+ * <p>
+ * <b>Scene-end convention.</b> Every scene ends with its cum action
+ * ({@code *CUM}) whose last sound keyframe ({@code xxx_cumDone}) triggers
+ * {@link BaseGirlEntity#resetCameraAndPhysics()} on the client, which sends the
+ * full {@code ResetGirlPacket} — releasing the girl and restoring the player.
+ * <p>
+ * <b>Pitfall.</b> {@link #ticksPlaying} is a mutable per-side tick counter
+ * indexed {@code [server, client]}; {@code setCurrentAction} zeroes the
+ * previous action's counter. Do not reuse {@link #length}/{@link #followUp}
+ * constructors for actions that are sound-driven — a non-null followUp would
+ * override the sound-listener transition after {@code length} ticks.
+ */
 public enum Action {
    NULL(0, false, true),
    STARTBLOWJOB(2, true, false),
@@ -178,16 +233,45 @@ public enum Action {
    MORNING_BLOWJOB_FAST(0, true, true, true),
    MORNING_BLOWJOB_CUM(0, true, false, true);
 
+   /** Geckolib transition length (frames) when switching into this action. */
    public final int transitionTick;
+
+   /** Whether the interaction player participates in this action (scene action). */
    public final boolean hasPlayer;
+
+   /** Whether the eyes controller plays the blink/idle animation during this action. */
    public final boolean autoBlink;
+
+   /** Maximum camera pitch allowed while this action runs. */
    public final float maxGirlPitch;
+
+   /** Minimum camera pitch allowed while this action runs. */
    public final float minGirlPitch;
+
+   /** Whether the scene camera is flipped 180 degrees (reverse camera scenes). */
    public final boolean flipGirlYaw;
+
+   /**
+    * Ticks this action plays before the auto follow-up fires (SERVER side).
+    * Only set for actions constructed with a followUp tail; 0 for
+    * sound-driven actions (a followUp would then fire on the first tick).
+    */
    public int length;
+
+   /**
+    * Ticks the action has been playing, per side: index 0 = SERVER,
+    * index 1 = CLIENT. Reset to {@code {0,0}} by
+    * {@link BaseGirlEntity#setCurrentAction} when the girl leaves the action.
+    */
    public int[] ticksPlaying = new int[]{0, 0};
+
+   /** Auto-transition target (SERVER side) after {@link #length} ticks, or {@code null}. */
    public Action followUp = null;
+
+   /** Whether the scene camera follows the player (boy camera) instead of the girl. */
    public boolean useBoyCam;
+
+   /** Whether the name tag is hidden while this action is active. */
    public boolean hideNameTag;
 
    Action(int var3, boolean var4, boolean var5) {

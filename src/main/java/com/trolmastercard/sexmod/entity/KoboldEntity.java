@@ -40,6 +40,7 @@ import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.Point2D;
+import com.trolmastercard.sexmod.util.SceneDebug;
 import com.trolmastercard.sexmod.util.TribeState;
 import com.google.common.base.Optional;
 import com.google.common.collect.UnmodifiableIterator;
@@ -112,6 +113,37 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.resource.GeckoLibCache;
 
+/**
+ * Kobold NPC — the tribe creature with oral, anal and mating scenes, plus the
+ * full tribe AI (tasks, mining, combat, breeding, follow modes).
+ * <p>
+ * <b>Tribe system:</b> kobolds belong to {@code KoboldManager.Tribe} objects
+ * keyed by tribe UUID ({@code aL} data parameter). The tribe leader AI,
+ * task assignment and saved positions are managed by
+ * {@code KoboldManager}/{@code KoboldTask}.
+ * <p>
+ * <b>Scene entry</b> (shared with Jenny/Bia/Luna): client {@code doAction}
+ * sets {@code animationFollowUp} (GIRL_HAND_STATES) via
+ * {@code ChangeDataParameterPacket} and sends {@code KoboldStatePacket}; the
+ * server calls {@code setDismounted()} ({@code a2}), then
+ * {@link #isSitting()} lerps her to {@code TARGET_POS} for ~40 ticks
+ * ({@code aD} counter), anchors her and calls {@link #U()} which dispatches
+ * on GIRL_HAND_STATES: oral -> STARTBLOWJOB, anal -> KOBOLD_ANAL_START,
+ * mating -> MATING_PRESS_START. Without the horny potion effect (or a
+ * master match), the scene first passes through {@link Action#PAYMENT}
+ * (the player pays).
+ * <p>
+ * <b>Pitfalls:</b>
+ * <ul>
+ *   <li>The dismount lerp in {@link #isSitting()} MUST use
+ *       {@code RotationHelper.lerpVec3d(pos, target, 40 - aD)} (INT step
+ *       variant) — the double variant flings the kobold and it vanishes.</li>
+ *   <li>{@link #U()} splits on the potion/master flags exactly as written —
+ *       the payment gate is intentional, not a bug.</li>
+ *   <li>Do not add {@code setDead}/removal logic to {@code onUpdate} —
+ *       the girl hierarchy must never self-remove on benign tick errors.</li>
+ * </ul>
+ */
 public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInventory, IKobold {
    public static final EyeAndKoboldColor aJ = EyeAndKoboldColor.PURPLE;
    public static final float SCALE_0_25 = 0.25F;
@@ -473,8 +505,10 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return true;
       } else {
          if (this.hasMaster() && var4.getItem() == DragonStaffItem.DRAGON_STAFF && ((String)this.entityDataManager.get(MASTER)).equals(var1.getPersistentID().toString())) {
+            // jar-faithful: the mod instance is Main.instance — a deobf regression
+            // passed null here and crashed NetworkRegistry.getLocalGuiContainer.
             var1.openGui(
-               null, 1, this.world, this.getPosition().getX(), this.getPosition().getY(), this.getPosition().getZ()
+               Main.instance, 1, this.world, this.getPosition().getX(), this.getPosition().getY(), this.getPosition().getZ()
             );
             return true;
          }
@@ -584,6 +618,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       this.noClip = false;
       this.setNoGravity(false);
       if (this.aD > 40) {
+         SceneDebug.log(SceneDebug.SITTING, "Kobold.isSitting: lerp done, U() (aD=%d, action=%s, handState=%s)", this.aD, this.getCurrentAction(), this.entityDataManager.get(GIRL_HAND_STATES));
          this.a2 = false;
          this.aD = 0;
          EntityPlayer var6 = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
@@ -600,7 +635,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       this.rotationYaw = this.getYawRotation();
       this.setNoGravity(false);
-      Vec3d var1 = RotationHelper.lerpVec3dDouble(this.getPositionVector(), this.getTargetPosition(), 40 - this.aD);
+      Vec3d var1 = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.aD);
       this.setPosition(var1.x, var1.y, var1.z);
       this.setCurrentAction(Action.NULL);
       Optional var2 = (Optional)this.entityDataManager.get(aL);
@@ -821,6 +856,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    @Override
    protected void U() {
       String var1 = (String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES);
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Kobold.U() handState=%s action=%s remote=%s potion=%s master=%s", var1, this.getCurrentAction(), this.world.isRemote, this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null, this.hasMaster());
       boolean var2 = this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null;
       boolean var3 = false;
       if (this.hasMaster()) {

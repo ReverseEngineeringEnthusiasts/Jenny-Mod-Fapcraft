@@ -6,6 +6,10 @@ import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 
+/**
+ * Vanilla placeholder model (a single 2x6x2 cube) used as the
+ * {@link IVanillaModel} shape for the Luna NPC's vanilla-model render path.
+ */
 public class LunaModel extends ModelBase implements IVanillaModel {
    private final ModelRenderer rootPart;
 

@@ -25,6 +25,23 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * The girl interaction menu: the "action.names.*" button list (follow me / go
+ * home / set new home / equipment plus the girl's dynamic action buttons with
+ * item costs) shown when right-clicking a girl. Buttons are sent to the server
+ * via {@code girl.doAction(actionName, playerUUID)}, which drives the girl's
+ * state machine (actions requiring a boy cam/anchor etc.).
+ * <p>
+ * <b>Cost handling.</b> Dynamic action buttons (id >= 5) may carry an item
+ * cost ({@code actionCosts}); non-creative players must own a matching stack
+ * or the action is refused with a chat line and a sad sound. The button click
+ * also removes the paid items via {@link RemoveItemsPacket}.
+ * <p>
+ * CLIENT-side only. The girl's equipment is previewed from her
+ * {@link EntityDataManager} entries ({@code WEAPON}, {@code BOW},
+ * {@code HELMET_SLOT}, ...) with animated slide-in. Closing the screen calls
+ * {@code girl.ac()} to reset the interaction state.
+ */
 public class GirlInventoryScreen extends GuiScreen {
    final BaseGirlEntity girl;
    final EntityPlayer player;
@@ -64,12 +81,23 @@ public class GirlInventoryScreen extends GuiScreen {
       return false;
    }
 
+   /**
+    * Releases the girl's interaction state ({@code girl.ac()}) when the menu
+    * closes, so the girl returns to idle behavior. Must not be removed —
+    * without it the girl stays locked in interaction mode.
+    */
    @SideOnly(Side.CLIENT)
    public void onGuiClosed() {
       super.onGuiClosed();
       this.girl.ac();
    }
 
+   /**
+    * Button handler. For costed dynamic actions (non-creative): validates the
+    * player has a stack matching the cost (item, count, metadata), removes it
+    * via {@link RemoveItemsPacket} and executes; otherwise refuses with a chat
+    * line and sad sound. Static buttons (id < 5) execute directly.
+    */
    protected void actionPerformed(GuiButton var1) {
       if (var1.id >= 5 && this.actionCosts != null && this.actionCosts[var1.id - 5] != null && !this.player.capabilities.isCreativeMode) {
          for (ItemStack var3 : this.player.inventory.mainInventory) {
@@ -89,6 +117,13 @@ public class GirlInventoryScreen extends GuiScreen {
       }
    }
 
+   /**
+    * Executes the clicked action on the girl
+    * ({@code girl.doAction(actionName, player.getPersistentID())}) and closes
+    * the screen. This is the single funnel for every interaction button — the
+    * action name must match the {@code action.names.*} translation keys the
+    * server-side {@code doAction} switches on.
+    */
    void onButtonClick(GuiButton var1) {
       String var2;
       if (var1.id < 5) {
@@ -101,6 +136,12 @@ public class GirlInventoryScreen extends GuiScreen {
       Minecraft.getMinecraft().player.closeScreen();
    }
 
+   /**
+    * Rebuilds the button list every frame: dynamic action buttons slide in
+    * from the right (with item-cost icons + tooltips when applicable), then
+    * the static interaction buttons and the girl preview animate in. Button
+    * layout depends on two staged animation progress values.
+    */
    public void drawScreen(int var1, int var2, float var3) {
       super.drawScreen(var1, var2, var3);
       this.buttonList.clear();
@@ -140,6 +181,13 @@ public class GirlInventoryScreen extends GuiScreen {
       }
    }
 
+   /**
+    * Draws the girl's equipped items (weapon/bow/armor from the data manager)
+    * and the five static action buttons with animated star icons; the
+    * follow/equipment buttons get a per-button scroll offset driven by mouse
+    * hover. Two variants exist for the with-master / without-master cases
+    * (identical layout, different button id mapping).
+    */
    void drawGirlPreview(int var1, int var2) {
       int var3 = (int)RotationHelper.lerp(-30.0F, 120.0F, this.animProgress);
       this.itemRender.renderItemIntoGUI((ItemStack)this.dataManager.get(AbstractGirlNpcEntity.WEAPON), var3 - 105, 68);
@@ -215,6 +263,10 @@ public class GirlInventoryScreen extends GuiScreen {
       }
    }
 
+   /**
+    * Hand-rolled tooltip renderer (dark border + gradient fill) drawn outside
+    * the vanilla tooltip system so cost hints can appear near the item icon.
+    */
    void drawTooltip(List<String> var1, int var2, int var3, FontRenderer var4) {
       GlStateManager.disableRescaleNormal();
       RenderHelper.disableStandardItemLighting();

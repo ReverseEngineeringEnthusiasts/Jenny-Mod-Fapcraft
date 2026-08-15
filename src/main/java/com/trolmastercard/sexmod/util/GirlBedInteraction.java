@@ -14,6 +14,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Right-click-on-bed interaction hook used by bed scenes (girls walking a
+ * player to bed / waking up).
+ */
 public class GirlBedInteraction {
    static final int bedIndex = 3;
 

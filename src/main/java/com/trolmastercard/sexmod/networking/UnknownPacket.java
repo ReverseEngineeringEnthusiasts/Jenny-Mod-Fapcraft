@@ -13,6 +13,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * Placeholder/unknown packet registered for both sides. Kept for wire
+ * compatibility with the original jar's channel; no behavior.
+ */
 public class UnknownPacket implements IMessage {
    boolean isValid = false;
    HashMap<String, Float> b = new HashMap<>();

@@ -32,6 +32,12 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Central Forge event registration hub (entity spawn, ticks, interactions).
+ * RegisterB(true/false) sets up the event bus subscriptions; the mod's
+ * handlers (HandlePlayerMovement, GirlCameraHelper, HornyMeterHud,
+ * GirlSavedData, PlayerIds, ...) are registered here.
+ */
 public class ForgeEventHandler {
    public static void registerB(boolean var0) {
       MinecraftForge.EVENT_BUS.register(new GirlCombatProtection());

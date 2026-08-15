@@ -3,6 +3,16 @@ package com.trolmastercard.sexmod.util;
 import java.util.Random;
 import net.minecraft.util.math.Vec3d;
 
+/**
+ * <b>Role.</b> Global mod constants: ids, proxy class names, entity ids,
+ * {@link #RANDOM}, the shared camera-position pair used by
+ * {@link StructureMarkerRenderer} and render interpolation. Static holder.
+ * <p>
+ * <b>Pitfall.</b> {@code cameraPosCurrent/Previous} are written by
+ * {@link StructureMarkerRenderer#onClientTick} and read by renderers — the
+ * tick-order (previous = current, then current = player pos) must not be
+ * reversed or the interpolation jitters.
+ */
 public class Reference {
    public static final String MOD_ID = "sexmod";
    public static final String MOD_NAME = "Fapcraft";

@@ -9,6 +9,13 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.IClientCommand;
 
+/**
+ * <b>Role.</b> {@code /whitelistserver [confirm]} — client-side opt-in for a
+ * server to push custom models: adds the current server IP to
+ * {@code sexmod/custom_models/whitelisted_servers.txt} and requests the model
+ * download. The two-step confirm is a security gate (only whitelist servers you
+ * trust).
+ */
 public class CommandWhitelistServer extends CommandBase implements IClientCommand {
    public static final CommandWhitelistServer WHITELIST_SERVER_COMMAND = new CommandWhitelistServer();
 

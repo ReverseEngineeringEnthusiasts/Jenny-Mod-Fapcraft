@@ -30,6 +30,27 @@ import software.bernie.geckolib3.geo.render.built.GeoCube;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
+/**
+ * Renderer for the horny-potion player-girls ({@link AbstractPlayerGirlEntity}):
+ * a {@link GirlRenderer} whose model mirrors the transformed player — arms,
+ * held items, shield blocking and bow pulling follow the owner player's state,
+ * and the first-person camera rendering is supported through the
+ * {@code isFirstPerson} flag.
+ * <p>
+ * <b>Owner sync.</b> {@link #doRenderEntity} copies the owner's held items,
+ * using-item/rendering flags and armor ({@code syncArmor}) into the renderer
+ * before delegating; the item bones draw the owner's actual stacks
+ * ({@link #renderEquippedItem} with bow-pull progress and shield-block poses).
+ * <p>
+ * <b>First person.</b> {@code isFirstPerson} marks renders issued from the
+ * first-person camera path (girlCam bone camera in
+ * {@code GirlCameraHelper}); {@link #isGirlVisible} consumes the flag exactly
+ * once, and {@link #shouldRenderFirstPersonHead} hides the head while the
+ * local player's own girl is rendered in first person (except in
+ * inventory/creative screens).
+ * <p>
+ * CLIENT-side render thread only. No shadow is drawn for player-girls.
+ */
 public class GirlPlayerRenderer extends GirlRenderer {
    public static boolean isFirstPerson = false;
    public ItemStack mainhandItem = ItemStack.EMPTY;
@@ -47,6 +68,12 @@ public class GirlPlayerRenderer extends GirlRenderer {
    public void doRenderShadowAndFire(Entity var1, double var2, double var4, double var6, float var8, float var9) {
    }
 
+   /**
+    * Whether the girl should be drawn: locally registered previews always
+    * render; otherwise the {@code isFirstPerson} flag is consumed (reset to
+    * {@code false}) and returned — the first-person camera path is the only
+    * one that may draw the local player's own girl.
+    */
    boolean isGirlVisible(BaseGirlEntity var1) {
       if (var1.isLocallyRegistered()) {
          return true;
@@ -57,6 +84,11 @@ public class GirlPlayerRenderer extends GirlRenderer {
       return var2;
    }
 
+   /**
+    * Player-girl render entry: gated by {@link #isGirlVisible}; syncs the
+    * owner's items/flags/armor, draws the name label for other players, then
+    * delegates to the normal girl pipeline.
+    */
    @Override
    public void doRenderEntity(BaseGirlEntity var1, double var2, double var4, double var6, float var8, float var9) {
       if (this.isGirlVisible(var1)) {
@@ -81,6 +113,11 @@ public class GirlPlayerRenderer extends GirlRenderer {
       }
    }
 
+   /**
+    * Render entity used for position interpolation: the owner player when
+    * present (so the girl's pose tracks the owner's movement), else the girl
+    * itself.
+    */
    @Override
    public Entity getRenderEntity(BaseGirlEntity var1) {
       if (!(var1 instanceof AbstractPlayerGirlEntity)) {
@@ -92,6 +129,10 @@ public class GirlPlayerRenderer extends GirlRenderer {
       return (Entity)(var3 == null ? var1 : var3);
    }
 
+   /**
+    * Name-label visibility: never for the local player; for others, hidden
+    * while the current action hides name tags.
+    */
    boolean isOwnPlayer(EntityPlayer var1, BaseGirlEntity var2) {
       if (var1.getPersistentID().equals(Minecraft.getMinecraft().player.getPersistentID())) {
          return false;
@@ -107,6 +148,13 @@ public class GirlPlayerRenderer extends GirlRenderer {
    protected void onBoneRenderingLayer(String var1, GeoBone var2, AbstractPlayerGirlEntity var3, BufferBuilder var4) {
    }
 
+   /**
+    * Bone recursion for player-girls: adds scene/using-item pose overrides
+    * (upperBody/head tilt while {@code isRendering}, bow-draw arm pitch, shield
+    * blocking arm poses), renders the head overlay (elytra layer), the held
+    * main/offhand items on their bones, and the armor-tinted cube pass (see
+    * {@link GirlRenderer#renderRecursively} for the shared rules).
+    */
    @Override
    public void renderRecursively(BufferBuilder var1, GeoBone var2, float var3, float var4, float var5, float var6) {
       String var7 = var2.getName();
@@ -204,6 +252,12 @@ public class GirlPlayerRenderer extends GirlRenderer {
       }
    }
 
+   /**
+    * Whether the head bone may be rendered: always for girls without an owner
+    * UUID or in third person; in first person only while an inventory screen
+    * is open (the vanilla head would otherwise occlude the first-person
+    * camera).
+    */
    public boolean shouldRenderFirstPersonHead() {
       if (!((AbstractPlayerGirlEntity)this.playerGirl).hasOwnerUUID()) {
          return true;
@@ -212,6 +266,11 @@ public class GirlPlayerRenderer extends GirlRenderer {
       }
    }
 
+   /**
+    * Renders the {@link GirlLayerRenderer} (elytra) at the head bone with the
+    * bone transform applied; restores the entity texture and vertex buffer
+    * afterwards. This is what draws armor/elytra layers on player-girls.
+    */
    public void renderOverlay(BufferBuilder var1, GeoBone var2, Color var3) {
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
@@ -230,6 +289,12 @@ public class GirlPlayerRenderer extends GirlRenderer {
    protected void preRenderCallback() {
    }
 
+   /**
+    * Renders the owner's held item on the weapon/offhand bone: applies the
+    * bow-pull or shield-block pose, tracks bow draw progress onto the girl
+    * (item-use count / active hand / held-item override), then renders the
+    * third-person item and restores buffer + texture.
+    */
    public void renderEquippedItem(BufferBuilder var1, GeoBone var2, boolean var3) {
       ItemRenderer var4 = Minecraft.getMinecraft().getItemRenderer();
       GlStateManager.pushMatrix();
@@ -271,6 +336,9 @@ public class GirlPlayerRenderer extends GirlRenderer {
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
    }
 
+   /**
+    * Base item rotation: 90 degrees for main hand, 200 for offhand.
+    */
    protected void applyItemPostRotation(boolean var1, ItemStack var2) {
       GlStateManager.rotate(var1 ? 200.0F : 90.0F, 1.0F, 0.0F, 0.0F);
    }
@@ -279,6 +347,11 @@ public class GirlPlayerRenderer extends GirlRenderer {
       GlStateManager.rotate(20.0F, 1.0F, 0.0F, 0.0F);
    }
 
+   /**
+    * Shield-blocking pose: mirrors the shield across the body, and while
+    * actively blocking (isUsingItem) raises it in front of the face (with
+    * per-hand offsets).
+    */
    protected void applyShieldBlockingTransform(boolean var1, boolean var2) {
       if (var1) {
          GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);

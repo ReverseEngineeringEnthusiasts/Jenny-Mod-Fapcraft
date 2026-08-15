@@ -13,6 +13,15 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
+/**
+ * Luna's equipment container ({@link GirlInventoryContainer2} variant with an
+ * extra fishing-rod slot): weapon/bow/armor slots 0..5 plus rod slot 6, and
+ * the player inventory below. Open instances register in the static
+ * {@link #containers} list, consumed by
+ * {@link GirlInventoryContainerGui#onGuiClosed} on close.
+ * <p>
+ * Runs on both sides.
+ */
 public class GirlInventoryContainer2 extends Container {
    LunaEntity lunaEntity;
    public Slot[] b;
@@ -56,6 +65,10 @@ public class GirlInventoryContainer2 extends Container {
       }
    }
 
+   /**
+    * Standard shift-click between the 7 girl slots and the player inventory
+    * (see {@link ChestContainer#transferStackInSlot} for the merge pattern).
+    */
    public ItemStack transferStackInSlot(EntityPlayer var1, int var2) {
       ItemStack var3 = ItemStack.EMPTY;
       Slot var4 = (Slot)this.inventorySlots.get(var2);

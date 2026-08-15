@@ -3,6 +3,18 @@ package com.trolmastercard.sexmod.entity;
 import com.trolmastercard.sexmod.util.Reference;
 import net.minecraft.entity.Entity;
 
+/**
+ * <b>Role.</b> The canonical registry mapping every girl type to its NPC and
+ * player-form classes plus their entity ids. {@link #getNpcType(Entity)}
+ * resolves the type of any girl entity; the npc/player id pairs are used by
+ * {@link SexModEntities} and by the "sexmod:GirlSpecific" / "sexmod:CustomModel"
+ * per-player data keys (suffixed with the npc type name).
+ * <p>
+ * <b>Pitfalls.</b> The {@code npcID}/{@code playerID} values are persisted
+ * entity ids — do not renumber. {@link #getNpcTypeByName(String)} falls back
+ * to {@link #JENNY} for unknown names. {@link #MANGLELIE} is NPC-only
+ * ({@code isNpcOnly}); KOBOLD and GOBLIN set {@code hasSpecifics}.
+ */
 public enum NpcType {
    JENNY(JennyEntity.class, 177013, JennyPlayerEntity.class, 12388645),
    ELLIE(EllieEntity.class, 228922, ElliePlayerEntity.class, 46348348),

@@ -43,6 +43,34 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.resource.GeckoLibCache;
 import software.bernie.geckolib3.util.MatrixStack;
 
+/**
+ * <b>Role.</b> Player-form kobold (implements {@link IKobold}) — the
+ * transformation with blowjob, anal and mating-press scenes plus full
+ * appearance customization (size, eye color, body color) stored in the
+ * kobold-specific data keys.
+ * <p>
+ * <b>State.</b> Inherits {@link AbstractKoboldPlayerEntity} keys (119-121);
+ * adds {@code aA} (122) = size scalar in {@code [0, 0.25]} (encoded as
+ * part-id {@code 0} value / 100 * 0.25). {@code setCustomPartList} maps part
+ * indices 0/1/2 to size/body-color/eye-color and packs the rest into the DNA
+ * string. {@code aw} = default body color {@link EyeAndKoboldColor#PURPLE}.
+ * <p>
+ * <b>Scene flow.</b> Owner commands {@code anal}/{@code oral}/{@code mating}
+ * teleport the acting player in, broadcast the intro action and strip.
+ * Progression runs in the {@code ISoundListener}: {@code blowjobStartDone}
+ * -&gt; {@link Action#SUCKBLOWJOB_BLINK}, {@code analStartDone} -&gt;
+ * {@link Action#KOBOLD_ANAL_SLOW}, {@code mating_press_startDone} -&gt; soft,
+ * jump switches to fast. Cum ends via {@code analCumDone}/
+ * {@code blowjobCumDone}/{@code mating_press_cumDone} -&gt;
+ * {@code resetCameraAndPhysics()}.
+ * <p>
+ * <b>Pitfalls.</b> {@code aA} scales the model (matrix, camera pivot) and the
+ * sound pitch (0.9-1.1) — every consumer must use the same
+ * {@code 0.25F - aA} formula. {@link #getNextAction(Action)} and
+ * {@link #getCumAction(Action)} must cover the blink variant of the blowjob
+ * loop. The animation predicate returns {@link PlayState#STOP} inside
+ * {@link SexWorldClient} worlds.
+ */
 public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IKobold {
    public static final EyeAndKoboldColor aw = EyeAndKoboldColor.PURPLE;
    public static final DataParameter<Float> aA = EntityDataManager.createKey(KoboldPlayerEntity.class, DataSerializers.FLOAT)
@@ -82,6 +110,15 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       );
    }
 
+   /**
+    * Maps the custom-part id list onto the kobold-specific data keys:
+    * index 0 = size ({@code aA}), index 1 = body color ({@code as}), index 2 =
+    * eye color ({@code au}); the remainder is appended as the DNA string
+    * ({@code at}). On the CLIENT the render caches are cleared afterwards.
+    * <p>
+    * Ordering of the three special indices is part of the persisted format —
+    * do not reorder.
+    */
    @Override
    public void setCustomPartList(List<Integer> var1) {
       StringBuilder var2 = new StringBuilder();
@@ -162,6 +199,12 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       return 1.4F - var1;
    }
 
+   /**
+    * SERVER: owner commands — {@code anal} starts {@link Action#KOBOLD_ANAL_START},
+    * {@code oral} starts {@link Action#STARTBLOWJOB}, {@code mating} starts
+    * {@link Action#MATING_PRESS_START}. All broadcast the action, strip and
+    * teleport the acting player into the scene.
+    */
    @Override
    public void handleOwnerCommand(String var1, UUID var2) {
       if ("anal".equals(var1)) {
@@ -199,6 +242,11 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       return !var1.isPassable(this.world, this.getPosition().add(0, 1, 0));
    }
 
+   /**
+    * Scales the bone matrix by the kobold size (1 minus the size scalar) so
+    * the rendered model matches the {@code aA} slider. CLIENT-only rendering
+    * helper.
+    */
    @Override
    protected MatrixStack applyAdditionalMatrixTransformations(MatrixStack var1) {
       float var2 = 0.25F - (Float)this.entityDataManager.get(aA);
@@ -206,6 +254,10 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       return var1;
    }
 
+   /**
+    * Scales the camera-bone pivot by the kobold size so the first-person
+    * camera sits at the right height. CLIENT-only.
+    */
    @Override
    protected float transformCameraPivotY(float var1) {
       float var2 = 1.0F - (0.25F - (Float)this.entityDataManager.get(aA));
@@ -391,6 +443,10 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       this.playSoundAtVolume(var1[this.getRNG().nextInt(var1.length)], var2);
    }
 
+   /**
+    * Plays a sound pitched by kobold size: smaller kobolds get a slightly
+    * higher pitch (0.9-1.1 range from {@link RotationHelper#lerpDouble}).
+    */
    public void playSoundAtVolume(SoundEvent var1, float var2) {
       float var3 = 0.25F - (Float)this.entityDataManager.get(aA);
       double var4 = var3 / 0.25F;
@@ -398,6 +454,18 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       this.playSoundAtPosition(var1, var2, var6);
    }
 
+   /**
+    * CLIENT: registers the controllers plus the sound listener driving the
+    * blowjob/anal/mating scenes. Key transitions: {@code blowjobStartDone}
+    * -&gt; {@link Action#SUCKBLOWJOB_BLINK}, {@code analStartDone} -&gt;
+    * {@link Action#KOBOLD_ANAL_SLOW}, {@code analFastRapid} toggles fast on
+    * jump, {@code mating_press_startDone} -&gt; soft,
+    * {@code mating_press_hardDone} -&gt; soft, jump on the ready keyframes
+    * switches hard/resets the offset. Cum ends via
+    * {@code analCumDone}/{@code blowjobCumDone}/{@code mating_press_cumDone}
+    * -&gt; {@code resetCameraAndPhysics()}; {@code paymentDone} -&gt;
+    * {@link #U()}. Movement controller uses a 3-tick transition.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {

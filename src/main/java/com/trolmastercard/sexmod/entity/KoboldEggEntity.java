@@ -33,6 +33,17 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+/**
+ * <b>Role.</b> The kobold egg — the hatchable egg item's placed entity
+ * (KoboldNPC reproduction). Sits for 12000 ticks (with escalating wiggle
+ * animations) then hatches into a new {@link KoboldEntity} joined to the
+ * tribe ({@link KoboldManager}); any damage also kills it.
+ * <p>
+ * <b>State.</b> Data keys 115 ({@code EGG_COLOR}) and 116 ({@code EGG_TYPE},
+ * the age counter — server-incremented each tick). {@code tribeId} persists
+ * the tribe binding. The hatch animation is registered on the shared static
+ * controller.
+ */
 public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
    static final int HATCH_TIME = 12000;
    private final AnimationFactory factory = new AnimationFactory(this);
@@ -56,6 +67,11 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
       this.dataManager.register(EGG_TYPE, 0);
    }
 
+   /**
+    * SERVER/CLIENT: ages the egg; at 12000 ticks {@link #spawnHatchExplosion()}
+    * hatches it. The age counter only advances on the SERVER (the client
+    * reads the synced value for the wiggle animations).
+    */
    public void onUpdate() {
       super.onUpdate();
       int var1 = (Integer)this.dataManager.get(EGG_TYPE);
@@ -82,6 +98,12 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
       return true;
    }
 
+   /**
+    * SERVER: the hatch — spawns the explosion particles, creates the kobold
+    * (tribe id minted if needed), joins it to the tribe, copies the tribe
+    * master/name bindings and removes the egg. {@link #hatchEgg(KoboldEntity)}
+    * notifies the master.
+    */
    void spawnHatchExplosion() {
       for (int var1 = 0; var1 < 30; var1++) {
          float var2 = (Reference.RANDOM.nextBoolean() ? 1 : -1) * Reference.RANDOM.nextFloat();
@@ -128,6 +150,10 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
       }
    }
 
+   /**
+    * SERVER: announces the new tribe member to the kobold's master (colored
+    * chat + hit/level-up sounds).
+    */
    void hatchEgg(KoboldEntity var1) {
       EntityPlayer var2 = var1.getMasterPlayer();
       if (var2 != null) {

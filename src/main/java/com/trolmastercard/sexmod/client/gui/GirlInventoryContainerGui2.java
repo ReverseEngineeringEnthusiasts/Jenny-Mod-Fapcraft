@@ -11,6 +11,15 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * GUI for a generic girl's 6-slot equipment chest ({@link ChestContainer}:
+ * weapon, bow, helmet, chestplate, pants, shoes), used by the non-Luna girls.
+ * <p>
+ * <b>Save flow.</b> On close, finds the matching {@link ChestContainer} in
+ * {@link ChestContainer#containers} and sends a 42-slot snapshot (player main
+ * inventory 0..35, the 6 girl slots 36..41) to the server via
+ * {@link UploadInventoryToServerPacket}. CLIENT-side only.
+ */
 public class GirlInventoryContainerGui2 extends GuiContainer {
    static final ResourceLocation GUI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/girlinventory.png");
    UUID playerUUID;
@@ -30,6 +39,11 @@ public class GirlInventoryContainerGui2 extends GuiContainer {
       this.renderHoveredToolTip(var1, var2);
    }
 
+   /**
+    * Serializes the 6 girl equipment slots + the player's main inventory into
+    * a 42-element array and uploads it via {@link UploadInventoryToServerPacket}.
+    * Fires exactly once per container lifetime (on GUI close).
+    */
    public void onGuiClosed() {
       super.onGuiClosed();
 

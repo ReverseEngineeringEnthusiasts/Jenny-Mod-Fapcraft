@@ -12,6 +12,9 @@ import net.minecraft.util.EnumHand;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Renderer for the player-form Luna (horny potion).
+ */
 public class PlayerLunaRenderer extends GirlPlayerRenderer {
    float rotationZ = 0.0F;
 

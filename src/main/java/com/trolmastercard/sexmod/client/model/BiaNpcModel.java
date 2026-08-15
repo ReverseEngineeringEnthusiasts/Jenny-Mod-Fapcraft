@@ -3,6 +3,10 @@ package com.trolmastercard.sexmod.client.model;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * Geckolib model for the Bia NPC: nude/dressed geo variants, shared texture,
+ * armor/nude bone groups with leaf attachments.
+ */
 public class BiaNpcModel extends GirlModel<BaseGirlEntity> {
    public BiaNpcModel() {
       this.modelLocations = this.getModelLocations();

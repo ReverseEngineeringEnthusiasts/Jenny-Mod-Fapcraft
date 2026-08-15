@@ -26,6 +26,19 @@ import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.resource.GeckoLibCache;
 import software.bernie.shadowed.eliotlash.molang.MolangParser;
 
+/**
+ * Geckolib model for Galath: three geo variants (normal, normal, and the
+ * combined Manglelie pose {@code galath_con_mang}). The per-frame pass
+ * orchestrates every flight/dash/hurt/scene pose: flight-bone lerping,
+ * sword-dash body motion, knock-out-flight body rotation, rape-charge pose,
+ * pussy-licking head tracking with lip sounds, wing visibility, futa bones
+ * (from {@code CommandFuta.ENABLED}), and the HUG_MANG body2 placement.
+ * <p>
+ * <b>Couplings.</b> Publishes {@code body} rotation/scale into the entity
+ * ({@code bw}/{@code bm}) and the head rotation into {@code aE} — read by the
+ * renderer/geometry code; do not reorder the pose chain or drop these writes.
+ * While hugging Manglelie, {@link ManglelieNpcModel#animateModel} takes over.
+ */
 public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
    public static ResourceLocation GALATH_TEXTURE = new ResourceLocation("sexmod", "textures/entity/galath/galath.png");
    float lastPussyLickingWave = 0.0F;
@@ -55,6 +68,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       return new ResourceLocation("sexmod", "animations/galath/galath.animation.json");
    }
 
+   /**
+    * Skips Galath's render entirely when she has a target (she flies/attacks
+    * invisibly until anchored) unless she has a master.
+    */
    @Override
    protected boolean shouldRender(BaseGirlEntity var1) {
       if (!(var1 instanceof GalathEntity)) {
@@ -65,6 +82,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       return var2.hasMaster() ? true : var2.getTargetEntity() == null;
    }
 
+   /**
+    * The full per-frame pose chain (see class javadoc for the order and the
+    * published values).
+    */
    @Override
    public void setLivingAnimations(BaseGirlEntity var1, Integer var2, AnimationEvent var3) {
       this.updateIdlePose(var1);
@@ -89,6 +110,11 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Pussy-licking head tracking: the head follows the sword-swing offset
+    * (lerped by the sword attack progress) and the lip sound fires on each
+    * lick wave (sine zero-crossing).
+    */
    void updatePussyPose(BaseGirlEntity var1) {
       if (Action.isAnyAction(var1, Action.PUSSY_LICKING)) {
          if (var1 instanceof GalathEntity) {
@@ -125,6 +151,11 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       );
    }
 
+   /**
+    * Publishes the body bone's rotation/scale to the entity fields
+    * ({@code bw} = rotationY, {@code bm} = scaleY) — consumed by the wing/
+    * geometry renderers.
+    */
    void updateModelState(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
          GalathEntity var2 = (GalathEntity)var1;
@@ -135,6 +166,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * HUG_MANG transition: positions the {@code body2} bone (Manglelie's
+    * attachment) while the controller transitions into the hug.
+    */
    void handleDashAnimation(BaseGirlEntity var1) {
       if (var1.actionController.getAnimationState() == AnimationState.Transitioning) {
          AnimationProcessor var2 = this.getAnimationProcessor();
@@ -152,6 +187,11 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Masturbate pose: drives the molang variables (pitch, armpitch, armyaw,
+    * yaw) from the look vector to the master player so the animation reacts
+    * to his position.
+    */
    void updateIdlePose(BaseGirlEntity var1) {
       if (!ClientProxy.IS_PRELOADING) {
          if (var1.getCurrentAction() == Action.MASTERBATE) {
@@ -177,6 +217,9 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Hides the futa bones unless the futa command is enabled.
+    */
    void hideFutaBone() {
       if (!ClientProxy.IS_PRELOADING) {
          this.getAnimationProcessor().getBone("futaCock").setHidden(!CommandFuta.ENABLED);
@@ -185,6 +228,9 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Hides the coin bone for player-girls (only NPC Galath gives coins).
+    */
    void updatePlayerPose(BaseGirlEntity var1) {
       if (var1 instanceof AbstractPlayerGirlEntity) {
          this.getAnimationProcessor().getBone("coin").setHidden(true);
@@ -195,6 +241,11 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       this.getAnimationProcessor().getBone("wings").setHidden(!((IGalath)var1).areWingsAnimated());
    }
 
+   /**
+    * Nipple/bra/slip visibility by wing state: while the wings are hidden
+    * (idle/corrupted) the nipples hide and the bra/slip show; wing-animated
+    * states expose the nipples.
+    */
    void updateSwordBones(BaseGirlEntity var1) {
       AnimationProcessor var2 = this.getAnimationProcessor();
       IBone var3 = var2.getBone("nippleR");
@@ -234,6 +285,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Knock-out-flight pose: while flying with the KNOCK_OUT_FLY action the
+    * body pitches -90 (hovering) or follows the interpolated flight vector.
+    */
    void handleWingState(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
          if ((Boolean)var1.getDataManager().get(GalathEntity.bP)) {
@@ -257,6 +312,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Rape-charge pose: the rotation tool/body follow the interpolated charge
+    * vector, with the body yaw from the charge progress value ({@code bO}).
+    */
    void updateHurtPose(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
          if (var1.getCurrentAction() == Action.RAPE_CHARGE) {
@@ -272,6 +331,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Sword-dash body motion: while the dash progress is in the 24..32 window
+    * the body lerps from the dash-start offset back to zero (8-tick dash).
+    */
    void handleFlightPose(BaseGirlEntity var1) {
       if (var1 instanceof GalathEntity) {
          GalathEntity var2 = (GalathEntity)var1;
@@ -298,6 +361,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       }
    }
 
+   /**
+    * Flight/boost pose: lerps the rotation tool between the flight data
+    * vectors (with an extra 45-degree pitch during the boost window).
+    */
    void handleActionPose(BaseGirlEntity var1) {
       float var2 = 0.0F;
       switch (var1.getCurrentAction()) {

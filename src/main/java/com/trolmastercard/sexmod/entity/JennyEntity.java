@@ -48,17 +48,60 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * Jenny NPC — the blond sword/bow girl with blowjob, boobjob, doggy and
+ * paizuri scenes.
+ * <p>
+ * <b>Scene entry</b> (shared with Bia/Luna/Kobold): client
+ * {@code doAction} sets {@code animationFollowUp} via
+ * {@code ChangeDataParameterPacket} (GIRL_HAND_STATES) and sends
+ * {@code KoboldStatePacket}; the server calls {@code setDismounted()}
+ * ({@link #ab}), then {@link #updateAITasks()} lerps her to
+ * {@code TARGET_POS} for ~40 ticks ({@code ac} counter), anchors her
+ * ({@code IS_ANCHORED}) and calls {@link #U()} which dispatches on
+ * GIRL_HAND_STATES.
+ * <p>
+ * <b>Payment gate:</b> without the horny potion effect
+ * ({@link #yFlag}, server-side in {@link #onUpdate()}), the first scene
+ * request goes through {@link Action#PAYMENT} — the girl demands emeralds
+ * before starting. With the potion active, the scene starts directly.
+ * <p>
+ * <b>Scenes</b>: blowjob/boobjob play in place; doggy walks her to the
+ * nearest bed ({@link IBeddableSexGirl#goToSexBed()}, {@link #zFlag} walk
+ * state) then anchors and starts DOGGYSTART.
+ * <p>
+ * <b>Pitfall:</b> the dismount lerp at line ~157 MUST keep
+ * {@code RotationHelper.lerpVec3d(pos, target, 40 - ac)} — the INT (step)
+ * variant. The double variant flings the girl 40x and she vanishes (see
+ * {@code RotationHelper} class doc). Also keep the {@link #af} snap-in logic
+ * (binds the interaction player when the player is within half a block) —
+ * it is what starts the standing doggy scene.
+ */
 public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBeddableSexGirl {
+   /** Set by {@code setDismounted()}: true while the scene-entry lerp runs (40 ticks). */
    public boolean zFlag = false;
+
+   /** Set by {@code setDismounted()}: true while the scene-entry lerp runs. */
    public boolean ab = false;
+
+   /** Snap-in state: true while waiting for the player to walk within 0.5 blocks (doggy). */
    public boolean af = false;
+
+   /** SERVER-maintained flag: true while the player has the horny potion effect active. */
    public static final DataParameter<Boolean> yFlag = EntityDataManager.createKey(BaseGirlEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(118);
+
+   /** Dismount-lerp tick counter (0..40). */
    int ac = 0;
+
+   /** Bed-walk tick counter (re-path at 60/120). */
    int ad = 0;
+
    boolean aa = false;
+
    int ag = 0;
+
    boolean ae = false;
 
    public JennyEntity(World var1) {
@@ -154,7 +197,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
             this.rotationYaw = this.getYawRotation();
             this.setTargetPosition(this.getFrontOffsetVector());
             this.setNoGravity(false);
-            Vec3d var3 = RotationHelper.lerpVec3dDouble(this.getPositionVector(), this.getTargetPosition(), 40 - this.ac);
+            Vec3d var3 = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.ac);
             this.setPosition(var3.x, var3.y, var3.z);
          } else {
             this.ab = false;

@@ -15,6 +15,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * <b>Role.</b> Renderer for {@link KoboldPlayerEntity} (a player transformed
+ * into a kobold). Subclasses {@link AbstractPlayerKoblinGoboldRenderer} and
+ * overrides the bone coloring, eye scaling, item poses and shield-blocking
+ * transforms for the kobold body.
+ * <p>
+ * <b>State.</b> Colors come from {@link EyeAndKoboldColor#valueOf(CURRENT_ACTION)}
+ * with {@link KoboldRenderer#hideBones/showBones} toggles; the iris color is
+ * the {@code ACTION_TARGET_POS} block position (a debug artifact — the target
+ * position doubles as an RGB vector for the eyes).
+ */
 public class PlayerKoboldRenderer extends AbstractPlayerKoblinGoboldRenderer {
    public PlayerKoboldRenderer(RenderManager var1, AnimatedGeoModel var2) {
       super(var1, var2);

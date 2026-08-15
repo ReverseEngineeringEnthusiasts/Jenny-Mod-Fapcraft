@@ -16,6 +16,21 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> CLIENT-side first-person rendering for the goblin transformation:
+ * while the local player is the owner of a goblin girl, the girl is drawn in
+ * first person (RenderWorldLast), her pick-up/throw animations replace the
+ * vanilla hand and player-body render (RenderHandEvent/Pre cancellation).
+ * <p>
+ * <b>State.</b> {@code GoblinRenderer.strafeRotation/forwardRotation} are
+ * derived from the player's movement input and smoothed with
+ * {@link RotationHelper#lerp} — the smoothing must keep using prev/cur fields
+ * or the goblin's arms jitter.
+ * <p>
+ * <b>Pitfall.</b> All list scans tolerate {@link ConcurrentModificationException}
+ * and the "yaw -420.69" sentinel forces a render pass for the owner's goblin —
+ * do not "clean up" either.
+ */
 public class GoblinFirstPersonRenderer {
    @SideOnly(Side.CLIENT)
    @SubscribeEvent

@@ -4,11 +4,28 @@ import com.trolmastercard.sexmod.entity.BodyParts;
 import java.util.HashSet;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 
+/**
+ * Contract implemented by girl renderers for geckolib bone visibility control.
+ * Custom parts (dildos, etc.) are attached to {@link BodyParts#CUSTOM_PART_BONES};
+ * the renderer must not render a bone (nor its children) when that bone — or an
+ * {@code armor*} ancestor — is blacklisted.
+ * <p>
+ * CLIENT-side render thread only.
+ */
 public interface IGirlRenderer {
+   /**
+    * The set of bones that must never be rendered (custom part anchor bones).
+    */
    default HashSet<String> getBlacklistedBones() {
       return BodyParts.CUSTOM_PART_BONES;
    }
 
+   /**
+    * Walks {@code var2}'s parent chain up to the root.
+    *
+    * @return {@code false} if any ancestor is a blacklisted custom-part bone or
+    *         an armor bone; {@code true} otherwise (bone may be rendered)
+    */
    default boolean hasParentBone(HashSet<String> var1, GeoBone var2) {
       while (var2.parent != null) {
          String var3 = var2.getName();

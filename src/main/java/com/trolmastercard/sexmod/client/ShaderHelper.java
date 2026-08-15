@@ -12,11 +12,31 @@ import net.minecraft.client.shader.ShaderLinkHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
+/**
+ * Owns the outline shader for girl entities. Holds the loaded
+ * {@link ShaderGroup} and the {@code final} framebuffer so the mod's renderers
+ * can draw girls with the outline post-process applied.
+ * <p>
+ * CLIENT-side only. See {@link #initOutlineShader()} for failure semantics —
+ * consumers must treat a {@code null} group as "shader unavailable".
+ */
 public class ShaderHelper {
    public static ShaderGroup outlineShaderGroup;
    static final ResourceLocation entityShader = new ResourceLocation("sexmod", "shaders/post/outline.json");
    static Framebuffer outlineFramebuffer;
 
+   /**
+    * Loads and registers the outline post-processing shader
+    * ({@code shaders/post/outline.json}) for {@link BaseGirlEntity}, so girls
+    * render with the outline effect, and caches the shader group + "final"
+    * framebuffer.
+    * <p>
+    * CLIENT-side, called once at init. Safe to fail: when shaders are
+    * unsupported or the JSON is malformed it only logs a warning and leaves
+    * {@code outlineShaderGroup} {@code null} — render code must null-check
+    * before using it. Requires a GL context (do not call before the display is
+    * created).
+    */
    public static void initOutlineShader() {
       Minecraft var0 = Minecraft.getMinecraft();
       if (!OpenGlHelper.shadersSupported) {

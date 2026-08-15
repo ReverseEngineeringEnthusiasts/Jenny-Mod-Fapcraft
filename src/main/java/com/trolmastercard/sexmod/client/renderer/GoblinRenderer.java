@@ -40,6 +40,30 @@ import software.bernie.geckolib3.geo.render.built.GeoCube;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Renderer for the goblin (and goblin-player) entity. The goblin has the most
+ * complex pose logic of all girls: it can ride the owner's shoulder
+ * (first-person camera bob), be picked up, be thrown at players, or be caught;
+ * in every state the render position/yaw is computed from the owner player's
+ * view and the goblin is drawn in the correct perspective.
+ * <p>
+ * <b>First-person sentinel.</b> The yaw sentinel {@value #SENTINEL_VALUE}
+ * (-420.69F) marks renders issued for the first-person camera
+ * ({@link #renderEntityInFirstPerson}): pose selection keys on it
+ * (shoulder-idle/pick-up detection in {@link #doRenderGoblin}) and it skips
+ * the shadow/fire pass. Do not change this value.
+ * <p>
+ * <b>Customization.</b> The goblin's model is assembled from the owner's
+ * model-code parts: ear/hair/body bones are swapped or hidden per part index
+ * ({@link #onBoneProcessing}), bone colors come from the model code (eye,
+ * skin, hair, crown), and the held item switches to the goblin's inventory
+ * item while running/catching ({@link #resolveHeldItemStack}).
+ * <p>
+ * <b>Pitfall:</b> every pose branch skips rendering when the goblin is the
+ * local player's own and would be drawn in first person — the pose is drawn
+ * by the first-person camera path instead. Position interpolation uses
+ * {@link RotationHelper#lerpVec3dDouble} (PROGRESS lerp — correct here).
+ */
 public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    public static final Vec3i DEFAULT_BONE_COLOR = new Vec3i(255, 255, 255);
    static final float SENTINEL_VALUE = -420.69F;
@@ -103,6 +127,12 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       mc = Minecraft.getMinecraft();
    }
 
+   /**
+    * Resolves the goblin's skin texture: the owner's cached skin (interaction
+    * player, else owner) from the static cache map, or a freshly tinted skin
+    * when not cached. In the preload world ({@link SexWorldClient}) or with no
+    * owner it uses the local player's profile id.
+    */
    protected ResourceLocation getGoblinTexture(GoblinEntity var1) {
       UUID var3 = var1.getInteractionPlayerUUID();
       if (var3 == null) {
@@ -125,10 +155,20 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return var2;
    }
 
+   /**
+    * Renders the goblin at the origin with the first-person sentinel yaw, so
+    * {@link #doRenderGoblin} treats it as a first-person pose (shoulder-idle /
+    * pick-up) and applies the camera-relative transform. CLIENT render thread.
+    */
    public static void renderEntityInFirstPerson(BaseGirlEntity var0, float var1) {
       mc.getRenderManager().renderEntity(var0, 0.0, 0.0, 0.0, -420.69F, var1, false);
    }
 
+   /**
+    * Applies the first-person camera bob (vanilla walk-bob formula) so the
+    * goblin on the shoulder sways with the player's steps. CLIENT render
+    * thread; must run before drawing the goblin quad.
+    */
    public static void setFirstPersonCamera(float var0) {
       if (mc.getRenderViewEntity() instanceof EntityPlayer) {
          EntityPlayer var1 = (EntityPlayer)mc.getRenderViewEntity();
@@ -148,6 +188,10 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       super.renderModel(var1, var2, var3, var4, var5, var6, var2.ar);
    }
 
+   /**
+    * Skips the shadow/fire pass while the goblin is being picked up or riding
+    * the shoulder (it would draw a shadow inside the player's view).
+    */
    public void doRenderShadowAndFire(Entity var1, double var2, double var4, double var6, float var8, float var9) {
       if (!(var1 instanceof GoblinEntity)) {
          super.doRenderShadowAndFire(var1, var2, var4, var6, var8, var9);
@@ -159,6 +203,13 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
+   /**
+    * Converts the girl's world position into a player-relative throw position:
+    * the owner's head yaw is copied onto the girl (aiming her at the throw
+    * direction), the action is set to START_THROWING, and the result is the
+    * owner's position minus the local player's. Returns the input unchanged
+    * when any of world/owner/girl is missing.
+    */
    public static Vec3d getThrowPosition(World var0, BaseGirlEntity var1, UUID var2, double var3, double var5, double var7) {
       if (var0 == null) {
          return new Vec3d(var3, var5, var7);
@@ -185,6 +236,15 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return var10.subtract(var11);
    }
 
+   /**
+    * Main pose dispatcher (CLIENT render thread): detects first-person
+    * shoulder-idle/pick-up via the sentinel yaw, then routes by action —
+    * thrown/starting (render at the owner's throw aim, skip own first-person
+    * views), shoulder-idle (bob + FOV-relative offset, hide for the owner in
+    * first person), pick-up (track the owner's head), otherwise default
+    * render. Two symmetric branches cover owned vs unowned goblins — keep them
+    * in sync.
+    */
    public void doRenderGoblin(GoblinEntity var1, double var2, double var4, double var6, float var8, float var9) {
       this.renderEntity = var1;
       this.isShoulderIdle = -420.69F == var8 && var1.getCurrentAction() == Action.SHOULDER_IDLE;
@@ -366,6 +426,11 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
+   /**
+    * Whether the action renders the goblin in a thrown/caught/pick-up pose.
+    * Start-throwing is only a render action for locally registered goblins,
+    * and throw poses are never rendered in first-person view.
+    */
    public static boolean isThrowAction(BaseGirlEntity var0, Action var1) {
       if (var1 == Action.START_THROWING && !var0.isLocallyRegistered()) {
          return false;
@@ -387,6 +452,10 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
+   /**
+    * Lerped vector from the local player to the goblin's owner — the render
+    * offset for throw/catch poses (goblin flies between the two players).
+    */
    public static Vec3d getThrowAim(BaseGirlEntity var0, UUID var1, float var2) {
       if (var1 == null) {
          return Vec3d.ZERO;
@@ -404,6 +473,10 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return var4.subtract(var5);
    }
 
+   /**
+    * First-person shoulder camera: lerped position of the owner relative to
+    * the local player plus the owner's interpolated render yaw (as .w).
+    */
    public static Vector4f getFirstPersonView(EntityPlayer var0, float var1) {
       EntityPlayerSP var2 = mc.player;
       float var3 = RotationHelper.lerp(var0.prevRenderYawOffset, var0.renderYawOffset, var1);
@@ -413,6 +486,12 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return new Vector4f((float)var6.x, (float)var6.y, (float)var6.z, var3);
    }
 
+   /**
+    * Maps a bone name to its tint from the girl's model code (parts[0..9]):
+    * eyes -> eye color, variant/boob/nude bones -> skin color, hair/lash ->
+    * hair color, crown handled separately. White (no tint) for unknown bones
+    * or short model codes.
+    */
    @Override
    protected Vec3i getBoneColor(String var1) {
       String[] var2 = AbstractNpcOnlyEntity.getModelCodeParts(this.renderEntity);
@@ -445,6 +524,13 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return HairColor.values()[Integer.parseInt(var0)].getColor();
    }
 
+   /**
+    * Per-bone geometry tweaks from the model code (skipped in the
+    * {@link SexWorldClient} preload world): ears/hair swap to the chosen part
+    * models, the body pivot drops to -0.15 (plus shoulder-idle pose), leg/boob
+    * bones lean with the strafe/forward rotations, and crown bones hide
+    * depending on ownership state.
+    */
    @Override
    protected void onBoneProcessing(BufferBuilder var1, String var2, GeoBone var3) {
       if (!(this.renderEntity.world instanceof SexWorldClient)) {
@@ -484,6 +570,11 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
+   /**
+    * Hides the crown bone by ownership: hidden for locally registered girls,
+    * hidden when the model-code flag is 0 for NPC goblins, hidden when the
+    * player-goblin wears no helmet.
+    */
    public static void applyBoneColor(BaseGirlEntity var0, GeoBone var1, String var2) {
       if (var0.isLocallyRegistered()) {
          var1.setHidden(true);
@@ -495,6 +586,11 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
+   /**
+    * Leans the bone by the player's current strafe/forward rotation (clamped
+    * to +/-the given angles) while the goblin rides the shoulder; no-op while
+    * the game is paused.
+    */
    public static void applyBoneRot(boolean var0, GeoBone var1, float var2, float var3) {
       if (!mc.isGamePaused()) {
          if (var0) {
@@ -504,6 +600,10 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
+   /**
+    * Body-bone pose for shoulder-idle: raises the pivot to 8 and tilts the
+    * body with the camera pitch so the goblin "sits" in the player's view.
+    */
    public static void applyBoneState(BaseGirlEntity var0, GeoBone var1) {
       if (currentActionValue == -420.69F && var0.getCurrentAction() == Action.SHOULDER_IDLE) {
          float var2 = -mc.getRenderManager().playerViewX;
@@ -548,6 +648,11 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
+   /**
+    * Seeded pseudo-random color-group selection: index groups of the bone
+    * variant space are deterministically chosen from the model-code seed
+    * (squared percentage), so the same code always yields the same variant.
+    */
    static HashSet<Integer> parseColorGroup(int var0, String var1) {
       HashSet var2 = new HashSet();
       int var3 = Integer.parseInt(var1);
@@ -567,6 +672,11 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return var2;
    }
 
+   /**
+    * Recursively selects a bone variant chain: hides all children of the
+    * parent part bone and un-hides the chosen child index, so the model code
+    * picks ear/hair variants.
+    */
    public static void applyBoneParts(GeoBone var0, String var1, String var2, String var3) {
       GeoBone var4 = getChildBone(var0, Integer.parseInt(var1));
       GeoBone var5 = getChildBone(var4, Integer.parseInt(var2));
@@ -577,6 +687,10 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       var8.forEach(var1x -> getChildBone(var5, var1x));
    }
 
+   /**
+    * Darkens bone tints by the local light level while the goblin is on the
+    * shoulder or being picked up (first-person poses ignore world lighting).
+    */
    @Override
    protected Vec3i tintBoneColor(Vec3i var1) {
       if (!this.isShoulderIdle && !this.isBeingPickedUp) {
@@ -587,6 +701,10 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       return new Vec3i(var1.getX() * var2, var1.getY() * var2, var1.getZ() * var2);
    }
 
+   /**
+    * While running or catching, the goblin holds its own inventory item
+    * ({@code GoblinEntity.a0}) instead of the rendered default stack.
+    */
    @Override
    protected ItemStack resolveHeldItemStack(@Nullable ItemStack var1) {
       Action var2 = this.renderEntity.getCurrentAction();
@@ -624,6 +742,10 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
       }
    }
 
+   /**
+    * Skips cubes of hidden custom-part bones and hides all leg bones in the
+    * shoulder-idle pose (they would clip into the player's view).
+    */
    @Override
    public void renderCubeGeometry(BufferBuilder var1, GeoCube var2, GeoBone var3, float var4, float var5, float var6, float var7, double var8) {
       if (!this.isShoulderIdle || LEG_BONE_NAMES.contains(var3.getName())) {

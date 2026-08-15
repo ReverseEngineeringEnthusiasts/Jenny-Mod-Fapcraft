@@ -6,6 +6,9 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.item.ItemStack;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
+/**
+ * Renderer for the player-form Bee (horny potion).
+ */
 public class PlayerBeeRenderer extends GirlPlayerRenderer {
    public PlayerBeeRenderer(RenderManager var1, AnimatedGeoModel var2) {
       super(var1, var2);

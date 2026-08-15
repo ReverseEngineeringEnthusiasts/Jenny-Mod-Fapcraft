@@ -10,6 +10,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 
+/**
+ * DamageSource for galath attacks.
+ */
 public class GalathDamageSource extends DamageSource {
    GalathEntity galathEntity;
    Vec3d sourcePos;

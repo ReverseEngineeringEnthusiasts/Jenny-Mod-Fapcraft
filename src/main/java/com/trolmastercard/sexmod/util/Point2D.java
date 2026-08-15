@@ -1,4 +1,8 @@
 package com.trolmastercard.sexmod.util;
+/**
+ * <b>Role.</b> Simple immutable int point with distance helper. Used by the
+ * {@code StructureCommandScreen} grid math.
+ */
 public class Point2D {
    public static final Point2D ZERO = new Point2D(0, 0);
    public int x;

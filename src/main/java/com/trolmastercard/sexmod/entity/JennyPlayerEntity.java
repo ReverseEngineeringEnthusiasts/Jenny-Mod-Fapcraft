@@ -28,6 +28,28 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Player-form Jenny — the horny-potion transformation of the Jenny
+ * NPC. Implements her scene set: blowjob (suck/thrust/cum), doggy on a bed
+ * (start/wait/slow/fast/cum) and paizuri (start/slow/fast/cum).
+ * <p>
+ * <b>Scene flow.</b> Owner-command actions ({@code blowjob}/{@code boobjob})
+ * teleport the players in via {@link AbstractPlayerGirlEntity#teleportPlayerToGirl}
+ * and start the intro action; the geckolib {@code ISoundListener} in
+ * {@link #registerControllers(AnimationData)} advances each phase on the
+ * animation sound keyframes (e.g. {@code bjiDone} -&gt; {@link Action#SUCKBLOWJOB},
+ * {@code doggyGoOnBedDone} -&gt; {@link Action#WAITDOGGY}). The doggy bed phase
+ * waits in {@link #updateAITasks()} for the player to come within 1 block, then
+ * starts {@link Action#DOGGYSTART}. Cum ends via the
+ * {@code bjcDone}/{@code paizuri_cumDone}/{@code doggyCumDone} sounds which call
+ * {@code resetCameraAndPhysics()} (single-arg {@link ResetGirlPacket} path).
+ * <p>
+ * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} forbids re-entering a
+ * loop phase while the cum animation plays (doggy/cum and similar) — keep the
+ * guards. {@code doggyfastReady} resets the animation offset and sets the
+ * "hard" flag while the player jumps; the {@code ar}/{@code as} flags gate the
+ * hard variant and the one-shot paizuri camera reposition.
+ */
 public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
    boolean ap = false;
    boolean ar = false;
@@ -61,6 +83,10 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       return 1.64F;
    }
 
+   /**
+    * CLIENT/SERVER: starts the doggy bed scene — strips the outfit, sets the
+    * camera yaw from the anchor and enters {@link Action#STARTDOGGY}.
+    */
    @Override
    public void handleInteraction() {
       this.setCurrentAction(Action.STARTDOGGY);
@@ -83,6 +109,12 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       return var1 == 0 ? "textures/entity/jenny/hand_nude.png" : "textures/entity/jenny/hand.png";
    }
 
+   /**
+    * SERVER: owner-command entry point. {@code boobjob} strips and starts
+    * {@link Action#PAIZURI_START}; {@code blowjob} starts {@link Action#STARTBLOWJOB}.
+    * Both broadcast the action to tracking players and teleport the acting
+    * player into the scene.
+    */
    @Override
    public void handleOwnerCommand(String var1, UUID var2) {
       if ("action.names.boobjob".equals(var1)) {
@@ -99,6 +131,12 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * SERVER (and CLIENT mirror): the doggy bed phase. While in
+    * {@link Action#WAITDOGGY}, waits for the nearest non-owner player within
+    * 1 block, locks them into the scene (movement lock, flying, noClip),
+    * positions the camera and advances to {@link Action#DOGGYSTART}.
+    */
    @Override
    public void updateAITasks() {
       super.updateAITasks();
@@ -130,6 +168,13 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       return true;
    }
 
+   /**
+    * CLIENT: returns the fast variant of the current loop action
+    * ({@code SUCKBLOWJOB} -&gt; {@code THRUSTBLOWJOB}, {@code DOGGYSLOW} -&gt;
+    * {@code DOGGYFAST}, {@code PAIZURI_SLOW} -&gt; {@code PAIZURI_FAST}).
+    * The paizuri transition repositions the camera once (guarded by
+    * {@code as}).
+    */
    @Override
    protected Action getNextAction(Action var1) {
       switch (var1) {
@@ -149,6 +194,10 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * CLIENT: maps the current loop action to its cum action and repositions
+    * the camera for the blowjob cum (pitch 70).
+    */
    @Override
    protected Action getCumAction(Action var1) {
       if (var1 == Action.SUCKBLOWJOB || var1 == Action.THRUSTBLOWJOB) {
@@ -161,6 +210,10 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * Guards the action state machine against re-entering a loop phase while
+    * the corresponding cum animation is still playing (doggy/blowjob/paizuri).
+    */
    @Override
    public void setCurrentAction(Action action) {
       Action var2 = this.getCurrentAction();
@@ -287,6 +340,16 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the action/movement/eyes controllers and the
+    * geckolib {@link AnimationController.ISoundListener} that drives the whole
+    * scene — every phase transition, dialogue line, sound and the horny-meter
+    * updates fire on animation sound keyframes here. Scene end: the
+    * {@code bjcDone}/{@code paizuri_cumDone}/{@code doggyCumDone} keyframes
+    * call {@code resetCameraAndPhysics()}; {@code paymentDone} dispatches the
+    * selected scene via {@link #U()}. Ordering matters: the listener must be
+    * registered before the controllers are added.
+    */
    @Override
    public void registerControllers(AnimationData var1) {
       if (this.actionController == null) {

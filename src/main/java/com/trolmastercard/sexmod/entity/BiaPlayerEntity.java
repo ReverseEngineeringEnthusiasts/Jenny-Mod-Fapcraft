@@ -24,6 +24,28 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
+/**
+ * <b>Role.</b> Player-form Bia — the catgirl with anal (prepare/wait/start/
+ * slow/fast/cum) and prone-doggy (sitdown/sitdownidle/intro/insert/soft/hard/
+ * cum) bed scenes plus headpats.
+ * <p>
+ * <b>Scene flow.</b> {@link #handleActionRequest(String)} starts the bed
+ * scenes ({@code anal} -&gt; {@link Action#ANAL_PREPARE}, {@code doggy} -&gt;
+ * {@link Action#SITDOWN}); headpats come via owner command. The core waiting
+ * mechanic is {@link #handleBiaAnalState()} (ticked from
+ * {@link #onUpdate()}): while in {@link Action#ANAL_WAIT}/{@link Action#SITDOWNIDLE}
+ * with a player within 1 block, it runs a countdown that MUST start at
+ * {@code ac = 22} (jar-verified) — a deobf regression to {@code -1} permanently
+ * stalled every Bia bed scene. When the countdown expires the scene locks the
+ * player in (noClip/noGravity) and either starts {@link Action#ANAL_START} or
+ * positions for the prone doggy ({@link Action#PRONE_DOGGY_INTRO} + anchor).
+ * <p>
+ * <b>Pitfalls.</b> {@code ar} is the countdown field: {@code -1} = idle,
+ * {@code 22} = first contact. {@link #setCurrentAction(Action)} forbids
+ * re-entering loop phases while the cum animation plays. The countdown is
+ * reset to {@code -1} in {@link #resetLocalPlayerClientState()} so a scene
+ * exit re-arms it.
+ */
 public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    int ar = -1;
    boolean ap = false;
@@ -50,6 +72,12 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    public void handleInteraction() {
    }
 
+   /**
+    * Handles the local scene-start requests: {@code anal} and {@code doggy}
+    * strip Bia and enter the bed-scene intro actions. Returns true when
+    * handled so {@link AbstractPlayerGirlEntity#doAction} does not forward to
+    * the server.
+    */
    @Override
    public boolean handleActionRequest(String var1) {
       if ("anal".equals(var1)) {
@@ -71,6 +99,10 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       BaseGirlEntity.openInventoryGui(Minecraft.getMinecraft().player, this, new String[]{"anal", "doggy"}, false);
    }
 
+   /**
+    * SERVER: owner command {@code headpat} — teleports the acting player in
+    * and plays the headpat animation.
+    */
    @Override
    public void handleOwnerCommand(String var1, UUID var2) {
       if ("action.names.headpat".equals(var1)) {
@@ -144,6 +176,10 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       this.handleBiaAnalState();
    }
 
+   /**
+    * CLIENT: on top of the inherited reset, re-arms the anal countdown to
+    * {@code -1} so the next scene restarts from first contact.
+    */
    @Override
    protected void resetLocalPlayerClientState() {
       super.resetLocalPlayerClientState();
@@ -155,6 +191,15 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       return Minecraft.getMinecraft().player.getPersistentID().equals(var1.getPersistentID());
    }
 
+   /**
+    * BOTH sides, every tick: the bed-scene contact countdown (see class
+    * javadoc — {@code ac} must start at 22). On first contact (countdown -1)
+    * the client enables interaction and unlocks movement while the server
+    * binds the interaction player; when the countdown expires the scene locks
+    * the player in and starts {@link Action#ANAL_START} (anal) or the prone
+    * doggy intro (sitdown). SERVER performs the action/position changes; the
+    * CLIENT only mirrors the horny-meter/UI side.
+    */
    void handleBiaAnalState() {
       Action var1 = this.getCurrentAction();
       if (var1 == Action.ANAL_WAIT || var1 == Action.SITDOWNIDLE) {
@@ -210,6 +255,11 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       }
    }
 
+   /**
+    * CLIENT: while the prone-doggy hard loop plays, re-rolls the variant
+    * suffix ({@code aq} in 1..3) so consecutive hard loops use different
+    * animations.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void resetAnimationControllerTicks() {
@@ -343,6 +393,17 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
       return PlayState.CONTINUE;
    }
 
+   /**
+    * CLIENT: registers the controllers and the geckolib sound listener that
+    * advances the anal/prone-doggy/headpat scenes. Key transitions:
+    * {@code anal_prepareDone} -&gt; {@link Action#ANAL_WAIT},
+    * {@code anal_startDone}/{@code anal_fastDone} -&gt; {@link Action#ANAL_SLOW}
+    * (jump keeps the fast loop), {@code doggySwitch} -&gt; hard variant,
+    * {@code anal_cumDone}/{@code doggy_cumDone} -&gt;
+    * {@code resetCameraAndPhysics()}. {@code talk_responseDone} exits the talk
+    * scene ({@code resetGirlState()}) and either strips or dispatches the
+    * chosen scene via {@link #U()}.
+    */
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData var1) {

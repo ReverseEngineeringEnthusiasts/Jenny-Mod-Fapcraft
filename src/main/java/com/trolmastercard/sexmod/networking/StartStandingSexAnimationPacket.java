@@ -12,6 +12,17 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER owner command for a transformed player-girl —
+ * starts a standing sex animation between the girl's owner and the given player.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. Resolves the
+ * {@link AbstractPlayerGirlEntity} by the owner's UUID (on an integrated server
+ * it re-scans the girl list because the owner girl may not be the first match),
+ * then calls {@code handleOwnerCommand(animation, playerUUID)} which runs the
+ * scene server-side. Ordering: the player must be registered as interaction
+ * partner first (see {@link SetPlayerForGirlPacket}).
+ */
 public class StartStandingSexAnimationPacket implements IMessage {
    boolean isValid;
    UUID girlUUID;

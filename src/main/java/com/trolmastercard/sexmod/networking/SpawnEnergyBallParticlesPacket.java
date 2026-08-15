@@ -12,6 +12,18 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> SERVER->CLIENT Galath summon trigger — makes the client render the
+ * Galath's summon particle burst and switches the ownership debug flag.
+ * <p>
+ * <b>Handler.</b> CLIENT-side. Looks up the client-side {@link GalathEntity} and
+ * calls {@link GalathCoinItem#summonGalathFor(UUID, GalathEntity)} which spawns
+ * the energy-ball particles; if the UUID is the local player's, ownership debug
+ * is turned off so the summoned girl behaves as owned.
+ * <p>
+ * Either UUID may be {@code null} (wire-sent as the sentinel string
+ * {@code "trol was here"}); the handler tolerates that.
+ */
 public class SpawnEnergyBallParticlesPacket implements IMessage {
    boolean isValid = false;
    UUID girlUUID;

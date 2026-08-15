@@ -5,6 +5,11 @@ import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 
+/**
+ * Vanilla body model for the goblin: a blocky body with ears, nose and a
+ * 4-segment tail (used by {@code WildSlimeRenderer} as the slime's body
+ * shape). Static pose — no animation hooks.
+ */
 public class GoblinModel extends ModelBase {
    private final ModelRenderer body;
    private final ModelRenderer rightEar;

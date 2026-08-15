@@ -21,6 +21,20 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
+/**
+ * Girl-model selection screen (the "pick a girl" GUI): cycles through previews
+ * of every non-NPC girl type plus the player's own model, and sends the chosen
+ * type to the server via {@link UpdatePlayerModelPacket} — this is the
+ * horny-potion girl transformation picker.
+ * <p>
+ * <b>Preview construction.</b> For each {@link NpcType} (skipping
+ * {@code isNpcOnly}) a {@link BaseGirlEntity} is constructed via reflection
+ * into the client world, marked locally registered, and given the player's
+ * custom part list; previews rotate in a static spin animation.
+ * <p>
+ * CLIENT-side only. On "pick", the eye height and flying capability of the
+ * local player are restored to defaults before the screen closes.
+ */
 public class GirlScreenBase extends GuiScreen {
    List<EntityLivingBase> nearbyEntities = new ArrayList<>();
    int renderIndex = 0;
@@ -58,6 +72,12 @@ public class GirlScreenBase extends GuiScreen {
       this.buttonList.add(new GuiButton(0, this.width / 2 - 30, this.height / 2 + 30, 60, 20, "pick"));
    }
 
+   /**
+    * "Pick" commits the currently previewed type: sends
+    * {@link UpdatePlayerModelPacket} to the server and restores the player's
+    * eye height and flight capability. "<"/">" cycle the preview index
+    * (wrapping).
+    */
    protected void actionPerformed(GuiButton var1) {
       if (">".equals(var1.displayString) && ++this.renderIndex >= this.nearbyEntities.size()) {
          this.renderIndex = 0;
@@ -82,6 +102,14 @@ public class GirlScreenBase extends GuiScreen {
       return false;
    }
 
+   /**
+    * Renders an entity as a rotating inventory-style preview at the given
+    * screen position. Temporarily overrides the entity's yaw/pitch/head
+    * rotation and (for non-players) its position, renders via the render
+    * manager with the spin angle accumulated from real elapsed time, then
+    * restores every overridden field. The static {@code progress} makes all
+    * previews rotate in sync.
+    */
    public static void renderEntityPreview(int var0, int var1, int var2, EntityLivingBase var3) {
       float var4 = var3.renderYawOffset;
       float var5 = var3.rotationYaw;

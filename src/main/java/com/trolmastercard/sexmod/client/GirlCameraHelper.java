@@ -22,6 +22,23 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * CLIENT scene camera for the horny-potion player-girls
+ * ({@link AbstractPlayerGirlEntity}) — NOT the NPC scenes.
+ * <p>
+ * While the transformed player-girl is in a scene (non-anchored), the camera
+ * is attached to the girl model's {@code girlCam} bone: the player's
+ * position is overridden on the render tick start ({@link #onRenderTickStart},
+ * {@link #onRenderTickEnd} save/restore the real position) and the girl's
+ * body is rendered first-person via {@link #applyCameraTransform}. When the
+ * girl is anchored the camera rolls 180&deg; ({@link #onCameraSetup}).
+ * <p>
+ * <b>Pitfall:</b> the camera only detaches when the girl's scene state clears
+ * (action/interaction reset). The NPC-scene R-Shift exit therefore must go
+ * through {@code resetCameraAndPhysics()} on the client (clears
+ * {@code cameraOriginPos}) — sending only the server {@code ResetGirlPacket}
+ * leaves the camera attached and the player model visible in the scene view.
+ */
 public class GirlCameraHelper {
    public static final float CAMERA_SCALE = 1.2345679F;
    Vec3d playerPos = null;

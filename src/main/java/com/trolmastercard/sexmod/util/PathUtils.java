@@ -7,6 +7,9 @@ import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.math.BlockPos;
 
+/**
+ * Pathfinding helpers for girl movement goals.
+ */
 public class PathUtils {
    public static BlockPos getPathEnd(Path var0) {
       if (var0 == null) {

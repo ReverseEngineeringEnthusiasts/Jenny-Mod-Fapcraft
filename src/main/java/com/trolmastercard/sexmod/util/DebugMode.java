@@ -22,6 +22,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * <b>Role.</b> Developer-only debug tooling, active only in a deobfuscated
+ * (dev) environment — see {@link #isDeobfuscated()}. Registers client chat
+ * commands ({@code set N value}, {@code get N}, {@code time}, {@code girls},
+ * {@code kobs}, {@code setcumtime}, {@code resetcolor}) and prints tribe-task
+ * diagnostics when a kobold is hurt. The shared dev-float array {@code b} is a
+ * tuning surface for renderer constants; keep all debug logging behind the
+ * deobfuscated check so obfuscated builds never touch it.
+ */
 public class DebugMode {
    static final int debugFlag = 60;
    public static float[] b;

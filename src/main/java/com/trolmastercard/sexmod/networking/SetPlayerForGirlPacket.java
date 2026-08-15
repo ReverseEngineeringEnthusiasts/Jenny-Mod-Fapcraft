@@ -14,6 +14,17 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * <b>Role.</b> CLIENT->SERVER "start a scene with this girl" request. Sent from
+ * the interaction menu when the player picks an action; binds the player to the
+ * girl as her interaction partner.
+ * <p>
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. For Jenny
+ * additionally sets her {@code af} flag (scene-ready). Sets the girl's
+ * interaction-player UUID — the data-manager sync then makes the girl follow
+ * that player; the actual scene entry is triggered by the follow-up packets
+ * ({@code KoboldStatePacket}/{@code ChangeDataParameterPacket} flow).
+ */
 public class SetPlayerForGirlPacket implements IMessage {
    boolean isValid;
    UUID girlUUID;

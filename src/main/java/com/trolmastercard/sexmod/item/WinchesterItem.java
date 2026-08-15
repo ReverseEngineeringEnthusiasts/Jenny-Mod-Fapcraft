@@ -7,6 +7,10 @@ import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+/**
+ * <b>Role.</b> The Winchester — a placeholder GeckoLib-animated item (registered
+ * as {@code sexmod:winchester}) with no gameplay logic yet.
+ */
 public class WinchesterItem extends Item implements IAnimatable {
    public static final WinchesterItem WINCHESTER_ITEM = new WinchesterItem();
    private final AnimationFactory animationFactory = new AnimationFactory(this);

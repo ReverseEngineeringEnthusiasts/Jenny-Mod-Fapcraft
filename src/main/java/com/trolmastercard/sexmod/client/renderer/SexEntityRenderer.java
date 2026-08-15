@@ -21,6 +21,23 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
+/**
+ * Renderer for {@link SexEntity} — the small "heart/particle" marker entity
+ * spawned around Luna during her scenes (e.g. her fishing-rod job). Renders a
+ * particle-sprite quad plus, while Luna holds a non-air item, the held item
+ * itself; also draws the fishing-line/leash curve from Luna's hand to the
+ * particle when her main hand is empty.
+ * <p>
+ * <b>Luna coupling.</b> The particle glides from its spawn position to
+ * Luna's hand via a progress flag on Luna ({@code zFlag}, advanced per real
+ * frame) and Luna's position/yaw fields are overwritten with her target
+ * position during the render — the yaw is what the fishing line math uses.
+ * The whole pass is skipped while Luna is missing or her zFlag is 1 (already
+ * arrived).
+ * <p>
+ * CLIENT-side render thread only. Position interpolation uses
+ * {@link RotationHelper#lerpVec3dDouble} (PROGRESS lerp — correct here).
+ */
 public class SexEntityRenderer extends Render<SexEntity> {
    static final double PARTICLE_OFFSET_B = 0.1896224320030116;
    static final double PARTICLE_OFFSET_D = -0.5;
@@ -31,6 +48,13 @@ public class SexEntityRenderer extends Render<SexEntity> {
       super(var1);
    }
 
+   /**
+    * Main render (see class javadoc): billboarded particle quad (with optional
+    * held-item and outline-mode support), then the fishing line from Luna's
+    * hand (anchored at her target position) to the particle when her hand is
+    * empty. Temporarily rewrites Luna's pos/yaw fields and restores nothing —
+    * the entity code tolerates the overwrite, do not "fix" it.
+    */
    public void doRenderSexEntity(SexEntity var1, double var2, double var4, double var6, float var8, float var9) {
       LunaEntity var10 = var1.getOwnerLuna();
       if (var10 != null && !this.renderOutlines && var10.zFlag != 1.0F) {

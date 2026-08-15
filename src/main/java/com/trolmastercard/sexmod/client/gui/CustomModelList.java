@@ -27,6 +27,23 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 
+/**
+ * Scrollable list of model/part entries shown in the {@link ClothingScreen}
+ * customization GUI. One row per {@link BoneType} (plus a special "add custom
+ * part" row), each row rendering a preview of the currently selected model via
+ * a temporary {@link SexSceneEntity} and offering the girl-specific part
+ * toggles and the "cross/next" buttons.
+ * <p>
+ * <b>Data flow.</b> Entries are rebuilt every frame from
+ * {@link ClothingScreen#m} (static custom-part registry map) and
+ * {@link ServerWhitelistManager#getModelParts}. Preview {@link SexSceneEntity}s
+ * are created and {@code removeEntityDangerously}-removed within a single draw
+ * call — they must never outlive the frame, and drawing must not happen while
+ * the entity list is being ticked.
+ * <p>
+ * CLIENT-side only. Scrolling is mouse-wheel driven and ignores the vanilla
+ * scroll bar (bar is drawn but non-functional by design).
+ */
 public class CustomModelList extends GuiListExtended {
    static final int TEXT_COLOR = 3809871;
    static final List<BoneType> boneTypes = Arrays.asList(BoneType.values());
@@ -58,6 +75,10 @@ public class CustomModelList extends GuiListExtended {
    protected void drawContainerBackground(Tessellator var1) {
    }
 
+   /**
+    * Scrolls by one half-slot per wheel notch, but only while the cursor is
+    * within the list bounds.
+    */
    public void handleMouseInput() {
       if (this.isMouseYWithinSlotBounds(this.mouseY)) {
          int var1 = Mouse.getEventDWheel();
@@ -77,6 +98,10 @@ public class CustomModelList extends GuiListExtended {
    protected void overlayBackground(int var1, int var2, int var3, int var4) {
    }
 
+   /**
+    * Vertically centers the list on screen when the content fits, otherwise
+    * pins it to the top so scrolling covers the full content height.
+    */
    void updateScrollbar() {
       int var1 = this.entries.size() * this.slotHeight;
       if (var1 > this.height) {
@@ -87,6 +112,12 @@ public class CustomModelList extends GuiListExtended {
       }
    }
 
+   /**
+    * Rebuilds and sorts the entries from {@link ClothingScreen#m} (BoneType ->
+    * (model names, selected index)), prepends the {@code cross} entry to the
+    * custom-bone models, appends the "add custom part" row (only when at least
+    * one custom bone exists), then refreshes scroll state.
+    */
    public void drawScreen(int var1, int var2, float var3) {
       this.entries.clear();
       int var4 = 0;
@@ -112,6 +143,12 @@ public class CustomModelList extends GuiListExtended {
       }
    }
 
+   /**
+    * Full draw pass: background, selection box and a hand-rolled scroll bar
+    * (track, thumb and highlight) rendered with immediate-mode GL quads.
+    * Mostly vanilla {@link GuiListExtended} machinery, kept because the custom
+    * entries need precise mouse-hit testing.
+    */
    void onMouseMove(int var1, int var2, float var3) {
       if (this.visible) {
          this.mouseX = var1;
@@ -182,6 +219,11 @@ public class CustomModelList extends GuiListExtended {
       return super.mouseClicked(var1, var2, var3);
    }
 
+   /**
+    * Computes which entry the mouse is over and routes the click to its
+    * row-background handler ({@link ModelListEntry#drawBackground}), which is
+    * what implements the per-row buttons.
+    */
    void getSlotIndex(int var1, int var2, int var3) {
       if (var1 <= this.width) {
          int var4 = this.getAmountScrolled();
@@ -196,6 +238,13 @@ public class CustomModelList extends GuiListExtended {
       }
    }
 
+   /**
+    * One list row. Three kinds, selected by constructor: a model row for a
+    * {@link BoneType} (preview + model-name labels), the custom-part header row
+    * (add/remove buttons), and the girl-specific part rows (toggle + scale
+    * slider). Draws a temporary {@link SexSceneEntity} as the part preview and
+    * forwards clicks to the parent {@link ClothingScreen} for state changes.
+    */
    @SideOnly(Side.CLIENT)
    public class ModelListEntry implements IGuiListEntry {
       static final int ICON_SIZE = 4;
@@ -237,7 +286,14 @@ public class CustomModelList extends GuiListExtended {
          CustomModelList.this.parentScreen.drawTexturedModalRect(var4, var1, this.isSelected ? 60 : 80, this.isSelected && this.isInBounds(var2, var3, var4, var1, var4 + 20, var1 + 20) ? 40 : 20, 20, 20);
       }
 
-      void drawEntry(int var1, int var2, int var3) {
+      /**
+    * Renders the row: background, part icon, preview of the selected model
+    * (scaled/offset by {@link ServerWhitelistManager.ModelData}) and the
+    * model-name + model-code labels with hover tooltips. A temporary
+    * {@link SexSceneEntity} is spawned for the preview and removed before the
+    * method returns.
+    */
+   void drawEntry(int var1, int var2, int var3) {
          CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.GUI_TEXTURE);
          CustomModelList.this.parentScreen.drawTexturedModalRect(5, var1, 0, 60, this.selectedIndex == 0 ? 119 : 256, 30);
          int var4 = 15;
@@ -327,14 +383,24 @@ public class CustomModelList extends GuiListExtended {
          }
       }
 
-      int getEntryWidth(int var1, int var2, int var3, int var4) {
+      /**
+    * Draws the girl-specific part toggle button (left: off, right: on,
+    * highlighted when hovered).
+    */
+   int getEntryWidth(int var1, int var2, int var3, int var4) {
          CustomModelList.this.parentScreen.drawPartBackground(var1, var2, 0, 20 * (this.isInBounds(var3, var4, var1, var2, var1 + 20, var2 + 20) ? 2 : 1));
          var1 += 20;
          CustomModelList.this.parentScreen.drawPartBackground(var1, var2, 20, 20 * (this.isInBounds(var3, var4, var1, var2, var1 + 20, var2 + 20) ? 2 : 1));
          return var1 + 40;
       }
 
-      void onEntryClick(int var1, int var2, int var3, int var4, int var5) {
+      /**
+    * Draws the scale slider track and thumb, and immediately persists the
+    * slider value (0..100) onto the preview girl via
+    * {@code setCustomPartValue} — the preview updates live as the slider is
+    * dragged.
+    */
+   void onEntryClick(int var1, int var2, int var3, int var4, int var5) {
          CustomModelList.this.parentScreen.drawTexturedModalRect(var1, var2, 140, 20, 79, 20);
          var1 += 4;
          int var6 = var1;
@@ -345,7 +411,12 @@ public class CustomModelList extends GuiListExtended {
          CustomModelList.this.parentScreen.previewGirl.setCustomPartValue(var5, (int)(var8 * 100.0F));
       }
 
-      float getPartScale(int var1, int var2, int var3, int var4, int var5, int var6) {
+      /**
+    * Maps the mouse X to a slider fraction in 0..1. When not editing, or when
+    * the mouse is outside the slider track, returns the current stored value
+    * instead, so the slider only changes while actively dragged.
+    */
+   float getPartScale(int var1, int var2, int var3, int var4, int var5, int var6) {
          if (!CustomModelList.this.parentScreen.isEditing) {
             return this.getPartValue(var6);
          }
@@ -376,7 +447,11 @@ public class CustomModelList extends GuiListExtended {
          return ((Integer)((Entry)var2.getValue()).getValue()).intValue() / 100.0F;
       }
 
-      void isEntrySelected(int var1, int var2, int var3, int var4) {
+      /**
+    * Draws a girl-specific row: the part toggle + slider when the part is
+    * enabled, or just the (dimmed) toggle when disabled.
+    */
+   void isEntrySelected(int var1, int var2, int var3, int var4) {
          if (CustomModelList.this.parentScreen.previewGirl.isPartEnabled(var4)) {
             CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.GUI_TEXTURE);
             CustomModelList.this.parentScreen.drawTexturedModalRect(5, var1, 0, 60, 119, 30);
@@ -447,7 +522,15 @@ public class CustomModelList extends GuiListExtended {
          }
       }
 
-      public void drawBackground(int var1, int var2, int var3, int var4) {
+      /**
+    * Row-background click routing (the "buttons" of a row). For the custom-part
+    * header row: the add button re-registers the current custom part into
+    * {@link ClothingScreen#m} and marks the list for refresh; the remove button
+    * (only when the header is selected) drops the last entry. For all other
+    * rows: girl-specific rows toggle the part via
+    * {@code ClothingScreen.onBoneTypeToggle}.
+    */
+   void drawBackground(int var1, int var2, int var3, int var4) {
          if (var3 == 0) {
             if (var2 >= 5) {
                if (var2 <= 25) {
