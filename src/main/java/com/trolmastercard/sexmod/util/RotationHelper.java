@@ -68,7 +68,9 @@ public class RotationHelper {
    public static float lerpAngleDegrees(float from, float to, double t) {
       double fromRad = Math.toRadians(from);
       double toRad = Math.toRadians(to);
-      return (float)Math.toDegrees(lerpAngleDegrees((float)fromRad, (float)toRad, t));
+      // jar-verified: the deobf once made this self-recursive (StackOverflow);
+      // the original calls the wrap-degrees float lerp on the radian values
+      return (float)Math.toDegrees(lerpFloat((float)fromRad, (float)toRad, t));
    }
 
    /**

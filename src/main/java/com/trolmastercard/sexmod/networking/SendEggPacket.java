@@ -3,7 +3,6 @@ package com.trolmastercard.sexmod.networking;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.item.KoboldEggItem;
 import com.trolmastercard.sexmod.util.KoboldManager;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayerMP;

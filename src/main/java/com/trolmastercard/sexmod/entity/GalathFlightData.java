@@ -142,7 +142,9 @@ public enum GalathFlightData {
 
          if (!weighted.isEmpty()) {
             ArrayList<Entry> entries = new ArrayList<Entry>(weighted.entrySet());
-            entries.sort((entryA, entryB) -> ((Integer)((Entry) galath).getValue()).compareTo((Integer)((Entry) galath).getValue()));
+            // jar-verified: descending sort by weight; the deobf once replaced the
+            // lambda params with the entity var (ClassCastException + no sort)
+            entries.sort((entryA, entryB) -> ((Integer)entryB.getValue()).compareTo((Integer)entryA.getValue()));
             galath.flightTargetPosition = new Vec3d((Vec3i)((Entry)entries.get(ThreadNames.weightedRandomIndex(entries.size() - 1))).getKey());
          } else if (candidates.isEmpty()) {
             galath.flightTargetPosition = new Vec3d(

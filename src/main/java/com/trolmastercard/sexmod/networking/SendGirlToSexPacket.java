@@ -3,7 +3,6 @@ package com.trolmastercard.sexmod.networking;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.util.IBeddableSexGirl;
 import com.trolmastercard.sexmod.util.SceneDebug;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraftforge.fml.common.FMLCommonHandler;

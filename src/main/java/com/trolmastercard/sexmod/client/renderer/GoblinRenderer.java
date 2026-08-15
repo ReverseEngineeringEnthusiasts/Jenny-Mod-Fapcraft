@@ -67,7 +67,6 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    public static final Vec3i DEFAULT_BONE_COLOR = new Vec3i(255, 255, 255);
    static final float SENTINEL_VALUE = -420.69F;
-   static final float RENDER_SCALE_A = 8.0F;
    static final float RENDER_SCALE_B = 3.0F;
    public static final Vec3d MOVEMENT_DIR_VECTOR = new Vec3d(10.0, -20.0, -10.0);
    static final float LERP_FACTOR = 0.1F;

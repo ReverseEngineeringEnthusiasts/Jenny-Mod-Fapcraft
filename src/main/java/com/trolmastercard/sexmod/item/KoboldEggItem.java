@@ -78,7 +78,10 @@ public class KoboldEggItem extends Item implements IAnimatable {
             egg.getDataManager().set(KoboldEggEntity.EGG_COLOR, EyeAndKoboldColor.getColorByWoolId(stack.getMetadata()).toString());
             NBTTagCompound tag = stack.getTagCompound();
             if (tag != null) {
-               egg.tribeId = UUID.fromString(tag.getString("tribeID"));
+               String tribeIdString = tag.getString("tribeID");
+               if (!"".equals(tribeIdString)) {
+                  egg.tribeId = UUID.fromString(tribeIdString);
+               }
             }
 
             world.spawnEntity(egg);

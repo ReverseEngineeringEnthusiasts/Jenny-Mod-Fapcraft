@@ -277,47 +277,12 @@ public class GalathCoinItem extends Item implements IAnimatable {
       }
    }
 
-   void handleCoinUse(EntityPlayer player) {
-      if (player.world.isRemote) {
-         this.summonGalath(player);
-      } else {
-         this.summonGalathFor(player);
-      }
-   }
-
-   void summonGalathFor(EntityPlayer player) {
-      UUID ownerUuid = GirlSavedData.getOwnerOf(player);
-      BaseGirlEntity girl = BaseGirlEntity.getServerGirlEntity(ownerUuid);
-      if (girl instanceof GalathEntity) {
-         deSummonGalath((GalathEntity)girl);
-      }
-   }
-
    public static void deSummonGalath(GalathEntity galath) {
       galath.setCurrentAction(Action.GALATH_DE_SUMMON);
       galath.aC();
       galath.setAnchored(true);
       galath.setTargetPosition(galath.getPositionVector());
       galath.setYawRotation(galath.rotationYaw);
-   }
-
-   @SideOnly(Side.CLIENT)
-   void summonGalath(EntityPlayer player) {
-      GalathEntity galath = null;
-
-      try {
-         for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
-            if (!girl.isDead && girl.world.isRemote && girl instanceof GalathEntity && player.equals(girl.getMasterPlayer())) {
-               galath = (GalathEntity)girl;
-               break;
-            }
-         }
-      } catch (ConcurrentModificationException cme) {
-      }
-
-      if (galath != null) {
-         summonForPlayer(player, galath);
-      }
    }
 
    @SideOnly(Side.CLIENT)
@@ -350,28 +315,6 @@ public class GalathCoinItem extends Item implements IAnimatable {
 
    public static void summonForPlayer(EntityPlayer player, GalathEntity galath) {
       summonGalathFor(player.getPersistentID(), galath);
-   }
-
-   void readCooldownNBT(EntityPlayer player, NBTTagCompound entityData, long now, long startTime) {
-      if (startTime != 0L) {
-         long elapsed = now - startTime;
-         World world = player.world;
-         boolean animationStarted = entityData.getBoolean("sexmod:galath_coin_de_summoning_animation_time");
-         if (!animationStarted && elapsed > 1000L - (world.isRemote ? 0 : 150)) {
-            entityData.setBoolean("sexmod:galath_coin_de_summoning_animation_time", true);
-            this.handleCoinUse(player);
-         }
-
-         if (!world.isRemote) {
-            if (now - startTime > 3000L) {
-               UUID ownerUuid = GirlSavedData.getOwnerOf(player);
-               BaseGirlEntity girl = BaseGirlEntity.getServerGirlEntity(ownerUuid);
-               if (girl instanceof GalathEntity) {
-                  GirlSavedData.updateMangleliePartner((GalathEntity)girl);
-               }
-            }
-         }
-      }
    }
 
    @Override

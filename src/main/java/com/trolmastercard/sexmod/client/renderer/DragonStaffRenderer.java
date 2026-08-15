@@ -20,7 +20,6 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformT
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
@@ -54,15 +53,6 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
    static final float SCALE_8 = 8.0F;
    static final float SCALE_6 = 6.0F;
    static final float SCALE_1_3 = 1.3F;
-   static final Vector2f[] l = new Vector2f[]{
-      new Vector2f(1.0F, 0.0F),
-      new Vector2f(0.0F, 1.0F),
-      new Vector2f(0.0F, 0.0F),
-      new Vector2f(0.5F, 0.5F),
-      new Vector2f(0.75F, 0.25F),
-      new Vector2f(0.25F, 0.75F),
-      new Vector2f(0.25F, 0.75F)
-   };
    static boolean isRendering = false;
    Minecraft mc;
    Vector2f screenPos;

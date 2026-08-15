@@ -295,6 +295,8 @@ public class ClothingScreen extends GuiScreen {
                partIndex = clickIndex - (this.partsCount + BoneType.getCustomBoneCount());
             }
 
+            // guard against out-of-range click indices (multi-custom-bone lists)
+            partIndex = Math.max(0, Math.min(partIndex, matches.size() - 1));
             entry = (Entry)matches.get(partIndex);
             index = (Integer)indices.get(partIndex);
          }

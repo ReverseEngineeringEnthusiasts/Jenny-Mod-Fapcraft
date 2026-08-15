@@ -3,7 +3,6 @@ package com.trolmastercard.sexmod.networking;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.NpcType;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import com.google.common.base.Optional;
 import io.netty.buffer.ByteBuf;
 import java.lang.reflect.Constructor;

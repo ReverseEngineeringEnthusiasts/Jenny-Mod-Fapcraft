@@ -1,8 +1,8 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public class UnknownPacket implements IMessage {
    }
 
    public void fromBytes(ByteBuf buf) {
-      if (!(null instanceof ClientProxy)) {
+      if (!(Main.proxy instanceof ClientProxy)) {
          this.isValid = true;
       } else if (ServerWhitelistManager.isGlobalRenderingDisabled()) {
          int count;
@@ -49,7 +49,7 @@ public class UnknownPacket implements IMessage {
    }
 
    public void toBytes(ByteBuf buf) {
-      if (!(null instanceof ClientProxy)) {
+      if (!(Main.proxy instanceof ClientProxy)) {
          buf.writeInt(this.b.size());
 
          for (Entry entry : this.b.entrySet()) {

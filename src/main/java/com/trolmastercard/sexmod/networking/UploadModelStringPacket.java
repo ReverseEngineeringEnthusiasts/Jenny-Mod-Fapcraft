@@ -3,7 +3,6 @@ package com.trolmastercard.sexmod.networking;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.NpcType;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +78,10 @@ public class UploadModelStringPacket implements IMessage {
          if (packet.isValid && ctx.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                BaseGirlEntity girl = BaseGirlEntity.getServerGirlEntity(packet.girlUUID);
+               if (girl == null) {
+                  return;
+               }
+
                if (packet.partIds.size() > 0) {
                   boolean valid = this.isValidModelCode(girl, packet.partIds);
                   if (valid) {

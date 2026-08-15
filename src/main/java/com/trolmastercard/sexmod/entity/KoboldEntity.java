@@ -1,8 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.Main;
-import com.trolmastercard.sexmod.api.IGalathFinish;
-import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.api.KoboldNames;
 import com.trolmastercard.sexmod.block.SexFireBlock;
 import com.trolmastercard.sexmod.client.SexWorldClient;
@@ -30,12 +28,6 @@ import com.trolmastercard.sexmod.util.KoboldTask;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.DebugMode;
-import com.trolmastercard.sexmod.util.GalathGeometryRender;
-import com.trolmastercard.sexmod.util.GirlCombatProtection;
-import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
-import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
@@ -622,6 +614,11 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          this.a2 = false;
          this.aD = 0;
          EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
+         if (player == null) {
+            this.a2 = false;
+            return true;
+         }
+
          this.setYawRotation(player.rotationYaw + 180.0F);
          this.entityDataManager.set(IS_ANCHORED, true);
          player.noClip = true;

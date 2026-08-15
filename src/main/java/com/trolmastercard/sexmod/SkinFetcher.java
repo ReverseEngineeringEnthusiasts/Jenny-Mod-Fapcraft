@@ -27,7 +27,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * thread; do not invoke it from the render thread during frame rendering.
  */
 public class SkinFetcher {
-   public static final int maxCacheSize = 3;
 
    /**
     * Fetches the skin for {@code uuid} by querying the Mojang session profile

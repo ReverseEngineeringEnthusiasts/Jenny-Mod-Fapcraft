@@ -136,7 +136,9 @@ public class InHandMapRenderer {
    void renderPlayerMap(ItemStack stack, float partialTicks, AbstractClientPlayer player, float progressScale, float swingProgress) {
       if (stack.getItem() instanceof ItemMap) {
          if (player.getHeldItemOffhand().isEmpty()) {
-            this.renderPlayerMap(stack, this.mc.getRenderPartialTicks(), player, swingProgress, partialTicks);
+            // jar-verified: delegate to the 4-arg overload (stack, player, swingProgress, partialTicks) —
+            // the deobf once rerouted this to the 5-arg self-call (infinite recursion)
+            this.renderPlayerMap(stack, player, swingProgress, partialTicks);
          } else {
             this.renderHandMap(EnumHandSide.RIGHT, progressScale - 1.0F, swingProgress, stack);
          }

@@ -12,7 +12,6 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.TeleportPlayerPacket;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.PlayerKoboldRenderer;

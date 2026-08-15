@@ -2,7 +2,6 @@ package com.trolmastercard.sexmod.command;
 
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
@@ -58,9 +57,5 @@ public class CommandWhitelistServer extends CommandBase implements IClientComman
             ServerWhitelistManager.reloadCustomModels();
          }
       }
-   }
-
-   private static CommandException wrapException(CommandException exception) {
-      return exception;
    }
 }

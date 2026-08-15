@@ -137,6 +137,10 @@ public class HornyMeterHud extends Gui {
    public static void resetHornyMeter() {
       meterValue = 0.0;
       isExpanded = false;
+      // also reset the animation state so a re-shown meter slides in again
+      slideInProgress = 0.0F;
+      slideOutProgress = 0.0F;
+      smoothedMeter = 0.0;
    }
 
 }

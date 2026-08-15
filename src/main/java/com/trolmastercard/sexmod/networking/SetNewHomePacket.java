@@ -1,7 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.UUID;

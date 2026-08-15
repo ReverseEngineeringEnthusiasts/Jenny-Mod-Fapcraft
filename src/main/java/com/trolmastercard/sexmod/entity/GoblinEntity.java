@@ -1,8 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.Main;
-import com.trolmastercard.sexmod.api.IGalathFinish;
-import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
@@ -17,12 +15,6 @@ import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.DebugMode;
-import com.trolmastercard.sexmod.util.GalathGeometryRender;
-import com.trolmastercard.sexmod.util.GirlCombatProtection;
-import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
-import com.trolmastercard.sexmod.util.GoblinFirstPersonRenderer;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.Point2D;
@@ -438,7 +430,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
       appendPaddedNumber(builder, Integer.parseInt(getModelCodeParts(this)[9]));
       this.entityDataManager.set(APPEARANCE_DNA, builder.toString());
-      if (null instanceof ClientProxy) {
+      if (Main.proxy instanceof ClientProxy) {
          GoblinRenderer.clearBoneColors();
       }
    }

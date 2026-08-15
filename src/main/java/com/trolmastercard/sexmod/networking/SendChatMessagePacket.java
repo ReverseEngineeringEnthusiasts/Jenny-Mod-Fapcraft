@@ -1,7 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
@@ -84,7 +83,12 @@ public class SendChatMessagePacket implements IMessage {
                .getMinecraftServerInstance()
                .addScheduledTask(
                   () -> {
-                     Vec3d pos = BaseGirlEntity.girlList(packet.playerUUID).get(0).getPreviousPosition();
+                     java.util.List girls = BaseGirlEntity.girlList(packet.playerUUID);
+                     if (girls.isEmpty()) {
+                        return;
+                     }
+
+                     Vec3d pos = ((BaseGirlEntity)girls.get(0)).getPreviousPosition();
                      PacketHandler.networkWrapper
                         .sendToAllAround(
                            new SendChatMessagePacket(packet.message, packet.channel, packet.playerUUID),

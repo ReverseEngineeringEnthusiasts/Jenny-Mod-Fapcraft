@@ -1,7 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -25,10 +24,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  * entity to restart her animation cycle.
  */
 public class ResetControllerPacket implements IMessage {
-   public static final int controllerIndex = 100;
    boolean isValid;
    UUID girlUUID;
-   UUID playerUUID;
 
    public ResetControllerPacket() {
       this.isValid = false;

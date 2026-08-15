@@ -2,7 +2,6 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.nbt.NBTTagCompound;

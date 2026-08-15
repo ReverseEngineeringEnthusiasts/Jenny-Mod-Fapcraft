@@ -94,7 +94,7 @@ public class ServerWhitelistManager {
    }
 
    static void logError(Level level, String message) {
-      if (null instanceof ClientProxy) {
+      if (Main.proxy instanceof ClientProxy) {
          logInfo(level, message);
       } else {
          Main.LOGGER.log(level, message);
@@ -253,7 +253,7 @@ public class ServerWhitelistManager {
    }
 
    public static String getCurrentGroup() {
-      return null instanceof ClientProxy ? getGlobalModelOverride() : "sexmod_custom_models";
+      return Main.proxy instanceof ClientProxy ? getGlobalModelOverride() : "sexmod_custom_models";
    }
 
    @SideOnly(Side.CLIENT)
@@ -698,6 +698,10 @@ public static class ModelData {
                }
 
                String girlsStr = properties.getProperty("which_girls");
+               if (girlsStr == null) {
+                  girlsStr = "";
+               }
+
                girlsStr = girlsStr.replace(" ", "");
                String[] girlNames = girlsStr.split(",");
 
@@ -867,10 +871,6 @@ public static class ModelData {
 
       public float getZOffset() {
          return this.zOffset;
-      }
-
-      private static FileNotFoundException wrapException(FileNotFoundException exception) {
-         return exception;
       }
    }
 }

@@ -4,7 +4,6 @@ import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.BeeEntityBase;
 import com.trolmastercard.sexmod.entity.LunaEntity;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
@@ -80,6 +79,11 @@ public class UploadInventoryToServerPacket implements IMessage {
                      }
 
                      InventoryPlayer inventory = player.inventory;
+
+                     // bounds-guard: a truncated/short payload must not index OOB
+                     if (packet.d.length < 36) {
+                        return;
+                     }
 
                      for (int i = 0; i < 36; i++) {
                         inventory.setInventorySlotContents(i, packet.d[i]);

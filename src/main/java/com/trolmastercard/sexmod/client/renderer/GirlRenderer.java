@@ -127,7 +127,6 @@ import software.bernie.shadowed.eliotlash.mclib.utils.Interpolations;
  */
 public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> extends GeoEntityRenderer<T> implements IGirlRenderer {
    protected static final ResourceLocation LINE_TEXTURE = new ResourceLocation("sexmod", "textures/line.png");
-   static final float LINE_SCALE = 1.5F;
    protected double CACHE_C;
    protected T renderEntity;
    protected static Minecraft mc;
@@ -136,12 +135,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    Color BLUSH_COLOR = new Color(245, 157, 169);
    boolean fallbackSkinLoaded = false;
    protected HashSet<String> activeCustomPartBones = new HashSet<>();
-   Integer CACHE_K = null;
-   Integer CACHE_B = null;
-   Integer CACHE_D = null;
    float bowPullProgress = 0.0F;
    public static BufferBuilder tempBuffer;
-   Matrix4f globalModelMatrix = null;
    protected GeoBone currentRenderingBone = null;
 
    public GirlRenderer(RenderManager renderManager, AnimatedGeoModel<?> model, double shadowOffset) {
@@ -1049,7 +1044,6 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * computation later in the frame.
     */
    public void captureGlobalMatrix(T entity, float partialTicks, float r, float g, float b, float a) {
-      this.globalModelMatrix = (Matrix4f)MATRIX_STACK.getModelMatrix().clone();
    }
 
    /**

@@ -13,7 +13,6 @@ import com.trolmastercard.sexmod.util.GalathGeometryRender;
 import com.trolmastercard.sexmod.util.EntityLookVectorHelper;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
 import com.trolmastercard.sexmod.util.TrigMath;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Objects;
 import net.minecraft.client.Minecraft;
@@ -65,11 +64,6 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
    static final Vector3fSexmodSpecial OFFSET_LEG = new Vector3fSexmodSpecial(0.0F, 0.03F, 0.03F);
    static final UnknownScreen CORRUPTION_COLOR_DARK = new UnknownScreen(63, 59, 150, 255);
    static final UnknownScreen CORRUPTION_COLOR_LIGHT = new UnknownScreen(79, 74, 188, 255);
-   static final float SCALE_A = 0.5F;
-   static final float SCALE_W = 0.5F;
-   static final int VERTEX_COUNT = 40;
-   static final float OFFSET_Y = 0.01F;
-   static final float OFFSET_T = 0.03F;
    public static final HashSet<String> BLACKLISTED_BONES = new HashSet<String>() {
       {
          this.add("boobs2");

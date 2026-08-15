@@ -18,7 +18,6 @@ import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.RibbonRenderer;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
 import com.trolmastercard.sexmod.util.TrigMath;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -93,12 +92,6 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    static final Vector2f TEXTURE_UV_B = new Vector2f(0.375F, 0.125F);
    static final float TEXTURE_UV_HEIGHT = 0.125F;
    static final ResourceLocation STAR_TEXTURE = new ResourceLocation("sexmod", "textures/star.png");
-   static final int STAR_UV_X = 105;
-   static final int STAR_UV_Y = 125;
-   static final float RIBBON_SCALE_A = 0.0296875F;
-   static final float RIBBON_SCALE_B = 0.06484375F;
-   static final float RIBBON_SCALE_C = 0.026124999F;
-   static final float RIBBON_SCALE_D = 0.0570625F;
    static final RibbonRenderer.RibbonConfig RIBBON_CONFIG_A = new RibbonRenderer.RibbonConfig(
       RIBBON_COLOR_A,
       0.1F,

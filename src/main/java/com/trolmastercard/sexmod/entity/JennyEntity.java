@@ -14,8 +14,6 @@ import com.trolmastercard.sexmod.potion.HornyPotion;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.DebugMode;
-import com.trolmastercard.sexmod.util.GalathGeometryRender;
 import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.IBeddableSexGirl;
@@ -159,8 +157,11 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
       EntityPlayer player = this.world.getClosestPlayerToEntity(this, 15.0);
       if (this.af && player != null && player.getPositionVector().distanceTo(this.getPositionVector()) < 0.5) {
          this.af = false;
-         this.entityDataManager.set(BaseGirlEntity.INTERACTION_PARTNER_UUID, this.world.getClosestPlayerToEntity(this, 15.0).getPersistentID().toString());
-         EntityPlayerMP playerMP = this.getServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID());
+         EntityPlayerMP playerMP = this.getServer().getPlayerList().getPlayerByUUID(player.getPersistentID());
+         if (playerMP == null) {
+            return;
+         }
+
          this.entityDataManager.set(BaseGirlEntity.INTERACTION_PARTNER_UUID, playerMP.getPersistentID().toString());
          playerMP.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVector().y, this.getPositionVector().z);
          this.alignPlayerToGirl(playerMP, false);
@@ -202,7 +203,11 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
          } else {
             this.ab = false;
             this.ac = 0;
-            this.setYawRotation(this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID()).rotationYaw + 180.0F);
+            EntityPlayer lerpPlayer = this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID());
+            if (lerpPlayer != null) {
+               this.setYawRotation(lerpPlayer.rotationYaw + 180.0F);
+            }
+
             this.entityDataManager.set(BaseGirlEntity.IS_ANCHORED, true);
             this.getNavigator().clearPath();
             if ((Boolean)this.entityDataManager.get(yFlag)) {

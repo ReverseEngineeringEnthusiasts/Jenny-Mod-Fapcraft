@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.entity;
 
-import com.trolmastercard.sexmod.api.IPositionProvider;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.SlimeModel;
@@ -12,7 +11,6 @@ import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
-import com.trolmastercard.sexmod.util.EyeColor;
 import java.util.UUID;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -153,7 +151,11 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             this.alignPlayerToGirl((EntityPlayerMP)player, false);
             player.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
             player.capabilities.isFlying = true;
-            this.world.getPlayerEntityByUUID(this.getOwnerUserUUID()).capabilities.isFlying = true;
+            EntityPlayer ownerPlayer = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
+            if (ownerPlayer != null) {
+               ownerPlayer.capabilities.isFlying = true;
+            }
+
             this.positionPlayerRelative(0.0, 0.0, 0.4, 0.0F, 60.0F);
             this.cameraOriginPos = null;
             this.setCurrentAction(Action.DOGGYSTART);

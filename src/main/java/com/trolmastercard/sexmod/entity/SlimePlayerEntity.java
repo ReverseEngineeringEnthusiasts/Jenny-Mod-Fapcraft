@@ -140,10 +140,13 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                player.setNoGravity(true);
                player.noClip = true;
                EntityPlayer ownerPlayer = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
-               ownerPlayer.setNoGravity(true);
+               if (ownerPlayer != null) {
+                  ownerPlayer.setNoGravity(true);
+                  ownerPlayer.capabilities.isFlying = true;
+               }
+
                player.noClip = true;
                player.capabilities.isFlying = true;
-               ownerPlayer.capabilities.isFlying = true;
             }
          }
       }

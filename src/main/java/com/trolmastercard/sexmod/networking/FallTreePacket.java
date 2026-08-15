@@ -2,7 +2,6 @@ package com.trolmastercard.sexmod.networking;
 
 import com.trolmastercard.sexmod.util.KoboldManager;
 import com.trolmastercard.sexmod.util.KoboldTask;
-import com.trolmastercard.sexmod.util.TrailSegment;
 import io.netty.buffer.ByteBuf;
 import java.util.HashSet;
 import java.util.UUID;

@@ -16,8 +16,6 @@ import net.minecraft.world.World;
  * CLIENT-side render thread only (vanilla particle system).
  */
 public class DragonBreathParticle extends ParticleDragonBreath {
-   public static final float motionX = 0.2F;
-   public static final float motionY = 0.5F;
    public static float BREATH_SCALE = 0.2F;
 
    public DragonBreathParticle(World world, double x, double y, double z) {

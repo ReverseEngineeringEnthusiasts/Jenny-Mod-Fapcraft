@@ -7,7 +7,6 @@ import com.trolmastercard.sexmod.util.DebugMode;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
