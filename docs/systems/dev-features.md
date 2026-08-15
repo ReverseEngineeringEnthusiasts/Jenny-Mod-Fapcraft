@@ -8,7 +8,7 @@ Developer-only debug tooling — **active only in a deobfuscated (dev) environme
 (`isDeobfuscated()`); obfuscated builds never touch it.
 
 - Registers client chat commands: `set N value`, `get N`, `time`, `girls`, `kobs`,
-  `setcumtime`, `resetcolor` (see [08-commands.md](08-commands.md)).
+  `setcumtime`, `resetcolor` (see [commands.md](commands.md)).
 - Prints **tribe-task diagnostics when a kobold is hurt**.
 - The shared dev-float array `b` is a tuning surface for renderer constants
   (values set via `set`/`get`).
@@ -32,13 +32,14 @@ Legacy update checker — **no longer used**, kept for reference only.
 ## The futa command (`/futa`)
 
 Hidden toggle for Galath's futa feature: persists to `sexmod/futa`, spawns dragon-breath
-particles at her `cockParticles` bone when enabled (see [08-commands.md](08-commands.md)).
+particles at her `cockParticles` bone when enabled (see [commands.md](commands.md)).
 
 ## Unused / placeholder items
 
 - **Winchester** (`sexmod:winchester`) — registered, animated, **no gameplay logic yet**.
-- **Secret map** (`item.item_map_secret` name = "hehe") — in-hand map rendering for
-  transformed player-girls (InHandMapRenderer); the item name is a troll.
+- **Secret map** (`item.item_map_secret` name = "hehe") — a **dead lang key only**:
+  never registered, no model, no code reference. The in-hand map feature is
+  `InHandMapRenderer` on vanilla maps (see [items.md](items.md)).
 
 ## Dead code kept jar-faithful
 

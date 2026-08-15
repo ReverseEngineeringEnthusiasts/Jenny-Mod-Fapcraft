@@ -51,8 +51,11 @@ Work orders created by the packets and executed by kobold AI; persisted with the
   and facing. Rejected if any target block is unbreakable (bedrock).
 - **FALL_TREE** — **1 worker**; walks the log down to ground, computes all connected log blocks,
   fells the tree.
-- **Capacity gate**: both tasks require the tribe's **bed count ≥ 2 × workers** (the tribe needs
-  beds for its members before it works) — enforced in FallTreePacket/MinePacket.
+- **Capacity gate**: both tasks require the tribe's **bed count ≥ 2 × tribe
+  members** before the tribe works — `bedCount = floor(tribeBeds.size() / 2)`
+  must be ≥ `memberCount` (FallTreePacket/MinePacket both enforce this and
+  report `N/M Beds` in chat). Workers themselves are capped per task type
+  (FALL_TREE: 1, MINE: 3).
 - Workers are released when the task finishes or is cancelled (`releaseWorkers` restores physics
   and anchor flags; kobolds in an interaction are skipped).
 

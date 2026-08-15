@@ -8,14 +8,14 @@ All registered through `ItemRegistrationHandler`. Registry names in `en_us.lang`
 
 The customization tool (also called "NPC editor wand"):
 
-- **Right-click a girl** → opens the **ClothingScreen** (model-code editor, see [07-custom-models.md](07-custom-models.md)).
+- **Right-click a girl** → opens the **ClothingScreen** (model-code editor, see [custom-models.md](custom-models.md)).
 - **Left-click/attack a girl** → copies her model-code + part-ids to the **clipboard** as `code$parts`.
 - **Damage value** while held switches the held model between normal/active display.
 - The `?` button in its GUI opens the tutorial video (girl_wand.mp4, now archived at web.archive.org); the folder button opens the `sexmod/custom_models/singleplayer` folder.
 
 ### Dragon Staff (`item.dragon_staff.name` = Dragon Staff)
 
-The **tribe-command tool** (see [04-tribe-system.md](04-tribe-system.md)):
+The **tribe-command tool** (see [tribe-system.md](tribe-system.md)):
 
 - Right-click opens the **StructureCommandScreen** (direction pad): mark/unmark chests & beds, toggle tribe follow mode, toggle staff rendering mode, fell a tree / mine a tunnel, cancel tasks.
 - Right-clicking a bed/chest while holding it is blocked (tribe blocks only managed through the UI).
@@ -33,7 +33,7 @@ Placing it spawns a **KoboldEggEntity** colored by the item's metadata (wool col
 
 ### Allies Lamp (`item.allies_lamp.name` = Allies Lamp)
 
-Summons the genie girl **Allie** (see [01-entities.md](01-entities.md)):
+Summons the genie girl **Allie** (see [characters](../characters/)):
 
 - Right-click starts a **95-tick rub animation** (client shows the rub + ramping particles, server spawns the Allie at tick 95, 2 blocks in front of the player).
 - **3 wishes per stack** (NBT `sexmodUses`); third wish = "Make me rich!" (diamonds/emeralds/gold).
@@ -62,7 +62,16 @@ A placeholder GeckoLib-animated item (SummonItemModel/SummonItemRenderer) with *
 
 ### Secret map (`item.item_map_secret.name` = hehe)
 
-An in-hand map rendered for transformed player-girls — see `InHandMapRenderer` (renders the map + the girl's hand model in first person). The item name in the lang file is literally "hehe".
+A **dead lang key** — `item_map_secret` is registered in `en_us.lang` ("hehe")
+but has **no item class, no model JSON, and no code reference anywhere** in the
+project. It is never registered by `ItemRegistrationHandler`.
+
+The actual feature the old docs attributed to it is `InHandMapRenderer`
+(`util/`): while transformed into a player-girl, holding **any vanilla
+`ItemMap`** (main or off hand) renders the girl's own hand model + the map
+first-person (reflection-based equipment-progress interpolation, MCP names in
+dev / SRG names in obfuscated runtime; falls back to `steve.png` on fetch
+failure).
 
 ### Non-spreading fire (`tile.fire_no_spread.name` = non-spreading fire)
 
