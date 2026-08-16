@@ -41,6 +41,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * {@link EntityDataManager} entries ({@code WEAPON}, {@code BOW},
  * {@code HELMET_SLOT}, ...) with animated slide-in. Closing the screen calls
  * {@code girl.ac()} to reset the interaction state.
+ * <p>
+ * <b>Pitfall (button overflow fix):</b> the static-button and action-button
+ * Y counters must stay {@code int}. A decompiler artifact typed them
+ * {@code byte}, so the 3rd button (Y = 130) overflowed to a negative Y and
+ * the bottom buttons (incl. "equipment", the armour display) vanished from
+ * screen. Jar-verified against the original: it uses plain {@code int}
+ * ({@code iinc} in bytecode, no {@code i2b}).
  */
 public class GirlInventoryScreen extends GuiScreen {
    final BaseGirlEntity girl;
@@ -156,9 +163,9 @@ public class GirlInventoryScreen extends GuiScreen {
       int tooltipX = (int)RotationHelper.lerp(115.0F, 161.0F, this.animProgress2);
       int itemX = (int)RotationHelper.lerp(91.0F, 137.0F, this.animProgress2);
       int buttonX = (int)RotationHelper.lerp(-30.0F, 120.0F, this.animProgress);
-      byte buttonY = 70;
-      byte itemY = 52;
-      byte itemZ = 68;
+      int buttonY = 70;
+      int itemY = 52;
+      int itemZ = 68;
 
       for (int id = 5; id < this.actionNames.length + 5; id++) {
          if (this.animProgress2 > 0.0F && this.actionCosts != null && this.actionCosts[id - 5] != null && this.actionCosts[id - 5].getCount() != 0) {
@@ -185,8 +192,13 @@ public class GirlInventoryScreen extends GuiScreen {
     * Draws the girl's equipped items (weapon/bow/armor from the data manager)
     * and the five static action buttons with animated star icons; the
     * follow/equipment buttons get a per-button scroll offset driven by mouse
-    * hover. Two variants exist for the with-master / without-master cases
-    * (identical layout, different button id mapping).
+    * hover. Matches the original jar exactly: when the girl has a master the
+    * "follow me" button is skipped (id 0 → 1), otherwise "stop following" is
+    * skipped (id 1 → 2); the button box starts narrow (width 23 + scroll
+    * offset) and its label only appears once the hover scroll exceeds 14 —
+    * the buttons slide open under the cursor. The Y counter must be an
+    * {@code int}: a decompiler artifact typed it {@code byte}, which overflowed
+    * at the 3rd button (130 > 127 → negative Y) and hid the bottom buttons.
     */
    void drawGirlPreview(int mouseX, int mouseY) {
       int itemX = (int)RotationHelper.lerp(-30.0F, 120.0F, this.animProgress);
@@ -197,69 +209,38 @@ public class GirlInventoryScreen extends GuiScreen {
       this.itemRender.renderItemIntoGUI((ItemStack)this.dataManager.get(AbstractGirlNpcEntity.LEGS_SLOT), itemX - 105, 146);
       this.itemRender.renderItemIntoGUI((ItemStack)this.dataManager.get(AbstractGirlNpcEntity.BOOTS_SLOT), itemX - 105, 166);
       if (this.animProgress2 != 0.0F) {
-         if (!((String)this.dataManager.get(BaseGirlEntity.MASTER)).equals("")) {
-            byte xStart = 35;
-            byte y = 70;
+         boolean hasMaster = !((String)this.dataManager.get(BaseGirlEntity.MASTER)).equals("");
+         int xStart = 35;
+         int y = 70;
 
-            for (int id = 0; id < 5; id++) {
-               if (id == 0) {
-                  id = 1;
-               } else if (id == 1) {
-               }
+         for (int id = 0; id < 5; id++) {
+            if (id == 0 && hasMaster) {
+               id = 1;
+            } else if (id == 1 && !hasMaster) {
+               id = 2;
+            }
 
-               if (mouseX >= xStart && mouseX <= 58 + this.scrollOffsets[id] && mouseY >= y && mouseY <= y + 20) {
-                  this.scrollOffsets[id] = Math.min(this.maxScrollOffsets[id], this.scrollOffsets[id] + 7);
-               } else {
-                  this.scrollOffsets[id] = Math.max(0, this.scrollOffsets[id] - 7);
-               }
+            if (mouseX >= xStart && mouseX <= xStart + 23 + this.scrollOffsets[id] && mouseY >= y && mouseY <= y + 20) {
+               this.scrollOffsets[id] = Math.min(this.maxScrollOffsets[id], this.scrollOffsets[id] + 7);
+            } else {
+               this.scrollOffsets[id] = Math.max(0, this.scrollOffsets[id] - 7);
+            }
 
-               StringBuilder label = new StringBuilder(I18n.format(this.labelIds[id], new Object[0]));
+            StringBuilder label = new StringBuilder(I18n.format(this.labelIds[id], new Object[0]));
 
-               for (int star = 0; star < this.starCounts[id]; star++) {
-                  label.append(" ");
-               }
-
-               this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-               this.drawTexturedModalRect(this.scrollOffsets[id] + xStart - 18 + (int)RotationHelper.lerp(0.0F, 23.0F, this.animProgress2), y + 2, this.buttonWidths[id], 0, 16, 16);
-               this.buttonList.add(new GuiButton(id, 36, y, 100, 20, label.toString()));
-               y += 30;
+            for (int star = 0; star < this.starCounts[id]; star++) {
+               label.append(" ");
             }
 
             this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-            this.drawTexturedModalRect(itemX - 113, 60, 0, 0, 32, 130);
-         } else {
-            byte xStart2 = 35;
-            byte y2 = 70;
-
-            for (int id2 = 0; id2 < 5; id2++) {
-               if (id2 == 0) {
-               }
-
-               if (id2 == 1) {
-                  id2 = 2;
-               }
-
-               if (mouseX >= xStart2 && mouseX <= 58 + this.scrollOffsets[id2] && mouseY >= y2 && mouseY <= y2 + 20) {
-                  this.scrollOffsets[id2] = Math.min(this.maxScrollOffsets[id2], this.scrollOffsets[id2] + 7);
-               } else {
-                  this.scrollOffsets[id2] = Math.max(0, this.scrollOffsets[id2] - 7);
-               }
-
-               StringBuilder label2 = new StringBuilder(I18n.format(this.labelIds[id2], new Object[0]));
-
-               for (int star2 = 0; star2 < this.starCounts[id2]; star2++) {
-                  label2.append(" ");
-               }
-
-               this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-               this.drawTexturedModalRect(this.scrollOffsets[id2] + xStart2 - 18 + (int)RotationHelper.lerp(0.0F, 23.0F, this.animProgress2), y2 + 2, this.buttonWidths[id2], 0, 16, 16);
-               this.buttonList.add(new GuiButton(id2, 36, y2, 100, 20, label2.toString()));
-               y2 += 30;
-            }
-
-            this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-            this.drawTexturedModalRect(itemX - 113, 60, 0, 0, 32, 130);
+            this.drawTexturedModalRect(this.scrollOffsets[id] + xStart - 18 + (int)RotationHelper.lerp(0.0F, 23.0F, this.animProgress2), y + 2, this.buttonWidths[id], 0, 16, 16);
+            String buttonText = this.scrollOffsets[id] > 14 ? label.toString() : "";
+            this.buttonList.add(new GuiButton(id, xStart + 1, y, (int)(RotationHelper.lerp(0.0F, 23.0F, this.animProgress2) + (float)this.scrollOffsets[id]), 20, buttonText));
+            y += 30;
          }
+
+         this.mc.renderEngine.bindTexture(GUI_TEXTURE);
+         this.drawTexturedModalRect(itemX - 113, 60, 0, 0, 32, 130);
       }
    }
 
