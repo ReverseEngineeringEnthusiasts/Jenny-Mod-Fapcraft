@@ -432,15 +432,16 @@ public class ServerWhitelistManager {
                      StringBuilder gsb = new StringBuilder(); String gl; while ((gl = gbr.readLine()) != null) gsb.append(gl);
                      String gj = gsb.toString().toLowerCase();
                      if (gj.contains("\"body\"") || gj.contains("upperbody") || gj.contains("\"hip\"")) {
-                        wear = "GIRL_SPECIFIC";
+                        wear = "CUSTOM_BONE";
+                        extra = "custom_bone=body\n";
                      } else if (gj.contains("custom")) {
                         wear = "CUSTOM_BONE";
                         extra = "custom_bone=body\n";
                      }
                   } catch (Exception ignored2) {}
                }
-               float scale = wear.equals("GIRL_SPECIFIC") ? 0.35F : 1.0F;
-               float yOff = wear.equals("GIRL_SPECIFIC") ? -5.0F : 0.0F;
+               float scale = (wear.equals("GIRL_SPECIFIC") || wear.equals("CUSTOM_BONE")) ? 0.35F : 1.0F;
+               float yOff = (wear.equals("GIRL_SPECIFIC") || wear.equals("CUSTOM_BONE")) ? -5.0F : 0.0F;
                File tmp = File.createTempFile("model", ".cfg");
                try (FileWriter w = new FileWriter(tmp)) { w.write("wear_type=" + wear + "\n" + extra + "which_girls=JENNY\nwhich_lighting=DEFAULT\nauthor=auto\nbones_to_hide=\nenable_when_nude=yes\ngui_size_factor=" + scale + "\ngui_vertical_positioning=" + yOff + "\nversion=1.0\n"); }
                modelData = new ServerWhitelistManager.ModelData(tmp, modelName);

@@ -227,16 +227,16 @@ public class CustomModelList extends GuiListExtended {
    void getSlotIndex(int mouseX, int mouseY, int mouseButton) {
       int listLeft = this.left + this.width / 2 - this.getListWidth() / 2 + 2;
       int contentLeft = listLeft;
-      if (mouseX < contentLeft || mouseX > contentLeft + this.getListWidth()) {
-         // allow clicks slightly outside due to original width check, but fix hitbox
-      }
+      System.out.println(String.format("[DEBUG hit] mouseX=%d mouseY=%d contentLeft=%d width=%d listWidth=%d", mouseX, mouseY, contentLeft, this.width, this.getListWidth()));
       int scrolled = this.getAmountScrolled();
       float relativeY = scrolled + mouseY - 5 - this.top;
       int rowIndex = Math.round((float)Math.floor(relativeY / this.slotHeight));
       int rowY = (int)Math.round((relativeY / this.slotHeight - Math.floor(relativeY / this.slotHeight)) * this.slotHeight);
+      System.out.println(String.format("[DEBUG hit] row=%d rowY=%d relY=%.1f scrolled=%d top=%d", rowIndex, rowY, relativeY, scrolled, this.top));
       if (rowIndex >= 0) {
          if (rowIndex < this.entries.size()) {
             int relX = mouseX - contentLeft;
+            System.out.println(String.format("[DEBUG hit] -> entry %s relX=%d", this.entries.get(rowIndex).boneType, relX));
             this.entries.get(rowIndex).drawBackground(relX, rowY, mouseButton, rowIndex);
          }
       }
@@ -511,12 +511,24 @@ public class CustomModelList extends GuiListExtended {
       }
 
       void handleSlotClick(int x, int partIndex) {
+         // DEBUG < > per cosmetic
+         String prev = this.modelNames.get(this.selectedIndex);
          if (x > 40 && x < 60) {
             CustomModelList.this.parentScreen.onBoneTypeToggle(this.boneType, false, partIndex);
+            String next = this.modelNames.get((this.selectedIndex - 1 + this.modelNames.size()) % this.modelNames.size());
+            String msg = String.format("[DEBUG <] bone=%s part=%d x=%d prev=%s -> next=%s list=%s", this.boneType, partIndex, x, prev, next, this.modelNames);
+            System.out.println(msg); net.minecraft.client.Minecraft.getMinecraft().player.sendMessage(new net.minecraft.util.text.TextComponentString(msg));
          }
 
          if (x > 60 && x < 80) {
             CustomModelList.this.parentScreen.onBoneTypeToggle(this.boneType, true, partIndex);
+            String next2 = this.modelNames.get((this.selectedIndex + 1) % this.modelNames.size());
+            String msg2 = String.format("[DEBUG >] bone=%s part=%d x=%d prev=%s -> next=%s list=%s", this.boneType, partIndex, x, prev, next2, this.modelNames);
+            System.out.println(msg2); net.minecraft.client.Minecraft.getMinecraft().player.sendMessage(new net.minecraft.util.text.TextComponentString(msg2));
+         }
+         if ((x <= 40 || x >= 80) && x >= 0) {
+            String msg3 = String.format("[DEBUG miss] bone=%s part=%d x=%d prev=%s list=%s relX expected 40-80", this.boneType, partIndex, x, prev, this.modelNames);
+            System.out.println(msg3);
          }
       }
 

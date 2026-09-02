@@ -267,6 +267,7 @@ public class ClothingScreen extends GuiScreen {
    }
 
    public void onBoneTypeToggle(BoneType boneType, boolean forward, int clickIndex) {
+      System.out.println(String.format("[DEBUG toggle] bone=%s forward=%s clickIndex=%d partsCount=%d mSize=%d", boneType, forward, clickIndex, this.partsCount, m.size()));
       this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
       ArrayList matches = new ArrayList();
       ArrayList indices = new ArrayList();
@@ -305,6 +306,7 @@ public class ClothingScreen extends GuiScreen {
             Entry data = (Entry)entry.getValue();
             int currentIndex = (Integer)data.getValue();
             int partCount = ((List)data.getKey()).size();
+            String prevName = (String)((List)data.getKey()).get(currentIndex);
             if (forward) {
                if (++currentIndex >= partCount) {
                   currentIndex = 0;
@@ -312,7 +314,9 @@ public class ClothingScreen extends GuiScreen {
             } else if (--currentIndex < 0) {
                currentIndex = partCount - 1;
             }
-
+            String nextName = (String)((List)data.getKey()).get(currentIndex);
+            System.out.println(String.format("[DEBUG toggle result] bone=%s %s -> %s (idx %d->%d/%d)", boneType, prevName, nextName, (Integer)data.getValue(), currentIndex, partCount));
+            if (net.minecraft.client.Minecraft.getMinecraft().player != null) net.minecraft.client.Minecraft.getMinecraft().player.sendMessage(new net.minecraft.util.text.TextComponentString(String.format("§e%s: %s -> %s", boneType, prevName, nextName)));
             m.set(index, new SimpleEntry<>((BoneType)entry.getKey(), new SimpleEntry<>((List<String>)((Entry)entry.getValue()).getKey(), currentIndex)));
             ArrayList girlSpecificEntries = new ArrayList();
 
