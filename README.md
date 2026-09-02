@@ -12,9 +12,10 @@ I entered this challenge thinking I was perhaps the first person to do this.<br>
 Upon a github code search mid way through the project I had found:
 - https://github.com/palkaline/jenny-mod-re existed (by @palkaline 1.12.2) 
 - https://github.com/Angina830/Jenny-mod-1.21.1 (by @Angina830 1.21 recreation)
+- https://github.com/RukoBlood/jenny-mod-re-clean (by @RukoBlood Another independent remap)
 
 So I am by all means late to the game. 
-<br>Nontheless what I have done here is unique in the sense that my intentions were for a **FULL remap** to the point that the deobfuscated code FULLY matched the likely sourcecode that the developer of the actual project was holding. This means every class, method, and field that could be renamed has been renamed to something meaningful.
+<br>Nontheless what I have done here is unique in the sense that my intentions were for a **FULL remap** to the point that the deobfuscated code FULLY matched the likely sourcecode that the developer of the actual project was holding. This means every class, method, and field that could be renamed has been renamed to something meaningful. I thank some of the developers above for good referencing for certain aspects of renaming towards the end.
 
 All of this is REAL work done on a project that would otherwise have had hidden code which could have been malicious in nature. Most of the pipeline is documented here (For ZKM deobf seek https://github.com/OpenVapeCN/zkm-flowdeobf and https://github.com/Diobf/Deobfuscator and also https://github.com/java-deobfuscator) 
 

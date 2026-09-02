@@ -2,7 +2,6 @@ package com.trolmastercard.sexmod.client.renderer;
 
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.entity.KoboldEggEntity;
-import net.minecraft.util.ResourceLocation;
 import java.awt.Color;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -24,10 +23,6 @@ public class KoboldEggRenderer extends GeoEntityRenderer<KoboldEggEntity> {
    public static final Color eggColor = new Color(223, 206, 155);
    KoboldEggEntity eggEntity;
 
-   @Override
-   public ResourceLocation getEntityTexture(KoboldEggEntity egg) {
-      return new ResourceLocation("sexmod", "textures/entity/kobold/egg.png");
-   }
    public KoboldEggRenderer(RenderManager renderManager, AnimatedGeoModel<?> model) {
       super(renderManager, (AnimatedGeoModel<KoboldEggEntity>) (AnimatedGeoModel) model);
    }

@@ -1,6 +1,11 @@
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.ClassRemapper;
+import org.objectweb.asm.commons.MethodRemapper;
 import org.objectweb.asm.commons.Remapper;
 
 import java.io.*;
@@ -274,6 +279,48 @@ public class MCRepack {
         }
     }
 
+    // Lambdas compile to an invokedynamic whose NAME is the SAM method name of
+    // the functional interface (e.g. ItemMeshDefinition.getModelLocation). The
+    // runtime renames that method to SRG (getModelLocation -> func_178113_a), so
+    // the name must be remapped like a normal method call. ASM's default
+    // Remapper.mapInvokeDynamicMethodName() leaves it untouched, which makes the
+    // generated lambda class implement the MCP name while vanilla invokes the
+    // SRG name -> AbstractMethodError (seen as "Rendering item" crashes, e.g.
+    // the kobold egg hotbar icon).
+    static class LambdaAwareClassRemapper extends ClassRemapper {
+        LambdaAwareClassRemapper(ClassVisitor cv, Remapper remapper) {
+            super(cv, remapper);
+        }
+
+        @Override
+        protected MethodVisitor createMethodRemapper(MethodVisitor methodVisitor) {
+            return new LambdaAwareMethodRemapper(methodVisitor, remapper);
+        }
+
+        static class LambdaAwareMethodRemapper extends MethodRemapper {
+            LambdaAwareMethodRemapper(MethodVisitor mv, Remapper remapper) {
+                super(mv, remapper);
+            }
+
+            @Override
+            public void visitInvokeDynamicInsn(String name, String descriptor, Handle bsm, Object... bsmArgs) {
+                // Only lambda metafactory sites carry a SAM method name that needs
+                // remapping. bsmArgs[0] is the samMethodType (the SAM's signature);
+                // the functional interface is the call-site descriptor's return type.
+                if (bsm != null && "java/lang/invoke/LambdaMetafactory".equals(bsm.getOwner())
+                        && bsmArgs.length >= 1 && bsmArgs[0] instanceof Type) {
+                    String ifaceOwner = Type.getReturnType(descriptor).getInternalName();
+                    String samDesc = ((Type) bsmArgs[0]).getDescriptor();
+                    String remapped = remapper.mapMethodName(ifaceOwner, name, samDesc);
+                    if (!remapped.equals(name)) {
+                        name = remapped;
+                    }
+                }
+                super.visitInvokeDynamicInsn(name, descriptor, bsm, bsmArgs);
+            }
+        }
+    }
+
     static void rezip(File in, File out) throws Exception {
         // pass 1: collect class hierarchy of the INPUT jar too, so owner resolution
         // can walk from mod subclasses up to their MC superclasses (BaseGirlEntity
@@ -305,7 +352,7 @@ public class MCRepack {
             if (e.getName().endsWith(".class")) {
                 ClassReader cr = new ClassReader(bytes);
                 ClassWriter cw = new ClassWriter(0);
-                ClassRemapper crr = new ClassRemapper(cw, new MyRemapper());
+                ClassRemapper crr = new LambdaAwareClassRemapper(cw, new MyRemapper());
                 cr.accept(crr, 0);
                 ZipEntry ne = new ZipEntry(e.getName());
                 zout.putNextEntry(ne);

@@ -492,11 +492,11 @@ public class SexEntity extends Entity {
     */
    public int getCatchResult() {
       if (!this.world.isRemote && this.getOwnerLunaInternal() != null) {
-         byte result = 0;
+         int result = 0;
          if (this.caughtEntity != null) {
             this.handleCatch();
             this.world.setEntityState(this, (byte)31);
-            result = (byte)(this.caughtEntity instanceof EntityItem ? 3 : 5);
+            result = this.caughtEntity instanceof EntityItem ? 3 : 5;
          } else if (this.lureTimer > 0) {
             Builder lootBuilder = new Builder((WorldServer)this.world);
 

@@ -111,7 +111,6 @@ public class BeeScreen extends GuiScreen {
             if (animTimer > 69.0) {
                animTimer = 0.0;
                isVisible = false;
-               HornyMeterHud.showHornyMeter();
             }
 
             GlStateManager.popMatrix();
