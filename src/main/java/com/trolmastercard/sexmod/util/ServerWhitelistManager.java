@@ -77,6 +77,7 @@ public class ServerWhitelistManager {
    static final String WHITELIST_FILE = "sexmod/custom_models/whitelisted_servers.txt";
    public static final String CUSTOM_MODELS_KEY = "sexmod_custom_models";
    static Map<String, ServerWhitelistManager.ModelData> modelDataMap = new HashMap<>();
+   static Map<String, File> zipFileMap = new HashMap<>();
    public static boolean isGlobalRenderingDisabled = false;
    public static boolean isLoaded = false;
 
@@ -286,6 +287,26 @@ public class ServerWhitelistManager {
       File dir = new File(group);
       dir.mkdirs();
       String[] modelNames = dir.list((subDir, subName) -> new File(subDir, subName).isDirectory());
+      // collect zips as virtual models (read directly, no extraction)
+      java.util.Set<String> zipModels = new java.util.HashSet<>();
+      try {
+         File[] zips = dir.listFiles((d, n) -> n.toLowerCase().endsWith(".zip"));
+         if (zips != null) for (File z : zips) {
+            String base = z.getName().substring(0, z.getName().length() - 4);
+            String safe = base.replaceAll("[\\s#\\$]+", "_").replaceAll("[^a-zA-Z0-9_\\-]", "");
+            if (safe.isEmpty()) safe = "model";
+            if (new File(dir, safe).exists()) continue; // dir takes precedence
+            zipModels.add(safe);
+            // map zip file for later direct read (store in temp map)
+            zipFileMap.put(safe, z);
+         }
+      } catch (Exception ignored) {}
+      // merge zip virtual names with directory names
+      if (!zipModels.isEmpty()) {
+         java.util.Set<String> merged = new java.util.HashSet<>(java.util.Arrays.asList(modelNames == null ? new String[0] : modelNames));
+         merged.addAll(zipModels);
+         modelNames = merged.toArray(new String[0]);
+      }
       if (modelNames == null) {
          logError(
             Level.ERROR,
@@ -322,6 +343,25 @@ public class ServerWhitelistManager {
    }
 
    public static String getPartName(String modelName, String group) {
+      if (zipFileMap.containsKey(modelName)) {
+         File zip = zipFileMap.get(modelName);
+         try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(zip)) {
+            boolean hasGeo = false, hasPng = false, hasCfg = false;
+            java.util.Enumeration<? extends java.util.zip.ZipEntry> en = zf.entries();
+            while (en.hasMoreElements()) {
+               String n = en.nextElement().getName().toLowerCase();
+               if (n.endsWith(modelName.toLowerCase() + ".geo.json") || n.endsWith("jennydressed.geo.json") || n.endsWith("jennynude.geo.json")) hasGeo = true;
+               if (n.endsWith(modelName.toLowerCase() + ".png") || n.endsWith("jenny.png")) hasPng = true;
+               if (n.endsWith(modelName.toLowerCase() + ".cfg")) hasCfg = true;
+            }
+            // cfg auto-generated if missing for full-mod zips
+            if (!hasGeo) return String.format("couldn't find model File for '%s' inside zip '%s'.", modelName, zip.getAbsolutePath());
+            if (!hasPng) return String.format("couldn't find texture File for '%s' inside zip '%s'.", modelName, zip.getAbsolutePath());
+            return "";
+         } catch (IOException e) {
+            return String.format("couldn't read zip for '%s': %s", modelName, e.getMessage());
+         }
+      }
       String path = String.format("%s/%s", group, modelName);
       File geoFile = new File(String.format("%s/%s.geo.json", path, modelName));
       File textureFile = new File(String.format("%s/%s.png", path, modelName));
@@ -364,7 +404,90 @@ public class ServerWhitelistManager {
       if (modelDataMap.get(modelName) != null) {
          return String.format("already registered '%s'... honestly, unsure how this could happen lol", modelName);
       }
-
+      // zip-direct path: read .cfg/.png/.geo.json straight from the zip
+      if (zipFileMap.containsKey(modelName)) {
+         File zipFile = zipFileMap.get(modelName);
+         try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(zipFile)) {
+            java.util.zip.ZipEntry cfgEntry = findZipEntry(zf, modelName + ".cfg");
+            java.util.zip.ZipEntry pngEntry = findZipEntry(zf, modelName + ".png");
+            if (pngEntry == null) pngEntry = findZipEntry(zf, "jenny.png");
+            java.util.zip.ZipEntry geoEntry = findZipEntry(zf, modelName + ".geo.json");
+            if (geoEntry == null) geoEntry = findZipEntry(zf, "jennydressed.geo.json");
+            if (geoEntry == null) geoEntry = findZipEntry(zf, "jennynude.geo.json");
+            ServerWhitelistManager.ModelData modelData;
+            if (cfgEntry != null) {
+               try (java.io.InputStream is = zf.getInputStream(cfgEntry)) {
+                  java.util.Properties props = new java.util.Properties(); props.load(is);
+                  File tmp = File.createTempFile("model", ".cfg");
+                  try (java.io.FileOutputStream fos = new java.io.FileOutputStream(tmp)) { props.store(fos, null); }
+                  modelData = new ServerWhitelistManager.ModelData(tmp, modelName);
+                  tmp.delete();
+               }
+            } else {
+               // auto-detect full outfit vs head accessory from geo bones
+               String wear = "HEAD";
+               String extra = "";
+               if (geoEntry != null) {
+                  try (java.io.InputStream gis = zf.getInputStream(geoEntry); java.io.BufferedReader gbr = new java.io.BufferedReader(new java.io.InputStreamReader(gis))) {
+                     StringBuilder gsb = new StringBuilder(); String gl; while ((gl = gbr.readLine()) != null) gsb.append(gl);
+                     String gj = gsb.toString().toLowerCase();
+                     if (gj.contains("\"body\"") || gj.contains("upperbody") || gj.contains("\"hip\"")) {
+                        wear = "GIRL_SPECIFIC";
+                     } else if (gj.contains("custom")) {
+                        wear = "CUSTOM_BONE";
+                        extra = "custom_bone=body\n";
+                     }
+                  } catch (Exception ignored2) {}
+               }
+               File tmp = File.createTempFile("model", ".cfg");
+               try (FileWriter w = new FileWriter(tmp)) { w.write("wear_type=" + wear + "\n" + extra + "which_girls=JENNY\nwhich_lighting=DEFAULT\nauthor=auto\nbones_to_hide=\nenable_when_nude=yes\ngui_size_factor=1.0\ngui_vertical_positioning=0.0\nversion=1.0\n"); }
+               modelData = new ServerWhitelistManager.ModelData(tmp, modelName);
+               tmp.delete();
+            }
+            if (modelData.errorMessage != null) return modelData.errorMessage;
+            ResourceLocation textureLoc = null;
+            if (textureFlag) {
+               if (pngEntry == null) return String.format("The texture for the custom model '%s' couldn't be found inside zip '%s'", modelName, zipFile.getName());
+               try (java.io.InputStream is = zf.getInputStream(pngEntry)) {
+                  BufferedImage img = ImageIO.read(is);
+                  if (img == null) return String.format("The texture for the custom model '%s' inside zip '%s' appears to be corrupted.", modelName, zipFile.getName());
+                  textureLoc = Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(modelName, new DynamicTexture(img));
+               } catch (Exception e) {
+                  return String.format("The texture for the custom model '%s' inside zip '%s' appears to be corrupted. %s", modelName, zipFile.getName(), e.getMessage());
+               }
+            }
+            if (geoEntry == null) return String.format("The geo model for the custom model '%s' couldn't be found inside zip '%s'", modelName, zipFile.getName());
+            if (textureFlag) {
+               RawGeoModel raw;
+               try (java.io.InputStream is = zf.getInputStream(geoEntry); java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(is))) {
+                  StringBuilder sb = new StringBuilder(); String line; while ((line = br.readLine()) != null) sb.append(line);
+                  raw = Converter.fromJsonString(sb.toString());
+               } catch (IOException e) {
+                  return String.format("The geo model for the custom model '%s' inside zip '%s' appears to be corrupted.", modelName, zipFile.getName());
+               }
+               try {
+                  ResourceLocation geoRes = new ResourceLocation("sexmod", modelName + "Model");
+                  RawGeometryTree tree = RawGeometryTree.parseHierarchy(raw, geoRes);
+                  GeoModel geoModel = GeoBuilder.getGeoBuilder(geoRes.getNamespace()).constructGeoModel(tree);
+                  GeckoLibCache.getInstance().getGeoModels().put(geoRes, geoModel);
+                  modelData.setFallbackTexture(geoRes);
+                  modelData.setTextureLocation(textureLoc);
+                  modelDataMap.put(modelName, modelData);
+                  logError(Level.DEBUG, String.format("successfully registered custom model '%s' from zip", modelName));
+                  return "";
+               } catch (Exception e) {
+                  return String.format("The geo model for the custom model '%s' inside zip '%s' appears to be corrupted.", modelName, zipFile.getName());
+               }
+            }
+            modelData.setFallbackTexture(new ResourceLocation("sexmod", modelName + "Model"));
+            modelData.setTextureLocation(textureLoc);
+            modelDataMap.put(modelName, modelData);
+            logError(Level.DEBUG, String.format("successfully registered custom model '%s' from zip", modelName));
+            return "";
+         } catch (IOException e) {
+            return String.format("couldn't read zip for '%s': %s", modelName, e.getMessage());
+         }
+      }
       String modelDir = String.format("%s/%s/", group, modelName);
       String cfgPath = modelDir + modelName + ".cfg";
       File cfgFile = new File(cfgPath);
@@ -428,6 +551,17 @@ public class ServerWhitelistManager {
       modelDataMap.put(modelName, modelData);
       logError(Level.DEBUG, String.format("successfully registered custom model '%s'", modelName));
       return "";
+   }
+   private static java.util.zip.ZipEntry findZipEntry(java.util.zip.ZipFile zf, String name) {
+      String low = name.toLowerCase();
+      java.util.Enumeration<? extends java.util.zip.ZipEntry> en = zf.entries();
+      while (en.hasMoreElements()) {
+         java.util.zip.ZipEntry e = en.nextElement();
+         if (e.isDirectory()) continue;
+         String ename = e.getName().toLowerCase();
+         if (ename.endsWith("/" + low) || ename.equals(low) || ename.endsWith(low)) return e;
+      }
+      return null;
    }
 
    public static ResourceLocation getModelResource(String modelName) {
