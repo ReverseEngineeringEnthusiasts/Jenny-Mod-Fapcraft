@@ -477,7 +477,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       this.renderBoneEffect(buffer, coinBone, galath, scale);
       buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
-      Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.renderEntity));
+      Minecraft.getMinecraft().renderEngine.bindTexture(this.getSkinTexture(this.renderEntity));
 
       this.renderRecursively(buffer, steveBone, r, g, b, this.renderEntity.getRenderScaleFactor());
       Tessellator.getInstance().draw();
