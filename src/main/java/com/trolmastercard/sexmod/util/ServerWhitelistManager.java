@@ -439,8 +439,10 @@ public class ServerWhitelistManager {
                      }
                   } catch (Exception ignored2) {}
                }
+               float scale = wear.equals("GIRL_SPECIFIC") ? 0.35F : 1.0F;
+               float yOff = wear.equals("GIRL_SPECIFIC") ? -5.0F : 0.0F;
                File tmp = File.createTempFile("model", ".cfg");
-               try (FileWriter w = new FileWriter(tmp)) { w.write("wear_type=" + wear + "\n" + extra + "which_girls=JENNY\nwhich_lighting=DEFAULT\nauthor=auto\nbones_to_hide=\nenable_when_nude=yes\ngui_size_factor=1.0\ngui_vertical_positioning=0.0\nversion=1.0\n"); }
+               try (FileWriter w = new FileWriter(tmp)) { w.write("wear_type=" + wear + "\n" + extra + "which_girls=JENNY\nwhich_lighting=DEFAULT\nauthor=auto\nbones_to_hide=\nenable_when_nude=yes\ngui_size_factor=" + scale + "\ngui_vertical_positioning=" + yOff + "\nversion=1.0\n"); }
                modelData = new ServerWhitelistManager.ModelData(tmp, modelName);
                tmp.delete();
             }

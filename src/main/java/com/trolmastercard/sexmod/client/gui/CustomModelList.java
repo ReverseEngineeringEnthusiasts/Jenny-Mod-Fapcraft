@@ -225,15 +225,19 @@ public class CustomModelList extends GuiListExtended {
     * what implements the per-row buttons.
     */
    void getSlotIndex(int mouseX, int mouseY, int mouseButton) {
-      if (mouseX <= this.width) {
-         int scrolled = this.getAmountScrolled();
-         float relativeY = scrolled + mouseY - 5 - this.top;
-         int rowIndex = Math.round((float)Math.floor(relativeY / this.slotHeight));
-         int rowY = (int)Math.round((relativeY / this.slotHeight - Math.floor(relativeY / this.slotHeight)) * this.slotHeight);
-         if (rowIndex >= 0) {
-            if (rowIndex < this.entries.size()) {
-               this.entries.get(rowIndex).drawBackground(mouseX, rowY, mouseButton, rowIndex);
-            }
+      int listLeft = this.left + this.width / 2 - this.getListWidth() / 2 + 2;
+      int contentLeft = listLeft;
+      if (mouseX < contentLeft || mouseX > contentLeft + this.getListWidth()) {
+         // allow clicks slightly outside due to original width check, but fix hitbox
+      }
+      int scrolled = this.getAmountScrolled();
+      float relativeY = scrolled + mouseY - 5 - this.top;
+      int rowIndex = Math.round((float)Math.floor(relativeY / this.slotHeight));
+      int rowY = (int)Math.round((relativeY / this.slotHeight - Math.floor(relativeY / this.slotHeight)) * this.slotHeight);
+      if (rowIndex >= 0) {
+         if (rowIndex < this.entries.size()) {
+            int relX = mouseX - contentLeft;
+            this.entries.get(rowIndex).drawBackground(relX, rowY, mouseButton, rowIndex);
          }
       }
    }
