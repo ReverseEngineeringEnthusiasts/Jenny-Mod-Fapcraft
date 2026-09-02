@@ -215,7 +215,7 @@ public class CustomModelList extends GuiListExtended {
    }
 
    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
-      this.onMouseMove(mouseX, mouseY, mouseButton);
+      this.getSlotIndex(mouseX, mouseY, mouseButton);
       return super.mouseClicked(mouseX, mouseY, mouseButton);
    }
 
