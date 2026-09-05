@@ -231,6 +231,7 @@ public class ClothingScreen extends GuiScreen {
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
       int x = this.guiX - this.screenX(15.0F);
       int y = this.guiY - 20;
+      this.drawButtonPlate(x, y, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20));
       this.drawTexturedModalRect(x, y, 100, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 40 : 20, 20, 20);
       if (ServerWhitelistManager.getCustomModelsKey() == null) {
          this.drawBackground(x, mouseX, mouseY);
@@ -245,6 +246,7 @@ public class ClothingScreen extends GuiScreen {
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
       int bx = this.guiX - this.screenX(15.0F);
       int by = this.guiY - 20;
+      this.drawButtonPlate(bx, by, this.isMouseOverPart(mouseX, mouseY, bx, by, bx + 20, by + 20));
       this.drawTexturedModalRect(bx, by, 100, this.isMouseOverPart(mouseX, mouseY, bx, by, bx + 20, by + 20) ? 40 : 20, 20, 20);
       if (ServerWhitelistManager.getCustomModelsKey() == null) {
          this.drawBackground(bx, mouseX, mouseY);
@@ -253,13 +255,31 @@ public class ClothingScreen extends GuiScreen {
 
    void drawBackground(int x, int mouseX, int mouseY) {
       int y = this.guiY - 40;
+      this.drawButtonPlate(x, y, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20));
       this.drawTexturedModalRect(x, y, 120, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 40 : 20, 20, 20);
       y -= 20;
+      this.drawButtonPlate(x, y, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20));
       this.drawTexturedModalRect(x, y, 20, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
       y -= 20;
+      this.drawButtonPlate(x, y, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20));
       this.drawTexturedModalRect(x, y, 0, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
       y -= 20;
+      this.drawButtonPlate(x, y, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20));
       this.drawTexturedModalRect(x, y, 40, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
+   }
+
+   /** Draws a vanilla-style button plate (widgets.png) scaled to 20x20 behind an icon. */
+   void drawButtonPlate(int x, int y, boolean hover) {
+      try {
+         this.mc.renderEngine.bindTexture(new net.minecraft.util.ResourceLocation("minecraft", "textures/gui/widgets.png"));
+         net.minecraft.client.renderer.GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+         // 20x20 button = draw the 200x20 button texture but only the left 20px
+         // (200-w is 20), so we sub-rect from the sheet.
+         this.drawTexturedModalRect(x, y, 0, hover ? 86 : 66, 20, 20);
+         this.mc.renderEngine.bindTexture(ClothingScreen.GUI_TEXTURE);
+      } catch (Throwable t) {
+         // fall back silently
+      }
    }
 
    public boolean doesGuiPauseGame() {
