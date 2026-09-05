@@ -239,6 +239,16 @@ public class ClothingScreen extends GuiScreen {
       this.drawPartRotated(this.guiX, this.guiY, this.modelRotation, this.previewGirl, 1.2345679F);
       this.previewGirl.onUpdate();
       this.modelList.drawScreen(mouseX, mouseY, partialTicks);
+
+      // Draw the small left button column AGAIN on top of the list so the list's
+      // background can never hide these buttons (they sit at the left edge).
+      this.mc.renderEngine.bindTexture(GUI_TEXTURE);
+      int bx = this.guiX - this.screenX(15.0F);
+      int by = this.guiY - 20;
+      this.drawTexturedModalRect(bx, by, 100, this.isMouseOverPart(mouseX, mouseY, bx, by, bx + 20, by + 20) ? 40 : 20, 20, 20);
+      if (ServerWhitelistManager.getCustomModelsKey() == null) {
+         this.drawBackground(bx, mouseX, mouseY);
+      }
    }
 
    void drawBackground(int x, int mouseX, int mouseY) {

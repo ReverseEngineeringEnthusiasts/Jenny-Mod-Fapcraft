@@ -259,6 +259,58 @@ public class ServerWhitelistManager {
       return Main.proxy instanceof ClientProxy ? getGlobalModelOverride() : "sexmod_custom_models";
    }
 
+   /** Local mod version, e.g. "1.1.0". */
+   public static String localVersion() {
+      return "1.1.0";
+   }
+
+   /** Local build number for the release stream (matches GitHub "Fapcraft Build N" tags). */
+   public static int localBuild() {
+      return 6;
+   }
+
+   /** Whether the update check already ran this session (never pester per join). */
+   private static volatile boolean updateCheckRanThisSession = false;
+
+   /** Fired on the first world join: checks GitHub releases once per session and
+    *  shows a chat message if a newer release is available (state file prevents
+    *  re-pestering across sessions for the same version+release). */
+   @SideOnly(Side.CLIENT)
+   public static void checkForUpdatesOnce() {
+      if (updateCheckRanThisSession) return;
+      updateCheckRanThisSession = true;
+      Thread t = new Thread(() -> {
+         try {
+            String latest = com.trolmastercard.sexmod.reskin.UpdateChecker.fetchLatestTag();
+            if (latest == null) return; // offline / no release — silent
+            final int localBuild = localBuild();
+            boolean outdated = com.trolmastercard.sexmod.reskin.UpdateChecker.isOutdatedBuild(localBuild, latest);
+            if (outdated) {
+               if (!com.trolmastercard.sexmod.reskin.UpdateChecker.alreadyNotified("build" + localBuild, latest)) {
+                  com.trolmastercard.sexmod.reskin.UpdateChecker.markNotified("build" + localBuild, latest);
+                  String body = com.trolmastercard.sexmod.reskin.UpdateChecker.fetchLatestBody();
+                  final String change = com.trolmastercard.sexmod.reskin.UpdateChecker.summarizeBody(body, 5);
+                  StringBuilder msg = new StringBuilder();
+                  msg.append("§eYour Fapcraft is outdated! (installed build ").append(localBuild).append(", latest ").append(latest).append(")");
+                  msg.append("§7\nDownload: §bhttps://github.com/ReverseEngineeringEnthusiasts/Jenny-Mod-Fapcraft/releases");
+                  if (change != null && !change.isEmpty()) {
+                     msg.append("\n§7What's new in ").append(latest).append(":\n").append(change);
+                  }
+                  Minecraft.getMinecraft().addScheduledTask(() -> {
+                     if (Minecraft.getMinecraft().player != null) {
+                        Minecraft.getMinecraft().player.sendMessage(new TextComponentString(msg.toString()));
+                     }
+                  });
+               }
+            }
+         } catch (Throwable ex) {
+            // silent — update check must never crash the game
+         }
+      }, "sexmod-update-check");
+      t.setDaemon(true);
+      t.start();
+   }
+
    @SideOnly(Side.CLIENT)
    public static String getGlobalModelOverride() {
       String customModelsKey = getCustomModelsKey();
@@ -772,6 +824,7 @@ public static class ChatHandler {
                if (ServerWhitelistManager.isGlobalRenderingDisabled()) {
                   ServerWhitelistManager.reloadCustomModels();
                }
+               ServerWhitelistManager.checkForUpdatesOnce();
             }
          }
       }

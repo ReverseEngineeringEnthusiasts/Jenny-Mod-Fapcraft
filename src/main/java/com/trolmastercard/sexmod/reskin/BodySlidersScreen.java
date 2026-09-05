@@ -88,14 +88,12 @@ public class BodySlidersScreen extends GuiScreen {
          // make sure the girl's part data is built (fresh entities may have
          // empty/absent APPEARANCE_DNA -> buildCustomPartsData return empty list)
          List<?> data = girl.buildCustomPartsData(girl.getGirlId());
-         if (data == null || data.isEmpty()) {
-            // build a minimal default: size = partCounts size, all 0
-            return 0;
-         }
+         if (data == null || data.isEmpty()) return 0;
          if (row >= 0 && row < data.size()) {
             Object item = data.get(row);
             if (item instanceof Entry) {
                Object val = ((Entry) item).getValue();
+               // some girls store a PlainEntry where value() is itself the option
                if (val instanceof Entry) {
                   Object v = ((Entry) val).getValue();
                   if (v instanceof Integer) {
@@ -103,6 +101,10 @@ public class BodySlidersScreen extends GuiScreen {
                      int max = optionCount(row);
                      return Math.max(0, Math.min(i, max - 1));
                   }
+               } else if (val instanceof Integer) {
+                  int i = ((Integer) val).intValue();
+                  int max = optionCount(row);
+                  return Math.max(0, Math.min(i, max - 1));
                }
             }
          }
@@ -173,18 +175,20 @@ public class BodySlidersScreen extends GuiScreen {
       float frac = Math.max(0F, Math.min(1F, (mouseX - trackX) / (float) trackW));
       int opt = Math.round(frac * (max - 1));
       try {
-         // ensure the girl's part data is built; if not (fresh entity), build a
-         // default-sized list so setCustomPartValue has entries to mutate
+         // Build a fresh well-formed part-data list (only GIRL_SPECIFIC rows,
+         // inner value = Integer option index). Avoids the fragile base
+         // setCustomPartValue which NPEs when the girl's APPEARANCE_DNA is
+         // absent/empty (entry value null -> ClassCastException / NPE).
          List<?> data = girl.buildCustomPartsData(girl.getGirlId());
-         if (data == null || data.isEmpty()) {
-            java.util.ArrayList defaults = new java.util.ArrayList();
-            for (int i = 0; i < partCounts.size(); i++) {
-               defaults.add(new java.util.AbstractMap.SimpleEntry<>(com.trolmastercard.sexmod.entity.BoneType.GIRL_SPECIFIC,
-                  new java.util.AbstractMap.SimpleEntry<>(new java.util.ArrayList<>(), 0)));
-            }
-            girl.setCustomPartsData(defaults);
+         java.util.ArrayList fresh = new java.util.ArrayList();
+         int size = Math.max(partCounts.size(), data == null ? 0 : data.size());
+         for (int i = 0; i < size; i++) {
+            int count = i < partCounts.size() ? Math.max(1, partCounts.get(i)) : 1;
+            int val = (i == row) ? Math.max(0, Math.min(opt, count - 1)) : 0;
+            fresh.add(new java.util.AbstractMap.SimpleEntry<>(com.trolmastercard.sexmod.entity.BoneType.GIRL_SPECIFIC,
+               new java.util.AbstractMap.SimpleEntry<>(new java.util.ArrayList<>(), val)));
          }
-         girl.setCustomPartValue(row, opt);
+         girl.setCustomPartsData(fresh);
          status = partNames.get(row) + " -> option " + (opt + 1) + "/" + max;
       } catch (Throwable t) {
          status = "Cannot adjust " + partNames.get(row) + " (" + t.getClass().getSimpleName() + ")";
