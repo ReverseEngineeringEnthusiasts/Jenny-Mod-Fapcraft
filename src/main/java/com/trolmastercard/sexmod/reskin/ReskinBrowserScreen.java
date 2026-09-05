@@ -63,7 +63,13 @@ public class ReskinBrowserScreen extends GuiScreen {
    }
 
    public ReskinBrowserScreen(String startGirl) {
+      this(startGirl, null);
+   }
+
+   /** Opens the browser with a pre-set status line (e.g. after a download). */
+   public ReskinBrowserScreen(String startGirl, String initialStatus) {
       this.filterGirl = startGirl;
+      if (initialStatus != null && !initialStatus.isEmpty()) this.status = initialStatus;
       this.mc = Minecraft.getMinecraft();
       // Original behavior: decode thumbnails eagerly (background thread) into
       // pendingThumbs; GL upload happens on the render thread in drawThumbsIfReady.
@@ -89,6 +95,25 @@ public class ReskinBrowserScreen extends GuiScreen {
             scanDone = true;
          }
       });
+   }
+
+   /**
+    * Routing helper used by the wand and K key: if there are no packs installed,
+    * show the download prompt instead of an empty browser. Otherwise open the
+    * browser (optionally pre-filtered to a girl).
+    */
+   public static void show(Minecraft mc, String girlFilter) {
+      try {
+         List<ReskinEntry> packs = ReskinManager.INSTANCE.scan();
+         boolean empty = packs == null || packs.isEmpty();
+         if (empty) {
+            mc.displayGuiScreen(new NoModelsScreen(girlFilter));
+         } else {
+            mc.displayGuiScreen(new ReskinBrowserScreen(girlFilter));
+         }
+      } catch (Throwable t) {
+         mc.displayGuiScreen(new ReskinBrowserScreen(girlFilter));
+      }
    }
 
    @Override

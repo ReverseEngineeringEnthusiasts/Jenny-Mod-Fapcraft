@@ -419,7 +419,7 @@ public class ClothingScreen extends GuiScreen {
                      y -= 20;
                      if (this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20)) {
                         this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                        this.mc.displayGuiScreen(new ReskinBrowserScreen());
+                        com.trolmastercard.sexmod.reskin.ReskinBrowserScreen.show(this.mc, null);
                      }
                   }
                }
@@ -565,9 +565,9 @@ public class ClothingScreen extends GuiScreen {
             }
 
             Minecraft mc = Minecraft.getMinecraft();
-            // K key: open the RESKIN browser directly (the legacy part editor is
-            // replaced by the pack browser — list all packs, apply full-girl).
-            mc.displayGuiScreen(new com.trolmastercard.sexmod.reskin.ReskinBrowserScreen());
+            // K key: open the reskin browser (or the download prompt when no
+            // packs are installed).
+            com.trolmastercard.sexmod.reskin.ReskinBrowserScreen.show(mc, null);
          }
       }
 

@@ -88,20 +88,16 @@ public class NpcEditorWandItem extends Item {
                         }
                      }
 
-                     // Wand -> girl: open the RESKIN browser directly, pre-filtered
-                     // to the clicked girl's type. The legacy ClothingScreen
-                     // part-editor (< > + -) is intentionally NOT opened here:
-                     // with full-body packs it caused bone-attached "dual layer"
-                     // renders, the buttons didn't update the preview, and only the
-                     // legacy top-level zip appeared. The reskin browser lists all
-                     // packs (any depth) and applies a full-girl override.
+                     // Wand -> girl: open the reskin browser (or the download
+                     // prompt when no packs are installed), pre-filtered to the
+                     // clicked girl's type.
                      String girlFilter = null;
                      com.trolmastercard.sexmod.entity.NpcType npcType = com.trolmastercard.sexmod.entity.NpcType.getNpcType(target);
                      if (npcType != null) {
                         girlFilter = npcType.name().toLowerCase(java.util.Locale.ROOT);
                      }
-                     net.minecraft.client.Minecraft.getMinecraft().displayGuiScreen(
-                        new com.trolmastercard.sexmod.reskin.ReskinBrowserScreen(girlFilter));
+                     com.trolmastercard.sexmod.reskin.ReskinBrowserScreen.show(
+                        net.minecraft.client.Minecraft.getMinecraft(), girlFilter);
                   }
                }
             }
