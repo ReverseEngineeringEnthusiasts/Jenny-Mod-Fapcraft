@@ -229,7 +229,7 @@ public class ClothingScreen extends GuiScreen {
 
       this.startRendering();
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-      int x = this.guiX - this.screenX(15.0F);
+      int x = 6; // left-edge button column
       int y = this.guiY - 20;
       this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 100, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 40 : 20, 20, 20);
@@ -242,10 +242,11 @@ public class ClothingScreen extends GuiScreen {
       this.modelList.drawScreen(mouseX, mouseY, partialTicks);
 
       // Draw the small left button column AGAIN on top of the list so the list's
-      // background can never hide these buttons (they sit at the left edge).
+      // background can never hide these buttons.
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-      int bx = this.guiX - this.screenX(15.0F);
+      int bx = 6;
       int by = this.guiY - 20;
+      this.drawButtonBacking(bx, by);
       this.drawTexturedModalRect(bx, by, 100, this.isMouseOverPart(mouseX, mouseY, bx, by, bx + 20, by + 20) ? 40 : 20, 20, 20);
       if (ServerWhitelistManager.getCustomModelsKey() == null) {
          this.drawBackground(bx, mouseX, mouseY);
@@ -269,18 +270,7 @@ public class ClothingScreen extends GuiScreen {
 
    /** Draws a semi-transparent backing plate behind a left-column icon button. */
    void drawButtonBacking(int x, int y) {
-      net.minecraft.client.renderer.GlStateManager.enableBlend();
-      net.minecraft.client.renderer.GlStateManager.disableTexture2D();
-      net.minecraft.client.renderer.Tessellator tess = net.minecraft.client.renderer.Tessellator.getInstance();
-      net.minecraft.client.renderer.BufferBuilder buf = tess.getBuffer();
-      buf.begin(7, net.minecraft.client.renderer.vertex.DefaultVertexFormats.POSITION_COLOR);
-      buf.pos(x, y + 20, 0.0).color(0, 0, 0, 120).endVertex();
-      buf.pos(x + 20, y + 20, 0.0).color(0, 0, 0, 120).endVertex();
-      buf.pos(x + 20, y, 0.0).color(0, 0, 0, 120).endVertex();
-      buf.pos(x, y, 0.0).color(0, 0, 0, 120).endVertex();
-      tess.draw();
-      net.minecraft.client.renderer.GlStateManager.enableTexture2D();
-      net.minecraft.client.renderer.GlStateManager.disableBlend();
+      net.minecraft.client.gui.Gui.drawRect(x, y, x + 20, y + 20, 0x78000000);
    }
 
    public boolean doesGuiPauseGame() {
@@ -404,7 +394,7 @@ public class ClothingScreen extends GuiScreen {
          this.isEditing = true;
          this.isRendering = true;
          this.lastMouseX = mouseX;
-         int x = this.guiX - this.screenX(15.0F);
+         int x = 6;
          int y = this.guiY - 20;
          if (this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20)) {
             this.playClickSound();

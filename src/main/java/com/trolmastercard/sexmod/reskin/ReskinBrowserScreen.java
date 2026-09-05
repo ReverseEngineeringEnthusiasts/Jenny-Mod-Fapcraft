@@ -489,12 +489,12 @@ public class ReskinBrowserScreen extends GuiScreen {
          }
       }
 
-      // scrollbars per column (like vanilla resource-pack GUI)
+      // scrollbars per column (like vanilla resource-pack GUI) — placed just right of each column
       int topL = listTop();
       int botL = listBottom();
-      if (list != null) drawScrollbar(colLeftX() + COL_W - 4, topL, botL, list.size(), scrollAvailable);
+      if (list != null) drawScrollbar(colLeftX() + COL_W + 3, topL, botL, list.size(), scrollAvailable);
       List<ReskinEntry> stackForBar = appliedStack();
-      if (stackForBar != null) drawScrollbar(colRightX() + COL_W - 4, topL, botL, stackForBar.size(), scrollStack);
+      if (stackForBar != null) drawScrollbar(colRightX() + COL_W + 3, topL, botL, stackForBar.size(), scrollStack);
 
       if (status != null && !status.isEmpty()) {
          this.drawCenteredString(this.fontRenderer, status, this.width / 2, this.height - 44, 0xFFFF55);
