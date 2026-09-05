@@ -58,6 +58,17 @@
       <groupId>local</groupId><artifactId>geckolib3-shadowed-libs</artifactId><version>3.0</version>
       <scope>compile</scope>
     </dependency>
+    <!-- RAR4/RAR5 reader (pure Java, no natives, Java 8+). Shaded into the mod jar.
+         NOTE: version has a 'v' prefix upstream (v2.0.3, NOT 2.0.3 — bare 2.0.3 404s).
+         SRG-safe: packages live under be.stef.rar* which MCRepack never remaps
+         (isSrgOwner only covers net/minecraft, net/minecraftforge,
+         com/trolmastercard, software/bernie/geckolib3), so no MCRepack change needed.
+         Only whole-archive extract() is public; listing is via Rar5Reader/
+         Rar4HeaderParser header parse, full bytes only on explicit Apply. -->
+    <dependency>
+      <groupId>io.github.realburst</groupId><artifactId>unrar5j</artifactId><version>v2.0.3</version>
+      <scope>compile</scope>
+    </dependency>
     <!-- apache commons lang3 (bundled) -->
     <dependency>
       <groupId>local</groupId><artifactId>apache-commons-lang3</artifactId><version>1.12.2</version>
@@ -167,6 +178,7 @@
                   <include>local:geckolib3-1.12.2-mcp</include>
                   <include>local:geckolib3-shadowed-libs</include>
                   <include>local:apache-commons-lang3</include>
+                  <include>io.github.realburst:unrar5j</include>
                 </includes>
               </artifactSet>
             </configuration>

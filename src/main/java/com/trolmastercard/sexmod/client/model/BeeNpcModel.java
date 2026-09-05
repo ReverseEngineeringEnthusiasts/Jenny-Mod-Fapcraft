@@ -51,12 +51,19 @@ public class BeeNpcModel extends GirlModel<BaseGirlEntity> {
       if (!(entity.world instanceof SexWorldClient) && (entity.getCurrentAction() == Action.NULL || entity.getCurrentAction() == Action.ATTACK || entity.getCurrentAction() == Action.BOW)) {
          EntityModelData modelData = (EntityModelData) event.getExtraDataOfType(EntityModelData.class).get(0);
          IBone neckBone = processor.getBone("neck");
-         neckBone.setRotationY(modelData.netHeadYaw * 0.5F * (float) (Math.PI / 180.0));
+         if (neckBone != null) {
+            neckBone.setRotationY(modelData.netHeadYaw * 0.5F * (float) (Math.PI / 180.0));
+         }
          IBone headBone = processor.getBone("head");
-         headBone.setRotationY(modelData.netHeadYaw * (float) (Math.PI / 180.0));
-         headBone.setRotationX(1.0F + modelData.headPitch * (float) (Math.PI / 180.0));
-         IBone bodyBone = processor.getBone("body") == null ? processor.getBone("dd") : processor.getBone("body");
-         bodyBone.setRotationY(0.0F);
+         if (headBone != null) {
+            headBone.setRotationY(modelData.netHeadYaw * (float) (Math.PI / 180.0));
+            headBone.setRotationX(1.0F + modelData.headPitch * (float) (Math.PI / 180.0));
+         }
+         IBone bodyBone = processor.getBone("body");
+         if (bodyBone == null) bodyBone = processor.getBone("dd");
+         if (bodyBone != null) {
+            bodyBone.setRotationY(0.0F);
+         }
       }
    }
 

@@ -279,39 +279,32 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
     */
    void animateGirl(T girl, AnimationProcessor<T> processor) {
       boolean isDefaultSkin = this.canRender((T)girl);
+      IBone b;
       if (isDefaultSkin) {
-         processor.getBone("rightArmAlex").setHidden(isDefaultSkin);
-         processor.getBone("rightLowerArmAlex").setHidden(isDefaultSkin);
-         IBone rightArmSteveBone2 = processor.getBone("rightArmSteve");
-         rightArmSteveBone2.setHidden(false);
-         IBone rightLowerArmSteveBone2 = processor.getBone("rightLowerArmSteve");
-         rightLowerArmSteveBone2.setHidden(false);
-         processor.getBone("leftArmAlex").setHidden(isDefaultSkin);
-         processor.getBone("leftLowerArmAlex").setHidden(isDefaultSkin);
-         IBone leftArmSteveBone2 = processor.getBone("leftArmSteve");
-         leftArmSteveBone2.setHidden(false);
-         IBone leftLowerArmSteveBone2 = processor.getBone("leftLowerArmSteve");
-         leftLowerArmSteveBone2.setHidden(false);
-         IBone steveBone2 = processor.getBone("steve");
-         if (steveBone2 != null) {
-            steveBone2.setHidden(!girl.getCurrentAction().hasPlayer);
+         b = processor.getBone("rightArmAlex"); if (b != null) b.setHidden(true);
+         b = processor.getBone("rightLowerArmAlex"); if (b != null) b.setHidden(true);
+         b = processor.getBone("rightArmSteve"); if (b != null) b.setHidden(false);
+         b = processor.getBone("rightLowerArmSteve"); if (b != null) b.setHidden(false);
+         b = processor.getBone("leftArmAlex"); if (b != null) b.setHidden(true);
+         b = processor.getBone("leftLowerArmAlex"); if (b != null) b.setHidden(true);
+         b = processor.getBone("leftArmSteve"); if (b != null) b.setHidden(false);
+         b = processor.getBone("leftLowerArmSteve"); if (b != null) b.setHidden(false);
+         b = processor.getBone("steve");
+         if (b != null) {
+            b.setHidden(!girl.getCurrentAction().hasPlayer);
          }
       } else {
-         processor.getBone("rightArmAlex").setHidden(isDefaultSkin);
-         processor.getBone("rightLowerArmAlex").setHidden(isDefaultSkin);
-         IBone rightArmSteveBone = processor.getBone("rightArmSteve");
-         rightArmSteveBone.setHidden(true);
-         IBone rightLowerArmSteveBone = processor.getBone("rightLowerArmSteve");
-         rightLowerArmSteveBone.setHidden(true);
-         processor.getBone("leftArmAlex").setHidden(isDefaultSkin);
-         processor.getBone("leftLowerArmAlex").setHidden(isDefaultSkin);
-         IBone leftArmSteveBone = processor.getBone("leftArmSteve");
-         leftArmSteveBone.setHidden(true);
-         IBone leftLowerArmSteveBone = processor.getBone("leftLowerArmSteve");
-         leftLowerArmSteveBone.setHidden(true);
-         IBone steveBone = processor.getBone("steve");
-         if (steveBone != null) {
-            steveBone.setHidden(!girl.getCurrentAction().hasPlayer);
+         b = processor.getBone("rightArmAlex"); if (b != null) b.setHidden(false);
+         b = processor.getBone("rightLowerArmAlex"); if (b != null) b.setHidden(false);
+         b = processor.getBone("rightArmSteve"); if (b != null) b.setHidden(true);
+         b = processor.getBone("rightLowerArmSteve"); if (b != null) b.setHidden(true);
+         b = processor.getBone("leftArmAlex"); if (b != null) b.setHidden(false);
+         b = processor.getBone("leftLowerArmAlex"); if (b != null) b.setHidden(false);
+         b = processor.getBone("leftArmSteve"); if (b != null) b.setHidden(true);
+         b = processor.getBone("leftLowerArmSteve"); if (b != null) b.setHidden(true);
+         b = processor.getBone("steve");
+         if (b != null) {
+            b.setHidden(!girl.getCurrentAction().hasPlayer);
          }
       }
    }
@@ -331,12 +324,19 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
             if (girl.getCurrentAction() == Action.NULL || girl.getCurrentAction() == Action.ATTACK || girl.getCurrentAction() == Action.BOW) {
                EntityModelData modelData = (EntityModelData) event.getExtraDataOfType(EntityModelData.class).get(0);
                IBone neckBone = processor.getBone("neck");
-               neckBone.setRotationY(modelData.netHeadYaw * 0.5F * (float) (Math.PI / 180.0));
+               if (neckBone != null) {
+                  neckBone.setRotationY(modelData.netHeadYaw * 0.5F * (float) (Math.PI / 180.0));
+               }
                IBone headBone = processor.getBone("head");
-               headBone.setRotationY(modelData.netHeadYaw * (float) (Math.PI / 180.0));
-               headBone.setRotationX(modelData.headPitch * (float) (Math.PI / 180.0));
-               IBone bodyBone = processor.getBone("body") == null ? processor.getBone("dd") : processor.getBone("body");
-               bodyBone.setRotationY(0.0F);
+               if (headBone != null) {
+                  headBone.setRotationY(modelData.netHeadYaw * (float) (Math.PI / 180.0));
+                  headBone.setRotationX(modelData.headPitch * (float) (Math.PI / 180.0));
+               }
+               IBone bodyBone = processor.getBone("body");
+               if (bodyBone == null) bodyBone = processor.getBone("dd");
+               if (bodyBone != null) {
+                  bodyBone.setRotationY(0.0F);
+               }
             }
          }
       }

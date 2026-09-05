@@ -44,6 +44,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import com.trolmastercard.sexmod.reskin.ReskinBrowserScreen;
 
 /**
  * The girl wand's customization GUI — cycles the target girl's custom model
@@ -60,6 +61,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public class ClothingScreen extends GuiScreen {
    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/clothing_icons.png");
+   /** Static cross placeholder for the (disabled) legacy part rows — never a real model. */
+   public static SexSceneEntity DUMMY_SCENE = null;
    static final int SCROLLBAR_SIZE = 20;
    static final float SCROLL_SPEED = 0.25F;
    int guiX = 0;
@@ -83,6 +86,13 @@ public class ClothingScreen extends GuiScreen {
    public ClothingScreen(@Nonnull BaseGirlEntity girl) {
       this.mc = Minecraft.getMinecraft();
       this.girlId = girl.getGirlId();
+      if (DUMMY_SCENE == null) {
+         try {
+            DUMMY_SCENE = SexSceneEntity.createSceneEntity(this.mc.world, this.girlId, BoneType.HEAD);
+         } catch (Throwable t) {
+            // headless / world not ready — leave null (drawPart handles it)
+         }
+      }
       NpcType npcType = NpcType.getNpcType(girl);
       if (npcType == null) {
          npcType = NpcType.JENNY;
@@ -238,6 +248,8 @@ public class ClothingScreen extends GuiScreen {
       this.drawTexturedModalRect(x, y, 20, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
       y -= 20;
       this.drawTexturedModalRect(x, y, 0, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
+      y -= 20;
+      this.drawTexturedModalRect(x, y, 40, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
    }
 
    public boolean doesGuiPauseGame() {
@@ -403,6 +415,12 @@ public class ClothingScreen extends GuiScreen {
                            throw new RuntimeException(ioe);
                         }
                      }
+                  } else {
+                     y -= 20;
+                     if (this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20)) {
+                        this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                        this.mc.displayGuiScreen(new ReskinBrowserScreen());
+                     }
                   }
                }
             }
@@ -547,12 +565,9 @@ public class ClothingScreen extends GuiScreen {
             }
 
             Minecraft mc = Minecraft.getMinecraft();
-            AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(mc.player.getPersistentID());
-            if (playerGirl == null) {
-               mc.player.sendStatusMessage(new TextComponentString("You have to turn into the girl you want to customize"), true);
-            } else {
-               ClothingScreen.openClothingScreen(playerGirl);
-            }
+            // K key: open the RESKIN browser directly (the legacy part editor is
+            // replaced by the pack browser — list all packs, apply full-girl).
+            mc.displayGuiScreen(new com.trolmastercard.sexmod.reskin.ReskinBrowserScreen());
          }
       }
 

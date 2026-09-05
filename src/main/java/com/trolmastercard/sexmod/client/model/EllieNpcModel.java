@@ -61,6 +61,7 @@ public class EllieNpcModel extends GirlModel<BaseGirlEntity> {
                EntityPlayer nearestPlayer = entity.world.getClosestPlayerToEntity(entity, 15.0);
                if (nearestPlayer != null) {
                   IBone headBone = this.getAnimationProcessor().getBone("head");
+                  if (headBone == null) return;
                   Vec3d toPlayer = entity.getPositionVector().subtract(nearestPlayer.getPositionVector());
                   int facingYaw = Math.round(entity.getYawRotation());
                   float headYaw;

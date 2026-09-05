@@ -8,6 +8,8 @@ import com.trolmastercard.sexmod.entity.NpcType;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.UnknownPacket;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
+import com.trolmastercard.sexmod.reskin.ReskinEntry;
+import com.trolmastercard.sexmod.reskin.ReskinScanner;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -324,23 +326,56 @@ public class ServerWhitelistManager {
       for (String modelName : modelNames) {
          String error = getPartName(modelName, group);
          if (!"".equals(error)) {
-            logError(Level.ERROR, error);
-            return -1;
+            // A single broken/container entry (e.g. the "Custom-Models" folder
+            // that just HOLDS sub-packs, or an animation-only zip) must NOT kill
+            // the whole load. Skip it and keep registering the valid models.
+            File probeDir = new File(group, modelName);
+            boolean looksLikeContainer = probeDir.isDirectory()
+               && !new File(probeDir, modelName + ".cfg").isFile()
+               && !new File(probeDir, modelName + ".geo.json").isFile();
+            if (looksLikeContainer) {
+               logError(Level.DEBUG, String.format("skipping folder '%s' (no model files inside - container folder)", modelName));
+               continue;
+            }
+            logError(Level.DEBUG, String.format("skipping custom model '%s': %s", modelName, error));
+            continue;
          }
 
          error = registerModel(modelName, group, global);
          if (!"".equals(error)) {
-            logError(Level.ERROR, error);
-            return -1;
+            logError(Level.DEBUG, String.format("skipping custom model '%s': %s", modelName, error));
+            continue;
          }
 
          count++;
       }
 
       logError(Level.DEBUG, String.format("successfully registered %s custom models", count));
+      // Recursive discovery: the legacy loader only reads IMMEDIATE children, but
+      // real installs nest packs arbitrarily deep (Custom-Models/...). Scan the
+      // whole tree (zip central dir + rar headers only, no decompression) and
+      // report what's actually available so the reload reflects reality.
+      try {
+         java.util.List<ReskinEntry> packs = new ReskinScanner().scan(dir);
+         int total = packs.size();
+         int zipN = 0, rarN = 0, reskins = 0;
+         for (ReskinEntry pe : packs) {
+            if (pe.kind == ReskinEntry.Kind.ZIP) zipN++; else rarN++;
+            if (pe.isReskin()) reskins++;
+         }
+         recursivePackCount = total;
+         logError(Level.INFO, String.format(
+            "recursive pack scan: %d pack(s) found (any depth): %d zip, %d rar; %d resourcepack reskins available (apply via the wardrobe's Reskins button)",
+            total, zipN, rarN, reskins));
+      } catch (Throwable t) {
+         logError(Level.DEBUG, "recursive pack scan failed: " + t.getMessage());
+      }
       isLoaded = true;
       return 0;
    }
+
+   /** Total archives found by the last recursive pack scan (0 if none/not scanned). */
+   public static int recursivePackCount = 0;
 
    public static String getPartName(String modelName, String group) {
       if (zipFileMap.containsKey(modelName)) {
@@ -442,8 +477,9 @@ public class ServerWhitelistManager {
                }
                float scale = (wear.equals("GIRL_SPECIFIC") || wear.equals("CUSTOM_BONE")) ? 0.35F : 1.0F;
                float yOff = (wear.equals("GIRL_SPECIFIC") || wear.equals("CUSTOM_BONE")) ? -5.0F : 0.0F;
+               String hide = wear.equals("CUSTOM_BONE") && extra.contains("body") ? "body,upperBody,torso,top,hipbend,head,armL,armR,legL,legR" : "";
                File tmp = File.createTempFile("model", ".cfg");
-               try (FileWriter w = new FileWriter(tmp)) { w.write("wear_type=" + wear + "\n" + extra + "which_girls=JENNY\nwhich_lighting=DEFAULT\nauthor=auto\nbones_to_hide=\nenable_when_nude=yes\ngui_size_factor=" + scale + "\ngui_vertical_positioning=" + yOff + "\nversion=1.0\n"); }
+               try (FileWriter w = new FileWriter(tmp)) { w.write("wear_type=" + wear + "\n" + extra + "which_girls=JENNY\nwhich_lighting=DEFAULT\nauthor=auto\nbones_to_hide=" + hide + "\nenable_when_nude=yes\ngui_size_factor=" + scale + "\ngui_vertical_positioning=" + yOff + "\nversion=1.0\n"); }
                modelData = new ServerWhitelistManager.ModelData(tmp, modelName);
                tmp.delete();
             }

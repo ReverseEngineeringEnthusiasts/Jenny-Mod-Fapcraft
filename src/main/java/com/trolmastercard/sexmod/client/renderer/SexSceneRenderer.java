@@ -44,6 +44,7 @@ import software.bernie.geckolib3.geo.render.built.GeoQuad;
 import software.bernie.geckolib3.geo.render.built.GeoVertex;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
+import software.bernie.geckolib3.resource.GeckoLibCache;
 import software.bernie.geckolib3.util.MatrixStack;
 
 /**
@@ -160,15 +161,65 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       if (!girl.isDead) {
          if (girl.world.isRemote) {
             if (girl.hasCustomParts()) {
+               // A full-girl reskin replaces the base model; rendering legacy
+               // bone-attached parts on top would double-layer the textures
+               // (the "texture mashup"). Skip legacy parts for reskinned girls.
+               if (com.trolmastercard.sexmod.reskin.ReskinManager.INSTANCE.isGirlReskinned(girl)) {
+                  return;
+               }
                RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
 
                for (String partCode : girl.getCustomPartsSet()) {
-                  SexSceneEntity scenePart = new SexSceneEntity(girl.world, girl.getGirlId(), partCode);
-                  isCustom = true;
-                  renderManager.renderEntity(scenePart, 0.0, 0.0, 0.0, 0.0F, partialTicks, false);
+                  // CRASH GUARD: a legacy part whose model isn't registered in
+                  // GeckoLibCache (e.g. after a resource reload wiped the cache)
+                  // throws GeoModelException and kills the whole client. Skip any
+                  // part whose ModelData / geo model is missing, and never let a
+                  // single bad part take down the frame.
+                  ServerWhitelistManager.ModelData md = ServerWhitelistManager.getModelDataForGirl(partCode);
+                  if (md == null) {
+                     logMissingLegacy(partCode, girl, "no ModelData");
+                     clearStaleLegacy(girl, partCode);
+                     continue;
+                  }
+                  ResourceLocation res = md.getFallbackTexture();
+                  if (res == null || !GeckoLibCache.getInstance().getGeoModels().containsKey(res)) {
+                     logMissingLegacy(partCode, girl, res == null ? "null geo resource" : "geo not in cache: " + res);
+                     clearStaleLegacy(girl, partCode);
+                     continue;
+                  }
+                  try {
+                     SexSceneEntity scenePart = new SexSceneEntity(girl.world, girl.getGirlId(), partCode);
+                     isCustom = true;
+                     renderManager.renderEntity(scenePart, 0.0, 0.0, 0.0, 0.0F, partialTicks, false);
+                  } catch (Throwable t) {
+                     // never let a bad custom part crash rendering
+                     if (!(t instanceof java.util.ConcurrentModificationException)) {
+                        System.out.println("[sexmod] skipped malformed custom part '" + partCode + "' on " + girl.getDisplayName()
+                           + ": " + t.getClass().getSimpleName() + ": " + t.getMessage());
+                     }
+                     clearStaleLegacy(girl, partCode);
+                  }
                }
             }
          }
+      }
+   }
+
+   /** Logs a missing legacy part (one line, throttled-ish) so malformed/legacy models are auditable. */
+   private static void logMissingLegacy(String partCode, BaseGirlEntity girl, String why) {
+      String girlName = girl.getDisplayName() == null ? "?" : girl.getDisplayName().getFormattedText();
+      System.out.println("[sexmod] skipping missing legacy custom model '" + partCode + "' on " + girlName + " (" + why + ")");
+   }
+
+   /** Removes a stale/broken legacy part code from the girl's custom set (client-side). */
+   private static void clearStaleLegacy(BaseGirlEntity girl, String partCode) {
+      try {
+         java.util.HashSet<String> parts = girl.getCustomPartsSet();
+         if (parts == null || parts.isEmpty()) return;
+         if (!parts.remove(partCode)) return;
+         girl.setCustomModelCode(BaseGirlEntity.encodeCustomParts(parts));
+      } catch (Throwable t) {
+         // best-effort cleanup
       }
    }
 

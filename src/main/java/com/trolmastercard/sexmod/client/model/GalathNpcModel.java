@@ -102,7 +102,10 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       this.handleDashAnimation(entity);
       if (entity instanceof GalathEntity) {
          GalathEntity galath = (GalathEntity)entity;
-         galath.aE = this.getAnimationProcessor().getBone("head").getRotationX();
+         IBone galathHeadBone = this.getAnimationProcessor().getBone("head");
+         if (galathHeadBone != null) {
+            galath.aE = galathHeadBone.getRotationX();
+         }
          if (galath.isHuggingManglelie()) {
             ManglelieNpcModel.animateModel(galath, this.getAnimationProcessor(), event.getPartialTick());
          }
