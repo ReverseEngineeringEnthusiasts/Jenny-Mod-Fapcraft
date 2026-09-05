@@ -229,9 +229,8 @@ public class ClothingScreen extends GuiScreen {
 
       this.startRendering();
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-      int x = 6; // left-edge button column
+      int x = this.guiX - this.screenX(15.0F);
       int y = this.guiY - 20;
-      this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 100, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 40 : 20, 20, 20);
       if (ServerWhitelistManager.getCustomModelsKey() == null) {
          this.drawBackground(x, mouseX, mouseY);
@@ -242,11 +241,10 @@ public class ClothingScreen extends GuiScreen {
       this.modelList.drawScreen(mouseX, mouseY, partialTicks);
 
       // Draw the small left button column AGAIN on top of the list so the list's
-      // background can never hide these buttons.
+      // background can never hide these buttons (they sit at the left edge).
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
-      int bx = 6;
+      int bx = this.guiX - this.screenX(15.0F);
       int by = this.guiY - 20;
-      this.drawButtonBacking(bx, by);
       this.drawTexturedModalRect(bx, by, 100, this.isMouseOverPart(mouseX, mouseY, bx, by, bx + 20, by + 20) ? 40 : 20, 20, 20);
       if (ServerWhitelistManager.getCustomModelsKey() == null) {
          this.drawBackground(bx, mouseX, mouseY);
@@ -255,22 +253,13 @@ public class ClothingScreen extends GuiScreen {
 
    void drawBackground(int x, int mouseX, int mouseY) {
       int y = this.guiY - 40;
-      this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 120, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 40 : 20, 20, 20);
       y -= 20;
-      this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 20, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
       y -= 20;
-      this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 0, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
       y -= 20;
-      this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 40, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
-   }
-
-   /** Draws a semi-transparent backing plate behind a left-column icon button. */
-   void drawButtonBacking(int x, int y) {
-      net.minecraft.client.gui.Gui.drawRect(x, y, x + 20, y + 20, 0x78000000);
    }
 
    public boolean doesGuiPauseGame() {
@@ -394,7 +383,7 @@ public class ClothingScreen extends GuiScreen {
          this.isEditing = true;
          this.isRendering = true;
          this.lastMouseX = mouseX;
-         int x = 6;
+         int x = this.guiX - this.screenX(15.0F);
          int y = this.guiY - 20;
          if (this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20)) {
             this.playClickSound();

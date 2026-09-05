@@ -489,13 +489,6 @@ public class ReskinBrowserScreen extends GuiScreen {
          }
       }
 
-      // scrollbars per column (like vanilla resource-pack GUI) — placed just right of each column
-      int topL = listTop();
-      int botL = listBottom();
-      if (list != null) drawScrollbar(colLeftX() + COL_W + 3, topL, botL, list.size(), scrollAvailable);
-      List<ReskinEntry> stackForBar = appliedStack();
-      if (stackForBar != null) drawScrollbar(colRightX() + COL_W + 3, topL, botL, stackForBar.size(), scrollStack);
-
       if (status != null && !status.isEmpty()) {
          this.drawCenteredString(this.fontRenderer, status, this.width / 2, this.height - 44, 0xFFFF55);
       }
@@ -585,22 +578,6 @@ public class ReskinBrowserScreen extends GuiScreen {
          String prio = rowIdx == 0 ? "[TOP]" : "[" + (rowIdx + 1) + "]";
          this.fontRenderer.drawString(prio, colX + COL_W - 30, y + 4, rowIdx == 0 ? 0x55FF55 : 0xAAAAAA);
       }
-   }
-
-   /** Draws a slim vertical scrollbar (track + thumb) for a column list. */
-   private void drawScrollbar(int x, int top, int bottom, int total, int scroll) {
-      if (total <= 0) return;
-      int viewH = bottom - top;
-      int rowH = ROW_H;
-      if (total * rowH <= viewH) return; // no overflow -> no scrollbar
-      int maxScroll = Math.max(0, total - viewH / rowH);
-      drawRect(x, top, x + 2, bottom, 0x66000000); // track
-      int thumbH = Math.max(16, viewH * viewH / (total * rowH));
-      int maxThumbY = bottom - thumbH - top;
-      int thumbY = top + (maxScroll <= 0 ? 0 : (maxThumbY * scroll / maxScroll));
-      drawRect(x, thumbY, x + 2, thumbY + thumbH, 0xFFCCCCCC); // thumb
-      drawRect(x, thumbY, x + 2, thumbY + 1, 0xFFFFFFFF); // top edge
-      drawRect(x, thumbY + thumbH - 1, x + 2, thumbY + thumbH, 0xFF888888); // bottom edge
    }
 
    /** Convert buffered thumbs (decoded off-thread) into GL textures on the render thread. */
