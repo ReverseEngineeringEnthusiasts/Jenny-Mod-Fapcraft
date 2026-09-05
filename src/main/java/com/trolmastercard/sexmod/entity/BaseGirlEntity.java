@@ -1661,9 +1661,13 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
    public static List<Integer> getAllPartIdsForGirl(UUID uuid) {
       BaseGirlEntity girl = Main.proxy instanceof ClientProxy ? getClientGirlEntity(uuid) : getServerGirlEntity(uuid);
+      // NULL-GUARD: for a freshly constructed / unregistered entity the registry
+      // lookup returns null — the caller falls back to this-girl data instead of NPE.
+      if (girl == null) return new ArrayList<>();
       ArrayList parts = new ArrayList<>(girl.getBasePartIdList());
       if (girl instanceof AbstractNpcOnlyEntity || girl instanceof AbstractKoboldPlayerEntity) {
-         parts.addAll(decodePartIdList((String)girl.getDataManager().get(AbstractNpcOnlyEntity.APPEARANCE_DNA)));
+         Object dna = girl.getDataManager().get(AbstractNpcOnlyEntity.APPEARANCE_DNA);
+         parts.addAll(decodePartIdList(dna == null ? "" : (String) dna));
       }
 
       return parts;
@@ -1684,15 +1688,34 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
          return this.customPartsData;
       }
 
+      // Read the current values from THIS entity (works for preview girls that are
+      // not in any registry). Fall back gracefully if allParts is short.
+      List allParts = this.currentPartValues();
       ArrayList data = new ArrayList();
-      List allParts = getAllPartIdsForGirl(uuid);
-
       for (int i = 0; i < parts.size(); i++) {
-         data.add(new SimpleEntry<>(BoneType.GIRL_SPECIFIC, new SimpleEntry<>(this.getPartNames((Integer)parts.get(i)), allParts.get(i))));
+         int cur = (allParts != null && i < allParts.size() && allParts.get(i) instanceof Integer)
+            ? ((Integer) allParts.get(i)).intValue()
+            : 0;
+         data.add(new SimpleEntry<>(BoneType.GIRL_SPECIFIC, new SimpleEntry<>(this.getPartNames((Integer)parts.get(i)), cur)));
       }
 
       this.customPartsData = data;
       return data;
+   }
+
+   /** Current part values directly from this entity's own data (no registry needed). */
+   private List<Integer> currentPartValues() {
+      ArrayList<Integer> out = new ArrayList<>();
+      try {
+         out.addAll(this.getBasePartIdList());
+      } catch (Throwable t) { }
+      try {
+         if (this instanceof AbstractNpcOnlyEntity || this instanceof AbstractKoboldPlayerEntity) {
+            Object dna = this.getDataManager().get(AbstractNpcOnlyEntity.APPEARANCE_DNA);
+            out.addAll(decodePartIdList(dna == null ? "" : (String) dna));
+         }
+      } catch (Throwable t) { }
+      return out;
    }
 
    public void setCustomPartsData(List<Entry<BoneType, Entry<List<String>, Integer>>> data) {

@@ -1,6 +1,8 @@
 package com.trolmastercard.sexmod.reskin;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
+import com.trolmastercard.sexmod.entity.BoneType;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -11,22 +13,26 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 
 /**
- * <b>Role.</b> Body/character sliders — shows each custom part of the selected
- * girl with a REAL NAME (hair/skin/eyes/etc.), its current OPTION index and
- * total count, and a slider to change the option. Also shows the character's
- * real display name (e.g. kobold names, not "entity.kobold.name").
+ * <b>Role.</b> Body/character sliders. Mirrors vanilla {@code GuiSlider}: each row
+ * has a 0..1 sliderPosition, drag clamps + updates, the thumb is drawn from
+ * {@code position * trackWidth}. Each part shows its REAL NAME, current option
+ * index and total count.
  * <p>
- * The values come from {@link BaseGirlEntity#buildCustomPartsData} — each part
- * is a 0-based option index within that part's own count; we display
- * "option X of N" and the slider maps 0..100 -> 0..N-1.
+ * <b>NPE-proof.</b> This screen never depends on the girl being in any registry:
+ * it reads part counts from {@code getCustomPartIdList()} and keeps its own
+ * {@code positions[]}; initial values are read once via a guarded
+ * {@code buildCustomPartsData} (which is now registry-independent too). Writers
+ * go through {@code setCustomPartsData} with a fresh well-formed list.
  */
 @SideOnly(Side.CLIENT)
 public class BodySlidersScreen extends GuiScreen {
    private final BaseGirlEntity girl;
-   private final List<Integer> partCounts = new ArrayList<>(); // option counts per part
-   private final List<String> partNames = new ArrayList<>();   // friendly names
+   private final List<Integer> partCounts = new ArrayList<>();
+   private final List<String> partNames = new ArrayList<>();
+   private final float[] positions;      // 0..1 per part
    private int selected = 0;
    private int scroll = 0;
+   private boolean dragging = false;
    private String status = "";
 
    public BodySlidersScreen(BaseGirlEntity girl) {
@@ -40,17 +46,58 @@ public class BodySlidersScreen extends GuiScreen {
       } catch (Throwable t) {
          partCounts.clear();
       }
-      // friendly names (one per part; fall back to "Part N")
       for (int i = 0; i < partCounts.size(); i++) {
-         partNames.add(partNameFor(girl, i, partCounts.get(i)));
+         partNames.add(partNameFor(girl, i));
       }
+      positions = new float[partCounts.size()];
+      // initial values (guarded; falls back to 0)
+      try {
+         List<?> data = girl.buildCustomPartsData(girl.getGirlId());
+         for (int i = 0; i < positions.length; i++) {
+            if (data != null && i < data.size()) {
+               Object item = data.get(i);
+               if (item instanceof Entry) {
+                  Object val = ((Entry) item).getValue();
+                  if (val instanceof Entry) {
+                     Object v = ((Entry) val).getValue();
+                     if (v instanceof Integer) {
+                        positions[i] = posFromOption(((Integer) v).intValue(), optionCount(i));
+                        continue;
+                     }
+                  } else if (val instanceof Integer) {
+                     positions[i] = posFromOption(((Integer) val).intValue(), optionCount(i));
+                     continue;
+                  }
+               }
+            }
+            positions[i] = 0F;
+         }
+      } catch (Throwable t) {
+         // leave 0 defaults
+      }
+      if (positions.length > 0) selected = 0;
    }
 
-   /** Human-readable name for a part based on girl type + index. */
-   private String partNameFor(BaseGirlEntity girl, int idx, int count) {
+   /** 0..1 position for an option index (0..max-1). */
+   private static float posFromOption(int option, int max) {
+      if (max <= 1) return 1F;
+      return Math.max(0F, Math.min(1F, option / (float) (max - 1)));
+   }
+
+   private int optionFromPos(int row) {
+      int max = optionCount(row);
+      if (max <= 1) return 0;
+      return Math.round(positions[row] * (max - 1));
+   }
+
+   private int optionCount(int row) {
+      if (row < 0 || row >= partCounts.size()) return 1;
+      return Math.max(1, partCounts.get(row));
+   }
+
+   private String partNameFor(BaseGirlEntity girl, int idx) {
       String type = com.trolmastercard.sexmod.entity.NpcType.getNpcType(girl) == null ? ""
          : com.trolmastercard.sexmod.entity.NpcType.getNpcType(girl).name();
-      // Order follows each entity's getCustomPartIdList()
       if ("GOBLIN".equals(type)) {
          String[] names = {"Head", "Horns", "Ears", "Hairstyle", "Hair Color", "Skin Color", "Eye Color", "Mouth", "Nose", "Extra"};
          if (idx < names.length) return names[idx];
@@ -61,7 +108,6 @@ public class BodySlidersScreen extends GuiScreen {
          String[] names = {"Outfit", "Hair Color", "Eye Color", "Skin Tone", "Breasts", "Hips", "Legs", "Feet", "Tail", "Accessory"};
          if (idx < names.length) return names[idx];
       }
-      // generic
       return "Part " + (idx + 1);
    }
 
@@ -70,46 +116,14 @@ public class BodySlidersScreen extends GuiScreen {
       return false;
    }
 
+   /* ------------------------------------------------------------------ */
+
    private int rowTop(int row) {
       return 30 + (row - scroll) * 26;
    }
 
    private int visibleRows() {
       return Math.max(1, (this.height - 60) / 26);
-   }
-
-   private int optionCount(int row) {
-      if (row < 0 || row >= partCounts.size()) return 1;
-      return Math.max(1, partCounts.get(row));
-   }
-
-   private int optionIndex(int row) {
-      try {
-         // make sure the girl's part data is built (fresh entities may have
-         // empty/absent APPEARANCE_DNA -> buildCustomPartsData return empty list)
-         List<?> data = girl.buildCustomPartsData(girl.getGirlId());
-         if (data == null || data.isEmpty()) return 0;
-         if (row >= 0 && row < data.size()) {
-            Object item = data.get(row);
-            if (item instanceof Entry) {
-               Object val = ((Entry) item).getValue();
-               // some girls store a PlainEntry where value() is itself the option
-               if (val instanceof Entry) {
-                  Object v = ((Entry) val).getValue();
-                  if (v instanceof Integer) {
-                     int i = ((Integer) v).intValue();
-                     int max = optionCount(row);
-                     return Math.max(0, Math.min(i, max - 1));
-                  }
-               } else if (val instanceof Integer) {
-                  int i = ((Integer) val).intValue();
-                  int max = optionCount(row);
-                  return Math.max(0, Math.min(i, max - 1));
-               }
-            }
-         }
-      } catch (Throwable t) { }
-      return 0;
    }
 
    @Override
@@ -125,7 +139,7 @@ public class BodySlidersScreen extends GuiScreen {
    @Override
    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
       super.mouseClicked(mouseX, mouseY, mouseButton);
-      if (mouseButton != 0) return;
+      if (mouseButton != 0 || partCounts.isEmpty()) return;
 
       // Done
       int bw = 60, bh = 20;
@@ -137,20 +151,22 @@ public class BodySlidersScreen extends GuiScreen {
 
       int top = 30;
       int rows = visibleRows();
+      int trackX = 160;
+      int trackW = this.width - trackX - 40;
       for (int r = 0; r < rows; r++) {
          int row = scroll + r;
          if (row >= partCounts.size()) break;
          int ty = top + r * 26;
-         int trackX = 160;
-         int trackW = this.width - trackX - 40;
-         // click = select row; drag on track = set option
-         if (mouseY >= ty && mouseY <= ty + 20 && mouseX >= trackX && mouseX <= trackX + trackW) {
-            selected = row;
-            setOptionFromMouse(row, mouseX, trackX, trackW);
-            return;
-         }
+         // label click = select
          if (mouseY >= ty && mouseY <= ty + 20 && mouseX >= 12 && mouseX <= 140) {
             selected = row;
+            return;
+         }
+         // track click/drag start
+         if (mouseY >= ty && mouseY <= ty + 20 && mouseX >= trackX && mouseX <= trackX + trackW) {
+            selected = row;
+            dragging = true;
+            setPositionFromMouse(row, mouseX, trackX, trackW);
             return;
          }
       }
@@ -159,47 +175,55 @@ public class BodySlidersScreen extends GuiScreen {
    @Override
    protected void mouseClickMove(int mouseX, int mouseY, int mouseButton, long time) {
       super.mouseClickMove(mouseX, mouseY, mouseButton, time);
-      if (mouseButton == 0 && selected >= 0 && selected < partCounts.size()) {
+      if (dragging && mouseButton == 0 && selected >= 0 && selected < partCounts.size()) {
          int ty = rowTop(selected);
          int trackX = 160;
          int trackW = this.width - trackX - 40;
-         // allow dragging anywhere horizontally (not just on the row box)
-         if (mouseY >= ty - 6 && mouseY <= ty + 26) {
-            setOptionFromMouse(selected, mouseX, trackX, trackW);
+         if (mouseY >= ty - 8 && mouseY <= ty + 28) {
+            setPositionFromMouse(selected, mouseX, trackX, trackW);
          }
       }
    }
 
-   private void setOptionFromMouse(int row, int mouseX, int trackX, int trackW) {
+   @Override
+   protected void mouseReleased(int mouseX, int mouseY, int mouseButton) {
+      super.mouseReleased(mouseX, mouseY, mouseButton);
+      if (mouseButton == 0) dragging = false;
+   }
+
+   private void setPositionFromMouse(int row, int mouseX, int trackX, int trackW) {
+      float pos = (mouseX - trackX) / (float) Math.max(1, trackW);
+      positions[row] = Math.max(0F, Math.min(1F, pos));
+      int opt = optionFromPos(row);
       int max = optionCount(row);
-      float frac = Math.max(0F, Math.min(1F, (mouseX - trackX) / (float) trackW));
-      int opt = Math.round(frac * (max - 1));
+      status = partNames.get(row) + " -> option " + (opt + 1) + "/" + max;
+      writeToGirl(row, opt);
+   }
+
+   /** Push the option to the girl using a fresh well-formed customPartsData list. */
+   private void writeToGirl(int row, int opt) {
       try {
-         // Build a fresh well-formed part-data list (only GIRL_SPECIFIC rows,
-         // inner value = Integer option index). Avoids the fragile base
-         // setCustomPartValue which NPEs when the girl's APPEARANCE_DNA is
-         // absent/empty (entry value null -> ClassCastException / NPE).
          List<?> data = girl.buildCustomPartsData(girl.getGirlId());
          java.util.ArrayList fresh = new java.util.ArrayList();
          int size = Math.max(partCounts.size(), data == null ? 0 : data.size());
          for (int i = 0; i < size; i++) {
             int count = i < partCounts.size() ? Math.max(1, partCounts.get(i)) : 1;
             int val = (i == row) ? Math.max(0, Math.min(opt, count - 1)) : 0;
-            fresh.add(new java.util.AbstractMap.SimpleEntry<>(com.trolmastercard.sexmod.entity.BoneType.GIRL_SPECIFIC,
-               new java.util.AbstractMap.SimpleEntry<>(new java.util.ArrayList<>(), val)));
+            fresh.add(new SimpleEntry<>(BoneType.GIRL_SPECIFIC,
+               new SimpleEntry<>(new ArrayList<>(), val)));
          }
          girl.setCustomPartsData(fresh);
-         status = partNames.get(row) + " -> option " + (opt + 1) + "/" + max;
       } catch (Throwable t) {
-         status = "Cannot adjust " + partNames.get(row) + " (" + t.getClass().getSimpleName() + ")";
+         // display-only feature; the preview keeps moving regardless
       }
    }
+
+   /* ------------------------------------------------------------------ */
 
    @Override
    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
       this.drawDefaultBackground();
 
-      // real name (kobold names are stored, not the translation key)
       String girlName;
       try {
          String dn = girl.getDisplayNameText();
@@ -217,21 +241,17 @@ public class BodySlidersScreen extends GuiScreen {
          int row = scroll + r;
          if (row >= partCounts.size()) break;
          int ty = top + r * 26;
-         boolean sel = row == selected;
          int trackX = 160;
          int trackW = this.width - trackX - 40;
-         int opt = optionIndex(row);
+         int opt = optionFromPos(row);
          int max = optionCount(row);
+         boolean sel = row == selected;
 
-         // row bg
          drawRect(4, ty, this.width - 4, ty + 22, sel ? 0x8033AAFF : (r % 2 == 0 ? 0x44222222 : 0x22000000));
-
-         // name + current
          this.fontRenderer.drawString(partNames.get(row), 12, ty + 4, sel ? 0xFFFF55 : 0xFFFFFF);
          this.fontRenderer.drawString("option " + (opt + 1) + "/" + max, 12, ty + 13, 0xAAAAAA);
 
-         // track + thumb
-         int fill = Math.round(trackW * (max <= 1 ? 1.0F : (float) opt / (max - 1)));
+         int fill = Math.round(trackW * positions[row]);
          drawRect(trackX, ty + 9, trackX + trackW, ty + 12, 0xFF333333);
          if (fill > 0) drawRect(trackX, ty + 9, trackX + fill, ty + 12, 0xFF33AAFF);
          int thumbX = trackX + fill - 2;
@@ -245,7 +265,6 @@ public class BodySlidersScreen extends GuiScreen {
          this.drawCenteredString(this.fontRenderer, status, this.width / 2, this.height - 42, 0xFFFF55);
       }
 
-      // Done
       int bw = 60, bh = 20;
       int bx = this.width - bw - 8, by = this.height - 30;
       drawRect(bx, by, bx + bw, by + bh, 0xAA222222);

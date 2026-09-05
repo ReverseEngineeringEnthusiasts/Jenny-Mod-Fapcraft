@@ -266,7 +266,7 @@ public class ServerWhitelistManager {
 
    /** Local build number for the release stream (matches GitHub "Fapcraft Build N" tags). */
    public static int localBuild() {
-      return 6;
+      return 8;
    }
 
    /** Whether the update check already ran this session (never pester per join). */

@@ -393,15 +393,28 @@ public class ReskinBrowserScreen extends GuiScreen {
             status = "Select a girl chip first (e.g. JENNY) so the old wardrobe has a subject.";
             return;
          }
-         com.trolmastercard.sexmod.entity.BaseGirlEntity girl =
-            (com.trolmastercard.sexmod.entity.BaseGirlEntity) npcType.npcClass.getConstructor(net.minecraft.world.World.class).newInstance(this.mc.world);
-         girl.setLocallyRegistered(true);
-         // Bypass openClothingScreen's server-whitelist guard (singleplayer here) —
-         // the legacy ClothingScreen needs a real-world girl; our freshly made one
-         // is fine as the "preview" subject. Open it directly on the render thread.
-         net.minecraft.client.Minecraft.getMinecraft().addScheduledTask(() ->
-            net.minecraft.client.Minecraft.getMinecraft().displayGuiScreen(
-               new com.trolmastercard.sexmod.client.gui.ClothingScreen(girl)));
+         // Prefer a REAL girl of this type from the world (the old wardrobe was
+         // designed for live girls); fall back to a fresh preview instance.
+         com.trolmastercard.sexmod.entity.BaseGirlEntity girl = null;
+         try {
+            List<com.trolmastercard.sexmod.entity.BaseGirlEntity> girls =
+               com.trolmastercard.sexmod.entity.BaseGirlEntity.getGirlEntityList();
+            if (girls != null) {
+               for (com.trolmastercard.sexmod.entity.BaseGirlEntity g : girls) {
+                  if (g != null && com.trolmastercard.sexmod.entity.NpcType.getNpcType(g) == npcType) {
+                     girl = g;
+                     break;
+                  }
+               }
+            }
+         } catch (Throwable t) { }
+         if (girl == null) {
+            girl = (com.trolmastercard.sexmod.entity.BaseGirlEntity) npcType.npcClass.getConstructor(net.minecraft.world.World.class).newInstance(this.mc.world);
+            girl.setLocallyRegistered(true);
+         }
+         // Use the original proven entry point (schedules + guards whitelist).
+         com.trolmastercard.sexmod.client.gui.ClothingScreen.openClothingScreen(girl);
+         status = "Opened legacy wardrobe for " + npcType.name() + ".";
       } catch (Throwable t) {
          status = "Could not open legacy wardrobe: " + t.getClass().getSimpleName() + ": " + t.getMessage();
       }
