@@ -231,6 +231,7 @@ public class ClothingScreen extends GuiScreen {
       this.mc.renderEngine.bindTexture(GUI_TEXTURE);
       int x = this.guiX - this.screenX(15.0F);
       int y = this.guiY - 20;
+      this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 100, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 40 : 20, 20, 20);
       if (ServerWhitelistManager.getCustomModelsKey() == null) {
          this.drawBackground(x, mouseX, mouseY);
@@ -253,13 +254,33 @@ public class ClothingScreen extends GuiScreen {
 
    void drawBackground(int x, int mouseX, int mouseY) {
       int y = this.guiY - 40;
+      this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 120, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 40 : 20, 20, 20);
       y -= 20;
+      this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 20, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
       y -= 20;
+      this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 0, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
       y -= 20;
+      this.drawButtonBacking(x, y);
       this.drawTexturedModalRect(x, y, 40, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
+   }
+
+   /** Draws a semi-transparent backing plate behind a left-column icon button. */
+   void drawButtonBacking(int x, int y) {
+      net.minecraft.client.renderer.GlStateManager.enableBlend();
+      net.minecraft.client.renderer.GlStateManager.disableTexture2D();
+      net.minecraft.client.renderer.Tessellator tess = net.minecraft.client.renderer.Tessellator.getInstance();
+      net.minecraft.client.renderer.BufferBuilder buf = tess.getBuffer();
+      buf.begin(7, net.minecraft.client.renderer.vertex.DefaultVertexFormats.POSITION_COLOR);
+      buf.pos(x, y + 20, 0.0).color(0, 0, 0, 120).endVertex();
+      buf.pos(x + 20, y + 20, 0.0).color(0, 0, 0, 120).endVertex();
+      buf.pos(x + 20, y, 0.0).color(0, 0, 0, 120).endVertex();
+      buf.pos(x, y, 0.0).color(0, 0, 0, 120).endVertex();
+      tess.draw();
+      net.minecraft.client.renderer.GlStateManager.enableTexture2D();
+      net.minecraft.client.renderer.GlStateManager.disableBlend();
    }
 
    public boolean doesGuiPauseGame() {
