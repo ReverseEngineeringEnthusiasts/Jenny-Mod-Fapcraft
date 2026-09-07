@@ -92,11 +92,16 @@ public class GalathScreen extends GuiScreen {
    }
 
    /**
-    * Closes the screen when the pad toggle key (ClientProxy key binding 0) is
-    * released; everything else is handled by the parent.
+    * Closes the screen when the pad toggle key is released — either G
+    * (keyBindings[0], the original) or RShift (keyBindings[2], the dual
+    * keybind). Committing the chosen action happens in {@link #onGuiClosed()},
+    * so without this the pad stayed open until Escape.
     */
    public void handleKeyboardInput() {
-      if (ClientProxy.keyBindings[0].getKeyCode() == Keyboard.getEventKey() && !Keyboard.getEventKeyState()) {
+      int key = Keyboard.getEventKey();
+      boolean released = !Keyboard.getEventKeyState();
+      boolean padToggle = ClientProxy.keyBindings[0].getKeyCode() == key || ClientProxy.keyBindings[2].getKeyCode() == key;
+      if (padToggle && released) {
          Minecraft.getMinecraft().player.closeScreen();
       } else {
          super.handleKeyboardInput();

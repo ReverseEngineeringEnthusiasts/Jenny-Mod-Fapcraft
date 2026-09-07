@@ -102,6 +102,11 @@ public class ReskinManager {
    private final ReloadWatcher watcher = new ReloadWatcher();
    private long lastTick;
 
+   /** Currently-active world key (single-<folder> / multi-<ip>), null when no world is open. */
+   private String activeWorldKey = null;
+   /** Packs that were applied previously but whose archive file is now missing (path -> display name). */
+   private final Map<String, String> missingPacks = new ConcurrentHashMap<>();
+
    private ReskinManager() {
    }
 
@@ -338,6 +343,7 @@ public class ReskinManager {
       // clean audit: written to sexmod/reskin_audit.log so the user can see
       // exactly which packs are applied and which were replaced.
       writeAudit();
+      saveAppliedForWorld();
       String status = "Applied '" + e.displayName + "' (" + ok + "/" + ops.size() + " files)";
       if (!problems.isEmpty()) status += " — problems: " + String.join("; ", problems);
       System.out.println("[reskin] " + status);
@@ -360,11 +366,129 @@ public class ReskinManager {
                sb.append("APPLIED  ").append(e.displayName).append("  girls=").append(e.girlSummary()).append("\n");
             }
          }
+         for (Map.Entry<String, String> en : missingPacks.entrySet()) {
+            sb.append("MISSING  ").append(en.getValue()).append("  (").append(en.getKey()).append(")\n");
+         }
          sb.append("# end\n");
          java.nio.file.Files.write(f.toPath(), sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
       } catch (Throwable t) {
          // audit is best-effort
       }
+   }
+
+   /* ------------------------------------------------------------------ */
+   /* Per-world persistence                                              */
+   /* ------------------------------------------------------------------ */
+
+   /**
+    * Stable key for the currently open world: {@code single-<save folder>} for
+    * singleplayer, {@code multi-<server ip>} for multiplayer, else null when no
+    * world is loaded (title screen).
+    */
+   @net.minecraftforge.fml.relauncher.SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
+   private static String currentWorldKey() {
+      try {
+         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
+         if (mc == null) return null;
+         net.minecraft.server.integrated.IntegratedServer is = mc.getIntegratedServer();
+         if (is != null) {
+            String folder = is.getFolderName();
+            if (folder != null && !folder.isEmpty()) return "single-" + folder;
+         }
+         net.minecraft.client.multiplayer.ServerData sd = mc.getCurrentServerData();
+         if (sd != null && sd.serverIP != null && !sd.serverIP.isEmpty()) return "multi-" + sd.serverIP;
+      } catch (Throwable t) {
+         // headless / not in a world
+      }
+      return null;
+   }
+
+   private static String sanitizeWorldKey(String key) {
+      return key.replaceAll("[^A-Za-z0-9._-]", "_");
+   }
+
+   /** Config file storing the applied-pack list for one world. */
+   private static File appliedConfigFile(String worldKey) {
+      return new File("sexmod/reskins/" + sanitizeWorldKey(worldKey) + ".json");
+   }
+
+   /** Saves the applied pack paths for the current world (no-op outside a world). */
+   public synchronized void saveAppliedForWorld() {
+      saveAppliedForWorld(currentWorldKey());
+   }
+
+   private synchronized void saveAppliedForWorld(String worldKey) {
+      if (worldKey == null) return;
+      try {
+         File f = appliedConfigFile(worldKey);
+         f.getParentFile().mkdirs();
+         com.google.gson.JsonArray arr = new com.google.gson.JsonArray();
+         synchronized (applied) {
+            for (ReskinEntry e : applied) {
+               arr.add(e.source.getAbsolutePath());
+            }
+         }
+         com.google.gson.JsonObject root = new com.google.gson.JsonObject();
+         root.addProperty("world", worldKey);
+         root.add("applied", arr);
+         java.nio.file.Files.write(f.toPath(), new Gson().toJson(root).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      } catch (Throwable t) {
+         // persistence is best-effort; never crash apply/revert for it
+      }
+   }
+
+   /**
+    * Re-applies every pack saved for the given world. Packs whose archive file
+    * no longer exists are skipped and recorded as missing (no crash). Must be
+    * called on the client thread (applies touch GeckoLib caches).
+    */
+   public synchronized void loadAppliedForWorld(String worldKey) {
+      try {
+         File f = appliedConfigFile(worldKey);
+         if (!f.isFile()) return;
+         com.google.gson.JsonObject root = new Gson().fromJson(
+            new String(java.nio.file.Files.readAllBytes(f.toPath()), java.nio.charset.StandardCharsets.UTF_8),
+            com.google.gson.JsonObject.class
+         );
+         if (root == null || !root.has("applied")) return;
+         com.google.gson.JsonArray arr = root.getAsJsonArray("applied");
+         // map current scan by absolute path so applied entries are the live objects
+         List<ReskinEntry> all = scan();
+         Map<String, ReskinEntry> byPath = new java.util.HashMap<>();
+         if (all != null) {
+            for (ReskinEntry e : all) byPath.put(e.source.getAbsolutePath(), e);
+         }
+         missingPacks.clear();
+         int appliedOk = 0, missing = 0;
+         for (com.google.gson.JsonElement el : arr) {
+            String path = el.getAsString();
+            ReskinEntry e = byPath.get(path);
+            File src = new File(path);
+            if (e == null || !src.isFile()) {
+               missingPacks.put(path, e == null ? new File(path).getName() : e.displayName);
+               System.out.println("[reskin] missing pack, skipping: " + path);
+               missing++;
+               continue;
+            }
+            try {
+               apply(e);
+               appliedOk++;
+            } catch (Throwable t) {
+               System.out.println("[reskin] failed to re-apply " + e.displayName + ": " + t.getMessage());
+            }
+         }
+         if (missing > 0) {
+            System.out.println("[reskin] world '" + worldKey + "': re-applied " + appliedOk + " pack(s), " + missing + " missing");
+         }
+         writeAudit();
+      } catch (Throwable t) {
+         // never crash world join on a bad config
+      }
+   }
+
+   /** Paths of previously-applied packs whose archive is now missing (path -> display name). */
+   public Map<String, String> missingCopy() {
+      return new java.util.HashMap<>(missingPacks);
    }
 
    private void applyGeo(ReskinEntry e, ReskinApplier.Op op, byte[] bytes) throws Exception {
@@ -444,6 +568,7 @@ public class ReskinManager {
          try { applySilent(re); } catch (Throwable t) { /* keep going */ }
       }
       writeAudit();
+      saveAppliedForWorld();
       return "Moved '" + e.displayName + "' to priority " + (newDisplay + 1) + ".";
    }
 
@@ -482,6 +607,7 @@ public class ReskinManager {
       applied.remove(e);
       applyErrors.remove(key(e));
       restoreDefaults();
+      saveAppliedForWorld();
       return "Reverted '" + e.displayName + "'";
    }
 
@@ -519,6 +645,21 @@ public class ReskinManager {
       long now = System.currentTimeMillis();
       if (now - lastTick < 500) return;
       lastTick = now;
+
+      // Per-world persistence: detect world enter / leave / switch.
+      // Saving the OLD key first is important: currentWorldKey() has already
+      // changed by the time we detect the transition.
+      String wk = currentWorldKey();
+      if (!java.util.Objects.equals(wk, this.activeWorldKey)) {
+         if (this.activeWorldKey != null) {
+            saveAppliedForWorld(this.activeWorldKey);
+         }
+         this.activeWorldKey = wk;
+         if (wk != null) {
+            loadAppliedForWorld(wk);
+         }
+      }
+
       if (watcher.dirty) {
          watcher.dirty = false;
          List<ReskinEntry> still = appliedCopy();
