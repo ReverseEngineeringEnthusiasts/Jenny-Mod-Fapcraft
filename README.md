@@ -70,4 +70,19 @@ The process is nearly identical:
 - Linux: `~/.minecraft/mods/`  
 - macOS: `~/Library/Application Support/minecraft/mods/`
 
+### Extra additions (post-reverse engineering)
+
+- Fixed A LOT of bugs. Quite a few introduced by ZKM deobfuscation, plus a few from my own questionable efforts in custom MCP class remapping to get Maven working instead of Gradle (worth it... I think).
+- Custom model loader and GUI for loading custom character models using the "Girl Wand" item, which conveniently offers one-click downloads of all the models I've archived at https://github.com/ReverseEngineeringEnthusiasts/Jenny-Mod-Custom-Models-Archive
+- The old "legacy" wardrobe is still there (via the **Legacy** button in the reskin browser) and works alongside the new pack browser — bone-part cycling, girl-specific sliders and the 3D part previews are all restored.
+- Applied reskin packs are remembered per world (`sexmod/reskins/<world>.json`) and re-applied automatically when you re-enter that world; missing packs are skipped gracefully and listed in `sexmod/reskin_audit.log`.
+
+### Screenshots
+
+![Reskin pack browser](screenshots/00-reskin-browser.png)
+
+![Legacy wardrobe](screenshots/01-legacy-wardrobe.png)
+
+![Goblin on the shoulder](screenshots/02-goblin-shoulder.png)
+
 ## MIT License <3
