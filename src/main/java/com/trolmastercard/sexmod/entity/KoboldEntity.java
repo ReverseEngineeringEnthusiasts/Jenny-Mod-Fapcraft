@@ -335,6 +335,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    void updateModelCodeDNA() {
       if (this.customPartsData != null) {
+         String prevDna = (String)this.entityDataManager.get(APPEARANCE_DNA);
          StringBuilder builder = new StringBuilder();
 
          for (int i = 0; i < this.customPartsData.size(); i++) {
@@ -356,6 +357,10 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          }
 
          this.entityDataManager.set(APPEARANCE_DNA, builder.toString());
+         String newDna = (String)this.entityDataManager.get(APPEARANCE_DNA);
+         if (!newDna.equals(prevDna)) {
+            System.out.println("[sexmod-pack] KoboldEntity.updateModelCodeDNA '" + prevDna + "' -> '" + newDna + "'");
+         }
          KoboldRenderer.clearBoneColors();
       }
    }

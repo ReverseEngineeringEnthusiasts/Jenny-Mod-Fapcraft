@@ -103,10 +103,20 @@ public class BodySlidersScreen extends GuiScreen {
       String type = com.trolmastercard.sexmod.entity.NpcType.getNpcType(girl) == null ? ""
          : com.trolmastercard.sexmod.entity.NpcType.getNpcType(girl).name();
       if ("GOBLIN".equals(type)) {
-         String[] names = {"Head", "Horns", "Ears", "Hairstyle", "Hair Color", "Skin Color", "Eye Color", "Mouth", "Nose", "Extra"};
+         // Verified against GoblinRenderer.onBoneProcessing + getBoneColor:
+         // [0]=head variant (shared by ears), [1]/[2]=left/right ear variant,
+         // [3]/[4]=ear variant color-group seeds, [5]=hair variant,
+         // [6]=hair color, [7]=skin color, [8]=eye color.
+         String[] names = {"Head", "Left Ear", "Right Ear", "Ear Pattern L", "Ear Pattern R", "Hairstyle", "Hair Color", "Skin Color", "Eye Color"};
          if (idx < names.length) return names[idx];
       } else if ("KOBOLD".equals(type)) {
-         String[] names = {"Height", "Pattern", "Markings", "Tail", "Ears", "Horn", "Head Shape", "Mouth", "Eye Color", "Chest", "Extra"};
+         // Verified against KoboldNpcModel.setLivingAnimations + KoboldRenderer:
+         // [0]=body size (aE), [1]/[2]=pattern/markings colors,
+         // [3]=up-horn variant, [4]=down-horn variant, [5]=breast scale
+         // (boobL/boobR/armorBoobs — this was mislabeled 'Horn'),
+         // [6]=eye size/spacing, [7]=arm freckles, [8]=head freckles,
+         // [9]=backpack/tailpack pose, [10]=mouth variant.
+         String[] names = {"Height", "Pattern", "Markings", "Up Horns", "Down Horns", "Breasts", "Eyes", "Arm Freckles", "Head Freckles", "Backpack/Tailpack", "Mouth"};
          if (idx < names.length) return names[idx];
       } else if ("JENNY".equals(type) || "ELLIE".equals(type)) {
          String[] names = {"Outfit", "Hair Color", "Eye Color", "Skin Tone", "Breasts", "Hips", "Legs", "Feet", "Tail", "Accessory"};
@@ -143,16 +153,18 @@ public class BodySlidersScreen extends GuiScreen {
    @Override
    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
       super.mouseClicked(mouseX, mouseY, mouseButton);
-      if (mouseButton != 0 || partCounts.isEmpty()) return;
+      if (mouseButton != 0) return;
 
-      // Done
+      // Done (works even when there are no adjustable parts — it just closes)
       int bw = 60, bh = 20;
       int bx = this.width - bw - 8, by = this.height - 30;
       if (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY <= by + bh) {
          applyToGirl();
-         this.mc.displayGuiScreen(new ReskinBrowserScreen(currentFilterGirl()));
+         this.mc.displayGuiScreen(null);
          return;
       }
+
+      if (partCounts.isEmpty()) return;
 
       int top = 30;
       int rows = visibleRows();
@@ -305,13 +317,5 @@ public class BodySlidersScreen extends GuiScreen {
       int bx = this.width - bw - 8, by = this.height - 30;
       drawRect(bx, by, bx + bw, by + bh, 0xAA222222);
       this.drawCenteredString(this.fontRenderer, "Done", bx + bw / 2, by + 6, 0xFFFFFF);
-   }
-
-   private String currentFilterGirl() {
-      try {
-         com.trolmastercard.sexmod.entity.NpcType type = com.trolmastercard.sexmod.entity.NpcType.getNpcType(girl);
-         if (type != null) return type.name().toLowerCase(java.util.Locale.ROOT);
-      } catch (Throwable t) { }
-      return null;
    }
 }
