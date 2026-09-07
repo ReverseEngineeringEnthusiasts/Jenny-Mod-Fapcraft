@@ -572,7 +572,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
          for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
             if (girl instanceof IGoblin && !girl.world.isRemote && !girl.isDead) {
                UUID candidateUuid = ((IGoblin)girl).getOwnerUUID();
-               if (candidateUuid.equals(uuid)) {
+               // WILD/unowned goblins have a null owner; the QUERY uuid is the
+               // receiver so a null candidate just fails the match (no NPE).
+               // (Original bytecode: var0.equals(var3) — query first. The rename
+               // swapped the operands, NPEing on every unowned goblin.)
+               if (uuid.equals(candidateUuid)) {
                   return true;
                }
             }
