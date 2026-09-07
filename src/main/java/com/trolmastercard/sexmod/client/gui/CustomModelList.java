@@ -125,11 +125,9 @@ public class CustomModelList extends GuiListExtended {
       for (Entry entry : ClothingScreen.m) {
          BoneType boneType = (BoneType)entry.getKey();
          Entry data = (Entry)entry.getValue();
-         // The legacy CUSTOM_BONE / GIRL_SPECIFIC rows are part-attachment rows
-         // that made the preview a smashed mashup (full-body pack worn as a bone
-         // part). The reskin browser (wand / K / wardrobe button) replaces them;
-         // skip those rows here so the wardrobe can't re-introduce the dual-layer.
-         if (boneType == BoneType.CUSTOM_BONE || boneType == BoneType.GIRL_SPECIFIC) continue;
+         // Legacy rows: girl-specific parts (scale sliders) and custom-bone parts
+         // are part of the old wardrobe. The reskin browser adds a NEW overlay on
+         // top; keep both working (renderer crash-guards missing legacy models).
          this.entries.add(new CustomModelList.ModelListEntry(boneType, (List<String>)data.getKey(), (Integer)data.getValue()));
          if (BoneType.CUSTOM_BONE.equals(entry.getKey())) {
             customBoneCount++;
@@ -287,25 +285,95 @@ public class CustomModelList extends GuiListExtended {
       }
 
       void getScrollY(int y, int mouseX, int mouseY) {
-         // Legacy add/remove-custom-part header: DISABLED (no-op) — reskins are
-         // applied via the Reskins browser. Draw nothing interactive.
+         // Add/remove-custom-part header row: the "+" button re-registers the
+         // current custom part, the "x" (only while selected) removes it.
+         int bx = 30;
+         y += 5;
+         CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.GUI_TEXTURE);
+         CustomModelList.this.parentScreen.drawTexturedModalRect(bx, y, 40, this.isInBounds(mouseX, mouseY, bx, y, bx + 20, y + 20) ? 40 : 20, 20, 20);
+         bx += 40;
+         CustomModelList.this.parentScreen.drawTexturedModalRect(bx, y, this.isSelected ? 60 : 80, this.isInBounds(mouseX, mouseY, bx, y, bx + 20, y + 20) ? 40 : 20, 20, 20);
       }
 
       /**
-    * Renders the row: background, part icon, and the static label (no
-    * spinny part, no < > buttons). The legacy bone-part cycle is disabled —
-    * full-girl reskins are applied via the Reskins browser (wand / K), which
-    * shows a clean entity preview. This removes the broken spinny-icon and
-    * the mashed custom-part preview.
+    * Renders a bone-category row: the part background, category icon, the
+    * < / > cycle buttons, the 3D part preview (a temporary
+    * {@link SexSceneEntity}) and, for non-cross entries, the model name +
+    * author labels with hover tooltips. Restored from the original jar —
+    * the reskin browser sits on top of this, both stay functional.
     */
    void drawEntry(int y, int mouseX, int mouseY) {
          CustomModelList.this.mc.renderEngine.bindTexture(ClothingScreen.GUI_TEXTURE);
+         CustomModelList.this.parentScreen.drawTexturedModalRect(5, y, 0, 60, this.selectedIndex == 0 ? 119 : 256, 30);
          int x = 15;
          y += 5;
          CustomModelList.this.parentScreen.drawPartIcon(x, y, this.boneType.iconXPos);
          x += 25;
-         // draw disabled grey "cross" icon only (no interaction)
-         CustomModelList.this.parentScreen.drawPartBackground(x, y, 0, 0);
+         x = this.getEntryWidth(x, y, mouseX, mouseY);
+         BaseGirlEntity previewGirl = CustomModelList.this.parentScreen.getPreviewGirl();
+         SexSceneEntity scene;
+         if (this.selectedIndex == 0) {
+            scene = SexSceneEntity.createSceneEntity(CustomModelList.this.mc.world, previewGirl.getGirlId(), this.boneType);
+         } else {
+            scene = new SexSceneEntity(previewGirl.world, previewGirl.getGirlId(), this.modelNames.get(this.selectedIndex));
+         }
+         ServerWhitelistManager.ModelData modelData = ServerWhitelistManager.getModelDataForGirl(scene.getModelCode());
+         if (modelData != null) {
+            float scale = !scene.isItemModel ? modelData.getScale() : 1.0F;
+            int yOff = (int)(-modelData.getXOffset());
+            CustomModelList.this.parentScreen.drawPart(x, y + 10 + (scene.isItemModel ? 0 : 6) + yOff, 30.0F * scale, scene);
+            if (this.selectedIndex != 0) {
+               CustomModelList.this.parentScreen.drawPreviewModel(scene);
+            }
+            CustomModelList.this.mc.world.removeEntityDangerously(scene);
+            x = (int)(x + 30.0F);
+            if (this.selectedIndex != 0) {
+               int nameX = x;
+               String fullName = this.modelNames.get(this.selectedIndex);
+               String shortName = fullName.length() > 10 ? fullName.substring(0, 7) + "..." : fullName;
+               this.drawEntryLabel(shortName, x, y + 10);
+               x += this.fontRenderer.getStringWidth("MMMMMMMMMM");
+               int authorX = x;
+               String author = ServerWhitelistManager.getModelCode(fullName);
+               String shortAuthor = author.length() > 10 ? author.substring(0, 7) + "..." : author;
+               this.drawEntryLabel(shortAuthor, x, y + 10);
+               x += this.fontRenderer.getStringWidth("MMMMMMMMMM");
+               int authorEnd = x;
+               if (this.isInBounds(mouseX, mouseY, nameX, y + 10, nameX + this.fontRenderer.getStringWidth("MMMMMMMMMM"), y + 10 + this.fontRenderer.FONT_HEIGHT)) {
+                  CustomModelList.this.parentScreen.drawHoverText(fullName, mouseX, mouseY);
+               }
+               if (this.isInBounds(mouseX, mouseY, authorX, y + 10, authorEnd, y + 10 + this.fontRenderer.FONT_HEIGHT)) {
+                  CustomModelList.this.parentScreen.drawHoverText(author, mouseX, mouseY);
+               }
+            }
+         } else {
+            byte defOffset = 0;
+            CustomModelList.this.parentScreen.drawPart(x, y + 10 + (scene.isItemModel ? 0 : 6) + defOffset, 30.0F, scene);
+            if (this.selectedIndex != 0) {
+               CustomModelList.this.parentScreen.drawPreviewModel(scene);
+            }
+            CustomModelList.this.mc.world.removeEntityDangerously(scene);
+            x = (int)(x + 30.0F);
+            if (this.selectedIndex != 0) {
+               int nameX = x;
+               String fullName = this.modelNames.get(this.selectedIndex);
+               String shortName = fullName.length() > 10 ? fullName.substring(0, 7) + "..." : fullName;
+               this.drawEntryLabel(shortName, x, y + 10);
+               x += this.fontRenderer.getStringWidth("MMMMMMMMMM");
+               int authorX = x;
+               String author = ServerWhitelistManager.getModelCode(fullName);
+               String shortAuthor = author.length() > 10 ? author.substring(0, 7) + "..." : author;
+               this.drawEntryLabel(shortAuthor, x, y + 10);
+               x += this.fontRenderer.getStringWidth("MMMMMMMMMM");
+               int authorEnd = x;
+               if (this.isInBounds(mouseX, mouseY, nameX, y + 10, nameX + this.fontRenderer.getStringWidth("MMMMMMMMMM"), y + 10 + this.fontRenderer.FONT_HEIGHT)) {
+                  CustomModelList.this.parentScreen.drawHoverText(fullName, mouseX, mouseY);
+               }
+               if (this.isInBounds(mouseX, mouseY, authorX, y + 10, authorEnd, y + 10 + this.fontRenderer.FONT_HEIGHT)) {
+                  CustomModelList.this.parentScreen.drawHoverText(author, mouseX, mouseY);
+               }
+            }
+         }
       }
 
       /**
@@ -432,11 +500,15 @@ public class CustomModelList extends GuiListExtended {
       }
 
       void handleSlotClick(int x, int partIndex) {
-         // Legacy bone-part toggles are DISABLED. The < > buttons were wired to
-         // ClothingScreen.m but never updated the drawn preview, and applying a
-         // full-body pack as a bone part caused the dual-layer mashup. Reskins
-         // go through the Reskins browser (wand / K). Keep this method as a no-op
-         // so clicks here can't trigger the broken state changes.
+         // < / > cycle the selected part for this bone row (and enable/disable
+         // the girl-specific parts). Restored from the original jar — this is
+         // what actually switches the legacy part applied to the preview girl.
+         if (x > 40 && x < 60) {
+            CustomModelList.this.parentScreen.onBoneTypeToggle(this.boneType, false, partIndex);
+         }
+         if (x > 60 && x < 80) {
+            CustomModelList.this.parentScreen.onBoneTypeToggle(this.boneType, true, partIndex);
+         }
       }
 
       void isGirlSpecific(int x, int partIndex) {

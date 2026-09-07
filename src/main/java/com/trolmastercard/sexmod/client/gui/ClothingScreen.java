@@ -258,8 +258,11 @@ public class ClothingScreen extends GuiScreen {
       this.drawTexturedModalRect(x, y, 20, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
       y -= 20;
       this.drawTexturedModalRect(x, y, 0, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
+      // 5th (bottom) button: opens the reskin pack browser. The sheet has NO art
+      // at (40,150)/(40,170) (fully transparent in the original PNG too) — use the
+      // unused "list" button plate (40,20)/(40,40) so the button is visible again.
       y -= 20;
-      this.drawTexturedModalRect(x, y, 40, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 170 : 150, 20, 20);
+      this.drawTexturedModalRect(x, y, 40, this.isMouseOverPart(mouseX, mouseY, x, y, x + 20, y + 20) ? 40 : 20, 20, 20);
    }
 
    public boolean doesGuiPauseGame() {
