@@ -213,7 +213,20 @@ public class BodySlidersScreen extends GuiScreen {
          int size = Math.max(partCounts.size(), data == null ? 0 : data.size());
          for (int i = 0; i < size; i++) {
             int count = i < partCounts.size() ? Math.max(1, partCounts.get(i)) : 1;
-            int val = (i == row) ? Math.max(0, Math.min(opt, count - 1)) : 0;
+            int val;
+            if (i == row) {
+               val = Math.max(0, Math.min(opt, count - 1));
+            } else if (data != null && i < data.size()) {
+               // PRESERVE the other parts' current values. Zeroing them made the
+               // girl's other features revert the moment updateModelCodeDNA rebuilt
+               // her DNA from customPartsData (live preview + confirm).
+               Object item = data.get(i);
+               Object v = item instanceof Entry ? ((Entry) item).getValue() : null;
+               if (v instanceof Entry) v = ((Entry) v).getValue();
+               val = (v instanceof Integer) ? Math.max(0, Math.min(((Integer) v).intValue(), count - 1)) : 0;
+            } else {
+               val = 0;
+            }
             fresh.add(new SimpleEntry<>(BoneType.GIRL_SPECIFIC,
                new SimpleEntry<>(new ArrayList<>(), val)));
          }

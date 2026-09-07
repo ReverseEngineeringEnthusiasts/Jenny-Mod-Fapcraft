@@ -106,6 +106,23 @@ public class ClothingScreen extends GuiScreen {
          e.printStackTrace();
       }
 
+      // Copy the REAL girl's appearance DNA onto the fresh preview so the sliders
+      // start at her ACTUAL values instead of the preview's default appearance.
+      // Without this, every wardrobe open showed the default (3,2,2,8,8,...) DNA
+      // and the slider values were never consistent with the live girl.
+      try {
+         if (girl instanceof com.trolmastercard.sexmod.entity.AbstractNpcOnlyEntity
+            || girl instanceof com.trolmastercard.sexmod.entity.AbstractKoboldPlayerEntity) {
+            Object dna = girl.getDataManager().get(com.trolmastercard.sexmod.entity.AbstractNpcOnlyEntity.APPEARANCE_DNA);
+            this.previewGirl.getDataManager().set(
+               com.trolmastercard.sexmod.entity.AbstractNpcOnlyEntity.APPEARANCE_DNA,
+               dna == null ? "" : (String) dna
+            );
+         }
+      } catch (Throwable t) {
+         // preview girl keeps its default appearance — display-only caveat
+      }
+
       this.refreshCustomParts();
       String modelCode = girl.getCustomModelCode();
       this.previewGirl.getDataManager().set(BaseGirlEntity.CUSTOM_MODEL_KEY, modelCode);
@@ -343,13 +360,21 @@ public class ClothingScreen extends GuiScreen {
             System.out.println(String.format("[DEBUG toggle result] bone=%s %s -> %s (idx %d->%d/%d)", boneType, prevName, nextName, (Integer)data.getValue(), currentIndex, partCount));
             if (net.minecraft.client.Minecraft.getMinecraft().player != null) net.minecraft.client.Minecraft.getMinecraft().player.sendMessage(new net.minecraft.util.text.TextComponentString(String.format("§e%s: %s -> %s", boneType, prevName, nextName)));
             m.set(index, new SimpleEntry<>((BoneType)entry.getKey(), new SimpleEntry<>((List<String>)((Entry)entry.getValue()).getKey(), currentIndex)));
-            // Do NOT call previewGirl.setCustomPartsData(...) here: that replaces
-            // customPartsData with a NEW GIRL_SPECIFIC-only list, desyncing it from
-            // m (which still references the old shared entry objects). Slider writes
-            // go through previewGirl.customPartsData while playClickSound reads m —
-            // the desync made confirmed slider values stale ("value doesn't set").
-            // m and customPartsData already share the GIRL_SPECIFIC entries, so
-            // dropping the replacement keeps everything consistent.
+            // Re-sync previewGirl.customPartsData with m's GIRL_SPECIFIC entries.
+            // m.set above replaced one entry with a NEW object; rebuilding
+            // customPartsData from the current GIRL_SPECIFIC entries keeps both
+            // pointing at the SAME shared entry objects, so slider writes
+            // (setCustomPartValue -> customPartsData) and the confirm packet
+            // (playClickSound -> m) always read the same live values.
+            ArrayList girlSpecificEntries = new ArrayList();
+
+            for (Entry girlSpecificEntry : m) {
+               if (girlSpecificEntry.getKey() == BoneType.GIRL_SPECIFIC) {
+                  girlSpecificEntries.add(girlSpecificEntry);
+               }
+            }
+
+            this.previewGirl.setCustomPartsData(girlSpecificEntries);
          }
       }
    }
