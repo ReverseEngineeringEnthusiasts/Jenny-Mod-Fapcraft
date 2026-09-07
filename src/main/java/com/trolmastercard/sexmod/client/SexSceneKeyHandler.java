@@ -2,6 +2,7 @@ package com.trolmastercard.sexmod.client;
 
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
+import com.trolmastercard.sexmod.entity.GoblinEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.SceneDebug;
@@ -56,6 +57,14 @@ public class SexSceneKeyHandler {
          }
 
          UUID playerUuid = mc.player.getPersistentID();
+
+         // DUAL KEYBIND: RShift = goblin gesture pad when a goblin is riding our
+         // shoulder (same action as G / keyBindings[0]). Otherwise fall through to
+         // the scene-exit behavior below.
+         if (GoblinEntity.openGoblinPadForPlayer(mc, playerUuid)) {
+            SceneDebug.log(SceneDebug.RSHIFT, "R-SHIFT: opened goblin throw/pickup pad");
+            return;
+         }
 
          // "Leave sex scene": PROGRESS the scene to its ending when possible —
          // triggerCumAction jumps to the cum/ending animation (fills the meter,

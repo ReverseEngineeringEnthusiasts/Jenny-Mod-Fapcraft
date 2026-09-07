@@ -307,6 +307,37 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       this.setInteractionPlayerUUID(uuid);
    }
 
+   /**
+    * CLIENT: opens the goblin throw/pickup gesture pad ({@code GalathScreen})
+    * when the local player owns a goblin that is riding their shoulder
+    * (SHOULDER_IDLE). Returns true if a pad was opened. Used by both the G
+    * keybind and the RShift (Leave-sex-scene) dual keybind.
+    */
+   @net.minecraftforge.fml.relauncher.SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
+   public static boolean openGoblinPadForPlayer(net.minecraft.client.Minecraft mc, UUID playerUuid) {
+      if (mc == null || playerUuid == null) return false;
+      if (mc.currentScreen instanceof com.trolmastercard.sexmod.client.gui.GalathScreen) return false;
+      BaseGirlEntity padGirl = null;
+      try {
+         for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+            if (girl.world.isRemote && girl instanceof IGoblin) {
+               IGoblin goblin = (IGoblin)girl;
+               if (playerUuid.equals(goblin.getOwnerUUID())) {
+                  padGirl = girl;
+                  break;
+               }
+            }
+         }
+      } catch (ConcurrentModificationException ex) {
+         return false;
+      }
+      if (padGirl != null && padGirl.getCurrentAction() == Action.SHOULDER_IDLE) {
+         mc.displayGuiScreen(new com.trolmastercard.sexmod.client.gui.GalathScreen(padGirl));
+         return true;
+      }
+      return false;
+   }
+
    @Override
    public String getDisplayNameText() {
       return "Goblin";
