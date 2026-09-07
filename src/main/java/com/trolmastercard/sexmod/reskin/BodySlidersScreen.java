@@ -30,6 +30,8 @@ public class BodySlidersScreen extends GuiScreen {
    private final List<Integer> partCounts = new ArrayList<>();
    private final List<String> partNames = new ArrayList<>();
    private final float[] positions;      // 0..1 per part
+   private final java.util.UUID girlId;
+   private final String modelCode;
    private int selected = 0;
    private int scroll = 0;
    private boolean dragging = false;
@@ -37,6 +39,8 @@ public class BodySlidersScreen extends GuiScreen {
 
    public BodySlidersScreen(BaseGirlEntity girl) {
       this.girl = girl;
+      this.girlId = girl.getGirlId();
+      this.modelCode = girl.getCustomModelCode();
       this.mc = Minecraft.getMinecraft();
       try {
          List<?> ids = girl.getCustomPartIdList();
@@ -145,6 +149,7 @@ public class BodySlidersScreen extends GuiScreen {
       int bw = 60, bh = 20;
       int bx = this.width - bw - 8, by = this.height - 30;
       if (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY <= by + bh) {
+         applyToGirl();
          this.mc.displayGuiScreen(new ReskinBrowserScreen(currentFilterGirl()));
          return;
       }
@@ -215,6 +220,24 @@ public class BodySlidersScreen extends GuiScreen {
          girl.setCustomPartsData(fresh);
       } catch (Throwable t) {
          // display-only feature; the preview keeps moving regardless
+      }
+   }
+
+   /** Persist the current slider options to the (real) girl via UploadModelStringPacket. */
+   private void applyToGirl() {
+      try {
+         if (partCounts.isEmpty()) return;
+         java.util.ArrayList<Integer> partIds = new java.util.ArrayList<>();
+         for (int i = 0; i < partCounts.size(); i++) {
+            partIds.add(optionFromPos(i));
+         }
+         com.trolmastercard.sexmod.networking.PacketHandler.networkWrapper.sendToServer(
+            new com.trolmastercard.sexmod.networking.UploadModelStringPacket(
+               modelCode, girlId, partIds)
+         );
+         status = "Applied " + partCounts.size() + " part option(s).";
+      } catch (Throwable t) {
+         status = "Could not apply: " + t.getClass().getSimpleName();
       }
    }
 

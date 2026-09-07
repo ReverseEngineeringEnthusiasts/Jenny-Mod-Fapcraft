@@ -343,15 +343,13 @@ public class ClothingScreen extends GuiScreen {
             System.out.println(String.format("[DEBUG toggle result] bone=%s %s -> %s (idx %d->%d/%d)", boneType, prevName, nextName, (Integer)data.getValue(), currentIndex, partCount));
             if (net.minecraft.client.Minecraft.getMinecraft().player != null) net.minecraft.client.Minecraft.getMinecraft().player.sendMessage(new net.minecraft.util.text.TextComponentString(String.format("§e%s: %s -> %s", boneType, prevName, nextName)));
             m.set(index, new SimpleEntry<>((BoneType)entry.getKey(), new SimpleEntry<>((List<String>)((Entry)entry.getValue()).getKey(), currentIndex)));
-            ArrayList girlSpecificEntries = new ArrayList();
-
-            for (Entry girlSpecificEntry : m) {
-               if (girlSpecificEntry.getKey() == BoneType.GIRL_SPECIFIC) {
-                  girlSpecificEntries.add(girlSpecificEntry);
-               }
-            }
-
-            this.previewGirl.setCustomPartsData(girlSpecificEntries);
+            // Do NOT call previewGirl.setCustomPartsData(...) here: that replaces
+            // customPartsData with a NEW GIRL_SPECIFIC-only list, desyncing it from
+            // m (which still references the old shared entry objects). Slider writes
+            // go through previewGirl.customPartsData while playClickSound reads m —
+            // the desync made confirmed slider values stale ("value doesn't set").
+            // m and customPartsData already share the GIRL_SPECIFIC entries, so
+            // dropping the replacement keeps everything consistent.
          }
       }
    }

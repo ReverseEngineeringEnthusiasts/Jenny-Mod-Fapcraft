@@ -428,9 +428,25 @@ public class ReskinBrowserScreen extends GuiScreen {
             status = "Select a girl chip first to see her body sliders.";
             return;
          }
-         com.trolmastercard.sexmod.entity.BaseGirlEntity girl =
-            (com.trolmastercard.sexmod.entity.BaseGirlEntity) npcType.npcClass.getConstructor(net.minecraft.world.World.class).newInstance(this.mc.world);
-         girl.setLocallyRegistered(true);
+         // Prefer a REAL girl of this type from the world so the sliders can
+         // persist to her; fall back to a fresh preview instance (display-only).
+         com.trolmastercard.sexmod.entity.BaseGirlEntity girl = null;
+         try {
+            List<com.trolmastercard.sexmod.entity.BaseGirlEntity> girls =
+               com.trolmastercard.sexmod.entity.BaseGirlEntity.getGirlEntityList();
+            if (girls != null) {
+               for (com.trolmastercard.sexmod.entity.BaseGirlEntity g : girls) {
+                  if (g != null && com.trolmastercard.sexmod.entity.NpcType.getNpcType(g) == npcType) {
+                     girl = g;
+                     break;
+                  }
+               }
+            }
+         } catch (Throwable t) { }
+         if (girl == null) {
+            girl = (com.trolmastercard.sexmod.entity.BaseGirlEntity) npcType.npcClass.getConstructor(net.minecraft.world.World.class).newInstance(this.mc.world);
+            girl.setLocallyRegistered(true);
+         }
          this.mc.displayGuiScreen(new BodySlidersScreen(girl));
       } catch (Throwable t) {
          status = "Body sliders unavailable: " + t.getClass().getSimpleName();

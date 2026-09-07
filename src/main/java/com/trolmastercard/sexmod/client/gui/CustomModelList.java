@@ -401,7 +401,22 @@ public class CustomModelList extends GuiListExtended {
          float scale = this.getPartScale(y, trackStart, trackEnd, mouseX, mouseY, partIndex);
          int thumbX = (int)RotationHelper.lerp(trackStart, trackEnd, scale);
          CustomModelList.this.parentScreen.drawTexturedModalRect(thumbX, y, this.isInBounds(mouseX, mouseY, thumbX, y, thumbX + 4, y + 20) ? 223 : 219, 20, 4, 20);
-         CustomModelList.this.parentScreen.previewGirl.setCustomPartValue(partIndex, (int)(scale * 100.0F));
+         // Store the OPTION INDEX (0..count-1), not a 0..100 percentage. The
+         // confirm packet sends these as part ids and the server validates
+         // currentId > partId, so a bare percentage (e.g. 75) is always rejected.
+         int max = this.optionCount(partIndex);
+         int opt = Math.max(0, Math.min(Math.round(scale * (max - 1)), max - 1));
+         CustomModelList.this.parentScreen.previewGirl.setCustomPartValue(partIndex, opt);
+      }
+
+      int optionCount(int partIndex) {
+         try {
+            Entry data = CustomModelList.this.parentScreen.previewGirl.buildCustomPartsData(CustomModelList.this.parentScreen.girlId).get(partIndex);
+            int size = ((List) ((Entry) data.getValue()).getKey()).size();
+            return Math.max(1, size);
+         } catch (Throwable t) {
+            return 1;
+         }
       }
 
       /**
@@ -436,8 +451,11 @@ public class CustomModelList extends GuiListExtended {
       }
 
       float getPartValue(int partIndex) {
+         int max = this.optionCount(partIndex);
          Entry data = CustomModelList.this.parentScreen.previewGirl.buildCustomPartsData(CustomModelList.this.parentScreen.girlId).get(partIndex);
-         return ((Integer)((Entry)data.getValue()).getValue()).intValue() / 100.0F;
+         int val = ((Integer)((Entry)data.getValue()).getValue()).intValue();
+         if (max <= 1) return 1.0F;
+         return Math.max(0.0F, Math.min(1.0F, val / (float)(max - 1)));
       }
 
       /**
