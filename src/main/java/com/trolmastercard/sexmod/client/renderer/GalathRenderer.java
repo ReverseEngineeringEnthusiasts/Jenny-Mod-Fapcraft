@@ -548,14 +548,14 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
                GlStateManager.pushMatrix();
                Tessellator.getInstance().draw();
                com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
-               GL11.glEnable(2896);
+               GlStateManager.enableLighting();
                GlStateManager.scale(1.5, 1.0, 2.0);
                GlStateManager.translate(0.0, 0.0, 0.05);
                GlStateManager.rotate(110.0F, 1.0F, 0.0F, 0.0F);
                Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, new ItemStack(Items.IRON_SWORD), TransformType.THIRD_PERSON_RIGHT_HAND);
                this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
                buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-               GL11.glDisable(2896);
+               GlStateManager.disableLighting();
                GlStateManager.popMatrix();
             }
             break;
@@ -779,7 +779,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          Tessellator.getInstance().draw();
          GeoBone childBone = coinBone.childBones.get(0);
          buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-         GL11.glDisable(2896);
+         GlStateManager.disableLighting();
          float coinTicks = ThreadNames.clampFloat(Action.GIVE_COIN.ticksPlaying[1] + partialTicks, 105.0F, 125.0F);
          float progress = (coinTicks - 105.0F) / 20.0F;
          float lightmap = RotationHelper.lerp(120.0F, 240.0F, progress);
@@ -807,7 +807,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          MATRIX_STACK.pop();
          MATRIX_STACK.pop();
          Tessellator.getInstance().draw();
-         GL11.glEnable(2896);
+         GlStateManager.enableLighting();
          OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastBrightnessX, lastBrightnessY);
       }
    }

@@ -252,7 +252,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
     */
    void renderModelData(ServerWhitelistManager.ModelData modelData, SexSceneEntity sceneEntity, float partialTicks) {
       if (modelData != null && modelData.getLightingType() != LightingType.DEFAULT) {
-         GL11.glDisable(2896);
+         GlStateManager.disableLighting();
          this.lightingPos = modelData.getLightingType() == LightingType.SEXMOD ? WorldUtils.getEntityLookVector(sceneEntity, partialTicks) : null;
       } else {
          this.lightingPos = null;
@@ -317,14 +317,14 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
 
                            super.doRender(entity, 0.0, 0.0, 0.0, entityYaw, partialTicks);
                            GlStateManager.popMatrix();
-                           GL11.glEnable(2896);
+                           GlStateManager.enableLighting();
                         }
                      }
                   }
                } else {
                   this.colorScale = new Vec3d(1.0, 1.0, 1.0);
                   super.doRender(entity, x, y, z, entityYaw, partialTicks);
-                  GL11.glEnable(2896);
+                  GlStateManager.enableLighting();
                }
             }
          }

@@ -1,7 +1,19 @@
 name: Build
 
+# Auto-build + release, but ONLY for a deliberate release commit.
+# A push builds a release when the first line of the commit message is
+#     Release (1.2.3)
+# Every other push is ignored. Manual runs take a version input.
+
 on:
   push:
+    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version, e.g. 1.2.3 (required for a manual release)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -11,8 +23,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gate:
+    name: Check release
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.check.outputs.release }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - name: Decide whether to build
+        id: check
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "version=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "Manual release: $INPUT_VERSION"
+            exit 0
+          fi
+
+          first_line=$(printf '%s' "$COMMIT_MSG" | head -n1)
+          if printf '%s' "$first_line" | grep -Eq '^Release \([0-9]+\.[0-9]+\.[0-9]+\)'; then
+            version=$(printf '%s' "$first_line" | sed -E 's/^Release \(([0-9]+\.[0-9]+\.[0-9]+)\).*/\1/')
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "version=$version" >> "$GITHUB_OUTPUT"
+            echo "Release commit detected: $version"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "Not a 'Release (x.y.z)' commit; skipping build."
+          fi
+
   build:
     name: Build fapcraft jar
+    needs: gate
+    if: needs.gate.outputs.release == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -36,7 +81,7 @@ jobs:
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           {
-            echo "## Fapcraft 1.12.2 Build ${{ github.run_number }}"
+            echo "## Fapcraft 1.12.2 ${{ needs.gate.outputs.version }}"
             echo ""
             echo "SRG-reobfuscated + shaded (GeckoLib bundled). Drop into mods/ of a 1.12.2 instance."
             echo ""
@@ -66,8 +111,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.run_number }}
-          name: Fapcraft Build ${{ github.run_number }}
+          tag_name: v${{ needs.gate.outputs.version }}
+          name: Fapcraft ${{ needs.gate.outputs.version }}
           body_path: release-body.md
           files: |
             dist/*.jar

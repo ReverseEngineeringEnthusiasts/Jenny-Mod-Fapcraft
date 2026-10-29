@@ -3,9 +3,9 @@
     "modid": "sexmod",
     "name": "Fapcraft",
     "description": "you... probably already know what this mod does",
-    "version": "1.1.0-dev",
+    "version": "1.1.1-dev",
     "mcversion": "${mcversion}",
-    "url": "https://twitter.com/trolmastercard",
+    "url": "https://github.com/ReverseEngineeringEnthusiasts/Jenny-Mod-Fapcraft",
     "updateUrl": "",
     "authorList": [
       "Trolmastercard",

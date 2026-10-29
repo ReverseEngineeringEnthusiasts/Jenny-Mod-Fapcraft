@@ -59,7 +59,7 @@ docs/
 
 ## Mod metadata
 
-- Modid `sexmod`, name **Fapcraft**, version 1.1.0
+- Modid `sexmod`, name **Fapcraft**, version 1.1.1
 - Author: Trolmastercard (credits in `mcmod.info`)
 - Requires Forge 1.12.2; depends on `after:geckolib` (GeckoLib 3, bundled/shaded)
 - Network channel: `sexmodchannel` (SimpleNetworkWrapper)

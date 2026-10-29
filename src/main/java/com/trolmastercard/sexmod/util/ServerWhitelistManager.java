@@ -259,9 +259,9 @@ public class ServerWhitelistManager {
       return Main.proxy instanceof ClientProxy ? getGlobalModelOverride() : "sexmod_custom_models";
    }
 
-   /** Local mod version, e.g. "1.1.0". */
+   /** Local mod version, e.g. "1.1.1". */
    public static String localVersion() {
-      return "1.1.0";
+      return "1.1.1";
    }
 
    /** Local build number for the release stream (matches GitHub "Fapcraft Build N" tags). */

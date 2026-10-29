@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.client.renderer;
 
+import net.minecraft.client.renderer.GlStateManager;
+
 import com.trolmastercard.sexmod.client.model.SummonItemModel;
 import com.trolmastercard.sexmod.entity.BodyParts;
 import com.trolmastercard.sexmod.item.WinchesterItem;
@@ -40,11 +42,11 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
 
    public void renderSummonItem(WinchesterItem item, ItemStack stack) {
       if (DebugMode.b[0] == 0.0F) {
-         GL11.glDisable(2896);
+         GlStateManager.disableLighting();
       }
 
       super.render(item, stack);
-      GL11.glEnable(2896);
+      GlStateManager.enableLighting();
    }
 
    /**

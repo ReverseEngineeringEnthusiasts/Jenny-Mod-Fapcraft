@@ -95,7 +95,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
          GlStateManager.pushMatrix();
          Tessellator.getInstance().draw();
          com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
-         GL11.glEnable(2896);
+         GlStateManager.enableLighting();
          GlStateManager.scale(scale, scale, scale);
          GlStateManager.rotate((float)rotation.x, 1.0F, 0.0F, 0.0F);
          GlStateManager.rotate((float)rotation.y, 0.0F, 1.0F, 0.0F);
@@ -103,7 +103,7 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
          Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, heldStack, TransformType.THIRD_PERSON_RIGHT_HAND);
          this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
          buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-         GL11.glDisable(2896);
+         GlStateManager.disableLighting();
          GlStateManager.popMatrix();
       }
    }

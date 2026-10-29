@@ -67,7 +67,7 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
     * state afterwards.
     */
    public void doRenderBasicGirl(BasicGirlEntity girl, double x, double y, double z, float entityYaw, float partialTicks) {
-      GL11.glDisable(2896);
+      GlStateManager.disableLighting();
       GlStateManager.enableAlpha();
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -93,7 +93,7 @@ public class BasicGirlRenderer extends Render<BasicGirlEntity> {
       buffer.pos(-1.0, 2.0, 0.0).tex(0.0, 0.0).endVertex();
       tessellator.draw();
       GlStateManager.popMatrix();
-      GL11.glEnable(2896);
+      GlStateManager.enableLighting();
       GlStateManager.disableAlpha();
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, OpenGlHelper.lastBrightnessX, OpenGlHelper.lastBrightnessY);
       long now = System.currentTimeMillis();

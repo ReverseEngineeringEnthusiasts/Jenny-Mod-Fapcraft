@@ -54,7 +54,7 @@ public class DragonRenderer extends Render<DragonEntity> {
     */
    @Override
    public void doRender(DragonEntity dragon, double x, double y, double z, float entityYaw, float partialTicks) {
-      GL11.glDisable(2896);
+      GlStateManager.disableLighting();
       GlStateManager.enableAlpha();
       GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
@@ -92,7 +92,7 @@ public class DragonRenderer extends Render<DragonEntity> {
       tessellator.draw();
       GlStateManager.popMatrix();
       GlStateManager.disableAlpha();
-      GL11.glEnable(2896);
+      GlStateManager.enableLighting();
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, OpenGlHelper.lastBrightnessX, OpenGlHelper.lastBrightnessY);
    }
 

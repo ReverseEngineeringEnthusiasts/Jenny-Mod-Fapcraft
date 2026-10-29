@@ -309,7 +309,7 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
       com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
-      GL11.glEnable(2896);
+      GlStateManager.enableLighting();
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
       if (isOffhand) {
@@ -337,7 +337,7 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       itemRenderer.renderItem(this.renderEntity, bowStack, TransformType.THIRD_PERSON_RIGHT_HAND);
       buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-      GL11.glDisable(2896);
+      GlStateManager.disableLighting();
       GlStateManager.popMatrix();
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);

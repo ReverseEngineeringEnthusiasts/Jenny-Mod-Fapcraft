@@ -16,7 +16,7 @@ import net.minecraft.util.math.Vec3d;
 public class Reference {
    public static final String MOD_ID = "sexmod";
    public static final String MOD_NAME = "Fapcraft";
-   public static final String MOD_VERSION = "1.1.0";
+   public static final String MOD_VERSION = "1.1.1";
    public static final String CLIENT_PROXY = "com.trolmastercard.sexmod.ClientProxy";
    public static final String COMMON_PROXY = "com.trolmastercard.sexmod.CommonProxy";
    public static final Random RANDOM = new Random();

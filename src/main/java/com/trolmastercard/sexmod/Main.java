@@ -36,7 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib3.GeckoLib;
 
-@Mod(modid = "sexmod", name = "Fapcraft", version = "1.1.0", dependencies = "after:geckolib")
+@Mod(modid = "sexmod", name = "Fapcraft", version = "1.1.1", dependencies = "after:geckolib")
 /**
  * <b>Role.</b> Mod entry point ({@code @Mod sexmod}). Wires the proxies through
  * the Forge lifecycle (pre-init/init/post-init), registers the server commands,

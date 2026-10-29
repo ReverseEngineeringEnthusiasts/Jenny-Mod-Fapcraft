@@ -57,7 +57,7 @@ public class UpdateChecker {
          conn.setReadTimeout(12000);
          conn.setInstanceFollowRedirects(true);
          conn.setRequestProperty("Accept", "application/vnd.github+json");
-         conn.setRequestProperty("User-Agent", "Fapcraft-1.12.2/1.1.0 (update checker)");
+         conn.setRequestProperty("User-Agent", "Fapcraft-1.12.2/1.1.1 (update checker)");
          int code = conn.getResponseCode();
          if (code != 200) return null;
          try (BufferedReader r = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {

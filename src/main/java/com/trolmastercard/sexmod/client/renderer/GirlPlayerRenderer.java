@@ -275,14 +275,14 @@ public class GirlPlayerRenderer extends GirlRenderer {
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
       com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
-      GL11.glEnable(2896);
+      GlStateManager.enableLighting();
       this.preRenderCallback();
       new GirlLayerRenderer(this).render(this.playerGirl, this.playerGirl.limbSwing, this.playerGirl.limbSwingAmount, this.partialTicks, 0.0F, 0.0F, 0.0F, color);
       this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.playerGirl)));
       buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-      GL11.glDisable(2896);
+      GlStateManager.disableLighting();
       GlStateManager.popMatrix();
    }
 
@@ -300,7 +300,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
       GlStateManager.pushMatrix();
       Tessellator.getInstance().draw();
       com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
-      GL11.glEnable(2896);
+      GlStateManager.enableLighting();
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
       ItemStack stack = isOffhand ? this.offhandItem : this.mainhandItem;
@@ -330,7 +330,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
       itemRenderer.renderItem(this.playerGirl, stack, TransformType.THIRD_PERSON_RIGHT_HAND);
       buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.playerGirl)));
-      GL11.glDisable(2896);
+      GlStateManager.disableLighting();
       GlStateManager.popMatrix();
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);

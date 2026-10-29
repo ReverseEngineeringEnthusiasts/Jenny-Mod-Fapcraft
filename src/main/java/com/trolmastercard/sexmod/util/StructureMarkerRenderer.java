@@ -204,7 +204,7 @@ public class StructureMarkerRenderer {
    @SubscribeEvent
    public void onRenderWorldLast(RenderWorldLastEvent event) {
       GlStateManager.enableColorMaterial();
-      GL11.glDisable(2896);
+      GlStateManager.disableLighting();
       ItemStack stack = mc.player.getHeldItem(EnumHand.MAIN_HAND);
       if (stack.getItem() != DragonStaffItem.DRAGON_STAFF) {
          stack = mc.player.getHeldItem(EnumHand.OFF_HAND);
@@ -217,7 +217,7 @@ public class StructureMarkerRenderer {
       GlStateManager.enableLighting();
       GlStateManager.enableDepth();
       GlStateManager.enableAlpha();
-      GL11.glEnable(2896);
+      GlStateManager.enableLighting();
    }
 
    @SideOnly(Side.CLIENT)

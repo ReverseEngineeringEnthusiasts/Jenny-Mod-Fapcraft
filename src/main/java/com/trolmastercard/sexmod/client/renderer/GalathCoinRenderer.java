@@ -86,14 +86,14 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       this.currentTint = this.getCoinColor();
       if (!GirlSavedData.debugEnabled) {
          OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightmapValue, lightmapValue);
-         GL11.glDisable(2896);
+         GlStateManager.disableLighting();
       }
 
       buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
       this.isFlipping = true;
       this.renderRecursively(buffer, pentagramBone, g, b, a, ticks);
       Tessellator.getInstance().draw();
-      GL11.glEnable(2896);
+      GlStateManager.enableLighting();
       MATRIX_STACK.pop();
       GlStateManager.disableRescaleNormal();
       GlStateManager.enableCull();

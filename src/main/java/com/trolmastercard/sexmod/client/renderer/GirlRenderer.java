@@ -525,7 +525,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
       GlStateManager.pushMatrix();
       GlStateManager.translate(x, y, z);
-      GL11.glDisable(2896);
+      GlStateManager.disableLighting();
       GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
       GlStateManager.enableNormalize();
       GlStateManager.enableBlend();
@@ -588,7 +588,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
             ridingLayerRenderer.render((T)entity, ridingLimbSwing, ridingLimbSwingAmount, partialTicks, ridingLimbSwing, ridingHeadYawDelta, ridingPitch, ridingRenderColor);
          }
 
-         GL11.glEnable(2896);
+         GlStateManager.enableLighting();
          GlStateManager.disableBlend();
          GlStateManager.disableNormalize();
          GlStateManager.popMatrix();
@@ -647,7 +647,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
             layerRenderer.render((T)entity, limbSwing, limbSwingAmount, partialTicks, limbSwing, headYawDelta, pitch, renderColor);
          }
 
-         GL11.glEnable(2896);
+         GlStateManager.enableLighting();
          GlStateManager.disableBlend();
          GlStateManager.disableNormalize();
          GlStateManager.popMatrix();
@@ -1175,7 +1175,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
             GlStateManager.pushMatrix();
             Tessellator.getInstance().draw();
             com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
-            GL11.glEnable(2896);
+            GlStateManager.enableLighting();
             GL11.glRotated(bone.getRotationX() + 2.5, 0.0, 0.0, 1.0);
             GL11.glRotated(bone.getRotationY(), 0.0, 1.0, 0.0);
             GL11.glRotated(bone.getRotationZ(), 1.0, 0.0, 0.0);
@@ -1193,7 +1193,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
             itemRenderer.renderItem(this.renderEntity, new ItemStack(paymentStack.getItem(), 1), TransformType.THIRD_PERSON_RIGHT_HAND);
             this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
             buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-            GL11.glDisable(2896);
+            GlStateManager.disableLighting();
             GlStateManager.popMatrix();
          }
       }
@@ -1238,7 +1238,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
                GlStateManager.pushMatrix();
                Tessellator.getInstance().draw();
                com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
-               GL11.glEnable(2896);
+               GlStateManager.enableLighting();
                if (heldStack.getItem() instanceof ItemBow) {
                   GL11.glRotatef(girl.holdBowRot, 1.0F, 0.0F, 0.0F);
                } else if (girl.getCurrentAction() == Action.ATTACK && girl.nextAttack == 0) {
@@ -1251,7 +1251,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
                Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, heldStack, TransformType.THIRD_PERSON_RIGHT_HAND);
                this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
                buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-               GL11.glDisable(2896);
+               GlStateManager.disableLighting();
                GlStateManager.popMatrix();
             }
          }
