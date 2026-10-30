@@ -145,8 +145,8 @@ final class GoblinPlayerThrow {
          return;
       }
 
-      if (++goblin.aJ >= 37) {
-         goblin.aJ = 0;
+      if (++goblin.standUpTicks >= 37) {
+         goblin.standUpTicks = 0;
          goblin.setCurrentAction(Action.NULL);
       }
    }

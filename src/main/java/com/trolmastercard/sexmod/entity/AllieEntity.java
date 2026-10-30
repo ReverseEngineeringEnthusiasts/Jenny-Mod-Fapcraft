@@ -124,7 +124,7 @@ public class AllieEntity extends BaseGirlEntity {
 
    @SideOnly(Side.CLIENT)
    @Override
-   public void ac() {
+   public void onInteractionMenuClosed() {
       if (!this.stateFlag2) {
          this.isLampActive = true;
       }

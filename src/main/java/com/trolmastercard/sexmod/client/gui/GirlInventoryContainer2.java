@@ -35,13 +35,13 @@ public class GirlInventoryContainer2 extends Container {
          IItemHandler itemHandler = (IItemHandler) luna.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
          this.lunaEntity = luna;
          this.equipmentSlots = new Slot[]{
-            new GirlInventorySlot(GirlInventorySlot.b.WEAPON, itemHandler, GirlInventorySlot.b.WEAPON.id, 41, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.BOW, itemHandler, GirlInventorySlot.b.BOW.id, 59, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.HELMET, itemHandler, GirlInventorySlot.b.HELMET.id, 81, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.CHEST_PLATE, itemHandler, GirlInventorySlot.b.CHEST_PLATE.id, 100, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.PANTS, itemHandler, GirlInventorySlot.b.PANTS.id, 119, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.SHOES, itemHandler, GirlInventorySlot.b.SHOES.id, 138, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.ROD, itemHandler, GirlInventorySlot.b.ROD.id, 22, 60)
+            new GirlInventorySlot(GirlInventorySlot.SlotType.WEAPON, itemHandler, GirlInventorySlot.SlotType.WEAPON.id, 41, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.BOW, itemHandler, GirlInventorySlot.SlotType.BOW.id, 59, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.HELMET, itemHandler, GirlInventorySlot.SlotType.HELMET.id, 81, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.CHEST_PLATE, itemHandler, GirlInventorySlot.SlotType.CHEST_PLATE.id, 100, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.PANTS, itemHandler, GirlInventorySlot.SlotType.PANTS.id, 119, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.SHOES, itemHandler, GirlInventorySlot.SlotType.SHOES.id, 138, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.ROD, itemHandler, GirlInventorySlot.SlotType.ROD.id, 22, 60)
          };
          ArrayList slots = new ArrayList();
 

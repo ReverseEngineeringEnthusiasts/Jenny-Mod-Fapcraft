@@ -55,6 +55,28 @@ scene props), client-side editors, and **server-pushed GeckoLib models** for mul
   model scales to every player via UnknownPacket.
 - **GirlWorldData** persists Galath/Manglelie model codes across world reloads.
 
+## Combined models (two characters in one rig)
+
+A "combined model" is a single geo file containing more than one body, driven by one animation
+file. The mod ships one: `geo/galath/galath_con_mang.geo.json` — 532 bones, root `rotationTool`
+with `body` (Galath), `coin`, `steve` (the interaction player) and `body2` (Manglelie). Both
+`GalathNpcModel` and `ManglelieNpcModel` expose it as **outfit index 2**, and
+`animation.shared.double_holding_*` in both animation files key all three bodies.
+
+Who draws what during `THREESOME_SLOW/FAST/CUM`:
+
+- **Manglelie** — `getModelLocation` returns the combined model for those actions; her
+  `renderModelBuffer` draws `body2` (her, with her texture) then `steve` (the player, with
+  `getSkinTexture`).
+- **Galath** — keeps her normal model and renders normally; her renderer's `body2` pass stays
+  dormant because `galath.geo.json` has no such bone.
+
+The custom-model archive's "Combined Models" folder follows the same idea as a resource pack: it
+replaces `assets/sexmod/geo/<girl>/*.geo.json` and the matching `*.animation.json` with a rig that
+carries a second body and clips that move it. Note `steve (Jenny & Zoey).zip` in the archive is
+corrupt (multi-part zip concatenation, case-mismatched entry names, bad CRCs) — 7-Zip refuses it
+outright, so it needs re-downloading or re-zipping on a case-preserving filesystem.
+
 ## The model cache
 
 `GirlModel.enableModelCache` (config `shouldLoadOtherSkins`) controls texture caching;

@@ -93,7 +93,7 @@ public class Main {
    public static void onWorldClosed(FMLServerStoppedEvent event) {
       BaseGirlEntity.getGirlEntityList().clear();
       KoboldManager.clearAll();
-      KoboldEntity.aY.clear();
+      KoboldEntity.tribeMembers.clear();
       GirlSavedData.clearAll();
       ConfigWorldGenHandler.getInstance().clear();
       GirlRegistry.clearAll();

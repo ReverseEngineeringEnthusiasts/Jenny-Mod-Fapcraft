@@ -17,12 +17,12 @@ import net.minecraftforge.items.SlotItemHandler;
  * rod (Luna only).
  * <p>
  * Runs on both sides; {@link #isItemValid} is what keeps e.g. food out of the
- * weapon slot. The enum {@link b} maps slot ids 0..6 to their types.
+ * weapon slot. The enum {@link SlotType} maps slot ids 0..6 to their types.
  */
 public class GirlInventorySlot extends SlotItemHandler {
-   GirlInventorySlot.b slotType;
+   GirlInventorySlot.SlotType slotType;
 
-   public GirlInventorySlot(GirlInventorySlot.b slotType, IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+   public GirlInventorySlot(GirlInventorySlot.SlotType slotType, IItemHandler itemHandler, int index, int xPosition, int yPosition) {
       super(itemHandler, index, xPosition, yPosition);
       this.slotType = slotType;
    }
@@ -35,7 +35,7 @@ public class GirlInventorySlot extends SlotItemHandler {
     *              4=pants, 5=shoes, 6=rod)
     */
    public static boolean isSlotCompatible(ItemStack stack, int slotId) {
-      return isSlotTypeCompatible(stack, GirlInventorySlot.b.getSlotType(slotId));
+      return isSlotTypeCompatible(stack, GirlInventorySlot.SlotType.getSlotType(slotId));
    }
 
    public boolean isItemValid(ItemStack stack) {
@@ -46,7 +46,7 @@ public class GirlInventorySlot extends SlotItemHandler {
     * The canonical slot-type test: the item class must match the slot type
     * (weapon = sword/tool, bow, armor matching the body part, rod).
     */
-   static boolean isSlotTypeCompatible(ItemStack stack, GirlInventorySlot.b slotType) {
+   static boolean isSlotTypeCompatible(ItemStack stack, GirlInventorySlot.SlotType slotType) {
       Item item = stack.getItem();
       switch (slotType) {
          case WEAPON:
@@ -68,7 +68,7 @@ public class GirlInventorySlot extends SlotItemHandler {
       }
    }
 
-   public enum b {
+   public enum SlotType {
       WEAPON(0),
       BOW(1),
       HELMET(2),
@@ -79,7 +79,7 @@ public class GirlInventorySlot extends SlotItemHandler {
 
       public int id;
 
-      public static GirlInventorySlot.b getSlotType(int slotId) {
+      public static GirlInventorySlot.SlotType getSlotType(int slotId) {
          switch (slotId) {
             case 0:
                return WEAPON;
@@ -100,7 +100,7 @@ public class GirlInventorySlot extends SlotItemHandler {
          }
       }
 
-      b(int id) {
+      SlotType(int id) {
          this.id = id;
       }
 

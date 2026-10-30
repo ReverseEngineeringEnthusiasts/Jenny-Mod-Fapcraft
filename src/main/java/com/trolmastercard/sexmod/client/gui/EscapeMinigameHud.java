@@ -52,6 +52,8 @@ public class EscapeMinigameHud extends Gui {
    static boolean failed = false;
    static Minecraft mc = Minecraft.getMinecraft();
    static boolean hasStarted = false;
+   /** The galath whose scene owns this HUD; hides the card when that scene ends. */
+   static com.trolmastercard.sexmod.entity.GalathEntity hudOwner;
 
    /**
     * Per-tick state machine (CLIENT-side, called from the client tick event):
@@ -62,6 +64,11 @@ public class EscapeMinigameHud extends Gui {
     */
    public static void tickHud() {
       if (showHud) {
+         if (hudOwner == null || hudOwner.isDead || !isRapeScene(hudOwner.getCurrentAction())) {
+            hideHud();
+            return;
+         }
+
          if (mc.world == null) {
             showHud = false;
             hasStarted = false;
@@ -126,13 +133,40 @@ public class EscapeMinigameHud extends Gui {
     * Resets all static state and shows the HUD. Must be called from the CLIENT
     * tick thread (also resets any prior failure state).
     */
-   public static void showMinigame() {
+   public static void showMinigame(com.trolmastercard.sexmod.entity.GalathEntity owner) {
+      hudOwner = owner;
+      // A looping scene re-fires the enableRapeUI keyframe; restarting the slide
+      // every loop made the card bounce up and down the screen.
+      if (showHud && !failed) {
+         return;
+      }
+
       showHud = true;
       hasStarted = false;
       timer = 0.0F;
       progress = 0.0F;
       failTimer = 0.0F;
       failed = false;
+   }
+
+   /** The HUD belongs to the wild-galath rape scene only. */
+   static boolean isRapeScene(com.trolmastercard.sexmod.entity.Action action) {
+      return action == com.trolmastercard.sexmod.entity.Action.RAPE_PREPARE
+          || action == com.trolmastercard.sexmod.entity.Action.RAPE_CHARGE
+          || action == com.trolmastercard.sexmod.entity.Action.RAPE_INTRO
+          || action == com.trolmastercard.sexmod.entity.Action.RAPE_ON_GOING
+          || action == com.trolmastercard.sexmod.entity.Action.RAPE_CUM
+          || action == com.trolmastercard.sexmod.entity.Action.RAPE_CUM_IDLE;
+   }
+
+   static void hideHud() {
+      showHud = false;
+      hasStarted = false;
+      timer = 0.0F;
+      progress = 0.0F;
+      failTimer = 0.0F;
+      failed = false;
+      hudOwner = null;
    }
 
    public static void failMinigame() {

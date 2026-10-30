@@ -29,12 +29,37 @@ docs/
     ├── tribe-system.md        ← kobold tribes, dragon staff, tasks
     ├── gui.md                 ← every screen, container, HUD, keybind
     ├── custom-models.md       ← model codes, wardrobe, server-pushed models
+    ├── rendering.md           ← render pipeline, bone conventions, texture binds, GL state rules
+    ├── cleanroom.md           ← running this mod on Cleanroom 1.12.2 (Java 25, LWJGL 3)
     ├── networking.md          ← the sexmodchannel packet protocol
     ├── commands.md            ← every command, exact syntax, permission levels
     ├── worldgen-config.md     ← girl houses, natural spawns, config/sexmod.json
     ├── translations-sounds.md ← 16 languages, voice actresses, sound layout
     └── dev-features.md        ← hidden/dev features, dead code, code quirks
 ```
+
+## Building and testing
+
+```bash
+./build.sh                 # Maven build + SRG reobfuscation -> dist/fapcraft-1.12.2-<version>.jar
+JB=~/.sdkman/candidates/java/25.0.3.fx-zulu
+JAVA_HOME=$JB mvn -o test  # offline unit tests (9), ~10 s
+```
+
+- `pom.xml` is the **only** version source. `maven-resources-plugin` filters
+  `mcmod.info` and `sexmod-build.properties`; `BuildInfo` reads the latter with a hardcoded
+  fallback so IDE runs still work. `Main`'s `@Mod(version=…)` needs a compile-time constant, so it
+  uses `BuildInfo.DEFAULT_VERSION` and `BuildInfoTest` fails if that drifts from the pom.
+- Tests live in `src/test/java` (JUnit 4, resolved from the local Maven repo — no network needed):
+  `UpdateCheckerTest` (version parsing, `v7`/`1.2.3`/`1.2 (1)` formats, build comparison),
+  `BuildInfoTest` (version drift), `GirlBedPlacementTest` (bed-side offsets/yaws),
+  `ThreadNamesTest` (weighted pick reachability).
+- CI (`/.github/workflows/build.yml`) only builds a release when the pushed commit's first line
+  is `Release (x.y.z)`; every other push is ignored. A manual `workflow_dispatch` takes a version
+  input. The job runs `build.sh`, writes `dist/fapcraft-1.12.2.jar.sha256`, generates the
+  changelog from the previous tag and publishes `v<version>`.
+- Offline builds work because the dependencies live in `lib-repo/` (a `file://` Maven repository
+  inside the checkout) plus `~/.m2`. `dist/` and `target/` are gitignored.
 
 ## Quick overview
 

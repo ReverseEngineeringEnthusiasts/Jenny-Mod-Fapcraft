@@ -66,7 +66,7 @@
          Only whole-archive extract() is public; listing is via Rar5Reader/
          Rar4HeaderParser header parse, full bytes only on explicit Apply. -->
     <dependency>
-      <groupId>io.github.realburst</groupId><artifactId>unrar5j</artifactId><version>v2.0.3</version>
+      <groupId>io.github.realburst</groupId><artifactId>unrar5j</artifactId><version>v2.0.4</version>
       <scope>compile</scope>
     </dependency>
     <!-- apache commons lang3 (bundled) -->

@@ -437,6 +437,14 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
             }
          }
 
+         // A reskinned/custom geo model may not carry the threesome bones at all.
+         // Rendering a null bone NPEs on bone.getName(), so fall back to the
+         // normal pass instead of crashing the render thread.
+         if (body2Bone == null || steveBone == null) {
+            super.renderModelBuffer(model, buffer, manglelie, r, g, b, a, scale);
+            return;
+         }
+
          MATRIX_STACK.push();
          MATRIX_STACK.translate(topBone);
          MATRIX_STACK.moveToPivot(topBone);
@@ -447,7 +455,10 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
          Tessellator.getInstance().draw();
          buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
-         Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture(this.renderEntity));
+         // steve is the interaction player's body (the shared threesome animations
+         // pose it), so it needs the player skin - binding the girl's own texture
+         // here gave the player a garbled girl skin.
+         Minecraft.getMinecraft().renderEngine.bindTexture(this.getSkinTexture(this.renderEntity));
 
          this.renderRecursively(buffer, steveBone, r, g, b, this.renderEntity.getRenderScaleFactor());
          Tessellator.getInstance().draw();

@@ -149,9 +149,9 @@ Reused from other girls: `GIRLS_ALLIE_LIPSOUND`/`GIRLS_JENNY_LIPSOUND` (50/50) f
 - **Eggs**: `KoboldEggItem` (metadata = wool color → `EyeAndKoboldColor.getColorByWoolId`; NBT `tribeID`); placed on right-click block → `KoboldEggEntity` (data keys `EGG_COLOR` 115, `EGG_TYPE` 116); hatches into a tribe member. Mating-press cum grants one to the player after a 132-tick cooldown (`handleActionCooldown`).
 - **DNA codes**: `APPEARANCE_DNA` (121) — dash-separated zero-padded numbers; kobold layout `[8,3,gene,gene,2,2,1,1]` + size/color/eye in keys 122/119/120; goblin layout `[3,2,2,8,8,5,<hair>,<skin>,<eye>,<partIdx>]`. Persisted wardrobe: player NBT `"sexmod:GirlSpecific" + NpcType`.
 - **Mining/woodcutting tasks** (`KoboldTask`): TaskType FALL_TREE (1 worker) / MINE (3 workers); `findConnectedBlocks` flood-fills logs (horizontal + 1 up), registers the task; `executeMiningTask` picks the front row/column per facing; liquids → cobblestone scaffolding; air columns re-targeted; `mineBlockAt` needs an exposed neighbor (else "starts underground" status); block break → item into 27-slot inventory (drop as EntityItem if full), **sapling replanting** (`getBlockItem` maps log id/meta 17:1-3, 162:0-1 → SAPLING 1-5, default oak); `startMiningTask`/`fall_tree` anim chops the trunk top-down spawning `EntityFallingBlock`s (fallTime=1) for the upper logs; completed/removed tasks re-send `SendBlocksPacket` markers to the master; workers teleport with portal particles (`syncTribeBlocks`) when out of reach; chest deposit (`isTribeChestOpen` → insert, chest-locked sound).
-- **Beds**: kobolds claim unoccupied, unassigned beds (assigned = `KoboldManager.a` map kobold → [foot, head]); sleeping players blocked.
+- **Beds**: kobolds claim unoccupied, unassigned beds (assigned = `KoboldManager.bedAssignments` map kobold → [foot, head]); sleeping players blocked.
 - **Home**: ACTIVE tribe without a home claims a random spot 50–100 blocks away (standable), or builds a netherrack+fire camp if it is already a member near its home.
-- **Global max-health hack**: `KoboldEntity.af` is `static` — every kobold in the world shares one MAX_HEALTH value.
+- **Global max-health hack**: `KoboldEntity.spawnHealth` is `static` — every kobold in the world shares one MAX_HEALTH value.
 
 ## Player form (if any)
 
@@ -177,10 +177,10 @@ Kobold-specific data-manager keys (explicit ids):
 - `getTribeMemberCount` returns `Tribe.getTribeId()` = **distinct girl-UUID count** (members + saved positions), not the member-list size — it gates the bed-count logic.
 - The deobf has explicit jar-verified notes: bed/chest getters were once crossed (`getTribeBeds` returning chests and vice versa) and `writeToNBT` bed/chest keys were crossed — fixed to match the original jar ("bed" keys = `addTribeBed` set, "chest" keys = `addTribeChest` set).
 - `findConnectedBlocks` originally had `startPos.down()` in the ground-walk loop (never advances → infinite loop on floating logs); the deobf uses `groundPos = groundPos.down()` per the jar-faithful intent comment.
-- `KoboldEntity.af` (max health) is **static and shared world-wide** — spawning any kobold changes every kobold's max health.
-- The 17-string `an[]` insult list (navy-seals copypasta etc.) is dead data — no in-class references.
+- `KoboldEntity.spawnHealth` (max health) is **static and shared world-wide** — spawning any kobold changes every kobold's max health.
+- The 17-string `TOXIC_LINES[]` insult list (navy-seals copypasta etc.) is dead data — no in-class references.
 - `mating_press_startDone` case falls through into `mating_press_hardDone` (missing `break` in the switch — intentional in jar: `mating_press_startDone` shows the meter, then `mating_press_hardDone` sets SOFT).
-- `getScaleFactor() = 0.2 - (0.25 - aE)` — the NPC is tiny (0.2-ish) while the player form is `1.4 - shrink`.
+- `getScaleFactor() = 0.2 - (0.25 - SIZE_SCALAR)` — the NPC is tiny (0.2-ish) while the player form is `1.4 - shrink`.
 - `isTribeMember`-style naming aside, the tribe leader is recomputed on death (`onDeath` sets itself as leader → next `getLeaderKobold()` picks the fastest survivor).
 - Movement controller transition is 10 ticks for the NPC, 3 for the player form (registerControllers).
 - `KoboldPlayerEntity.getCustomPartIdList` part 0 is 101 (size slider max); part ids 1/2 are the color enum lengths — the wardrobe screen maps indices 0/1/2 to size/body/eye.

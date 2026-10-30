@@ -48,8 +48,8 @@ public class SlimeNpcModel extends GirlModel<BaseGirlEntity> {
       super.setLivingAnimations(entity, uniqueID, event);
       AnimationProcessor processor = this.getAnimationProcessor();
       if (!(entity.world instanceof SexWorldClient) && processor.getBone("bedSlime") != null && processor.getBone("bedSlimeLayer") != null) {
-         processor.getBone("bedSlime").setHidden(!Arrays.asList(this.bedSlimeActions).contains(entity.getCurrentAction()));
-         processor.getBone("bedSlimeLayer").setHidden(!Arrays.asList(this.bedSlimeActions).contains(entity.getCurrentAction()));
+         ModelBones.setHidden(processor, "bedSlime", !Arrays.asList(this.bedSlimeActions).contains(entity.getCurrentAction()));
+         ModelBones.setHidden(processor, "bedSlimeLayer", !Arrays.asList(this.bedSlimeActions).contains(entity.getCurrentAction()));
       }
 
       if (!(entity instanceof AbstractPlayerGirlEntity)) {

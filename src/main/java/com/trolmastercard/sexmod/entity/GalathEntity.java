@@ -193,9 +193,9 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    public static final double aZ = 2.0;
    public static final double SCALE_1_0 = 1.0;
    public static final float aJ = 0.5F;
-   public static final Vector3fSexmodSpecial aa = new Vector3fSexmodSpecial(0.83137256F, 0.6862745F, 0.21568628F);
-   public static final Vec3d bz = new Vec3d(-1.049342F, 2.0547214F, -0.050482392F);
-   public static final Vec3d bC = new Vec3d(1.2522261F, 1.4357733F, 0.23570988F);
+   public static final Vector3fSexmodSpecial STAR_COLOR = new Vector3fSexmodSpecial(0.83137256F, 0.6862745F, 0.21568628F);
+   public static final Vec3d LEFT_ENERGY_BALL_OFFSET = new Vec3d(-1.049342F, 2.0547214F, -0.050482392F);
+   public static final Vec3d RIGHT_ENERGY_BALL_OFFSET = new Vec3d(1.2522261F, 1.4357733F, 0.23570988F);
    public static final int aN = 10;
    public static final float ak = 0.2F;
    public static final int am = 5;

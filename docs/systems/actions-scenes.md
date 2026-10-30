@@ -80,6 +80,39 @@ Talk | Head pat | Anal | sex | touch boobs
   jar-verified.)
 - `ResetControllerPacket` resets the girl's animation controller for all observers within 100 blocks.
 
+## The Manglelie corrupt → threesome chain
+
+The Manglelie's own scene is a four-step server cycle in `ManglelieEntity.updateAITasks`, and
+each step has a precondition worth knowing when a scene "doesn't start":
+
+1. **`handleCorruptInit`** — seeks an unbound Galath within 15 blocks that is alive, on the
+   ground and has no Manglelie partner; runs to her.
+2. **`handlePartnerLook`** — binds the pair (`GALATH_PARTNER_UUID` both ways) and puts her in
+   `RIDE_MOMMY_HEAD`. A Galath whose partner UUID is already set is skipped forever — nothing
+   clears it when the Manglelie despawns.
+3. **`handleCorruptStart`** — picks an `EntityMob` within 15 blocks of the Galath and stores its
+   entity id (`CORRUPT_TARGET_ID`). The Galath must have no interaction player and must not be in
+   `MASTERBATE`, and the mob must pass `MobPredicates.isValidTarget` and `isGalathBlocked`.
+   *This step previously used an inverted AABB and always found nothing — see `dev-features.md`.*
+4. **`handleCorruptTimer`** — 28 ticks after the start time, fires a tipped arrow from the
+   Galath's head at the target and sets `corrupting`.
+5. **`handleCorruptTick`** — 60 ticks after the start, releases the target and frees the pair.
+   From there the shared `THREESOME_SLOW`/`FAST`/`CUM` actions run, rendered with the combined
+   model ([custom-models.md](custom-models.md#combined-models-two-characters-in-one-rig)).
+
+A wild Manglelie (`wild = true`, which is the field default but **not** what a bare
+`/summon sexmod:manglelie` produces — the NBT read sets it false) is the one that persists without
+a partner. Non-wild ones with no Galath delete themselves on their first tick.
+
+### The escape minigame HUD
+
+The "WASD" card (`client/gui/EscapeMinigameHud`) is owned by the Galath's rape scene:
+
+- shown by the `enableRapeUI` animation keyframe, hidden by `removeUI`;
+- it slides in over 20 ticks, and it tracks the owning Galath now, so it hides as soon as her
+  action leaves the `RAPE_*` set (or she dies) and it refuses to restart the slide while already
+  shown — otherwise a looping animation made it bounce up and down and outlive the scene.
+
 ## In-scene controls
 
 While a scene is active the player's input is intercepted (`HandlePlayerMovement`):

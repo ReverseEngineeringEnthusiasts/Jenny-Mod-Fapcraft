@@ -38,7 +38,7 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
       BlockPos pos = this.manglelieEntity.getPosition();
       BlockPos offset = new BlockPos(this.distance, this.distance, this.distance);
 
-      for (GalathEntity galath : this.manglelieEntity.world.getEntitiesWithinAABB(GalathEntity.class, new AxisAlignedBB(pos.add(offset), pos.subtract(offset)))) {
+      for (GalathEntity galath : this.manglelieEntity.world.getEntitiesWithinAABB(GalathEntity.class, new AxisAlignedBB(pos.subtract(offset), pos.add(offset)))) {
          if (!galath.world.isRemote && !galath.isDead && galath.hasMaster()) {
             return true;
          }

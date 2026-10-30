@@ -114,7 +114,7 @@ final class KoboldBlockLookup {
          BlockPos pos = entry.getValue();
          UUID memberUuid = entry.getKey();
          if (world.isAreaLoaded(pos, 5)) {
-            AxisAlignedBB aabb = new AxisAlignedBB(pos.subtract(new Vec3i(-3, -3, -3)), pos.add(3, 3, 3));
+            AxisAlignedBB aabb = new AxisAlignedBB(pos.subtract(new Vec3i(3, 3, 3)), pos.add(3, 3, 3));
             List koboldsNearby = world.getEntitiesWithinAABB(KoboldEntity.class, aabb);
             boolean hasKobold = false;
 

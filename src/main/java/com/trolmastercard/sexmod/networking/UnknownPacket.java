@@ -19,13 +19,13 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  */
 public class UnknownPacket implements IMessage {
    boolean isValid = false;
-   HashMap<String, Float> b = new HashMap<>();
+   HashMap<String, Float> entries = new HashMap<>();
 
    public UnknownPacket() {
    }
 
-   public UnknownPacket(HashMap<String, Float> b) {
-      this.b = b;
+   public UnknownPacket(HashMap<String, Float> entries) {
+      this.entries = entries;
    }
 
    public void fromBytes(ByteBuf buf) {
@@ -41,7 +41,7 @@ public class UnknownPacket implements IMessage {
          }
 
          for (int i = 0; i < count; i++) {
-            this.b.put(ByteBufUtils.readUTF8String(buf), buf.readFloat());
+            this.entries.put(ByteBufUtils.readUTF8String(buf), buf.readFloat());
          }
 
          this.isValid = true;
@@ -50,9 +50,9 @@ public class UnknownPacket implements IMessage {
 
    public void toBytes(ByteBuf buf) {
       if (!(Main.proxy instanceof ClientProxy)) {
-         buf.writeInt(this.b.size());
+         buf.writeInt(this.entries.size());
 
-         for (Entry entry : this.b.entrySet()) {
+         for (Entry entry : this.entries.entrySet()) {
             ByteBufUtils.writeUTF8String(buf, (String)entry.getKey());
             buf.writeFloat((Float)entry.getValue());
          }
@@ -73,7 +73,7 @@ public class UnknownPacket implements IMessage {
 
             ArrayList enabledModels = new ArrayList();
 
-            for (Entry entry : packet.b.entrySet()) {
+            for (Entry entry : packet.entries.entrySet()) {
                String modelName = (String)entry.getKey();
                if (!ServerWhitelistManager.isModelDisabled(modelName)) {
                   enabledModels.add(modelName);

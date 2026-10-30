@@ -65,6 +65,12 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
       buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
       GeoBone pentagramBone = null;
       this.isFlipping = false;
+      if (model.topLevelBones.isEmpty()) {
+         GlStateManager.disableRescaleNormal();
+         GlStateManager.enableCull();
+         return;
+      }
+
       GeoBone topBone = model.topLevelBones.get(0);
       MATRIX_STACK.push();
       MATRIX_STACK.translate(topBone);
@@ -91,7 +97,9 @@ public class GalathCoinRenderer extends GeoItemRenderer<GalathCoinItem> {
 
       buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
       this.isFlipping = true;
-      this.renderRecursively(buffer, pentagramBone, g, b, a, ticks);
+      if (pentagramBone != null) {
+         this.renderRecursively(buffer, pentagramBone, g, b, a, ticks);
+      }
       Tessellator.getInstance().draw();
       GlStateManager.enableLighting();
       MATRIX_STACK.pop();

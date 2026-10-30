@@ -31,7 +31,7 @@ import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
  * Item renderer for the dragon staff: renders the geckolib staff model plus a
  * spinning end-crystal on the {@code staff} bone, with a bob animation, a
  * screen-space sway from the holder's movement, and an orbiting
- * colored-wool-particle ring driven by {@link KoboldEntity#aY} bone data.
+ * colored-wool-particle ring driven by {@link KoboldEntity#tribeMembers} bone data.
  * <p>
  * <b>Dual mode.</b> When {@code isRendering} (toggled from the
  * {@code StructureCommandScreen}) the particles are spread in the player's
@@ -159,7 +159,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
    }
 
    /**
-    * Reads the particle chain from {@link KoboldEntity#aY} (id + position
+    * Reads the particle chain from {@link KoboldEntity#tribeMembers} (id + position
     * tuples) and either spreads the particles toward the player's view
     * (rendering mode, {@link #renderParticles}) or staggers them along the
     * bone order (animation mode, {@link #animateBones}).
@@ -168,7 +168,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
       ArrayList particleIds = new ArrayList();
       ArrayList particlePositions = new ArrayList();
 
-      for (Vector4d particleData : KoboldEntity.aY) {
+      for (Vector4d particleData : KoboldEntity.tribeMembers) {
          particleIds.add((int)particleData.getW());
          particlePositions.add(new Vec3d(particleData.getX(), particleData.getY(), particleData.getZ()));
       }

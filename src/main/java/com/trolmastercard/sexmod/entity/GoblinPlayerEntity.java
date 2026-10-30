@@ -81,7 +81,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    public static final DataParameter<Boolean> PREGNANT = EntityDataManager.createKey(GoblinPlayerEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(126);
-   int aJ = 0;
+   int standUpTicks = 0;
    int throwProgress = -1;
    int throwTickCount = 0;
    Action previousAction = Action.NULL;

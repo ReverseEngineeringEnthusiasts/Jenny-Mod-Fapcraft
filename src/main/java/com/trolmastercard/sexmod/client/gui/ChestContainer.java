@@ -37,12 +37,12 @@ public class ChestContainer extends Container {
          IItemHandler itemHandler = (IItemHandler)girl.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
          this.girl = girl;
          this.equipmentSlots = new Slot[]{
-            new GirlInventorySlot(GirlInventorySlot.b.WEAPON, itemHandler, GirlInventorySlot.b.WEAPON.id, 31, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.BOW, itemHandler, GirlInventorySlot.b.BOW.id, 50, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.HELMET, itemHandler, GirlInventorySlot.b.HELMET.id, 72, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.CHEST_PLATE, itemHandler, GirlInventorySlot.b.CHEST_PLATE.id, 91, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.PANTS, itemHandler, GirlInventorySlot.b.PANTS.id, 110, 60),
-            new GirlInventorySlot(GirlInventorySlot.b.SHOES, itemHandler, GirlInventorySlot.b.SHOES.id, 129, 60)
+            new GirlInventorySlot(GirlInventorySlot.SlotType.WEAPON, itemHandler, GirlInventorySlot.SlotType.WEAPON.id, 31, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.BOW, itemHandler, GirlInventorySlot.SlotType.BOW.id, 50, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.HELMET, itemHandler, GirlInventorySlot.SlotType.HELMET.id, 72, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.CHEST_PLATE, itemHandler, GirlInventorySlot.SlotType.CHEST_PLATE.id, 91, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.PANTS, itemHandler, GirlInventorySlot.SlotType.PANTS.id, 110, 60),
+            new GirlInventorySlot(GirlInventorySlot.SlotType.SHOES, itemHandler, GirlInventorySlot.SlotType.SHOES.id, 129, 60)
          };
          ArrayList slots = new ArrayList();
 

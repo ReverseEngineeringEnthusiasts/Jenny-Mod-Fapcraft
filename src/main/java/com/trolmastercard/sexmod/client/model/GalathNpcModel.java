@@ -224,9 +224,9 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     */
    void hideFutaBone() {
       if (!ClientProxy.IS_PRELOADING) {
-         this.getAnimationProcessor().getBone("futaCock").setHidden(!CommandFuta.ENABLED);
-         this.getAnimationProcessor().getBone("futaBallLL").setHidden(!CommandFuta.ENABLED);
-         this.getAnimationProcessor().getBone("futaBallLR").setHidden(!CommandFuta.ENABLED);
+         ModelBones.setHidden(this.getAnimationProcessor(), "futaCock", !CommandFuta.ENABLED);
+         ModelBones.setHidden(this.getAnimationProcessor(), "futaBallLL", !CommandFuta.ENABLED);
+         ModelBones.setHidden(this.getAnimationProcessor(), "futaBallLR", !CommandFuta.ENABLED);
       }
    }
 
@@ -235,12 +235,12 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     */
    void updatePlayerPose(BaseGirlEntity entity) {
       if (entity instanceof AbstractPlayerGirlEntity) {
-         this.getAnimationProcessor().getBone("coin").setHidden(true);
+         ModelBones.setHidden(this.getAnimationProcessor(), "coin", true);
       }
    }
 
    void hideWings(BaseGirlEntity entity) {
-      this.getAnimationProcessor().getBone("wings").setHidden(!((IGalath)entity).areWingsAnimated());
+      ModelBones.setHidden(this.getAnimationProcessor(), "wings", !((IGalath)entity).areWingsAnimated());
    }
 
    /**

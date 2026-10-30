@@ -31,7 +31,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  * member, w = wool color meta) and replies SERVER->CLIENT. If the sender has no
  * tribe it replies with an empty packet.
  * <p>
- * CLIENT-side handler: stores the reply in {@code KoboldEntity.aY} and the
+ * CLIENT-side handler: stores the reply in {@code KoboldEntity.tribeMembers} and the
  * alerted flag in {@code StructureCommandScreen.isErasing} — the UI reads those
  * statics to draw the tribe overview.
  */
@@ -84,7 +84,7 @@ public class GetTribeUiValuesPacket implements IMessage {
             return null;
          } else if (ctx.side.isClient()) {
             StructureCommandScreen.isErasing = packet.isValid;
-            KoboldEntity.aY = packet.tribeMembers;
+            KoboldEntity.tribeMembers = packet.tribeMembers;
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {

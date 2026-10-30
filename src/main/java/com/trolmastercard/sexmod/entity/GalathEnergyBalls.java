@@ -51,20 +51,20 @@ final class GalathEnergyBalls {
             Vec3d tempOffset;
             if (reset) {
                tempPos = pos;
-               tempOffset = VectorMath.MirrorXZ(GalathEntity.bz);
+               tempOffset = VectorMath.MirrorXZ(GalathEntity.LEFT_ENERGY_BALL_OFFSET);
             } else {
                tempPos = pos;
-               tempOffset = GalathEntity.bz;
+               tempOffset = GalathEntity.LEFT_ENERGY_BALL_OFFSET;
             }
 
             Vec3d leftPos = tempPos.add(VectorMath.rotateByYaw(tempOffset, 180.0F + galath.renderYawOffset));
             Vec3d rightPos = galath.getPositionVector();
             if (reset) {
                tempPos = rightPos;
-               tempOffset = VectorMath.MirrorXZ(GalathEntity.bC);
+               tempOffset = VectorMath.MirrorXZ(GalathEntity.RIGHT_ENERGY_BALL_OFFSET);
             } else {
                tempPos = rightPos;
-               tempOffset = GalathEntity.bC;
+               tempOffset = GalathEntity.RIGHT_ENERGY_BALL_OFFSET;
             }
 
             Vec3d mirrorRightPos = tempPos.add(VectorMath.rotateByYaw(tempOffset, 180.0F + galath.renderYawOffset));

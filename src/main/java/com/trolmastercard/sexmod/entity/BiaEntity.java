@@ -255,7 +255,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    }
 
    @Override
-   public void ac() {
+   public void onInteractionMenuClosed() {
       if (this.isAnchored() && !this.bedTransitionActive) {
          this.resetCameraAndPhysics();
       }

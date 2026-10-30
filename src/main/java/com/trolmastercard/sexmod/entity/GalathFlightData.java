@@ -205,7 +205,7 @@ public enum GalathFlightData {
             if ((Boolean)galath.getDataManager().get(GalathEntity.MIRROR_SIDE)) {
                if ((Boolean)galath.getDataManager().get(GalathEntity.LEFT_ENERGY_BALL_ALIVE)) {
                   Vec3d headPos = pos;
-                  Vec3d headAnchor = headPos.add(VectorMath.rotateByYaw(VectorMath.MirrorXZ(GalathEntity.bz), 180.0F + galath.renderYawOffset));
+                  Vec3d headAnchor = headPos.add(VectorMath.rotateByYaw(VectorMath.MirrorXZ(GalathEntity.LEFT_ENERGY_BALL_OFFSET), 180.0F + galath.renderYawOffset));
                   Vec3d aim = targetPos.subtract(headAnchor).normalize();
                   aim = new Vec3d(
                      aim.x + random.nextDouble() * 0.3F,
@@ -221,7 +221,7 @@ public enum GalathFlightData {
 
                if ((Boolean)galath.getDataManager().get(GalathEntity.RIGHT_ENERGY_BALL_ALIVE)) {
                   Vec3d backPos = pos;
-                  Vec3d backAnchor = backPos.add(VectorMath.rotateByYaw(VectorMath.MirrorXZ(GalathEntity.bC), 180.0F + galath.renderYawOffset));
+                  Vec3d backAnchor = backPos.add(VectorMath.rotateByYaw(VectorMath.MirrorXZ(GalathEntity.RIGHT_ENERGY_BALL_OFFSET), 180.0F + galath.renderYawOffset));
                   Vec3d aim2 = targetPos.subtract(backAnchor).normalize();
                   aim2 = new Vec3d(
                      aim2.x + random.nextDouble() * 0.3F,
@@ -237,7 +237,7 @@ public enum GalathFlightData {
             } else {
                if ((Boolean)galath.getDataManager().get(GalathEntity.LEFT_ENERGY_BALL_ALIVE)) {
                   Vec3d pos9 = pos;
-                  Vec3d anchor5 = pos9.add(VectorMath.rotateByYaw(GalathEntity.bz, 180.0F + galath.renderYawOffset));
+                  Vec3d anchor5 = pos9.add(VectorMath.rotateByYaw(GalathEntity.LEFT_ENERGY_BALL_OFFSET, 180.0F + galath.renderYawOffset));
                   Vec3d aim3 = targetPos.subtract(anchor5).normalize();
                   aim3 = new Vec3d(
                      aim3.x + random.nextDouble() * 0.3F,
@@ -253,7 +253,7 @@ public enum GalathFlightData {
 
                if ((Boolean)galath.getDataManager().get(GalathEntity.RIGHT_ENERGY_BALL_ALIVE)) {
                   Vec3d pos10 = pos;
-                  Vec3d anchor11 = pos10.add(VectorMath.rotateByYaw(GalathEntity.bC, 180.0F + galath.renderYawOffset));
+                  Vec3d anchor11 = pos10.add(VectorMath.rotateByYaw(GalathEntity.RIGHT_ENERGY_BALL_OFFSET, 180.0F + galath.renderYawOffset));
                   Vec3d aim4 = targetPos.subtract(anchor11).normalize();
                   aim4 = new Vec3d(
                      aim4.x + random.nextDouble() * 0.3F,

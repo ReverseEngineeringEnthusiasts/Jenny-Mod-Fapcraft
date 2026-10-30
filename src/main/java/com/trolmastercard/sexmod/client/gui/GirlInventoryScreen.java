@@ -40,7 +40,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * CLIENT-side only. The girl's equipment is previewed from her
  * {@link EntityDataManager} entries ({@code WEAPON}, {@code BOW},
  * {@code HELMET_SLOT}, ...) with animated slide-in. Closing the screen calls
- * {@code girl.ac()} to reset the interaction state.
+ * {@code girl.onInteractionMenuClosed()} to reset the interaction state.
  * <p>
  * <b>Pitfall (button overflow fix):</b> the static-button and action-button
  * Y counters must stay {@code int}. A decompiler artifact typed them
@@ -89,14 +89,14 @@ public class GirlInventoryScreen extends GuiScreen {
    }
 
    /**
-    * Releases the girl's interaction state ({@code girl.ac()}) when the menu
+    * Releases the girl's interaction state ({@code girl.onInteractionMenuClosed()}) when the menu
     * closes, so the girl returns to idle behavior. Must not be removed —
     * without it the girl stays locked in interaction mode.
     */
    @SideOnly(Side.CLIENT)
    public void onGuiClosed() {
       super.onGuiClosed();
-      this.girl.ac();
+      this.girl.onInteractionMenuClosed();
    }
 
    /**

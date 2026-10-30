@@ -20,6 +20,9 @@ Prism/Cleanroom with Fapcraft 1.1.1):
 | 4.4 / 4.5 | `pom.xml` single version source; first unit tests (`UpdateChecker`, version drift) |
 | 4.6 | camera sentinel `1.2345679F` replaced by `GirlCameraHelper.previewRenderInProgress` (begin/end preview in try/finally) |
 | 4.7 | `ForgeEventHandler.registerAll(...)` is the single registry (53 of 63 registrations; the rest are per-item self-registration) |
+| audit | `AvoidPlayerGoal` / `ManglelieEntity` inverted scan boxes, `KoboldBlockLookup` zero-size box |
+| render | null-safe bone access (`ModelBones`), threesome combined model, player-skin bind, state restore |
+| libs | `unrar5j` 2.0.3 → 2.0.4 (endless-loop fix on RAR5 extraction) |
 | dup | bed-side scan (4 copies), controller registration (6), wander goals (4), the 32 guarded `addToHornyMeter` sites unified; `animationPredicate` left per-entity (genuinely different), with a `GirlBedPlacementTest` pin |
 
 Deferred on purpose: §2.2 (dev-only code kept) and §5 (gameplay/product ideas).

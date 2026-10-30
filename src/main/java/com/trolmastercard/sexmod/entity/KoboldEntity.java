@@ -186,10 +186,10 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       .createKey(129);
    public static final int av = 24;
    public static double spawnHealth = 69.0;
-   public static List<Vector4d> aY = new ArrayList<>();
+   public static List<Vector4d> tribeMembers = new ArrayList<>();
    ItemStackHandler inventory = new ItemStackHandler(27);
    public String lastRenderedAction = null;
-   boolean az = false;
+   boolean menuActionInFlight = false;
    int attackCooldown = 0;
    int animationTicks = 0;
    boolean sitLerpActive = false;
@@ -232,7 +232,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    int wanderTicks = 0;
    int mineCooldown = 24;
    int cooldownTicks = 0;
-   ItemStack ad = null;
+   ItemStack miningDropItem = null;
    public boolean editedColorManually = false;
    int actionCooldown = -1;
    boolean WildSlimeFaceLayer = true;
@@ -389,7 +389,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             return true;
          }
 
-         if (!aY.isEmpty()) {
+         if (!tribeMembers.isEmpty()) {
             return true;
          }
 
@@ -451,9 +451,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @SideOnly(Side.CLIENT)
    @Override
-   public void ac() {
-      if (this.az) {
-         this.az = false;
+   public void onInteractionMenuClosed() {
+      if (this.menuActionInFlight) {
+         this.menuActionInFlight = false;
       } else {
          this.setInteractionPlayerUUID(null);
          this.changeDataParameterFromClient("shouldbeattargetpos", "false");
@@ -473,7 +473,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    public void doAction(String action, UUID uuid) {
-      this.az = true;
+      this.menuActionInFlight = true;
       if ("oral".equals(action)) {
          this.changeDataParameterFromClient("animationFollowUp", Action.STARTBLOWJOB.toString());
          this.triggerActionSync(true, uuid);

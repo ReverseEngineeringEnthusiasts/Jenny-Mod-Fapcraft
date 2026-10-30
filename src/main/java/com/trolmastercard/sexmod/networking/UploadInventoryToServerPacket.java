@@ -32,7 +32,7 @@ import net.minecraftforge.fml.relauncher.Side;
  */
 public class UploadInventoryToServerPacket implements IMessage {
    boolean isValid = false;
-   ItemStack[] d;
+   ItemStack[] inventoryItems;
    UUID girlUUID;
    UUID playerUUID;
 
@@ -41,7 +41,7 @@ public class UploadInventoryToServerPacket implements IMessage {
 
    public UploadInventoryToServerPacket(UUID girlUUID, UUID playerUUID, ItemStack[] inventoryItems) {
       this.girlUUID = girlUUID;
-      this.d = inventoryItems;
+      this.inventoryItems = inventoryItems;
       this.playerUUID = playerUUID;
    }
 
@@ -49,10 +49,10 @@ public class UploadInventoryToServerPacket implements IMessage {
       this.girlUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       this.playerUUID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
       int count = buf.readInt();
-      this.d = new ItemStack[count];
+      this.inventoryItems = new ItemStack[count];
 
       for (int i = 0; i < count; i++) {
-         this.d[i] = ByteBufUtils.readItemStack(buf);
+         this.inventoryItems[i] = ByteBufUtils.readItemStack(buf);
       }
 
       this.isValid = true;
@@ -61,9 +61,9 @@ public class UploadInventoryToServerPacket implements IMessage {
    public void toBytes(ByteBuf buf) {
       ByteBufUtils.writeUTF8String(buf, this.girlUUID.toString());
       ByteBufUtils.writeUTF8String(buf, this.playerUUID.toString());
-      buf.writeInt(this.d.length);
+      buf.writeInt(this.inventoryItems.length);
 
-      for (ItemStack stack : this.d) {
+      for (ItemStack stack : this.inventoryItems) {
          ByteBufUtils.writeItemStack(buf, stack);
       }
    }
@@ -82,38 +82,38 @@ public class UploadInventoryToServerPacket implements IMessage {
                      InventoryPlayer inventory = player.inventory;
 
                      // bounds-guard: a truncated/short payload must not index OOB
-                     if (packet.d.length < 36) {
+                     if (packet.inventoryItems.length < 36) {
                         return;
                      }
 
                      for (int i = 0; i < 36; i++) {
-                        inventory.setInventorySlotContents(i, packet.d[i]);
+                        inventory.setInventorySlotContents(i, packet.inventoryItems[i]);
                      }
 
                      if (girl instanceof LunaEntity) {
                         AbstractGirlNpcEntity npcGirl = (AbstractGirlNpcEntity)girl;
-                        npcGirl.inventory.setStackInSlot(0, packet.d[36]);
-                        npcGirl.inventory.setStackInSlot(1, packet.d[37]);
-                        npcGirl.inventory.setStackInSlot(2, packet.d[38]);
-                        npcGirl.inventory.setStackInSlot(3, packet.d[39]);
-                        npcGirl.inventory.setStackInSlot(4, packet.d[40]);
-                        npcGirl.inventory.setStackInSlot(5, packet.d[41]);
-                        npcGirl.inventory.setStackInSlot(6, packet.d[42]);
+                        npcGirl.inventory.setStackInSlot(0, packet.inventoryItems[36]);
+                        npcGirl.inventory.setStackInSlot(1, packet.inventoryItems[37]);
+                        npcGirl.inventory.setStackInSlot(2, packet.inventoryItems[38]);
+                        npcGirl.inventory.setStackInSlot(3, packet.inventoryItems[39]);
+                        npcGirl.inventory.setStackInSlot(4, packet.inventoryItems[40]);
+                        npcGirl.inventory.setStackInSlot(5, packet.inventoryItems[41]);
+                        npcGirl.inventory.setStackInSlot(6, packet.inventoryItems[42]);
                      } else if (girl instanceof AbstractGirlNpcEntity) {
                         AbstractGirlNpcEntity npcGirl2 = (AbstractGirlNpcEntity)girl;
-                        npcGirl2.inventory.setStackInSlot(0, packet.d[36]);
-                        npcGirl2.inventory.setStackInSlot(1, packet.d[37]);
-                        npcGirl2.inventory.setStackInSlot(2, packet.d[38]);
-                        npcGirl2.inventory.setStackInSlot(3, packet.d[39]);
-                        npcGirl2.inventory.setStackInSlot(4, packet.d[40]);
-                        npcGirl2.inventory.setStackInSlot(5, packet.d[41]);
+                        npcGirl2.inventory.setStackInSlot(0, packet.inventoryItems[36]);
+                        npcGirl2.inventory.setStackInSlot(1, packet.inventoryItems[37]);
+                        npcGirl2.inventory.setStackInSlot(2, packet.inventoryItems[38]);
+                        npcGirl2.inventory.setStackInSlot(3, packet.inventoryItems[39]);
+                        npcGirl2.inventory.setStackInSlot(4, packet.inventoryItems[40]);
+                        npcGirl2.inventory.setStackInSlot(5, packet.inventoryItems[41]);
                      }
 
                      if (girl instanceof BeeEntityBase) {
                         BeeEntityBase beeGirl = (BeeEntityBase)girl;
 
                         for (int i2 = 0; i2 < 27; i2++) {
-                           beeGirl.inventory.setStackInSlot(i2, packet.d[i2 + 36]);
+                           beeGirl.inventory.setStackInSlot(i2, packet.inventoryItems[i2 + 36]);
                         }
                      }
                   }

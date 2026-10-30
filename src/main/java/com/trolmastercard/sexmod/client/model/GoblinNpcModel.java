@@ -299,7 +299,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
          bodyBone.setHidden(true);
       } else {
          bodyBone.setHidden(false);
-         processor.getBone("steve").setHidden(true);
+         ModelBones.setHidden(processor, "steve", true);
       }
    }
 
@@ -316,7 +316,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
       }
 
       if (!goblin.isLocallyRegistered()) {
-         processor.getBone("steve").setHidden(true);
+         ModelBones.setHidden(processor, "steve", true);
       }
    }
 

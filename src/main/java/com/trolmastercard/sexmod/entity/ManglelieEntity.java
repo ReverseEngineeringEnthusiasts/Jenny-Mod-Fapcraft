@@ -112,7 +112,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       .getSerializer()
       .createKey(115);
    private UUID galathPartnerUUID = null;
-   public boolean aj = true;
+   public boolean wasNoCorruptEntity = true;
    public Vec3d ZERO_VECTOR = Vec3d.ZERO;
    public float VELOCITY_0 = 0.0F;
    boolean wild = true;
@@ -121,7 +121,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    public float yawOffset = 0.0F;
    public float rotationLerp = 0.0F;
    public float TICK_0 = 0.0F;
-   public float ai = 0.0F;
+   public float headPitch = 0.0F;
    boolean removeOnNextTick = false;
    boolean modelCodeLoaded = false;
    boolean threesomeSlowStarted = false;
@@ -446,7 +446,7 @@ public class ManglelieEntity extends BaseGirlEntity {
                      BlockPos range = new BlockPos(15.0, 15.0, 15.0);
 
                      for (EntityMob mob : this.world
-                        .getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB(center.add(range), center.subtract(range)))) {
+                        .getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB(center.subtract(range), center.add(range)))) {
                         if (!isGalathBlocked(mob, galath)) {
                            this.setCorruptEntity(mob.getEntityId());
                            return;

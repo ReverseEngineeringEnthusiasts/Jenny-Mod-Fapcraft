@@ -422,7 +422,7 @@ Vec3d flapVec = galath.getVectorTowardPlayer();
                if (galath.hasMaster()) {
                   HornyMeterHud.setHornyMeterVisible(false);
                } else {
-                  EscapeMinigameHud.showMinigame();
+                  EscapeMinigameHud.showMinigame(galath);
                }
             }
             break;

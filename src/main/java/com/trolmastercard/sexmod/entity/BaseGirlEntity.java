@@ -806,7 +806,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    @SideOnly(Side.CLIENT)
-   public void ac() {
+   public void onInteractionMenuClosed() {
    }
 
    public void resetCameraAndPhysics() {

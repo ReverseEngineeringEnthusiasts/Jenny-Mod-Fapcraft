@@ -431,7 +431,7 @@ final class KoboldMining {
    }
 
    static void navigateToTask(KoboldEntity entity, UUID tribeId, KoboldTask task, BlockPos pos) {
-      if (entity.ad == null) {
+      if (entity.miningDropItem == null) {
          entity.mineCooldown = 24;
          entity.cooldownTicks = 0;
          entity.setCurrentAction(Action.NULL);
@@ -444,7 +444,7 @@ final class KoboldMining {
 
          KoboldManager.setLeaderKobold(tribeId, entity);
       } else {
-         switch (entity.ad.getMetadata()) {
+         switch (entity.miningDropItem.getMetadata()) {
             case 3:
             case 5:
                entity.world
@@ -458,7 +458,7 @@ final class KoboldMining {
                            pos.getX(),
                            pos.getY(),
                            pos.getZ(),
-                           entity.ad.getMetadata(),
+                           entity.miningDropItem.getMetadata(),
                            entity,
                            EnumHand.MAIN_HAND
                         )
@@ -474,7 +474,7 @@ final class KoboldMining {
                            pos.getX(),
                            pos.getY(),
                            pos.getZ() + 1,
-                           entity.ad.getMetadata(),
+                           entity.miningDropItem.getMetadata(),
                            entity,
                            EnumHand.MAIN_HAND
                         )
@@ -490,7 +490,7 @@ final class KoboldMining {
                            pos.getX() + 1,
                            pos.getY(),
                            pos.getZ(),
-                           entity.ad.getMetadata(),
+                           entity.miningDropItem.getMetadata(),
                            entity,
                            EnumHand.MAIN_HAND
                         )
@@ -506,7 +506,7 @@ final class KoboldMining {
                            pos.getX() + 1,
                            pos.getY(),
                            pos.getZ() + 1,
-                           entity.ad.getMetadata(),
+                           entity.miningDropItem.getMetadata(),
                            entity,
                            EnumHand.MAIN_HAND
                         )
@@ -524,7 +524,7 @@ final class KoboldMining {
                            pos.getX(),
                            pos.getY(),
                            pos.getZ(),
-                           entity.ad.getMetadata(),
+                           entity.miningDropItem.getMetadata(),
                            entity,
                            EnumHand.MAIN_HAND
                         )
@@ -533,7 +533,7 @@ final class KoboldMining {
 
          entity.mineCooldown = 24;
          entity.cooldownTicks = 0;
-         entity.ad = null;
+         entity.miningDropItem = null;
          entity.setCurrentAction(Action.NULL);
          entity.setAnchored(false);
          EntityPlayer master = entity.getMasterPlayer();
@@ -586,7 +586,7 @@ final class KoboldMining {
                               Main.LOGGER.error(ex.getMessage());
                            }
 
-                           entity.ad = getBlockItem(entity, target);
+                           entity.miningDropItem = getBlockItem(entity, target);
                            entity.world.destroyBlock(target, false);
                            task.removeMiningTarget(target);
                            targets.add(target);
@@ -619,7 +619,7 @@ final class KoboldMining {
                      Main.LOGGER.error(ex.getMessage());
                   }
 
-                  entity.ad = getBlockItem(entity, pos);
+                  entity.miningDropItem = getBlockItem(entity, pos);
                   entity.world.destroyBlock(pos, false);
                   int logCount = 0;
 

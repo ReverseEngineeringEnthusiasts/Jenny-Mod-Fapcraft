@@ -306,7 +306,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
                   GlStateManager.rotate(rotY, 0.0F, 1.0F, 0.0F);
                   GlStateManager.rotate(rotZ, 0.0F, 0.0F, 1.0F);
                   float step = TrigMath.toRadians(9.0);
-                  Vector3fSexmodSpecial starColor = GalathEntity.aa;
+                  Vector3fSexmodSpecial starColor = GalathEntity.STAR_COLOR;
                   mc.getTextureManager().bindTexture(LINE_TEXTURE);
                   buffer.begin(3, DefaultVertexFormats.POSITION_TEX_COLOR);
                   GlStateManager.glLineWidth(getRenderOffset(girl, partialTicks, 1.0F, 3.0F));
@@ -479,14 +479,18 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          MATRIX_STACK.rotate(topBone);
          MATRIX_STACK.scale(topBone);
          MATRIX_STACK.moveBackFromPivot(topBone);
-         this.renderRecursively(buffer, bodyBone, r, g, b, a);
+         if (bodyBone != null) {
+            this.renderRecursively(buffer, bodyBone, r, g, b, a);
+         }
          Tessellator.getInstance().draw();
          this.renderBoneEffect(buffer, coinBone, galath, scale);
          buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
          Minecraft.getMinecraft().renderEngine.bindTexture(this.getSkinTexture(this.renderEntity));
 
-         this.renderRecursively(buffer, steveBone, r, g, b, this.renderEntity.getRenderScaleFactor());
+         if (steveBone != null) {
+            this.renderRecursively(buffer, steveBone, r, g, b, this.renderEntity.getRenderScaleFactor());
+         }
          Tessellator.getInstance().draw();
          if (body2Bone != null) {
             buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);

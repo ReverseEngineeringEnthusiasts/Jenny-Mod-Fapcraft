@@ -27,7 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GirlDataPacket implements IMessage {
    boolean isValid = false;
    EntityPlayer player;
-   HashMap<NpcType, String> a = new HashMap<>();
+   HashMap<NpcType, String> girlSpecificModels = new HashMap<>();
 
    public GirlDataPacket() {
    }
@@ -40,7 +40,7 @@ public class GirlDataPacket implements IMessage {
       int count = buf.readInt();
 
       for (int i = 0; i < count; i++) {
-         this.a.put(NpcType.valueOf(ByteBufUtils.readUTF8String(buf)), ByteBufUtils.readUTF8String(buf));
+         this.girlSpecificModels.put(NpcType.valueOf(ByteBufUtils.readUTF8String(buf)), ByteBufUtils.readUTF8String(buf));
       }
 
       this.isValid = true;
@@ -51,14 +51,14 @@ public class GirlDataPacket implements IMessage {
          if (type.hasSpecifics) {
             String value = this.player.getEntityData().getString("sexmod:GirlSpecific" + type);
             if (!"".equals(value)) {
-               this.a.put(type, value);
+               this.girlSpecificModels.put(type, value);
             }
          }
       }
 
-      buf.writeInt(this.a.size());
+      buf.writeInt(this.girlSpecificModels.size());
 
-      for (Entry entry : this.a.entrySet()) {
+      for (Entry entry : this.girlSpecificModels.entrySet()) {
          ByteBufUtils.writeUTF8String(buf, ((NpcType)entry.getKey()).toString());
          ByteBufUtils.writeUTF8String(buf, (String)entry.getValue());
       }
@@ -67,7 +67,7 @@ public class GirlDataPacket implements IMessage {
    public static class Handler implements IMessageHandler<GirlDataPacket, IMessage> {
       public IMessage onMessage(GirlDataPacket packet, MessageContext ctx) {
          if (packet.isValid && ctx.side == Side.CLIENT) {
-            this.applyGirlData(packet.a);
+            this.applyGirlData(packet.girlSpecificModels);
             return null;
          } else {
             return null;

@@ -134,7 +134,7 @@ Misc shared arrays used by Bia scenes: `MISC_PLOB` (1), `MISC_BEDRUSTLE` (2), `M
 - **Talk → choice gate**: the anal/doggy menu only opens after the talk dialogue (`talk_hornyDone`); the choice plays through `TALK_RESPONSE` before the bed walk.
 - **Prone-doggy variant re-roll**: `resetAnimationControllerTicks` re-rolls `hardLoopVariant` (1..3) while `PRONE_DOGGY_HARD` plays; `Action.PRONE_DOGGY_HARD` auto-follows to `PRONE_DOGGY_SOFT` after 34 ticks, `PRONE_DOGGY_INSERT` after 42.
 - **Cum re-entry guards** (`setCurrentAction`): refuses ANAL/PRONE_DOGGY slow/fast while the cum plays; entering cum clears `GIRL_HAND_STATES` to `""`.
-- **Camera reset suppression**: `bedTransitionActive` flag set by anal/doggy choices makes `ac()` (scene-end hook) skip `resetCameraAndPhysics()` during the bed transition.
+- **Camera reset suppression**: `bedTransitionActive` flag set by anal/doggy choices makes `onInteractionMenuClosed()` (scene-end hook) skip `resetCameraAndPhysics()` during the bed transition.
 - **Headpat is a scene**: binds the player (teleport, movement lock) and runs the full 4-line dialogue before `headpatDone` releases.
 - **Horny meter**: shown via `sexUiOn`, at countdown end, during PRONE_DOGGY_INTRO (when Bee screen hidden); incremented by `anal_slowMSG1`/`anal_fastMSG1` (+0.02), `slide` (+0.005), `doggyMoan` (+0.04); reset at `anal_prepareDone`, `anal_cumDone`, `doggy_cumDone`.
 

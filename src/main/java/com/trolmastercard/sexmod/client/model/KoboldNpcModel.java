@@ -62,11 +62,11 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       if (!(entity.world instanceof SexWorldClient)) {
          AnimationProcessor processor = this.getAnimationProcessor();
          if (!entity.isLocallyRegistered() && entity instanceof KoboldEntity) {
-            processor.getBone("crown").setHidden(!(Boolean)entity.getDataManager().get(KoboldEntity.TRIBE_MEMBER));
-            processor.getBone("egg").setHidden(!((KoboldEntity)entity).isRenderEgg);
+            ModelBones.setHidden(processor, "crown", !(Boolean)entity.getDataManager().get(KoboldEntity.TRIBE_MEMBER));
+            ModelBones.setHidden(processor, "egg", !((KoboldEntity)entity).isRenderEgg);
          } else {
-            processor.getBone("crown").setHidden(true);
-            processor.getBone("egg").setHidden(true);
+            ModelBones.setHidden(processor, "crown", true);
+            ModelBones.setHidden(processor, "egg", true);
          }
 
          String[] modelCodeParts = AbstractNpcOnlyEntity.getModelCodeParts(entity);
@@ -83,10 +83,10 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
             case SUCKBLOWJOB_BLINK:
             case THRUSTBLOWJOB:
             case CUMBLOWJOB:
-               processor.getBone("tounge").setHidden(false);
+               ModelBones.setHidden(processor, "tounge", false);
                break;
             default:
-               processor.getBone("tounge").setHidden(true);
+               ModelBones.setHidden(processor, "tounge", true);
          }
 
          this.handleSwingAnimation(entity, processor);

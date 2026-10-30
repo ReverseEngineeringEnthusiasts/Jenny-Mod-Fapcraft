@@ -64,7 +64,7 @@ public class AllieWorldData extends WorldSavedData {
             continue;
          }
 
-         npcNamesByPlayer.put(uuid, this.a(nbt.getCompoundTag(key)));
+         npcNamesByPlayer.put(uuid, this.deserializeNpcTypes(nbt.getCompoundTag(key)));
       }
    }
 
@@ -87,7 +87,7 @@ public class AllieWorldData extends WorldSavedData {
       return tag;
    }
 
-   private HashMap<NpcType, String> a(NBTTagCompound tag) {
+   private HashMap<NpcType, String> deserializeNpcTypes(NBTTagCompound tag) {
       HashMap typeMap = new HashMap();
 
       for (NpcType type : NpcType.values()) {

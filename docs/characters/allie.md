@@ -119,7 +119,7 @@ Shared MISC events she uses: `MISC_PLOB` (wish), `MISC_POUNDING` (35), `MISC_SLI
 - NPC Allie has **no movement AI** (summoned, anchored, noGravity, noClip). `updateAITasks` is a lifecycle guard: removes the entity when `getCurrentAction() == Action.NULL` or when the interaction player is gone from the world.
 - `onUpdate` (client): opens the interaction menu once (`isLampActive` → `openInteraction`), portal puff burst at spawn (`resetToDefaultState`, 300 particles), tail particles, and the `LAMP_SCALE` despawn sequence (upload inventory + `HandlePlayerMovement.setMovementLock(true)` when scale ≤ 0, sentinel `-69`).
 - Combat/attacks only exist in the **player form** (Action.ATTACK with `attack0..2`, Action.BOW `bowcharge`); the NPC has no attack logic.
-- `ac()` (client): sets `isLampActive = true` unless `stateFlag2` (set while a `doAction` menu choice is in flight) — the one-shot menu open.
+- `onInteractionMenuClosed()` (client): sets `isLampActive = true` unless `stateFlag2` (set while a `doAction` menu choice is in flight) — the one-shot menu open.
 
 ## Unique mechanics
 
@@ -153,7 +153,7 @@ Data-manager (explicit serializer ids, shared hierarchy):
 - `LAMP_SCALE` doubles as despawn state machine: `1.0` = normal, `(0,1)` = shrinking, `0` = upload+lock (once), `-69` = done.
 - `setCurrentAction` guards: refuses `DEEPTHROAT_FAST/SLOW` while `DEEPTHROAT_CUM` plays and refuses `REVERSE_COWGIRL_SLOW/FAST_START/FAST_CONTINUES` while `REVERSE_COWGIRL_CUM` plays (both NPC and player form).
 - `summonMSG7` (`allie.dialogue.summon7` "So..!") is **not handled** in the sound listener — the JSON keyframe exists but the listener has no case for it (jumps straight to `summonMSG8` at 9.68s).
-- `AllieEntity.openInteractionMenu` re-sets `stateFlag2 = false` (re-arming the `ac()` menu trigger), while `doAction` sets `stateFlag2 = true` to suppress it.
+- `AllieEntity.openInteractionMenu` re-sets `stateFlag2 = false` (re-arming the `onInteractionMenuClosed()` menu trigger), while `doAction` sets `stateFlag2 = true` to suppress it.
 - `reverse_cowgirl_slow1/2/3` and `fastc1/2/3` variants are selected by `stateIndex`/`stateCount` — the cowgirl "Slow" loop cannot be entered twice with the same variant consecutively (do-while reroll).
 - `handleAllieOwner()` snaps the player to `getTargetPosition()` on REVERSE_COWGIRL_START (server only).
 - Player form reuses `animation.bia.blink` for the eyes controller (not `allie.blink`) when idle.

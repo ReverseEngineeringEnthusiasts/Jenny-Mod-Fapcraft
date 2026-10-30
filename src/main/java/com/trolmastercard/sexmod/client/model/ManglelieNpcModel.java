@@ -57,6 +57,23 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       };
    }
 
+   /**
+    * The threesome animations ({@code animation.shared.double_holding_*}) are played
+    * by the Manglelie and move the {@code body2} bone, which only exists in the
+    * combined {@code galath_con_mang} model. The outfit index never selects that
+    * model (nothing sets it to 2), so the shared animations used to run against a
+    * model without {@code body2} - the pose looked frozen. Pick the combined model
+    * for the duration of the threesome instead.
+    */
+   @Override
+   public ResourceLocation getModelLocation(BaseGirlEntity entity) {
+      if (entity != null && isInThreesome(entity) && this.modelLocations.length > 2) {
+         return this.modelLocations[2];
+      }
+
+      return super.getModelLocation(entity);
+   }
+
    @Override
    public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/manglelie/manglelie.png");
@@ -168,7 +185,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                            fps2 = 1.0F;
                         }
 
-                        if (manglelie.aj == hasNoCorruptEntity) {
+                        if (manglelie.wasNoCorruptEntity == hasNoCorruptEntity) {
                            manglelie.VELOCITY_0 = 0.0F;
                         } else {
                            manglelie.VELOCITY_0 += 1.5F / fps2;
@@ -176,7 +193,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
 
                         if (manglelie.VELOCITY_0 >= 1.0F) {
                            manglelie.VELOCITY_0 = 0.0F;
-                           manglelie.aj = hasNoCorruptEntity;
+                           manglelie.wasNoCorruptEntity = hasNoCorruptEntity;
                         }
 
                         ManglelieNpcModel.RotationData rotationData2;
@@ -186,7 +203,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                            rotationData2 = ManglelieNpcModel.RotationData.lerpRotationData(
                               this.updateCorruptPose(galath, armRBone, armLBone, lowerArmLBone, lowerArmRBone),
                               this.updateRidePose(manglelie, galath, lowerArmRBone, lowerArmLBone, processor),
-                              (float)(manglelie.aj ? RotationHelper.smoothStep(manglelie.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(manglelie.VELOCITY_0))
+                              (float)(manglelie.wasNoCorruptEntity ? RotationHelper.smoothStep(manglelie.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(manglelie.VELOCITY_0))
                            );
                         }
 
@@ -213,7 +230,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                            fps = 1.0F;
                         }
 
-                        if (manglelie.aj == hasNoCorruptEntity) {
+                        if (manglelie.wasNoCorruptEntity == hasNoCorruptEntity) {
                            manglelie.VELOCITY_0 = 0.0F;
                         } else {
                            manglelie.VELOCITY_0 += 1.5F / fps;
@@ -221,7 +238,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
 
                         if (manglelie.VELOCITY_0 >= 1.0F) {
                            manglelie.VELOCITY_0 = 0.0F;
-                           manglelie.aj = hasNoCorruptEntity;
+                           manglelie.wasNoCorruptEntity = hasNoCorruptEntity;
                         }
 
                         ManglelieNpcModel.RotationData rotationData;
@@ -231,7 +248,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                            rotationData = ManglelieNpcModel.RotationData.lerpRotationData(
                               this.updateCorruptPose(galath, armRBone, armLBone, lowerArmLBone, lowerArmRBone),
                               this.updateRidePose(manglelie, galath, lowerArmRBone, lowerArmLBone, processor),
-                              (float)(manglelie.aj ? RotationHelper.smoothStep(manglelie.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(manglelie.VELOCITY_0))
+                              (float)(manglelie.wasNoCorruptEntity ? RotationHelper.smoothStep(manglelie.VELOCITY_0) : 1.0 - RotationHelper.smoothStep(manglelie.VELOCITY_0))
                            );
                         }
 
@@ -270,7 +287,8 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       ManglelieNpcModel.RotationData rotationData = new ManglelieNpcModel.RotationData();
       rotationData.lowerArmLRotation = new Vector3fSexmodSpecial(UPPER_ARM_BASE_ANGLE, 0.0F, lowerArmLBone.getRotationZ());
       rotationData.lowerArmRRotation = new Vector3fSexmodSpecial(LOWER_ARM_BASE_ANGLE, 0.0F, lowerArmRBone.getRotationZ());
-      float upperBodyRotation = galath.headRotationX + processor.getBone("upperBody").getRotationX();
+      IBone upperBody = ModelBones.get(processor, "upperBody");
+      float upperBodyRotation = galath.headRotationX + (upperBody == null ? 0.0F : upperBody.getRotationX());
       float partialTicks = this.mc.getRenderPartialTicks();
       Vec3d galathLookVec = ManglelieRenderer.getEntityLookVector(galath, partialTicks);
       Vec3d armRPoint = manglelie.getCachedBoneOffset("armR").add(galathLookVec);
@@ -368,7 +386,10 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                if (galath != null) {
                   AnimationProcessor processor = this.getAnimationProcessor();
                   float headRotation = galath.headRotationX;
-                  processor.getBone("rotationTool").setRotationX(headRotation);
+                  IBone rotationTool = ModelBones.get(processor, "rotationTool");
+                  if (rotationTool != null) {
+                     rotationTool.setRotationX(headRotation);
+                  }
                   IBone headBone = processor.getBone("head");
                   IBone upperBodyBone = processor.getBone("upperBody");
                   IBone boobsBone = processor.getBone("boobs");
@@ -382,7 +403,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                   }
 
                   float yawError = ThreadNames.wrapAngle(manglelie.TICK_0, manglelie.yawOffset);
-                  float pitchError = ThreadNames.wrapAngle(manglelie.ai, manglelie.rotationLerp);
+                  float pitchError = ThreadNames.wrapAngle(manglelie.headPitch, manglelie.rotationLerp);
                   float fps = Minecraft.getDebugFPS();
                   if (fps == 0.0F) {
                      fps = 1.0F;
@@ -391,11 +412,11 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                   float yawStep = 7.0F * (Math.abs(yawError) < 7.0F ? yawError : (yawError > 0.0F ? 7.0F : -7.0F)) * (1.0F / fps);
                   float pitchStep = 7.0F * (Math.abs(pitchError) < 7.0F ? pitchError : (pitchError > 0.0F ? 7.0F : -7.0F)) * (1.0F / fps);
                   float newYaw = manglelie.TICK_0 + yawStep;
-                  float newPitch = manglelie.ai + pitchStep;
+                  float newPitch = manglelie.headPitch + pitchStep;
                   headBone.setRotationY(headBone.getRotationY() + newYaw);
                   headBone.setRotationX(headBone.getRotationX() + newPitch);
                   manglelie.TICK_0 = newYaw;
-                  manglelie.ai = newPitch;
+                  manglelie.headPitch = newPitch;
                }
             }
          }
@@ -435,7 +456,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * mesh replaces it).
     */
    static void setSkirtHidden(AnimationProcessor processor, boolean hidden) {
-      processor.getBone("skirt").setHidden(!hidden);
+      ModelBones.setHidden(processor, "skirt", !hidden);
    }
 
    /**
@@ -443,9 +464,9 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * depending on the look pose.
     */
    static void setCheekHidden(AnimationProcessor processor, boolean hidden) {
-      processor.getBone("cheekRBelowSkirt").setHidden(hidden);
-      processor.getBone("cheekLBelowSkirt").setHidden(hidden);
-      processor.getBone("sideRNoSkirt").setHidden(hidden);
+      ModelBones.setHidden(processor, "cheekRBelowSkirt", hidden);
+      ModelBones.setHidden(processor, "cheekLBelowSkirt", hidden);
+      ModelBones.setHidden(processor, "sideRNoSkirt", hidden);
       IBone sideRSkirtBone = processor.getBone("sideRSkirt");
       IBone boneToToggle;
       boolean hiddenState;
@@ -458,7 +479,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       }
 
       boneToToggle.setHidden(hiddenState);
-      processor.getBone("sideLNoSkirt").setHidden(hidden);
+      ModelBones.setHidden(processor, "sideLNoSkirt", hidden);
       IBone sideLSkirtBone = processor.getBone("sideLSkirt");
       if (!hidden) {
          boneToToggle = sideLSkirtBone;
