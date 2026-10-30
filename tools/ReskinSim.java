@@ -45,7 +45,7 @@ public class ReskinSim {
 
    public static void main(String[] args) throws Exception {
       String root = args.length > 0 ? args[0]
-         : "/home/user/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/"
+         : System.getProperty("user.home") + "/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/"
             + "More FPS [FORGE] - Increase FPS & Shaders (1.21 UPDATE)/minecraft/sexmod/custom_models/singleplayer";
       int maxArchives = args.length > 1 ? Integer.parseInt(args[1]) : Integer.MAX_VALUE;
 

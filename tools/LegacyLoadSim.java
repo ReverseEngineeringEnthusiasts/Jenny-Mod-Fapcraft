@@ -17,7 +17,7 @@ import java.util.zip.ZipFile;
 public class LegacyLoadSim {
    public static void main(String[] a) throws Exception {
       String root = a.length > 0 ? a[0]
-         : "/home/user/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/"
+         : System.getProperty("user.home") + "/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/"
             + "More FPS [FORGE] - Increase FPS & Shaders (1.21 UPDATE)/minecraft/sexmod/custom_models/singleplayer";
       File dir = new File(root);
 
