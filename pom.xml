@@ -144,10 +144,38 @@
       <groupId>net.minecraft</groupId><artifactId>launchwrapper</artifactId><version>1.12</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- tests only (junit is in the local m2 repo; run with: mvn -o test) -->
+    <dependency>
+      <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <finalName>fapcraft-1.12.2-${project.version}</finalName>
+    <!-- Version single source: mcmod.info and sexmod-build.properties are the only
+         filtered resources, so ${project.version} lands in the jar. Everything else
+         (assets, logo, banner) is copied verbatim. mcmod.info keeps its ${mcversion}
+         placeholder — maven leaves unknown tokens untouched and Forge substitutes it. -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>mcmod.info</exclude>
+          <exclude>sexmod-build.properties</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>mcmod.info</include>
+          <include>sexmod-build.properties</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -160,6 +188,11 @@
             <arg>-Xlint:-options</arg>
           </compilerArgs>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

@@ -261,7 +261,7 @@ public class ServerWhitelistManager {
 
    /** Local mod version, e.g. "1.1.1". */
    public static String localVersion() {
-      return "1.1.1";
+      return Reference.MOD_VERSION;
    }
 
    /** Local build number for the release stream (matches GitHub "Fapcraft Build N" tags). */

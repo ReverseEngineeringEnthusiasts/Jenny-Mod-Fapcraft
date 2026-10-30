@@ -93,18 +93,21 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
       Vec3d rotation = this.getItemRenderOffset(heldStack);
       if (heldStack != null) {
          GlStateManager.pushMatrix();
-         Tessellator.getInstance().draw();
-         com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
-         GlStateManager.enableLighting();
-         GlStateManager.scale(scale, scale, scale);
-         GlStateManager.rotate((float)rotation.x, 1.0F, 0.0F, 0.0F);
-         GlStateManager.rotate((float)rotation.y, 0.0F, 1.0F, 0.0F);
-         GlStateManager.rotate((float)rotation.z, 0.0F, 0.0F, 1.0F);
-         Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, heldStack, TransformType.THIRD_PERSON_RIGHT_HAND);
-         this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-         GlStateManager.disableLighting();
-         GlStateManager.popMatrix();
+         try {
+            Tessellator.getInstance().draw();
+            com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
+            GlStateManager.enableLighting();
+            GlStateManager.scale(scale, scale, scale);
+            GlStateManager.rotate((float)rotation.x, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate((float)rotation.y, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate((float)rotation.z, 0.0F, 0.0F, 1.0F);
+            Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, heldStack, TransformType.THIRD_PERSON_RIGHT_HAND);
+            this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
+            buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+         } finally {
+            GlStateManager.disableLighting();
+            GlStateManager.popMatrix();
+         }
       }
    }
 
@@ -173,10 +176,13 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
             for (GeoCube cube : bone.childCubes) {
                MATRIX_STACK.push();
                GlStateManager.pushMatrix();
-               this.currentRenderingBone = bone;
-               this.renderCubeGeometry(buffer, cube, bone, r, g, b, a, overlayAlpha);
-               GlStateManager.popMatrix();
-               MATRIX_STACK.pop();
+               try {
+                  this.currentRenderingBone = bone;
+                  this.renderCubeGeometry(buffer, cube, bone, r, g, b, a, overlayAlpha);
+               } finally {
+                  GlStateManager.popMatrix();
+                  MATRIX_STACK.pop();
+               }
             }
 
             for (GeoBone childBone : bone.childBones) {

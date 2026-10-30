@@ -91,6 +91,9 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       .createKey(118);
    public static Hashtable<UUID, AbstractPlayerGirlEntity> PLAYER_GIRL_BY_OWNER = new Hashtable<>();
    public static List<AbstractPlayerGirlEntity> playerGirlList = new ArrayList<>();
+   /** Set by every add/remove/death/owner change; cleared by {@link #rebuildPlayerGirlTableFromWorld()}. */
+   public static volatile boolean playerGirlTableDirty = true;
+   UUID lastOwnerUuid;
    int stripTicks = -1;
    public boolean firstInteraction = true;
 
@@ -98,6 +101,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       super(world);
       this.setSize(0.01F, 0.01F);
       playerGirlList.add(this);
+      playerGirlTableDirty = true;
    }
 
    protected AbstractPlayerGirlEntity(World world, UUID uuid) {
@@ -308,15 +312,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    public static boolean hasPlayerGirlWithUUID(UUID uuid) {
       rebuildPlayerGirlTableFromWorld();
-
-      for (Entry entry : PLAYER_GIRL_BY_OWNER.entrySet()) {
-         UUID candidateUuid = (UUID)entry.getKey();
-         if (uuid.equals(candidateUuid)) {
-            return true;
-         }
-      }
-
-      return false;
+      return PLAYER_GIRL_BY_OWNER.containsKey(uuid);
    }
 
    public static boolean isOwnerPlayer(EntityPlayer player) {
@@ -411,6 +407,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          if (this.hasOwnerUUID()) {
             GenderSwapScreen.instance.tick();
          }
+      }
+
+      UUID ownerUuid = this.getOwnerUserUUID();
+      if (ownerUuid != null && !ownerUuid.equals(this.lastOwnerUuid)) {
+         this.lastOwnerUuid = ownerUuid;
+         playerGirlTableDirty = true;
       }
    }
 
@@ -591,6 +593,14 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    public void setOwnerId(Optional<UUID> uuidOpt) {
       this.entityDataManager.set(OWNER_UUID, uuidOpt);
+      playerGirlTableDirty = true;
+   }
+
+   /** A dead girl has to leave {@link #PLAYER_GIRL_BY_OWNER}; the rebuild only runs while the table is dirty. */
+   @Override
+   public void setDead() {
+      super.setDead();
+      playerGirlTableDirty = true;
    }
 
    public void onTickClient() {
@@ -602,24 +612,29 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    /**
     * Maintains the static UUID-&gt;girl tables: moves girls with a bound owner
     * from {@link #playerGirlList} into {@link #PLAYER_GIRL_BY_OWNER}, then prunes dead girls.
-    * Called from {@link #updateAITasks()} every tick; tolerates concurrent
-    * modification during world teardown.
+    * No-op while {@link #playerGirlTableDirty} is clear - the render path calls
+    * this every frame, so every add/remove/death/owner change sets the flag.
+    * Tolerates concurrent modification during world teardown.
     */
    public static void rebuildPlayerGirlTableFromWorld() {
-      ArrayList toRemove = new ArrayList();
-
-      try {
-         for (AbstractPlayerGirlEntity playerGirl : playerGirlList) {
-            if (playerGirl.getOwnerUserUUID() != null) {
-               PLAYER_GIRL_BY_OWNER.put(playerGirl.getOwnerUserUUID(), playerGirl);
-               toRemove.add(playerGirl);
-            }
-         }
-      } catch (ConcurrentModificationException ex) {
+      if (!playerGirlTableDirty) {
+         return;
       }
 
-      for (AbstractPlayerGirlEntity playerGirl : (java.util.Collection<AbstractPlayerGirlEntity>) (toRemove) ) {
-         playerGirlList.remove(playerGirl);
+      // cleared before the walk: a change racing with it re-marks the table
+      playerGirlTableDirty = false;
+
+      try {
+         playerGirlList.removeIf(playerGirl -> {
+            UUID ownerUuid = playerGirl.getOwnerUserUUID();
+            if (ownerUuid == null) {
+               return false;
+            }
+
+            PLAYER_GIRL_BY_OWNER.put(ownerUuid, playerGirl);
+            return true;
+         });
+      } catch (ConcurrentModificationException ex) {
       }
 
       rebuildPlayerGirlTableInternal();
@@ -675,6 +690,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       super.readEntityFromNBT(nbt);
       this.entityDataManager.set(OWNER_UUID, Optional.of(UUID.fromString(nbt.getString("owner"))));
       playerGirlList.add(this);
+      playerGirlTableDirty = true;
    }
 
    /**

@@ -187,20 +187,23 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder buffer = tessellator.getBuffer();
             GlStateManager.pushMatrix();
-            if (girl.isLocallyRegistered()) {
-               GlStateManager.translate(0.0, 0.01, 0.0);
-            } else {
-               GalathGeometryRender.renderGalathGeometry(mc, girl, partialTicks);
-               renderManglelieRibbon(girl, partialTicks);
-            }
+            try {
+               if (girl.isLocallyRegistered()) {
+                  GlStateManager.translate(0.0, 0.01, 0.0);
+               } else {
+                  GalathGeometryRender.renderGalathGeometry(mc, girl, partialTicks);
+                  renderManglelieRibbon(girl, partialTicks);
+               }
 
-            mc.getTextureManager().bindTexture(LINE_TEXTURE);
-            GlStateManager.disableCull();
-            GlStateManager.disableLighting();
-            GalathRenderer.renderWingMesh(girl, buffer, tessellator);
-            GlStateManager.popMatrix();
-            GlStateManager.enableCull();
-            GlStateManager.enableLighting();
+               mc.getTextureManager().bindTexture(LINE_TEXTURE);
+               GlStateManager.disableCull();
+               GlStateManager.disableLighting();
+               GalathRenderer.renderWingMesh(girl, buffer, tessellator);
+            } finally {
+               GlStateManager.popMatrix();
+               GlStateManager.enableCull();
+               GlStateManager.enableLighting();
+            }
          }
       }
    }
@@ -307,40 +310,43 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
    public void renderEquippedItem(BufferBuilder buffer, GeoBone bone, boolean isOffhand) {
       ItemRenderer itemRenderer = Minecraft.getMinecraft().getItemRenderer();
       GlStateManager.pushMatrix();
-      Tessellator.getInstance().draw();
-      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
-      GlStateManager.enableLighting();
-      GlStateManager.enableBlend();
-      GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-      if (isOffhand) {
-         GlStateManager.translate(-0.01, 0.0, 0.0);
-         GlStateManager.rotate(120.0F, 1.0F, 0.0F, 0.0F);
-      } else {
-         GlStateManager.translate(0.15, 0.0, -0.05);
-         GlStateManager.rotate(-140.0F, 1.0F, 0.0F, 0.0F);
-      }
+      try {
+         Tessellator.getInstance().draw();
+         com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
+         GlStateManager.enableLighting();
+         GlStateManager.enableBlend();
+         GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+         if (isOffhand) {
+            GlStateManager.translate(-0.01, 0.0, 0.0);
+            GlStateManager.rotate(120.0F, 1.0F, 0.0F, 0.0F);
+         } else {
+            GlStateManager.translate(0.15, 0.0, -0.05);
+            GlStateManager.rotate(-140.0F, 1.0F, 0.0F, 0.0F);
+         }
 
-      GlStateManager.scale(0.7, 0.7, 0.7);
-      ItemStack bowStack = new ItemStack(Items.BOW);
-      float corruptProgress = this.renderEntity.getCorruptProgress(mc.getRenderPartialTicks());
-      if (corruptProgress < 1.0F) {
-         float easedProgress = (float)RotationHelper.easeInOutQuad(corruptProgress);
-         this.renderEntity.setItemUseCount((int)(11.0F * (1.0F - easedProgress) + 71980.0F));
-         this.renderEntity.setHeldItemOverride(bowStack);
-         this.renderEntity.setActiveHand(EnumHand.MAIN_HAND);
-         this.renderEntity.setHandActiveState();
-      } else {
-         this.renderEntity.setHeldItemOverride(ItemStack.EMPTY);
-         this.renderEntity.clearHandActiveState();
-      }
+         GlStateManager.scale(0.7, 0.7, 0.7);
+         ItemStack bowStack = new ItemStack(Items.BOW);
+         float corruptProgress = this.renderEntity.getCorruptProgress(mc.getRenderPartialTicks());
+         if (corruptProgress < 1.0F) {
+            float easedProgress = (float)RotationHelper.easeInOutQuad(corruptProgress);
+            this.renderEntity.setItemUseCount((int)(11.0F * (1.0F - easedProgress) + 71980.0F));
+            this.renderEntity.setHeldItemOverride(bowStack);
+            this.renderEntity.setActiveHand(EnumHand.MAIN_HAND);
+            this.renderEntity.setHandActiveState();
+         } else {
+            this.renderEntity.setHeldItemOverride(ItemStack.EMPTY);
+            this.renderEntity.clearHandActiveState();
+         }
 
-      itemRenderer.renderItem(this.renderEntity, bowStack, TransformType.THIRD_PERSON_RIGHT_HAND);
-      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-      this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-      GlStateManager.disableLighting();
-      GlStateManager.popMatrix();
-      GlStateManager.enableBlend();
-      GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+         itemRenderer.renderItem(this.renderEntity, bowStack, TransformType.THIRD_PERSON_RIGHT_HAND);
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+         this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
+         GlStateManager.disableLighting();
+      } finally {
+         GlStateManager.popMatrix();
+         GlStateManager.enableBlend();
+         GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+      }
    }
 
    /**

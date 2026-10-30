@@ -18,6 +18,7 @@ import com.trolmastercard.sexmod.client.renderer.BeeRenderer;
 import com.trolmastercard.sexmod.client.renderer.DragonRenderer;
 import com.trolmastercard.sexmod.client.renderer.EllieRenderer;
 import com.trolmastercard.sexmod.client.renderer.GalathRenderer;
+import com.trolmastercard.sexmod.client.renderer.GirlRenderer;
 import com.trolmastercard.sexmod.client.renderer.GoblinRenderer;
 import com.trolmastercard.sexmod.client.renderer.JennyRenderer;
 import com.trolmastercard.sexmod.client.renderer.KoboldEggRenderer;
@@ -53,6 +54,7 @@ import com.trolmastercard.sexmod.entity.SexSceneEntity;
 import com.trolmastercard.sexmod.entity.SlimeEntity;
 import com.trolmastercard.sexmod.entity.SlimePlayerEntity;
 import com.trolmastercard.sexmod.entity.WildSlimeEntity;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
 /**
@@ -60,6 +62,8 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
  */
 public class RenderHandler {
    public static void register() {
+      // skin cache must not survive a session change (players can change skins)
+      MinecraftForge.EVENT_BUS.register(GirlRenderer.SkinCacheInvalidator.INSTANCE);
       RenderingRegistry.registerEntityRenderingHandler(KoboldEntity.class, entity -> new KoboldRenderer(entity, new KoboldNpcModel(), -0.4));
       RenderingRegistry.registerEntityRenderingHandler(JennyEntity.class, entity -> new JennyRenderer(entity, new JennyNpcModel(), -0.15));
       RenderingRegistry.registerEntityRenderingHandler(EllieEntity.class, entity -> new EllieRenderer(entity, new EllieNpcModel(), 0.05));

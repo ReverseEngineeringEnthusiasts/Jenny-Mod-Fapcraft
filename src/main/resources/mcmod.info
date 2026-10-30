@@ -3,7 +3,7 @@
     "modid": "sexmod",
     "name": "Fapcraft",
     "description": "you... probably already know what this mod does",
-    "version": "1.1.1-dev",
+    "version": "${project.version}-dev",
     "mcversion": "${mcversion}",
     "url": "https://github.com/ReverseEngineeringEnthusiasts/Jenny-Mod-Fapcraft",
     "updateUrl": "",

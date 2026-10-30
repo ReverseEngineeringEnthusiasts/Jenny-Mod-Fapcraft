@@ -203,21 +203,38 @@ public class StructureMarkerRenderer {
 
    @SubscribeEvent
    public void onRenderWorldLast(RenderWorldLastEvent event) {
-      GlStateManager.enableColorMaterial();
-      GlStateManager.disableLighting();
       ItemStack stack = mc.player.getHeldItem(EnumHand.MAIN_HAND);
       if (stack.getItem() != DragonStaffItem.DRAGON_STAFF) {
          stack = mc.player.getHeldItem(EnumHand.OFF_HAND);
       }
 
-      if (stack.getItem() == DragonStaffItem.DRAGON_STAFF) {
-         renderMarkers();
+      if (stack.getItem() != DragonStaffItem.DRAGON_STAFF) {
+         return;
       }
 
-      GlStateManager.enableLighting();
-      GlStateManager.enableDepth();
-      GlStateManager.enableAlpha();
-      GlStateManager.enableLighting();
+      // Snapshot every flag this pass touches so it can be put back exactly as found.
+      boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
+      boolean colorMaterial = GL11.glIsEnabled(GL11.GL_COLOR_MATERIAL);
+      boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+      boolean alpha = GL11.glIsEnabled(GL11.GL_ALPHA_TEST);
+      try {
+         GlStateManager.enableColorMaterial();
+         GlStateManager.disableLighting();
+         renderMarkers();
+      } finally {
+         restore(lighting, GlStateManager::enableLighting, GlStateManager::disableLighting);
+         restore(colorMaterial, GlStateManager::enableColorMaterial, GlStateManager::disableColorMaterial);
+         restore(depth, GlStateManager::enableDepth, GlStateManager::disableDepth);
+         restore(alpha, GlStateManager::enableAlpha, GlStateManager::disableAlpha);
+      }
+   }
+
+   private static void restore(boolean enabled, Runnable enable, Runnable disable) {
+      if (enabled) {
+         enable.run();
+      } else {
+         disable.run();
+      }
    }
 
    @SideOnly(Side.CLIENT)

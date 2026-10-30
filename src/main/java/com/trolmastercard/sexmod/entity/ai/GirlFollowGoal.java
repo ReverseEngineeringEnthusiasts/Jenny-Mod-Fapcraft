@@ -242,21 +242,24 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                pos.z + 5.0
             );
             List<EntityMob> mobs = (List<EntityMob>) (List) this.girl.world.getEntitiesWithinAABB(EntityMob.class, aabb);
-            mobs.sort((mobA, mobB) -> {
-               double distA = mobB.getDistance(this.girl);
-               double distB = mobB.getDistance(this.girl);
-               if (distA == distB) {
-                  return 0;
-               } else {
-                  return distA < distB ? -1 : 1;
-               }
-            });
+            EntityMob nearestMob = null;
+            double nearestDistSq = Double.MAX_VALUE;
 
             for (EntityMob mob : (java.util.Collection<EntityMob>) (mobs) ) {
-               if (this.isTargetVisible(mob) && !(mob instanceof EntityCreeper)) {
-                  this.target = mob;
-                  return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
+               if (mob instanceof EntityCreeper) {
+                  continue;
                }
+
+               double distSq = mob.getDistanceSq(this.girl);
+               if (distSq < nearestDistSq && this.isTargetVisible(mob)) {
+                  nearestDistSq = distSq;
+                  nearestMob = mob;
+               }
+            }
+
+            if (nearestMob != null) {
+               this.target = nearestMob;
+               return GirlFollowAiBase.GirlFollowAiBaseState.ATTACK;
             }
          }
 

@@ -16,6 +16,7 @@ public class GuiOpenHandler {
       if (event.getGui() instanceof GuiMainMenu || event.getGui() instanceof GuiMultiplayer) {
          AbstractPlayerGirlEntity.playerGirlList.clear();
          AbstractPlayerGirlEntity.PLAYER_GIRL_BY_OWNER.clear();
+         AbstractPlayerGirlEntity.playerGirlTableDirty = true;
       }
    }
 

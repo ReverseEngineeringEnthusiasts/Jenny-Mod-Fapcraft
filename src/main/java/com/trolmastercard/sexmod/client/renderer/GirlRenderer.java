@@ -24,8 +24,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -69,6 +70,11 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -122,7 +128,9 @@ import software.bernie.shadowed.eliotlash.mclib.utils.Interpolations;
  * {@link SexSceneRenderer#renderSexSceneEffects} draws scene parts.
  * <p>
  * CLIENT-side render thread only. Skin textures are fetched once per UUID via
- * {@link SkinFetcher} and cached; the {@link SexWorldClient} preload world
+ * {@link SkinFetcher} and kept in a bounded LRU ({@link #SKIN_TEXTURE_CACHE}); a texture is
+ * re-fetched after eviction or after {@link #invalidate(UUID)}.
+ * The {@link SexWorldClient} preload world
  * skips the custom pass entirely.
  */
 public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> extends GeoEntityRenderer<T> implements IGirlRenderer {
@@ -130,10 +138,28 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected double shadowOffset;
    protected T renderEntity;
    protected static Minecraft mc;
-   protected static HashMap<UUID, ResourceLocation> SKIN_TEXTURE_CACHE = new HashMap<>();
+   protected static final int SKIN_CACHE_CAPACITY = 64;
+   /**
+    * Bounded LRU of tinted player skins (access order). Evicted entries release
+    * their GPU texture, except the shared fallback texture.
+    */
+   protected static final LinkedHashMap<UUID, ResourceLocation> SKIN_TEXTURE_CACHE = new LinkedHashMap<UUID, ResourceLocation>(16, 0.75F, true) {
+      @Override
+      protected boolean removeEldestEntry(Map.Entry<UUID, ResourceLocation> eldest) {
+         if (this.size() <= SKIN_CACHE_CAPACITY) {
+            return false;
+         }
+
+         if (!eldest.getValue().equals(fallbackSkinLocation)) {
+            Minecraft.getMinecraft().getTextureManager().deleteTexture(eldest.getValue());
+         }
+
+         return true;
+      }
+   };
    Color BASE_SKIN_COLOR = new Color(245, 199, 165);
    Color BLUSH_COLOR = new Color(245, 157, 169);
-   boolean fallbackSkinLoaded = false;
+   private static ResourceLocation fallbackSkinLocation;
    protected HashSet<String> activeCustomPartBones = new HashSet<>();
    float bowPullProgress = 0.0F;
    public static BufferBuilder tempBuffer;
@@ -176,8 +202,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    /**
     * Fetches the player skin for {@code uuid} ({@link SkinFetcher}), repaints
     * the head-top/face pixels with the mod's skin-tone colors, registers it as
-    * a dynamic texture and caches it. On any fetch error falls back to the
-    * bundled steve texture (or an empty 64x64 image) and still caches.
+    * a dynamic texture and caches it. On any fetch error the shared steve
+    * fallback texture (loaded once) is cached for the uuid instead.
     */
    protected ResourceLocation getTintedSkinTexture(UUID uuid, World world) {
       BufferedImage skinImage;
@@ -189,19 +215,98 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          graphics.setColor(this.BLUSH_COLOR);
          graphics.fillRect(4, 0, 3, 3);
       } catch (Exception e) {
-         if (!this.fallbackSkinLoaded) {
-            this.fallbackSkinLoaded = true;
+         ResourceLocation fallbackTexture = getFallbackSkinTexture();
+         SKIN_TEXTURE_CACHE.put(uuid, fallbackTexture);
+         return fallbackTexture;
+      }
+
+      ResourceLocation tintedTexture = this.renderManager.renderEngine.getDynamicTextureLocation("player" + uuid, new DynamicTexture(skinImage));
+      SKIN_TEXTURE_CACHE.put(uuid, tintedTexture);
+      return tintedTexture;
+   }
+
+   /**
+    * The bundled steve skin as a dynamic texture, registered once and shared by
+    * every fallback lookup.
+    */
+   private static ResourceLocation getFallbackSkinTexture() {
+      if (fallbackSkinLocation == null) {
+         BufferedImage fallbackImage;
+         try {
+            fallbackImage = ImageIO.read(
+               Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("sexmod", "textures/player/steve.png")).getInputStream()
+            );
+         } catch (Exception e) {
+            fallbackImage = new BufferedImage(64, 64, 2);
          }
 
-         try {
-            skinImage = ImageIO.read(mc.getResourceManager().getResource(new ResourceLocation("sexmod", "textures/player/steve.png")).getInputStream());
-         } catch (Exception e2) {
-            skinImage = new BufferedImage(64, 64, 2);
+         fallbackSkinLocation = Minecraft.getMinecraft().getTextureManager().getDynamicTextureLocation("sexmod:player_fallback", new DynamicTexture(fallbackImage));
+      }
+
+      return fallbackSkinLocation;
+   }
+
+   /**
+    * Drops {@code uuid}'s cached tinted skin and releases its GPU texture; the
+    * next render fetches and re-tints. Runs on the client thread — calls from
+    * another thread are rescheduled onto it.
+    */
+   public static void invalidate(UUID uuid) {
+      if (uuid == null) {
+         return;
+      }
+
+      Minecraft minecraft = Minecraft.getMinecraft();
+      if (!minecraft.isCallingFromMinecraftThread()) {
+         minecraft.addScheduledTask(() -> invalidate(uuid));
+         return;
+      }
+
+      ResourceLocation staleTexture = SKIN_TEXTURE_CACHE.remove(uuid);
+      if (staleTexture != null && !staleTexture.equals(fallbackSkinLocation)) {
+         minecraft.getTextureManager().deleteTexture(staleTexture);
+      }
+   }
+
+   /**
+    * Drops every cached tinted skin (session change / skin update). Same thread
+    * rules as {@link #invalidate(UUID)}.
+    */
+   public static void invalidateAll() {
+      Minecraft minecraft = Minecraft.getMinecraft();
+      if (!minecraft.isCallingFromMinecraftThread()) {
+         minecraft.addScheduledTask(() -> invalidateAll());
+         return;
+      }
+
+      for (ResourceLocation staleTexture : new ArrayList<>(SKIN_TEXTURE_CACHE.values())) {
+         if (!staleTexture.equals(fallbackSkinLocation)) {
+            minecraft.getTextureManager().deleteTexture(staleTexture);
          }
       }
 
-      SKIN_TEXTURE_CACHE.put(uuid, this.renderManager.renderEngine.getDynamicTextureLocation("player" + uuid, new DynamicTexture(skinImage)));
-      return SKIN_TEXTURE_CACHE.get(uuid);
+      SKIN_TEXTURE_CACHE.clear();
+   }
+
+   /**
+    * Clears the tinted-skin cache when the client leaves or joins a server, so
+    * a skin changed between sessions is fetched again. Registered by
+    * {@link com.trolmastercard.sexmod.util.RenderHandler}.
+    */
+   public static class SkinCacheInvalidator {
+      public static final SkinCacheInvalidator INSTANCE = new SkinCacheInvalidator();
+
+      @SideOnly(Side.CLIENT)
+      @SubscribeEvent
+      public void onClientConnected(ClientConnectedToServerEvent event) {
+         invalidateAll();
+      }
+
+      @SideOnly(Side.CLIENT)
+      @SubscribeEvent
+      public void onClientDisconnected(ClientDisconnectionFromServerEvent event) {
+         invalidateAll();
+      }
    }
 
    /**
@@ -699,18 +804,21 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       Tessellator tessellator = Tessellator.getInstance();
       BufferBuilder buffer = tessellator.getBuffer();
       GlStateManager.pushMatrix();
-      GlStateManager.translate(0.0, 0.01, 0.0);
-      Entity renderEntity = this.getRenderEntity(girl);
-      Vec3d girlPos = girl.isAnchored()
-         ? girl.getTargetPosition()
-         : RotationHelper.lerpVec3dDouble(new Vec3d(renderEntity.lastTickPosX, renderEntity.lastTickPosY, renderEntity.lastTickPosZ), renderEntity.getPositionVector(), partialTicks);
-      Vec3d localPlayerPos = RotationHelper.lerpVec3dDouble(new Vec3d(localPlayer.lastTickPosX, localPlayer.lastTickPosY, localPlayer.lastTickPosZ), localPlayer.getPositionVector(), partialTicks);
-      Vec3d offset = girlPos.subtract(localPlayerPos);
-      GlStateManager.translate(offset.x, offset.y, offset.z);
-      mc.getTextureManager().bindTexture(LINE_TEXTURE);
-      float lineWidth = getRenderOffset(girl, partialTicks, 1.0F, 5.0F);
-      this.drawOverlayLines(tessellator, buffer, girl, overlayColor, lineWidth);
-      GlStateManager.popMatrix();
+      try {
+         GlStateManager.translate(0.0, 0.01, 0.0);
+         Entity renderEntity = this.getRenderEntity(girl);
+         Vec3d girlPos = girl.isAnchored()
+            ? girl.getTargetPosition()
+            : RotationHelper.lerpVec3dDouble(new Vec3d(renderEntity.lastTickPosX, renderEntity.lastTickPosY, renderEntity.lastTickPosZ), renderEntity.getPositionVector(), partialTicks);
+         Vec3d localPlayerPos = RotationHelper.lerpVec3dDouble(new Vec3d(localPlayer.lastTickPosX, localPlayer.lastTickPosY, localPlayer.lastTickPosZ), localPlayer.getPositionVector(), partialTicks);
+         Vec3d offset = girlPos.subtract(localPlayerPos);
+         GlStateManager.translate(offset.x, offset.y, offset.z);
+         mc.getTextureManager().bindTexture(LINE_TEXTURE);
+         float lineWidth = getRenderOffset(girl, partialTicks, 1.0F, 5.0F);
+         this.drawOverlayLines(tessellator, buffer, girl, overlayColor, lineWidth);
+      } finally {
+         GlStateManager.popMatrix();
+      }
    }
 
    /**
@@ -1075,10 +1183,13 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
                for (GeoCube cube : bone.childCubes) {
                   MATRIX_STACK.push();
                   GlStateManager.pushMatrix();
-                  this.currentRenderingBone = bone;
-                  this.renderCubeGeometry(buffer, cube, r, g, b, a, overlayAlpha);
-                  GlStateManager.popMatrix();
-                  MATRIX_STACK.pop();
+                  try {
+                     this.currentRenderingBone = bone;
+                     this.renderCubeGeometry(buffer, cube, r, g, b, a, overlayAlpha);
+                  } finally {
+                     GlStateManager.popMatrix();
+                     MATRIX_STACK.pop();
+                  }
                }
             }
 
@@ -1173,28 +1284,31 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
          for (int i = 0; i < paymentStack.getCount(); i++) {
             GlStateManager.pushMatrix();
-            Tessellator.getInstance().draw();
-            com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
-            GlStateManager.enableLighting();
-            GL11.glRotated(bone.getRotationX() + 2.5, 0.0, 0.0, 1.0);
-            GL11.glRotated(bone.getRotationY(), 0.0, 1.0, 0.0);
-            GL11.glRotated(bone.getRotationZ(), 1.0, 0.0, 0.0);
-            switch (i) {
-               case 1:
-                  GL11.glRotated(-15.0, 0.0, 0.0, 1.0);
-                  GlStateManager.translate(0.0, 0.0, -0.025);
-                  break;
-               case 2:
-                  GL11.glRotated(15.0, 0.0, 0.0, 1.0);
-                  GlStateManager.translate(0.0, 0.0, 0.025);
-            }
+            try {
+               Tessellator.getInstance().draw();
+               com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
+               GlStateManager.enableLighting();
+               GL11.glRotated(bone.getRotationX() + 2.5, 0.0, 0.0, 1.0);
+               GL11.glRotated(bone.getRotationY(), 0.0, 1.0, 0.0);
+               GL11.glRotated(bone.getRotationZ(), 1.0, 0.0, 0.0);
+               switch (i) {
+                  case 1:
+                     GL11.glRotated(-15.0, 0.0, 0.0, 1.0);
+                     GlStateManager.translate(0.0, 0.0, -0.025);
+                     break;
+                  case 2:
+                     GL11.glRotated(15.0, 0.0, 0.0, 1.0);
+                     GlStateManager.translate(0.0, 0.0, 0.025);
+               }
 
-            GlStateManager.scale(this.renderEntity.scaleFactor, this.renderEntity.scaleFactor, this.renderEntity.scaleFactor);
-            itemRenderer.renderItem(this.renderEntity, new ItemStack(paymentStack.getItem(), 1), TransformType.THIRD_PERSON_RIGHT_HAND);
-            this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-            buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-            GlStateManager.disableLighting();
-            GlStateManager.popMatrix();
+               GlStateManager.scale(this.renderEntity.scaleFactor, this.renderEntity.scaleFactor, this.renderEntity.scaleFactor);
+               itemRenderer.renderItem(this.renderEntity, new ItemStack(paymentStack.getItem(), 1), TransformType.THIRD_PERSON_RIGHT_HAND);
+               this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
+               buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+            } finally {
+               GlStateManager.disableLighting();
+               GlStateManager.popMatrix();
+            }
          }
       }
    }
@@ -1236,23 +1350,26 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
                }
 
                GlStateManager.pushMatrix();
-               Tessellator.getInstance().draw();
-               com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
-               GlStateManager.enableLighting();
-               if (heldStack.getItem() instanceof ItemBow) {
-                  GL11.glRotatef(girl.holdBowRot, 1.0F, 0.0F, 0.0F);
-               } else if (girl.getCurrentAction() == Action.ATTACK && girl.nextAttack == 0) {
-                  GlStateManager.translate(girl.swordOffsetStab.x, girl.swordOffsetStab.y, girl.swordOffsetStab.z);
-                  GL11.glRotatef(girl.stabSwordRot, 1.0F, 0.0F, 0.0F);
-               } else {
-                  GL11.glRotatef(girl.slashSwordRot, 1.0F, 0.0F, 0.0F);
-               }
+               try {
+                  Tessellator.getInstance().draw();
+                  com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
+                  GlStateManager.enableLighting();
+                  if (heldStack.getItem() instanceof ItemBow) {
+                     GL11.glRotatef(girl.holdBowRot, 1.0F, 0.0F, 0.0F);
+                  } else if (girl.getCurrentAction() == Action.ATTACK && girl.nextAttack == 0) {
+                     GlStateManager.translate(girl.swordOffsetStab.x, girl.swordOffsetStab.y, girl.swordOffsetStab.z);
+                     GL11.glRotatef(girl.stabSwordRot, 1.0F, 0.0F, 0.0F);
+                  } else {
+                     GL11.glRotatef(girl.slashSwordRot, 1.0F, 0.0F, 0.0F);
+                  }
 
-               Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, heldStack, TransformType.THIRD_PERSON_RIGHT_HAND);
-               this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-               buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-               GlStateManager.disableLighting();
-               GlStateManager.popMatrix();
+                  Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, heldStack, TransformType.THIRD_PERSON_RIGHT_HAND);
+                  this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
+                  buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+               } finally {
+                  GlStateManager.disableLighting();
+                  GlStateManager.popMatrix();
+               }
             }
          }
       }

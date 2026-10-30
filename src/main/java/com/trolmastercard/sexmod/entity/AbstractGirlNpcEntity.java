@@ -20,7 +20,6 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -131,8 +130,12 @@ public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
                .getEntitiesWithinAABB(
                   EntityMob.class,
                   new AxisAlignedBB(
-                     new BlockPos(this.posX - 7.0, this.posY - 1.0, this.posZ - 7.0),
-                     new BlockPos(this.posX + 7.0, this.posY + 1.0, this.posZ + 7.0)
+                     this.posX - 7.0,
+                     this.posY - 1.0,
+                     this.posZ - 7.0,
+                     this.posX + 7.0,
+                     this.posY + 1.0,
+                     this.posZ + 7.0
                   )
                );
             int healAmount = mobs.isEmpty() ? 4 : 1;

@@ -269,16 +269,19 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          Tessellator tessellator = Tessellator.getInstance();
          BufferBuilder buffer = tessellator.getBuffer();
          GlStateManager.pushMatrix();
-         GalathGeometryRender.renderGalathGeometry(mc, girl, partialTicks);
-         mc.getTextureManager().bindTexture(LINE_TEXTURE);
-         GlStateManager.disableCull();
-         GlStateManager.disableLighting();
-         renderWingEffect(girl, buffer, tessellator, RotationHelper.lerp(girl.prevRenderYawOffset, girl.renderYawOffset, partialTicks));
-         renderWingGeometry(girl, buffer, tessellator, partialTicks);
-         renderWingMesh(girl, buffer, tessellator);
-         GlStateManager.popMatrix();
-         GlStateManager.enableCull();
-         GlStateManager.enableLighting();
+         try {
+            GalathGeometryRender.renderGalathGeometry(mc, girl, partialTicks);
+            mc.getTextureManager().bindTexture(LINE_TEXTURE);
+            GlStateManager.disableCull();
+            GlStateManager.disableLighting();
+            renderWingEffect(girl, buffer, tessellator, RotationHelper.lerp(girl.prevRenderYawOffset, girl.renderYawOffset, partialTicks));
+            renderWingGeometry(girl, buffer, tessellator, partialTicks);
+            renderWingMesh(girl, buffer, tessellator);
+         } finally {
+            GlStateManager.popMatrix();
+            GlStateManager.enableCull();
+            GlStateManager.enableLighting();
+         }
       }
    }
 
@@ -292,43 +295,46 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          if ((Boolean)girl.getDataManager().get(GalathEntity.bP)) {
             if (!(Boolean)girl.getDataManager().get(GalathEntity.HIDE_EFFECTS_FLAG)) {
                GlStateManager.pushMatrix();
-               Vec3d starsOffset = girl.getCachedBoneOffset("stars");
-               GlStateManager.translate(starsOffset.x, starsOffset.y, starsOffset.z);
-               float time = (float)mc.world.getTotalWorldTime() + partialTicks;
-               float rotX = (float)(Math.sin(time * 0.2) * 5.0);
-               float rotZ = (float)(Math.cos(time * 0.2) * 5.0);
-               float rotY = (float)(time * 3.0);
-               GlStateManager.rotate(rotX, 1.0F, 0.0F, 0.0F);
-               GlStateManager.rotate(rotY, 0.0F, 1.0F, 0.0F);
-               GlStateManager.rotate(rotZ, 0.0F, 0.0F, 1.0F);
-               float step = TrigMath.toRadians(9.0);
-               Vector3fSexmodSpecial starColor = GalathEntity.aa;
-               mc.getTextureManager().bindTexture(LINE_TEXTURE);
-               buffer.begin(3, DefaultVertexFormats.POSITION_TEX_COLOR);
-               GlStateManager.glLineWidth(getRenderOffset(girl, partialTicks, 1.0F, 3.0F));
+               try {
+                  Vec3d starsOffset = girl.getCachedBoneOffset("stars");
+                  GlStateManager.translate(starsOffset.x, starsOffset.y, starsOffset.z);
+                  float time = (float)mc.world.getTotalWorldTime() + partialTicks;
+                  float rotX = (float)(Math.sin(time * 0.2) * 5.0);
+                  float rotZ = (float)(Math.cos(time * 0.2) * 5.0);
+                  float rotY = (float)(time * 3.0);
+                  GlStateManager.rotate(rotX, 1.0F, 0.0F, 0.0F);
+                  GlStateManager.rotate(rotY, 0.0F, 1.0F, 0.0F);
+                  GlStateManager.rotate(rotZ, 0.0F, 0.0F, 1.0F);
+                  float step = TrigMath.toRadians(9.0);
+                  Vector3fSexmodSpecial starColor = GalathEntity.aa;
+                  mc.getTextureManager().bindTexture(LINE_TEXTURE);
+                  buffer.begin(3, DefaultVertexFormats.POSITION_TEX_COLOR);
+                  GlStateManager.glLineWidth(getRenderOffset(girl, partialTicks, 1.0F, 3.0F));
 
-               for (float angle = 0.0F; angle < Math.PI * 2; angle += step) {
-                  double sinAngle = Math.sin(angle) * 0.3F;
-                  double cosAngle = Math.cos(angle) * 0.3F;
-                  buffer.pos(sinAngle, 0.0, cosAngle).tex(0.0, 0.0).color(starColor.x, starColor.y, starColor.z, 1.0F).endVertex();
+                  for (float angle = 0.0F; angle < Math.PI * 2; angle += step) {
+                     double sinAngle = Math.sin(angle) * 0.3F;
+                     double cosAngle = Math.cos(angle) * 0.3F;
+                     buffer.pos(sinAngle, 0.0, cosAngle).tex(0.0, 0.0).color(starColor.x, starColor.y, starColor.z, 1.0F).endVertex();
+                  }
+
+                  tessellator.draw();
+                  mc.getTextureManager().bindTexture(STAR_TEXTURE);
+                  buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+                  step = TrigMath.toRadians(60.0);
+
+                  for (float angle2 = 0.0F; angle2 < Math.PI * 2; angle2 += step) {
+                     double sinAngle2 = Math.sin(angle2) * 0.3F;
+                     double cosAngle2 = Math.cos(angle2) * 0.3F;
+                     buffer.pos(sinAngle2 - 0.1F, 0.1F, cosAngle2).tex(0.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+                     buffer.pos(sinAngle2 + 0.1F, 0.1F, cosAngle2).tex(1.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+                     buffer.pos(sinAngle2 + 0.1F, -0.1F, cosAngle2).tex(1.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+                     buffer.pos(sinAngle2 - 0.1F, -0.1F, cosAngle2).tex(0.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+                  }
+
+                  tessellator.draw();
+               } finally {
+                  GlStateManager.popMatrix();
                }
-
-               tessellator.draw();
-               mc.getTextureManager().bindTexture(STAR_TEXTURE);
-               buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-               step = TrigMath.toRadians(60.0);
-
-               for (float angle2 = 0.0F; angle2 < Math.PI * 2; angle2 += step) {
-                  double sinAngle2 = Math.sin(angle2) * 0.3F;
-                  double cosAngle2 = Math.cos(angle2) * 0.3F;
-                  buffer.pos(sinAngle2 - 0.1F, 0.1F, cosAngle2).tex(0.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-                  buffer.pos(sinAngle2 + 0.1F, 0.1F, cosAngle2).tex(1.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-                  buffer.pos(sinAngle2 + 0.1F, -0.1F, cosAngle2).tex(1.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-                  buffer.pos(sinAngle2 - 0.1F, -0.1F, cosAngle2).tex(0.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-               }
-
-               tessellator.draw();
-               GlStateManager.popMatrix();
             }
          }
       }
@@ -546,17 +552,20 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          case "weapon":
             if (this.renderEntity.ap) {
                GlStateManager.pushMatrix();
-               Tessellator.getInstance().draw();
-               com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
-               GlStateManager.enableLighting();
-               GlStateManager.scale(1.5, 1.0, 2.0);
-               GlStateManager.translate(0.0, 0.0, 0.05);
-               GlStateManager.rotate(110.0F, 1.0F, 0.0F, 0.0F);
-               Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, new ItemStack(Items.IRON_SWORD), TransformType.THIRD_PERSON_RIGHT_HAND);
-               this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-               buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-               GlStateManager.disableLighting();
-               GlStateManager.popMatrix();
+               try {
+                  Tessellator.getInstance().draw();
+                  com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
+                  GlStateManager.enableLighting();
+                  GlStateManager.scale(1.5, 1.0, 2.0);
+                  GlStateManager.translate(0.0, 0.0, 0.05);
+                  GlStateManager.rotate(110.0F, 1.0F, 0.0F, 0.0F);
+                  Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, new ItemStack(Items.IRON_SWORD), TransformType.THIRD_PERSON_RIGHT_HAND);
+                  this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
+                  buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+               } finally {
+                  GlStateManager.disableLighting();
+                  GlStateManager.popMatrix();
+               }
             }
             break;
          case "tongue":
@@ -738,15 +747,18 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     */
    void renderBoneRibbon(BufferBuilder buffer, GeoBone bone, RibbonRenderer.RibbonConfig config) {
       GlStateManager.pushMatrix();
-      Tessellator.getInstance().draw();
-      com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
-      GlStateManager.disableCull();
-      this.bindTexture(LINE_TEXTURE);
-      RibbonRenderer.renderRibbon(buffer, Tessellator.getInstance(), mc, config);
-      this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
-      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-      GlStateManager.enableCull();
-      GlStateManager.popMatrix();
+      try {
+         Tessellator.getInstance().draw();
+         com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(MATRIX_STACK, bone);
+         GlStateManager.disableCull();
+         this.bindTexture(LINE_TEXTURE);
+         RibbonRenderer.renderRibbon(buffer, Tessellator.getInstance(), mc, config);
+         this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+      } finally {
+         GlStateManager.enableCull();
+         GlStateManager.popMatrix();
+      }
    }
 
    /**
