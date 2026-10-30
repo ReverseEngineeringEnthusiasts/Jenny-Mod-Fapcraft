@@ -184,7 +184,7 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
    }
 
    public void renderModel(GeoModel model, GoblinEntity goblin, float partialTicks, float r, float g, float b, float a) {
-      super.renderModel(model, goblin, partialTicks, r, g, b, goblin.ar);
+      super.renderModel(model, goblin, partialTicks, r, g, b, goblin.fadeScale);
    }
 
    /**

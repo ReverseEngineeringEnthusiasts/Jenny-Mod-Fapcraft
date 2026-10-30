@@ -12,6 +12,7 @@ import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.entity.CummyEntity;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import com.trolmastercard.sexmod.entity.GoblinEntity;
+import com.trolmastercard.sexmod.entity.GoblinEventHandler;
 import com.trolmastercard.sexmod.entity.GoblinPlayerEntity;
 import com.trolmastercard.sexmod.entity.KoboldEggProjectileEntity;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
@@ -64,7 +65,7 @@ public class ForgeEventHandler {
       MinecraftForge.EVENT_BUS.register(new KoboldManager.TribeWorldSavedData("tribes"));
       MinecraftForge.EVENT_BUS.register(new KoboldEggItem());
       MinecraftForge.EVENT_BUS.register(new GoblinFirstPersonRenderer());
-      MinecraftForge.EVENT_BUS.register(new GoblinEntity.c());
+      MinecraftForge.EVENT_BUS.register(new GoblinEventHandler());
       MinecraftForge.EVENT_BUS.register(new GoblinPlayerEntity.a());
       MinecraftForge.EVENT_BUS.register(new AlliesLampItem.a());
       MinecraftForge.EVENT_BUS.register(new DebugMode());

@@ -45,7 +45,7 @@ public class CommandLocateGoblinLair extends CommandBase {
             for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
                if (girl instanceof GoblinEntity) {
                   GoblinEntity goblin = (GoblinEntity)girl;
-                  if (goblin.aX) {
+                  if (goblin.isQueen) {
                      if (lair == null) {
                         lair = goblin;
                      } else if (goblin.getDistanceSq(sender.getPosition()) < lair.getDistanceSq(sender.getPosition())) {

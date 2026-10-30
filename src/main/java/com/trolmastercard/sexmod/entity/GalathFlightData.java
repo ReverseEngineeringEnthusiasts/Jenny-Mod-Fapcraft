@@ -62,7 +62,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
  * progress stored in the {@code bO} data key.</li>
  * </ul>
  * <p>
- * <b>Flow.</b> {@link GalathEntity#initFlightData()} picks a random constant
+ * <b>Flow.</b> {@link GalathFlightState#initFlightData(GalathEntity)} picks a random constant
  * whose {@code canExecuteAction} predicate passes and calls
  * {@link #executeStart(GalathEntity)}; every AI tick
  * {@link #executeUpdate(GalathEntity)} runs the movement lambda, and when it

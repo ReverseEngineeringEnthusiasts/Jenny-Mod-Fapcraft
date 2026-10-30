@@ -6,7 +6,6 @@ import com.trolmastercard.sexmod.client.gui.EscapeMinigameHud;
 import com.trolmastercard.sexmod.client.gui.GalathFlightHud;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.GirlAnimationController;
-import com.trolmastercard.sexmod.client.particle.DragonBreathParticle;
 import com.trolmastercard.sexmod.client.renderer.WildSlimeFaceLayer;
 import com.trolmastercard.sexmod.command.CommandFuta;
 import com.trolmastercard.sexmod.entity.ai.DoorInteractAiGoal;
@@ -41,7 +40,6 @@ import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.DynamicTrailRenderer;
 import com.trolmastercard.sexmod.util.Vector4d;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
-import com.trolmastercard.sexmod.util.PathUtils;
 import com.trolmastercard.sexmod.util.ClientServerCheck;
 import com.trolmastercard.sexmod.util.TrigMath;
 import java.util.ArrayList;
@@ -75,22 +73,17 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.ai.EntityAITempt;
 import net.minecraft.entity.monster.EntityBlaze;
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityWitherSkeleton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
-import net.minecraft.network.play.server.SPacketParticles;
-import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.pathfinding.Path;
-import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
@@ -98,7 +91,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
@@ -107,7 +99,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.BossInfoServer;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.BossInfo.Color;
 import net.minecraft.world.BossInfo.Overlay;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -149,18 +140,22 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * ({@code b2}, {@code energyBallHitboxRight}) back the energy-ball attack.
  * <p>
  * <b>Flow.</b> Wild: {@code updateAITasks} -&gt; {@link #ao()} drives the
- * flight state machine ({@link #initFlightData()} picks a random
+ * flight state machine ({@link GalathFlightState#initFlightData(GalathEntity)} picks a random
  * {@link GalathFlightData} action when a target is in range, see
- * {@link #acquireFlightTarget()}); {@link #setFlightVelocity(Vec3d)} (dragon hit)
+ * {@link GalathFlightState#acquireFlightTarget(GalathEntity)});
+ * {@link #setFlightVelocity(Vec3d)} (dragon hit)
  * sends her into {@link Action#KNOCK_OUT_FLY} -&gt; KNOCK_OUT_GROUND
- * ({@link #handleKnockout()}) -&gt; KNOCK_OUT_STAND_UP. The corrupting player
+ * ({@link GalathFlightState#handleKnockout(GalathEntity)}) -&gt;
+ * KNOCK_OUT_STAND_UP. The corrupting player
  * then right-clicks ({@link #processGirlInteract(EntityPlayer, EnumHand)})
  * which starts {@link Action#CORRUPT_INTRO}; {@code handleCorruptCum} (server)
  * advances CORRUPT_CUM -&gt; {@link Action#GIVE_COIN} -&gt;
  * {@link #ap()} grants the coin and binds the master.
  * Tamed: scenes enter through {@link #processMasterInteract} +
  * {@link #doAction(String, UUID)}; {@link #handleRapeState()} and
- * {@link #handleRapeCum()}/{@link #endTamedCorruptScene()} end rape/corrupt scenes
+ * {@link GalathSceneTicks#handleRapeCum(GalathEntity)}/
+ * {@link GalathSceneTicks#endTamedCorruptScene(GalathEntity)} end rape/corrupt
+ * scenes
  * (player reset via {@link SetPlayerMovementPacket}).
  * <p>
  * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} blocks transitions out
@@ -595,8 +590,9 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
     * BOTH sides: the per-tick split — tamed girls tick the master systems
     * ({@link #updateRidingGravity()} gravity + {@link #au()}), wild girls tick the
     * flight UI (boss bar, gravity, flight data) and the wild systems
-    * ({@link #tickWildSystems()}). CLIENT additionally ticks the coin-give
-    * particles ({@link #tickGiveCoinScene()}).
+    * ({@link GalathSceneTicks#tickWildSystems(GalathEntity)}). CLIENT
+    * additionally ticks the coin-give particles
+    * ({@link GalathSceneTicks#tickGiveCoinScene(GalathEntity)}).
     */
    @Override
    public void onUpdate() {
@@ -612,45 +608,17 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       if (hasMasterFlag) {
          this.au();
       } else {
-         this.tickWildSystems();
+         GalathSceneTicks.tickWildSystems(this);
       }
 
       if (this.world.isRemote) {
-         this.tickGiveCoinScene();
+         GalathSceneTicks.tickGiveCoinScene(this);
       }
    }
 
    @Override
    public boolean canBeInteractedWith() {
       return false;
-   }
-
-   /**
-    * CLIENT: the GIVE_COIN scene — at tick 95 summons the coin for the local
-    * player, and during ticks 25-38 spawns the dragon-breath particles
-    * streaming between the two hands (progress lerp between the weapon and
-    * offhand bones).
-    */
-   @SideOnly(Side.CLIENT)
-   void tickGiveCoinScene() {
-      if (this.getCurrentAction() == Action.GIVE_COIN) {
-         int coinTick = Action.GIVE_COIN.ticksPlaying[1];
-         if (coinTick == 95) {
-            GalathCoinItem.summonForPlayer(Minecraft.getMinecraft().player, this);
-         }
-
-         if (coinTick > 25 && coinTick < 38) {
-            Vec3d pos = this.getPositionVector();
-            Vec3d weaponPos = this.getCachedBoneOffset("weapon").add(pos);
-            Vec3d offhandPos = this.getCachedBoneOffset("offhand").add(pos);
-            DragonBreathParticle.BREATH_SCALE = 0.5F;
-
-            for (float t = 0.0F; t < 1.0F; t += 0.2F) {
-               Vec3d lerped = RotationHelper.lerpVec3dDouble(weaponPos, offhandPos, t);
-               Minecraft.getMinecraft().effectRenderer.addEffect(new DragonBreathParticle(this.world, lerped.x, lerped.y, lerped.z));
-            }
-         }
-      }
    }
 
    void updateRidingGravity() {
@@ -660,8 +628,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    /**
     * SERVER: tamed per-tick systems — soft fall damping, riding-player yaw
     * sync, the carry camera pitch, the boost impulse, wing/effect flags, and
-    * the rape/corrupt scene enders ({@link #handleRapeCum()},
-    * {@link #endTamedCorruptScene()}).
+    * the rape/corrupt scene enders ({@link GalathSceneTicks#handleRapeCum(GalathEntity)},
+    * {@link GalathSceneTicks#endTamedCorruptScene(GalathEntity)}).
     */
    void au() {
       if (!this.isInWater() && !this.hasNoGravity() && this.motionY < 0.0 && this.getCurrentAction() != Action.MASTERBATE) {
@@ -672,50 +640,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.aj();
       this.aq();
       this.aw();
-      this.updateWingsAnimated();
-      this.endTamedCorruptScene();
-      this.handleRapeCum();
+      GalathSceneTicks.updateWingsAnimated(this);
+      GalathSceneTicks.endTamedCorruptScene(this);
+      GalathSceneTicks.handleRapeCum(this);
       if (this.getTargetEntity() == null) {
          this.renderSword = false;
-      }
-   }
-
-   /**
-    * SERVER: ends the rape scene — 28 ticks into RAPE_CUM she un-anchors,
-    * resets to NULL and releases the player (positioned on solid ground with
-    * movement restored).
-    */
-   void handleRapeCum() {
-      if (!this.world.isRemote) {
-         if (this.getCurrentAction() == Action.RAPE_CUM) {
-            if (Action.RAPE_CUM.ticksPlaying[0] >= 28) {
-               this.setAnchored(false);
-               this.setCurrentAction(Action.NULL);
-               EntityPlayer player = this.getPlayerEntity();
-               this.setInteractionPlayerUUID(null);
-               if (player != null) {
-                  player.setPositionAndUpdate(player.posX, Math.ceil(player.posY) + 1.0, player.posZ);
-                  PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)player);
-               }
-            }
-         }
-      }
-   }
-
-   void endTamedCorruptScene() {
-      if (!this.world.isRemote) {
-         if (this.getCurrentAction() == Action.CORRUPT_CUM) {
-            if (Action.CORRUPT_CUM.ticksPlaying[0] >= 30) {
-               this.setAnchored(false);
-               this.setCurrentAction(Action.NULL);
-               EntityPlayer player = this.getPlayerEntity();
-               this.setInteractionPlayerUUID(null);
-               if (player != null) {
-                  player.setPositionAndUpdate(player.posX, Math.ceil(player.posY) + 1.0, player.posZ);
-                  PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)player);
-               }
-            }
-         }
       }
    }
 
@@ -772,60 +701,9 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void updateFlightUI() {
-      this.updateGravity();
-      this.updateHealthBar();
-      this.tickSummonSkeletonProgress();
-   }
-
-   void tickWildSystems() {
-      getAimYaw(this, 0.0F);
-      this.resetEnergyBalls();
-      this.aj();
-      this.spawnSwordAttackParticles();
-      this.clearSwordRenderFlags();
-      this.F_clash653();
-      this.updateWingsAnimated();
-      this.handleCorruptCum();
-      if (this.world.isRemote) {
-         this.tickCorruptIntroCamera();
-      }
-   }
-
-   /**
-    * SERVER: the corrupt-scene ender — 30 ticks into CORRUPT_CUM advances to
-    * the coin-give scene ({@link Action#GIVE_COIN}).
-    */
-   void handleCorruptCum() {
-      if (!this.world.isRemote) {
-         if (this.getCurrentAction() == Action.CORRUPT_CUM) {
-            if (Action.CORRUPT_CUM.ticksPlaying[0] >= 30) {
-               this.setCurrentAction(Action.GIVE_COIN);
-            }
-         }
-      }
-   }
-
-   void updateWingsAnimated() {
-      if ((Boolean)this.entityDataManager.get(HIDE_EFFECTS_FLAG)) {
-         this.wingsAnimated = true;
-      } else {
-         switch (this.getCurrentAction()) {
-            case RAPE_INTRO:
-            case RAPE_ON_GOING:
-            case RAPE_CUM:
-            case RAPE_CHARGE:
-            case RAPE_CUM_IDLE:
-            case CORRUPT_SLOW:
-            case CORRUPT_FAST:
-            case CORRUPT_CUM:
-            case MASTERBATE:
-               this.wingsAnimated = true;
-            case RAPE_PREPARE:
-               return;
-            default:
-               this.wingsAnimated = false;
-         }
-      }
+      GalathSceneTicks.updateGravity(this);
+      GalathSceneTicks.updateHealthBar(this);
+      GalathEnergyBalls.tickSummonSkeletonProgress(this);
    }
 
    @Override
@@ -833,83 +711,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return this.getCurrentAction() != Action.CORRUPT_INTRO ? false : this.corruptIntroActive;
    }
 
-   void F_clash653() {
-      if (this.world.isRemote) {
-         if (this.getCurrentAction() != Action.KNOCK_OUT_STAND_UP) {
-            this.aL = true;
-         }
-      }
-   }
-
-   void updateHealthBar() {
-      this.aO.setPercent(this.getHealth() / this.getMaxHealth());
-   }
-
-   void updateGravity() {
-      if (!(Boolean)this.entityDataManager.get(bP)) {
-         this.setNoGravity(this.getTargetEntity() != null);
-      }
-   }
-
-   void clearSwordRenderFlags() {
-      if (this.getCurrentAction() != Action.ATTACK_SWORD) {
-         this.renderSword = false;
-         this.spawnSwordParticles = false;
-      }
-   }
-
    protected void collideWithNearbyEntities() {
    }
 
    public void addPotionEffect(PotionEffect effect) {
-   }
-
-   /**
-    * CLIENT: tracks the energy-ball attack — spawns dragon-breath particles
-    * along the weapon bone while the sword is drawn ({@code spawnSwordParticles}).
-    */
-   void spawnSwordAttackParticles() {
-      if (this.world.isRemote) {
-         if (this.spawnSwordParticles) {
-            Vec3d pos = this.getPositionVector();
-            Vec3d startPos = this.getCachedBoneOffset("weaponStart").add(pos);
-            Vec3d endPos = this.getCachedBoneOffset("weaponEnd").add(pos);
-            float step = 0.1F;
-            Random random = this.getRNG();
-
-            for (float t = 0.0F; t < 1.0F; t += step) {
-               Vec3d lerped = RotationHelper.lerpVec3dDouble(startPos, endPos, t);
-
-               for (int i = 0; i < 3; i++) {
-                  this.world
-                     .spawnParticle(
-                        EnumParticleTypes.DRAGON_BREATH,
-                        lerped.x + random.nextDouble() * 0.25 * (random.nextBoolean() ? 1 : -1),
-                        lerped.y + random.nextDouble() * 0.25 * (random.nextBoolean() ? 1 : -1),
-                        lerped.z + random.nextDouble() * 0.25 * (random.nextBoolean() ? 1 : -1),
-                        0.0,
-                        0.0,
-                        0.0,
-                        new int[0]
-                     );
-               }
-            }
-
-            for (int i = 0; i < 3; i++) {
-               this.world
-                  .spawnParticle(
-                     EnumParticleTypes.DRAGON_BREATH,
-                     endPos.x + random.nextDouble() * 0.25 * (random.nextBoolean() ? 1 : -1) * (random.nextBoolean() ? 1 : -1),
-                     endPos.y + random.nextDouble() * 0.25 * (random.nextBoolean() ? 1 : -1),
-                     endPos.z + random.nextDouble() * 0.25 * (random.nextBoolean() ? 1 : -1),
-                     0.0,
-                     0.0,
-                     0.0,
-                     new int[0]
-                  );
-            }
-         }
-      }
    }
 
    @SideOnly(Side.CLIENT)
@@ -924,59 +729,6 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    public String getEffectiveDisplayName() {
       EntityPlayer master = this.getMasterPlayer();
       return master == null ? super.getEffectiveDisplayName() : String.format("%s %s[%s]", super.getEffectiveDisplayName(), TextFormatting.DARK_PURPLE, master.getName());
-   }
-
-   /**
-    * SERVER: places the two energy-ball hitbox parts at the summoning hands
-    * while the summon action is charging ({@code summonSkeletonTicks} in [9, 30]); both parts
-    * are inactive outside that window.
-    */
-   void resetEnergyBalls() {
-      this.b2.isActive = false;
-      this.energyBallHitboxRight.isActive = false;
-      if (!(this.summonSkeletonTicks < 9.0F)) {
-         if (!(this.summonSkeletonTicks > 30.0F)) {
-            this.b2.isActive = true;
-            this.energyBallHitboxRight.isActive = true;
-            boolean reset = (Boolean)this.entityDataManager.get(ay);
-            Vec3d pos = this.getPositionVector();
-            Vec3d tempPos;
-            Vec3d tempOffset;
-            if (reset) {
-               tempPos = pos;
-               tempOffset = VectorMath.MirrorXZ(bz);
-            } else {
-               tempPos = pos;
-               tempOffset = bz;
-            }
-
-            Vec3d leftPos = tempPos.add(VectorMath.rotateByYaw(tempOffset, 180.0F + this.renderYawOffset));
-            Vec3d rightPos = this.getPositionVector();
-            if (reset) {
-               tempPos = rightPos;
-               tempOffset = VectorMath.MirrorXZ(bC);
-            } else {
-               tempPos = rightPos;
-               tempOffset = bC;
-            }
-
-            Vec3d mirrorRightPos = tempPos.add(VectorMath.rotateByYaw(tempOffset, 180.0F + this.renderYawOffset));
-            this.b2.setLocationAndAngles(leftPos.x, leftPos.y, leftPos.z, this.renderYawOffset, 0.0F);
-            this.energyBallHitboxRight.setLocationAndAngles(mirrorRightPos.x, mirrorRightPos.y, mirrorRightPos.z, this.renderYawOffset, 0.0F);
-            this.b2.onUpdate();
-            this.energyBallHitboxRight.onUpdate();
-         }
-      }
-   }
-
-   void tickSummonSkeletonProgress() {
-      if (this.getCurrentAction() != Action.SUMMON_SKELETON) {
-         this.summonSkeletonTicks = 0;
-      } else {
-         if (this.summonSkeletonTicks++ > 45) {
-            this.summonSkeletonTicks = 0;
-         }
-      }
    }
 
    @Override
@@ -1044,7 +796,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          super.updateAITasks();
          this.watchClosestGirlGoal.isWatching = this.isFlyingIdle();
          if (this.hasMaster()) {
-            this.tickTamedAi();
+            GalathTamedAi.tickTamedAi(this);
          } else {
             this.an();
          }
@@ -1082,113 +834,6 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.rotationPitch = (float)(-(Math.sin(heightDiff / dist) * (180.0 / Math.PI)));
    }
 
-   void tickTamedAi() {
-      this.aO.setVisible(false);
-      if (!GirlSavedData.isOwnerNearby(this)) {
-         GirlSavedData.updateMangleliePartner(this);
-      } else if (this.getRidingPlayer() != null) {
-         this.clearFlightData();
-      } else {
-         this.handleManglelieOwned();
-         if (this.getMangleliePartnerUUID() == null) {
-            this.aJ();
-         } else {
-            this.am();
-         }
-      }
-   }
-
-   void handleManglelieOwned() {
-      if (GirlSavedData.isManglelieOwned(GirlSavedData.getManglelieOwnerOf(this))) {
-         boolean canLick = this.canStartPussyLicking();
-         if (canLick) {
-            Main.LOGGER.warn("mommy thinks she got no daughter but she actually does have one. Failsafe called. Hopefully its fixed");
-         }
-      }
-   }
-
-   void am() {
-      if (!this.followOwnerOnFoot()) {
-         this.entityDataManager.set(bT, false);
-         this.ao();
-      }
-   }
-
-   boolean followOwnerOnFoot() {
-      UUID ownerUuid = GirlSavedData.getManglelieOwnerOf(this);
-      if (ownerUuid == null) {
-         return false;
-      }
-
-      EntityPlayer owner = this.world.getPlayerEntityByUUID(ownerUuid);
-      if (owner == null) {
-         return false;
-      }
-
-      BlockPos ownerPos = owner.getPosition();
-      if (!this.isFlightBlocked(ownerPos)) {
-         return false;
-      }
-
-      if (this.activeFlight != null) {
-         this.activeFlight.updateFlight(this);
-         this.activeFlight = null;
-      }
-
-      float dist = this.getDistance(owner);
-      PathNavigate navigator = this.getNavigator();
-      if (dist < 4.0F) {
-         navigator.clearPath();
-         return false;
-      }
-
-      if (dist > 16.0F) {
-         navigator.clearPath();
-         this.handlePlayerRide(owner);
-         return true;
-      }
-
-      if (PathUtils.getPathEnd(this.currentPath).distanceSq(ownerPos) > 16.0) {
-         if (!this.onGround) {
-            return true;
-         }
-
-         this.currentPath = this.getPathToPlayer(owner, ownerPos);
-         if (this.currentPath == null) {
-            this.handlePlayerRide(owner);
-         } else {
-            navigator.setPath(this.currentPath, 1.0);
-         }
-      }
-
-      if (this.currentPath != null && !this.currentPath.isFinished()) {
-         boolean sprinting = owner.isSprinting() || this.getDistance(owner) > 7.0F;
-         double speed = sprinting ? 0.55F : 0.5;
-         double extra = Math.floor(dist / 5.0F) * 0.2;
-         speed += extra;
-         if (this.isInWater()) {
-            speed *= 60.0;
-         }
-
-         navigator.setSpeed(speed);
-         this.entityDataManager.set(bT, sprinting);
-         this.setCurrentAction((Action)null);
-         return true;
-      } else {
-         return false;
-      }
-   }
-
-   boolean isFlightBlocked(BlockPos pos) {
-      if (this.activeFlight == null) {
-         return true;
-      }
-
-      BlockPos selfPos = this.getPosition();
-      int dist = Math.abs(pos.getX() - selfPos.getX()) + Math.abs(pos.getX() - selfPos.getX());
-      return dist > 16;
-   }
-
    protected void handlePlayerRide(EntityPlayer player) {
       int attempts = 0;
 
@@ -1204,81 +849,6 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.motionX = 0.0;
       this.motionY = 0.0;
       this.motionZ = 0.0;
-   }
-
-   @Nullable
-   Path getPathToPlayer(EntityPlayer player, BlockPos pos) {
-      PathNavigate navigator = this.getNavigator();
-      return navigator.getPathToEntityLiving(player);
-   }
-
-   void aJ() {
-      this.at();
-      this.ay();
-   }
-
-   void clearFlightData() {
-      this.wanderTarget = null;
-      this.wanderTicks = 0;
-      if (this.activeFlight != null) {
-         this.activeFlight.updateFlight(this);
-         this.activeFlight = null;
-      }
-   }
-
-   void at() {
-      if (this.onGround) {
-         if (this.getMangleliePartnerUUID() == null) {
-            if (this.getCurrentAction() != Action.HUG_MANG) {
-               if (!GirlSavedData.isManglelieOwned(GirlSavedData.getManglelieOwnerId(this.getGirlId()))) {
-                  BlockPos center = this.getPosition();
-                  BlockPos min = center.add(-15.0, -15.0, -15.0);
-                  BlockPos max = center.add(15.0, 15.0, 15.0);
-                  AxisAlignedBB aabb = new AxisAlignedBB(min, max);
-                  List manglelies = this.world.getEntitiesWithinAABB(ManglelieEntity.class, aabb);
-                  ManglelieEntity chosen = null;
-
-                  for (ManglelieEntity manglelie : (java.util.Collection<ManglelieEntity>) (manglelies) ) {
-                     if (!manglelie.isDead && manglelie.getGalathPartner(true) == null) {
-                        chosen = manglelie;
-                        break;
-                     }
-                  }
-
-                  if (chosen == null) {
-                     if (this.getCurrentAction() == Action.RUN) {
-                        this.setCurrentAction((Action)null);
-                        this.getNavigator().clearPath();
-                     }
-                  } else {
-                     this.pathNavigator = this.getNavigator();
-                     if (chosen.getDistance(this) <= 3.65F) {
-                        this.pathNavigator.clearPath();
-                        this.setCurrentAction(Action.HUG_MANG);
-                        this.motionX = 0.0;
-                        this.motionY = 0.0;
-                        this.motionZ = 0.0;
-                        this.setTargetPosition(this.getPositionVector());
-                        this.setAnchored(true);
-                        this.setMangleliePartnerUUID(chosen.getGirlId());
-                        chosen.setGalathPartnerUUID(this.getGirlId());
-                        chosen.setCurrentAction(Action.RIDE_MOMMY_HEAD);
-                        GirlSavedData.markAsManglelieOwned(this.getGirlId());
-                     } else {
-                        Vec3d selfPos = this.getPositionVector();
-                        Vec3d partnerPos = chosen.getPositionVector();
-                        Vec3d delta = partnerPos.subtract(selfPos);
-                        float yaw = (float)TrigMath.sinDegrees(Math.atan2(delta.z, delta.x)) - 90.0F;
-                        this.setYawRotation(yaw);
-                        this.pathNavigator.clearPath();
-                        this.pathNavigator.tryMoveToEntityLiving(chosen, 0.65F);
-                        this.setCurrentAction(Action.RUN);
-                     }
-                  }
-               }
-            }
-         }
-      }
    }
 
    void ay() {
@@ -1383,42 +953,26 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    /**
     * SERVER: the tamed rape/corrupt scenes' shared tick — targets the
     * nearest player or mob in a radius (7 tamed / 20 wild), picks flight
-    * actions (see {@link #initFlightData()}), keeps the energy-ball
+    * actions (see {@link GalathFlightState#initFlightData(GalathEntity)}), keeps the energy-ball
     * hitboxes synced and watches the flight target validity.
     */
    void ao() {
       if (!Action.isAnyAction(this, Action.MASTERBATE, Action.HUG_MANG)) {
          if (this.getInteractionPlayerUUID() == null) {
-            this.cancelFlightOnLostTarget();
-            this.acquireFlightTarget();
-            this.tickFlightStateMachine();
-            this.checkFlightFinished();
-            this.updateChangePositionNoClip();
-            this.tickKnockoutFlight();
-            this.freezeDuringKnockout();
-            this.handleKnockout();
-            this.tickKnockoutStandUp();
-            this.aG();
-            this.aA();
-            this.aD();
-            this.despawnFarSummonedSkeletons();
-            this.tickWildRapeCum();
-         }
-      }
-   }
-
-   void cancelFlightOnLostTarget() {
-      if (this.hasMaster()) {
-         if (this.getTargetEntity() == null) {
-            int attackProgress = (Integer)this.entityDataManager.get(bq);
-            if (attackProgress != -1) {
-               if (this.activeFlight != null) {
-                  this.activeFlight.updateFlight(this);
-               }
-
-               this.activeFlight = null;
-               this.setCurrentAction(Action.NULL);
-            }
+            GalathFlightState.cancelFlightOnLostTarget(this);
+            GalathFlightState.acquireFlightTarget(this);
+            GalathFlightState.tickFlightStateMachine(this);
+            GalathFlightState.checkFlightFinished(this);
+            GalathFlightState.updateChangePositionNoClip(this);
+            GalathFlightState.tickKnockoutFlight(this);
+            GalathFlightState.freezeDuringKnockout(this);
+            GalathFlightState.handleKnockout(this);
+            GalathFlightState.tickKnockoutStandUp(this);
+            GalathEnergyBalls.aG(this);
+            GalathEnergyBalls.aA(this);
+            GalathEnergyBalls.aD(this);
+            GalathEnergyBalls.despawnFarSummonedSkeletons(this);
+            GalathSceneTicks.tickWildRapeCum(this);
          }
       }
    }
@@ -1531,26 +1085,6 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
-   @SideOnly(Side.CLIENT)
-   void tickCorruptIntroCamera() {
-      Action action = this.getCurrentAction();
-      if (this.ab != Action.CORRUPT_INTRO && action == Action.CORRUPT_INTRO) {
-         EntityPlayerSP player = Minecraft.getMinecraft().player;
-         if (!player.getPersistentID().equals(this.getInteractionPlayerUUID())) {
-            this.ab = action;
-         } else {
-            float yaw = this.hasMaster() ? 0.0F : this.getYawRotation() + 180.0F;
-            player.rotationYaw = yaw;
-            player.prevRotationYaw = yaw;
-            player.rotationPitch = 80.0F;
-            player.prevRotationPitch = 80.0F;
-            this.ab = action;
-         }
-      } else {
-         this.ab = action;
-      }
-   }
-
    void setFlying(boolean flying) {
       EntityPlayer player = this.getPlayerEntity();
       if (player != null) {
@@ -1611,374 +1145,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return true;
    }
 
-   void tickWildRapeCum() {
-      if (!this.hasMaster()) {
-         Action action = this.getCurrentAction();
-         if (action != Action.RAPE_CUM) {
-            this.rapeCumTicks = 0;
-         } else {
-            EntityPlayer player = this.getPlayerEntity();
-            if (player == null) {
-               this.rapeCumTicks = 0;
-            } else if (++this.rapeCumTicks == 15) {
-               player.attackEntityFrom(new SuccubusDamageSource(this), 2.1474836E9F);
-            }
-         }
-      }
-   }
-
-   void despawnFarSummonedSkeletons() {
-      EntityLivingBase target = this.getTargetEntity();
-      if (target != null) {
-         for (EntityWitherSkeleton skeleton : this.summonedSkeletons) {
-            if (!skeleton.isDead && !(target.getDistance(skeleton) < 15.0F)) {
-               PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(skeleton.getPositionVector(), true), this);
-               skeleton.setDead();
-               this.world.removeEntity(skeleton);
-            }
-         }
-      }
-   }
-
-   void aD() {
-      if ((Boolean)this.entityDataManager.get(bP)) {
-         for (EntityWitherSkeleton skeleton : this.summonedSkeletons) {
-            if (!skeleton.isDead) {
-               PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(skeleton.getPositionVector(), true), this);
-               skeleton.setDead();
-               this.world.removeEntity(skeleton);
-            }
-         }
-
-         this.summonedSkeletons.clear();
-      }
-   }
-
    public static void handlePlayerJoin(EntityPlayer player) {
       BaseGirlEntity girl = BaseGirlEntity.getServerGirlEntity(GirlSavedData.getOwnerOf(player));
       if (girl != null) {
          if (girl.equals(player.getRidingEntity())) {
             girl.setInteractionPlayerUUID(player.getPersistentID());
             girl.setCurrentAction(Action.CONTROLLED_FLIGHT);
-         }
-      }
-   }
-
-   void aA() {
-      for (EntityWitherSkeleton skeleton : this.summonedSkeletons) {
-         if (!skeleton.isDead && skeleton.ticksExisted % 10 == 0) {
-            for (EntityPlayer player : (java.util.Collection<EntityPlayer>) ((WorldServer)this.world).getEntityTracker().getTrackingPlayers(skeleton)) {
-               ((EntityPlayerMP)player)
-                  .connection
-                  .sendPacket(
-                     new SPacketParticles(
-                        EnumParticleTypes.DRAGON_BREATH,
-                        false,
-                        (float)skeleton.posX,
-                        (float)skeleton.posY,
-                        (float)skeleton.posZ,
-                        0.2F * ThreadNames.randomSign(),
-                        skeleton.getEyeHeight() / 2.0F,
-                        0.2F * ThreadNames.randomSign(),
-                        0.0F,
-                        5,
-                        new int[0]
-                     )
-                  );
-            }
-         }
-      }
-   }
-
-   void aG() {
-      ArrayList deadSkeletons = new ArrayList();
-
-      for (EntityWitherSkeleton skeleton : this.summonedSkeletons) {
-         if (skeleton.isDead) {
-            deadSkeletons.add(skeleton);
-         }
-      }
-
-      for (EntityWitherSkeleton skeleton : (java.util.Collection<EntityWitherSkeleton>) (deadSkeletons) ) {
-         this.summonedSkeletons.remove(skeleton);
-      }
-   }
-
-   void tickKnockoutStandUp() {
-      if (this.getCurrentAction() == Action.KNOCK_OUT_STAND_UP) {
-         this.standUpTicks++;
-         if (this.standUpTicks == 39.0) {
-            this.setNoGravity(true);
-            this.setVelocity(0.0, 0.6F, 0.0);
-            Vec3d pos = this.getPositionVector();
-            Vec3d min = pos.subtract(2.0, 2.0, 2.0);
-            Vec3d max = pos.add(2.0, 2.0, 2.0);
-            AxisAlignedBB aabb = new AxisAlignedBB(
-               min.x, min.y, min.z, max.x, max.y, max.z
-            );
-
-            for (EntityLivingBase entity : this.world.getEntitiesWithinAABB(EntityLivingBase.class, aabb)) {
-               if (!(entity instanceof GalathEntity)) {
-                  Vec3d entityPos = entity.getPositionVector();
-                  Vec3d dir = entityPos.subtract(pos).normalize();
-                  entity.motionX = dir.x * 1.0;
-                  entity.motionZ = dir.z * 1.0;
-                  entity.motionY = 1.0;
-                  entity.attackEntityFrom(new GalathDamageSource(this), 0.5F);
-                  if (entity instanceof EntityPlayerMP) {
-                     EntityPlayerMP playerMP = (EntityPlayerMP)entity;
-                     playerMP.connection.sendPacket(new SPacketEntityVelocity(playerMP));
-                  }
-               }
-            }
-         }
-
-         if (!(this.standUpTicks < 58.0)) {
-            this.setVelocity(Vec3d.ZERO);
-            this.entityDataManager.set(bP, false);
-            this.standUpTicks = 0;
-         }
-      }
-   }
-
-   void handleKnockout() {
-      if (this.getCurrentAction() == Action.KNOCK_OUT_GROUND) {
-         if (!(Boolean)this.entityDataManager.get(HIDE_EFFECTS_FLAG)) {
-            if (!(++this.knockoutGroundTicks < 50.0)) {
-               this.setCurrentAction(Action.KNOCK_OUT_STAND_UP);
-               this.standUpTicks = 0;
-               this.knockoutGroundTicks = 0;
-            }
-         }
-      }
-   }
-
-   void freezeDuringKnockout() {
-      Action action = this.getCurrentAction();
-      if (action == Action.KNOCK_OUT_GROUND || action == Action.KNOCK_OUT_STAND_UP) {
-         this.motionX = 0.0;
-         this.motionZ = 0.0;
-         if ((Boolean)this.entityDataManager.get(HIDE_EFFECTS_FLAG)) {
-            this.motionY = 0.0;
-         }
-      }
-   }
-
-   void tickKnockoutFlight() {
-      if (this.getCurrentAction() == Action.KNOCK_OUT_FLY) {
-         BlockPos pos = this.getPosition();
-         if (!(this.world.getBlockState(pos).getBlock() instanceof BlockLiquid)) {
-            if (this.onGround) {
-               this.setCurrentAction(Action.KNOCK_OUT_GROUND);
-            }
-         } else {
-            BlockPos surfacePos = pos;
-
-            while (this.world.getBlockState(surfacePos.up()).getBlock() instanceof BlockLiquid) {
-               surfacePos = surfacePos.up();
-            }
-
-            for (int x = -1; x < 2; x++) {
-               for (int z = -1; z < 2; z++) {
-                  this.world.setBlockState(surfacePos.add(x, 0, z), Blocks.OBSIDIAN.getDefaultState());
-               }
-            }
-
-            surfacePos = surfacePos.up();
-            this.setPositionAndUpdate(surfacePos.getX(), surfacePos.getY(), surfacePos.getZ());
-            this.setTargetPosition(new Vec3d(surfacePos));
-            PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(new Vec3d(surfacePos), true), this);
-
-            for (EntityPlayer player : (java.util.Collection<EntityPlayer>) ((WorldServer)this.world).getEntityTracker().getTrackingPlayers(this)) {
-               ((EntityPlayerMP)player)
-                  .connection
-                  .sendPacket(
-                     new SPacketSoundEffect(
-                        SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.AMBIENT, this.posX, this.posY, this.posZ, 1.0F, 1.0F
-                     )
-                  );
-            }
-
-            this.setCurrentAction(Action.KNOCK_OUT_GROUND);
-         }
-      }
-   }
-
-   void updateChangePositionNoClip() {
-      if (this.activeFlight == GalathFlightData.CHANGE_POSITION) {
-         int progress = this.getAttackProgress();
-         this.noClip = progress == 0;
-         if (!this.world.isAirBlock(this.getPosition())) {
-            this.noClip = true;
-         }
-      }
-   }
-
-   void checkFlightFinished() {
-      if (this.activeFlight != null) {
-         this.activeFlight.checkFinished(this);
-      }
-   }
-
-   void tickFlightStateMachine() {
-      if (this.getTargetEntity() == null) {
-         this.aH();
-      } else if (this.activeFlight == null) {
-         this.initFlightData();
-      } else {
-         if (this.activeFlight.executeUpdate(this)) {
-            this.initFlightData();
-         }
-      }
-   }
-
-   /**
-    * SERVER: selects and starts the next flight action — if a scene player is
-    * bound the current action stops; otherwise a random executable
-    * {@link GalathFlightData} action is started (with the attack cooldown
-    * collapsing into CHANGE_POSITION when it applies).
-    */
-   void initFlightData() {
-      if (!(Boolean)this.entityDataManager.get(bP)) {
-         GalathFlightData flightData = this.activeFlight;
-         if (this.getInteractionPlayerUUID() != null) {
-            if (flightData != null) {
-               flightData.updateFlight(this);
-            }
-
-            this.activeFlight = null;
-         } else if (flightData != null && flightData.applyAttackCoolDown) {
-            flightData.updateFlight(this);
-            this.activeFlight = GalathFlightData.CHANGE_POSITION;
-            this.activeFlight.executeStart(this);
-         } else {
-            GalathFlightData[] values = GalathFlightData.values();
-
-            GalathFlightData chosen;
-            do {
-               chosen = values[this.getRNG().nextInt(values.length)];
-            } while (!this.canInitFlight(chosen));
-
-            this.activeFlight = chosen;
-            if (flightData != null) {
-               flightData.updateFlight(this);
-            }
-
-            this.activeFlight.executeStart(this);
-         }
-      }
-   }
-
-   boolean canInitFlight(GalathFlightData flightData) {
-      return flightData.onlyDoThisOnPlayers && !(this.getTargetEntity() instanceof EntityPlayer) ? false : flightData.canExecute(this);
-   }
-
-   void aH() {
-      this.activeFlight = null;
-   }
-
-   /**
-    * SERVER: acquires a flight target — the nearest player (wild) or mob
-    * (tamed) within the search box, and switches to CHANGE_POSITION to
-    * approach it. See {@link #getPlayerInBox(AxisAlignedBB)} /
-    * {@link #getMobInBox(AxisAlignedBB)}.
-    */
-   void acquireFlightTarget() {
-      if (!this.hasFlightTarget()) {
-         if (this.getInteractionPlayerUUID() == null) {
-            boolean hasMaster = this.hasMaster();
-            float offset = hasMaster ? 7.0F : 20.0F;
-            Vec3d box = new Vec3d(offset, offset, offset);
-            Vec3d pos = this.getPositionVector();
-            Vec3d min = pos.subtract(box);
-            Vec3d max = pos.add(box);
-            AxisAlignedBB aabb = new AxisAlignedBB(
-               min.x, min.y, min.z, max.x, max.y, max.z
-            );
-            Object target = hasMaster ? this.getPlayerInBox(aabb) : this.getMobInBox(aabb);
-            if (target == null) {
-               this.aI();
-            } else {
-               this.setTargetEntity((EntityLivingBase)target);
-               BaseGirlEntity.girlPlaySound(this, SoundHandler.GIRLS_GALATH_DIALOG[1], true);
-               if (this.activeFlight != null) {
-                  this.activeFlight.updateFlight(this);
-               }
-
-               this.activeFlight = GalathFlightData.CHANGE_POSITION;
-               this.activeFlight.executeStart(this);
-            }
-         }
-      }
-   }
-
-   EntityPlayer getPlayerInBox(AxisAlignedBB aabb) {
-      List players = this.world
-         .getEntitiesWithinAABB(EntityPlayer.class, aabb, player -> !AbstractPlayerGirlEntity.isOwnerPlayer(player) && !player.isCreative() && !player.isSpectator());
-      return players.isEmpty() ? null : (EntityPlayer)players.get(0);
-   }
-
-   EntityMob getMobInBox(AxisAlignedBB aabb) {
-      List mobs = this.world.getEntitiesWithinAABB(EntityMob.class, aabb);
-      if (mobs.isEmpty()) {
-         return null;
-      }
-
-      ArrayList validMobs = new ArrayList();
-
-      for (EntityMob mob : (java.util.Collection<EntityMob>) (mobs) ) {
-         if (com.trolmastercard.sexmod.MobPredicates.isValidTarget(mob)) {
-            validMobs.add(mob);
-         }
-      }
-
-      Vec3d eyePos = this.getPositionVector().add(0.0, this.getEyeHeight(), 0.0);
-
-      for (EntityMob mob : (java.util.Collection<EntityMob>) (validMobs) ) {
-         if (com.trolmastercard.sexmod.MobPredicates.isDaylight(this.world, eyePos, mob)) {
-            return mob;
-         }
-      }
-
-      return null;
-   }
-
-   void aI() {
-      if (this.getTargetEntity() != null) {
-         this.setTargetEntity(null);
-         if (this.activeFlight != null) {
-            this.activeFlight.updateFlight(this);
-         }
-
-         this.activeFlight = null;
-         if (!(Boolean)this.entityDataManager.get(bP)) {
-            this.setCurrentAction(Action.NULL);
-         }
-      }
-   }
-
-   boolean hasFlightTarget() {
-      EntityLivingBase target = this.getTargetEntity();
-      if (target == null) {
-         return false;
-      } else if (target.isDead) {
-         return false;
-      } else if (target.dimension != this.dimension) {
-         return false;
-      } else {
-         float dist = this.getDistance(target);
-         float maxDist = this.hasMaster() ? 16.0F : 30.0F;
-         if (dist > maxDist) {
-            return false;
-         } else if (!(target instanceof EntityPlayer)) {
-            return true;
-         } else {
-            EntityPlayer player = (EntityPlayer)target;
-            if (BaseGirlEntity.getActiveSceneInfo(player.getPersistentID()) != null) {
-               return false;
-            } else {
-               return player.isCreative() ? false : !player.isSpectator();
-            }
          }
       }
    }
@@ -2243,7 +1415,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    @Override
    public void reinitTasks() {
       this.setTargetEntity(null);
-      this.aH();
+      GalathFlightState.aH(this);
    }
 
    public World getWorld() {
@@ -2325,27 +1497,13 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    @Override
    public void writeEntityToNBT(NBTTagCompound nbt) {
       super.writeEntityToNBT(nbt);
-      nbt.setString("sexmod:master", (String)this.entityDataManager.get(MASTER));
-      if (this.markedDespawned) {
-         nbt.setBoolean("sexmod:despawned", true);
-      }
+      GalathNbtIO.write(this, nbt);
    }
 
    @Override
    public void readEntityFromNBT(NBTTagCompound nbt) {
       super.readEntityFromNBT(nbt);
-      this.entityDataManager.set(MASTER, nbt.getString("sexmod:master"));
-      if (nbt.getBoolean("sexmod:despawned")) {
-         this.despawned = true;
-      }
-
-      UUID masterUuid = this.getMasterUUID();
-      if (masterUuid != null) {
-         String npcName = AllieWorldData.getNpcName(masterUuid, NpcType.GALATH);
-         if (npcName != null) {
-            this.setCustomNameOverride(npcName);
-         }
-      }
+      GalathNbtIO.read(this, nbt);
    }
 
    public void ak() {
