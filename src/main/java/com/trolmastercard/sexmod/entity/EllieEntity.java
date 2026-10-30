@@ -88,8 +88,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    boolean ah = false;
    Object[] am;
    int zFlag = -1;
-   int aa = 1;
-   boolean aj = false;
+   int carryVariant = 1;
+   boolean alternateMoan = false;
 
    public EllieEntity(World world) {
       super(world);
@@ -758,7 +758,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                   this.createAnimation("animation.ellie.carry_intro", false, event);
                   break;
                case CARRY_SLOW:
-                  this.createAnimation("animation.ellie.carry_slow" + this.aa, true, event);
+                  this.createAnimation("animation.ellie.carry_slow" + this.carryVariant, true, event);
                   break;
                case CARRY_FAST:
                   this.createAnimation("animation.ellie.carry_fast", true, event);
@@ -861,8 +861,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "cowgirlfastMSG1":
-               if (this.aj) {
-                  this.aj = false;
+               if (this.alternateMoan) {
+                  this.alternateMoan = false;
                } else {
                   this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
                }
@@ -1007,11 +1007,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
                break;
             case "carry_slowDone":
-               int oldState = this.aa;
+               int oldState = this.carryVariant;
 
                do {
-                  this.aa = this.getRNG().nextInt(4) + 1;
-               } while (this.aa == oldState);
+                  this.carryVariant = this.getRNG().nextInt(4) + 1;
+               } while (this.carryVariant == oldState);
 
                return;
             case "carry_fastDone":

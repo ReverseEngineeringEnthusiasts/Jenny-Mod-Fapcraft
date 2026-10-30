@@ -344,7 +344,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
             this.swordDashStartTime = -1L;
             this.swordDashEndTime = -1L;
          } else {
-            int dashTick = galath.az();
+            int dashTick = galath.getSwordAttackProgress();
             if (dashTick == 24 && this.swordDashStartTime == -1L) {
                this.swordDashStartTime = this.mc.world.getTotalWorldTime();
                this.swordDashEndTime = this.swordDashStartTime + 8L;
@@ -352,7 +352,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
 
             if (ThreadNames.isBetween(dashTick, 24.0, 32.0)) {
                IBone bodyBone = this.getAnimationProcessor().getBone("body");
-               Vec3d dashOffset = GirlModel.getBoneOffsetWorld(galath, galath.B_clash642());
+               Vec3d dashOffset = GirlModel.getBoneOffsetWorld(galath, galath.getFlightTargetPos());
                float dashProgress = ((float)Minecraft.getMinecraft().world.getTotalWorldTime() + this.mc.getRenderPartialTicks() - (float)this.swordDashStartTime) / (float)(this.swordDashEndTime - this.swordDashStartTime);
                dashOffset = RotationHelper.lerpVec3dDouble(dashOffset, Vec3d.ZERO, dashProgress);
                bodyBone.setRotationX((float)dashOffset.x);

@@ -177,7 +177,7 @@ public class DragonEntity extends EntityLiving {
                   skeleton.setPositionAndUpdate(pos.x, pos.y, pos.z);
                   this.world.spawnEntity(skeleton);
                   PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(pos, true), this);
-                  this.ownerGalath.bI.add(skeleton);
+                  this.ownerGalath.summonedSkeletons.add(skeleton);
                }
             }
          }

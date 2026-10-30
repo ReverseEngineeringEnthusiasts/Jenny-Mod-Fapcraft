@@ -424,7 +424,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
          for (int i = 0; i < 3; i++) {
             IBone cockBone = processor.getBone("cockStage" + i);
             if (cockBone != null) {
-               cockBone.setHidden(i > ((ManglelieEntity)girl).an);
+               cockBone.setHidden(i > ((ManglelieEntity)girl).corruptionStage);
             }
          }
       }

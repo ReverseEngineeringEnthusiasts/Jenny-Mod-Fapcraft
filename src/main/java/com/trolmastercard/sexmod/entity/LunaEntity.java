@@ -74,15 +74,15 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * <b>Scene entry</b> (shared with Jenny/Bia/Kobold): client {@code doAction}
  * sets {@code animationFollowUp} (GIRL_HAND_STATES) via
  * {@code ChangeDataParameterPacket} and sends {@code KoboldStatePacket}; the
- * server calls {@code setDismounted()} ({@link #ac}), then
+ * server calls {@code setDismounted()} ({@link #targetLerpActive}), then
  * {@link #updateAITasks()} lerps her to {@code TARGET_POS} for ~40 ticks
- * ({@code aw} counter), anchors her and calls {@link #U()}:
+ * ({@code targetLerpTicks} counter), anchors her and calls {@link #U()}:
  * touch_boobs -> PAYMENT (fish!) -> TOUCH_BOOBS_INTRO; sex ->
  * PAYMENT -> {@code SendGirlToSexPacket} + full {@code ResetGirlPacket}
  * (jar-faithful order) -&gt; {@link #goToSexBed()} walks her to the nearest
- * bed ({@link #ay}/{@code ak}), anchors, enters {@link Action#WAIT_CAT},
+ * bed ({@link #walkingToBed}/{@code bedWalkTicks}), anchors, enters {@link Action#WAIT_CAT},
  * and {@link #handleNearbyPlayer()} starts COWGIRL_SITTING_INTRO once the
- * player stands within 1.25 blocks (25-tick counter {@code ab}).
+ * player stands within 1.25 blocks (25-tick counter {@code waitCatTicks}).
  * <p>
  * <b>Idle behavior:</b> without a master/interaction she periodically fishes
  * (finds water via {@link #findFishingSpot()}, casts her rod, may eat the
@@ -120,23 +120,23 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    public SexEntity av;
    public float aa = 1.0F;
    public float zFlag = 0.0F;
-   int aj = 8000;
-   public boolean ac = false;
-   int aw = 0;
-   boolean ay = false;
-   int ak = 0;
-   int ab = 0;
+   int fishingIdleTicks = 8000;
+   public boolean targetLerpActive = false;
+   int targetLerpTicks = 0;
+   boolean walkingToBed = false;
+   int bedWalkTicks = 0;
+   int waitCatTicks = 0;
    public BlockPos ai;
-   int at = 0;
-   int as = 0;
+   int spotDepth = 0;
+   int spotChangeTicks = 0;
    boolean am;
-   long al = 0L;
-   boolean ar = false;
-   Path au = null;
-   int aq = 0;
-   HashSet<BlockPos> an = new HashSet<>();
-   boolean ae = false;
-   boolean ad = false;
+   long castExpiryTick = 0L;
+   boolean fishingDone = false;
+   Path previousPath = null;
+   int fishingAttempts = 0;
+   HashSet<BlockPos> triedSpots = new HashSet<>();
+   boolean touchBoobsVariant = false;
+   boolean idleVariant = false;
 
    public LunaEntity(World world) {
       super(world);
@@ -189,7 +189,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
    @Override
    public void setDismounted() {
-      this.ac = true;
+      this.targetLerpActive = true;
    }
 
    public float getEyeHeight() {
@@ -252,23 +252,23 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       this.handleFishingPath();
       this.handleFishingIdle();
       this.entityDataManager.set(af, this.av != null && this.entityDataManager.get(ag) == ItemStack.EMPTY);
-      if (this.al == this.world.getTotalWorldTime() && this.av != null) {
+      if (this.castExpiryTick == this.world.getTotalWorldTime() && this.av != null) {
          this.world.removeEntity(this.av);
          this.av = null;
       }
 
-      if (this.ay) {
+      if (this.walkingToBed) {
          double dist = this.getTargetPosition().distanceTo(this.getPositionVector());
-         if (!(dist < 0.5) && this.ak <= 200) {
-            if (++this.ak == 60 || this.ak == 120) {
-               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna: walking to bed ak=%d dist=%.2f", this.ak, dist);
+         if (!(dist < 0.5) && this.bedWalkTicks <= 200) {
+            if (++this.bedWalkTicks == 60 || this.bedWalkTicks == 120) {
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna: walking to bed, bedWalkTicks=%d dist=%.2f", this.bedWalkTicks, dist);
                this.getNavigator().clearPath();
                this.getNavigator().tryMoveToXYZ(this.getTargetPosition().x, this.getTargetPosition().y, this.getTargetPosition().z, 0.2);
             }
          } else {
-            SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna: arrived at bed, WAIT_CAT (dist=%.2f ak=%d)", dist, this.ak);
-            this.ay = false;
-            this.ak = 0;
+            SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna: arrived at bed, WAIT_CAT (dist=%.2f bedWalkTicks=%d)", dist, this.bedWalkTicks);
+            this.walkingToBed = false;
+            this.bedWalkTicks = 0;
             this.entityDataManager.set(IS_ANCHORED, true);
             this.noClip = true;
             this.setNoGravity(true);
@@ -279,16 +279,16 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          }
       }
 
-      if (this.ac) {
-         this.aw++;
-         if (!this.getPositionVector().equals(this.getTargetPosition()) && this.aw <= 40) {
+      if (this.targetLerpActive) {
+         this.targetLerpTicks++;
+         if (!this.getPositionVector().equals(this.getTargetPosition()) && this.targetLerpTicks <= 40) {
             this.rotationYaw = this.getYawRotation();
             this.setNoGravity(false);
-            Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.aw);
+            Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.targetLerpTicks);
             this.setPosition(pos.x, pos.y, pos.z);
          } else {
-            this.ac = false;
-            this.aw = 0;
+            this.targetLerpActive = false;
+            this.targetLerpTicks = 0;
             EntityPlayer lerpPlayer = this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID());
             if (lerpPlayer != null) {
                this.setYawRotation(lerpPlayer.rotationYaw + 180.0F);
@@ -319,7 +319,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       if (Action.WAIT_CAT.equals(this.getCurrentAction())) {
          this.handleNearbyPlayer();
       } else {
-         this.ab = 0;
+         this.waitCatTicks = 0;
       }
    }
 
@@ -327,12 +327,12 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       EntityPlayer player = this.world.getClosestPlayerToEntity(this, 10.0);
       if (player != null) {
          if (!(player.getDistance(this) > 1.25F)) {
-            if (this.ab % 10 == 0) {
-               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.handleNearbyPlayer remote=%s ab=%d playerDist=%.2f", this.world.isRemote, this.ab, player.getDistance(this));
+            if (this.waitCatTicks % 10 == 0) {
+               SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.handleNearbyPlayer remote=%s waitCatTicks=%d playerDist=%.2f", this.world.isRemote, this.waitCatTicks, player.getDistance(this));
             }
             if (this.world.isRemote) {
-               this.setFishingLevelFor(player, this.ab);
-            } else if (this.ab == 25) {
+               this.setFishingLevelFor(player, this.waitCatTicks);
+            } else if (this.waitCatTicks == 25) {
                SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.handleNearbyPlayer SERVER: ab==25 -> COWGIRL_SITTING_INTRO");
                this.setInteractionPlayerUUID(player.getPersistentID());
                player.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
@@ -346,7 +346,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                this.entityDataManager.set(OUTFIT_INDEX, 0);
             }
 
-            this.ab++;
+            this.waitCatTicks++;
          }
       }
    }
@@ -374,7 +374,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    public void goToSexBed() {
       this.entityDataManager.set(IS_ANCHORED, false);
       this.setCurrentAction(Action.NULL);
-      this.ar = true;
+      this.fishingDone = true;
       BlockPos bedPos = this.getNearestBed(this.getPosition());
       if (bedPos == null) {
          this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
@@ -434,8 +434,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          this.cameraYaw = this.getYawRotation();
          this.getNavigator().clearPath();
          this.getNavigator().tryMoveToXYZ(bedOffset.x, bedOffset.y, bedOffset.z, 0.2);
-         this.ay = true;
-         this.ak = 0;
+         this.walkingToBed = true;
+         this.bedWalkTicks = 0;
       }
    }
 
@@ -451,8 +451,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
    public void clearFishingState() {
       this.ai = null;
-      this.at = 0;
-      this.as = 0;
+      this.spotDepth = 0;
+      this.spotChangeTicks = 0;
       this.am = false;
       this.entityDataManager.set(IS_ANCHORED, false);
       this.entityDataManager.set(ag, ItemStack.EMPTY);
@@ -475,18 +475,18 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
    public void onFishingTick() {
       this.clearFishingState();
-      if (++this.aq >= 3) {
-         this.aq = 0;
-         this.aj = 0;
+      if (++this.fishingAttempts >= 3) {
+         this.fishingAttempts = 0;
+         this.fishingIdleTicks = 0;
       }
    }
 
    void handleFishingIdle() {
-      if (!this.hasMaster() && this.getInteractionPlayerUUID() == null && !this.ar) {
-         if (!(++this.aj < 1200.0F)) {
+      if (!this.hasMaster() && this.getInteractionPlayerUUID() == null && !this.fishingDone) {
+         if (!(++this.fishingIdleTicks < 1200.0F)) {
             if (this.av != null && this.av.lureTimer == 15) {
                ((LunaRodItem)this.ao.getItem()).castFishingRod(this.world, this, EnumHand.MAIN_HAND);
-               this.al = this.world.getTotalWorldTime() + 20L;
+               this.castExpiryTick = this.world.getTotalWorldTime() + 20L;
                ItemStack heldItem = (ItemStack)this.entityDataManager.get(ag);
                if (heldItem != ItemStack.EMPTY) {
                   if (heldItem.getItem() instanceof ItemFood) {
@@ -502,7 +502,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                this.handleFishingMove();
             }
 
-            if (this.ai != null && this.au == null && this.getNavigator().getPath() == null && !this.inWater && this.onGround) {
+            if (this.ai != null && this.previousPath == null && this.getNavigator().getPath() == null && !this.inWater && this.onGround) {
                this.world
                   .rayTraceBlocks(
                      this.getPositionVector().add(0.0, this.getEyeHeight(), 0.0),
@@ -530,7 +530,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                   );
                }
             } else {
-               this.au = this.getNavigator().getPath();
+               this.previousPath = this.getNavigator().getPath();
             }
          }
       } else {
@@ -541,7 +541,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    public void addCaughtItem() {
-      this.an.add(this.ai);
+      this.triedSpots.add(this.ai);
       this.clearFishingState();
    }
 
@@ -615,7 +615,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
             probe = probe.add(0, -1, 0);
          }
 
-         if (!this.an.contains(candidate)) {
+         if (!this.triedSpots.contains(candidate)) {
             if (spot == null) {
                spot = candidate;
                bestDepth = depth;
@@ -630,16 +630,16 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       }
 
       if (spot != null) {
-         if (this.ai == null || this.at < bestDepth) {
+         if (this.ai == null || this.spotDepth < bestDepth) {
             this.ai = spot;
-            this.at = bestDepth;
+            this.spotDepth = bestDepth;
          }
 
          if (this.ai.equals(spot)) {
-            this.as = 0;
-         } else if (++this.as > 20) {
+            this.spotChangeTicks = 0;
+         } else if (++this.spotChangeTicks > 20) {
             this.ai = spot;
-            this.at = bestDepth;
+            this.spotDepth = bestDepth;
          }
       }
    }
@@ -781,7 +781,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
                this.rotationYaw = this.rotationYawHead;
             } else {
-               this.createAnimation("animation.cat.idle" + (this.ad ? "2" : ""), true, event);
+               this.createAnimation("animation.cat.idle" + (this.idleVariant ? "2" : ""), true, event);
             }
             break;
          case "action":
@@ -824,7 +824,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                   this.createAnimation("animation.cat.touch_boobs_intro", false, event);
                   break;
                case TOUCH_BOOBS_SLOW:
-                  this.createAnimation("animation.cat.touch_boobs_slow" + (this.ae ? "1" : ""), true, event);
+                  this.createAnimation("animation.cat.touch_boobs_slow" + (this.touchBoobsVariant ? "1" : ""), true, event);
                   break;
                case TOUCH_BOOBS_FAST:
                   this.createAnimation("animation.cat.touch_boobs_fast", true, event);
@@ -873,10 +873,10 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                }
                break;
             case "idleDone":
-               this.ad = this.getRNG().nextInt(10) == 0;
+               this.idleVariant = this.getRNG().nextInt(10) == 0;
                break;
             case "idle2Done":
-               this.ad = false;
+               this.idleVariant = false;
                break;
             case "pearl":
                PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
@@ -1014,10 +1014,10 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                }
                break;
             case "touch_boobs_slowDone":
-               if (this.ae) {
-                  this.ae = false;
+               if (this.touchBoobsVariant) {
+                  this.touchBoobsVariant = false;
                } else {
-                  this.ae = Math.random() < 0.5;
+                  this.touchBoobsVariant = Math.random() < 0.5;
                }
                break;
             case "addCumSlow":

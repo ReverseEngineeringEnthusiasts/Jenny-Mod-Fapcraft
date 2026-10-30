@@ -37,14 +37,14 @@ Source: `assets/sexmod/animations/ellie/ellie.animation.json` (42 animations —
 | `strip` | one-shot (5.04s) | Action `STRIP`; `becomeNude` toggles outfit, `stripDone` → NULL + `resetCameraAndPhysics()` + `U()` |
 | `cowgirlstart` | LOOP (15.76s) | Action `COWGIRLSTART` (non-loop). Keyframes `cowgirlStartMSG0` (giggle), `cowgirlStartMSG1` ("like" line + meter reset), `cowgirlStartMSG2` (ahh+pounding, +0.02), `cowgirlStartDone` → `COWGIRLSLOW` |
 | `cowgirlslow2` | LOOP (3.2s) | Action `COWGIRLSLOW` (name note: "cowgirlslow2", no `cowgirlslow1` exists) |
-| `cowgirlfast` | LOOP (3.4s) | Action `COWGIRLFAST`. Keyframes `cowgirlfastMSG1` (+0.04, `aj` one-shot suppress), `cowgirlfastReady` (jump keeps fast / else → SLOW, player form: 1-in-4 cache clear), `cowgirlfastdomMSG1` (+0.2), `cowgirlfastDone` → `COWGIRLSLOW` (unless jumping) |
+| `cowgirlfast` | LOOP (3.4s) | Action `COWGIRLFAST`. Keyframes `cowgirlfastMSG1` (+0.04, `alternateMoan` one-shot suppress), `cowgirlfastReady` (jump keeps fast / else → SLOW, player form: 1-in-4 cache clear), `cowgirlfastdomMSG1` (+0.2), `cowgirlfastDone` → `COWGIRLSLOW` (unless jumping) |
 | `cowgirlcum` | LOOP (15.36s) | Action `COWGIRLCUM`. Keyframes `cowgirlcumMSG1..6` (ahh/pounding, MOAN[5] @3.0, goodboy line at MSG5, black screen at MSG6 → `BeeScreen.enableInteraction()`), `cowgirlcumDone` → reset |
 | `missionary_start` | LOOP (3.25s) | Action `MISSIONARY_START`. Keyframe `missionary_startDone` → `MISSIONARY_SLOW` + meter |
 | `missionary_slow` | LOOP (2.92s) | Action `MISSIONARY_SLOW`. Keyframe `missionary_slowMSG1` (+0.02, moan/ahh pick) |
 | `missionary_fast` | LOOP (1.875s) | Action `MISSIONARY_FAST`. Keyframes `missionary_fastMSG1` (+0.05), `missionary_fastDone` → SLOW (NPC: unless jumping; player form: jump → stays FAST) |
 | `missionary_cum` | one-shot (14.44s) | Action `MISSIONARY_CUM`. Keyframes `missionary_cumMSG1` (ahh), `missionary_cumMSG2` (goodboy line), `missionary_cumDone` → reset. Shared `bedRustle`/`bedRustle1` keyframes (pounding + bedrustle) |
 | `carry_intro` | LOOP (9.67s) | Action `CARRY_INTRO` — "Face fuck" intro, 110-tick timer (`ak`). Keyframes `carry_introMSG1` ("I'm hungry.."), `carry_introMSG2` ("heh~"). Uses `boyCam`+`girlCam` camera bones |
-| `carry_slow1` / `carry_slow2` / `carry_slow3` / `carry_slow4` | LOOP (3.17s each; slow4 = 1.58s) | Action `CARRY_SLOW` — variant suffix `aa` (NPC) / `ap` (player) re-rolled on `carry_slowDone` (1..4, never the previous value). `lipsound` (+0.02), `pound` (+0.04), `cum` keyframes |
+| `carry_slow1` / `carry_slow2` / `carry_slow3` / `carry_slow4` | LOOP (3.17s each; slow4 = 1.58s) | Action `CARRY_SLOW` — variant suffix `carryVariant` (NPC) / `ap` (player) re-rolled on `carry_slowDone` (1..4, never the previous value). `lipsound` (+0.02), `pound` (+0.04), `cum` keyframes |
 | `carry_fast` | LOOP (0.75s) | Action `CARRY_FAST`. `carry_fastDone` → `CARRY_SLOW` unless jumping |
 | `carry_cum` | LOOP (3.17s) | Action `CARRY_CUM`. `carry_cumDone` → reset |
 | `attack0` / `attack1` / `attack2` | one-shot (0.36/0.52/0.52s) | Action `ATTACK`, `nextAttack` cycle; `attackSound` (ENTITY_PLAYER_ATTACK_STRONG), `attackDone` → NULL |
@@ -138,7 +138,7 @@ Misc shared arrays used by Ellie scenes: `MISC_POUNDING` (35), `MISC_BEDRUSTLE` 
 
 - **Hug dialogue gate**: every bed scene (cowgirl/missionary) passes through the hug (HUG → HUGIDLE → HUGSELECTED) with the 5-line dialogue; the scene choice travels in `GIRL_HAND_STATES` ("cowgirl"/"Missionary") from client to server via the `animationFollowUp` packet.
 - **Sit state machine**: five timers (`ak` 110 carry, `yFlag` 150 hug, `al` 109 sitdown, `ai` 79 sit-up, `zFlag` 16 dash, `af` 20 stand) — all reset in `resetSitState()`; `reinitTasks()` resets `yFlag`.
-- **Carry variant re-roll**: `carry_slowDone` re-rolls `aa` (1..4) excluding the current value; `PRONE_DOGGY`-style variant logic shared with Bia.
+- **Carry variant re-roll**: `carry_slowDone` re-rolls `carryVariant` (1..4) excluding the current value; `PRONE_DOGGY`-style variant logic shared with Bia.
 - **Re-entry guards**: refuses MISSIONARY/COWGIRL/CARRY slow/fast while the corresponding cum plays; `HUGSELECTED` set server-side arms `ai`=79.
 - **Horny meter**: shown during `CARRY_SLOW` (`showHornyMeter`), via `openSexUi` keyframe, hidden at cowgirlcumMSG4, reset at cum ends.
 - **Bed-blocked crouching**: `isBedBlocked()` (block 2 blocks above her) selects crouchwalk/crouchidle and lowers eye height — lets her walk under low ceilings.

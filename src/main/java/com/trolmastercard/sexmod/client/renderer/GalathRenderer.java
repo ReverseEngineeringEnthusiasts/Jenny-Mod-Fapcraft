@@ -131,7 +131,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       if (galath.world instanceof SexWorldClient) {
          return null;
       } else {
-         return galath.bb ? null : ZERO_OFFSET;
+         return galath.wingsAnimated ? null : ZERO_OFFSET;
       }
    }
 
@@ -178,7 +178,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
          galath.setTargetPositionDirect(dashPos);
       }
 
-      galath.aG = dashPos;
+      galath.clientTargetPosition = dashPos;
       GalathEntity.getAimYaw(galath, partialTicks);
       this.renderFlightEffect(galath);
       this.renderRapeCharge(galath);
@@ -226,10 +226,10 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     */
    @Nullable
    public static Vec3d getDashPosition(GalathEntity galath, float partialTicks) {
-      float dashProgress = galath.az();
+      float dashProgress = galath.getSwordAttackProgress();
       if (dashProgress == -1.0F) {
-         galath.af = -1L;
-         galath.aH = -1L;
+         galath.dashStartTick = -1L;
+         galath.dashEndTick = -1L;
          return null;
       }
 
@@ -239,16 +239,16 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
 
       Vec3d targetPos = RotationHelper.lerpVec3dDouble(new Vec3d(target.prevPosX, target.prevPosY, target.prevPosZ), target.getPositionVector(), partialTicks);
-      if (dashProgress == 24.0F && galath.af == -1L) {
-         galath.af = mc.world.getTotalWorldTime();
-         galath.aH = galath.af + 8L;
+      if (dashProgress == 24.0F && galath.dashStartTick == -1L) {
+         galath.dashStartTick = mc.world.getTotalWorldTime();
+         galath.dashEndTick = galath.dashStartTick + 8L;
       }
 
       if (ThreadNames.isBetween(dashProgress, 24.0, 32.0)) {
          Vec3d approachOffset = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 3.0), galath.getYawRotation() + 180.0F);
-         Vec3d startPos = galath.B_clash642();
+         Vec3d startPos = galath.getFlightTargetPos();
          Vec3d endPos = targetPos.add(0.0, target.getEyeHeight(), 0.0).add(approachOffset);
-         float dashProgressT = ((float)mc.world.getTotalWorldTime() + partialTicks - (float)galath.af) / (float)(galath.aH - galath.af);
+         float dashProgressT = ((float)mc.world.getTotalWorldTime() + partialTicks - (float)galath.dashStartTick) / (float)(galath.dashEndTick - galath.dashStartTick);
          return RotationHelper.lerpVec3dDouble(startPos, endPos, dashProgressT);
       } else if (ThreadNames.isBetween(dashProgress, 32.0, 54.0)) {
          Vec3d holdOffset = VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 1.5), galath.getYawRotation() + 180.0F);
@@ -473,28 +473,30 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       }
 
       MATRIX_STACK.push();
-      MATRIX_STACK.translate(topBone);
-      MATRIX_STACK.moveToPivot(topBone);
-      MATRIX_STACK.rotate(topBone);
-      MATRIX_STACK.scale(topBone);
-      MATRIX_STACK.moveBackFromPivot(topBone);
-      this.renderRecursively(buffer, bodyBone, r, g, b, a);
-      Tessellator.getInstance().draw();
-      this.renderBoneEffect(buffer, coinBone, galath, scale);
-      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-
-      Minecraft.getMinecraft().renderEngine.bindTexture(this.getSkinTexture(this.renderEntity));
-
-      this.renderRecursively(buffer, steveBone, r, g, b, this.renderEntity.getRenderScaleFactor());
-      Tessellator.getInstance().draw();
-      if (body2Bone != null) {
-         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-         Minecraft.getMinecraft().renderEngine.bindTexture(ManglelieNpcModel.MANGLELIE_TEXTURE);
-         this.renderRecursively(buffer, body2Bone, r, g, b, this.renderEntity.getRenderScaleFactor());
+      try {
+         MATRIX_STACK.translate(topBone);
+         MATRIX_STACK.moveToPivot(topBone);
+         MATRIX_STACK.rotate(topBone);
+         MATRIX_STACK.scale(topBone);
+         MATRIX_STACK.moveBackFromPivot(topBone);
+         this.renderRecursively(buffer, bodyBone, r, g, b, a);
          Tessellator.getInstance().draw();
-      }
+         this.renderBoneEffect(buffer, coinBone, galath, scale);
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
-      MATRIX_STACK.pop();
+         Minecraft.getMinecraft().renderEngine.bindTexture(this.getSkinTexture(this.renderEntity));
+
+         this.renderRecursively(buffer, steveBone, r, g, b, this.renderEntity.getRenderScaleFactor());
+         Tessellator.getInstance().draw();
+         if (body2Bone != null) {
+            buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+            Minecraft.getMinecraft().renderEngine.bindTexture(ManglelieNpcModel.MANGLELIE_TEXTURE);
+            this.renderRecursively(buffer, body2Bone, r, g, b, this.renderEntity.getRenderScaleFactor());
+            Tessellator.getInstance().draw();
+         }
+      } finally {
+         MATRIX_STACK.pop();
+      }
    }
 
    /**
@@ -550,7 +552,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
             }
             break;
          case "weapon":
-            if (this.renderEntity.ap) {
+            if (this.renderEntity.renderSword) {
                GlStateManager.pushMatrix();
                try {
                   Tessellator.getInstance().draw();
@@ -618,8 +620,8 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
    }
 
    void renderMorningBlowjobBone(BufferBuilder buffer, GeoBone bone) {
-      if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW) || this.renderEntity.aD) {
-         float fade = this.renderEntity.aD ? 1.0F - Math.min(0.29F, Action.getActionTickSeconds(this.renderEntity, mc.getRenderPartialTicks())) / 0.29F : 1.0F;
+      if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW) || this.renderEntity.bedSoftAnimation) {
+         float fade = this.renderEntity.bedSoftAnimation ? 1.0F - Math.min(0.29F, Action.getActionTickSeconds(this.renderEntity, mc.getRenderPartialTicks())) / 0.29F : 1.0F;
          this.renderBoneAction(buffer, bone, fade);
          this.bindTexture(ManglelieNpcModel.MANGLELIE_TEXTURE);
       }
@@ -638,7 +640,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
             if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW)) {
                bone.setRotationY(bone.getRotationY() + yawSway);
                bone.setRotationZ(bone.getRotationZ() + pitchSway);
-            } else if (this.renderEntity.aD) {
+            } else if (this.renderEntity.bedSoftAnimation) {
                float fade = 1.0F - Math.min(0.5F, Action.getActionTickSeconds(this.renderEntity, mc.getRenderPartialTicks())) / 0.5F;
                bone.setRotationY(bone.getRotationY() + yawSway * fade);
                bone.setRotationZ(bone.getRotationZ() + pitchSway * fade);
@@ -659,7 +661,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
             if (Action.isAnyAction(this.renderEntity, Action.MORNING_BLOWJOB_SLOW)) {
                bone.setRotationY(bone.getRotationY() + yawSway);
                bone.setRotationZ(bone.getRotationZ() + pitchSway);
-            } else if (this.renderEntity.aD) {
+            } else if (this.renderEntity.bedSoftAnimation) {
                float fade = Math.min(0.5F, Action.getActionTickSeconds(this.renderEntity, mc.getRenderPartialTicks())) / 0.5F;
                bone.setRotationY(bone.getRotationY() + yawSway * fade);
                bone.setRotationZ(bone.getRotationZ() + pitchSway * fade);
@@ -771,56 +773,59 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
       if (galath.getCurrentAction() == Action.GIVE_COIN) {
          tempBuffer = buffer;
          buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-         MATRIX_STACK.push();
-         MATRIX_STACK.translate(coinBone);
-         MATRIX_STACK.moveToPivot(coinBone);
-         MATRIX_STACK.rotate(coinBone);
-         MATRIX_STACK.scale(coinBone);
-         MATRIX_STACK.moveBackFromPivot(coinBone);
-         if (!this.activeCustomPartBones.contains(coinBone.getName())) {
-            for (GeoCube cube : coinBone.childCubes) {
-               MATRIX_STACK.push();
-               GlStateManager.pushMatrix();
-               this.currentRenderingBone = coinBone;
-               this.renderCubeGeometry(buffer, cube, 1.0F, 1.0F, 1.0F, 1.0F, (double)0.0);
-               GlStateManager.popMatrix();
-               MATRIX_STACK.pop();
-            }
-         }
-
-         Tessellator.getInstance().draw();
-         GeoBone childBone = coinBone.childBones.get(0);
-         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-         GlStateManager.disableLighting();
-         float coinTicks = ThreadNames.clampFloat(Action.GIVE_COIN.ticksPlaying[1] + partialTicks, 105.0F, 125.0F);
-         float progress = (coinTicks - 105.0F) / 20.0F;
-         float lightmap = RotationHelper.lerp(120.0F, 240.0F, progress);
-         Vector3fSexmodSpecial coinColor = RotationHelper.lerpVector3f(GalathCoinRenderer.COIN_COLOR_DARK, GalathCoinRenderer.COIN_COLOR, progress);
          float lastBrightnessX = OpenGlHelper.lastBrightnessX;
          float lastBrightnessY = OpenGlHelper.lastBrightnessY;
-         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightmap, lightmap);
          MATRIX_STACK.push();
-         MATRIX_STACK.translate(childBone);
-         MATRIX_STACK.moveToPivot(childBone);
-         MATRIX_STACK.rotate(childBone);
-         MATRIX_STACK.scale(childBone);
-         MATRIX_STACK.moveBackFromPivot(childBone);
-         if (!this.activeCustomPartBones.contains(childBone.getName())) {
-            for (GeoCube cube2 : childBone.childCubes) {
-               MATRIX_STACK.push();
-               GlStateManager.pushMatrix();
-               this.currentRenderingBone = childBone;
-               this.renderCubeGeometry(buffer, cube2, coinColor.x, coinColor.y, coinColor.z, 1.0F, (double)0.0);
-               GlStateManager.popMatrix();
-               MATRIX_STACK.pop();
+         try {
+            MATRIX_STACK.translate(coinBone);
+            MATRIX_STACK.moveToPivot(coinBone);
+            MATRIX_STACK.rotate(coinBone);
+            MATRIX_STACK.scale(coinBone);
+            MATRIX_STACK.moveBackFromPivot(coinBone);
+            if (!this.activeCustomPartBones.contains(coinBone.getName())) {
+               for (GeoCube cube : coinBone.childCubes) {
+                  MATRIX_STACK.push();
+                  GlStateManager.pushMatrix();
+                  this.currentRenderingBone = coinBone;
+                  this.renderCubeGeometry(buffer, cube, 1.0F, 1.0F, 1.0F, 1.0F, (double)0.0);
+                  GlStateManager.popMatrix();
+                  MATRIX_STACK.pop();
+               }
             }
-         }
 
-         MATRIX_STACK.pop();
-         MATRIX_STACK.pop();
-         Tessellator.getInstance().draw();
-         GlStateManager.enableLighting();
-         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastBrightnessX, lastBrightnessY);
+            Tessellator.getInstance().draw();
+            GeoBone childBone = coinBone.childBones.get(0);
+            buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+            GlStateManager.disableLighting();
+            float coinTicks = ThreadNames.clampFloat(Action.GIVE_COIN.ticksPlaying[1] + partialTicks, 105.0F, 125.0F);
+            float progress = (coinTicks - 105.0F) / 20.0F;
+            float lightmap = RotationHelper.lerp(120.0F, 240.0F, progress);
+            Vector3fSexmodSpecial coinColor = RotationHelper.lerpVector3f(GalathCoinRenderer.COIN_COLOR_DARK, GalathCoinRenderer.COIN_COLOR, progress);
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightmap, lightmap);
+            MATRIX_STACK.push();
+            MATRIX_STACK.translate(childBone);
+            MATRIX_STACK.moveToPivot(childBone);
+            MATRIX_STACK.rotate(childBone);
+            MATRIX_STACK.scale(childBone);
+            MATRIX_STACK.moveBackFromPivot(childBone);
+            if (!this.activeCustomPartBones.contains(childBone.getName())) {
+               for (GeoCube cube2 : childBone.childCubes) {
+                  MATRIX_STACK.push();
+                  GlStateManager.pushMatrix();
+                  this.currentRenderingBone = childBone;
+                  this.renderCubeGeometry(buffer, cube2, coinColor.x, coinColor.y, coinColor.z, 1.0F, (double)0.0);
+                  GlStateManager.popMatrix();
+                  MATRIX_STACK.pop();
+               }
+            }
+
+            MATRIX_STACK.pop();
+            Tessellator.getInstance().draw();
+         } finally {
+            MATRIX_STACK.pop();
+            GlStateManager.enableLighting();
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastBrightnessX, lastBrightnessY);
+         }
       }
    }
 

@@ -64,25 +64,30 @@ public class StructureMarkerRenderer {
       Tessellator tessellator = Tessellator.getInstance();
       BufferBuilder buffer = tessellator.getBuffer();
       Vec3d cameraPos = RotationHelper.lerpVec3dDouble(Reference.cameraPosPrevious, Reference.cameraPosCurrent, mc.getRenderPartialTicks());
+      boolean cull = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+      boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
       GlStateManager.pushMatrix();
-      GlStateManager.disableCull();
-      GlStateManager.disableDepth();
-      textureManager.bindTexture(MARK_TEXTURE);
-      GlStateManager.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-      buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-
       try {
-         for (BlockPos pos : markerPositions) {
-            Vec3i color = getBlockColor(pos);
-            drawMarkerFace(buffer, pos, color.getX(), color.getY(), color.getZ());
-         }
-      } catch (ConcurrentModificationException exception) {
-      }
+         GlStateManager.disableCull();
+         GlStateManager.disableDepth();
+         textureManager.bindTexture(MARK_TEXTURE);
+         GlStateManager.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
 
-      tessellator.draw();
-      GlStateManager.enableDepth();
-      GlStateManager.enableCull();
-      GlStateManager.popMatrix();
+         try {
+            for (BlockPos pos : markerPositions) {
+               Vec3i color = getBlockColor(pos);
+               drawMarkerFace(buffer, pos, color.getX(), color.getY(), color.getZ());
+            }
+         } catch (ConcurrentModificationException exception) {
+         }
+
+         tessellator.draw();
+      } finally {
+         restore(depth, GlStateManager::enableDepth, GlStateManager::disableDepth);
+         restore(cull, GlStateManager::enableCull, GlStateManager::disableCull);
+         GlStateManager.popMatrix();
+      }
    }
 
    static Vec3i getBlockColor(BlockPos pos) {

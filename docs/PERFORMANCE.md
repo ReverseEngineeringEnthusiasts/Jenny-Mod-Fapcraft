@@ -2,7 +2,23 @@
 
 Working notes from an audit of `performance` (branch cut from `master` @ `cd3085c`).
 Everything here is source-grounded: file:line points at the code as it stands.
-Nothing in this document has been applied — it is the work list.
+
+## Status
+
+Applied on this branch (all merged, `mvn -o test` green, `./build.sh` produces the jar):
+
+| § | What landed |
+|---|-------------|
+| 1.1 / 1.2 | dirty-flagged player-girl table (no rebuild on render events), `containsKey` lookup |
+| 1.3 / 1.4 | `GirlFollowGoal` nearest-mob scan (comparator bug fixed), AABB without `BlockPos` |
+| 2.1 | bounded LRU skin cache, textures deleted on eviction, invalidation + session clear |
+| 3 | `StructureMarkerRenderer` early-out + state snapshot/restore; `try/finally` matrix/state in the renderers |
+| 4.2 | identifiers renamed: `PLAYER_GIRL_BY_OWNER`, `SKIN_TEXTURE_CACHE`, `OWNER_UUID`, `usesInvertedCamera()`, `shouldRenderWhenOwnerInvisible()`, … |
+| 4.4 / 4.5 | `pom.xml` is the single version source; first unit tests (`UpdateChecker`, version drift) |
+
+Deferred on purpose: §2.2 (dev-only code kept), §3 method-spanning matrix pushes
+(`doRenderEntity`, outer `renderCustomBones` — needs a reviewed reindent), §4.1 class
+splits, §4.3 logging pass, and everything under §5.
 
 ## TL;DR — do these first
 

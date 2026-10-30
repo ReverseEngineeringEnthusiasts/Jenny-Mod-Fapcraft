@@ -63,7 +63,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * partner UUID, {@code ap} (112) = corrupting flag, {@code ab} (113) = corrupt
  * target entity id (-1 none), {@code al} (114) = corrupt start world time,
  * {@code ar} (115) = scared-flag (set by {@link AvoidPlayerGoal}).
- * {@code aa} = despawned flag, {@code aq} = wild flag.
+ * {@code removeOnNextTick} = despawned flag, {@code wild} = wild flag.
  * <p>
  * <b>Flow.</b> {@link #handleCorruptInit()} seeks an unbound Galath within 15
  * blocks and runs to her; {@link #handlePartnerLook()} binds the pair
@@ -76,7 +76,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * <p>
  * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} persists the cum time on
  * {@link Action#THREESOME_CUM} (server) and guards the threesome loops.
- * {@link #updateAITasks()} despawns her when the {@code aa} flag is set or
+ * {@link #updateAITasks()} despawns her when the {@code removeOnNextTick} flag is set or
  * her mommy disowns her. Damage is forwarded to the Galath
  * ({@link #attackEntityFrom(DamageSource, float)}). The eyes controller only
  * animates while a corrupt target exists. {@link #getYawRotation()} flips
@@ -114,19 +114,19 @@ public class ManglelieEntity extends BaseGirlEntity {
    public boolean aj = true;
    public Vec3d ZERO_VECTOR = Vec3d.ZERO;
    public float VELOCITY_0 = 0.0F;
-   boolean aq = true;
+   boolean wild = true;
    boolean despawned = false;
    boolean corrupting = false;
    public float af = 0.0F;
    public float rotationLerp = 0.0F;
    public float TICK_0 = 0.0F;
    public float ai = 0.0F;
-   boolean aa = false;
+   boolean removeOnNextTick = false;
    boolean modelCodeLoaded = false;
    boolean threesomeSlowStarted = false;
    boolean threesomeFastStarted = false;
    boolean threesomeCumDone = false;
-   public int an = 2;
+   public int corruptionStage = 2;
 
    public ManglelieEntity(World world) {
       super(world);
@@ -227,7 +227,7 @@ public class ManglelieEntity extends BaseGirlEntity {
     */
    @Override
    public void updateAITasks() {
-      if (this.aa) {
+      if (this.removeOnNextTick) {
          this.world.removeEntity(this);
       } else {
          this.loadModelCode();
@@ -247,10 +247,10 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    void handleCorruptFinish() {
       if (this.getCorruptPlayerUUID() != null) {
-         this.aq = false;
+         this.wild = false;
       }
 
-      if (!this.aq) {
+      if (!this.wild) {
          if (this.getGalathPartner(true) == null) {
             System.out.println("removed non-wild mang for lack of mommy");
             this.world.removeEntity(this);
@@ -261,8 +261,8 @@ public class ManglelieEntity extends BaseGirlEntity {
    void handleGalathPartner() {
       GalathEntity galath = this.getGalathPartner(true);
       if (galath != null) {
-         if (galath.aF() != null) {
-            if (!this.getGirlId().equals(galath.aF())) {
+         if (galath.getMangleliePartnerUUID() != null) {
+            if (!this.getGirlId().equals(galath.getMangleliePartnerUUID())) {
                System.out.println("removed non-wild mang cuz her mommy disowned her and got another mang");
                this.world.removeEntity(this);
             }
@@ -522,7 +522,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       if (this.isCorrupting() && !Action.isAnyAction(this, Action.THREESOME_SLOW, Action.THREESOME_CUM, Action.THREESOME_FAST)) {
          GalathEntity galath = this.getGalathPartner(true);
          if (galath != null) {
-            if (!galath.isDead && this.getGirlId().equals(galath.aF())) {
+            if (!galath.isDead && this.getGirlId().equals(galath.getMangleliePartnerUUID())) {
                this.setYawRotation(0.0F);
                this.setTargetPosition(galath.getPositionVector());
                this.setAnchored(true);
@@ -696,7 +696,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       super.writeEntityToNBT(nbt);
       UUID uuid = this.getCorruptPlayerUUID();
       nbt.setString("sexmod:mommy", uuid == null ? "" : uuid.toString());
-      nbt.setBoolean("sexmod:iswild", this.aq);
+      nbt.setBoolean("sexmod:iswild", this.wild);
       if (this.despawned) {
          nbt.setBoolean("sexmod:despawned", true);
       }
@@ -710,10 +710,10 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
 
       if (nbt.getBoolean("sexmod:despawned")) {
-         this.aa = true;
+         this.removeOnNextTick = true;
       }
 
-      this.aq = nbt.getBoolean("sexmod:iswild");
+      this.wild = nbt.getBoolean("sexmod:iswild");
    }
 
    @Override
@@ -790,7 +790,7 @@ public class ManglelieEntity extends BaseGirlEntity {
          this.threesomeSlowStarted = false;
          this.threesomeFastStarted = false;
          this.threesomeCumDone = false;
-         this.an = 2;
+         this.corruptionStage = 2;
          this.resetCameraAndPhysics();
          GalathEntity galath = this.getGalathPartner(false);
          if (galath != null) {
@@ -914,7 +914,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    /**
     * CLIENT: registers the controllers plus the sound listener driving the
     * threesome (pound sounds, cum trails from the {@code semenEmitter} bone,
-    * black screen) — {@code cs0/1/2} select the pose variant ({@code an}),
+    * black screen) — {@code cs0/1/2} select the pose variant ({@code corruptionStage}),
     * {@code sexui} shows the horny meter.
     */
    @Override
@@ -930,13 +930,13 @@ public class ManglelieEntity extends BaseGirlEntity {
                }
                break;
             case "cs0":
-               this.an = 0;
+               this.corruptionStage = 0;
                break;
             case "cs1":
-               this.an = 1;
+               this.corruptionStage = 1;
                break;
             case "cs2":
-               this.an = 2;
+               this.corruptionStage = 2;
                break;
             case "sexui":
                if (this.isControlledByLocalPlayer()) {

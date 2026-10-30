@@ -117,9 +117,9 @@ import software.bernie.geckolib3.resource.GeckoLibCache;
  * <b>Scene entry</b> (shared with Jenny/Bia/Luna): client {@code doAction}
  * sets {@code animationFollowUp} (GIRL_HAND_STATES) via
  * {@code ChangeDataParameterPacket} and sends {@code KoboldStatePacket}; the
- * server calls {@code setDismounted()} ({@code a2}), then
+ * server calls {@code setDismounted()} ({@code sitLerpActive}), then
  * {@link #isSitting()} lerps her to {@code TARGET_POS} for ~40 ticks
- * ({@code aD} counter), anchors her and calls {@link #U()} which dispatches
+ * ({@code sitLerpTicks} counter), anchors her and calls {@link #U()} which dispatches
  * on GIRL_HAND_STATES: oral -> STARTBLOWJOB, anal -> KOBOLD_ANAL_START,
  * mating -> MATING_PRESS_START. Without the horny potion effect (or a
  * master match), the scene first passes through {@link Action#PAYMENT}
@@ -128,7 +128,7 @@ import software.bernie.geckolib3.resource.GeckoLibCache;
  * <b>Pitfalls:</b>
  * <ul>
  *   <li>The dismount lerp in {@link #isSitting()} MUST use
- *       {@code RotationHelper.lerpVec3d(pos, target, 40 - aD)} (INT step
+ *       {@code RotationHelper.lerpVec3d(pos, target, 40 - sitLerpTicks)} (INT step
  *       variant) — the double variant flings the kobold and it vanishes.</li>
  *   <li>{@link #U()} splits on the potion/master flags exactly as written —
  *       the payment gate is intentional, not a bug.</li>
@@ -192,8 +192,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    boolean az = false;
    int aP = 0;
    int animationTicks = 0;
-   boolean a2 = false;
-   int aD = 0;
+   boolean sitLerpActive = false;
+   int sitLerpTicks = 0;
    int a5 = 0;
    float nearestDistance = Float.MAX_VALUE;
    static long aV = Long.MIN_VALUE;
@@ -225,7 +225,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    BlockPos aI = null;
    int ai = 0;
    int taskTimer = 0;
-   int aK = 0;
+   int miningStandTicks = 0;
    int a0 = 0;
    boolean ax = false;
    BlockPos ap = null;
@@ -597,7 +597,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    public void setDismounted() {
-      this.a2 = true;
+      this.sitLerpActive = true;
       this.entityDataManager.set(IS_ANCHORED, false);
    }
 
@@ -607,20 +607,20 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    boolean isSitting() {
-      if (!this.a2) {
+      if (!this.sitLerpActive) {
          return false;
       }
 
-      this.aD++;
+      this.sitLerpTicks++;
       this.noClip = false;
       this.setNoGravity(false);
-      if (this.aD > 40) {
-         SceneDebug.log(SceneDebug.SITTING, "Kobold.isSitting: lerp done, U() (aD=%d, action=%s, handState=%s)", this.aD, this.getCurrentAction(), this.entityDataManager.get(GIRL_HAND_STATES));
-         this.a2 = false;
-         this.aD = 0;
+      if (this.sitLerpTicks > 40) {
+         SceneDebug.log(SceneDebug.SITTING, "Kobold.isSitting: lerp done, U() (sitLerpTicks=%d, action=%s, handState=%s)", this.sitLerpTicks, this.getCurrentAction(), this.entityDataManager.get(GIRL_HAND_STATES));
+         this.sitLerpActive = false;
+         this.sitLerpTicks = 0;
          EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
          if (player == null) {
-            this.a2 = false;
+            this.sitLerpActive = false;
             return true;
          }
 
@@ -637,7 +637,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       this.rotationYaw = this.getYawRotation();
       this.setNoGravity(false);
-      Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.aD);
+      Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.sitLerpTicks);
       this.setPosition(pos.x, pos.y, pos.z);
       this.setCurrentAction(Action.NULL);
       Optional tribeIdOpt = (Optional)this.entityDataManager.get(aL);
@@ -1543,9 +1543,9 @@ KoboldManager.assignBed(this, chosenBed);
             && this.motionZ == 0.0
             && this.onGround
             && !(this.getDistance(this.aI.getX(), this.aI.getY(), this.aI.getZ()) > 3.0)
-            && ++this.aK >= 10) {
+            && ++this.miningStandTicks >= 10) {
             navigator.clearPath();
-            this.aK = 0;
+            this.miningStandTicks = 0;
             this.setCurrentAction(Action.MINE);
             this.rotationYawHead = (float)(
                Math.atan2(this.posZ - this.aI.getZ(), this.posX - this.aI.getX()) * (180.0 / Math.PI) + 90.0

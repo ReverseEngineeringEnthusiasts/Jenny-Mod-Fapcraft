@@ -629,140 +629,138 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       }
 
       GlStateManager.pushMatrix();
-      GlStateManager.translate(x, y, z);
-      GlStateManager.disableLighting();
-      GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
-      GlStateManager.enableNormalize();
-      GlStateManager.enableBlend();
-      GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-      boolean isSitting = entity.getRidingEntity() != null && entity.getRidingEntity().shouldRiderSit();
-      if (isSitting) {
-         EntityModelData ridingModelData = new EntityModelData();
-         ridingModelData.isSitting = isSitting;
-         ridingModelData.isChild = entity.isChild();
-         float ridingRenderYawOffset = Interpolations.lerpYaw(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
-         float ridingRotationYawHead = Interpolations.lerpYaw(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
-         float ridingHeadYawDelta = ridingRotationYawHead - ridingRenderYawOffset;
-         if (entity.getRidingEntity() instanceof EntityLivingBase) {
-            EntityLivingBase ridingEntity = (EntityLivingBase)entity.getRidingEntity();
-            ridingRenderYawOffset = Interpolations.lerpYaw(ridingEntity.prevRenderYawOffset, ridingEntity.renderYawOffset, partialTicks);
-            ridingHeadYawDelta = ridingRotationYawHead - ridingRenderYawOffset;
-            float clampedHeadYawDelta = MathHelper.wrapDegrees(ridingHeadYawDelta);
-            if (clampedHeadYawDelta < -85.0F) {
-               clampedHeadYawDelta = -85.0F;
+      try {
+         GlStateManager.translate(x, y, z);
+         GlStateManager.disableLighting();
+         GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
+         GlStateManager.enableNormalize();
+         GlStateManager.enableBlend();
+         GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+         boolean isSitting = entity.getRidingEntity() != null && entity.getRidingEntity().shouldRiderSit();
+         if (isSitting) {
+            EntityModelData ridingModelData = new EntityModelData();
+            ridingModelData.isSitting = isSitting;
+            ridingModelData.isChild = entity.isChild();
+            float ridingRenderYawOffset = Interpolations.lerpYaw(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
+            float ridingRotationYawHead = Interpolations.lerpYaw(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
+            float ridingHeadYawDelta = ridingRotationYawHead - ridingRenderYawOffset;
+            if (entity.getRidingEntity() instanceof EntityLivingBase) {
+               EntityLivingBase ridingEntity = (EntityLivingBase)entity.getRidingEntity();
+               ridingRenderYawOffset = Interpolations.lerpYaw(ridingEntity.prevRenderYawOffset, ridingEntity.renderYawOffset, partialTicks);
+               ridingHeadYawDelta = ridingRotationYawHead - ridingRenderYawOffset;
+               float clampedHeadYawDelta = MathHelper.wrapDegrees(ridingHeadYawDelta);
+               if (clampedHeadYawDelta < -85.0F) {
+                  clampedHeadYawDelta = -85.0F;
+               }
+
+               if (clampedHeadYawDelta >= 85.0F) {
+                  clampedHeadYawDelta = 85.0F;
+               }
+
+               ridingRenderYawOffset = ridingRotationYawHead - clampedHeadYawDelta;
+               if (clampedHeadYawDelta * clampedHeadYawDelta > 2500.0F) {
+                  ridingRenderYawOffset += clampedHeadYawDelta * 0.2F;
+               }
+
+               ridingHeadYawDelta = ridingRotationYawHead - ridingRenderYawOffset;
             }
 
-            if (clampedHeadYawDelta >= 85.0F) {
-               clampedHeadYawDelta = 85.0F;
+            float ridingPitch = Interpolations.lerp(entity.prevRotationPitch, entity.rotationPitch, partialTicks);
+            float ridingRotationFloat = this.handleRotationFloat((T)entity, partialTicks);
+            this.applyRotations((T)entity, ridingRotationFloat, ridingRenderYawOffset, partialTicks);
+            float ridingLimbSwingAmount = 0.0F;
+            float ridingLimbSwing = 0.0F;
+            ridingModelData.headPitch = -ridingPitch;
+            ridingModelData.netHeadYaw = -ridingHeadYawDelta;
+            AnimationEvent ridingAnimationEvent = new AnimationEvent<>(entity, ridingLimbSwing, ridingLimbSwingAmount, partialTicks, false, Collections.singletonList(ridingModelData));
+            GeoModelProvider ridingModelProvider = super.getGeoModelProvider();
+            ResourceLocation ridingModelLocation = ridingModelProvider.getModelLocation(entity);
+            GeoModel ridingModel = ridingModelProvider.getModel(ridingModelLocation);
+            if (ridingModelProvider instanceof IAnimatableModel) {
+               ((IAnimatableModel)ridingModelProvider).setLivingAnimations(entity, entity.getUniqueID().hashCode(), ridingAnimationEvent);
             }
 
-            ridingRenderYawOffset = ridingRotationYawHead - clampedHeadYawDelta;
-            if (clampedHeadYawDelta * clampedHeadYawDelta > 2500.0F) {
-               ridingRenderYawOffset += clampedHeadYawDelta * 0.2F;
+            GlStateManager.pushMatrix();
+            try {
+               GlStateManager.translate(0.0F, 0.01F, 0.0F);
+               Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture((T)entity));
+               software.bernie.geckolib3.core.util.Color ridingRenderColor = this.getRenderColor((T)entity, partialTicks);
+               boolean ridingHurtColorSet = this.setDoRenderBrightness((T)entity, partialTicks);
+               this.renderModel(ridingModel, (T)entity, partialTicks, ridingRenderColor.getRed() / 255.0F, ridingRenderColor.getBlue() / 255.0F, ridingRenderColor.getGreen() / 255.0F, ridingRenderColor.getAlpha() / 255.0F);
+               if (ridingHurtColorSet) {
+                  RenderHurtColor.unset();
+               }
+
+               for (GeoLayerRenderer ridingLayerRenderer : this.layerRenderers) {
+                  ridingLayerRenderer.render((T)entity, ridingLimbSwing, ridingLimbSwingAmount, partialTicks, ridingLimbSwing, ridingHeadYawDelta, ridingPitch, ridingRenderColor);
+               }
+            } finally {
+               GlStateManager.popMatrix();
+            }
+         } else {
+            EntityModelData modelData = new EntityModelData();
+            modelData.isSitting = isSitting;
+            modelData.isChild = entity.isChild();
+            float renderYawOffset = Interpolations.lerpYaw(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
+            float rotationYawHead = Interpolations.lerpYaw(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
+            float headYawDelta = rotationYawHead - renderYawOffset;
+            float pitch = Interpolations.lerp(entity.prevRotationPitch, entity.rotationPitch, partialTicks);
+            float rotationFloat = this.handleRotationFloat((T)entity, partialTicks);
+            this.applyRotations((T)entity, rotationFloat, renderYawOffset, partialTicks);
+            float limbSwingAmount = 0.0F;
+            float limbSwing = 0.0F;
+            if (entity.isEntityAlive()) {
+               limbSwingAmount = Interpolations.lerp(entity.prevLimbSwingAmount, entity.limbSwingAmount, partialTicks);
+               limbSwing = entity.limbSwing - entity.limbSwingAmount * (1.0F - partialTicks);
+               if (entity.isChild()) {
+                  limbSwing *= 3.0F;
+               }
+
+               if (limbSwingAmount > 1.0F) {
+                  limbSwingAmount = 1.0F;
+               }
             }
 
-            ridingHeadYawDelta = ridingRotationYawHead - ridingRenderYawOffset;
-         }
+            modelData.headPitch = -pitch;
+            modelData.netHeadYaw = -headYawDelta;
+            AnimationEvent animationEvent = new AnimationEvent<>(entity, limbSwing, limbSwingAmount, partialTicks, !(limbSwingAmount > -0.15F) || !(limbSwingAmount < 0.15F), Collections.singletonList(modelData));
+            GeoModelProvider modelProvider = super.getGeoModelProvider();
+            ResourceLocation modelLocation = modelProvider.getModelLocation(entity);
+            GeoModel model = modelProvider.getModel(modelLocation);
+            if (modelProvider instanceof IAnimatableModel) {
+               ((IAnimatableModel)modelProvider).setLivingAnimations(entity, entity.getUniqueID().hashCode(), animationEvent);
+            }
 
-         float ridingPitch = Interpolations.lerp(entity.prevRotationPitch, entity.rotationPitch, partialTicks);
-         float ridingRotationFloat = this.handleRotationFloat((T)entity, partialTicks);
-         this.applyRotations((T)entity, ridingRotationFloat, ridingRenderYawOffset, partialTicks);
-         float ridingLimbSwingAmount = 0.0F;
-         float ridingLimbSwing = 0.0F;
-         ridingModelData.headPitch = -ridingPitch;
-         ridingModelData.netHeadYaw = -ridingHeadYawDelta;
-         AnimationEvent ridingAnimationEvent = new AnimationEvent<>(entity, ridingLimbSwing, ridingLimbSwingAmount, partialTicks, false, Collections.singletonList(ridingModelData));
-         GeoModelProvider ridingModelProvider = super.getGeoModelProvider();
-         ResourceLocation ridingModelLocation = ridingModelProvider.getModelLocation(entity);
-         GeoModel ridingModel = ridingModelProvider.getModel(ridingModelLocation);
-         if (ridingModelProvider instanceof IAnimatableModel) {
-            ((IAnimatableModel)ridingModelProvider).setLivingAnimations(entity, entity.getUniqueID().hashCode(), ridingAnimationEvent);
-         }
+            GlStateManager.pushMatrix();
+            try {
+               GlStateManager.translate(0.0F, 0.01F, 0.0F);
+               Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture((T)entity));
+               software.bernie.geckolib3.core.util.Color renderColor = this.getRenderColor((T)entity, partialTicks);
+               boolean hurtColorSet = this.setDoRenderBrightness((T)entity, partialTicks);
+               this.renderModel(model, (T)entity, partialTicks, renderColor.getRed() / 255.0F, renderColor.getBlue() / 255.0F, renderColor.getGreen() / 255.0F, renderColor.getAlpha() / 255.0F);
+               if (hurtColorSet) {
+                  RenderHurtColor.unset();
+               }
 
-         GlStateManager.pushMatrix();
-         GlStateManager.translate(0.0F, 0.01F, 0.0F);
-         Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture((T)entity));
-         software.bernie.geckolib3.core.util.Color ridingRenderColor = this.getRenderColor((T)entity, partialTicks);
-         boolean ridingHurtColorSet = this.setDoRenderBrightness((T)entity, partialTicks);
-         this.renderModel(ridingModel, (T)entity, partialTicks, ridingRenderColor.getRed() / 255.0F, ridingRenderColor.getBlue() / 255.0F, ridingRenderColor.getGreen() / 255.0F, ridingRenderColor.getAlpha() / 255.0F);
-         if (ridingHurtColorSet) {
-            RenderHurtColor.unset();
+               for (GeoLayerRenderer layerRenderer : this.layerRenderers) {
+                  layerRenderer.render((T)entity, limbSwing, limbSwingAmount, partialTicks, limbSwing, headYawDelta, pitch, renderColor);
+               }
+            } finally {
+               GlStateManager.popMatrix();
+            }
          }
-
-         for (GeoLayerRenderer ridingLayerRenderer : this.layerRenderers) {
-            ridingLayerRenderer.render((T)entity, ridingLimbSwing, ridingLimbSwingAmount, partialTicks, ridingLimbSwing, ridingHeadYawDelta, ridingPitch, ridingRenderColor);
-         }
-
+      } finally {
          GlStateManager.enableLighting();
          GlStateManager.disableBlend();
          GlStateManager.disableNormalize();
+         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F); // vanilla default; avoids a per-entity GL_CURRENT_COLOR query
          GlStateManager.popMatrix();
-         GlStateManager.popMatrix();
-         this.applyCameraBone((T)entity);
-         SexSceneRenderer.renderSexSceneEffects(entity, partialTicks);
-         Vector3fSexmodSpecial ridingOverlayColor = this.getAdditionalOverlayColor((T)entity);
-         if (ridingOverlayColor != null) {
-            this.renderGirlColor(entity, partialTicks, ridingOverlayColor);
-         }
-      } else {
-         EntityModelData modelData = new EntityModelData();
-         modelData.isSitting = isSitting;
-         modelData.isChild = entity.isChild();
-         float renderYawOffset = Interpolations.lerpYaw(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
-         float rotationYawHead = Interpolations.lerpYaw(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
-         float headYawDelta = rotationYawHead - renderYawOffset;
-         float pitch = Interpolations.lerp(entity.prevRotationPitch, entity.rotationPitch, partialTicks);
-         float rotationFloat = this.handleRotationFloat((T)entity, partialTicks);
-         this.applyRotations((T)entity, rotationFloat, renderYawOffset, partialTicks);
-         float limbSwingAmount = 0.0F;
-         float limbSwing = 0.0F;
-         if (entity.isEntityAlive()) {
-            limbSwingAmount = Interpolations.lerp(entity.prevLimbSwingAmount, entity.limbSwingAmount, partialTicks);
-            limbSwing = entity.limbSwing - entity.limbSwingAmount * (1.0F - partialTicks);
-            if (entity.isChild()) {
-               limbSwing *= 3.0F;
-            }
-
-            if (limbSwingAmount > 1.0F) {
-               limbSwingAmount = 1.0F;
-            }
-         }
-
-         modelData.headPitch = -pitch;
-         modelData.netHeadYaw = -headYawDelta;
-         AnimationEvent animationEvent = new AnimationEvent<>(entity, limbSwing, limbSwingAmount, partialTicks, !(limbSwingAmount > -0.15F) || !(limbSwingAmount < 0.15F), Collections.singletonList(modelData));
-         GeoModelProvider modelProvider = super.getGeoModelProvider();
-         ResourceLocation modelLocation = modelProvider.getModelLocation(entity);
-         GeoModel model = modelProvider.getModel(modelLocation);
-         if (modelProvider instanceof IAnimatableModel) {
-            ((IAnimatableModel)modelProvider).setLivingAnimations(entity, entity.getUniqueID().hashCode(), animationEvent);
-         }
-
-         GlStateManager.pushMatrix();
-         GlStateManager.translate(0.0F, 0.01F, 0.0F);
-         Minecraft.getMinecraft().renderEngine.bindTexture(this.getEntityTexture((T)entity));
-         software.bernie.geckolib3.core.util.Color renderColor = this.getRenderColor((T)entity, partialTicks);
-         boolean hurtColorSet = this.setDoRenderBrightness((T)entity, partialTicks);
-         this.renderModel(model, (T)entity, partialTicks, renderColor.getRed() / 255.0F, renderColor.getBlue() / 255.0F, renderColor.getGreen() / 255.0F, renderColor.getAlpha() / 255.0F);
-         if (hurtColorSet) {
-            RenderHurtColor.unset();
-         }
-
-         for (GeoLayerRenderer layerRenderer : this.layerRenderers) {
-            layerRenderer.render((T)entity, limbSwing, limbSwingAmount, partialTicks, limbSwing, headYawDelta, pitch, renderColor);
-         }
-
-         GlStateManager.enableLighting();
-         GlStateManager.disableBlend();
-         GlStateManager.disableNormalize();
-         GlStateManager.popMatrix();
-         GlStateManager.popMatrix();
-         this.applyCameraBone((T)entity);
-         SexSceneRenderer.renderSexSceneEffects(entity, partialTicks);
-         Vector3fSexmodSpecial overlayColor = this.getAdditionalOverlayColor((T)entity);
-         if (overlayColor != null) {
-            this.renderGirlColor(entity, partialTicks, overlayColor);
-         }
+      }
+      this.applyCameraBone((T)entity);
+      SexSceneRenderer.renderSexSceneEffects(entity, partialTicks);
+      Vector3fSexmodSpecial overlayColor = this.getAdditionalOverlayColor((T)entity);
+      if (overlayColor != null) {
+         this.renderGirlColor(entity, partialTicks, overlayColor);
       }
    }
 
@@ -1173,32 +1171,34 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
          this.onBoneProcessing(buffer, bone.getName(), bone);
          MATRIX_STACK.push();
-         MATRIX_STACK.translate(bone);
-         MATRIX_STACK.moveToPivot(bone);
-         MATRIX_STACK.rotate(bone);
-         MATRIX_STACK.scale(bone);
-         MATRIX_STACK.moveBackFromPivot(bone);
-         if (!bone.isHidden) {
-            if (!this.activeCustomPartBones.contains(boneName)) {
-               for (GeoCube cube : bone.childCubes) {
-                  MATRIX_STACK.push();
-                  GlStateManager.pushMatrix();
-                  try {
-                     this.currentRenderingBone = bone;
-                     this.renderCubeGeometry(buffer, cube, r, g, b, a, overlayAlpha);
-                  } finally {
-                     GlStateManager.popMatrix();
-                     MATRIX_STACK.pop();
+         try {
+            MATRIX_STACK.translate(bone);
+            MATRIX_STACK.moveToPivot(bone);
+            MATRIX_STACK.rotate(bone);
+            MATRIX_STACK.scale(bone);
+            MATRIX_STACK.moveBackFromPivot(bone);
+            if (!bone.isHidden) {
+               if (!this.activeCustomPartBones.contains(boneName)) {
+                  for (GeoCube cube : bone.childCubes) {
+                     MATRIX_STACK.push();
+                     GlStateManager.pushMatrix();
+                     try {
+                        this.currentRenderingBone = bone;
+                        this.renderCubeGeometry(buffer, cube, r, g, b, a, overlayAlpha);
+                     } finally {
+                        GlStateManager.popMatrix();
+                        MATRIX_STACK.pop();
+                     }
                   }
                }
-            }
 
-            for (GeoBone childBone : bone.childBones) {
-               this.renderCustomBones(buffer, childBone, r, g, b, a, overlayAlpha);
+               for (GeoBone childBone : bone.childBones) {
+                  this.renderCustomBones(buffer, childBone, r, g, b, a, overlayAlpha);
+               }
             }
+         } finally {
+            MATRIX_STACK.pop();
          }
-
-         MATRIX_STACK.pop();
       }
    }
 
