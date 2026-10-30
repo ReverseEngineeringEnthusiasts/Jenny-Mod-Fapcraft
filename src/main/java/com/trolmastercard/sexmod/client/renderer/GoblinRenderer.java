@@ -140,12 +140,12 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
       ResourceLocation cachedTexture;
       if (!(goblin.world instanceof SexWorldClient) && uuid != null) {
-         cachedTexture = l.get(uuid);
+         cachedTexture = SKIN_TEXTURE_CACHE.get(uuid);
          if (cachedTexture == null) {
             return this.getTintedSkinTexture(uuid, goblin.world);
          }
       } else {
-         cachedTexture = l.get(mc.getSession().getProfile().getId());
+         cachedTexture = SKIN_TEXTURE_CACHE.get(mc.getSession().getProfile().getId());
          if (cachedTexture == null) {
             return this.getTintedSkinTexture(mc.getSession().getProfile().getId(), goblin.world);
          }

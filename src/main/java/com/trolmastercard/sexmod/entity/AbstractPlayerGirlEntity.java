@@ -45,9 +45,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * <b>Role.</b> Base class for the player-form girls — the entity the player
  * turns INTO when drinking the horny potion. Subclasses (Jenny, Bia, Luna,
  * Ellie, Slime, Bee, Allie, Kobold, Goblin, Galath) mirror their NPC twin's
- * scenes but bind a real player ({@code ai}, data-manager id 118) whose model,
+ * scenes but bind a real player ({@code OWNER_UUID}, data-manager id 118) whose model,
  * camera and abilities are replaced by the girl's while the transformation is
- * active. Registered statically in {@link #playerGirlList}/{@link #al}.
+ * active. Registered statically in {@link #playerGirlList}/{@link #PLAYER_GIRL_BY_OWNER}.
  * <p>
  * <b>Scene flow.</b> Same machinery as {@link BaseGirlEntity}: actions are
  * dispatched from {@link #doAction(String, UUID)} (which routes unknown
@@ -59,9 +59,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * which unlocks movement, un-hides the player and sends
  * {@link ResetGirlPacket}.
  * <p>
- * <b>State.</b> {@code ai} (118) = owner player UUID; {@code ab} = "new player"
+ * <b>State.</b> {@code OWNER_UUID} (118) = owner player UUID; {@code firstInteraction} = "new player"
  * flag consumed by {@link SexPromptPacket}; {@code yFlag} = strip-phase tick
- * threshold (65); {@code an} = STRIP countdown (-1 = inactive, toggles the
+ * threshold (65); {@code stripTicks} = STRIP countdown (-1 = inactive, toggles the
  * outfit at 65 and ends the strip on the client at 100).
  * <p>
  * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} refuses
@@ -79,20 +79,20 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public static final float ac = 0.0F;
    public static final int am = 100;
    public static final int yFlag = 65;
-   public static boolean ag = true;
-   public Vector2f ao = new Vector2f(0.0F, 0.0F);
-   public boolean ad = false;
-   public boolean aj = false;
-   public boolean ak = false;
-   public boolean af = true;
-   public boolean ah = false;
-   protected static final DataParameter<Optional<UUID>> ai = EntityDataManager.createKey(BaseGirlEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID)
+   public static boolean flightGrantEnabled = true;
+   public Vector2f playerMotionOffset = new Vector2f(0.0F, 0.0F);
+   public boolean playerSneaking = false;
+   public boolean playerSprinting = false;
+   public boolean playerRiding = false;
+   public boolean playerOnGround = true;
+   public boolean playerUsingItem = false;
+   protected static final DataParameter<Optional<UUID>> OWNER_UUID = EntityDataManager.createKey(BaseGirlEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID)
       .getSerializer()
       .createKey(118);
-   public static Hashtable<UUID, AbstractPlayerGirlEntity> al = new Hashtable<>();
+   public static Hashtable<UUID, AbstractPlayerGirlEntity> PLAYER_GIRL_BY_OWNER = new Hashtable<>();
    public static List<AbstractPlayerGirlEntity> playerGirlList = new ArrayList<>();
-   int an = -1;
-   public boolean ab = true;
+   int stripTicks = -1;
+   public boolean firstInteraction = true;
 
    protected AbstractPlayerGirlEntity(World world) {
       super(world);
@@ -102,17 +102,17 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    protected AbstractPlayerGirlEntity(World world, UUID uuid) {
       this(world);
-      this.entityDataManager.set(ai, Optional.of(uuid));
+      this.entityDataManager.set(OWNER_UUID, Optional.of(uuid));
    }
 
    @Nullable
    public static AbstractPlayerGirlEntity getPlayerGirlByUUID(UUID uuid) {
-      return al.get(uuid);
+      return PLAYER_GIRL_BY_OWNER.get(uuid);
    }
 
    @Nullable
    public static AbstractPlayerGirlEntity getPlayerGirlByUUID(@Nonnull EntityPlayer player) {
-      return al.get(player.getPersistentID());
+      return PLAYER_GIRL_BY_OWNER.get(player.getPersistentID());
    }
 
    @Nullable
@@ -171,7 +171,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @SideOnly(Side.CLIENT)
-   public void H_clash570() {
+   public void openBedsideInteractionMenu() {
    }
 
    public boolean canOpenInteractionMenu() {
@@ -182,14 +182,14 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return false;
    }
 
-   public boolean A_clash381() {
+   public boolean blocksOutfitToggle() {
       return true;
    }
 
    @Override
    public String getDisplayNameText() {
-      if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
-         EntityPlayer player = this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
+      if (((Optional)this.entityDataManager.get(OWNER_UUID)).isPresent()) {
+         EntityPlayer player = this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(OWNER_UUID)).get());
          if (player != null) {
             return player.getName();
          }
@@ -220,14 +220,14 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       return true;
    }
 
-   public boolean F_clash231() {
+   public boolean usesInvertedCamera() {
       return false;
    }
 
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.entityDataManager.register(ai, Optional.absent());
+      this.entityDataManager.register(OWNER_UUID, Optional.absent());
    }
 
    /**
@@ -286,12 +286,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    /**
     * Grants/revokes flight on the owning player (SERIOUS: uses the player's
-    * abilities and sends them to the client). {@code ag} is a global kill
-    * switch. Called by subclasses' {@code B_clash233}/{@code onTickClient}
+    * abilities and sends them to the client). {@code flightGrantEnabled} is a global kill
+    * switch. Called by subclasses' {@code onTransformationSpawned}/{@code onTickClient}
     * pairs on transformation enter/exit.
     */
    protected void handleOwnerUUID(boolean allowFly) {
-      if (ag) {
+      if (flightGrantEnabled) {
          if (this.getOwnerUserUUID() != null) {
             EntityPlayer player = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
             if (player != null) {
@@ -309,7 +309,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    public static boolean hasPlayerGirlWithUUID(UUID uuid) {
       rebuildPlayerGirlTableFromWorld();
 
-      for (Entry entry : al.entrySet()) {
+      for (Entry entry : PLAYER_GIRL_BY_OWNER.entrySet()) {
          UUID candidateUuid = (UUID)entry.getKey();
          if (uuid.equals(candidateUuid)) {
             return true;
@@ -332,7 +332,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       EntityPlayer nearest = null;
 
       for (EntityPlayer player : (java.util.Collection<EntityPlayer>) (players) ) {
-         if (!player.getPersistentID().equals(((Optional)this.entityDataManager.get(ai)).get())) {
+         if (!player.getPersistentID().equals(((Optional)this.entityDataManager.get(OWNER_UUID)).get())) {
             if (nearest == null) {
                nearest = player;
             } else {
@@ -367,7 +367,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
     */
    protected void teleportPlayerToGirl(UUID uuid) {
       EntityPlayerMP player = (EntityPlayerMP)this.world.getPlayerEntityByUUID(uuid);
-      EntityPlayerMP ownerPlayer = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(ai)).get());
+      EntityPlayerMP ownerPlayer = (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)((Optional)this.entityDataManager.get(OWNER_UUID)).get());
       PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), player);
       PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), ownerPlayer);
       this.setInteractionPlayerUUID(uuid);
@@ -406,7 +406,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       this.noClip = true;
       this.setNoGravity(true);
       super.onUpdate();
-      this.D_clash581();
+      this.tickStripSequence();
       if (this.world.isRemote) {
          if (this.hasOwnerUUID()) {
             GenderSwapScreen.instance.tick();
@@ -421,12 +421,12 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
 
    @SideOnly(Side.CLIENT)
    public boolean hasOwnerUUID() {
-      return !((Optional)this.entityDataManager.get(ai)).isPresent()
+      return !((Optional)this.entityDataManager.get(OWNER_UUID)).isPresent()
          ? false
-         : ((UUID)((Optional)this.entityDataManager.get(ai)).get()).equals(Minecraft.getMinecraft().player.getPersistentID());
+         : ((UUID)((Optional)this.entityDataManager.get(OWNER_UUID)).get()).equals(Minecraft.getMinecraft().player.getPersistentID());
    }
 
-   public boolean E_clash458() {
+   public boolean shouldRenderWhenOwnerInvisible() {
       return false;
    }
 
@@ -470,17 +470,17 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    /**
     * Ticks the strip sequence: at tick 65 the outfit index toggles (server),
     * at tick 100 the client ends the strip (camera/third-person reset) and
-    * the server returns the girl to {@link Action#NULL}. {@code an} is -1
+    * the server returns the girl to {@link Action#NULL}. {@code stripTicks} is -1
     * while no strip is running.
     */
-   void D_clash581() {
-      if (this.an != -1) {
-         this.an++;
-         if (!this.world.isRemote && this.an == 65) {
+   void tickStripSequence() {
+      if (this.stripTicks != -1) {
+         this.stripTicks++;
+         if (!this.world.isRemote && this.stripTicks == 65) {
             this.setOutfitIndex(this.getOutfitIndex() == 0 ? 1 : 0);
          }
 
-         if (this.an >= 100) {
+         if (this.stripTicks >= 100) {
             if (this.getCurrentAction() == Action.STRIP) {
                if (this.world.isRemote) {
                   this.handleClientOwner();
@@ -528,7 +528,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    /**
     * Guards the action state machine: never allows a transition into
     * {@link Action#NULL} while the girl is anchored (would desync the scene),
-    * and arms the strip countdown ({@code an}) when entering
+    * and arms the strip countdown ({@code stripTicks}) when entering
     * {@link Action#STRIP}. CLIENT writes are routed through
     * {@code changeDataParameterFromClient} by the super implementation.
     */
@@ -538,7 +538,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
          System.out.println("prevented a potential animation break");
       } else {
          if (action == Action.STRIP) {
-            this.an = this.world.isRemote ? 5 : 0;
+            this.stripTicks = this.world.isRemote ? 5 : 0;
          }
 
          super.setCurrentAction(action);
@@ -580,7 +580,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public UUID getOwnerUserUUID() {
-      return ((Optional)this.entityDataManager.get(ai)).isPresent() ? (UUID)((Optional)this.entityDataManager.get(ai)).get() : null;
+      return ((Optional)this.entityDataManager.get(OWNER_UUID)).isPresent() ? (UUID)((Optional)this.entityDataManager.get(OWNER_UUID)).get() : null;
    }
 
    @Nullable
@@ -590,18 +590,18 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    public void setOwnerId(Optional<UUID> uuidOpt) {
-      this.entityDataManager.set(ai, uuidOpt);
+      this.entityDataManager.set(OWNER_UUID, uuidOpt);
    }
 
    public void onTickClient() {
    }
 
-   public void B_clash233() {
+   public void onTransformationSpawned() {
    }
 
    /**
     * Maintains the static UUID-&gt;girl tables: moves girls with a bound owner
-    * from {@link #playerGirlList} into {@link #al}, then prunes dead girls.
+    * from {@link #playerGirlList} into {@link #PLAYER_GIRL_BY_OWNER}, then prunes dead girls.
     * Called from {@link #updateAITasks()} every tick; tolerates concurrent
     * modification during world teardown.
     */
@@ -611,7 +611,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
       try {
          for (AbstractPlayerGirlEntity playerGirl : playerGirlList) {
             if (playerGirl.getOwnerUserUUID() != null) {
-               al.put(playerGirl.getOwnerUserUUID(), playerGirl);
+               PLAYER_GIRL_BY_OWNER.put(playerGirl.getOwnerUserUUID(), playerGirl);
                toRemove.add(playerGirl);
             }
          }
@@ -628,14 +628,14 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    static void rebuildPlayerGirlTableInternal() {
       ArrayList toRemove = new ArrayList();
 
-      for (Entry entry : al.entrySet()) {
+      for (Entry entry : PLAYER_GIRL_BY_OWNER.entrySet()) {
          if (((AbstractPlayerGirlEntity)entry.getValue()).isDead) {
             toRemove.add(entry.getKey());
          }
       }
 
       for (UUID uuid : (java.util.Collection<UUID>) (toRemove) ) {
-         al.remove(uuid);
+         PLAYER_GIRL_BY_OWNER.remove(uuid);
       }
    }
 
@@ -651,15 +651,15 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    /**
     * CLIENT-side action dispatch: first asks {@link #handleActionRequest(String)},
     * and if unhandled forwards the action to the server as a
-    * {@link SexPromptPacket} carrying the owner UUID and the {@code ab}
+    * {@link SexPromptPacket} carrying the owner UUID and the {@code firstInteraction}
     * "first interaction" flag. The flag is consumed (reset to true) on send.
     */
    @Override
    public void doAction(String action, UUID uuid) {
       if (!this.handleActionRequest(action)) {
-         if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
-            PacketHandler.networkWrapper.sendToServer(new SexPromptPacket(action, uuid, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
-            this.ab = true;
+         if (((Optional)this.entityDataManager.get(OWNER_UUID)).isPresent()) {
+            PacketHandler.networkWrapper.sendToServer(new SexPromptPacket(action, uuid, (UUID)((Optional)this.entityDataManager.get(OWNER_UUID)).get(), this.firstInteraction));
+            this.firstInteraction = true;
          }
       }
    }
@@ -667,13 +667,13 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    public void writeEntityToNBT(NBTTagCompound nbt) {
       super.writeEntityToNBT(nbt);
-      nbt.setString("owner", ((UUID)((Optional)this.entityDataManager.get(ai)).get()).toString());
+      nbt.setString("owner", ((UUID)((Optional)this.entityDataManager.get(OWNER_UUID)).get()).toString());
    }
 
    @Override
    public void readEntityFromNBT(NBTTagCompound nbt) {
       super.readEntityFromNBT(nbt);
-      this.entityDataManager.set(ai, Optional.of(UUID.fromString(nbt.getString("owner"))));
+      this.entityDataManager.set(OWNER_UUID, Optional.of(UUID.fromString(nbt.getString("owner"))));
       playerGirlList.add(this);
    }
 

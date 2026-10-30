@@ -26,10 +26,10 @@ import net.minecraftforge.fml.relauncher.Side;
  * <ul>
  * <li>{@code npcType == null} ("player"): revert — remove every entity matching
  *     the girl's id with {@code world.removeEntity}, clear the girl registry
- *     entry ({@code AbstractPlayerGirlEntity.al}) and un-set the owner id.</li>
+ *     entry ({@code AbstractPlayerGirlEntity.PLAYER_GIRL_BY_OWNER}) and un-set the owner id.</li>
  * <li>{@code npcType != null}: spawn a fresh player-girl of that type 69 blocks
  *     above the player (reflection constructor {@code (World, UUID)}), gravity
- *     off, no-clip, and call {@code B_clash233()} to finalize her state.</li>
+ *     off, no-clip, and call {@code onTransformationSpawned()} to finalize her state.</li>
  * </ul>
  * <p>
  * <b>Pitfall.</b> The revert branch removes entities ({@code world.removeEntity})
@@ -86,7 +86,7 @@ public class UpdatePlayerModelPacket implements IMessage {
                   }
 
                   playerGirl.onTickClient();
-                  AbstractPlayerGirlEntity.al.remove(playerUuid);
+                  AbstractPlayerGirlEntity.PLAYER_GIRL_BY_OWNER.remove(playerUuid);
                   BaseGirlEntity.getGirlEntityList().remove(playerGirl);
                   playerGirl.setOwnerId(Optional.absent());
                }
@@ -109,7 +109,7 @@ public class UpdatePlayerModelPacket implements IMessage {
                   newPlayerGirl.motionZ = 0.0;
                   newPlayerGirl.setPosition(player.posX, player.posY + 69.0, player.posZ);
                   world.spawnEntity(newPlayerGirl);
-                  newPlayerGirl.B_clash233();
+                  newPlayerGirl.onTransformationSpawned();
                }
             });
             return null;

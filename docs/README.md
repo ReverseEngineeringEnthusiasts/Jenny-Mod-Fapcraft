@@ -10,6 +10,7 @@ repository. Every claim here is verifiable against the code and assets in
 ```
 docs/
 ├── README.md                  ← you are here: index, quick overview, metadata
+├── PERFORMANCE.md             ← per-frame hot spots, memory lifetimes, dev-ergonomics review
 ├── characters/                ← one file per character: every animation, scene,
 │   ├── jenny.md                 feature, dialogue line, sound, model detail
 │   ├── ellie.md

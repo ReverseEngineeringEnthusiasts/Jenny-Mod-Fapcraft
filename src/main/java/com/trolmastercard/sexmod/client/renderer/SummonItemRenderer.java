@@ -41,7 +41,7 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
    }
 
    public void renderSummonItem(WinchesterItem item, ItemStack stack) {
-      if (DebugMode.b[0] == 0.0F) {
+      if (DebugMode.DEV_FLOATS[0] == 0.0F) {
          GlStateManager.disableLighting();
       }
 
@@ -52,7 +52,7 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
    /**
     * Cube pass: transforms normals (mirroring them for zero-size cube faces)
     * and emits tinted vertices. Tint = the render color offset by the normal
-    * (fake lighting) when {@code DebugMode.b[0] == 0}, else the plain render
+    * (fake lighting) when {@code DebugMode.DEV_FLOATS[0] == 0}, else the plain render
     * color.
     */
    @Override
@@ -77,7 +77,7 @@ public class SummonItemRenderer extends GeoItemRenderer<WinchesterItem> {
                normal.z *= -1.0F;
             }
 
-            Vec3d tint = DebugMode.b[0] == 0.0F ? BodyParts.offsetBonePosition(new Vec3d(r, g, b), normal, offsetVec) : new Vec3d(r, g, b);
+            Vec3d tint = DebugMode.DEV_FLOATS[0] == 0.0F ? BodyParts.offsetBonePosition(new Vec3d(r, g, b), normal, offsetVec) : new Vec3d(r, g, b);
 
             for (GeoVertex vertex : quad.vertices) {
                Vector4f matrixPos = new Vector4f(vertex.position.getX(), vertex.position.getY(), vertex.position.getZ(), 1.0F);

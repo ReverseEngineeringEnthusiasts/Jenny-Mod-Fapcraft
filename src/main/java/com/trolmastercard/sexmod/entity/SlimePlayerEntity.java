@@ -60,7 +60,7 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean A_clash381() {
+   public boolean blocksOutfitToggle() {
       return false;
    }
 
@@ -165,19 +165,19 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.slime.null", true, event);
-            } else if (this.ak) {
+            } else if (this.playerRiding) {
                this.createAnimation("animation.slime.sit", true, event);
             } else {
-               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
+               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.playerOnGround) {
                   this.ap = !this.ap;
                }
 
-               if (!this.af) {
+               if (!this.playerOnGround) {
                   this.createAnimation("animation.slime.fly" + (this.ap ? "2" : ""), true, event);
-               } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
-                  if (this.aj) {
+               } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) > 0.0F) {
+                  if (this.playerSprinting) {
                      this.createAnimation("animation.slime.run", true, event);
-                  } else if (this.ao.y >= -0.1F) {
+                  } else if (this.playerMotionOffset.y >= -0.1F) {
                      this.createAnimation("animation.slime.walk", true, event);
                   } else {
                      this.createAnimation("animation.slime.backwards_walk", true, event);

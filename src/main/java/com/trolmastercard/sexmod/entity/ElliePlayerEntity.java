@@ -116,9 +116,9 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
          this.changeDataParameterFromClient("animationFollowUp", "Cowgirl");
       } else if ("action.names.missionary".equals(action)) {
          this.changeDataParameterFromClient("animationFollowUp", "Missionary");
-      } else if (((Optional)this.entityDataManager.get(ai)).isPresent()) {
-         PacketHandler.networkWrapper.sendToServer(new SexPromptPacket(action, uuid, (UUID)((Optional)this.entityDataManager.get(ai)).get(), this.ab));
-         this.ab = true;
+      } else if (((Optional)this.entityDataManager.get(OWNER_UUID)).isPresent()) {
+         PacketHandler.networkWrapper.sendToServer(new SexPromptPacket(action, uuid, (UUID)((Optional)this.entityDataManager.get(OWNER_UUID)).get(), this.firstInteraction));
+         this.firstInteraction = true;
       }
    }
 
@@ -133,7 +133,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean A_clash381() {
+   public boolean blocksOutfitToggle() {
       return false;
    }
 
@@ -193,7 +193,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
          this.entityDataManager.set(BaseGirlEntity.GIRL_HAND_STATES, "");
          this.entityDataManager.set(BaseGirlEntity.OUTFIT_INDEX, 0);
          this.setInteractionPlayerUUID(player.getPersistentID());
-         Optional ownerOpt = (Optional)this.entityDataManager.get(ai);
+         Optional ownerOpt = (Optional)this.entityDataManager.get(OWNER_UUID);
          EntityPlayerMP playerMP = ownerOpt.isPresent() ? (EntityPlayerMP)this.world.getPlayerEntityByUUID((UUID)ownerOpt.get()) : null;
          PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)player);
          if (playerMP != null) {
@@ -248,20 +248,20 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.ellie.null", true, event);
-            } else if (this.ak) {
+            } else if (this.playerRiding) {
                this.createAnimation("animation.ellie.ride", true, event);
             } else {
-               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
+               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.playerOnGround) {
                   this.ar = !this.ar;
                }
 
-               if (!this.af) {
+               if (!this.playerOnGround) {
                   this.createAnimation("animation.ellie.fly" + (this.ar ? "2" : ""), true, event);
-               } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
-                  if (this.aj) {
+               } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) > 0.0F) {
+                  if (this.playerSprinting) {
                      this.movementController.setAnimationSpeed(1.5);
                      this.createAnimation(this.hasNoOwner() ? "animation.ellie.crouchwalk" : "animation.ellie.run", true, event);
-                  } else if (this.ao.y >= -0.1F) {
+                  } else if (this.playerMotionOffset.y >= -0.1F) {
                      this.movementController.setAnimationSpeed(2.0);
                      this.createAnimation(this.hasNoOwner() ? "animation.ellie.crouchwalk" : "animation.ellie.fastwalk", true, event);
                   } else {

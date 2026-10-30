@@ -104,7 +104,7 @@ public class PlayerIds {
       bia.motionZ = 0.0;
       bia.setPosition(player.posX, player.posY + 69.0, player.posZ);
       world.spawnEntity(bia);
-      bia.B_clash233();
+      bia.onTransformationSpawned();
    }
 
    void registerEllie(World world, EntityPlayer player, UUID uuid) {
@@ -116,7 +116,7 @@ public class PlayerIds {
       ellie.motionZ = 0.0;
       ellie.setPosition(player.posX, player.posY + 69.0, player.posZ);
       world.spawnEntity(ellie);
-      ellie.B_clash233();
+      ellie.onTransformationSpawned();
    }
 
    void registerJenny(World world, EntityPlayer player, AbstractPlayerGirlEntity existingGirl) {

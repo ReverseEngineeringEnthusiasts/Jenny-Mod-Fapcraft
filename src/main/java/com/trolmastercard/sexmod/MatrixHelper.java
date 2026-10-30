@@ -14,12 +14,12 @@ import software.bernie.geckolib3.util.MatrixStack;
  * state, used by renderers that must place vanilla-rendered parts (or custom
  * geometry) at a bone's exact pose.
  * <p>
- * <b>CLIENT-side only.</b> The shared static buffer {@code b}/{@code floatBuffer}
+ * <b>CLIENT-side only.</b> The shared static buffer {@code SCRATCH_MATRIX}/{@code floatBuffer}
  * are overwritten on every call; callers must consume the GL state immediately and
  * must not hold references across renders.
  */
 public class MatrixHelper {
-   public static final float[] b = new float[16];
+   public static final float[] SCRATCH_MATRIX = new float[16];
    public static final FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(16);
    private static final Matrix4f matrix = new Matrix4f();
 
@@ -31,14 +31,14 @@ public class MatrixHelper {
     * <p>
     * Must be called on the render thread between matrix pushes; the caller is
     * responsible for {@code glPushMatrix}/{@code glPopMatrix} around it. Side
-    * effect: clobbers the shared static {@code b} and {@code floatBuffer}.
+    * effect: clobbers the shared static {@code SCRATCH_MATRIX} and {@code floatBuffer}.
     */
    public static void applyBoneTransform(MatrixStack stack, GeoBone bone) {
       matrix.set(stack.getModelMatrix());
       matrix.transpose();
-      toFloatArray(b, matrix);
+      toFloatArray(SCRATCH_MATRIX, matrix);
       ((Buffer)floatBuffer).clear();
-      floatBuffer.put(b);
+      floatBuffer.put(SCRATCH_MATRIX);
       ((Buffer)floatBuffer).flip();
       GlStateManager.multMatrix(floatBuffer);
       GlStateManager.translate(bone.rotationPointX / 16.0F, bone.rotationPointY / 16.0F, bone.rotationPointZ / 16.0F);

@@ -143,7 +143,7 @@ Misc shared arrays used by Bia scenes: `MISC_PLOB` (1), `MISC_BEDRUSTLE` (2), `M
 Differences from the NPC:
 
 - **Scale**: `getScaleFactor()` 1.5; renderer `preRenderCallback` translates (0,-1.0,-0.05) and scales 0.65 (smallest of the three). Eye height 1.5.
-- **Menu**: `[action.names.headpat]` (`openInteractionMenu`); the bed menu `[anal, doggy]` opens via `H_clash570` after the talk dialogue. `handleInteraction()` is a no-op.
+- **Menu**: `[action.names.headpat]` (`openInteractionMenu`); the bed menu `[anal, doggy]` opens via `openBedsideInteractionMenu` after the talk dialogue. `handleInteraction()` is a no-op.
 - **Scene start is local**: `handleActionRequest("anal")` → `ANAL_PREPARE` + strip; `"doggy"` → `SITDOWN` + strip (returns true so the base `doAction` doesn't forward). `handleOwnerCommand("action.names.headpat")` → teleport + `HEAD_PAT` + `sendActionPacket`.
 - **Countdown field** named `ar` (not `ac`): -1 idle / 22 first contact; re-armed in `resetLocalPlayerClientState()`. `handleBiaAnalState` mirrors the NPC logic but the client only acts when the nearby player is the local one (`isOwnPlayer`); the prone-doggy branch also teleports the **owner** to the follow position.
 - **Animation naming mismatches vs NPC**: player form plays `talk_horny`/`talk_idle` for TALK_HORNY/TALK_IDLE (NPC: `talk_horny2`/`talk_idle2`); `anal_wait` plays LOOP (NPC non-loop); `prone_doggy_hard` variant field `aq`.

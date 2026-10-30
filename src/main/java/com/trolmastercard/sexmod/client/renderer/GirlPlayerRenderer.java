@@ -98,8 +98,8 @@ public class GirlPlayerRenderer extends GirlRenderer {
             if (owner != null) {
                this.mainhandItem = owner.getHeldItemMainhand();
                this.offhandItem = owner.getHeldItemOffhand();
-               this.isUsingItem = playerGirl.ah;
-               this.isRendering = playerGirl.ad;
+               this.isUsingItem = playerGirl.playerUsingItem;
+               this.isRendering = playerGirl.playerSneaking;
                this.playerGirl = (AbstractPlayerGirlEntity)girl;
                this.partialTicks = partialTicks;
                playerGirl.syncArmor(owner);

@@ -107,7 +107,7 @@ No `girls.slime.*` events in `sounds.json` and no folder under `sounds/girls/`. 
 ## Player form (if any)
 
 `SlimePlayerEntity` — same blowjob + doggy scenes, no pregnancy lifecycle:
-- `canBeInteracted() = false`, `A_clash381() = false` (no clash/interact), eye height 1.64, scale factor 1.6.
+- `canBeInteracted() = false`, `blocksOutfitToggle() = false` (no clash/interact), eye height 1.64, scale factor 1.6.
 - Hand model: **`KoboldModel`** (not SlimeModel!) with hand texture `textures/entity/slime/hand.png` (quirk).
 - Only owner command: `action.names.blowjob` → `sendActionPacket(0, SUCKBLOWJOB)` + `teleportPlayerToGirl`. Menu offers just `["action.names.blowjob"]`.
 - Doggy entry: `updateAITasks` waits in WAITDOGGY for a player within 1.0 block → movement lock + noClip + noGravity + flying for both players (`SetPlayerMovementPacket`, `capabilities.isFlying = true`) → `positionPlayerRelative(0, 0, 0.4, 0, 60)` → DOGGYSTART. `doggyGoOnBedDone` additionally sends `SetPlayerForGirlPacket` to bind the local player.

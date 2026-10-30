@@ -26,14 +26,14 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 /**
  * <b>Role.</b> Player-form Allie — the transformation with the deepthroat and
  * reverse-cowgirl scenes of the NPC, minus the summon/wish flow. The owner
- * gets flight while transformed ({@code B_clash233}/{@code onTickClient}
+ * gets flight while transformed ({@code onTransformationSpawned}/{@code onTickClient}
  * pair).
  * <p>
  * <b>Scene flow.</b> Owner commands {@code deepthroat}/{@code Reverse cowgirl}
  * start the scenes; {@code deepthroat_prepareDone} (sound listener) sends
  * {@link KoboldStatePacket} to lock the player in and repositions the camera.
  * Scene end via {@code cowgirl_cumDone}/{@code deepthroat_cumDone} -&gt;
- * {@code resetCameraAndPhysics()}. {@link #F_clash231()} marks the deepthroat
+ * {@code resetCameraAndPhysics()}. {@link #usesInvertedCamera()} marks the deepthroat
  * actions for first-person rendering.
  */
 public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
@@ -109,7 +109,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean F_clash231() {
+   public boolean usesInvertedCamera() {
       switch (this.getCurrentAction()) {
          case ALLIE_PREPARE_NORMAL:
          case DEEPTHROAT_START:
@@ -164,7 +164,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void B_clash233() {
+   public void onTransformationSpawned() {
       this.handleOwnerUUID(true);
    }
 

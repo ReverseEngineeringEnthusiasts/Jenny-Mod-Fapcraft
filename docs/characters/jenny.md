@@ -164,8 +164,8 @@ Differences from the NPC:
 - **Hardcoded dialogue**: player form uses hardcoded strings for payment lines ("show Bobs and vegana pls", "Give me the sucky sucky and these are yours", "gib boba OwO", "sex pls") instead of the lang keys; stripMSG1 "Hihi~"; blowjob lines via lang keys in `JennyPlayerEntity` sound listener (identical keyframe names).
 - **Camera differences**: `bjiMSG10` uses (-0.4,-0.8,-0.2, 60°, -3°); `boobjob_camera` sets `cameraYaw = 180` and repositions only when local player + `as` one-shot; paizuri reposition (-0.7,-0.6,-0.2).
 - **Hand rendering**: `getHandModel` returns `SlimeModel` (vanilla placeholder) with `hand_nude.png` (index 0) / `hand.png`.
-- **Shared machinery**: same `getNextAction`/`getCumAction`/`setCurrentAction` guards as the NPC; `A_clash381()` false; scene end identical (`bjcDone`/`paizuri_cumDone`/`doggyCumDone` → `resetCameraAndPhysics()`); PAYMENT cases in the sound listener are vestigial (`U()` is empty in player girls).
-- **Player-girl rules** (from `AbstractPlayerGirlEntity`): size (0.01,0.01), `canBeCollidedWith` false, `canBePushed` false, always noClip+noGravity, glued to the owner's position when not anchored, owner's swing mirrors into `ATTACK` action, armor mirrored from owner (`syncArmor`), `resetLocalPlayerClientState` sends the single-arg full `ResetGirlPacket`, strip sequence `D_clash581` toggles outfit at tick 65 and ends at 100.
+- **Shared machinery**: same `getNextAction`/`getCumAction`/`setCurrentAction` guards as the NPC; `blocksOutfitToggle()` false; scene end identical (`bjcDone`/`paizuri_cumDone`/`doggyCumDone` → `resetCameraAndPhysics()`); PAYMENT cases in the sound listener are vestigial (`U()` is empty in player girls).
+- **Player-girl rules** (from `AbstractPlayerGirlEntity`): size (0.01,0.01), `canBeCollidedWith` false, `canBePushed` false, always noClip+noGravity, glued to the owner's position when not anchored, owner's swing mirrors into `ATTACK` action, armor mirrored from owner (`syncArmor`), `resetLocalPlayerClientState` sends the single-arg full `ResetGirlPacket`, strip sequence `tickStripSequence` toggles outfit at tick 65 and ends at 100.
 
 ## Data keys / NBT
 

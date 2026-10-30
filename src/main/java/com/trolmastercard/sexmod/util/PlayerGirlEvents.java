@@ -46,7 +46,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * <ul>
  * <li>bed placement / sleep restrictions while transformed (girl must be
  *     placed into her bed, not the player's)</li>
- * <li>bed-side placement of the player next to the girl's bed ({@code H_clash570}
+ * <li>bed-side placement of the player next to the girl's bed ({@code openBedsideInteractionMenu}
  *     client-side, anchored target server-side)</li>
  * <li>respawn sync of the player-girl to the player's new position</li>
  * <li>interaction menu between player-girls (lesbo prompt), slime doggy start,
@@ -148,7 +148,7 @@ public class PlayerGirlEvents {
 
                      if (event.getWorld().isRemote) {
                         HandlePlayerMovement.setMovementLock(false);
-                        playerGirl.H_clash570();
+                        playerGirl.openBedsideInteractionMenu();
                      } else {
                         playerGirl.setTargetPosition(new Vec3d(nearestPos.getX() + 0.5, nearestPos.getY() + 0.0F, nearestPos.getZ() + 0.5));
                         playerGirl.setYawRotation(player.rotationYaw);
@@ -222,7 +222,7 @@ public class PlayerGirlEvents {
                   target.sendStatusMessage(new TextComponentString("no lesbo yet owo"), true);
                } else {
                   if (clientPlayerGirl.canOpenInteractionMenu()) {
-                     clientPlayerGirl.ab = false;
+                     clientPlayerGirl.firstInteraction = false;
                      clientPlayerGirl.openInteractionMenu(target);
                   }
                }
@@ -288,7 +288,7 @@ public class PlayerGirlEvents {
          if (player != null) {
             AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player);
             if (playerGirl != null) {
-               if (!playerGirl.A_clash381()) {
+               if (!playerGirl.blocksOutfitToggle()) {
                   List buttonList = event.getButtonList();
                   String label = I18n.format(playerGirl.getOutfitIndex() == 0 ? "action.names.dressup" : "action.names.strip", new Object[0]);
                   buttonList.add(new GuiButton(284453, (int)(gui.width * 0.5 - 35.0), (int)(gui.height * 0.87), 70, 20, label));
@@ -308,7 +308,7 @@ public class PlayerGirlEvents {
             Minecraft minecraft = Minecraft.getMinecraft();
             AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(minecraft.player.getPersistentID());
             if (playerGirl != null) {
-               if (!playerGirl.A_clash381()) {
+               if (!playerGirl.blocksOutfitToggle()) {
                   if (playerGirl.getInteractionPlayerUUID() == null) {
                      if (playerGirl.getCurrentAction() == Action.NULL) {
                         minecraft.gameSettings.thirdPersonView = 2;

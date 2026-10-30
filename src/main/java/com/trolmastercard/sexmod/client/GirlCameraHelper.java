@@ -63,7 +63,7 @@ public class GirlCameraHelper {
    public static void applyCameraTransform(AbstractPlayerGirlEntity girl, EntityPlayer player, double x, double y, double z, float partialTicks) {
       Minecraft mc = Minecraft.getMinecraft();
       player = girl.resolvePlayerEntity(player);
-      if (!player.isInvisibleToPlayer(mc.player) || girl.E_clash458()) {
+      if (!player.isInvisibleToPlayer(mc.player) || girl.shouldRenderWhenOwnerInvisible()) {
          RenderManager renderManager = mc.getRenderManager();
          girl.rotationYaw = player.rotationYaw;
          girl.prevRotationYawHead = player.prevRotationYawHead;
@@ -79,15 +79,15 @@ public class GirlCameraHelper {
          girl.lastTickPosZ = player.lastTickPosZ;
          girl.renderYawOffset = player.renderYawOffset;
          girl.prevRenderYawOffset = player.prevRenderYawOffset;
-         girl.ad = player.isSneaking();
-         girl.aj = player.isSprinting();
-         girl.ak = player.isRiding();
-         girl.af = player.onGround;
-         girl.ah = player.getItemInUseCount() != 0;
+         girl.playerSneaking = player.isSneaking();
+         girl.playerSprinting = player.isSprinting();
+         girl.playerRiding = player.isRiding();
+         girl.playerOnGround = player.onGround;
+         girl.playerUsingItem = player.getItemInUseCount() != 0;
          double dX = player.lastTickPosX - player.posX;
          double dZ = player.posZ - player.lastTickPosZ;
          double yawRad = (Math.PI / 180.0) * player.rotationYaw;
-         girl.ao = new Vector2f((float)(dX * Math.cos(yawRad) + dZ * Math.sin(yawRad)), (float)(dX * Math.sin(yawRad) + dZ * Math.cos(yawRad)));
+         girl.playerMotionOffset = new Vector2f((float)(dX * Math.cos(yawRad) + dZ * Math.sin(yawRad)), (float)(dX * Math.sin(yawRad) + dZ * Math.cos(yawRad)));
          float cameraOffset = girl.isRidingSomething() ? getCameraOffset(girl, player) : 0.0F;
          GirlPlayerRenderer.isFirstPerson = true;
          renderManager.renderEntity(girl, x, y + cameraOffset, z, 90.0F, partialTicks, false);
@@ -99,11 +99,11 @@ public class GirlCameraHelper {
          return 0.0F;
       }
 
-      if ((player.getHeldItemMainhand().getItem() instanceof ItemBow || player.getHeldItemOffhand().getItem() instanceof ItemBow) && girl.ah) {
+      if ((player.getHeldItemMainhand().getItem() instanceof ItemBow || player.getHeldItemOffhand().getItem() instanceof ItemBow) && girl.playerUsingItem) {
          girl.setCurrentAction(Action.BOW);
       }
 
-      if (girl.getCurrentAction() == Action.BOW && !girl.ah) {
+      if (girl.getCurrentAction() == Action.BOW && !girl.playerUsingItem) {
          girl.setCurrentAction(Action.NULL);
       }
 
@@ -113,7 +113,7 @@ public class GirlCameraHelper {
          girl.prevRenderYawOffset = girl.prevRotationYawHead;
       }
 
-      if (girl.ak) {
+      if (girl.playerRiding) {
          return player.getRidingEntity() instanceof EntityBoat ? 0.4F : 0.2F;
       } else {
          return 0.0F;
@@ -189,7 +189,7 @@ public class GirlCameraHelper {
       if (mc.player != null) {
          AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(mc.player.getPersistentID());
          if (playerGirl != null) {
-            if (playerGirl.F_clash231()) {
+            if (playerGirl.usesInvertedCamera()) {
                if (playerGirl.isAnchored()) {
                   event.setRoll(180.0F);
                   event.setPitch(-event.getPitch());

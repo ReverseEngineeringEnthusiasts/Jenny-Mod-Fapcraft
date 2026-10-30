@@ -27,17 +27,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * (dev) environment — see {@link #isDeobfuscated()}. Registers client chat
  * commands ({@code set N value}, {@code get N}, {@code time}, {@code girls},
  * {@code kobs}, {@code setcumtime}, {@code resetcolor}) and prints tribe-task
- * diagnostics when a kobold is hurt. The shared dev-float array {@code b} is a
+ * diagnostics when a kobold is hurt. The shared dev-float array {@code DEV_FLOATS} is a
  * tuning surface for renderer constants; keep all debug logging behind the
  * deobfuscated check so obfuscated builds never touch it.
  */
 public class DebugMode {
    static final int debugFlag = 60;
-   public static float[] b;
+   public static float[] DEV_FLOATS;
 
    public DebugMode() {
       if (isDeobfuscated()) {
-         b = new float[60];
+         DEV_FLOATS = new float[60];
       }
    }
 
@@ -71,7 +71,7 @@ public class DebugMode {
                try {
                   index = Integer.parseInt(parts[1]);
                   value = Float.parseFloat(parts[2]);
-                  if (b.length - 1 < index) {
+                  if (DEV_FLOATS.length - 1 < index) {
                      return;
                   }
                } catch (Exception exception) {
@@ -80,8 +80,8 @@ public class DebugMode {
 
                Minecraft.getMinecraft()
                   .player
-                  .sendMessage(new TextComponentString(String.format("%sSet dev float N.%s from %s to %s", TextFormatting.GRAY, index, b[index], value)));
-               b[index] = value;
+                  .sendMessage(new TextComponentString(String.format("%sSet dev float N.%s from %s to %s", TextFormatting.GRAY, index, DEV_FLOATS[index], value)));
+               DEV_FLOATS[index] = value;
                event.setCanceled(true);
             }
          }
@@ -99,7 +99,7 @@ public class DebugMode {
                int index;
                try {
                   index = Integer.parseInt(parts[1]);
-                  if (b.length - 1 < index) {
+                  if (DEV_FLOATS.length - 1 < index) {
                      return;
                   }
                } catch (Exception exception) {
@@ -108,7 +108,7 @@ public class DebugMode {
 
                Minecraft.getMinecraft()
                   .player
-                  .sendMessage(new TextComponentString(String.format("%sdev float N.%s is %s", TextFormatting.YELLOW, index, b[index])));
+                  .sendMessage(new TextComponentString(String.format("%sdev float N.%s is %s", TextFormatting.YELLOW, index, DEV_FLOATS[index])));
                event.setCanceled(true);
             }
          }

@@ -154,14 +154,14 @@ public class Main {
          writer2.close();
          ConfigWorldGenHandler.GENERATION_ENABLED = true;
          GirlModel.enableModelCache = false;
-         AbstractPlayerGirlEntity.ag = true;
+         AbstractPlayerGirlEntity.flightGrantEnabled = true;
       } else {
          int genIdx = json.indexOf("shouldGenBuildings");
          int skinIdx = json.indexOf("shouldLoadOtherSkins");
          int flyIdx = json.indexOf("allowFlying");
          ConfigWorldGenHandler.GENERATION_ENABLED = 't' == json.charAt(genIdx + 20);
          GirlModel.enableModelCache = 't' == json.charAt(skinIdx + 22);
-         AbstractPlayerGirlEntity.ag = 't' == json.charAt(flyIdx + 13);
+         AbstractPlayerGirlEntity.flightGrantEnabled = 't' == json.charAt(flyIdx + 13);
       }
    }
 }

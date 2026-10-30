@@ -127,10 +127,10 @@ import software.bernie.shadowed.eliotlash.mclib.utils.Interpolations;
  */
 public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> extends GeoEntityRenderer<T> implements IGirlRenderer {
    protected static final ResourceLocation LINE_TEXTURE = new ResourceLocation("sexmod", "textures/line.png");
-   protected double CACHE_C;
+   protected double shadowOffset;
    protected T renderEntity;
    protected static Minecraft mc;
-   protected static HashMap<UUID, ResourceLocation> l = new HashMap<>();
+   protected static HashMap<UUID, ResourceLocation> SKIN_TEXTURE_CACHE = new HashMap<>();
    Color BASE_SKIN_COLOR = new Color(245, 199, 165);
    Color BLUSH_COLOR = new Color(245, 157, 169);
    boolean fallbackSkinLoaded = false;
@@ -141,7 +141,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
    public GirlRenderer(RenderManager renderManager, AnimatedGeoModel<?> model, double shadowOffset) {
       super(renderManager, (AnimatedGeoModel<T>) (AnimatedGeoModel) model);
-      this.CACHE_C = shadowOffset;
+      this.shadowOffset = shadowOffset;
       mc = Minecraft.getMinecraft();
       this.shadowSize = 0.2F;
    }
@@ -159,12 +159,12 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected ResourceLocation getSkinTexture(T girl) {
       ResourceLocation cachedTexture;
       if (!(girl.world instanceof SexWorldClient) && girl.getInteractionPlayerUUID() != null) {
-         cachedTexture = l.get(girl.getInteractionPlayerUUID());
+         cachedTexture = SKIN_TEXTURE_CACHE.get(girl.getInteractionPlayerUUID());
          if (cachedTexture == null) {
             return this.getTintedSkinTexture(girl.getInteractionPlayerUUID(), girl.world);
          }
       } else {
-         cachedTexture = l.get(mc.getSession().getProfile().getId());
+         cachedTexture = SKIN_TEXTURE_CACHE.get(mc.getSession().getProfile().getId());
          if (cachedTexture == null) {
             return this.getTintedSkinTexture(mc.getSession().getProfile().getId(), girl.world);
          }
@@ -200,8 +200,8 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
          }
       }
 
-      l.put(uuid, this.renderManager.renderEngine.getDynamicTextureLocation("player" + uuid, new DynamicTexture(skinImage)));
-      return l.get(uuid);
+      SKIN_TEXTURE_CACHE.put(uuid, this.renderManager.renderEngine.getDynamicTextureLocation("player" + uuid, new DynamicTexture(skinImage)));
+      return SKIN_TEXTURE_CACHE.get(uuid);
    }
 
    /**
@@ -520,7 +520,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
       z = boneWorldPos.z;
       this.onBoneRenderStart((T)entity);
       if (entity.getLeashed()) {
-         this.renderLeash(entity, x, y + this.CACHE_C, z, partialTicks);
+         this.renderLeash(entity, x, y + this.shadowOffset, z, partialTicks);
       }
 
       GlStateManager.pushMatrix();

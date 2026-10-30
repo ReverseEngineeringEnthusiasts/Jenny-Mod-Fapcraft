@@ -93,7 +93,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
 
    @SideOnly(Side.CLIENT)
    @Override
-   public void H_clash570() {
+   public void openBedsideInteractionMenu() {
       BaseGirlEntity.openInventoryGui(Minecraft.getMinecraft().player, this, new String[]{"anal", "doggy"}, false);
    }
 
@@ -131,7 +131,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public boolean A_clash381() {
+   public boolean blocksOutfitToggle() {
       return false;
    }
 
@@ -284,20 +284,20 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.bia.null", true, event);
-            } else if (this.ak) {
+            } else if (this.playerRiding) {
                this.createAnimation("animation.bia.sit", true, event);
             } else {
-               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
+               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.playerOnGround) {
                   this.ap = !this.ap;
                }
 
-               if (!this.af) {
+               if (!this.playerOnGround) {
                   this.createAnimation("animation.bia.fly" + (this.ap ? "2" : ""), true, event);
-               } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
-                  if (this.aj) {
+               } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) > 0.0F) {
+                  if (this.playerSprinting) {
                      this.movementController.setAnimationSpeed(1.2);
                      this.createAnimation("animation.bia.run", true, event);
-                  } else if (this.ao.y >= -0.1F) {
+                  } else if (this.playerMotionOffset.y >= -0.1F) {
                      this.movementController.setAnimationSpeed(1.2);
                      this.createAnimation("animation.bia.fastwalk", true, event);
                   } else {

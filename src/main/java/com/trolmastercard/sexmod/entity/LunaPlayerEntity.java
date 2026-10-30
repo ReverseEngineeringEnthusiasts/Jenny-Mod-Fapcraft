@@ -228,20 +228,20 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
          case "movement":
             if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.cat.null", true, event);
-            } else if (this.ak) {
+            } else if (this.playerRiding) {
                this.createAnimation("animation.cat.sit", true, event);
             } else {
-               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.af) {
+               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.playerOnGround) {
                   this.aq = !this.aq;
                }
 
-               if (!this.af) {
+               if (!this.playerOnGround) {
                   this.createAnimation("animation.cat.fly" + (this.aq ? "2" : ""), true, event);
-               } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) > 0.0F) {
-                  if (this.aj) {
+               } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) > 0.0F) {
+                  if (this.playerSprinting) {
                      this.movementController.setAnimationSpeed(1.5);
                      this.createAnimation("animation.cat.run", true, event);
-                  } else if (this.ao.y >= -0.1F) {
+                  } else if (this.playerMotionOffset.y >= -0.1F) {
                      this.movementController.setAnimationSpeed(2.0);
                      this.createAnimation("animation.cat.fastwalk", true, event);
                   } else {

@@ -37,7 +37,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 /**
  * <b>Role.</b> Player-form Galath — the transformation with the rape
  * (intro/ongoing/cum) and corrupt (slow/fast/cum) scenes. The owner gets
- * flight while transformed ({@code B_clash233}/{@code onTickClient} pair).
+ * flight while transformed ({@code onTransformationSpawned}/{@code onTickClient} pair).
  * <p>
  * <b>Scene flow.</b> Owner commands {@code cowgirl}/{@code mating press}
  * start the scenes via {@link #handleOwnerCommand(String, UUID)};
@@ -157,7 +157,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    @Override
-   public boolean A_clash381() {
+   public boolean blocksOutfitToggle() {
       return false;
    }
 
@@ -185,7 +185,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    @Override
-   public void B_clash233() {
+   public void onTransformationSpawned() {
       this.handleOwnerUUID(true);
    }
 
@@ -251,16 +251,16 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
             this.movementController.setAnimationSpeed(1.0);
             if (this.getCurrentAction() != Action.NULL) {
                this.createAnimation("animation.galath.null", true, event);
-            } else if (this.ak) {
+            } else if (this.playerRiding) {
                this.createAnimation("animation.galath.sit", true, event);
-            } else if (!this.af) {
+            } else if (!this.playerOnGround) {
                this.createAnimation("animation.galath.controlled_flight", true, event);
-            } else if (Math.abs(this.ao.x) + Math.abs(this.ao.y) == 0.0F) {
+            } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) == 0.0F) {
                this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchidle" : "animation.galath.idle", true, event);
-            } else if (this.aj) {
+            } else if (this.playerSprinting) {
                this.movementController.setAnimationSpeed(1.5);
                this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.run", true, event);
-            } else if (this.ao.y >= -0.1F) {
+            } else if (this.playerMotionOffset.y >= -0.1F) {
                this.movementController.setAnimationSpeed(2.0);
                this.createAnimation(this.hasNoGalathOwner() ? "animation.galath.crouchwalk" : "animation.galath.walk", true, event);
             } else {

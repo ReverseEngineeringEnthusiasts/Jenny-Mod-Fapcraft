@@ -21,7 +21,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 /**
  * <b>Role.</b> Player-form Bee — the transformation with the single citizen
  * scene (start/slow/fast/cum). Flight is granted to the owner while the
- * transformation is active ({@code B_clash233}/{@code onTickClient} pair).
+ * transformation is active ({@code onTransformationSpawned}/{@code onTickClient} pair).
  * Progression and scene end run in the sound listener
  * ({@code sex_cumDone} -&gt; {@code resetCameraAndPhysics()}).
  */
@@ -35,7 +35,7 @@ public class BeePlayerEntity extends AbstractPlayerGirlEntity {
    }
 
    @Override
-   public void B_clash233() {
+   public void onTransformationSpawned() {
       this.handleOwnerUUID(true);
    }
 

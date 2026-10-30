@@ -87,7 +87,7 @@ No `girls.bee.*` events and no `sounds/girls/bee/` folder. Scene SFX (sound list
 ## Player form (if any)
 
 `BeePlayerEntity` — same citizen scene, no chest/taming:
-- **Owner flight**: `B_clash233()` / `onTickClient()` call `handleOwnerUUID(true/false)` — while the transformation is active the owner gets the bee's flight capability.
+- **Owner flight**: `onTransformationSpawned()` / `onTickClient()` call `handleOwnerUUID(true/false)` — while the transformation is active the owner gets the bee's flight capability.
 - Scale 1.4, eye height 1.3, hand model `BeeModel` (placeholder), hand texture `textures/entity/bee/hand.png`.
 - Menu: `["action.names.sex"]` only; `canBeInteracted() = false`; `reinitTasks` sets OUTFIT_INDEX 1 (dressed).
 - `animationPredicate` handles NULL/ATTACK/BOW/RIDE/THROW_PEARL + citizen actions; registers only action + movement controllers (no eyes).
