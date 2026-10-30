@@ -10,7 +10,7 @@ Developer-only debug tooling — **active only in a deobfuscated (dev) environme
 - Registers client chat commands: `set N value`, `get N`, `time`, `girls`, `kobs`,
   `setcumtime`, `resetcolor` (see [commands.md](commands.md)).
 - Prints **tribe-task diagnostics when a kobold is hurt**.
-- The shared dev-float array `b` is a tuning surface for renderer constants
+- The shared dev-float array `DEV_FLOATS` is a tuning surface for renderer constants
   (values set via `set`/`get`).
 
 ## DebugWindow / DebugWindow2 (`util/`)

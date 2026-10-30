@@ -76,7 +76,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * {@code ChangeDataParameterPacket} and sends {@code KoboldStatePacket}; the
  * server calls {@code setDismounted()} ({@link #targetLerpActive}), then
  * {@link #updateAITasks()} lerps her to {@code TARGET_POS} for ~40 ticks
- * ({@code targetLerpTicks} counter), anchors her and calls {@link #U()}:
+ * ({@code targetLerpTicks} counter), anchors her and calls {@link #startActionFromHandState()}:
  * touch_boobs -> PAYMENT (fish!) -> TOUCH_BOOBS_INTRO; sex ->
  * PAYMENT -> {@code SendGirlToSexPacket} + full {@code ResetGirlPacket}
  * (jar-faithful order) -&gt; {@link #goToSexBed()} walks her to the nearest
@@ -106,13 +106,13 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    public static final DataParameter<Float> yFlag = EntityDataManager.createKey(LunaEntity.class, DataSerializers.FLOAT)
       .getSerializer()
       .createKey(121);
-   public static final DataParameter<ItemStack> az = EntityDataManager.createKey(LunaEntity.class, DataSerializers.ITEM_STACK)
+   public static final DataParameter<ItemStack> SYNCED_HELD_ITEM = EntityDataManager.createKey(LunaEntity.class, DataSerializers.ITEM_STACK)
       .getSerializer()
       .createKey(120);
-   public static final DataParameter<Boolean> af = EntityDataManager.createKey(LunaEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> FISH_ON_LINE = EntityDataManager.createKey(LunaEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(119);
-   public static final DataParameter<ItemStack> ag = EntityDataManager.createKey(LunaEntity.class, DataSerializers.ITEM_STACK)
+   public static final DataParameter<ItemStack> CAUGHT_ITEM = EntityDataManager.createKey(LunaEntity.class, DataSerializers.ITEM_STACK)
       .getSerializer()
       .createKey(118);
    static final float ah = 3.0F;
@@ -168,9 +168,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    protected void entityInit() {
       super.entityInit();
       this.entityDataManager.register(yFlag, 0.0F);
-      this.entityDataManager.register(az, ItemStack.EMPTY);
-      this.entityDataManager.register(af, false);
-      this.entityDataManager.register(ag, ItemStack.EMPTY);
+      this.entityDataManager.register(SYNCED_HELD_ITEM, ItemStack.EMPTY);
+      this.entityDataManager.register(FISH_ON_LINE, false);
+      this.entityDataManager.register(CAUGHT_ITEM, ItemStack.EMPTY);
    }
 
    @Override
@@ -230,7 +230,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    public void setHeldItemStack(ItemStack stack) {
-      this.entityDataManager.set(ag, stack);
+      this.entityDataManager.set(CAUGHT_ITEM, stack);
    }
 
    @Override
@@ -249,7 +249,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
       this.handleFishingPath();
       this.handleFishingIdle();
-      this.entityDataManager.set(af, this.hookEntity != null && this.entityDataManager.get(ag) == ItemStack.EMPTY);
+      this.entityDataManager.set(FISH_ON_LINE, this.hookEntity != null && this.entityDataManager.get(CAUGHT_ITEM) == ItemStack.EMPTY);
       if (this.castExpiryTick == this.world.getTotalWorldTime() && this.hookEntity != null) {
          this.world.removeEntity(this.hookEntity);
          this.hookEntity = null;
@@ -294,17 +294,17 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
             this.entityDataManager.set(IS_ANCHORED, true);
             this.getNavigator().clearPath();
-            this.U();
+            this.startActionFromHandState();
          }
       }
 
       this.syncHeldItem();
-      this.entityDataManager.set(az, this.inventory.getStackInSlot(6));
+      this.entityDataManager.set(SYNCED_HELD_ITEM, this.inventory.getStackInSlot(6));
    }
 
    void syncHeldItem() {
       ItemStack heldItem = this.heldRod;
-      ItemStack syncedItem = (ItemStack)this.entityDataManager.get(az);
+      ItemStack syncedItem = (ItemStack)this.entityDataManager.get(SYNCED_HELD_ITEM);
       if (!syncedItem.equals(ItemStack.EMPTY)) {
          Map enchantments = EnchantmentHelper.getEnchantments(syncedItem);
          EnchantmentHelper.setEnchantments(enchantments, heldItem);
@@ -404,13 +404,13 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    public void dropHeldItem() {
-      EntityItem item = new EntityItem(this.world, this.posX, this.posY, this.posZ, (ItemStack)this.entityDataManager.get(ag));
+      EntityItem item = new EntityItem(this.world, this.posX, this.posY, this.posZ, (ItemStack)this.entityDataManager.get(CAUGHT_ITEM));
       Vec3d throwVec = VectorMath.rotateByYaw(new Vec3d(0.0, 0.2F + Math.random() * 0.1F, -0.2F + Math.random() * -0.1F), this.rotationYaw);
       item.motionX = throwVec.x;
       item.motionY = throwVec.y;
       item.motionZ = throwVec.z;
       this.world.spawnEntity(item);
-      this.entityDataManager.set(ag, ItemStack.EMPTY);
+      this.entityDataManager.set(CAUGHT_ITEM, ItemStack.EMPTY);
    }
 
    public void clearFishingState() {
@@ -419,7 +419,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       this.spotChangeTicks = 0;
       this.am = false;
       this.entityDataManager.set(IS_ANCHORED, false);
-      this.entityDataManager.set(ag, ItemStack.EMPTY);
+      this.entityDataManager.set(CAUGHT_ITEM, ItemStack.EMPTY);
       this.setSilent(false);
       this.setCurrentAction(Action.NULL);
       if (this.hookEntity != null) {
@@ -451,7 +451,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
             if (this.hookEntity != null && this.hookEntity.lureTimer == 15) {
                ((LunaRodItem)this.heldRod.getItem()).castFishingRod(this.world, this, EnumHand.MAIN_HAND);
                this.castExpiryTick = this.world.getTotalWorldTime() + 20L;
-               ItemStack heldItem = (ItemStack)this.entityDataManager.get(ag);
+               ItemStack heldItem = (ItemStack)this.entityDataManager.get(CAUGHT_ITEM);
                if (heldItem != ItemStack.EMPTY) {
                   if (heldItem.getItem() instanceof ItemFood) {
                      this.setCurrentAction(Action.FISHING_EAT);
@@ -498,7 +498,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
             }
          }
       } else {
-         if ((Boolean)this.entityDataManager.get(af)) {
+         if ((Boolean)this.entityDataManager.get(FISH_ON_LINE)) {
             this.clearFishingState();
          }
       }
@@ -667,8 +667,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    @Override
-   protected void U() {
-      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.U() handState=%s action=%s remote=%s", this.entityDataManager.get(GIRL_HAND_STATES), this.getCurrentAction(), this.world.isRemote);
+   protected void startActionFromHandState() {
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.startActionFromHandState handState=%s action=%s remote=%s", this.entityDataManager.get(GIRL_HAND_STATES), this.getCurrentAction(), this.world.isRemote);
       switch ((String)this.entityDataManager.get(GIRL_HAND_STATES)) {
          case "touch_boobs":
             if (this.getCurrentAction() != Action.PAYMENT) {
@@ -911,7 +911,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
             case "paymentDone":
                SceneDebug.log(SceneDebug.SCENE_ENTRY, "Luna.sound paymentDone (remote=%s, action=%s, nearby=%s)", this.world.isRemote, this.getCurrentAction(), this.isLocalPlayerNearby());
                if (this.isLocalPlayerNearby()) {
-                  this.U();
+                  this.startActionFromHandState();
                }
 
                this.scaleFactor = 1.0F;
@@ -1111,7 +1111,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       this.setNoGravity(false);
    }
 
-   public static class a {
+   public static class CreeperAvoidanceHandler {
       @SubscribeEvent
       public void onEntityJoinWorld(EntityJoinWorldEvent event) {
          Entity entity = event.getEntity();

@@ -40,8 +40,8 @@ import net.minecraft.util.math.Vec3d;
  * <p>
  * All tribe state is held by {@code KoboldManager} keyed by the entity's tribe
  * UUID ({@code aL}); the fields this code touches on the entity are the
- * navigation scratch state ({@code aM} wander target, {@code aF} home offset,
- * {@code aS} last position, {@code ao} work flag).
+ * navigation scratch state ({@code tribeWanderTarget} wander target, {@code homeApproachPos} home offset,
+ * {@code lastStuckCheckPos} last position, {@code tribeTasksInitialized} work flag).
  * <p>
  * <b>Pitfalls.</b> {@code handleTribeRequest} runs on both sides but writes
  * tribe state only through {@code KoboldManager}, and the {@code DIST} checks
@@ -79,9 +79,9 @@ final class KoboldTribeState {
    }
 
    static void handleTribeState(KoboldEntity entity) {
-      if (!(Boolean)entity.getDataManager().get(KoboldEntity.aC)) {
+      if (!(Boolean)entity.getDataManager().get(KoboldEntity.ARMED)) {
          if (!entity.hasMaster()) {
-            Optional tribeIdOpt = (Optional)entity.getDataManager().get(KoboldEntity.aL);
+            Optional tribeIdOpt = (Optional)entity.getDataManager().get(KoboldEntity.TRIBE_ID);
             if (tribeIdOpt.isPresent()) {
                for (EntityPlayer player : entity.world.playerEntities) {
                   double dist = player.getPositionVector().distanceTo(entity.getPositionVector());
@@ -98,7 +98,7 @@ final class KoboldTribeState {
                   if (!(closestDist > 10.0)) {
                      if (player.getHeldItem(EnumHand.MAIN_HAND).getItem() != DragonStaffItem.DRAGON_STAFF
                         && player.getHeldItem(EnumHand.OFF_HAND).getItem() != DragonStaffItem.DRAGON_STAFF) {
-                        return;
+                        continue;
                      }
 
                      PathNavigate navigator = entity.getNavigator();
@@ -119,10 +119,10 @@ final class KoboldTribeState {
    }
 
    static void handleMasterPresence(KoboldEntity entity) {
-      Optional tribeIdOpt = (Optional)entity.getDataManager().get(KoboldEntity.aL);
+      Optional tribeIdOpt = (Optional)entity.getDataManager().get(KoboldEntity.TRIBE_ID);
       if (tribeIdOpt.isPresent()) {
          UUID tribeId = (UUID)tribeIdOpt.get();
-         if (!(Boolean)entity.getDataManager().get(KoboldEntity.aC) && KoboldManager.isTribeAlerted(tribeId)) {
+         if (!(Boolean)entity.getDataManager().get(KoboldEntity.ARMED) && KoboldManager.isTribeAlerted(tribeId)) {
             if (!entity.hasMaster()) {
                return;
             }
@@ -134,7 +134,7 @@ final class KoboldTribeState {
 
             for (KoboldTask task : KoboldManager.getTribeTasks(tribeId)) {
                if (task.hasWorker(entity)) {
-                  task.addWorker(entity);
+                  task.removeWorker(entity);
                   entity.setCurrentAction(Action.NULL);
                   entity.getDataManager().set(KoboldEntity.IS_ANCHORED, false);
                }
@@ -179,8 +179,8 @@ final class KoboldTribeState {
    static void teleportToHome(KoboldEntity entity, UUID tribeId) {
       BlockPos homePos = KoboldManager.getTribeHomePos(tribeId);
       if (homePos != null) {
-         if (entity.aX != null) {
-            entity.world.setBlockState(homePos, entity.aX);
+         if (entity.savedHomeBlockState != null) {
+            entity.world.setBlockState(homePos, entity.savedHomeBlockState);
          }
 
          if (entity.blockBelowState != null) {
@@ -193,7 +193,7 @@ final class KoboldTribeState {
       if (!isTribeTaskDone(entity, tribeId)) {
          if (!entity.hasMaster() && KoboldManager.hasAssignedMaster(tribeId)) {
             entity.getNavigator().clearPath();
-            entity.aM = null;
+            entity.tribeWanderTarget = null;
          } else {
             TribeState currentState = KoboldManager.getTribeState(tribeId);
             TribeState newState = getTribeStateForTime(entity);
@@ -216,7 +216,7 @@ KoboldManager.setTribeState(tribeId, newState);
                   handleTaskRequest(entity, tribeId);
                   break;
                case ACTIVE:
-                  entity.aF = null;
+                  entity.homeApproachPos = null;
                   handleHomeRelease(entity, tribeId);
             }
          }
@@ -322,21 +322,21 @@ KoboldManager.assignBed(entity, chosenBed);
    static void handleHomeRequest(KoboldEntity entity, UUID tribeId) {
       BlockPos homePos = KoboldManager.getTribeHomePos(tribeId);
       if (homePos != null) {
-         if (entity.aF == null) {
-            entity.aF = homePos.add(
+         if (entity.homeApproachPos == null) {
+            entity.homeApproachPos = homePos.add(
                (entity.getRNG().nextBoolean() ? 1 : -1) * (entity.getRNG().nextInt(2) + 1),
                0,
                (entity.getRNG().nextBoolean() ? 1 : -1) * (entity.getRNG().nextInt(2) + 1)
             );
          }
 
-         entity.getNavigator().tryMoveToXYZ(entity.aF.getX(), entity.aF.getY(), entity.aF.getZ(), 0.35F);
+         entity.getNavigator().tryMoveToXYZ(entity.homeApproachPos.getX(), entity.homeApproachPos.getY(), entity.homeApproachPos.getZ(), 0.35F);
          entity.tickPathVelocity();
       } else {
          if (KoboldManager.isTribeMember(tribeId, entity)) {
             BlockPos pos = entity.getPosition().add(1, 0, 0);
             entity.blockBelowState = entity.world.getBlockState(pos.add(0, -1, 0));
-            entity.aX = entity.world.getBlockState(pos);
+            entity.savedHomeBlockState = entity.world.getBlockState(pos);
             entity.world.setBlockState(pos.add(0, -1, 0), Blocks.NETHERRACK.getDefaultState());
             entity.world.setBlockState(pos, SexFireBlock.FIRE.getDefaultState());
             KoboldManager.setTribeHome(tribeId, pos);
@@ -351,8 +351,8 @@ KoboldManager.assignBed(entity, chosenBed);
       } else {
          Collection tasks = KoboldManager.getTribeTasks(tribeId);
          if (tasks != null) {
-            if (entity.ao) {
-               entity.aM = null;
+            if (entity.tribeTasksInitialized) {
+               entity.tribeWanderTarget = null;
                handleTribeTasks(entity, tribeId, tasks);
             } else {
                handleTribeTasksInit(entity, tribeId, tasks);
@@ -363,7 +363,7 @@ KoboldManager.assignBed(entity, chosenBed);
 
    static void handleTribeTasks(KoboldEntity entity, UUID tribeId, Collection<KoboldTask> tasks) {
       if (tasks.isEmpty()) {
-         entity.ao = false;
+         entity.tribeTasksInitialized = false;
          checkTribeHome(entity, tribeId);
          entity.sendGirlChatMessage("Lets go somewhere else");
       }
@@ -375,26 +375,26 @@ KoboldManager.assignBed(entity, chosenBed);
          checkTribeHome(entity, tribeId);
       } else {
          if (entity.ticksExisted % 40 == 0) {
-            if (entity.aS.equals(entity.getPositionVector())) {
+            if (entity.lastStuckCheckPos.equals(entity.getPositionVector())) {
                checkTribeHome(entity, tribeId);
-               entity.aM = null;
+               entity.tribeWanderTarget = null;
             }
 
-            entity.aS = entity.getPositionVector();
+            entity.lastStuckCheckPos = entity.getPositionVector();
          }
 
-         if (entity.aM == null || entity.aM.getDistance((int)entity.posX, (int)entity.posY, (int)entity.posZ) < 4.0) {
-            entity.aM = getTribeHomePos(entity, tribeId);
+         if (entity.tribeWanderTarget == null || entity.tribeWanderTarget.getDistance((int)entity.posX, (int)entity.posY, (int)entity.posZ) < 4.0) {
+            entity.tribeWanderTarget = getTribeHomePos(entity, tribeId);
          }
 
-         entity.getNavigator().tryMoveToXYZ(entity.aM.getX(), entity.aM.getY(), entity.aM.getZ(), 0.35F);
+         entity.getNavigator().tryMoveToXYZ(entity.tribeWanderTarget.getX(), entity.tribeWanderTarget.getY(), entity.tribeWanderTarget.getZ(), 0.35F);
          entity.tickPathVelocity();
          if (!(Math.sqrt(entity.getPosition().distanceSq(homePos)) > 5.0)) {
-            entity.ao = true;
+            entity.tribeTasksInitialized = true;
             entity.sendGirlChatMessage("Time to work bitches!");
             int memberCount = KoboldManager.getTribeMemberCount(tribeId);
 
-            for (int i = 1; i < memberCount; i++) {
+            for (int i = 0; i < memberCount; i++) {
                findConnectedLogs(entity, tribeId, tasks);
             }
 
@@ -501,7 +501,7 @@ KoboldManager.assignBed(entity, chosenBed);
             )
          )) {
          if (entity.canEntityBeSeen(kobold) && (!kobold.hasMaster() || !entity.hasMaster())) {
-            Optional tribeOpt = (Optional)kobold.getDataManager().get(KoboldEntity.aL);
+            Optional tribeOpt = (Optional)kobold.getDataManager().get(KoboldEntity.TRIBE_ID);
             if (!tribeOpt.isPresent()) {
                targets.add(kobold);
             } else if (!((UUID)tribeOpt.get()).equals(tribeId)) {
@@ -545,14 +545,14 @@ KoboldManager.assignBed(entity, chosenBed);
          return true;
       }
 
-      if (entity.aP > 0) {
+      if (entity.attackCooldown > 0) {
          return true;
       }
 
       float yaw = (float)(Math.atan2(entity.posZ - closestTarget.posZ, entity.posX - closestTarget.posX) * (180.0 / Math.PI) + 90.0);
       entity.setYawRotation(yaw);
       entity.setCurrentAction(Action.ATTACK);
-      entity.aP = 84;
+      entity.attackCooldown = 84;
       return true;
    }
 
@@ -564,7 +564,7 @@ KoboldManager.assignBed(entity, chosenBed);
                handleTaskRequest(entity, tribeId);
                break;
             case ACTIVE:
-               entity.aF = null;
+               entity.homeApproachPos = null;
                handleHomeTeleport(entity, tribeId);
          }
       }
@@ -573,34 +573,34 @@ KoboldManager.assignBed(entity, chosenBed);
    static void handleHomeTeleport(KoboldEntity entity, UUID tribeId) {
       BlockPos homePos = KoboldManager.getTribeHomePos(tribeId);
       if (homePos == null) {
-         entity.aM = null;
+         entity.tribeWanderTarget = null;
          handleTaskFollow(entity, tribeId);
       } else {
          KoboldEntity leader = KoboldManager.getTribeLeader(tribeId);
          if (KoboldManager.hasAssignedMaster(tribeId)) {
             entity.getNavigator().clearPath();
-            entity.aM = null;
+            entity.tribeWanderTarget = null;
          } else if (leader == null) {
             Main.LOGGER.info("leader of tribe " + tribeId + " is null");
          } else {
             if (leader.getDistance(entity) > 20.0F) {
                entity.setPosition(leader.posX, leader.posY, leader.posZ);
-               entity.aM = null;
+               entity.tribeWanderTarget = null;
             }
 
             if (entity.ticksExisted % 40 == 0) {
-               if (entity.aS.equals(entity.getPositionVector())) {
-                  entity.aM = getTribeHomePos(entity, tribeId);
+               if (entity.lastStuckCheckPos.equals(entity.getPositionVector())) {
+                  entity.tribeWanderTarget = getTribeHomePos(entity, tribeId);
                }
 
-               entity.aS = entity.getPositionVector();
+               entity.lastStuckCheckPos = entity.getPositionVector();
             }
 
-            if (entity.aM == null || entity.aM.getDistance((int)entity.posX, (int)entity.posY, (int)entity.posZ) < 4.0) {
-               entity.aM = getTribeHomePos(entity, tribeId);
+            if (entity.tribeWanderTarget == null || entity.tribeWanderTarget.getDistance((int)entity.posX, (int)entity.posY, (int)entity.posZ) < 4.0) {
+               entity.tribeWanderTarget = getTribeHomePos(entity, tribeId);
             }
 
-            entity.getNavigator().tryMoveToXYZ(entity.aM.getX(), entity.aM.getY(), entity.aM.getZ(), 0.35F);
+            entity.getNavigator().tryMoveToXYZ(entity.tribeWanderTarget.getX(), entity.tribeWanderTarget.getY(), entity.tribeWanderTarget.getZ(), 0.35F);
             entity.tickPathVelocity();
          }
       }
@@ -623,10 +623,10 @@ KoboldManager.assignBed(entity, chosenBed);
                for (KoboldTask task : (java.util.Collection<KoboldTask>) (tasks) ) {
                   if (!entity.hasMaster() || assignTaskToKobold(entity, tribeId, task)) {
                      if (!entity.canAssignTask(task)) {
-                        entity.ax = true;
+                        entity.tribeBlocked = true;
                      } else if (task.addWorker(entity)) {
                         assignedTask = task;
-                        entity.aI = null;
+                        entity.miningTargetPos = null;
                         if (task.getTaskType() == KoboldTask.TaskType.FALL_TREE) {
                            entity.sendGirlChatMessage("Ima fall this tree owo");
                         } else {
@@ -684,8 +684,8 @@ KoboldManager.assignBed(entity, chosenBed);
    }
 
    static void handleModelSync(KoboldEntity entity) {
-      if (!entity.aA) {
-         Optional tribeIdOpt = (Optional)entity.getDataManager().get(KoboldEntity.aL);
+      if (!entity.editedColorManually) {
+         Optional tribeIdOpt = (Optional)entity.getDataManager().get(KoboldEntity.TRIBE_ID);
          if (tribeIdOpt.isPresent()) {
             entity.getDataManager().set(KoboldEntity.CURRENT_ACTION, KoboldManager.getTribeColor((UUID)tribeIdOpt.get()).toString());
          }

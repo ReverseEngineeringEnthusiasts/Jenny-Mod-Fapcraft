@@ -58,6 +58,13 @@ public class ThreadNames {
       return value < min ? false : !(value >= max);
    }
 
+   /**
+    * Picks an index in {@code 0..maxIndex} for a list sorted best-first,
+    * weighted by rank: index 0 has weight {@code maxIndex + 1} down to 1 for the
+    * last index. The best candidate is therefore the most likely and index 0 is
+    * always reachable (callers pass sorted candidates; see
+    * {@code GalathFlightData.CHANGE_POSITION}).
+    */
    public static int weightedRandomIndex(int maxIndex) {
       if (maxIndex <= 0) {
          return maxIndex;
@@ -67,14 +74,14 @@ public class ThreadNames {
       int totalWeight = 0;
 
       for (int i = 0; i <= maxIndex; i++) {
-         totalWeight += i;
+         totalWeight += maxIndex + 1 - i;
       }
 
       int roll = random.nextInt(totalWeight) + 1;
       int cumulative = 0;
 
       for (int i2 = 0; i2 <= maxIndex; i2++) {
-         cumulative += i2;
+         cumulative += maxIndex + 1 - i2;
          if (cumulative >= roll) {
             return i2;
          }

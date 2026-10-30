@@ -104,7 +104,7 @@ public class GetTribeUiValuesPacket implements IMessage {
                      if (!kobold.isDead) {
                         UUID girlId = kobold.getGirlId();
                         if (!seenIds.contains(girlId)) {
-                           if (kobold.aA) {
+                           if (kobold.editedColorManually) {
                               woolColor = EyeAndKoboldColor.safeValueOf((String)kobold.getDataManager().get(AbstractNpcOnlyEntity.CURRENT_ACTION)).getWoolMeta();
                            }
 

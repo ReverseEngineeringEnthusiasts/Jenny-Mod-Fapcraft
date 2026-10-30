@@ -61,7 +61,7 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
  * <b>Flow.</b> Right-click starts {@code sexmodAllieInUse} on the player's
  * entity data; {@link #onUpdate} advances the tick counter (client shows the
  * rub animation + ramping particles, server spawns the Allie at the lamp offset
- * at tick 95). {@code AlliesLampItem.a} handles the right-click start (blocked
+ * at tick 95). {@code AlliesLampItem.InteractionHandler} handles the right-click start (blocked
  * for player-girls / while an Allie holds the same lamp instance) and resets the
  * flag on logout. The lamp is also injected into dungeon/mineshaft loot tables.
  * <p>
@@ -235,7 +235,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
       return this.animationFactory;
    }
 
-   public static class a {
+   public static class InteractionHandler {
       @SubscribeEvent
       public void onPlayerLoggedOut(PlayerLoggedOutEvent event) {
          event.player.getEntityData().setBoolean("sexmodAllieInUse", false);

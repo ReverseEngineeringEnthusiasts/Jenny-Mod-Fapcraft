@@ -21,12 +21,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * UUID when she has no owner.
  * <p>
  * <b>Who uses it.</b> {@link BaseGirlEntity}/{@link GalathEntity} model-code
- * resolution and the clothing editor. Keep the two maps ({@code c} = galath,
- * {@code b} = manglelie) distinct — mixing them garbles outfits on reload.
+ * resolution and the clothing editor. Keep the two maps ({@code galathModelCodes} = galath,
+ * {@code manglelieModelCodes} = manglelie) distinct — mixing them garbles outfits on reload.
  */
 public class GirlWorldData extends WorldSavedData {
-   public static HashMap<UUID, String> c = new HashMap<>();
-   public static HashMap<UUID, String> b = new HashMap<>();
+   public static HashMap<UUID, String> galathModelCodes = new HashMap<>();
+   public static HashMap<UUID, String> manglelieModelCodes = new HashMap<>();
 
    public GirlWorldData() {
       super("sexmod:static_custom_model_manager");
@@ -49,10 +49,10 @@ public class GirlWorldData extends WorldSavedData {
             ownerId = girlId;
          }
 
-         return c.get(ownerId);
+         return galathModelCodes.get(ownerId);
       } else if (girl instanceof ManglelieEntity) {
          UUID ownerId2 = GirlSavedData.getManglelieOwnerId(((ManglelieEntity)girl).getCorruptPlayerUUID());
-         return b.get(ownerId2 == null ? girl.getGirlId() : ownerId2);
+         return manglelieModelCodes.get(ownerId2 == null ? girl.getGirlId() : ownerId2);
       } else {
          return null;
       }
@@ -66,11 +66,11 @@ public class GirlWorldData extends WorldSavedData {
             ownerId = girlId;
          }
 
-         c.put(ownerId, girl.getCustomModelCode());
+         galathModelCodes.put(ownerId, girl.getCustomModelCode());
       } else {
          if (girl instanceof ManglelieEntity) {
             UUID ownerId2 = GirlSavedData.getManglelieOwnerId(((ManglelieEntity)girl).getCorruptPlayerUUID());
-            b.put(ownerId2 == null ? girl.getGirlId() : ownerId2, girl.getCustomModelCode());
+            manglelieModelCodes.put(ownerId2 == null ? girl.getGirlId() : ownerId2, girl.getCustomModelCode());
          }
       }
    }
@@ -90,14 +90,14 @@ public class GirlWorldData extends WorldSavedData {
 
    public void readFromNBT(NBTTagCompound nbt) {
       NBTTagCompound tag = nbt.getCompoundTag("sexmod:static_custom_model_manager");
-      this.writeNBT(tag.getCompoundTag("galath"), c);
-      this.writeNBT(tag.getCompoundTag("mang"), b);
+      this.writeNBT(tag.getCompoundTag("galath"), galathModelCodes);
+      this.writeNBT(tag.getCompoundTag("mang"), manglelieModelCodes);
    }
 
    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
       NBTTagCompound tag = new NBTTagCompound();
-      tag.setTag("galath", this.serializeOwnership(c));
-      tag.setTag("mang", this.serializeOwnership(b));
+      tag.setTag("galath", this.serializeOwnership(galathModelCodes));
+      tag.setTag("mang", this.serializeOwnership(manglelieModelCodes));
       nbt.setTag("sexmod:static_custom_model_manager", tag);
       return nbt;
    }
@@ -131,8 +131,8 @@ public class GirlWorldData extends WorldSavedData {
    }
 
    public static void clearAll() {
-      c.clear();
-      b.clear();
+      galathModelCodes.clear();
+      manglelieModelCodes.clear();
    }
 
 }

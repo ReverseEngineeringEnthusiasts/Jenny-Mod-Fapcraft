@@ -34,8 +34,8 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * ({@code bjcDone}/{@code doggyCumDone} -&gt; {@code resetCameraAndPhysics()}).
  */
 public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
-   boolean ap = false;
-   int aq = 0;
+   boolean flySecondFrame = false;
+   int fastMoanCount = 0;
 
    protected SlimePlayerEntity(World world) {
       super(world);
@@ -169,11 +169,11 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                this.createAnimation("animation.slime.sit", true, event);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.playerOnGround) {
-                  this.ap = !this.ap;
+                  this.flySecondFrame = !this.flySecondFrame;
                }
 
                if (!this.playerOnGround) {
-                  this.createAnimation("animation.slime.fly" + (this.ap ? "2" : ""), true, event);
+                  this.createAnimation("animation.slime.fly" + (this.flySecondFrame ? "2" : ""), true, event);
                } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) > 0.0F) {
                   if (this.playerSprinting) {
                      this.createAnimation("animation.slime.run", true, event);
@@ -412,8 +412,8 @@ public class SlimePlayerEntity extends AbstractPlayerGirlEntity {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
 
-               this.aq++;
-               if (this.aq % 2 == 0) {
+               this.fastMoanCount++;
+               if (this.fastMoanCount % 2 == 0) {
                   int choice2 = Reference.RANDOM.nextInt(2);
                   if (choice2 == 0) {
                      this.playSound(SoundEvents.ENTITY_SLIME_JUMP);

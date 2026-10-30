@@ -26,7 +26,7 @@ import software.bernie.geckolib3.model.provider.data.EntityModelData;
  * <p>
  * <b>Pitfall:</b> the scene body offsets in {@link #handleSwingAnimation}
  * depend on the action controller being in {@code Transitioning} state and
- * the {@code aE} data value (0.25 - value); changing either breaks the scene
+ * the {@code SIZE_SCALAR} data value (0.25 - value); changing either breaks the scene
  * positioning.
  */
 public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
@@ -62,7 +62,7 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
       if (!(entity.world instanceof SexWorldClient)) {
          AnimationProcessor processor = this.getAnimationProcessor();
          if (!entity.isLocallyRegistered() && entity instanceof KoboldEntity) {
-            processor.getBone("crown").setHidden(!(Boolean)entity.getDataManager().get(KoboldEntity.aZ));
+            processor.getBone("crown").setHidden(!(Boolean)entity.getDataManager().get(KoboldEntity.TRIBE_MEMBER));
             processor.getBone("egg").setHidden(!((KoboldEntity)entity).isRenderEgg);
          } else {
             processor.getBone("crown").setHidden(true);
@@ -97,11 +97,11 @@ public class KoboldNpcModel extends GirlModel<BaseGirlEntity> {
     * Scene body positioning while the controller transitions into a scene
     * action: blowjob actions drive the body forward (positionZ), anal actions
     * lower+shift it, mating-press actions raise it — all interpolated from
-    * the {@code aE} transition value. See class javadoc pitfall.
+    * the {@code SIZE_SCALAR} transition value. See class javadoc pitfall.
     */
    void handleSwingAnimation(BaseGirlEntity entity, AnimationProcessor processor) {
       if (entity.actionController.getAnimationState() == AnimationState.Transitioning) {
-         float transitionValue = (Float)entity.getDataManager().get(KoboldEntity.aE);
+         float transitionValue = (Float)entity.getDataManager().get(KoboldEntity.SIZE_SCALAR);
          transitionValue = 0.25F - transitionValue;
          switch (entity.getCurrentAction()) {
             case SUCKBLOWJOB_BLINK:

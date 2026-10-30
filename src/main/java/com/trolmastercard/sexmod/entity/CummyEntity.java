@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 /**
  * <b>Role.</b> CLIENT-only helper that renders the "cummy" cum-trail
@@ -40,20 +41,38 @@ public class CummyEntity {
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public void onRenderWorldLast(RenderWorldLastEvent event) {
-      mc.renderEngine.bindTexture(cummyTexture);
-      GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-      Tessellator tessellator = Tessellator.getInstance();
-      BufferBuilder buffer = tessellator.getBuffer();
-      float partialTicks = event.getPartialTicks();
-      GlStateManager.disableLighting();
-      GlStateManager.enableAlpha();
-      if (mc.player != null) {
+      if (trailRenderers.isEmpty() || mc.player == null) {
+         return;
+      }
+
+      // snapshot every flag this pass touches so it can be put back exactly as found
+      boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
+      boolean alpha = GL11.glIsEnabled(GL11.GL_ALPHA_TEST);
+      boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+      try {
+         mc.renderEngine.bindTexture(cummyTexture);
+         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+         Tessellator tessellator = Tessellator.getInstance();
+         BufferBuilder buffer = tessellator.getBuffer();
+         float partialTicks = event.getPartialTicks();
+         GlStateManager.disableLighting();
+         GlStateManager.enableAlpha();
+
          for (DynamicTrailRenderer renderer : trailRenderers) {
             renderer.renderTrail(mc, tessellator, buffer, partialTicks);
          }
+      } finally {
+         restore(depth, GlStateManager::enableDepth, GlStateManager::disableDepth);
+         restore(alpha, GlStateManager::enableAlpha, GlStateManager::disableAlpha);
+         restore(lighting, GlStateManager::enableLighting, GlStateManager::disableLighting);
+      }
+   }
 
-         GlStateManager.enableDepth();
-         GlStateManager.enableLighting();
+   private static void restore(boolean enabled, Runnable enable, Runnable disable) {
+      if (enabled) {
+         enable.run();
+      } else {
+         disable.run();
       }
    }
 

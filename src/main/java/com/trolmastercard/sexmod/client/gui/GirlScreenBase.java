@@ -105,6 +105,22 @@ public class GirlScreenBase extends GuiScreen {
    }
 
    /**
+    * Drops the throw-away preview girls from the registry. They were registered
+    * via {@code setLocallyRegistered(true)} purely so the previews render; left
+    * behind they leak and can be resolved as live girls by scene lookups.
+    * The local player entry in {@link #nearbyEntities} is not a preview.
+    */
+   public void onGuiClosed() {
+      super.onGuiClosed();
+
+      for (EntityLivingBase entity : this.nearbyEntities) {
+         if (entity instanceof BaseGirlEntity) {
+            ((BaseGirlEntity)entity).setLocallyRegistered(false);
+         }
+      }
+   }
+
+   /**
     * Renders an entity as a rotating inventory-style preview at the given
     * screen position. Temporarily overrides the entity's yaw/pitch/head
     * rotation and (for non-players) its position, renders via the render

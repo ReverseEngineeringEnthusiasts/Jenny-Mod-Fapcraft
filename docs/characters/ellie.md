@@ -24,8 +24,8 @@ Source: `assets/sexmod/animations/ellie/ellie.animation.json` (42 animations —
 | `fastwalk` | LOOP (1.0s) | Movement controller, `FAST_WALK` |
 | `crouchwalk` | LOOP (1.0s) | Movement controller, `isBedBlocked()` while moving (NPC); player form: `hasNoOwner()` while moving (run/fastwalk/backwards all map to it) |
 | `run` | LOOP (0.84s) | Movement controller, `RUN` (pony-tail bones animated) |
-| `backwards_walk` | LOOP (0.68s) | Player form: moving backwards (`ao.y < -0.1`) |
-| `fly` / `fly2` | LOOP (0.84s) | Player form: `!af` flying branch, `fly2` toggled while the movement animation name contains "fly" (`ar` flag) |
+| `backwards_walk` | LOOP (0.68s) | Player form: moving backwards (`playerMotionOffset.y < -0.1`) |
+| `fly` / `fly2` | LOOP (0.84s) | Player form: `!playerOnGround` flying branch, `fly2` toggled while the movement animation name contains "fly" (`flySecondFrame` flag) |
 | `sit` | LOOP (4.12s) | Action `SIT`; player form: riding (`carryIntroTicks`) |
 | `ride` | LOOP (4.12s) | Action `RIDE` |
 | `sitdown` | LOOP (5.52s) | Action `SITDOWN` — sitting down on the bed (non-loop in practice; `spike21` bone animated). Keyframe `sitdownMSG1` ("come to mommy" line) and `sitdownDone` → `SITDOWNIDLE` (NPC also triggers the scene menu via `handleSitIdle`) |
@@ -34,7 +34,7 @@ Source: `assets/sexmod/animations/ellie/ellie.animation.json` (42 animations —
 | `hug` | one-shot (7.6s) | Action `HUG` — hug dialogue intro (150 ticks). Keyframes `hugMSG1` (player teleport yaw-80, player form), `hugMSG2` ("Hmm..."), `hugMSG3` ("Hey!"), `hugMSG4` (mommyhorny), `hugMSG5` (whattodo), `hugDone` → reopens the scene menu (`canJoinPlayer(player, true)`) |
 | `hugidle` | LOOP (3.64s) | Action `HUGIDLE` — hugging idle (after `hugDone`, yFlag timer 150 in NPC) |
 | `hugselected` | one-shot (4.04s) | Action `HUGSELECTED` — after picking cowgirl/missionary in the hug menu. Keyframes `hugselectedMSG1` ("Mhm.. I know~"), `hugselectedMSG2` ("follow me, darling~" + movement lock), `hugselectedDone` (player form: repositions via targetPos packet, sends `SendGirlToSexPacket`, resets) |
-| `strip` | one-shot (5.04s) | Action `STRIP`; `becomeNude` toggles outfit, `stripDone` → NULL + `resetCameraAndPhysics()` + `U()` |
+| `strip` | one-shot (5.04s) | Action `STRIP`; `becomeNude` toggles outfit, `stripDone` → NULL + `resetCameraAndPhysics()` + `startActionFromHandState()` |
 | `cowgirlstart` | LOOP (15.76s) | Action `COWGIRLSTART` (non-loop). Keyframes `cowgirlStartMSG0` (giggle), `cowgirlStartMSG1` ("like" line + meter reset), `cowgirlStartMSG2` (ahh+pounding, +0.02), `cowgirlStartDone` → `COWGIRLSLOW` |
 | `cowgirlslow2` | LOOP (3.2s) | Action `COWGIRLSLOW` (name note: "cowgirlslow2", no `cowgirlslow1` exists) |
 | `cowgirlfast` | LOOP (3.4s) | Action `COWGIRLFAST`. Keyframes `cowgirlfastMSG1` (+0.04, `alternateMoan` one-shot suppress), `cowgirlfastReady` (jump keeps fast / else → SLOW, player form: 1-in-4 cache clear), `cowgirlfastdomMSG1` (+0.2), `cowgirlfastDone` → `COWGIRLSLOW` (unless jumping) |
@@ -44,7 +44,7 @@ Source: `assets/sexmod/animations/ellie/ellie.animation.json` (42 animations —
 | `missionary_fast` | LOOP (1.875s) | Action `MISSIONARY_FAST`. Keyframes `missionary_fastMSG1` (+0.05), `missionary_fastDone` → SLOW (NPC: unless jumping; player form: jump → stays FAST) |
 | `missionary_cum` | one-shot (14.44s) | Action `MISSIONARY_CUM`. Keyframes `missionary_cumMSG1` (ahh), `missionary_cumMSG2` (goodboy line), `missionary_cumDone` → reset. Shared `bedRustle`/`bedRustle1` keyframes (pounding + bedrustle) |
 | `carry_intro` | LOOP (9.67s) | Action `CARRY_INTRO` — "Face fuck" intro, 110-tick timer (`carryIntroTicks`). Keyframes `carry_introMSG1` ("I'm hungry.."), `carry_introMSG2` ("heh~"). Uses `boyCam`+`girlCam` camera bones |
-| `carry_slow1` / `carry_slow2` / `carry_slow3` / `carry_slow4` | LOOP (3.17s each; slow4 = 1.58s) | Action `CARRY_SLOW` — variant suffix `carryVariant` (NPC) / `ap` (player) re-rolled on `carry_slowDone` (1..4, never the previous value). `lipsound` (+0.02), `pound` (+0.04), `cum` keyframes |
+| `carry_slow1` / `carry_slow2` / `carry_slow3` / `carry_slow4` | LOOP (3.17s each; slow4 = 1.58s) | Action `CARRY_SLOW` — variant suffix `carryVariant` (both forms) re-rolled on `carry_slowDone` (1..4, never the previous value). `lipsound` (+0.02), `pound` (+0.04), `cum` keyframes |
 | `carry_fast` | LOOP (0.75s) | Action `CARRY_FAST`. `carry_fastDone` → `CARRY_SLOW` unless jumping |
 | `carry_cum` | LOOP (3.17s) | Action `CARRY_CUM`. `carry_cumDone` → reset |
 | `attack0` / `attack1` / `attack2` | one-shot (0.36/0.52/0.52s) | Action `ATTACK`, `nextAttack` cycle; `attackSound` (ENTITY_PLAYER_ATTACK_STRONG), `attackDone` → NULL |
@@ -62,12 +62,12 @@ NPC interaction gate (`processInteract`): refuses interaction while a scene is a
 - nude (`OUTFIT_INDEX == 0`): menu `[action.names.dressup]`
 - dressed: menu `["Face fuck"]`
 
-1. **Sit-down flow (background)**: `updateAITasks` runs a sit-state machine — `setFirstSit` (one-shot physics cleanup `ac`), `handleHornyPotion` (dash route), `handleSitUpTimer` (`sitUpTicks` 79-tick sit-up delay or `sitUpActive` one-shot → un-anchor, walk to random bed pose via `getRandomSitPose()` → `SITDOWN` with `sitDownTicks`=109 → `SITDOWNIDLE`), `handleSitDownTimer` (`sitDownTicks` → `SITDOWNIDLE`), `handleHugTimer` (`yFlag` 150 → `HUGIDLE`), `handleSitTransition` (in `SITDOWNIDLE`, player within 1.5 blocks → `standTicks`=20 + bind player), `handleStandTimer` (`standTicks` countdown → `U()`), `handleSitTimer` (`carryIntroTicks` 110 → reposition player for carry).
+1. **Sit-down flow (background)**: `updateAITasks` runs a sit-state machine — `setFirstSit` (one-shot physics cleanup `firstSitCleanupDone`), `handleHornyPotion` (dash route), `handleSitUpTimer` (`sitUpTicks` 79-tick sit-up delay or `sitUpActive` one-shot → un-anchor, walk to random bed pose via `getRandomSitPose()` → `SITDOWN` with `sitDownTicks`=109 → `SITDOWNIDLE`), `handleSitDownTimer` (`sitDownTicks` → `SITDOWNIDLE`), `handleHugTimer` (`yFlag` 150 → `HUGIDLE`), `handleSitTransition` (in `SITDOWNIDLE`, player within 1.5 blocks → `standTicks`=20 + bind player), `handleStandTimer` (`standTicks` countdown → `startActionFromHandState()`), `handleSitTimer` (`carryIntroTicks` 110 → reposition player for carry).
 2. **Carry / "Face fuck"** — menu → `triggerActionSync(true, true, uuid)` → `setDismounted()`: faces player (yaw-180), `CARRY_INTRO` anchored. `carryIntroTicks` timer (110 ticks) repositions the interacting player at target + (0, 2.5625 - eyeHeight, -0.3125) rotated by yaw+180 → `CARRY_SLOW` (variant 1-4) → sneak → `CARRY_FAST` → jump → `CARRY_CUM` → `carry_cumDone` → reset. Name tag hidden (`shouldRenderNameTag` false during CARRY_INTRO).
-3. **Cowgirl (bed)** — hug menu → `doAction` "action.names.cowgirl": `HUGSELECTED` + `animationFollowUp "cowgirl"` → hug dialogue → server `U()` reads `GIRL_HAND_STATES == "cowgirl"`: strip (`OUTFIT_INDEX=0`), `COWGIRLSTART`, player locked (noGravity+noClip, positioned at target + (0, 1-eyeHeight, -1.8125) rotated yaw+180, movement locked) → `cowgirlStartDone` → `COWGIRLSLOW` → sneak → `COWGIRLFAST` (jump holds fast) → jump-with-full-meter → `COWGIRLCUM` → `cowgirlcumMSG6` black screen → `cowgirlcumDone` → reset.
+3. **Cowgirl (bed)** — hug menu → `doAction` "action.names.cowgirl": `HUGSELECTED` + `animationFollowUp "cowgirl"` → hug dialogue → server `startActionFromHandState()` reads `GIRL_HAND_STATES == "cowgirl"`: strip (`OUTFIT_INDEX=0`), `COWGIRLSTART`, player locked (noGravity+noClip, positioned at target + (0, 1-eyeHeight, -1.8125) rotated yaw+180, movement locked) → `cowgirlStartDone` → `COWGIRLSLOW` → sneak → `COWGIRLFAST` (jump holds fast) → jump-with-full-meter → `COWGIRLCUM` → `cowgirlcumMSG6` black screen → `cowgirlcumDone` → reset.
 4. **Missionary (bed)** — same flow with `"Missionary"`: `MISSIONARY_START`, player at target + (0,0,0.1) rotated by her yaw, `player.rotationYaw = girl yaw` → `missionary_startDone` → `MISSIONARY_SLOW` → sneak → `MISSIONARY_FAST` → jump → `MISSIONARY_CUM` → reset.
-5. **Horny-potion route** — `handleHornyPotion()`: removes the potion, binds nearest player (10 blocks), yaw atan2 to player, `DASH` + `zFlag`=16, removes wander/watch goals → `handleSitUpFinish()` (`zFlag` 16-tick countdown → player locked, girl anchored 0.5 behind the player → `HUG` + `yFlag`=150) → `handleHugTimer` → `HUGIDLE` → `handleSitIdle()`: player within 1.5 blocks → `BeeScreen.enableInteraction()`; `handleSitTransition` → `U()`.
-6. **Strip / dress up** — `doAction` `strip`/`dressup` → `STRIP` + `animationFollowUp ""`; `becomeNude` toggles outfit; `stripDone` → NULL + `resetCameraAndPhysics()` + `U()`.
+5. **Horny-potion route** — `handleHornyPotion()`: removes the potion, binds nearest player (10 blocks), yaw atan2 to player, `DASH` + `zFlag`=16, removes wander/watch goals → `handleSitUpFinish()` (`zFlag` 16-tick countdown → player locked, girl anchored 0.5 behind the player → `HUG` + `yFlag`=150) → `handleHugTimer` → `HUGIDLE` → `handleSitIdle()`: player within 1.5 blocks → `BeeScreen.enableInteraction()`; `handleSitTransition` → `startActionFromHandState()`.
+6. **Strip / dress up** — `doAction` `strip`/`dressup` → `STRIP` + `animationFollowUp ""`; `becomeNude` toggles outfit; `stripDone` → NULL + `resetCameraAndPhysics()` + `startActionFromHandState()`.
 7. **Home** — `goHome()` sends "stay safe darling~" + `GIRLS_ELLIE_SIGH[1]` @6.0. `onArriveHome` → "Okay, I will be residing here then.." + `GIRLS_ELLIE_HUH[0]` @6.0.
 8. **Combat/AI actions** — `ATTACK`, `BOW`, `RIDE`, `SIT`, `THROW_PEARL`, `DOWNED` (same as Jenny).
 
@@ -150,21 +150,21 @@ Differences from the NPC:
 - **Scale**: `getScaleFactor()` 2.05 (name tag); renderer `preRenderCallback` translates (0,-1.5,0), no scale. Eye height 1.53/1.9 by `hasNoOwner()`.
 - **Menu**: `[Face fuck]` (`openInteractionMenu`); after sitdown/hug, `openEllieInventory` shows `[cowgirl, missionary]`. `handleInteraction()` → `SITDOWN`.
 - **Owner command**: `Face fuck` → `teleportPlayerToGirl(uuid)` + `CARRY_INTRO` + `sendActionPacket`.
-- **Scene chooser**: `doAction` stores "Cowgirl"/"Missionary" in `GIRL_HAND_STATES`; unknown actions → `SexPromptPacket` (with `ab` first-interaction flag). `updateAITasks` waits in `SITDOWNIDLE` for the choice + player within 1 block, then locks **both** players (owner + actor: flying, noClip, noGravity, movement lock) and starts `MISSIONARY_START` (player at her pos, yaw = her yaw, pitch 60) or `COWGIRLSTART` (player 1.8 blocks in front of her yaw, yaw+180, pitch -30).
-- **Hug flow is client-timer driven**: `dashDone` → `HUG`; `hugDone` → `HUGIDLE` + scene menu; `hugselectedDone` → targetPos packet + `SendGirlToSexPacket` + NULL + `resetCameraAndPhysics()` (NPC instead routes through `handleStandTimer`/`U()`).
-- **Movement**: crouch variants when `hasNoOwner()` (block above the owner's head), fly/fly2 toggle (`ar`), animation speeds 1.5/2.0/1.5.
+- **Scene chooser**: `doAction` stores "Cowgirl"/"Missionary" in `GIRL_HAND_STATES`; unknown actions → `SexPromptPacket` (with `firstInteraction` flag). `updateAITasks` waits in `SITDOWNIDLE` for the choice + player within 1 block, then locks **both** players (owner + actor: flying, noClip, noGravity, movement lock) and starts `MISSIONARY_START` (player at her pos, yaw = her yaw, pitch 60) or `COWGIRLSTART` (player 1.8 blocks in front of her yaw, yaw+180, pitch -30).
+- **Hug flow is client-timer driven**: `dashDone` → `HUG`; `hugDone` → `HUGIDLE` + scene menu; `hugselectedDone` → targetPos packet + `SendGirlToSexPacket` + NULL + `resetCameraAndPhysics()` (NPC instead routes through `handleStandTimer`/`startActionFromHandState()`).
+- **Movement**: crouch variants when `hasNoOwner()` (block above the owner's head), fly/fly2 toggle (`flySecondFrame`), animation speeds 1.5/2.0/1.5.
 - **`setCurrentAction`**: guards only MISSIONARY/COWGIRL cum re-entry (no CARRY guard; CARRY_INTRO timer is server-side only in the NPC).
 - **Hand rendering**: `EllieModel` + `hand_nude.png`/`hand.png`; shield/bow item transforms heavily customized in `PlayerEllieRenderer` (`applyBowRotation` 90/180° pitch, `applyShieldBlockingTransform` full re-pose).
-- **Data key `ai`** (118, OPTIONAL_UNIQUE_ID) = owner UUID; `ab` first-interaction flag; display name = owner's player name, else "anonymous horny girl".
+- **Data key `OWNER_UUID`** (118, OPTIONAL_UNIQUE_ID) = owner UUID; `firstInteraction` flag; display name = owner's player name, else "anonymous horny girl".
 
 ## Data keys / NBT
 
-Same shared key block as Jenny (BaseGirlEntity 99-110, AbstractGirlNpcEntity 111-117 — see jenny.md table). Ellie adds nothing beyond those; player form uses `ai` (118). NBT: `homeX/Y/Z`, `girlID` (with duped-id deletion), `sexmod:customname`, `sexmod:customModel`, `inventory` (7 slots, sword+bow defaults); player form adds `owner`. Loot table `sexmod:ellie`.
+Same shared key block as Jenny (BaseGirlEntity 99-110, AbstractGirlNpcEntity 111-117 — see jenny.md table). Ellie adds nothing beyond those; player form uses `OWNER_UUID` (118). NBT: `homeX/Y/Z`, `girlID` (with duped-id deletion), `sexmod:customname`, `sexmod:customModel`, `inventory` (7 slots, sword+bow defaults); player form adds `owner`. Loot table `sexmod:ellie`.
 
 ## Pitfalls & quirks (deobfuscated code notes)
 
 - **Sit-state timer fields are obfuscated counters**: `yFlag` (hugidle 150), `sitDownTicks` (sitdown 109), `sitUpTicks` (sit-up 79), `zFlag` (dash 16), `standTicks` (stand 20), `carryIntroTicks` (carry 110) — all must be reset in `resetSitState()`; forgetting one leaves Ellie stuck in a sit/hug state.
-- **`U()` must only run after the hug dialogue** — `GIRL_HAND_STATES` carries the scene choice from the client packet; `handleStandTimer` counts down `standTicks` and calls `U()` (server side).
+- **`startActionFromHandState()` must only run after the hug dialogue** — `GIRL_HAND_STATES` carries the scene choice from the client packet; `handleStandTimer` counts down `standTicks` and calls `startActionFromHandState()` (server side).
 - **`setDismounted()` falls back to `resetSitState()`** when no player is bound (uuid null or player entity missing).
 - **No-op `alignPlayerToGirl`** — do not "restore" it; the carry path repositions the player in `handleSitTimer`.
 - **`animation.ellie.new`** is an orphan asset; **`BJMOAN` (13 events) is registered but never referenced** by Ellie scene code.

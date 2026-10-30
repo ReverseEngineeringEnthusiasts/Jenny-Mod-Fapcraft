@@ -133,7 +133,7 @@ final class GoblinInteractions {
             goblin.setCurrentAction(Action.PICK_UP);
             goblin.heldPlayerDistance = 45;
             goblin.setAnchored(false);
-            goblin.entityDataManager.set(GoblinEntity.aC, true);
+            goblin.entityDataManager.set(GoblinEntity.TAMED, true);
             goblin.getNavigator().clearPath();
          }
 
@@ -181,8 +181,8 @@ final class GoblinInteractions {
       goblin.setAnchored(false);
       goblin.noClip = false;
       goblin.setNoGravity(false);
-      goblin.entityDataManager.set(GoblinEntity.a0, ItemStack.EMPTY);
-      if (!(Boolean)goblin.entityDataManager.get(GoblinEntity.aC)) {
+      goblin.entityDataManager.set(GoblinEntity.STOLEN_ITEM, ItemStack.EMPTY);
+      if (!(Boolean)goblin.entityDataManager.get(GoblinEntity.TAMED)) {
          goblin.setPositionAndUpdate(goblin.homePos.x, goblin.homePos.y, goblin.homePos.z);
          goblin.world.removeEntity(goblin);
       }
@@ -226,12 +226,12 @@ final class GoblinInteractions {
     * inventory and clears the stolen-item key.
     */
    static void returnStolenItem(GoblinEntity goblin) {
-      ItemStack heldItem = (ItemStack)goblin.entityDataManager.get(GoblinEntity.a0);
+      ItemStack heldItem = (ItemStack)goblin.entityDataManager.get(GoblinEntity.STOLEN_ITEM);
       if (heldItem != ItemStack.EMPTY) {
          EntityPlayer player = goblin.world.getPlayerEntityByUUID(goblin.getInteractionPlayerUUID());
          if (player != null) {
             player.inventory.addItemStackToInventory(heldItem.copy());
-            goblin.entityDataManager.set(GoblinEntity.a0, ItemStack.EMPTY);
+            goblin.entityDataManager.set(GoblinEntity.STOLEN_ITEM, ItemStack.EMPTY);
          }
       }
    }

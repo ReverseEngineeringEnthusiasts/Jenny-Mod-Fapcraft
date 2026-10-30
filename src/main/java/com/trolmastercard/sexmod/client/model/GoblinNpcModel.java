@@ -87,7 +87,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
          AnimationProcessor processor = this.getAnimationProcessor();
          if (entity instanceof GoblinEntity) {
             IBone preggyBone2 = processor.getBone("preggy");
-            preggyBone2.setHidden(!(Boolean)entity.getDataManager().get(GoblinEntity.aV));
+            preggyBone2.setHidden(!(Boolean)entity.getDataManager().get(GoblinEntity.PREGNANT));
             IBone bodyBone2 = processor.getBone("body");
             IBone headBone2 = processor.getBone("head");
             Action action2 = entity.getCurrentAction();
@@ -126,7 +126,7 @@ public class GoblinNpcModel extends GirlModel<BaseGirlEntity> {
             }
          } else {
             IBone preggyBone = processor.getBone("preggy");
-            preggyBone.setHidden(!(Boolean)entity.getDataManager().get(GoblinEntity.aV));
+            preggyBone.setHidden(!(Boolean)entity.getDataManager().get(GoblinEntity.PREGNANT));
             IBone bodyBone = processor.getBone("body");
             IBone headBone = processor.getBone("head");
             Action action = entity.getCurrentAction();

@@ -74,7 +74,7 @@ final class GalathFlightState {
 
          if (!(galath.standUpTicks < 58.0)) {
             galath.setVelocity(Vec3d.ZERO);
-            galath.getDataManager().set(GalathEntity.bP, false);
+            galath.getDataManager().set(GalathEntity.PARALYZED, false);
             galath.standUpTicks = 0;
          }
       }
@@ -178,7 +178,7 @@ final class GalathFlightState {
     * collapsing into CHANGE_POSITION when it applies).
     */
    static void initFlightData(GalathEntity galath) {
-      if (!(Boolean)galath.getDataManager().get(GalathEntity.bP)) {
+      if (!(Boolean)galath.getDataManager().get(GalathEntity.PARALYZED)) {
          GalathFlightData flightData = galath.activeFlight;
          if (galath.getInteractionPlayerUUID() != null) {
             if (flightData != null) {
@@ -234,7 +234,7 @@ final class GalathFlightState {
             AxisAlignedBB aabb = new AxisAlignedBB(
                min.x, min.y, min.z, max.x, max.y, max.z
             );
-            Object target = hasMaster ? getPlayerInBox(galath, aabb) : getMobInBox(galath, aabb);
+            Object target = hasMaster ? getMobInBox(galath, aabb) : getPlayerInBox(galath, aabb);
             if (target == null) {
                clearFlightTarget(galath);
             } else {
@@ -290,7 +290,7 @@ final class GalathFlightState {
          }
 
          galath.activeFlight = null;
-         if (!(Boolean)galath.getDataManager().get(GalathEntity.bP)) {
+         if (!(Boolean)galath.getDataManager().get(GalathEntity.PARALYZED)) {
             galath.setCurrentAction(Action.NULL);
          }
       }
@@ -325,7 +325,7 @@ final class GalathFlightState {
    static void cancelFlightOnLostTarget(GalathEntity galath) {
       if (galath.hasMaster()) {
          if (galath.getTargetEntity() == null) {
-            int attackProgress = (Integer)galath.getDataManager().get(GalathEntity.bq);
+            int attackProgress = (Integer)galath.getDataManager().get(GalathEntity.TARGET_ENTITY_ID);
             if (attackProgress != -1) {
                if (galath.activeFlight != null) {
                   galath.activeFlight.updateFlight(galath);

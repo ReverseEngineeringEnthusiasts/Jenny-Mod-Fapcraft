@@ -50,14 +50,14 @@ import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
  */
 public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends GirlRenderer<G> {
    protected static final Vec3i defaultColor = new Vec3i(255, 255, 255);
-   static HashMap<Integer, Vec3i> s = new HashMap<>();
+   static HashMap<Integer, Vec3i> boneColorCache = new HashMap<>();
 
    public GirlRendererBase(RenderManager renderManager, AnimatedGeoModel model, double shadowSize) {
       super(renderManager, model, shadowSize);
    }
 
    public static void clearBoneColors() {
-      s.clear();
+      boneColorCache.clear();
    }
 
    /**
@@ -68,13 +68,13 @@ public abstract class GirlRendererBase<G extends AbstractNpcOnlyEntity> extends 
    protected Vec3i getCachedBoneColor(GeoBone bone) {
       String boneName = bone.getName();
       int cacheKey = boneName.hashCode() + this.renderEntity.getPersistentID().hashCode();
-      Vec3i color = s.get(cacheKey);
+      Vec3i color = boneColorCache.get(cacheKey);
       if (color != null) {
          return color;
       }
 
       color = this.getBoneColor(boneName);
-      s.put(cacheKey, color);
+      boneColorCache.put(cacheKey, color);
       return color;
    }
 

@@ -378,7 +378,7 @@ public class BeeEntity extends BeeEntityBase {
    }
 
    @Override
-   protected void U() {
+   protected void startActionFromHandState() {
    }
 
    @Override

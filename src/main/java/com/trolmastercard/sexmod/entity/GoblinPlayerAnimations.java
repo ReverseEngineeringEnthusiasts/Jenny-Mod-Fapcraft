@@ -22,7 +22,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * dialogue, paizuri, nelson and breeding scenes.
  * <p>
  * <b>Pitfalls.</b> The pose flags are per-entity and mutated here from the
- * listener: {@code aF} (nelson fast "c" pose), {@code ay} (nelson slow base
+ * listener: {@code nelsonFastVariantC} (nelson fast "c" pose), {@code nelsonSlowVariantTwo} (nelson slow base
  * pose), {@code aB} (breeding side), {@code aH} (breeding fast pose) and
  * {@code aD} (paizuri slow suffix). The movement controller uses a 2-tick
  * transition. {@code breedingCam2} intentionally falls through to
@@ -54,11 +54,11 @@ final class GoblinPlayerAnimations {
                if (goblin.movementController.getCurrentAnimation() != null
                   && goblin.movementController.getCurrentAnimation().animationName.contains("fly")
                   && goblin.playerOnGround) {
-                  goblin.aC = !goblin.aC;
+                  goblin.flySecondFrame = !goblin.flySecondFrame;
                }
 
                if (!goblin.playerOnGround) {
-                  goblin.createAnimation("animation.goblin.fly" + (goblin.aC ? "2" : ""), true, event);
+                  goblin.createAnimation("animation.goblin.fly" + (goblin.flySecondFrame ? "2" : ""), true, event);
                } else if (Math.abs(goblin.playerMotionOffset.x) + Math.abs(goblin.playerMotionOffset.y) > 0.0F) {
                   if (goblin.playerSprinting) {
                      goblin.movementController.setAnimationSpeed(1.2F);
@@ -83,22 +83,22 @@ final class GoblinPlayerAnimations {
                   goblin.createAnimation("animation.goblin.nelson_cum", true, event);
                   break;
                case NELSON_FAST:
-                  goblin.createAnimation("animation.goblin.nelson_fast" + (goblin.aF ? "c" : "s"), true, event);
+                  goblin.createAnimation("animation.goblin.nelson_fast" + (goblin.nelsonFastVariantC ? "c" : "s"), true, event);
                   break;
                case NELSON_INTRO:
                   goblin.createAnimation("animation.goblin.nelson_intro", true, event);
                   break;
                case NELSON_SLOW:
-                  goblin.createAnimation("animation.goblin.nelson_slow" + (goblin.ay ? "" : "2"), true, event);
+                  goblin.createAnimation("animation.goblin.nelson_slow" + (goblin.nelsonSlowVariantTwo ? "" : "2"), true, event);
                   break;
                case PAIZURI_IDLE:
                   goblin.createAnimation("animation.goblin.paizuri_idle", true, event);
                   break;
                case PAIZURI_SLOW:
-                  goblin.createAnimation("animation.goblin.paizuri_slow" + goblin.aD, true, event);
+                  goblin.createAnimation("animation.goblin.paizuri_slow" + goblin.paizuriSlowVariantSuffix, true, event);
                   break;
                case BREEDING_SLOW_0:
-                  goblin.createAnimation("animation.goblin.breeding_slow_1" + (goblin.aB ? "l" : "r"), true, event);
+                  goblin.createAnimation("animation.goblin.breeding_slow_1" + (goblin.breedingVariantLeft ? "l" : "r"), true, event);
                   break;
                case BREEDING_SLOW_2:
                   goblin.createAnimation("animation.goblin.breeding_slow_3", true, event);
@@ -155,7 +155,7 @@ final class GoblinPlayerAnimations {
                   goblin.createAnimation("animation.goblin.breeding_intro_3", true, event);
                   break;
                case BREEDING_FAST_0:
-                  goblin.createAnimation("animation.goblin.breeding_fast_1" + (goblin.aH ? "c" : "s"), true, event);
+                  goblin.createAnimation("animation.goblin.breeding_fast_1" + (goblin.breedingFastVariantC ? "c" : "s"), true, event);
                   break;
                case BREEDING_CUM_0:
                   goblin.createAnimation("animation.goblin.breeding_cum_1", true, event);
@@ -236,7 +236,7 @@ final class GoblinPlayerAnimations {
                break;
             case "paizuriSwitch":
                if (!goblin.getRNG().nextBoolean()) {
-                  goblin.aD = "".equals(goblin.aD) ? "2" : "";
+                  goblin.paizuriSlowVariantSuffix = "".equals(goblin.paizuriSlowVariantSuffix) ? "2" : "";
                }
                break;
             case "touch":
@@ -333,23 +333,23 @@ final class GoblinPlayerAnimations {
                break;
             case "breeding_slow1Done":
                if (goblin.getRNG().nextBoolean()) {
-                  goblin.aB = !goblin.aB;
+                  goblin.breedingVariantLeft = !goblin.breedingVariantLeft;
                }
 
                if (goblin.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   goblin.setCurrentAction(Action.BREEDING_FAST_0);
-                  goblin.aH = false;
+                  goblin.breedingFastVariantC = false;
                }
                break;
             case "breeding_fast1Done":
                goblin.setCurrentAction(Action.BREEDING_SLOW_0);
                if (goblin.isControlledByLocalPlayer()) {
-                  goblin.aH = false;
+                  goblin.breedingFastVariantC = false;
                }
                break;
             case "breeding_fast1Ready":
                if (goblin.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
-                  goblin.aH = true;
+                  goblin.breedingFastVariantC = true;
                   goblin.resetAnimationControllerOffset();
                   goblin.actionController.tickOffset = 0.0;
                }
@@ -391,21 +391,21 @@ final class GoblinPlayerAnimations {
                break;
             case "nelson_slowDone":
                if (goblin.getRNG().nextBoolean()) {
-                  goblin.ay = !goblin.ay;
+                  goblin.nelsonSlowVariantTwo = !goblin.nelsonSlowVariantTwo;
                }
                break;
             case "neslon_fastSwitch":
                if (!goblin.isControlledByLocalPlayer()) {
-                  goblin.aF = true;
+                  goblin.nelsonFastVariantC = true;
                   return;
                }
 
                if (HandlePlayerMovement.isJumping) {
-                  goblin.aF = true;
+                  goblin.nelsonFastVariantC = true;
                }
                break;
             case "nelsonFastDone":
-               goblin.aF = false;
+               goblin.nelsonFastVariantC = false;
                if (goblin.isControlledByLocalPlayer()) {
                   goblin.setCurrentAction(Action.NELSON_SLOW);
                }

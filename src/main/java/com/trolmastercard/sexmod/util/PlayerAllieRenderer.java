@@ -130,7 +130,7 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
       this.moveMagnitude = ThreadNames.clampFloat((float)this.moveMagnitude, 0.0F, 1.0F);
       bone.setPositionY((float)RotationHelper.lerpAngle(5.0, 0.0, RotationHelper.lerpDouble(this.smoothedBob, this.moveMagnitude, this.partialTicks)));
       if (this.playerGirl instanceof AlliePlayerEntity) {
-         ((AlliePlayerEntity)this.playerGirl).aq = (float)RotationHelper.lerpAngle(0.3F, 0.0, RotationHelper.lerpDouble(this.smoothedBob, this.moveMagnitude, this.partialTicks));
+         ((AlliePlayerEntity)this.playerGirl).scaleOffset = (float)RotationHelper.lerpAngle(0.3F, 0.0, RotationHelper.lerpDouble(this.smoothedBob, this.moveMagnitude, this.partialTicks));
       }
    }
 
@@ -151,7 +151,7 @@ public class PlayerAllieRenderer extends GirlPlayerRenderer {
       }
    }
 
-   public static class a {
+   public static class ClientTickHandler {
       @SubscribeEvent
       public void onClientTick(ClientTickEvent event) {
          for (PlayerAllieRenderer renderer : PlayerAllieRenderer.renderers) {

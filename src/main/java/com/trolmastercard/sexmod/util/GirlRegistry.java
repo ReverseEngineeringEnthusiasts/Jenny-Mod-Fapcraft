@@ -1,8 +1,8 @@
 package com.trolmastercard.sexmod.util;
 
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <b>Role.</b> Global girl UUID registry (girlId -> entity instance). Kept in
@@ -10,26 +10,27 @@ import java.util.UUID;
  * cleared on world close. Used by {@code setLocallyRegistered} and fast UUID
  * lookups that must not scan the entity list.
  * <p>
- * <b>Pitfall.</b> The registry is a plain static map — entries must be removed
- * when girls despawn or stale references keep dead entities alive. Do not use it
- * across worlds.
+ * <b>Pitfall.</b> Entries must be removed when girls despawn or stale references
+ * keep dead entities alive. Do not use it across worlds. The map is concurrent
+ * because preview girls are (un)registered on the render thread while the
+ * server tick reads it.
  */
 public class GirlRegistry {
-   static HashMap<UUID, BaseGirlEntity> a = new HashMap<>();
+   static ConcurrentHashMap<UUID, BaseGirlEntity> girlsById = new ConcurrentHashMap<>();
 
    public static void registerGirl(BaseGirlEntity girl) {
-      a.put(girl.getGirlId(), girl);
+      girlsById.put(girl.getGirlId(), girl);
    }
 
    public static void unregisterGirl(BaseGirlEntity girl) {
-      a.remove(girl.getGirlId());
+      girlsById.remove(girl.getGirlId());
    }
 
    public static void clearAll() {
-      a.clear();
+      girlsById.clear();
    }
 
    public static BaseGirlEntity getGirl(UUID uuid) {
-      return a.get(uuid);
+      return girlsById.get(uuid);
    }
 }

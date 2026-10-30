@@ -160,8 +160,8 @@ public class KoboldManager {
       } else {
          tribe.addMember(kobold);
          c.replace(tribeId, tribe);
-         kobold.getDataManager().set(KoboldEntity.aL, Optional.of(tribeId));
-         if (!kobold.aA) {
+         kobold.getDataManager().set(KoboldEntity.TRIBE_ID, Optional.of(tribeId));
+         if (!kobold.editedColorManually) {
             kobold.getDataManager().set(KoboldEntity.CURRENT_ACTION, tribe.tribeColor.toString());
          }
       }
@@ -246,7 +246,7 @@ public class KoboldManager {
       KoboldManager.Tribe tribe = c.get(tribeId);
       if (tribe == null) {
          Main.LOGGER.warn("tribe of UUID " + tribeId.toString() + " not found uwu");
-         return KoboldEntity.aJ;
+         return KoboldEntity.DEFAULT_EYE_COLOR;
       } else {
          return tribe.tribeColor;
       }
@@ -550,9 +550,9 @@ public class KoboldManager {
          return new HashMap<>();
       }
 
-      HashMap savedPositions = tribe.k;
+      HashMap savedPositions = tribe.savedPositions;
       savedPositions = KoboldBlockLookup.scanSavedPositions(savedPositions, world);
-      tribe.k = savedPositions;
+      tribe.savedPositions = savedPositions;
       return savedPositions;
    }
 
@@ -561,7 +561,7 @@ public class KoboldManager {
       if (tribe == null) {
          Main.LOGGER.warn("tribe of UUID " + tribeId.toString() + " not found uwu");
       } else {
-         KoboldManager.setTribeHome(memberUuid, homePos);
+         tribe.setTribeHomePos(memberUuid, homePos);
       }
    }
 
@@ -589,7 +589,7 @@ public static class Tribe {
       HashSet<EntityLivingBase> combatants = new HashSet<>();
       HashSet<BlockPos> tribeBeds = new HashSet<>();
       HashSet<BlockPos> tribeChests = new HashSet<>();
-      HashMap<UUID, BlockPos> k = new HashMap<>();
+      HashMap<UUID, BlockPos> savedPositions = new HashMap<>();
       boolean followModeEnabled = false;
 
       public Tribe(UUID tribeUUID, EyeAndKoboldColor tribeColor, KoboldEntity leaderKobold, List<KoboldEntity> members) {
@@ -631,15 +631,15 @@ public static class Tribe {
       }
 
       public HashMap<UUID, BlockPos> getSavedPositions() {
-         return this.k;
+         return this.savedPositions;
       }
 
       public void setTribeHomePos(UUID memberUuid, BlockPos pos) {
-         this.k.put(memberUuid, pos);
+         this.savedPositions.put(memberUuid, pos);
       }
 
       public void savePosition(UUID memberUuid) {
-         this.k.remove(memberUuid);
+         this.savedPositions.remove(memberUuid);
       }
 
       public void removeCombatant(EntityLivingBase entity) {
@@ -661,7 +661,7 @@ public static class Tribe {
             distinctIds.add(member.getGirlId());
          }
 
-         for (Entry entry : this.k.entrySet()) {
+         for (Entry entry : this.savedPositions.entrySet()) {
             distinctIds.add(entry.getKey());
          }
 
@@ -720,8 +720,8 @@ public static class Tribe {
                if (fastest == null) {
                   fastest = member;
                } else {
-                  float fastestSpeed = (Float)fastest.getDataManager().get(KoboldEntity.aE);
-                  float memberSpeed = (Float)member.getDataManager().get(KoboldEntity.aE);
+                  float fastestSpeed = (Float)fastest.getDataManager().get(KoboldEntity.SIZE_SCALAR);
+                  float memberSpeed = (Float)member.getDataManager().get(KoboldEntity.SIZE_SCALAR);
                   if (memberSpeed < fastestSpeed) {
                      fastest = member;
                   }

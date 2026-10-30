@@ -75,8 +75,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * ({@code canBeCollidedWith} = false).
  */
 public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
-   public static final String aa = "sexmod:CustomModel";
-   public static final String ae = "sexmod:GirlSpecific";
+   public static final String CUSTOM_MODEL_NBT_KEY = "sexmod:CustomModel";
+   public static final String GIRL_SPECIFIC_NBT_KEY = "sexmod:GirlSpecific";
    public static final float ac = 0.0F;
    public static final int am = 100;
    public static final int yFlag = 65;
@@ -685,13 +685,25 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    public void writeEntityToNBT(NBTTagCompound nbt) {
       super.writeEntityToNBT(nbt);
-      nbt.setString("owner", ((UUID)((Optional)this.entityDataManager.get(OWNER_UUID)).get()).toString());
+      Optional owner = (Optional)this.entityDataManager.get(OWNER_UUID);
+      if (owner.isPresent()) {
+         nbt.setString("owner", ((UUID)owner.get()).toString());
+      }
    }
 
    @Override
    public void readEntityFromNBT(NBTTagCompound nbt) {
       super.readEntityFromNBT(nbt);
-      this.entityDataManager.set(OWNER_UUID, Optional.of(UUID.fromString(nbt.getString("owner"))));
+      String owner = nbt.getString("owner");
+      if (!owner.isEmpty()) {
+         try {
+            this.entityDataManager.set(OWNER_UUID, Optional.of(UUID.fromString(owner)));
+         } catch (IllegalArgumentException exception) {
+            // malformed or missing owner tag (older saves): leave her unowned
+            // instead of failing the whole chunk load
+         }
+      }
+
       playerGirlList.add(this);
       playerGirlTableDirty = true;
    }
@@ -727,7 +739,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    }
 
    @Override
-   protected void U() {
+   protected void startActionFromHandState() {
    }
 
 }

@@ -16,8 +16,8 @@ import net.minecraft.world.World;
  * {@link AbstractNpcOnlyEntity}) plus the three shared player-specific keys.
  * <p>
  * <b>State.</b> Data-manager keys with EXPLICIT ids — do not reorder or
- * re-id: {@code as} (119) = skin/body color name, {@code au} (120) = eye
- * color as {@link BlockPos}, {@code at} (121) = model-code DNA string.
+ * re-id: {@code SKIN_COLOR_NAME} (119) = skin/body color name, {@code EYE_COLOR} (120) = eye
+ * color as {@link BlockPos}, {@code MODEL_CODE} (121) = model-code DNA string.
  * The DNA string is only registered on the server or on non-{@link SexWorldClient}
  * worlds; the client twin is synced via {@code syncModelCodeClient()}.
  * <p>
@@ -29,19 +29,19 @@ import net.minecraft.world.World;
  * cache never shows stale skin/eye colors after a wardrobe edit.
  */
 public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntity {
-   public static final DataParameter<String> as = EntityDataManager.createKey(AbstractKoboldPlayerEntity.class, DataSerializers.STRING)
+   public static final DataParameter<String> SKIN_COLOR_NAME = EntityDataManager.createKey(AbstractKoboldPlayerEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(119);
-   public static final DataParameter<BlockPos> au = EntityDataManager.createKey(AbstractKoboldPlayerEntity.class, DataSerializers.BLOCK_POS)
+   public static final DataParameter<BlockPos> EYE_COLOR = EntityDataManager.createKey(AbstractKoboldPlayerEntity.class, DataSerializers.BLOCK_POS)
       .getSerializer()
       .createKey(120);
-   public static final DataParameter<String> at = EntityDataManager.createKey(AbstractKoboldPlayerEntity.class, DataSerializers.STRING)
+   public static final DataParameter<String> MODEL_CODE = EntityDataManager.createKey(AbstractKoboldPlayerEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(121);
-   boolean ar = true;
-   String ap = null;
-   String av = null;
-   BlockPos aq = null;
+   boolean customPartsPending = true;
+   String lastSkinColor = null;
+   String lastModelCode = null;
+   BlockPos lastEyeColor = null;
 
    protected AbstractKoboldPlayerEntity(World world) {
       super(world);
@@ -55,14 +55,14 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
    protected void entityInit() {
       super.entityInit();
       if (!this.world.isRemote || !(this.world instanceof SexWorldClient)) {
-         this.entityDataManager.register(at, this.buildModelCodeDNA(new StringBuilder()));
+         this.entityDataManager.register(MODEL_CODE, this.buildModelCodeDNA(new StringBuilder()));
       }
    }
 
    abstract String buildModelCodeDNA(StringBuilder builder);
 
    public static String[] getModelCodeParts(BaseGirlEntity girl) {
-      return ((String)girl.getDataManager().get(at)).split("-");
+      return ((String)girl.getDataManager().get(MODEL_CODE)).split("-");
    }
 
    /**
@@ -75,15 +75,15 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
    public void onUpdate() {
       super.onUpdate();
       this.syncModelCodeClient();
-      if (this.ar) {
+      if (this.customPartsPending) {
          if (this.world.isRemote) {
             this.clearBoneColors();
-            this.ar = true;
+            this.customPartsPending = true;
          } else {
             EntityPlayer player = this.getOwnerPlayer();
             if (player != null) {
                String modelCode = player.getEntityData().getString("sexmod:GirlSpecific" + NpcType.getNpcType(this));
-               this.ar = false;
+               this.customPartsPending = false;
                if (!"".equals(modelCode)) {
                   this.setCustomPartList(decodePartIdList(modelCode));
                }
@@ -100,21 +100,21 @@ public abstract class AbstractKoboldPlayerEntity extends AbstractPlayerGirlEntit
     */
    void syncModelCodeClient() {
       if (this.world.isRemote) {
-         String modelCode = (String)this.entityDataManager.get(as);
-         String boneColors = (String)this.entityDataManager.get(at);
-         BlockPos heldPos = (BlockPos)this.entityDataManager.get(au);
-         if (this.ap == null) {
-            this.ap = modelCode;
-            this.av = boneColors;
-            this.aq = heldPos;
+         String modelCode = (String)this.entityDataManager.get(SKIN_COLOR_NAME);
+         String boneColors = (String)this.entityDataManager.get(MODEL_CODE);
+         BlockPos heldPos = (BlockPos)this.entityDataManager.get(EYE_COLOR);
+         if (this.lastSkinColor == null) {
+            this.lastSkinColor = modelCode;
+            this.lastModelCode = boneColors;
+            this.lastEyeColor = heldPos;
          } else {
-            if (!this.av.equals(boneColors) || !this.ap.equals(modelCode) || !this.aq.equals(heldPos)) {
+            if (!this.lastModelCode.equals(boneColors) || !this.lastSkinColor.equals(modelCode) || !this.lastEyeColor.equals(heldPos)) {
                this.clearBoneColors();
             }
 
-            this.ap = modelCode;
-            this.av = boneColors;
-            this.aq = heldPos;
+            this.lastSkinColor = modelCode;
+            this.lastModelCode = boneColors;
+            this.lastEyeColor = heldPos;
          }
       }
    }

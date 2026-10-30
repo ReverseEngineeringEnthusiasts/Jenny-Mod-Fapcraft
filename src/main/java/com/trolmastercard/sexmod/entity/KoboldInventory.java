@@ -14,6 +14,7 @@ import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathNavigate;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -44,12 +45,12 @@ final class KoboldInventory {
       }
 
       if (isTribeChestOpen(entity, tribeId, checkOpen)) {
-         entity.a0 = 0;
+         entity.inventoryNotifyCooldown = 0;
          return true;
       }
 
-      if (--entity.a0 < 0 && entity.ax) {
-         entity.a0 = 300;
+      if (--entity.inventoryNotifyCooldown < 0 && entity.tribeBlocked) {
+         entity.inventoryNotifyCooldown = 300;
          EntityPlayer master = entity.world.getPlayerEntityByUUID(UUID.fromString((String)entity.getDataManager().get(KoboldEntity.MASTER)));
          EyeAndKoboldColor tribeColor = EyeAndKoboldColor.valueOf((String)entity.getDataManager().get(KoboldEntity.CURRENT_ACTION));
          if (master != null) {
@@ -78,9 +79,16 @@ final class KoboldInventory {
       }
 
       BlockPos chosenChest = null;
+      ArrayList staleChests = new ArrayList();
 
       for (BlockPos chestPos : (java.util.Collection<BlockPos>) (chests) ) {
-         TileEntityChest chest = (TileEntityChest)entity.world.getTileEntity(chestPos);
+         TileEntity tileEntity = entity.world.getTileEntity(chestPos);
+         if (!(tileEntity instanceof TileEntityChest)) {
+            staleChests.add(chestPos);
+            continue;
+         }
+
+         TileEntityChest chest = (TileEntityChest)tileEntity;
          IItemHandler chestHandler = chest.getSingleChestHandler();
          boolean canStore = false;
 
@@ -110,6 +118,10 @@ final class KoboldInventory {
          }
       }
 
+      if (!staleChests.isEmpty()) {
+         chests.removeAll(staleChests);
+      }
+
       if (chosenChest == null) {
          return false;
       }
@@ -136,7 +148,12 @@ final class KoboldInventory {
 
          return true;
       } else {
-         TileEntityChest chest = (TileEntityChest)entity.world.getTileEntity(chosenChest);
+         TileEntity tileEntity = entity.world.getTileEntity(chosenChest);
+         if (!(tileEntity instanceof TileEntityChest)) {
+            return false;
+         }
+
+         TileEntityChest chest = (TileEntityChest)tileEntity;
          IItemHandler chestHandler = chest.getSingleChestHandler();
 
          for (int i = 0; i < entity.inventory.getSlots(); i++) {

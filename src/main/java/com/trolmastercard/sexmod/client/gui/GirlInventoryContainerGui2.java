@@ -15,10 +15,9 @@ import net.minecraft.util.ResourceLocation;
  * GUI for a generic girl's 6-slot equipment chest ({@link ChestContainer}:
  * weapon, bow, helmet, chestplate, pants, shoes), used by the non-Luna girls.
  * <p>
- * <b>Save flow.</b> On close, finds the matching {@link ChestContainer} in
- * {@link ChestContainer#containers} and sends a 42-slot snapshot (player main
- * inventory 0..35, the 6 girl slots 36..41) to the server via
- * {@link UploadInventoryToServerPacket}. CLIENT-side only.
+ * <b>Save flow.</b> On close, snapshots this screen's own {@link ChestContainer}
+ * (player main inventory 0..35, the 6 girl slots 36..41) and sends it to the
+ * server via {@link UploadInventoryToServerPacket}. CLIENT-side only.
  */
 public class GirlInventoryContainerGui2 extends GuiContainer {
    static final ResourceLocation GUI_TEXTURE = new ResourceLocation("sexmod", "textures/gui/girlinventory.png");
@@ -42,24 +41,21 @@ public class GirlInventoryContainerGui2 extends GuiContainer {
    /**
     * Serializes the 6 girl equipment slots + the player's main inventory into
     * a 42-element array and uploads it via {@link UploadInventoryToServerPacket}.
-    * Fires exactly once per container lifetime (on GUI close).
+    * Reads this screen's own container only (never the static list), so a close
+    * uploads exactly once.
     */
    public void onGuiClosed() {
       super.onGuiClosed();
-
-      for (ChestContainer container : ChestContainer.containers) {
-         if (container.girlUUID.equals(this.playerUUID)) {
-            ItemStack[] stacks = new ItemStack[42];
-            Minecraft.getMinecraft().player.inventory.mainInventory.toArray(stacks);
-            stacks[36] = container.getSlot(0).getStack();
-            stacks[37] = container.getSlot(1).getStack();
-            stacks[38] = container.getSlot(2).getStack();
-            stacks[39] = container.getSlot(3).getStack();
-            stacks[40] = container.getSlot(4).getStack();
-            stacks[41] = container.getSlot(5).getStack();
-            PacketHandler.networkWrapper.sendToServer(new UploadInventoryToServerPacket(this.girlEntity.getGirlId(), this.girlUUID, stacks));
-         }
-      }
+      ChestContainer container = (ChestContainer)this.inventorySlots;
+      ItemStack[] stacks = new ItemStack[42];
+      Minecraft.getMinecraft().player.inventory.mainInventory.toArray(stacks);
+      stacks[36] = container.getSlot(0).getStack();
+      stacks[37] = container.getSlot(1).getStack();
+      stacks[38] = container.getSlot(2).getStack();
+      stacks[39] = container.getSlot(3).getStack();
+      stacks[40] = container.getSlot(4).getStack();
+      stacks[41] = container.getSlot(5).getStack();
+      PacketHandler.networkWrapper.sendToServer(new UploadInventoryToServerPacket(this.girlEntity.getGirlId(), this.girlUUID, stacks));
    }
 
    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {

@@ -57,7 +57,7 @@ public enum EyeAndKoboldColor {
       try {
          return valueOf(name);
       } catch (IllegalArgumentException ex) {
-         return KoboldEntity.aJ;
+         return KoboldEntity.DEFAULT_EYE_COLOR;
       }
    }
 
@@ -68,7 +68,7 @@ public enum EyeAndKoboldColor {
          }
       }
 
-      return KoboldEntity.aJ;
+      return KoboldEntity.DEFAULT_EYE_COLOR;
    }
 
    public static EyeAndKoboldColor getColorByWoolId(int woolMeta) {
@@ -78,7 +78,7 @@ public enum EyeAndKoboldColor {
          }
       }
 
-      return KoboldEntity.aJ;
+      return KoboldEntity.DEFAULT_EYE_COLOR;
    }
 
    public Vec3i getMainColor() {

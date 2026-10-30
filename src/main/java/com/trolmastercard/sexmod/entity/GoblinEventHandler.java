@@ -86,7 +86,7 @@ public class GoblinEventHandler {
                   newGoblin.forceSpawn = true;
                   newGoblin.setCustomModelCode(modelCode);
                   newGoblin.setCustomPartListCode(partCode);
-                  newGoblin.entityDataManager.set(GoblinEntity.aC, true);
+                  newGoblin.entityDataManager.set(GoblinEntity.TAMED, true);
                   world.spawnEntity(newGoblin);
                   newGoblin.setPositionAndUpdate(player.posX, player.posY, player.posZ);
                   newGoblin.setOwnerUUID(uuid);

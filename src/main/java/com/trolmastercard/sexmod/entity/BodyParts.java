@@ -17,7 +17,7 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
  * <b>Role.</b> Static helpers for the girl renderers that compute the world
  * offset of "custom" bones (boobs/booty/vagina/fuckhole) so render layers and
  * effects can target them. Per-renderer bone classification is cached in
- * {@code d} to keep the parent-bone walk cheap.
+ * {@code CUSTOM_BONE_CACHE} to keep the parent-bone walk cheap.
  * <p>
  * <b>Pitfalls.</b> {@link #offsetBonePosition(Vec3d, Vector3f, Vec3d)} is
  * misnamed by the deobf — it does NOT add the offset; it progress-lerps the
@@ -39,23 +39,23 @@ public class BodyParts {
          this.add("fuckhole");
       }
    };
-   protected static HashMap<IGirlRenderer, HashMap<String, Boolean>> d = new HashMap<>();
+   protected static HashMap<IGirlRenderer, HashMap<String, Boolean>> CUSTOM_BONE_CACHE = new HashMap<>();
    public static Vec3d OFFSET_VEC;
 
    static boolean isCustomBone(IGirlRenderer renderer, GeoBone bone) {
-      HashMap cache = d.get(renderer);
+      HashMap cache = CUSTOM_BONE_CACHE.get(renderer);
       if (cache == null) {
          cache = new HashMap();
          boolean custom = renderer.hasParentBone(renderer.getBlacklistedBones(), bone);
          cache.put(bone.getName(), custom);
-         d.put(renderer, cache);
+         CUSTOM_BONE_CACHE.put(renderer, cache);
          return custom;
       } else {
          Boolean cached = (Boolean)cache.get(bone.getName());
          if (cached == null) {
             cached = renderer.hasParentBone(renderer.getBlacklistedBones(), bone);
             cache.put(bone.getName(), cached);
-            d.put(renderer, cache);
+            CUSTOM_BONE_CACHE.put(renderer, cache);
             return cached;
          } else {
             return cached;
@@ -79,14 +79,14 @@ public class BodyParts {
    }
 
    public static void updateCustomBones(List<IBone> bones, HashSet<String> blacklisted, IGirlRenderer renderer) {
-      if (d.get(renderer) == null) {
+      if (CUSTOM_BONE_CACHE.get(renderer) == null) {
          HashMap customBones = new HashMap();
 
          for (IBone bone : bones) {
             customBones.put(bone.getName(), renderer.hasParentBone(blacklisted, (GeoBone)bone));
          }
 
-         d.put(renderer, customBones);
+         CUSTOM_BONE_CACHE.put(renderer, customBones);
       }
    }
 

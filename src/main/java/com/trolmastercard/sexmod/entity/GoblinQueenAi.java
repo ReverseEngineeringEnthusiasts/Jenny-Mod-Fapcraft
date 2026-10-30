@@ -34,9 +34,9 @@ final class GoblinQueenAi {
 
    static void handleHeldThrow(GoblinEntity queen) {
       if (queen.isQueen) {
-         if ((Boolean)queen.entityDataManager.get(GoblinEntity.aV)) {
+         if ((Boolean)queen.entityDataManager.get(GoblinEntity.PREGNANT)) {
             if (queen.impregnationTick + 8400L < queen.world.getTotalWorldTime()) {
-               queen.entityDataManager.set(GoblinEntity.aV, false);
+               queen.entityDataManager.set(GoblinEntity.PREGNANT, false);
             }
          }
       }
@@ -48,7 +48,7 @@ final class GoblinQueenAi {
             boolean particlesSpawned = false;
 
             for (GoblinEntity goblin : queen.guards) {
-               if ((Boolean)goblin.getDataManager().get(GoblinEntity.aC)) {
+               if ((Boolean)goblin.getDataManager().get(GoblinEntity.TAMED)) {
                   particlesSpawned = true;
                }
             }
@@ -57,7 +57,7 @@ final class GoblinQueenAi {
                queen.sendGirlChatMessage("Farewell my knight. You are welcome once I am breedable again.");
 
                for (GoblinEntity goblin : queen.guards) {
-                  if (!(Boolean)goblin.getDataManager().get(GoblinEntity.aC)) {
+                  if (!(Boolean)goblin.getDataManager().get(GoblinEntity.TAMED)) {
                      goblin.setCurrentAction(Action.VANISH);
                   }
                }
@@ -250,7 +250,7 @@ final class GoblinQueenAi {
                if (!players.isEmpty()) {
                   EntityPlayer player = (EntityPlayer)players.get(0);
                   if (player.onGround) {
-                     if ((Boolean)queen.entityDataManager.get(GoblinEntity.aV)) {
+                     if ((Boolean)queen.entityDataManager.get(GoblinEntity.PREGNANT)) {
                         if (queen.pregnantNoticeTick + 1200L < queen.world.getTotalWorldTime()) {
                            player.sendStatusMessage(new TextComponentString("The Queen is still pregnant - so no breeding for you uwu"), true);
                            queen.pregnantNoticeTick = queen.world.getTotalWorldTime();
@@ -349,8 +349,8 @@ final class GoblinQueenAi {
     */
    static void tickGoldSteal(GoblinEntity queen) {
       if (queen.isQueen) {
-         if (!(Boolean)queen.entityDataManager.get(GoblinEntity.aC)) {
-            if (!(Boolean)queen.entityDataManager.get(GoblinEntity.aV)) {
+         if (!(Boolean)queen.entityDataManager.get(GoblinEntity.TAMED)) {
+            if (!(Boolean)queen.entityDataManager.get(GoblinEntity.PREGNANT)) {
                if (queen.getCurrentAction() == Action.SIT) {
                   if (++queen.robTicks >= 32000) {
                      EntityPlayer player = queen.world.getClosestPlayerToEntity(queen, 3000.0);
@@ -370,7 +370,7 @@ final class GoblinQueenAi {
                                     goblin.setPosition(player.posX + offset.x, player.posY, player.posZ + offset.z);
                                     goblin.setCurrentAction(Action.RUN);
                                     queen.world.spawnEntity(goblin);
-                                    goblin.entityDataManager.set(GoblinEntity.a0, stolenStack);
+                                    goblin.entityDataManager.set(GoblinEntity.STOLEN_ITEM, stolenStack);
                                     player.sendMessage(
                                        new TextComponentString(String.format("<%s> I got your %s hehe~", goblin.getDisplayNameText(), stolenStack.getDisplayName()))
                                     );

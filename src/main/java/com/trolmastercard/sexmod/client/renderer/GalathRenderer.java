@@ -202,7 +202,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     * it holds the last direction, so she doesn't spin while bobbing.
     */
    void renderFlightEffect(GalathEntity galath) {
-      if ((Boolean)galath.getDataManager().get(GalathEntity.bP)) {
+      if ((Boolean)galath.getDataManager().get(GalathEntity.PARALYZED)) {
          Vec3d lastPos = new Vec3d(galath.lastTickPosX, galath.lastTickPosY, galath.lastTickPosZ);
          Vec3d motion = galath.getPositionVector().subtract(lastPos);
          boolean isHovering = Math.abs(motion.x) + Math.abs(motion.z) < 0.05F;
@@ -292,7 +292,7 @@ public class GalathRenderer extends GirlRenderer<GalathEntity> implements IGirlR
     */
    static void renderWingGeometry(BaseGirlEntity girl, BufferBuilder buffer, Tessellator tessellator, float partialTicks) {
       if (girl instanceof GalathEntity) {
-         if ((Boolean)girl.getDataManager().get(GalathEntity.bP)) {
+         if ((Boolean)girl.getDataManager().get(GalathEntity.PARALYZED)) {
             if (!(Boolean)girl.getDataManager().get(GalathEntity.HIDE_EFFECTS_FLAG)) {
                GlStateManager.pushMatrix();
                try {

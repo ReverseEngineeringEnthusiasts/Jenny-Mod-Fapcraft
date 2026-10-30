@@ -47,20 +47,20 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * {@code ChangeDataParameterPacket} and sends {@code KoboldStatePacket}; the
  * server calls {@code setDismounted()} ({@link #yFlag}), then
  * {@link #updateAITasks()} lerps her to {@code TARGET_POS} for ~40 ticks
- * ({@code ag} counter), anchors her and calls {@link #U()} which dispatches
+ * ({@code sceneEntryLerpTicks} counter), anchors her and calls {@link #startActionFromHandState()} which dispatches
  * on GIRL_HAND_STATES: talk -> TALK_HORNY dialogue, then the anal/doggy menu;
  * strip -> STRIP animation.
  * <p>
- * <b>Bed scenes</b> (anal/doggy): {@link #U()} sends
+ * <b>Bed scenes</b> (anal/doggy): {@link #startActionFromHandState()} sends
  * {@code SendGirlToSexPacket} -&gt; {@link #goToSexBed()} walks her to the
- * nearest bed ({@link #af}/{@code zFlag} walk state), anchors her, and
+ * nearest bed ({@code walkingToBed}/{@code zFlag} walk state), anchors her, and
  * {@link #handleAnalState()} runs the scene pickup: when the player stands
- * within 1 block, a <b>jar-verified 22-tick countdown</b> ({@link #ac})
+ * within 1 block, a <b>jar-verified 22-tick countdown</b> ({@code contactCountdown})
  * runs before the scene action (ANAL_START / PRONE_DOGGY_INTRO) begins.
  * <p>
- * <b>Pitfall:</b> {@link #handleAnalState()} MUST assign {@code ac = 22} on
+ * <b>Pitfall:</b> {@link #handleAnalState()} MUST assign {@code contactCountdown = 22} on
  * first contact — the original static field was {@code j = 22} on
- * {@code BaseGirlEntity}. A deobf regression set {@code ac = -1} instead,
+ * {@code BaseGirlEntity}. A deobf regression set {@code contactCountdown = -1} instead,
  * which permanently stalled every Bia bed scene at ANAL_WAIT/SITDOWNIDLE.
  * The player-girl twin {@code BiaPlayerEntity.handleBiaAnalState} kept the
  * correct {@code ar = 22} — use it as the reference.
@@ -71,16 +71,16 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    public boolean yFlag = false;
 
    /** Dismount-lerp tick counter (0..40). */
-   int ag = 0;
+   int sceneEntryLerpTicks = 0;
 
    /** Bed-walk state: true while walking to the bed (re-path at 60/120). */
-   boolean af = false;
+   boolean walkingToBed = false;
 
    /** Bed-walk tick counter. */
    int zFlag = 0;
 
    /** One-shot no-gravity cleanup guard. */
-   boolean ab = true;
+   boolean noClipCleanupPending = true;
 
    /**
     * Scene-pickup countdown for {@code handleAnalState()}: -1 = waiting for
@@ -88,18 +88,18 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
     * <b>Must be set to 22 on first contact</b> (jar-verified; the original
     * static field was {@code j = 22}).
     */
-   int ac = -1;
+   int contactCountdown = -1;
 
    /** Set while a bed scene transition is in flight (suppresses the camera reset). */
-   boolean aa = false;
-   final int[] ai = new int[]{0, 180, -90, 90};
-   final Vec3d[][] ad = new Vec3d[][]{
+   boolean bedTransitionActive = false;
+   final int[] BED_YAWS = new int[]{0, 180, -90, 90};
+   final Vec3d[][] BED_OFFSETS = new Vec3d[][]{
       {new Vec3d(0.5, 0.0, -0.5), new Vec3d(0.0, 0.0, -1.0)},
       {new Vec3d(0.5, 0.0, 1.5), new Vec3d(0.0, 0.0, 1.0)},
       {new Vec3d(-0.5, 0.0, 0.5), new Vec3d(-1.0, 0.0, 0.0)},
       {new Vec3d(1.5, 0.0, 0.5), new Vec3d(1.0, 0.0, 0.0)}
    };
-   int ah = 1;
+   int hardLoopVariant = 1;
 
    public BiaEntity(World world) {
       super(world);
@@ -153,15 +153,15 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    @Override
    public void updateAITasks() {
       super.updateAITasks();
-      if (this.ab) {
+      if (this.noClipCleanupPending) {
          this.setNoGravity(false);
          this.noClip = false;
-         this.ab = false;
+         this.noClipCleanupPending = false;
       }
 
       if (this.yFlag) {
-         this.ag++;
-         if (!this.getPositionVector().equals(this.getTargetPosition()) && this.ag <= 40) {
+         this.sceneEntryLerpTicks++;
+         if (!this.getPositionVector().equals(this.getTargetPosition()) && this.sceneEntryLerpTicks <= 40) {
             this.rotationYaw = this.getYawRotation();
 
             try {
@@ -171,11 +171,11 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
             }
 
             this.setNoGravity(false);
-            Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.ag);
+            Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.sceneEntryLerpTicks);
             this.setPosition(pos.x, pos.y, pos.z);
          } else {
             this.yFlag = false;
-            this.ag = 0;
+            this.sceneEntryLerpTicks = 0;
             EntityPlayer lerpPlayer = this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID());
             if (lerpPlayer != null) {
                this.setYawRotation(lerpPlayer.rotationYaw + 180.0F);
@@ -183,11 +183,11 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
             this.entityDataManager.set(IS_ANCHORED, true);
             this.getNavigator().clearPath();
-            this.U();
+            this.startActionFromHandState();
          }
       }
 
-      if (this.af) {
+      if (this.walkingToBed) {
          if (!(this.getPositionVector().distanceTo(this.getTargetPosition()) < 0.6) && this.zFlag <= 200) {
             this.zFlag++;
             if (this.zFlag == 60 || this.zFlag == 120) {
@@ -195,7 +195,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                this.getNavigator().tryMoveToXYZ(this.getTargetPosition().x, this.getTargetPosition().y, this.getTargetPosition().z, 0.35);
             }
          } else {
-            this.af = false;
+            this.walkingToBed = false;
             this.entityDataManager.set(IS_ANCHORED, true);
             this.zFlag = 0;
             this.noClip = true;
@@ -256,11 +256,11 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
    @Override
    public void ac() {
-      if (this.isAnchored() && !this.aa) {
+      if (this.isAnchored() && !this.bedTransitionActive) {
          this.resetCameraAndPhysics();
       }
 
-      this.aa = false;
+      this.bedTransitionActive = false;
    }
 
    @Override
@@ -276,7 +276,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    @Override
    protected void resetLocalPlayerClientState() {
       super.resetLocalPlayerClientState();
-      this.ac = -1;
+      this.contactCountdown = -1;
    }
 
    void handleAnalState() {
@@ -285,8 +285,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          EntityPlayer player = this.world.getClosestPlayerToEntity(this, 10.0);
          if (player != null) {
             if (!(player.getDistance(this) > 1.0F)) {
-               if (this.ac == -1) {
-                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState action=%s ac==-1 (world remote=%s)", action, this.world.isRemote);
+               if (this.contactCountdown == -1) {
+                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState action=%s contactCountdown==-1 (world remote=%s)", action, this.world.isRemote);
                   if (this.world.isRemote) {
                      BeeScreen.enableInteraction();
                      HandlePlayerMovement.setMovementLock(false);
@@ -295,10 +295,10 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                   }
 
                   // jar-faithful countdown: BaseGirlEntity's static j == 22 ticks
-                  this.ac = 22;
-                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: ac set to 22");
-               } else if (--this.ac <= 0) {
-                  this.ac = -1;
+                  this.contactCountdown = 22;
+                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: contactCountdown set to 22");
+               } else if (--this.contactCountdown <= 0) {
+                  this.contactCountdown = -1;
                   SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: countdown done, starting scene action=%s (remote=%s)", action, this.world.isRemote);
                   player.noClip = true;
                   player.setNoGravity(true);
@@ -325,8 +325,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                         this.setAnchored(true);
                      }
                   }
-               } else if (this.ac % 5 == 0) {
-                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: counting down ac=%d", this.ac);
+               } else if (this.contactCountdown % 5 == 0) {
+                  SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.handleAnalState: counting down contactCountdown=%d", this.contactCountdown);
                }
             }
          }
@@ -338,11 +338,11 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    public void resetAnimationControllerTicks() {
       super.resetAnimationControllerTicks();
       if (this.getCurrentAction() == Action.PRONE_DOGGY_HARD) {
-         int oldState = this.ah;
+         int oldState = this.hardLoopVariant;
 
          do {
-            this.ah = this.getRNG().nextInt(3) + 1;
-         } while (oldState == this.ah);
+            this.hardLoopVariant = this.getRNG().nextInt(3) + 1;
+         } while (oldState == this.hardLoopVariant);
       }
    }
 
@@ -371,12 +371,12 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          case "action.names.anal":
             this.changeDataParameterFromClient("animationFollowUp", "anal");
             this.setCurrentAction(Action.TALK_RESPONSE);
-            this.aa = true;
+            this.bedTransitionActive = true;
             break;
          case "doggy":
             this.changeDataParameterFromClient("animationFollowUp", "doggy");
             this.setCurrentAction(Action.TALK_RESPONSE);
-            this.aa = true;
+            this.bedTransitionActive = true;
             break;
          case "action.names.dressup":
          case "action.names.strip":
@@ -418,14 +418,14 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          this.tasks.removeTask(this.wanderGoal);
          this.tasks.removeTask(this.watchClosestGirlGoal);
          Vec3d bedVec = new Vec3d(bedPos.getX(), bedPos.getY(), bedPos.getZ());
-         int bestIndex = GirlBedPlacement.findFreeSideWithRoom(this, bedVec, this.ad);
+         int bestIndex = GirlBedPlacement.findFreeSideWithRoom(this, bedVec, this.BED_OFFSETS);
          if (bestIndex == -1) {
             this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
             this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
             return null;
          } else {
-            Vec3d bedOffset = bedVec.add(this.ad[bestIndex][0]);
-            return new Vector4d(bedOffset.x, bedOffset.y, bedOffset.z, this.ai[bestIndex]);
+            Vec3d bedOffset = bedVec.add(this.BED_OFFSETS[bestIndex][0]);
+            return new Vector4d(bedOffset.x, bedOffset.y, bedOffset.z, this.BED_YAWS[bestIndex]);
          }
       } else {
          this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
@@ -459,14 +459,14 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       this.tasks.removeTask(this.wanderGoal);
       this.tasks.removeTask(this.watchClosestGirlGoal);
       Vec3d bedVec = new Vec3d(bedPos.getX(), bedPos.getY(), bedPos.getZ());
-      int bestIndex = GirlBedPlacement.findFreeSide(this, bedVec, this.ad);
+      int bestIndex = GirlBedPlacement.findFreeSide(this, bedVec, this.BED_OFFSETS);
       if (bestIndex == -1) {
          this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
          this.sendChatMessage(I18n.format("jenny.dialogue.bedobscured", new Object[0]));
          return null;
       } else {
-         Vec3d bedOffset = bedVec.add(this.ad[bestIndex][0]);
-         return new Vector4d(bedOffset.x, bedOffset.y, bedOffset.z, this.ai[bestIndex]);
+         Vec3d bedOffset = bedVec.add(this.BED_OFFSETS[bestIndex][0]);
+         return new Vector4d(bedOffset.x, bedOffset.y, bedOffset.z, this.BED_YAWS[bestIndex]);
       }
    }
 
@@ -481,7 +481,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          this.cameraYaw = this.getYawRotation();
          this.getNavigator().clearPath();
          this.getNavigator().tryMoveToXYZ(pos.x, pos.y, pos.z, 0.35);
-         this.af = true;
+         this.walkingToBed = true;
          this.zFlag = 0;
       }
    }
@@ -505,8 +505,8 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    }
 
    @Override
-   protected void U() {
-      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.U() handState=%s action=%s remote=%s", this.entityDataManager.get(GIRL_HAND_STATES), this.getCurrentAction(), this.world.isRemote);
+   protected void startActionFromHandState() {
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Bia.startActionFromHandState handState=%s action=%s remote=%s", this.entityDataManager.get(GIRL_HAND_STATES), this.getCurrentAction(), this.world.isRemote);
       switch ((String)this.entityDataManager.get(GIRL_HAND_STATES)) {
          case "talkHorny":
             this.setCurrentAction(Action.TALK_HORNY);
@@ -646,7 +646,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                   this.createAnimation("animation.bia.prone_doggy_soft", true, event);
                   break;
                case PRONE_DOGGY_HARD:
-                  this.createAnimation("animation.bia.prone_doggy_hard" + this.ah, true, event);
+                  this.createAnimation("animation.bia.prone_doggy_hard" + this.hardLoopVariant, true, event);
                   break;
                case PRONE_DOGGY_CUM:
                   this.createAnimation("animation.bia.prone_doggy_cum", true, event);
@@ -680,7 +680,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                break;
             case "stripDone":
                this.resetCameraAndPhysics();
-               this.U();
+               this.startActionFromHandState();
                break;
             case "stripMSG1":
                this.sendChatMessage(I18n.format("bia.dialogue.hihi", new Object[0]));
@@ -735,7 +735,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                   this.resetGirlState();
                }
 
-               this.U();
+               this.startActionFromHandState();
                break;
             case "anal_prepareMSG1":
                this.playSound(SoundHandler.MISC_PLOB[0]);

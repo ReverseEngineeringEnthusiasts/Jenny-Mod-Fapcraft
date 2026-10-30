@@ -119,7 +119,7 @@ public class KoboldEggProjectileEntity extends EntityEnderPearl {
       }
    }
 
-   public static class a {
+   public static class EnderTeleportHandler {
       @SubscribeEvent
       public void onEnderTeleport(EnderTeleportEvent event) {
          if (event.getEntityLiving() instanceof BaseGirlEntity) {

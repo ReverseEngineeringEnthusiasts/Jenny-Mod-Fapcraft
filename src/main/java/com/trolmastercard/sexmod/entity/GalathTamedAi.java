@@ -36,7 +36,7 @@ final class GalathTamedAi {
    }
 
    static void tickTamedAi(GalathEntity galath) {
-      galath.aO.setVisible(false);
+      galath.bossBar.setVisible(false);
       if (!GirlSavedData.isOwnerNearby(galath)) {
          GirlSavedData.updateMangleliePartner(galath);
       } else if (galath.getRidingPlayer() != null) {
@@ -62,7 +62,7 @@ final class GalathTamedAi {
 
    static void tickPartneredFollow(GalathEntity galath) {
       if (!followOwnerOnFoot(galath)) {
-         galath.getDataManager().set(GalathEntity.bT, false);
+         galath.getDataManager().set(GalathEntity.SPRINTING, false);
          galath.tickFlightSystems();
       }
    }
@@ -124,7 +124,7 @@ final class GalathTamedAi {
          }
 
          navigator.setSpeed(speed);
-         galath.getDataManager().set(GalathEntity.bT, sprinting);
+         galath.getDataManager().set(GalathEntity.SPRINTING, sprinting);
          galath.setCurrentAction((Action)null);
          return true;
       } else {

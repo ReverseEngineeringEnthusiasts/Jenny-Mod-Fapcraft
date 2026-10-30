@@ -39,7 +39,7 @@ import software.bernie.geckolib3.util.MatrixStack;
  * kobold-specific data keys.
  * <p>
  * <b>State.</b> Inherits {@link AbstractKoboldPlayerEntity} keys (119-121);
- * adds {@code aA} (122) = size scalar in {@code [0, 0.25]} (encoded as
+ * adds {@code SIZE_SCALAR} (122) = size scalar in {@code [0, 0.25]} (encoded as
  * part-id {@code 0} value / 100 * 0.25). {@code setCustomPartList} maps part
  * indices 0/1/2 to size/body-color/eye-color and packs the rest into the DNA
  * string. {@code aw} = default body color {@link EyeAndKoboldColor#PURPLE}.
@@ -53,22 +53,22 @@ import software.bernie.geckolib3.util.MatrixStack;
  * {@code blowjobCumDone}/{@code mating_press_cumDone} -&gt;
  * {@code resetCameraAndPhysics()}.
  * <p>
- * <b>Pitfalls.</b> {@code aA} scales the model (matrix, camera pivot) and the
+ * <b>Pitfalls.</b> {@code SIZE_SCALAR} scales the model (matrix, camera pivot) and the
  * sound pitch (0.9-1.1) — every consumer must use the same
- * {@code 0.25F - aA} formula. {@link #getNextAction(Action)} and
+ * {@code 0.25F - SIZE_SCALAR} formula. {@link #getNextAction(Action)} and
  * {@link #getCumAction(Action)} must cover the blink variant of the blowjob
  * loop. The animation predicate returns {@link PlayState#STOP} inside
  * {@link SexWorldClient} worlds.
  */
 public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IKobold {
-   public static final EyeAndKoboldColor aw = EyeAndKoboldColor.PURPLE;
-   public static final DataParameter<Float> aA = EntityDataManager.createKey(KoboldPlayerEntity.class, DataSerializers.FLOAT)
+   public static final EyeAndKoboldColor DEFAULT_BODY_COLOR = EyeAndKoboldColor.PURPLE;
+   public static final DataParameter<Float> SIZE_SCALAR = EntityDataManager.createKey(KoboldPlayerEntity.class, DataSerializers.FLOAT)
       .getSerializer()
       .createKey(122);
-   boolean aB = false;
-   boolean az = true;
-   boolean ay = false;
-   int ax = 0;
+   boolean flySecondFrame = false;
+   boolean blowjobRightSide = true;
+   boolean switchVariant = false;
+   int moanCooldown = 0;
 
    protected KoboldPlayerEntity(World world) {
       super(world);
@@ -82,9 +82,9 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    protected void entityInit() {
       super.entityInit();
       EyeAndKoboldColor color = EyeAndKoboldColor.values()[this.getRNG().nextInt(EyeAndKoboldColor.values().length)];
-      this.entityDataManager.register(au, new BlockPos(color.getMainColor()));
-      this.entityDataManager.register(as, aw.name());
-      this.entityDataManager.register(aA, 0.0F);
+      this.entityDataManager.register(EYE_COLOR, new BlockPos(color.getMainColor()));
+      this.entityDataManager.register(SKIN_COLOR_NAME, DEFAULT_BODY_COLOR.name());
+      this.entityDataManager.register(SIZE_SCALAR, 0.0F);
    }
 
    @Override
@@ -101,9 +101,9 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    /**
     * Maps the custom-part id list onto the kobold-specific data keys:
-    * index 0 = size ({@code aA}), index 1 = body color ({@code as}), index 2 =
-    * eye color ({@code au}); the remainder is appended as the DNA string
-    * ({@code at}). On the CLIENT the render caches are cleared afterwards.
+    * index 0 = size ({@code SIZE_SCALAR}), index 1 = body color ({@code SKIN_COLOR_NAME}), index 2 =
+    * eye color ({@code EYE_COLOR}); the remainder is appended as the DNA string
+    * ({@code MODEL_CODE}). On the CLIENT the render caches are cleared afterwards.
     * <p>
     * Ordering of the three special indices is part of the persisted format —
     * do not reorder.
@@ -116,20 +116,20 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
          int partId = (Integer)parts.get(i);
          switch (i) {
             case 0:
-               this.entityDataManager.set(aA, partId / 100.0F * 0.25F);
+               this.entityDataManager.set(SIZE_SCALAR, partId / 100.0F * 0.25F);
                break;
             case 1:
-               this.entityDataManager.set(as, EyeAndKoboldColor.values()[partId].toString());
+               this.entityDataManager.set(SKIN_COLOR_NAME, EyeAndKoboldColor.values()[partId].toString());
                break;
             case 2:
-               this.entityDataManager.set(au, new BlockPos(EyeAndKoboldColor.values()[partId].getMainColor()));
+               this.entityDataManager.set(EYE_COLOR, new BlockPos(EyeAndKoboldColor.values()[partId].getMainColor()));
                break;
             default:
                AbstractNpcOnlyEntity.appendPaddedNumber(builder, partId);
          }
       }
 
-      this.entityDataManager.set(at, builder.toString());
+      this.entityDataManager.set(MODEL_CODE, builder.toString());
       if (this.world.isRemote) {
          PlayerKoboldRenderer.clearRenderCache();
       }
@@ -138,9 +138,9 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    @Override
    public ArrayList<Integer> getBasePartIdList() {
       ArrayList parts = new ArrayList();
-      parts.add(Math.round((Float)this.entityDataManager.get(aA) * 100.0F / 0.25F));
-      parts.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.entityDataManager.get(as))));
-      parts.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.entityDataManager.get(au))));
+      parts.add(Math.round((Float)this.entityDataManager.get(SIZE_SCALAR) * 100.0F / 0.25F));
+      parts.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.entityDataManager.get(SKIN_COLOR_NAME))));
+      parts.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.entityDataManager.get(EYE_COLOR))));
       return parts;
    }
 
@@ -184,7 +184,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    @Override
    public float getScaleFactor() {
-      float shrink = 0.25F - (Float)this.entityDataManager.get(aA);
+      float shrink = 0.25F - (Float)this.entityDataManager.get(SIZE_SCALAR);
       return 1.4F - shrink;
    }
 
@@ -233,12 +233,12 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
 
    /**
     * Scales the bone matrix by the kobold size (1 minus the size scalar) so
-    * the rendered model matches the {@code aA} slider. CLIENT-only rendering
+    * the rendered model matches the {@code SIZE_SCALAR} slider. CLIENT-only rendering
     * helper.
     */
    @Override
    protected MatrixStack applyAdditionalMatrixTransformations(MatrixStack stack) {
-      float shrink = 0.25F - (Float)this.entityDataManager.get(aA);
+      float shrink = 0.25F - (Float)this.entityDataManager.get(SIZE_SCALAR);
       stack.scale(1.0F - shrink, 1.0F - shrink, 1.0F - shrink);
       return stack;
    }
@@ -249,7 +249,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
     */
    @Override
    protected float transformCameraPivotY(float y) {
-      float grow = 1.0F - (0.25F - (Float)this.entityDataManager.get(aA));
+      float grow = 1.0F - (0.25F - (Float)this.entityDataManager.get(SIZE_SCALAR));
       return y * grow;
    }
 
@@ -266,7 +266,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
    @Override
    public Vec3i getHandColor(int index) {
       try {
-         return EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(as)).getMainColor();
+         return EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(SKIN_COLOR_NAME)).getMainColor();
       } catch (Exception ex) {
          Main.LOGGER.error("could not read the kobold hand color", ex);
          return super.getHandColor(index);
@@ -329,7 +329,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
     * higher pitch (0.9-1.1 range from {@link RotationHelper#lerpDouble}).
     */
    public void playSoundAtVolume(SoundEvent sound, float volume) {
-      float shrink = 0.25F - (Float)this.entityDataManager.get(aA);
+      float shrink = 0.25F - (Float)this.entityDataManager.get(SIZE_SCALAR);
       double progress = shrink / 0.25F;
       float pitch = (float)RotationHelper.lerpDouble(0.9F, 1.1F, progress);
       this.playSoundAtPosition(sound, volume, pitch);

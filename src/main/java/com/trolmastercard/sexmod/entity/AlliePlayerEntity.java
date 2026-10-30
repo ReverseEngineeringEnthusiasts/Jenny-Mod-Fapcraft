@@ -39,11 +39,11 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
    static final double au = 4.0;
    static final double at = 4.0;
-   public float aq = 0.0F;
-   EntityPlayer as = null;
-   boolean ap = false;
-   int ar = 1;
-   int av = 1;
+   public float scaleOffset = 0.0F;
+   EntityPlayer knownOwnerPlayer = null;
+   boolean moanToggle = false;
+   int slowVariant = 1;
+   int fastVariant = 1;
 
    protected AlliePlayerEntity(World world) {
       super(world);
@@ -55,7 +55,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
 
    @Override
    public float getScaleFactor() {
-      return 1.9F + this.aq;
+      return 1.9F + this.scaleOffset;
    }
 
    public float getEyeHeight() {
@@ -128,11 +128,11 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
       super.updateAITasks();
       if (this.getOwnerUserUUID() != null) {
          EntityPlayer player = this.world.getPlayerEntityByUUID(this.getOwnerUserUUID());
-         if (player != null && this.as == null) {
+         if (player != null && this.knownOwnerPlayer == null) {
             this.handleOwnerUUID(true);
          }
 
-         this.as = player;
+         this.knownOwnerPlayer = player;
       }
    }
 
@@ -197,7 +197,7 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
     * CLIENT: registers the controllers plus the sound listener driving the
     * deepthroat/reverse-cowgirl scenes; {@code deepthroat_prepareDone} sends
     * the {@link KoboldStatePacket} lock-in, {@code cowgirlSlowDone} re-rolls
-    * the variant counter ({@code ar}), {@code cowgirl_cumDone}/
+    * the slow-variant counter ({@code slowVariant}), {@code cowgirl_cumDone}/
     * {@code deepthroat_cumDone} -&gt; {@code resetCameraAndPhysics()}.
     */
    @Override
@@ -296,11 +296,11 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "cowgirlSlowDone":
-               int oldState = this.ar;
+               int oldState = this.slowVariant;
 
                do {
-                  this.ar = this.getRNG().nextInt(3) + 1;
-               } while (this.ar == oldState);
+                  this.slowVariant = this.getRNG().nextInt(3) + 1;
+               } while (this.slowVariant == oldState);
 
                return;
             case "fastMoan":
@@ -308,11 +308,11 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                   HornyMeterHud.addToHornyMeter(0.04F);
                }
 
-               if (!this.ap) {
+               if (!this.moanToggle) {
                   this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_MOAN));
-                  this.ap = true;
+                  this.moanToggle = true;
                } else {
-                  this.ap = false;
+                  this.moanToggle = false;
                }
                break;
             case "fastSwitch":
@@ -322,11 +322,11 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                      this.setCurrentAction(Action.REVERSE_COWGIRL_FAST_CONTINUES);
                   } else {
                      this.resetAnimationControllerOffset();
-                     int oldCount = this.av;
+                     int oldCount = this.fastVariant;
 
                      do {
-                        this.av = this.getRNG().nextInt(3) + 1;
-                     } while (this.av == oldCount);
+                        this.fastVariant = this.getRNG().nextInt(3) + 1;
+                     } while (this.fastVariant == oldCount);
                   }
                }
                break;
@@ -426,10 +426,10 @@ public class AlliePlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.allie.reverse_cowgirl_start", true, event);
                   break;
                case REVERSE_COWGIRL_SLOW:
-                  this.createAnimation("animation.allie.reverse_cowgirl_slow" + this.ar, true, event);
+                  this.createAnimation("animation.allie.reverse_cowgirl_slow" + this.slowVariant, true, event);
                   break;
                case REVERSE_COWGIRL_FAST_CONTINUES:
-                  this.createAnimation("animation.allie.reverse_cowgirl_fastc" + this.av, true, event);
+                  this.createAnimation("animation.allie.reverse_cowgirl_fastc" + this.fastVariant, true, event);
                   break;
                case REVERSE_COWGIRL_FAST_START:
                   this.createAnimation("animation.allie.reverse_cowgirl_fasts", true, event);

@@ -18,15 +18,15 @@ import net.minecraftforge.items.IItemHandler;
  * chestplate, pants, shoes — {@link GirlInventorySlot}s bound to the girl's
  * forge {@code ITEM_HANDLER_CAPABILITY} at slot ids 0..5) together with the
  * player's own inventory. Every open instance registers itself in the static
- * {@link #containers} list, which {@link ChestContainerGui#onGuiClosed} uses to
- * snapshot the contents back to the server on close.
+ * {@link #containers} list and removes itself in {@link #onContainerClosed};
+ * the owning screen snapshots its own instance on close.
  * <p>
  * Rendered on the CLIENT side; the slot transfer logic in
  * {@link #transferStackInSlot} runs on both sides (vanilla container sync).
  */
 public class ChestContainer extends Container {
    BaseGirlEntity girl;
-   public Slot[] d;
+   public Slot[] equipmentSlots;
    public UUID girlUUID;
    public static List<ChestContainer> containers = new ArrayList<>();
 
@@ -36,7 +36,7 @@ public class ChestContainer extends Container {
       if (girl.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH)) {
          IItemHandler itemHandler = (IItemHandler)girl.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
          this.girl = girl;
-         this.d = new Slot[]{
+         this.equipmentSlots = new Slot[]{
             new GirlInventorySlot(GirlInventorySlot.b.WEAPON, itemHandler, GirlInventorySlot.b.WEAPON.id, 31, 60),
             new GirlInventorySlot(GirlInventorySlot.b.BOW, itemHandler, GirlInventorySlot.b.BOW.id, 50, 60),
             new GirlInventorySlot(GirlInventorySlot.b.HELMET, itemHandler, GirlInventorySlot.b.HELMET.id, 72, 60),
@@ -56,7 +56,7 @@ public class ChestContainer extends Container {
             slots.add(new Slot(playerInventory, i, 8 + i * 18, 142));
          }
 
-         for (Slot slot : this.d) {
+         for (Slot slot : this.equipmentSlots) {
             this.addSlotToContainer(slot);
          }
 
@@ -68,7 +68,7 @@ public class ChestContainer extends Container {
 
    /**
     * Standard shift-click transfer between the girl's equipment slots (first
-    * {@code d.length} slots) and the player's inventory. Merges girl->player
+    * {@code equipmentSlots.length} slots) and the player's inventory. Merges girl->player
     * backwards and player->girl forwards; returns the copied stack or
     * {@code EMPTY} when nothing moved.
     */
@@ -108,6 +108,7 @@ public class ChestContainer extends Container {
    }
 
    public void onContainerClosed(EntityPlayer player) {
+      containers.remove(this);
       super.onContainerClosed(player);
    }
 

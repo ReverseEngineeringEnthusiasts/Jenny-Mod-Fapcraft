@@ -27,26 +27,26 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  */
 public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRenderer {
    protected static final Vec3i tintColor = new Vec3i(255, 255, 255);
-   static HashMap<Integer, Vec3i> A = new HashMap<>();
+   static HashMap<Integer, Vec3i> boneColorCache = new HashMap<>();
 
    public AbstractPlayerKoblinGoboldRenderer(RenderManager renderManager, AnimatedGeoModel geoModel) {
       super(renderManager, geoModel);
    }
 
    public static void clearRenderCache() {
-      A.clear();
+      boneColorCache.clear();
    }
 
    protected Vec3i getBoneColor(GeoBone bone) {
       String boneName = bone.getName();
       int cacheKey = boneName.hashCode() + this.playerGirl.getPersistentID().hashCode();
-      Vec3i color = A.get(cacheKey);
+      Vec3i color = boneColorCache.get(cacheKey);
       if (color != null) {
          return color;
       }
 
       color = this.resolveBoneColor(boneName);
-      A.put(cacheKey, color);
+      boneColorCache.put(cacheKey, color);
       return color;
    }
 

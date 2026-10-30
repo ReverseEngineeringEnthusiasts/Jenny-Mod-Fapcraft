@@ -153,13 +153,13 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    protected ItemStack resolveHeldItemStack(@Nullable ItemStack defaultStack) {
       switch (this.renderEntity.getCurrentAction()) {
          case MINE:
-            if ((Boolean)this.renderEntity.getDataManager().get(KoboldEntity.at)) {
+            if ((Boolean)this.renderEntity.getDataManager().get(KoboldEntity.MINING_WITH_AXE)) {
                return new ItemStack(Items.IRON_AXE);
             }
 
             return new ItemStack(Items.IRON_PICKAXE);
          case NULL:
-            if ((Boolean)this.renderEntity.getDataManager().get(KoboldEntity.aC)) {
+            if ((Boolean)this.renderEntity.getDataManager().get(KoboldEntity.ARMED)) {
                return new ItemStack(Items.IRON_SWORD);
             }
          default:
@@ -202,13 +202,13 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
     */
    @Override
    protected void renderLeftEye() {
-      float squint = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
+      float squint = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.SIZE_SCALAR);
       GlStateManager.scale(1.0F - squint, 1.0F - squint, 1.0F - squint);
    }
 
    @Override
    protected void renderRightEye() {
-      float squint = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
+      float squint = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.SIZE_SCALAR);
       double inverseScale = 1.0 / (1.0 - squint);
       GlStateManager.scale(inverseScale, inverseScale, inverseScale);
    }
@@ -230,13 +230,13 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
     */
    public void doRenderKobold(KoboldEntity kobold, double x, double y, double z, float entityYaw, float partialTicks) {
       String actionString = (String)kobold.getDataManager().get(AbstractNpcOnlyEntity.CURRENT_ACTION);
-      if (kobold.as == null) {
-         kobold.as = actionString;
+      if (kobold.lastRenderedAction == null) {
+         kobold.lastRenderedAction = actionString;
       }
 
-      if (!kobold.as.equals(actionString)) {
+      if (!kobold.lastRenderedAction.equals(actionString)) {
          clearBoneColors();
-         kobold.as = actionString;
+         kobold.lastRenderedAction = actionString;
       }
 
       super.doRenderEntity(kobold, x, y, z, entityYaw, partialTicks);
@@ -249,7 +249,7 @@ public class KoboldRenderer extends GirlRendererBase<KoboldEntity> {
    @Override
    protected void renderNameTag(double x, double y, double z) {
       EntityDataManager dataManager = this.renderEntity.getDataManager();
-      String tribeName = (String)dataManager.get(KoboldEntity.aU);
+      String tribeName = (String)dataManager.get(KoboldEntity.TRIBE_NAME);
       if ("null".equals(tribeName)) {
          super.renderNameTag(x, y, z);
       } else {

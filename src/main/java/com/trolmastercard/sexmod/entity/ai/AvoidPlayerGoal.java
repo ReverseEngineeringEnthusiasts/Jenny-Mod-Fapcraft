@@ -56,12 +56,12 @@ public class AvoidPlayerGoal extends EntityAIAvoidEntity<EntityPlayer> {
    }
 
    public void startExecuting() {
-      this.manglelieEntity.getDataManager().set(ManglelieEntity.ar, true);
+      this.manglelieEntity.getDataManager().set(ManglelieEntity.SCARED, true);
       super.startExecuting();
    }
 
    public void resetTask() {
-      this.manglelieEntity.getDataManager().set(ManglelieEntity.ar, false);
+      this.manglelieEntity.getDataManager().set(ManglelieEntity.SCARED, false);
       super.resetTask();
    }
 

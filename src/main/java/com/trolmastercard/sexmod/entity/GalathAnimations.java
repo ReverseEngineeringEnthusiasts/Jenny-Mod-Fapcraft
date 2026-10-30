@@ -75,8 +75,8 @@ final class GalathAnimations {
          return true;
       }
 
-      if (action == Action.PUSSY_LICKING && galath.a5) {
-         galath.a5 = false;
+      if (action == Action.PUSSY_LICKING && galath.pussyLickingForward) {
+         galath.pussyLickingForward = false;
          galath.createAnimation("animation.galath.pussy_licking", true, event, true);
          return true;
       }
@@ -104,7 +104,7 @@ final class GalathAnimations {
 
    static float getSwordAttackProgress(GalathEntity galath, float partialTicks) {
       Action action = galath.getCurrentAction();
-      if (action == Action.PUSSY_LICKING && !galath.a5) {
+      if (action == Action.PUSSY_LICKING && !galath.pussyLickingForward) {
          return 0.0F;
       }
 
@@ -145,7 +145,7 @@ final class GalathAnimations {
                return PlayState.CONTINUE;
             } else {
                galath.rotationYaw = galath.rotationYawHead;
-               galath.createAnimation("animation.galath." + (galath.entityDataManager.get(GalathEntity.bT) ? "run" : "walk"), true, event);
+               galath.createAnimation("animation.galath." + (galath.entityDataManager.get(GalathEntity.SPRINTING) ? "run" : "walk"), true, event);
                return PlayState.CONTINUE;
             }
          }
@@ -208,7 +208,7 @@ final class GalathAnimations {
                galath.createAnimation("animation.galath.idle_flying", true, event);
                break;
             case SUMMON_SKELETON:
-               galath.createAnimation("animation.galath.summon_skeleton" + (galath.entityDataManager.get(GalathEntity.ay) ? "Mirrored" : ""), true, event);
+               galath.createAnimation("animation.galath.summon_skeleton" + (galath.entityDataManager.get(GalathEntity.MIRROR_SIDE) ? "Mirrored" : ""), true, event);
                break;
             case ATTACK_SWORD:
                galath.createAnimation("animation.galath.attack", true, event);
@@ -243,7 +243,7 @@ final class GalathAnimations {
                galath.createAnimation("animation.galath.running", true, event);
                break;
             case PUSSY_LICKING:
-               galath.createAnimation(galath.a5 ? "animation.galath.pussy_licking_forward" : "animation.galath.pussy_licking", true, event);
+               galath.createAnimation(galath.pussyLickingForward ? "animation.galath.pussy_licking_forward" : "animation.galath.pussy_licking", true, event);
                break;
             case MASTERBATE_SITTING:
                galath.createAnimation(galath.masterbateSittingPending ? "animation.galath.pussy_licking_back" : "animation.galath.masterbating_sitting", true, event);

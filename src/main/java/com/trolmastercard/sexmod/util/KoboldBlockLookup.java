@@ -28,7 +28,7 @@ import net.minecraft.world.World;
  * order and keep the *last* match, so a bed touching several others pairs with
  * the western one. Block lookups run on the server thread only; the saved
  * position scan needs the position's area loaded and silently keeps positions
- * whose kobold is not loaded (they are only collected into a discarded list).
+ * whose area is not loaded; positions whose kobold is gone are pruned.
  */
 final class KoboldBlockLookup {
    private KoboldBlockLookup() {
@@ -129,6 +129,10 @@ final class KoboldBlockLookup {
                staleMemberIds.add(memberUuid);
             }
          }
+      }
+
+      if (!staleMemberIds.isEmpty()) {
+         savedPositions.keySet().removeAll(staleMemberIds);
       }
 
       return savedPositions;

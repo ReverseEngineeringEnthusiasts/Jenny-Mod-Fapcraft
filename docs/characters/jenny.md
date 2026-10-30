@@ -22,16 +22,16 @@ Source: `assets/sexmod/animations/jenny/jenny.animation.json` (38 animations, ve
 | `walk` | LOOP (1.2s) | Movement controller when `getWalkType() == WALK` |
 | `fastwalk` | LOOP (0.8s) | Movement controller when `getWalkType() == FAST_WALK` |
 | `run` | LOOP (0.72s) | Movement controller when `getWalkType() == RUN` |
-| `backwards_walk` | LOOP (0.68s) | Player form only: movement controller when moving backwards (`ao.y < -0.1F`, speed 1.2) — `JennyPlayerEntity` |
-| `fly` / `fly2` | LOOP (0.84s) | Player form only: `!af` branch of movement controller; `fly2` toggled every re-play while the current movement animation name contains "fly" (`ap` flag toggling) |
+| `backwards_walk` | LOOP (0.68s) | Player form only: movement controller when moving backwards (`playerMotionOffset.y < -0.1F`, speed 1.2) — `JennyPlayerEntity` |
+| `fly` / `fly2` | LOOP (0.84s) | Player form only: `!playerOnGround` branch of movement controller; `fly2` toggled every re-play while the current movement animation name contains "fly" (`flySecondFrame` flag toggling) |
 | `sit` | LOOP (4.12s) | Action `SIT`; also `isRiding()` branch of the NPC movement controller |
 | `ride` | LOOP (4.12s) | Action `RIDE` |
 | `attack0` / `attack1` / `attack2` | one-shot (0.36/0.52/0.52s) | Action `ATTACK`, selected by `nextAttack` counter (0→1→2→0). Sound keyframes `attackSound` (plays `ENTITY_PLAYER_ATTACK_STRONG`) and `attackDone` (back to NULL, increments counter) |
 | `bowcharge` | LOOP (93.6s) | Action `BOW` (charged bow hold, non-loop) |
 | `throwpearl` | LOOP (4.58s) | Action `THROW_PEARL`; keyframe `pearl` sends `SendCompanionHomePacket` (sends girl home) |
-| `downed` | LOOP (5.125s) | Action `DOWNED` (0-HP combat state, 1 HP kept, revived by healing — see `GirlFollowGoal` inner class `a`) |
-| `strip` | one-shot (5.04s) | Action `STRIP` (both dress-up and strip; keyframes `stripMSG1` "Hihi~" + giggle, `becomeNude` toggles outfit, `stripDone` → `U()`) |
-| `payment` | one-shot (9.32s) | Action `PAYMENT` (emerald-demand scene, see Scenes). Keyframes `paymentMSG1` ("Huh?"), `paymentMSG2` (player line per scene), `paymentMSG3` ("Hehe~"), `paymentMSG4` (plob), `paymentDone` → `U()` |
+| `downed` | LOOP (5.125s) | Action `DOWNED` (0-HP combat state, 1 HP kept, revived by healing — see `GirlFollowGoal` inner class `DownedGirlEvents`) |
+| `strip` | one-shot (5.04s) | Action `STRIP` (both dress-up and strip; keyframes `stripMSG1` "Hihi~" + giggle, `becomeNude` toggles outfit, `stripDone` → `startActionFromHandState()`) |
+| `payment` | one-shot (9.32s) | Action `PAYMENT` (emerald-demand scene, see Scenes). Keyframes `paymentMSG1` ("Huh?"), `paymentMSG2` (player line per scene), `paymentMSG3` ("Hehe~"), `paymentMSG4` (plob), `paymentDone` → `startActionFromHandState()` |
 | `blowjobintro` | HOLD (49.28s) | Action `STARTBLOWJOB`. Keyframes `bjiMSG1..12` (dialogue + sounds + horny meter), `bjiDone` → `SUCKBLOWJOB` |
 | `blowjobsuck` | LOOP (6.04s) | Action `SUCKBLOWJOB` |
 | `blowjobthrust` | LOOP (1.76s) | Action `THRUSTBLOWJOB` (sneak/fast). Keyframes `bjtMSG1` (+0.04 meter), `bjtDone` → `SUCKBLOWJOB`, `bjtReady` jump-reset |
@@ -42,9 +42,9 @@ Source: `assets/sexmod/animations/jenny/jenny.animation.json` (38 animations, ve
 | `paizuri_cum` | LOOP (11.48s) | Action `PAIZURI_CUM` (jump). Keyframes `paizuri_cumStart` (camera), `paizuri_cumDone` → reset |
 | `doggygoonbed` | one-shot (6.52s) | Action `STARTDOGGY` (getting on the bed). Keyframes `doggyGoOnBedMSG1..4`, `doggyGoOnBedDone` → sends `SetPlayerForGirlPacket` + `WAITDOGGY` |
 | `doggywait` | LOOP (6.44s) | Action `WAITDOGGY` (waiting for the player to walk up) |
-| `doggystart` | LOOP (9.92s) | Action `DOGGYSTART` (player snapped in via `af` snap-in in `updateAITasks`). Keyframes `doggystartMSG1..5`, `doggystartDone` → `DOGGYSLOW` |
+| `doggystart` | LOOP (9.92s) | Action `DOGGYSTART` (player snapped in via `snapInPending` snap-in in `updateAITasks`). Keyframes `doggystartMSG1..5`, `doggystartDone` → `DOGGYSLOW` |
 | `doggyslow` | LOOP (2.32s) | Action `DOGGYSLOW`. Keyframes `doggyslowMSG1` (+0.00666 meter, random MMM/MOAN/heavybreathing), `doggyslowMSG2` |
-| `doggyfast_soft` / `doggyfast_hard` | LOOP (1.08s) | Action `DOGGYFAST`, suffix chosen by `aa` flag (`doggyfast_` + (aa ? "hard" : "soft")); `aa` set true by `doggyfastReady` while jumping, cleared on `doggyslowMSG1`/`doggyfastDone`. `doggyfastMSG1` (+0.02 meter, alternating moan/ahh via `ag` counter) |
+| `doggyfast_soft` / `doggyfast_hard` | LOOP (1.08s) | Action `DOGGYFAST`, suffix chosen by `doggyHard` flag (`doggyfast_` + (doggyHard ? "hard" : "soft")); `doggyHard` set true by `doggyfastReady` while jumping, cleared on `doggyslowMSG1`/`doggyfastDone`. `doggyfastMSG1` (+0.02 meter, alternating moan/ahh via `fastMoanCount` counter) |
 | `doggycum` | LOOP (6.68s) | Action `DOGGYCUM`. Keyframes `doggycumMSG1..5` (cuminflation, pounding, heavybreathing 4..7), `doggyCumDone` → reset |
 | `wave` | one-shot (3.54s) | Action `WAVE` — **dead**: no code path sets `Action.WAVE` (Action.WAVE has auto followUp `WAVE_IDLE` after 71 ticks) |
 | `wave_idle` | LOOP (5.21s) | Action `WAVE_IDLE` — dead alongside `WAVE` |
@@ -55,15 +55,15 @@ Scene actions use camera clamps from the `Action` enum: paizuri `minGirlPitch=-9
 
 ## Scenes & Actions
 
-Entry flow (shared): client `doAction` writes `animationFollowUp` → `GIRL_HAND_STATES` via `ChangeDataParameterPacket` and sends `KoboldStatePacket` → server `setDismounted()` sets `ab` → `updateAITasks()` lerps her to `TARGET_POS` for 40 ticks (`ac` counter, `RotationHelper.lerpVec3d` **INT** variant) → anchors (`IS_ANCHORED`) → `U()` dispatches on `GIRL_HAND_STATES`.
+Entry flow (shared): client `doAction` writes `animationFollowUp` → `GIRL_HAND_STATES` via `ChangeDataParameterPacket` and sends `KoboldStatePacket` → server `setDismounted()` sets `sceneEntryLerpActive` → `updateAITasks()` lerps her to `TARGET_POS` for 40 ticks (`sceneEntryLerpTicks` counter, `RotationHelper.lerpVec3d` **INT** variant) → anchors (`IS_ANCHORED`) → `startActionFromHandState()` dispatches on `GIRL_HAND_STATES`.
 
 Interaction menu (`openInteractionMenu`): options `[action.names.blowjob, action.names.boobjob, action.names.doggy, strip|dressup]` (strip shown when `OUTFIT_INDEX == 1`, else dressup). Without the horny potion effect, the menu is opened with payment rewards (3 emerald, 2 ender pearl, 2 diamond, 1 gold ingot when dressed); with the potion, no rewards.
 
-1. **Strip / Dress up** — `strip` (or `dressup`) → `U()` case `"strip"` → `resetGirlState()` + `Action.STRIP`; `becomeNude` keyframe toggles `currentModel` (outfit) client-side; `stripDone` → `U()` (hand state now empty → no-op) + `resetCameraAndPhysics()`. `dressup` sets `Action.STRIP` directly (reverse strip).
-2. **Payment gate** — without the horny potion effect (`yFlag`, server-set in `onUpdate()` from `isPotionActive(HornyPotion.HORNY_POTION)`), the first scene request plays `Action.PAYMENT` instead: the `payment` animation runs and `paymentMSG2` broadcasts the player's demand line depending on the pending hand state — `showBobsandveganapls` (strip), `giveblowjob`, `givesex` (doggy), `givebooba` (boobjob), default `"sex pls"`. `paymentDone` → `U()` starts the real scene. With the potion active the scene starts directly.
+1. **Strip / Dress up** — `strip` (or `dressup`) → `startActionFromHandState()` case `"strip"` → `resetGirlState()` + `Action.STRIP`; `becomeNude` keyframe toggles `currentModel` (outfit) client-side; `stripDone` → `startActionFromHandState()` (hand state now empty → no-op) + `resetCameraAndPhysics()`. `dressup` sets `Action.STRIP` directly (reverse strip).
+2. **Payment gate** — without the horny potion effect (`yFlag`, server-set in `onUpdate()` from `isPotionActive(HornyPotion.HORNY_POTION)`), the first scene request plays `Action.PAYMENT` instead: the `payment` animation runs and `paymentMSG2` broadcasts the player's demand line depending on the pending hand state — `showBobsandveganapls` (strip), `giveblowjob`, `givesex` (doggy), `givebooba` (boobjob), default `"sex pls"`. `paymentDone` → `startActionFromHandState()` starts the real scene. With the potion active the scene starts directly.
 3. **Blowjob** — `STARTBLOWJOB` (blowjobintro) → `bjiMSG1..12` dialogue/sound keyframes (lines blowjobtext1..8, sounds MMM/lightbreathing/aftersessionmoan/belljingle/hmph/giggle/lipsound/bjmoan, horny meter +0.02 per keyframe, camera reposition at `bjiMSG10` (-0.65,-0.8,-0.25, 60°, -3°) only if local player) → `bjiDone` → `SUCKBLOWJOB` (blowjobsuck, meter visible) → sneak = fast (`getNextAction` → `THRUSTBLOWJOB`, +0.04/loop) → jump = cum (`getCumAction` → `CUMBLOWJOB`, camera pitch 70) → `bjcBlackScreen` → `bjcDone` → `resetCameraAndPhysics()` (full `ResetGirlPacket`).
-4. **Boobjob / Paizuri** — `U()` case `"boobjob"`: requires `OUTFIT_INDEX == 0`, otherwise runs `Action.STRIP` first and returns. → `PAIZURI_START` → `paizuri_startDone` → `PAIZURI_SLOW` → sneak → `PAIZURI_FAST` → jump → `PAIZURI_CUM` → reset. `boobjob_camera` keyframe repositions the nearest player (-0.7,-0.6,0.2, 60°, -3°) once (`ae` one-shot) and binds them as interaction player.
-5. **Doggy (bed)** — `U()` case `"doggy"` → `SendGirlToSexPacket` → `goToSexBed()`: nearest bed via `findNearestBed` (spiral scan, radius 22, ±3 height); if none → `GIRLS_JENNY_HMPH[2]` + `jenny.dialogue.nobedinsight`; picks the best of 4 bed-side offsets (yaws 0/180/-90/90) with free AIR; if all blocked → `jenny.dialogue.bedobscured`. Walks at 0.35 speed (`zFlag` walk state, re-path at ticks 60/120, timeout 200) → anchor + noClip + noGravity → `STARTDOGGY` (doggygoonbed) → `doggyGoOnBedDone` → `WAITDOGGY` → **snap-in** (`af` in `updateAITasks`): when the nearest player is within 0.5 blocks the player is bound (`INTERACTION_PARTNER_UUID`), teleported in front, movement locked (`SetPlayerMovementPacket(false)`) → `DOGGYSTART` (doggystart) → `doggystartDone` → `DOGGYSLOW` → sneak → `DOGGYFAST` (soft/hard by jump) → jump → `DOGGYCUM` → reset.
+4. **Boobjob / Paizuri** — `startActionFromHandState()` case `"boobjob"`: requires `OUTFIT_INDEX == 0`, otherwise runs `Action.STRIP` first and returns. → `PAIZURI_START` → `paizuri_startDone` → `PAIZURI_SLOW` → sneak → `PAIZURI_FAST` → jump → `PAIZURI_CUM` → reset. `boobjob_camera` keyframe repositions the nearest player (-0.7,-0.6,0.2, 60°, -3°) once (`paizuriCameraAligned` one-shot) and binds them as interaction player.
+5. **Doggy (bed)** — `startActionFromHandState()` case `"doggy"` → `SendGirlToSexPacket` → `goToSexBed()`: nearest bed via `findNearestBed` (spiral scan, radius 22, ±3 height); if none → `GIRLS_JENNY_HMPH[2]` + `jenny.dialogue.nobedinsight`; picks the best of 4 bed-side offsets (yaws 0/180/-90/90) with free AIR; if all blocked → `jenny.dialogue.bedobscured`. Walks at 0.35 speed (`zFlag` walk state, re-path at ticks 60/120, timeout 200) → anchor + noClip + noGravity → `STARTDOGGY` (doggygoonbed) → `doggyGoOnBedDone` → `WAITDOGGY` → **snap-in** (`snapInPending` in `updateAITasks`): when the nearest player is within 0.5 blocks the player is bound (`INTERACTION_PARTNER_UUID`), teleported in front, movement locked (`SetPlayerMovementPacket(false)`) → `DOGGYSTART` (doggystart) → `doggystartDone` → `DOGGYSLOW` → sneak → `DOGGYFAST` (soft/hard by jump) → jump → `DOGGYCUM` → reset.
 6. **Combat/follow actions** (AI, not scenes): `ATTACK` (attack0-2), `BOW` (bowcharge), `RIDE`, `SIT`, `THROW_PEARL` (pearl keyframe → send home), `DOWNED`.
 7. **Interact while busy** — `processInteract` returns false → chat `jenny.dialogue.busy` ("I am busy at the moment~").
 
@@ -147,8 +147,8 @@ Misc scene sounds referenced from Jenny code (shared `MISC_*` arrays): `MISC_PLO
 
 - **Payment gate**: first scene request without the horny potion effect runs `Action.PAYMENT` — the player must pay (emeralds/pearls/diamonds/gold in the menu rewards) before the scene starts. `yFlag` (data id 118, BOOLEAN) mirrors the potion effect server→client every tick; potion bypasses payment.
 - **Horny potion**: `HornyPotion.HORNY_POTION` effect — as an NPC it disables the payment gate; drinking it transforms the player into `JennyPlayerEntity`.
-- **Dismount lerp**: 40-tick lerp to `TARGET_POS` using `RotationHelper.lerpVec3d(pos, target, 40 - ac)` — **INT (step) variant required**; the double variant flings the girl ~40 blocks (documented pitfall in class javadoc).
-- **Doggy snap-in**: `af` flag waits for the player within 0.5 blocks, then binds + repositions them to start `DOGGYSTART` — this is what starts the standing doggy scene.
+- **Dismount lerp**: 40-tick lerp to `TARGET_POS` using `RotationHelper.lerpVec3d(pos, target, 40 - sceneEntryLerpTicks)` — **INT (step) variant required**; the double variant flings the girl ~40 blocks (documented pitfall in class javadoc).
+- **Doggy snap-in**: `snapInPending` flag waits for the player within 0.5 blocks, then binds + repositions them to start `DOGGYSTART` — this is what starts the standing doggy scene.
 - **Horny meter**: `HornyMeterHud` shown at scene start (`sexUiOn`), incremented by MSG keyframes, reset at intro/cum, hidden at `bjcMSG2`, reset at scene end.
 - **Re-entry guards** (`setCurrentAction`): refuses `DOGGYSLOW/DOGGYFAST` while `DOGGYCUM` plays, `THRUSTBLOWJOB/SUCKBLOWJOB` while `CUMBLOWJOB` plays, `PAIZURI_SLOW/FAST` while `PAIZURI_CUM` plays. Also repositions the player (+0.2 z, yaw+180) when leaving `STARTBLOWJOB`/`PAIZURI_START`.
 
@@ -160,11 +160,11 @@ Differences from the NPC:
 - **Menu**: `[action.names.blowjob, action.names.boobjob]` only — no doggy/strip in the GUI; doggy is started via `handleInteraction()` (`STARTDOGGY` + strip + camera yaw) when the owner walks up.
 - **Owner commands** (`handleOwnerCommand`): `boobjob` → strip + `PAIZURI_START` + `sendActionPacket` + `teleportPlayerToGirl`; `blowjob` → `STARTBLOWJOB` + packet (outfit index passed) + teleport.
 - **Doggy bed phase**: `WAITDOGGY` waits for the **nearest non-owner** player within 1 block (owner gets DARK_PURPLE "sowy no lesbo action yet uwu"); both players are set flying, movement locked, camera at (0,0,0.4, 0°, 60°), then `DOGGYSTART`.
-- **Movement animations**: flying (`fly`/`fly2` toggle via `ap`), run 1.2×, fastwalk 1.5×, `backwards_walk` when walking backward; `sit` when `ak` (riding) — the NPC's movement controller instead uses `sit` for `isRiding()`.
+- **Movement animations**: flying (`fly`/`fly2` toggle via `flySecondFrame`), run 1.2×, fastwalk 1.5×, `backwards_walk` when walking backward; `sit` when `playerRiding` (riding) — the NPC's movement controller instead uses `sit` for `isRiding()`.
 - **Hardcoded dialogue**: player form uses hardcoded strings for payment lines ("show Bobs and vegana pls", "Give me the sucky sucky and these are yours", "gib boba OwO", "sex pls") instead of the lang keys; stripMSG1 "Hihi~"; blowjob lines via lang keys in `JennyPlayerEntity` sound listener (identical keyframe names).
-- **Camera differences**: `bjiMSG10` uses (-0.4,-0.8,-0.2, 60°, -3°); `boobjob_camera` sets `cameraYaw = 180` and repositions only when local player + `as` one-shot; paizuri reposition (-0.7,-0.6,-0.2).
+- **Camera differences**: `bjiMSG10` uses (-0.4,-0.8,-0.2, 60°, -3°); `boobjob_camera` sets `cameraYaw = 180` and repositions only when local player + `paizuriCameraAligned` one-shot; paizuri reposition (-0.7,-0.6,-0.2).
 - **Hand rendering**: `getHandModel` returns `SlimeModel` (vanilla placeholder) with `hand_nude.png` (index 0) / `hand.png`.
-- **Shared machinery**: same `getNextAction`/`getCumAction`/`setCurrentAction` guards as the NPC; `blocksOutfitToggle()` false; scene end identical (`bjcDone`/`paizuri_cumDone`/`doggyCumDone` → `resetCameraAndPhysics()`); PAYMENT cases in the sound listener are vestigial (`U()` is empty in player girls).
+- **Shared machinery**: same `getNextAction`/`getCumAction`/`setCurrentAction` guards as the NPC; `blocksOutfitToggle()` false; scene end identical (`bjcDone`/`paizuri_cumDone`/`doggyCumDone` → `resetCameraAndPhysics()`); PAYMENT cases in the sound listener are vestigial (`startActionFromHandState()` is empty in player girls).
 - **Player-girl rules** (from `AbstractPlayerGirlEntity`): size (0.01,0.01), `canBeCollidedWith` false, `canBePushed` false, always noClip+noGravity, glued to the owner's position when not anchored, owner's swing mirrors into `ATTACK` action, armor mirrored from owner (`syncArmor`), `resetLocalPlayerClientState` sends the single-arg full `ResetGirlPacket`, strip sequence `tickStripSequence` toggles outfit at tick 65 and ends at 100.
 
 ## Data keys / NBT
@@ -189,13 +189,13 @@ Shared data-manager keys (explicit serializer ids, **never renumber**):
 | 112-115 | `BOOTS_SLOT`..`HELMET_SLOT` | ITEM_STACK | armor mirror |
 | 116 | `BOW` | ITEM_STACK | bow slot (inventory slot 1) |
 | 117 | `WEAPON` | ITEM_STACK | weapon slot (inventory slot 0) |
-| 118 | `yFlag` (JennyEntity) | BOOLEAN | horny-potion active. **Note**: id 118 is dual-purpose — `AbstractPlayerGirlEntity.ai` (owner UUID, OPTIONAL_UNIQUE_ID) uses the same id on the same key class. No collision in practice because NPCs and player-girls are distinct classes that never both register on one instance; do not register both on a single class |
+| 118 | `yFlag` (JennyEntity) | BOOLEAN | horny-potion active. **Note**: id 118 is dual-purpose — `AbstractPlayerGirlEntity.OWNER_UUID` (owner UUID, OPTIONAL_UNIQUE_ID) uses the same id on the same key class. No collision in practice because NPCs and player-girls are distinct classes that never both register on one instance; do not register both on a single class |
 
 NBT (`writeEntityToNBT`/`readEntityFromNBT`): `homeX`/`homeY`/`homeZ` (double), `girlID` (string; duped-id detection removes the duplicate entity with a WARN log), `sexmod:customname` (if set), `sexmod:customModel` (if `supportsCustomModels`), `inventory` (serialized `ItemStackHandler`, 7 slots: 0 sword, 1 bow, 2-5 armor, 6 spare). Player form adds `owner` (owner UUID string). Client writes must go through `changeDataParameterFromClient` (packet) — direct client data-manager writes never reach the server.
 
 ## Pitfalls & quirks (deobfuscated code notes)
 
-- **Lerp variant bug**: `updateAITasks` must keep `RotationHelper.lerpVec3d(pos, target, 40 - ac)` (int step) — the double variant flings the girl 40× her distance and she vanishes (class javadoc warning).
+- **Lerp variant bug**: `updateAITasks` must keep `RotationHelper.lerpVec3d(pos, target, 40 - sceneEntryLerpTicks)` (int step) — the double variant flings the girl 40× her distance and she vanishes (class javadoc warning).
 - **`onUpdate()` must never `setDead`**: the original jar has no removal there; a deobf-regression that deleted girls on benign tick exceptions made Jenny disappear permanently (documented in `BaseGirlEntity.onUpdate` javadoc).
 - **`HAND_STATES` force-set to "1" every AI tick** in `AbstractGirlNpcEntity.updateAITasks` — combat hand-raise flag, do not "fix".
 - **`OutfitIndex` bound check**: `getSexWorldTexture` uses `>=` (jar had `>`, OOB at index == length) and prints "Girl doesn't have an outfit Nr.X so im just making her nude lol".
@@ -203,7 +203,7 @@ NBT (`writeEntityToNBT`/`readEntityFromNBT`): `homeX`/`homeY`/`homeZ` (double), 
 - **`fortnite`** and **`wave`/`wave_idle`** are unreferenced dead assets/actions (no code sets `Action.WAVE`).
 - **Sound file gaps**: `GIRLS_JENNY_HMPH` array has 5 slots but sounds.json defines only 4 (`hmph[4]` = silent/missing); `aftersessionmoan/bjmoan/*` (13 files) are orphaned (no matching array field).
 - **`setCurrentAction` camera nudge**: leaving `STARTBLOWJOB`/`PAIZURI_START` repositions the interaction player by (0,0,0.2) rotated by yaw+180.
-- **Doggy hard variant**: `aa` flag set by `doggyfastReady` only while the local player jumps; `ag` counter alternates moan vs ahh on `doggyfastMSG1`; `doggyslowMSG1` resets `aa` and uses a weighted sound pick (1-in-4 → MMM/MOAN, else heavybreathing).
+- **Doggy hard variant**: `doggyHard` flag set by `doggyfastReady` only while the local player jumps; `fastMoanCount` counter alternates moan vs ahh on `doggyfastMSG1`; `doggyslowMSG1` resets `doggyHard` and uses a weighted sound pick (1-in-4 → MMM/MOAN, else heavybreathing).
 - **`positionPlayerRelative`** requires a bound interaction player and uses `cameraOriginPos` as the reference anchor — it must be cleared (`cameraOriginPos = null`) on every reset path or the next scene repositions from a stale point.
 - **`triggerActionSync`** sends `KoboldStatePacket` client→server; the server-side handler calls `setDismounted()` — the scene entry funnel shared with Bia/Luna/Kobold.
 - **Name-tag/scale oddity**: NPC `getScaleFactor()` returns -0.2F (negative — used only as a name-tag Y offset), while the player form returns 1.75F.

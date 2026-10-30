@@ -143,7 +143,7 @@ final class GalathInteractions {
     * anchored and locks the player in.
     */
    static boolean processGirlInteract(GalathEntity galath, EntityPlayer player, EnumHand hand) {
-      if (!(Boolean)galath.getDataManager().get(GalathEntity.bP)) {
+      if (!(Boolean)galath.getDataManager().get(GalathEntity.PARALYZED)) {
          return galath.processInteractBase(player, hand);
       } else if (galath.getCurrentAction() != Action.KNOCK_OUT_GROUND) {
          return galath.processInteractBase(player, hand);

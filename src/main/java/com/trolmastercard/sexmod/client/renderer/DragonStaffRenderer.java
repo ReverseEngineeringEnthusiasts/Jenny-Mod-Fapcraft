@@ -59,7 +59,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
    double animationTicks = 0.0;
    EntityPlayer player;
    ItemStack heldItem;
-   static HashMap<ItemStack, Vector3f> n = new HashMap<>();
+   static HashMap<ItemStack, Vector3f> swayByStack = new HashMap<>();
 
    public DragonStaffRenderer() {
       super(new DragonStaffModel());
@@ -121,7 +121,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
    /**
     * Custom pass for the {@code staff} bone: flush pending geckolib vertices,
     * apply the bone transform, then draw the bobbing crystal (rotation
-    * accumulates the holder's movement per frame in the static map {@code n}
+    * accumulates the holder's movement per frame in the static map {@code swayByStack}
     * keyed by ItemStack) and the orbiting wool particles. Re-binds the staff
     * texture and restarts the buffer for the remaining bones.
     */
@@ -132,7 +132,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
          Tessellator.getInstance().draw();
          com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
          GlStateManager.translate(0.0, 1.5 + 0.001 * Math.sin(0.005 * this.animationTicks) + 0.001, 0.0);
-         Vector3f storedSway = n.get(this.heldItem);
+         Vector3f storedSway = swayByStack.get(this.heldItem);
          GlStateManager.scale(this.getBobOffset(), this.getBobOffset(), this.getBobOffset());
          if (storedSway == null) {
             storedSway = new Vector3f(0.0F, 0.0F, 0.0F);
@@ -143,7 +143,7 @@ public class DragonStaffRenderer extends GeoItemRenderer<DragonStaffItem> {
          GlStateManager.rotate(storedSway.x * 10.0F, 0.0F, 1.0F, 0.0F);
          GlStateManager.rotate(-storedSway.y * 10.0F, 0.0F, 0.0F, 1.0F);
          GlStateManager.rotate((float)(this.animationTicks * 0.1F), 1.0F, 1.0F, 1.0F);
-         n.put(this.heldItem, storedSway);
+         swayByStack.put(this.heldItem, storedSway);
          this.mc.getTextureManager().bindTexture(CRYSTAL_TEXTURE);
          this.crystalModel.render(Minecraft.getMinecraft().player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
          GlStateManager.popMatrix();

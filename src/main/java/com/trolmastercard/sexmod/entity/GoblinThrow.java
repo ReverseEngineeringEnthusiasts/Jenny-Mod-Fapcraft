@@ -32,7 +32,7 @@ final class GoblinThrow {
    }
 
    static void handleHeldState(GoblinEntity goblin) {
-      if ((Boolean)goblin.entityDataManager.get(GoblinEntity.aC)) {
+      if ((Boolean)goblin.entityDataManager.get(GoblinEntity.TAMED)) {
          if (goblin.getInteractionPlayerUUID() == null) {
             if (goblin.getCurrentAction() == Action.NULL) {
                EntityPlayer player = goblin.world.getClosestPlayerToEntity(goblin, 15.0);

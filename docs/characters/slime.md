@@ -35,10 +35,10 @@ Source: `animations/slime/slime.animation.json` (format 1.8.0), 28 animations. C
 | `doggyfast` | Doggy fast (loop; emits `sexUiOn`, `doggyfastMSG1` (pounding + alternating slime sounds +0.04), `doggyfastReady` (jump resets offset), `doggyfastDone` → DOGGYSLOW) | action controller, case DOGGYFAST |
 | `doggycum` | Doggy cum (loop=false; emits `doggycumMSG1..5` (cuminflation+pounding+death), `bjcBlackScreen`, `doggyCumDone` → reset + pregnancy 2400) | action controller, case DOGGYCUM |
 | `sit` | Sitting (player form: RIDE/SIT actions) | `SlimePlayerEntity` movement/action controller |
-| `fly` / `fly2` | Airborne poses (player form, `!af` toggling via `ap`) | `SlimePlayerEntity` movement controller |
+| `fly` / `fly2` | Airborne poses (player form, `!playerOnGround` toggling via `flySecondFrame`) | `SlimePlayerEntity` movement controller |
 | `walk` | Walking (player form) | `SlimePlayerEntity` movement controller |
 | `backwards_walk` | Backwards walk (player form) | `SlimePlayerEntity` movement controller |
-| `run` | Running (player form, `aj` flag) | `SlimePlayerEntity` movement controller |
+| `run` | Running (player form, `playerSprinting` flag) | `SlimePlayerEntity` movement controller |
 | `ride` | **Gap**: `SlimePlayerEntity` case RIDE requests `animation.slime.ride` — not in the JSON | player-form action controller (dangling reference) |
 | `attack0` / `attack1` / `attack2` | Melee swings (player form; emit `attackSound`/`attackDone` — note `attackSound` has no case in the slime sound listener) | `SlimePlayerEntity` action controller, case ATTACK |
 | `bowcharge` | Bow draw (player form) | `SlimePlayerEntity` action controller, case BOW |

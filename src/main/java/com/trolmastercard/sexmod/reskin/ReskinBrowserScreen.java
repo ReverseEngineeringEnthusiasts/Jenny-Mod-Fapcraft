@@ -53,6 +53,7 @@ public class ReskinBrowserScreen extends GuiScreen {
    private boolean scanDone;
    private final Map<String, ResourceLocation> thumbTextures = new HashMap<>();
    private final Map<String, BufferedImage> pendingThumbs = new HashMap<>();
+   private final List<com.trolmastercard.sexmod.entity.BaseGirlEntity> previewGirls = new ArrayList<>();
    private boolean thumbsDirty;
 
    // double-click detection for apply (left) / remove (right)
@@ -416,6 +417,7 @@ public class ReskinBrowserScreen extends GuiScreen {
          if (girl == null) {
             girl = (com.trolmastercard.sexmod.entity.BaseGirlEntity) npcType.npcClass.getConstructor(net.minecraft.world.World.class).newInstance(this.mc.world);
             girl.setLocallyRegistered(true);
+            this.previewGirls.add(girl);
          }
          // Use the original proven entry point (schedules + guards whitelist).
          com.trolmastercard.sexmod.client.gui.ClothingScreen.openClothingScreen(girl);
@@ -453,6 +455,7 @@ public class ReskinBrowserScreen extends GuiScreen {
          if (girl == null) {
             girl = (com.trolmastercard.sexmod.entity.BaseGirlEntity) npcType.npcClass.getConstructor(net.minecraft.world.World.class).newInstance(this.mc.world);
             girl.setLocallyRegistered(true);
+            this.previewGirls.add(girl);
          }
          this.mc.displayGuiScreen(new BodySlidersScreen(girl));
       } catch (Throwable t) {
@@ -625,8 +628,20 @@ public class ReskinBrowserScreen extends GuiScreen {
       thumbsDirty = false;
    }
 
+   /**
+    * Drops the fallback preview girls this screen created for the wardrobe /
+    * body-slider hand-off. They are only stand-ins when no real girl of the
+    * selected type exists, and must not stay in the registry after the screen
+    * closes (the receiving screens hold their own reference).
+    */
    @Override
-   public void onGuiClosed() { super.onGuiClosed(); }
+   public void onGuiClosed() {
+      super.onGuiClosed();
+      for (com.trolmastercard.sexmod.entity.BaseGirlEntity preview : this.previewGirls) {
+         preview.setLocallyRegistered(false);
+      }
+      this.previewGirls.clear();
+   }
 
    public static void debugHeadless(String groupDir) {
       List<ReskinEntry> found = new ReskinScanner().scan(new java.io.File(groupDir));

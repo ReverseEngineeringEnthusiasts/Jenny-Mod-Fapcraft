@@ -29,7 +29,7 @@ import software.bernie.geckolib3.resource.GeckoLibCache;
  * <b>Pitfalls.</b> The predicate publishes the size scalar to the GeckoLib
  * parser ({@code "size"} = {@code 0.25F - aA}) on every call — the model reads
  * it, so it must run before any animation is created. The pose flags are
- * per-entity and mutated from the listener: {@code ay} = blowjob "switch"
+ * per-entity and mutated from the listener: {@code switchVariant} = blowjob "switch"
  * suffix, {@code az} = blowjob side (R/L), {@code ax} = moan counter. The
  * movement controller uses a 3-tick transition. {@code mating_press_startDone}
  * intentionally falls through to {@code mating_press_hardDone}.
@@ -43,7 +43,7 @@ final class KoboldPlayerAnimations {
          return PlayState.STOP;
       }
 
-      float shrink = 0.25F - (Float)kobold.getDataManager().get(KoboldEntity.aE);
+      float shrink = 0.25F - (Float)kobold.getDataManager().get(KoboldEntity.SIZE_SCALAR);
       GeckoLibCache.getInstance().parser.setValue("size", shrink);
       switch (event.getController().getName()) {
          case "eyes":
@@ -62,11 +62,11 @@ final class KoboldPlayerAnimations {
                if (kobold.movementController.getCurrentAnimation() != null
                   && kobold.movementController.getCurrentAnimation().animationName.contains("fly")
                   && kobold.playerOnGround) {
-                  kobold.aB = !kobold.aB;
+                  kobold.flySecondFrame = !kobold.flySecondFrame;
                }
 
                if (!kobold.playerOnGround) {
-                  kobold.createAnimation("animation.kobold.fly" + (kobold.aB ? "2" : ""), true, event);
+                  kobold.createAnimation("animation.kobold.fly" + (kobold.flySecondFrame ? "2" : ""), true, event);
                } else if (Math.abs(kobold.playerMotionOffset.x) + Math.abs(kobold.playerMotionOffset.y) > 0.0F) {
                   if (kobold.playerSprinting) {
                      kobold.movementController.setAnimationSpeed(1.2F);
@@ -110,8 +110,8 @@ final class KoboldPlayerAnimations {
                   kobold.createAnimation("animation.kobold.blowjobStart", false, event);
                   break;
                case SUCKBLOWJOB_BLINK:
-                  String side = kobold.az ? "R" : "L";
-                  String animSuffix = kobold.ay ? "Switch" : "";
+                  String side = kobold.blowjobRightSide ? "R" : "L";
+                  String animSuffix = kobold.switchVariant ? "Switch" : "";
                   kobold.createAnimation("animation.kobold.blowjobSlow" + side + animSuffix, true, event);
                   break;
                case THRUSTBLOWJOB:
@@ -179,7 +179,7 @@ final class KoboldPlayerAnimations {
                break;
             case "paymentDone":
                if (kobold.isControlledByLocalPlayer()) {
-                  kobold.U();
+                  kobold.startActionFromHandState();
                }
                break;
             case "blowjobStartMSG1":
@@ -220,19 +220,19 @@ final class KoboldPlayerAnimations {
                break;
             case "blowjobStartDone":
                kobold.setCurrentAction(Action.SUCKBLOWJOB_BLINK);
-               kobold.ay = false;
-               kobold.az = true;
+               kobold.switchVariant = false;
+               kobold.blowjobRightSide = true;
                if (kobold.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "switch":
-               kobold.ay = kobold.getRNG().nextBoolean();
+               kobold.switchVariant = kobold.getRNG().nextBoolean();
                kobold.actionController.clearAnimationCache();
                break;
             case "endSwitch":
-               kobold.ay = false;
-               kobold.az = !kobold.az;
+               kobold.switchVariant = false;
+               kobold.blowjobRightSide = !kobold.blowjobRightSide;
                kobold.actionController.clearAnimationCache();
                break;
             case "blowjobFastDone":
@@ -304,16 +304,16 @@ final class KoboldPlayerAnimations {
                kobold.playRandomSounds(SoundHandler.GIRLS_KOBOLD_MOAN);
                break;
             case "moanMating":
-               kobold.ax--;
-               if (kobold.ax <= 0) {
-                  kobold.ax = 3;
+               kobold.moanCooldown--;
+               if (kobold.moanCooldown <= 0) {
+                  kobold.moanCooldown = 3;
                   kobold.playRandomSounds(SoundHandler.GIRLS_KOBOLD_MOAN);
                }
                break;
             case "analHardMSG1":
-               kobold.ax--;
-               if (kobold.ax <= 0) {
-                  kobold.ax = 4;
+               kobold.moanCooldown--;
+               if (kobold.moanCooldown <= 0) {
+                  kobold.moanCooldown = 4;
                   kobold.playRandomSounds(SoundHandler.GIRLS_KOBOLD_MOAN);
                }
                break;

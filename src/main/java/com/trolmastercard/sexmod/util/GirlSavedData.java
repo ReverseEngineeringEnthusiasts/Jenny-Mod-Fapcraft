@@ -31,8 +31,8 @@ import org.apache.logging.log4j.Level;
  * This is the *ownership* system, NOT the scene system
  * (see {@link KoboldManager} and the networking scene packets for that).
  * <p>
- * <b>State.</b> {@code h} = bidirectional player UUID <-> girl UUID map,
- * {@code b} = last cum-time per player (drives despawn/cooldown), {@code
+ * <b>State.</b> {@code ownerToGirl} = bidirectional player UUID <-> girl UUID map,
+ * {@code lastCumTimeByPlayer} = last cum-time per player (drives despawn/cooldown), {@code
  * mangOwnershipSet} = players who own a manglelie. Static accessors are used by
  * {@link GalathCoinItem}, {@link RequestRidingPacket} and the galath AI.
  * <p>
@@ -49,8 +49,8 @@ public class GirlSavedData extends WorldSavedData {
    public static final String GALATH_OWNERSHIP_KEY = "sexmod:galath_owner_ship";
    public static final String OWNERSHIP_DATA_KEY = "sexmod:ownershipdata";
    public static final String MANG_OWNERSHIP_DATA_KEY = "sexmod:mangownershipdata";
-   static BiDirectionalMap<UUID, UUID> h = new BiDirectionalMap<>();
-   static HashMap<UUID, Long> b = new HashMap<>();
+   static BiDirectionalMap<UUID, UUID> ownerToGirl = new BiDirectionalMap<>();
+   static HashMap<UUID, Long> lastCumTimeByPlayer = new HashMap<>();
    static HashSet<UUID> mangOwnershipSet = new HashSet<>();
 
    public GirlSavedData() {
@@ -63,7 +63,7 @@ public class GirlSavedData extends WorldSavedData {
 
    public static void clearAll() {
       mangOwnershipSet.clear();
-      h.clear();
+      ownerToGirl.clear();
    }
 
    public static void markAsManglelieOwned(UUID girlUuid) {
@@ -78,7 +78,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static boolean isOwnerNearby(GalathEntity galath) {
-      UUID ownerId = h.getByValue(galath.getGirlId());
+      UUID ownerId = ownerToGirl.getByValue(galath.getGirlId());
       if (ownerId == null) {
          return false;
       } else {
@@ -93,7 +93,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static boolean isOwnerOf(EntityPlayer player, GalathEntity galath) {
-      return galath.getGirlId().equals(h.getByKey(player.getPersistentID()));
+      return galath.getGirlId().equals(ownerToGirl.getByKey(player.getPersistentID()));
    }
 
    public static void updateMangleliePartner(GalathEntity galath) {
@@ -102,14 +102,14 @@ public class GirlSavedData extends WorldSavedData {
          galath.world.removeEntity(partner);
       }
 
-      UUID ownerId = h.getByValue(galath.getGirlId());
+      UUID ownerId = ownerToGirl.getByValue(galath.getGirlId());
       if (ownerId == null) {
          galath.world.removeEntity(galath);
       } else {
          World world = galath.world;
          EntityPlayer owner = world.getPlayerEntityByUUID(ownerId);
          galath.world.removeEntity(galath);
-         h.removeByKey(ownerId);
+         ownerToGirl.removeByKey(ownerId);
          if (owner != null) {
             PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)owner);
          }
@@ -117,11 +117,11 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static boolean hasOwner(UUID uuid) {
-      return h.getByKey(uuid) != null;
+      return ownerToGirl.getByKey(uuid) != null;
    }
 
    public static UUID getManglelieOwnerId(UUID uuid) {
-      return h.getByValue(uuid);
+      return ownerToGirl.getByValue(uuid);
    }
 
    public static UUID getManglelieOwnerOf(GalathEntity galath) {
@@ -129,7 +129,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static UUID getOwnerId(UUID uuid) {
-      return h.getByKey(uuid);
+      return ownerToGirl.getByKey(uuid);
    }
 
    public static UUID getOwnerOf(EntityPlayer player) {
@@ -137,7 +137,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static void setOwnerShip(UUID playerUuid, UUID girlUuid) {
-      h.put(playerUuid, girlUuid);
+      ownerToGirl.put(playerUuid, girlUuid);
    }
 
    public static void grantOwnership(EntityPlayer player, GalathEntity galath) {
@@ -149,7 +149,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static void removeOwner(UUID uuid) {
-      h.removeByKey(uuid);
+      ownerToGirl.removeByKey(uuid);
    }
 
    public static void removeOwnerOf(EntityPlayer player) {
@@ -159,7 +159,7 @@ public class GirlSavedData extends WorldSavedData {
    }
 
    public static boolean shouldDespawn(UUID girlUuid, World world) {
-      Long lastCumTime = b.get(girlUuid);
+      Long lastCumTime = lastCumTimeByPlayer.get(girlUuid);
       if (!isManglelieOwned(girlUuid)) {
          return false;
       } else {
@@ -174,7 +174,7 @@ public class GirlSavedData extends WorldSavedData {
       if (playerUuid == null) {
          Main.LOGGER.log(Level.WARN, "tried to save last cum dosage time on NULL player");
       } else {
-         b.put(playerUuid, time);
+         lastCumTimeByPlayer.put(playerUuid, time);
       }
    }
 
@@ -184,7 +184,7 @@ public class GirlSavedData extends WorldSavedData {
          World world = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
          ArrayList playersToNotify = new ArrayList();
 
-         for (Entry entry : h.entrySet()) {
+         for (Entry entry : ownerToGirl.entrySet()) {
             UUID ownerUuid = (UUID)entry.getKey();
             UUID girlUuid = (UUID)entry.getValue();
             EntityPlayer owner = world.getPlayerEntityByUUID(ownerUuid);
@@ -194,7 +194,7 @@ public class GirlSavedData extends WorldSavedData {
          }
 
          for (EntityPlayer player : (java.util.Collection<EntityPlayer>) (playersToNotify) ) {
-            h.removeByKey(player.getPersistentID());
+            ownerToGirl.removeByKey(player.getPersistentID());
             PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)player);
          }
       }
@@ -222,8 +222,8 @@ public class GirlSavedData extends WorldSavedData {
          UUID galathUuid = tag.getUniqueId("galath" + i);
          long lastCumTime = tag.getLong("lastcumdosage" + i);
          if (masterUuid != null && galathUuid != null) {
-            h.put(masterUuid, galathUuid);
-            b.put(masterUuid, lastCumTime);
+            ownerToGirl.put(masterUuid, galathUuid);
+            lastCumTimeByPlayer.put(masterUuid, lastCumTime);
          } else {
             Main.LOGGER.fatal("OMFG WHOOP WHOOP SAVING DIDNT WORK CORRECTLY AAAAAAAAAAA");
          }
@@ -241,13 +241,13 @@ public class GirlSavedData extends WorldSavedData {
 
    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
       NBTTagCompound tag = new NBTTagCompound();
-      tag.setInteger("amount", h.size());
+      tag.setInteger("amount", ownerToGirl.size());
       int i = 0;
 
-      for (Entry entry : h.entrySet()) {
+      for (Entry entry : ownerToGirl.entrySet()) {
          UUID masterUuid = (UUID)entry.getKey();
          UUID galathUuid = (UUID)entry.getValue();
-         Long cumTime = b.get(masterUuid);
+         Long cumTime = lastCumTimeByPlayer.get(masterUuid);
          if (cumTime == null) {
             cumTime = 0L;
          }

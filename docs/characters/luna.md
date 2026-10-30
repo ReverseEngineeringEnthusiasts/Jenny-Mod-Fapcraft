@@ -21,11 +21,11 @@ Source: `animations/cat/cat.animation.json` (format 1.8.0), 34 animations. Contr
 | `idle2` | Second idle variant (NPC only; `idleVariant` flag toggled by `idleDone`/`idle2Done`) | movement controller, `"animation.cat.idle" + (idleVariant ? "2" : "")` |
 | `blink` | Eyes controller blink while action == NULL | eyes controller (`getCurrentAction() == NULL`) |
 | `walk` | Walking (NPC: when `yFlag` (dist to path end) < 3.0) | movement controller, onGround + small delta |
-| `run` | Running (NPC: `yFlag >= 3.0`; player: jump/`aj` flag → speed 1.5) | movement controller |
+| `run` | Running (NPC: `yFlag >= 3.0`; player: jump/`playerSprinting` flag → speed 1.5) | movement controller |
 | `fastwalk` | Fast walk (player form only, speed 2.0, `ao.y >= -0.1`) | `LunaPlayerEntity` movement controller |
 | `backwards_walk` | Backwards walk (player form only, `ao.y < -0.1`) | `LunaPlayerEntity` movement controller |
-| `fly` | Airborne pose (NPC when not onGround; player form when `!af`, toggling with `fly2` via `aq`) | movement controller |
-| `fly2` | Alternate airborne pose (player form only, toggled by `aq`) | `LunaPlayerEntity` movement controller |
+| `fly` | Airborne pose (NPC when not onGround; player form when `!playerOnGround`, toggling with `fly2` via `flySecondFrame`) | movement controller |
+| `fly2` | Alternate airborne pose (player form only, toggled by `flySecondFrame`) | `LunaPlayerEntity` movement controller |
 | `sit` | Sitting (RIDE / SIT actions; also riding) | action controller, cases RIDE/SIT |
 | `head_pat` | Head-pat scene (loop) | action controller, case HEAD_PAT; emits `headpatMSG1..3`, `giggle`, `resetGirl` |
 | `attack0` / `attack1` / `attack2` | Melee swing (cycles via `nextAttack`; emits `attackSound` → vanilla `ENTITY_PLAYER_ATTACK_STRONG`, `attackDone` → NULL + advance) | action controller, case ATTACK |
@@ -36,7 +36,7 @@ Source: `animations/cat/cat.animation.json` (format 1.8.0), 34 animations. Contr
 | `idle_fishing` | Waiting with rod out (loop) | action controller, case FISHING_IDLE |
 | `eat_fishing` | Eating the catch (loop=false; emits `happyOh`, `renderItem`, `cutenya3`, `eat` (3× eats, shrinks `renderScale`), `burp`, `eatingDone` → `CatEatingDonePacket` + NULL) | action controller, case FISHING_EAT |
 | `throw_away` | Throwing the junk catch away (loop=false; emits `happyOh`, `renderItem`, `huh`, `hmph`, `rod_breath`, `throw_away` → `CatThrowAwayItemPacket`, `eatingDone`) | action controller, case FISHING_THROW_AWAY |
-| `payment` | Payment gate animation (loop=false; emits `paymentMSG1..4` chat + sounds, `eatPay` (3× eats), `burp`, `paymentDone` → re-invokes `U()`) | action controller, case PAYMENT |
+| `payment` | Payment gate animation (loop=false; emits `paymentMSG1..4` chat + sounds, `eatPay` (3× eats), `burp`, `paymentDone` → re-invokes `startActionFromHandState()`) | action controller, case PAYMENT |
 | `touch_boobs_intro` | Touch-boobs intro (loop=false; emits `hehe`, `singing`, `jump`, `touch`, `touch_boobsMSG1`, `horninya`, `breath`, `touch_boobs_introDone` → TOUCH_BOOBS_SLOW + show horny meter) | action controller, case TOUCH_BOOBS_INTRO |
 | `touch_boobs_slow` | Touch-boobs slow phase (loop; emits `addCumSlow` (+0.02 meter), `breath`, `touch_boobs_slowDone` → toggles `touchBoobsVariant` → variant `slow1`) | action controller, case TOUCH_BOOBS_SLOW (`+ (touchBoobsVariant ? "1" : "")`) |
 | `touch_boobs_slow1` | Alternate slow-phase variant (randomly picked via `touchBoobsVariant` flag on `touch_boobs_slowDone`; emits `addCumFast` (+0.04), `moan`) | action controller, `"animation.cat.touch_boobs_slow" + (touchBoobsVariant ? "1" : "")` |
@@ -56,7 +56,7 @@ Sound-keyframe markers per animation (from `sound_effects` in the JSON): `head_p
 
 Interaction menu (`LunaEntity.openInteractionMenu`, via `GirlInventoryScreen`): options `["action.names.sex", "action.names.touchboobs", "action.names.headpat"]` with costs `[3× raw fish (Items.FISH meta 0), 2× cooked fish (meta 1), null]` — non-creative players must own the stack or get "<Luna> you cannot afford that..." (played with `GIRLS_JENNY_SADOH[1]`; client-side, `GirlInventoryScreen.actionPerformed`). Busy refusal: `bia.dialogue.busy` ("I am busy at the moment~").
 
-Client `doAction` (all three) calls `triggerActionSync(true, true, uuid)` and sets `animationFollowUp` (`GIRL_HAND_STATES`) via `ChangeDataParameterPacket`; server `U()` dispatches on that state:
+Client `doAction` (all three) calls `triggerActionSync(true, true, uuid)` and sets `animationFollowUp` (`GIRL_HAND_STATES`) via `ChangeDataParameterPacket`; server `startActionFromHandState()` dispatches on that state:
 
 - **Touch boobs** (`touch_boobs`): PAYMENT → (fish payment) → TOUCH_BOOBS_INTRO → SLOW ↔ FAST (sneak-to-fast via `getNextAction`, jump keeps fast; cum via `getCumAction` when meter full) → CUM → reset. `OUTFIT_INDEX` forced to 0 (nude). Horny meter shown at `touch_boobs_introDone`, reset at `touch_boobs_cumDone`. `setCurrentAction` forbids re-entering SLOW/FAST while CUM plays.
 - **Sex (cowgirl sitting)**: PAYMENT → `SendGirlToSexPacket` + `ResetGirlPacket` (jar-faithful order) → `goToSexBed()`: searches nearest bed (`getNearestBed`), picks the closest free side among 4 yaw/offset candidates (0/180/-90/90), walks there at 0.2 speed (`walkingToBed`/`bedWalkTicks` lerp, 60 & 120 tick re-path), then anchors (IS_ANCHORED, noClip, noGravity) → WAIT_CAT. No bed → chat "Heh.. there is no bed nearby.. but I already ate the fish so nya~ hehe" (broadcast packet) or "Heh.. the bed is obscured.. but I already ate the fish so nya~ hehe" + GIRLS_LUNA_GIGGLE. In WAIT_CAT, `handleNearbyPlayer` waits for the closest player ≤1.25 blocks; at tick 25 (server) locks the player in (positioned `positionPlayerRelative(0, -0.075, -0.7109375)`), yaw = her yaw+180, `OUTFIT_INDEX=0`, → COWGIRL_SITTING_INTRO. Client mirrors: tick 0 unlock (`BeeScreen.enableInteraction` + `HandlePlayerMovement.setMovementLock(false)`), tick 25 `thirdPersonView = 2`. Then SLOW ↔ FAST (jump keeps fast; `sitting_fastTp`/`sitting_fastDone` reposition the player to head/back offsets), CUM → reset.
@@ -116,7 +116,7 @@ Also used: `MISC_EAT` (eat/eatPay keyframes), `MISC_PLOB[0]`, `MISC_TOUCH`, `MIS
 - Bone groups (`CatNpcModel`): Top = `boobsFlesh`, `cloth`; Bottom = `fleshL`, `fleshR`, `vagina`, `curvesL`, `curvesR`, `kneeL`, `kneeR`, `cloth`; armor arrays (`armorHelmet`, `armorShoulderR/L`, `armorChest`, `armorBoobs`, `armorBootyR/L`, `armorPantsLowR/L`, `armorPantsUpR/L`, `armorHip`, `armorShoesR/L`).
 - Notable bones: `head`, `backHair`, `sideHairR/L`, `frontHairR/L`, `offhand`, `weapon`, `girlCam` (camera placement), `heart` (animated during the cowgirl sitting scene — the "heart particles" visual), `question` (animated in `throw_away`), `blush` (head-pat / touch-boobs / sitting scenes), `cum`, `cock`/`shaft`/`ballL`/`ballR` (male prop for scenes), `eyes`/`eyeR`/`eyeL` with open/closed/lash variants, `mouth` variants (wideSmugSmile2, tongueSmile2/3, suprisedPikatchu), ears `earL`/`earR` with rings, `flower`/`leaf` hair ornaments, `choker`.
 - Renderer hair dynamics (`LunaRenderer.onBoneProcessing`, NPC): unanchored, `backHair`/`sideHairR/L`/`frontHairR/L` counter-rotate against head pitch (`rotR` captured from `head` bone); `offhand` bone renders the held catch item when `zFlag == 1` (scaled by `renderScale`, the eat-shrink factor). `PlayerLunaRenderer` mirrors hair counter-rotation (`rotationZ`) and has custom item/bow/shield transforms.
-- Held rod: during FISHING_START/FISHING_IDLE, `resolveHeldItemStack` swaps in `LunaEntity.heldRod` (the `LunaRodItem.LUNA_ROD` stack, enchantments copied from data key `az`).
+- Held rod: during FISHING_START/FISHING_IDLE, `resolveHeldItemStack` swaps in `LunaEntity.heldRod` (the `LunaRodItem.LUNA_ROD` stack, enchantments copied from data key `SYNCED_HELD_ITEM`).
 - Textures: `textures/entity/cat/cat.png` (632K), `hand.png` (hand model), `robot.png` (unused by these classes — likely cat-robot alt).
 
 ## AI & Behavior
@@ -130,7 +130,7 @@ Also used: `MISC_EAT` (eat/eatPay keyframes), `MISC_PLOB[0]`, `MISC_TOUCH`, `MIS
 ## Unique mechanics
 
 - **Fishing sim**: `SexEntity` ("luna hook", registered `sexmod:luna_hook`, egg 4768742, data keys 110 `OWNER_UUID` / 111 `CAUGHT_ENTITY_ID`) — vanilla bobber physics: flies from the rod (`positionLunaAbove` aims toward `LunaEntity.fishingSpot`, angle -22.5°+45°·dist/7), ray-traces catch (`checkCatch`, hookable = `canBeCollidedWith()` or EntityItem; own Luna hookable only after 5 water-bob ticks), hooks entities (rides them, `handleCatch` yanks them toward Luna), bobs in water with lure/bob/catch-delay chain (`spawnLootBlocks`: catchDelay 100..600 − fishingLevel·100; rain +25% / no-skylight −1 loot), rolls `LootTableList.GAMEPLAY_FISHING` into Luna's held stack (`lureTimer = 9999`), despawns after 1200 hooked ticks. `canCatch()` always returns false (dead method — catch runs from `checkCatch` in FLYING). NBT no-op (never persists). `getCatchResult()`: entity-item → 3, entity → 5, lure-caught → 1, hooked-ground → 2, else 0; damages the rod (`stack.damageItem(catchResult, luna)`).
-- **Rod slot + item**: inventory slot 6 = fishing rod (`az` data key syncs it, `syncHeldItem` copies enchantments onto the held `LunaRodItem`); `af` (119) = rod-cast state driving the item model's `cast` property override (`LunaRodItem` custom `IItemPropertyGetter`, returns 1.0 only when entity is a LunaEntity with `af` set); rod damage 64, uses vanilla `fishing_rod` model. Her equipment GUI (id 0) is Luna-specific: `GirlInventoryContainer2`/`GirlInventoryContainerGui` add a dedicated **ROD slot** (slot 6) beyond weapon/bow/armor (other girls get plain `ChestContainer`).
+- **Rod slot + item**: inventory slot 6 = fishing rod (`SYNCED_HELD_ITEM` data key syncs it, `syncHeldItem` copies enchantments onto the held `LunaRodItem`); `FISH_ON_LINE` (119) = rod-cast state driving the item model's `cast` property override (`LunaRodItem` custom `IItemPropertyGetter`, returns 1.0 only when entity is a LunaEntity with `FISH_ON_LINE` set); rod damage 64, uses vanilla `fishing_rod` model. Her equipment GUI (id 0) is Luna-specific: `GirlInventoryContainer2`/`GirlInventoryContainerGui` add a dedicated **ROD slot** (slot 6) beyond weapon/bow/armor (other girls get plain `ChestContainer`).
 - **Heart particles**: the `heart` geo bone is animated during the cowgirl sitting scene (`sitting_intro/slow/fast/cum`); `blush` bone during touch-boobs/head-pat. (No `EnumParticleTypes.HEART` code in Luna — that is the Slime's mechanic.)
 - Scale/eat state: `renderScale` (0.333 per eat, reset 1.0 on eatingDone/throw_away) scales the rendered held catch item; `zFlag` gates item render (`renderItem` sound keyframe).
 - `getJumpUpwardsMotion()`: 1.0 in water, 0.5 otherwise (higher hop out of water).
@@ -142,7 +142,7 @@ Also used: `MISC_EAT` (eat/eatPay keyframes), `MISC_PLOB[0]`, `MISC_TOUCH`, `MIS
 - Hand model `LunaModel` (placeholder cube), hand texture `textures/entity/cat/hand.png`.
 - Movement controller additionally maps `fastwalk`/`backwards_walk`/`fly`/`fly2` (NPC uses walk/run/fly); movement controller transition length 10 ticks (both forms).
 - No fishing idle at all — no rod, no `az/ag/af/yFlag` data keys, no `heldRod` rod stack, no `goToSexBed` bed search.
-- Scene entry: menu offers `["action.names.touchboobs", "action.names.headpat"]` (no cost); owner commands (`handleOwnerCommand`) `touchboobs` → strip + TOUCH_BOOBS_INTRO + `teleportPlayerToGirl`; `headpat` → HEAD_PAT. Cowgirl scene starts from `handleInteraction()` → WAIT_CAT, countdown `ar` (same 25-tick, 1.25-block logic as the NPC, `handleLunaOwner`).
+- Scene entry: menu offers `["action.names.touchboobs", "action.names.headpat"]` (no cost); owner commands (`handleOwnerCommand`) `touchboobs` → strip + TOUCH_BOOBS_INTRO + `teleportPlayerToGirl`; `headpat` → HEAD_PAT. Cowgirl scene starts from `handleInteraction()` → WAIT_CAT, countdown `catWaitTicks` (same 25-tick, 1.25-block logic as the NPC, `handleLunaOwner`).
 - `openInteractionMenu` uses `openInventoryGui(..., false)` (no dress-up preview). `canBeInteracted() = true`.
 - Sends `SetPlayerForGirlPacket`-style flow via shared `sendActionPacket`.
 
@@ -150,9 +150,9 @@ Also used: `MISC_EAT` (eat/eatPay keyframes), `MISC_PLOB[0]`, `MISC_TOUCH`, `MIS
 
 Own keys (explicit `createKey(...)` ids — never renumber, shared hierarchy):
 - 121 `yFlag` (Float) — distance from her position to current path's final point (walk vs run switch).
-- 120 `az` (ItemStack) — synced fishing rod (inventory slot 6).
-- 119 `af` (Boolean) — rod-cast flag (`av != null && ag == EMPTY`), drives the rod item's `cast` override.
-- 118 `ag` (ItemStack) — the caught item in her hand (eaten / thrown away / `dropHeldItem`).
+- 120 `SYNCED_HELD_ITEM` (ItemStack) — synced fishing rod (inventory slot 6).
+- 119 `FISH_ON_LINE` (Boolean) — rod-cast flag (`hookEntity != null && CAUGHT_ITEM == EMPTY`), drives the rod item's `cast` override.
+- 118 `CAUGHT_ITEM` (ItemStack) — the caught item in her hand (eaten / thrown away / `dropHeldItem`).
 Inherited (BaseGirlEntity, 99–110): `CUSTOM_NAME` 99, `CUSTOM_MODEL_KEY` 100, `WALK_SPEED` 101, `INTERACTION_PARTNER_UUID` 102, `GIRL_HAND_STATES` 103, `CUR_ACTION` 104, `OUTFIT_INDEX` 105, `GIRL_ID` 106, `YAW_ROTATION` 107, `TARGET_POS` 108, `IS_ANCHORED` 109, `MASTER` 110. `SexEntity` keys: 110 `OWNER_UUID` (Optional\<UUID\>), 111 `CAUGHT_ENTITY_ID` (entity id + 1).
 NBT: `readEntityFromNBT` forces `setNoGravity(false)` on load (documented as an **invented band-aid** in the code comment — float-on-reload symptom fix, not jar behavior).
 

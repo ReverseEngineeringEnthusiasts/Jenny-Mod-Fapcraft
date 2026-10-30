@@ -18,11 +18,10 @@ import net.minecraft.util.ResourceLocation;
  * count. Draws the generic-54 chest texture with a dynamic height and shows the
  * girl's name as title.
  * <p>
- * <b>Save flow.</b> On close it scans {@link ChestContainer#containers} for the
- * open container matching {@code containerUUID}, builds a 63-slot snapshot
- * (player main inventory 0..35, girl slots 36..62) and sends
- * {@link UploadInventoryToServerPacket} — the girl's inventory is thus synced
- * only when the GUI closes. CLIENT-side only.
+ * <b>Save flow.</b> On close it snapshots this screen's own
+ * {@link GirlInventoryContainer} (player main inventory 0..35, girl slots
+ * 36..62) and sends {@link UploadInventoryToServerPacket} — the girl's
+ * inventory is thus synced only when the GUI closes. CLIENT-side only.
  */
 public class ChestContainerGui extends GuiContainer {
    private static final ResourceLocation CONTAINER_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
@@ -68,25 +67,21 @@ public class ChestContainerGui extends GuiContainer {
    /**
     * Serializes the current container contents (player inventory + girl's 27
     * equipment slots, index 36+) into a 63-element stack array and sends it to
-    * the server as {@link UploadInventoryToServerPacket}. Must only run once
-    * per container lifetime — closing the screen is what persists the girl's
-    * gear.
+    * the server as {@link UploadInventoryToServerPacket}. Reads this screen's
+    * own container only (never the static list), so a close uploads exactly
+    * once and the girl's gear is persisted.
     */
    public void onGuiClosed() {
       super.onGuiClosed();
+      GirlInventoryContainer container = (GirlInventoryContainer)this.inventorySlots;
+      ItemStack[] stacks = new ItemStack[63];
+      Minecraft.getMinecraft().player.inventory.mainInventory.toArray(stacks);
 
-      for (ChestContainer container : ChestContainer.containers) {
-         if (container.girlUUID.equals(this.containerUUID)) {
-            ItemStack[] stacks = new ItemStack[63];
-            Minecraft.getMinecraft().player.inventory.mainInventory.toArray(stacks);
-
-            for (int i = 0; i < 27; i++) {
-               stacks[i + 36] = container.getSlot(i).getStack();
-            }
-
-            PacketHandler.networkWrapper.sendToServer(new UploadInventoryToServerPacket(this.girl.getGirlId(), this.girlUUID, stacks));
-         }
+      for (int i = 0; i < 27; i++) {
+         stacks[i + 36] = container.getSlot(i).getStack();
       }
+
+      PacketHandler.networkWrapper.sendToServer(new UploadInventoryToServerPacket(this.girl.getGirlId(), this.girlUUID, stacks));
    }
 
 }

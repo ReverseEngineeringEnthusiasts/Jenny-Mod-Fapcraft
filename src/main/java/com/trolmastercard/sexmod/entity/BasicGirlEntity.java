@@ -1,7 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.ThreadNames;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -38,6 +37,8 @@ public class BasicGirlEntity extends EntityLiving {
    int wanderTicks = 0;
    boolean shouldStopMoving = false;
    public int lastSoundTick = -1;
+   /** SERVER: {@link #ticksExisted} at which the girl despawns after being hit, or -1. */
+   int removalTick = -1;
 
    public BasicGirlEntity(World world) {
       super(world);
@@ -45,7 +46,16 @@ public class BasicGirlEntity extends EntityLiving {
 
    protected void updateAITasks() {
       super.updateAITasks();
+      this.tickScheduledRemoval();
       this.updateWanderAndFollowAI();
+   }
+
+   /** SERVER: removes the entity once the post-hit delay scheduled by {@link #attackEntityFrom} has elapsed. */
+   void tickScheduledRemoval() {
+      if (this.removalTick >= 0 && this.ticksExisted >= this.removalTick) {
+         this.removalTick = -1;
+         this.world.removeEntity(this);
+      }
    }
 
    /**
@@ -118,7 +128,10 @@ public class BasicGirlEntity extends EntityLiving {
       }
 
       this.shouldStopMoving = true;
-      ThreadNames.createDaemonThread(6250, () -> this.world.removeEntity(this));
+      if (this.removalTick < 0) {
+         this.removalTick = this.ticksExisted + 125;
+      }
+
       return false;
    }
 

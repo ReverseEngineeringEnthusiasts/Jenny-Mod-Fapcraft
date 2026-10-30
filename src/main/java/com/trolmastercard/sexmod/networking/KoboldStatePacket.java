@@ -33,7 +33,7 @@ import net.minecraftforge.fml.relauncher.Side;
  *   <li>if {@code isSneaking} is true (always true from scene entry) and the
  *       girl implements {@link IEllie}, calls {@code setDismounted()} — which
  *       starts the girl's 40-tick lerp to her target position in
- *       {@code updateAITasks}, then {@code U()} starts the scene.</li>
+ *       {@code updateAITasks}, then {@code startActionFromHandState()} starts the scene.</li>
  * </ol>
  * <p>
  * <b>Pitfall:</b> {@code followMode}/{@code isSneaking} are effectively always

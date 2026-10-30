@@ -2,7 +2,7 @@
 
 | Command | Registered by | Level | What it does |
 |---|---|---|---|
-| `/locatenearestgoblinlair` | Main (server) | any | Finds the closest goblin lair (a goblin flagged `aX`) to the sender and prints its coordinates. Rejects the Nether/End outright. |
+| `/locatenearestgoblinlair` | Main (server) | any | Finds the closest goblin lair (a goblin flagged `isQueen`) to the sender and prints its coordinates. Rejects the Nether/End outright. |
 | `/futa <true\|false>` | ClientProxy (client) | any | Toggles the **Galath futa** feature. Persists the flag to `sexmod/futa` (read back in the constructor); when enabled, spawns dragon-breath particles at the `cockParticles` bone of every local Galath. |
 | `/reloadcustommodels` | Main (server) | **op 2** | Reloads the server's custom-model registry and pushes the fresh model scales to every connected player via UnknownPacket, so client rendering matches the new registry without a rejoin. |
 | `/setmodelcode` | ClientProxy (client) | any | Client-side upload of a custom model code (and optional `$`-separated part-id list) for the targeted girl; without a valid girl target it applies to the sender's own player-girl. Payload goes via UploadModelStringPacket for server-side validation + persistence. |

@@ -41,8 +41,11 @@ public class SkinFetcher {
    public static BufferedImage fetchSkin(UUID uuid) {
       try {
          URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString().replace("-", ""));
-         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-         String profileJson = reader.lines().collect(Collectors.joining());
+         String profileJson;
+         try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
+            profileJson = reader.lines().collect(Collectors.joining());
+         }
+
          int valueStart = profileJson.indexOf("\"value\" : ");
          int valueIdx = valueStart + 11;
          StringBuilder value = new StringBuilder();
@@ -63,10 +66,11 @@ public class SkinFetcher {
          URL textureUrl = new URL(urlBuilder.toString());
          return ImageIO.read(textureUrl);
       } catch (Exception e) {
-         try {
-            return ImageIO.read(
-               Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("sexmod", "textures/player/steve.png")).getInputStream()
-            );
+         try (java.io.InputStream stream = Minecraft.getMinecraft()
+            .getResourceManager()
+            .getResource(new ResourceLocation("sexmod", "textures/player/steve.png"))
+            .getInputStream()) {
+            return ImageIO.read(stream);
          } catch (java.io.IOException ioe) {
             return null;
          }

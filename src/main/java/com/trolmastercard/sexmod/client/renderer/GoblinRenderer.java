@@ -702,12 +702,12 @@ public class GoblinRenderer extends GirlRendererBase<GoblinEntity> {
 
    /**
     * While running or catching, the goblin holds its own inventory item
-    * ({@code GoblinEntity.a0}) instead of the rendered default stack.
+    * ({@code GoblinEntity.STOLEN_ITEM}) instead of the rendered default stack.
     */
    @Override
    protected ItemStack resolveHeldItemStack(@Nullable ItemStack defaultStack) {
       Action action = this.renderEntity.getCurrentAction();
-      return action != Action.RUN && action != Action.CATCH ? defaultStack : (ItemStack)this.renderEntity.getDataManager().get(GoblinEntity.a0);
+      return action != Action.RUN && action != Action.CATCH ? defaultStack : (ItemStack)this.renderEntity.getDataManager().get(GoblinEntity.STOLEN_ITEM);
    }
 
    @Override

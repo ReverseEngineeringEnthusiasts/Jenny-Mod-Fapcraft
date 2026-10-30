@@ -37,6 +37,10 @@ final class GirlBoneMath {
          girl.cachedAnimationProcessor = girl.getAnimationProcessor();
       }
 
+      if (girl.cachedAnimationProcessor == null) {
+         return new MatrixStack();
+      }
+
       IBone bone = girl.cachedAnimationProcessor.getBone(boneName);
       if (bone == null) {
          if (!GirlModel.CAMERA_PLACEMENTS.contains(boneName)) {
@@ -108,6 +112,10 @@ final class GirlBoneMath {
    /** CLIENT: height of the girlCam bone in world units (for camera placement). */
    static float getCameraBoneHeight(BaseGirlEntity girl) {
       AnimationProcessor processor = girl.getAnimationProcessor();
+      if (processor == null) {
+         return 0.0F;
+      }
+
       IBone bone = processor.getBone("girlCam");
       if (bone == null) {
          return 0.0F;

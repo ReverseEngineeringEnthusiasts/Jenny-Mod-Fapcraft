@@ -50,9 +50,9 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * over the owner's head) selects the crouched animations and the eye height.
  */
 public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
-   boolean ar = false;
-   boolean aq = false;
-   int ap = 1;
+   boolean flySecondFrame = false;
+   boolean moanToggle = false;
+   int carryVariant = 1;
 
    protected ElliePlayerEntity(World world) {
       super(world);
@@ -252,11 +252,11 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                this.createAnimation("animation.ellie.ride", true, event);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.playerOnGround) {
-                  this.ar = !this.ar;
+                  this.flySecondFrame = !this.flySecondFrame;
                }
 
                if (!this.playerOnGround) {
-                  this.createAnimation("animation.ellie.fly" + (this.ar ? "2" : ""), true, event);
+                  this.createAnimation("animation.ellie.fly" + (this.flySecondFrame ? "2" : ""), true, event);
                } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) > 0.0F) {
                   if (this.playerSprinting) {
                      this.movementController.setAnimationSpeed(1.5);
@@ -345,7 +345,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.ellie.carry_intro", false, event);
                   break;
                case CARRY_SLOW:
-                  this.createAnimation("animation.ellie.carry_slow" + this.ap, true, event);
+                  this.createAnimation("animation.ellie.carry_slow" + this.carryVariant, true, event);
                   break;
                case CARRY_FAST:
                   this.createAnimation("animation.ellie.carry_fast", true, event);
@@ -365,7 +365,7 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
     * {@code hugDone} -&gt; {@link Action#HUGIDLE} + menu,
     * {@code cowgirlStartDone}/{@code missionary_startDone} -&gt; slow loops,
     * {@code cowgirlfastReady}/{@code missionary_fastDone} gate fast on jump,
-    * {@code carry_slowDone} re-rolls the variant suffix ({@code ap}),
+    * {@code carry_slowDone} re-rolls the variant suffix ({@code carryVariant}),
     * {@code missionary_cumDone}/{@code cowgirlcumDone}/{@code carry_cumDone}
     * -&gt; {@code resetCameraAndPhysics()}. {@code hugselectedDone} targets
     * the girl's position via {@code targetPos} packet and sends
@@ -504,8 +504,8 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "cowgirlfastMSG1":
-               if (this.aq) {
-                  this.aq = false;
+               if (this.moanToggle) {
+                  this.moanToggle = false;
                } else {
                   this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 3.0F);
                }
@@ -647,11 +647,11 @@ public class ElliePlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "carry_slowDone":
-               int oldState = this.ap;
+               int oldState = this.carryVariant;
 
                do {
-                  this.ap = this.getRNG().nextInt(4) + 1;
-               } while (this.ap == oldState);
+                  this.carryVariant = this.getRNG().nextInt(4) + 1;
+               } while (this.carryVariant == oldState);
 
                return;
             case "carry_fastDone":

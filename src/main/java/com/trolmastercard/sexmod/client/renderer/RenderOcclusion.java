@@ -50,15 +50,15 @@ final class RenderOcclusion {
          return true;
       }
 
+      if (thirdPersonView != 0) {
+         return true;
+      }
+
       World world = girl.world;
       Vec3d girlPos = girl.getPositionVector();
       float halfWidth = girl.width * 1.5F;
       float height = girl.height * 1.5F;
       Vec3d eyePos = player.getPositionVector().add(0.0, player.getEyeHeight(), 0.0);
-      if (thirdPersonView != 0) {
-         return true;
-      }
-
       if (thirdPersonView > 0) {
          float yaw = player.rotationYaw;
          float pitch = player.rotationPitch;
@@ -141,16 +141,21 @@ final class RenderOcclusion {
          int currentX = MathHelper.floor(start.x);
          int currentY = MathHelper.floor(start.y);
          int currentZ = MathHelper.floor(start.z);
-         BlockPos currentPos = new BlockPos(currentX, currentY, currentZ);
+         BlockPos.MutableBlockPos currentPos = new BlockPos.MutableBlockPos(currentX, currentY, currentZ);
          IBlockState blockState = world.getBlockState(currentPos);
          if (blockState.getCollisionBoundingBox(world, currentPos) != Block.NULL_AABB && blockState.getBlock().getRenderLayer() == BlockRenderLayer.SOLID) {
             return blockState.collisionRayTrace(world, currentPos, start, end);
          }
 
          int steps = 200;
+         // scratch: the ray origin is advanced per step; keep it in doubles and
+         // build the Vec3d only on an actual hit, same arithmetic as before
+         double startX = start.x;
+         double startY = start.y;
+         double startZ = start.z;
 
          while (steps-- >= 0) {
-            if (Double.isNaN(start.x) || Double.isNaN(start.y) || Double.isNaN(start.z)) {
+            if (Double.isNaN(startX) || Double.isNaN(startY) || Double.isNaN(startZ)) {
                return null;
             }
 
@@ -191,19 +196,19 @@ final class RenderOcclusion {
             double tMaxX = 999.0;
             double tMaxY = 999.0;
             double tMaxZ = 999.0;
-            double deltaX = end.x - start.x;
-            double deltaY = end.y - start.y;
-            double deltaZ = end.z - start.z;
+            double deltaX = end.x - startX;
+            double deltaY = end.y - startY;
+            double deltaZ = end.z - startZ;
             if (stepX) {
-               tMaxX = (nextX - start.x) / deltaX;
+               tMaxX = (nextX - startX) / deltaX;
             }
 
             if (stepY) {
-               tMaxY = (nextY - start.y) / deltaY;
+               tMaxY = (nextY - startY) / deltaY;
             }
 
             if (stepZ) {
-               tMaxZ = (nextZ - start.z) / deltaZ;
+               tMaxZ = (nextZ - startZ) / deltaZ;
             }
 
             if (tMaxX == -0.0) {
@@ -221,23 +226,29 @@ final class RenderOcclusion {
             EnumFacing facing;
             if (tMaxX < tMaxY && tMaxX < tMaxZ) {
                facing = endX > currentX ? EnumFacing.WEST : EnumFacing.EAST;
-               start = new Vec3d(nextX, start.y + deltaY * tMaxX, start.z + deltaZ * tMaxX);
+               startX = nextX;
+               startY += deltaY * tMaxX;
+               startZ += deltaZ * tMaxX;
             } else if (tMaxY < tMaxZ) {
                facing = endY > currentY ? EnumFacing.DOWN : EnumFacing.UP;
-               start = new Vec3d(start.x + deltaX * tMaxY, nextY, start.z + deltaZ * tMaxY);
+               startX += deltaX * tMaxY;
+               startY = nextY;
+               startZ += deltaZ * tMaxY;
             } else {
                facing = endZ > currentZ ? EnumFacing.NORTH : EnumFacing.SOUTH;
-               start = new Vec3d(start.x + deltaX * tMaxZ, start.y + deltaY * tMaxZ, nextZ);
+               startX += deltaX * tMaxZ;
+               startY += deltaY * tMaxZ;
+               startZ = nextZ;
             }
 
-            currentX = MathHelper.floor(start.x) - (facing == EnumFacing.EAST ? 1 : 0);
-            currentY = MathHelper.floor(start.y) - (facing == EnumFacing.UP ? 1 : 0);
-            currentZ = MathHelper.floor(start.z) - (facing == EnumFacing.SOUTH ? 1 : 0);
-            currentPos = new BlockPos(currentX, currentY, currentZ);
+            currentX = MathHelper.floor(startX) - (facing == EnumFacing.EAST ? 1 : 0);
+            currentY = MathHelper.floor(startY) - (facing == EnumFacing.UP ? 1 : 0);
+            currentZ = MathHelper.floor(startZ) - (facing == EnumFacing.SOUTH ? 1 : 0);
+            currentPos.setPos(currentX, currentY, currentZ);
             IBlockState hitState = world.getBlockState(currentPos);
             if ((hitState.getMaterial() == Material.PORTAL || hitState.getCollisionBoundingBox(world, currentPos) != Block.NULL_AABB)
                && hitState.getBlock().getRenderLayer() == BlockRenderLayer.SOLID) {
-               return hitState.collisionRayTrace(world, currentPos, start, end);
+               return hitState.collisionRayTrace(world, currentPos, new Vec3d(startX, startY, startZ), end);
             }
          }
 

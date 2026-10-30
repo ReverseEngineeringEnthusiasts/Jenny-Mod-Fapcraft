@@ -15,10 +15,10 @@ import net.minecraft.util.math.Vec3i;
  * data-manager keys, and answers the atlas offsets of the elephant/eye parts.
  * <p>
  * Part ids 0..2 are not DNA segments — they are body size (0), eye colour (1)
- * and main colour (2) and are written to {@code aE} / {@code CURRENT_ACTION} /
+ * and main colour (2) and are written to {@code SIZE_SCALAR} / {@code CURRENT_ACTION} /
  * {@code ACTION_TARGET_POS}; every other index is appended as a padded number.
  * <b>Pitfalls.</b> The order of the first three ids is baked into saves through
- * {@code APPEARANCE_DNA}; {@code setCustomPartList} flipping {@code aA} when the
+ * {@code APPEARANCE_DNA}; {@code setCustomPartList} flipping {@code editedColorManually} when the
  * eye colour changes is what stops the tribe colour sync from overwriting a
  * manual edit.
  */
@@ -58,7 +58,7 @@ final class KoboldModelCode {
 
    static ArrayList<Integer> getBasePartIdList(KoboldEntity entity) {
       ArrayList parts = new ArrayList();
-      parts.add(Math.round((Float)entity.getDataManager().get(KoboldEntity.aE) * 100.0F / 0.25F));
+      parts.add(Math.round((Float)entity.getDataManager().get(KoboldEntity.SIZE_SCALAR) * 100.0F / 0.25F));
       parts.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)entity.getDataManager().get(KoboldEntity.CURRENT_ACTION))));
       parts.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)entity.getDataManager().get(KoboldEntity.ACTION_TARGET_POS))));
       return parts;
@@ -71,13 +71,13 @@ final class KoboldModelCode {
          int partId = (Integer)parts.get(i);
          switch (i) {
             case 0:
-               entity.getDataManager().set(KoboldEntity.aE, partId / 100.0F * 0.25F);
+               entity.getDataManager().set(KoboldEntity.SIZE_SCALAR, partId / 100.0F * 0.25F);
                break;
             case 1:
                String currentColor = (String)entity.getDataManager().get(KoboldEntity.CURRENT_ACTION);
                String newColor = EyeAndKoboldColor.values()[partId].toString();
                if (!newColor.equals(currentColor)) {
-                  entity.aA = true;
+                  entity.editedColorManually = true;
                }
 
                entity.getDataManager().set(KoboldEntity.CURRENT_ACTION, newColor);
@@ -104,7 +104,7 @@ final class KoboldModelCode {
             int partId = (Integer)((Entry)entry.getValue()).getValue();
             switch (i) {
                case 0:
-                  entity.getDataManager().set(KoboldEntity.aE, partId / 100.0F * 0.25F);
+                  entity.getDataManager().set(KoboldEntity.SIZE_SCALAR, partId / 100.0F * 0.25F);
                   break;
                case 1:
                   entity.getDataManager().set(KoboldEntity.CURRENT_ACTION, EyeAndKoboldColor.values()[partId].toString());

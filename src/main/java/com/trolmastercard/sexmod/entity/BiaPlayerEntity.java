@@ -38,16 +38,16 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * player in (noClip/noGravity) and either starts {@link Action#ANAL_START} or
  * positions for the prone doggy ({@link Action#PRONE_DOGGY_INTRO} + anchor).
  * <p>
- * <b>Pitfalls.</b> {@code ar} is the countdown field: {@code -1} = idle,
+ * <b>Pitfalls.</b> {@code contactCountdown} is the countdown field: {@code -1} = idle,
  * {@code 22} = first contact. {@link #setCurrentAction(Action)} forbids
  * re-entering loop phases while the cum animation plays. The countdown is
  * reset to {@code -1} in {@link #resetLocalPlayerClientState()} so a scene
  * exit re-arms it.
  */
 public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
-   int ar = -1;
-   boolean ap = false;
-   int aq = 1;
+   int contactCountdown = -1;
+   boolean flySecondFrame = false;
+   int hardLoopVariant = 1;
 
    public BiaPlayerEntity(World world) {
       super(world);
@@ -181,7 +181,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    @Override
    protected void resetLocalPlayerClientState() {
       super.resetLocalPlayerClientState();
-      this.ar = -1;
+      this.contactCountdown = -1;
    }
 
    @SideOnly(Side.CLIENT)
@@ -191,7 +191,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
 
    /**
     * BOTH sides, every tick: the bed-scene contact countdown (see class
-    * javadoc — {@code ac} must start at 22). On first contact (countdown -1)
+    * javadoc — {@code contactCountdown} must start at 22). On first contact (countdown -1)
     * the client enables interaction and unlocks movement while the server
     * binds the interaction player; when the countdown expires the scene locks
     * the player in and starts {@link Action#ANAL_START} (anal) or the prone
@@ -205,7 +205,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
          if (player != null) {
             if (!(player.getDistance(this) > 1.0F)) {
                if (!this.world.isRemote || this.isOwnPlayer(player)) {
-                  if (this.ar == -1) {
+                  if (this.contactCountdown == -1) {
                      if (this.world.isRemote) {
                         BeeScreen.enableInteraction();
                         HandlePlayerMovement.setMovementLock(false);
@@ -213,9 +213,9 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                         this.setInteractionPlayerUUID(player.getPersistentID());
                      }
 
-                     this.ar = 22;
-                  } else if (--this.ar <= 0) {
-                     this.ar = -1;
+                     this.contactCountdown = 22;
+                  } else if (--this.contactCountdown <= 0) {
+                     this.contactCountdown = -1;
                      player.noClip = true;
                      player.setNoGravity(true);
                      if (action == Action.ANAL_WAIT) {
@@ -255,7 +255,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
 
    /**
     * CLIENT: while the prone-doggy hard loop plays, re-rolls the variant
-    * suffix ({@code aq} in 1..3) so consecutive hard loops use different
+    * suffix ({@code hardLoopVariant} in 1..3) so consecutive hard loops use different
     * animations.
     */
    @SideOnly(Side.CLIENT)
@@ -263,11 +263,11 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
    public void resetAnimationControllerTicks() {
       super.resetAnimationControllerTicks();
       if (this.getCurrentAction() == Action.PRONE_DOGGY_HARD) {
-         int oldState = this.aq;
+         int oldState = this.hardLoopVariant;
 
          do {
-            this.aq = this.getRNG().nextInt(3) + 1;
-         } while (oldState == this.aq);
+            this.hardLoopVariant = this.getRNG().nextInt(3) + 1;
+         } while (oldState == this.hardLoopVariant);
       }
    }
 
@@ -288,11 +288,11 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                this.createAnimation("animation.bia.sit", true, event);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.playerOnGround) {
-                  this.ap = !this.ap;
+                  this.flySecondFrame = !this.flySecondFrame;
                }
 
                if (!this.playerOnGround) {
-                  this.createAnimation("animation.bia.fly" + (this.ap ? "2" : ""), true, event);
+                  this.createAnimation("animation.bia.fly" + (this.flySecondFrame ? "2" : ""), true, event);
                } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) > 0.0F) {
                   if (this.playerSprinting) {
                      this.movementController.setAnimationSpeed(1.2);
@@ -381,7 +381,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.bia.prone_doggy_soft", true, event);
                   break;
                case PRONE_DOGGY_HARD:
-                  this.createAnimation("animation.bia.prone_doggy_hard" + this.aq, true, event);
+                  this.createAnimation("animation.bia.prone_doggy_hard" + this.hardLoopVariant, true, event);
                   break;
                case PRONE_DOGGY_CUM:
                   this.createAnimation("animation.bia.prone_doggy_cum", true, event);
@@ -400,7 +400,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
     * {@code anal_cumDone}/{@code doggy_cumDone} -&gt;
     * {@code resetCameraAndPhysics()}. {@code talk_responseDone} exits the talk
     * scene ({@code resetGirlState()}) and either strips or dispatches the
-    * chosen scene via {@link #U()}.
+    * chosen scene via {@link #startActionFromHandState()}.
     */
    @SideOnly(Side.CLIENT)
    @Override
@@ -461,7 +461,7 @@ public class BiaPlayerEntity extends AbstractPlayerGirlEntity {
                if ((Integer)this.entityDataManager.get(BaseGirlEntity.OUTFIT_INDEX) != 0) {
                   this.setCurrentAction(Action.STRIP);
                } else {
-                  this.U();
+                  this.startActionFromHandState();
                }
                break;
             case "anal_prepareMSG1":

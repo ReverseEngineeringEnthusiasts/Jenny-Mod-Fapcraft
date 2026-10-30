@@ -39,13 +39,13 @@ final class GalathEnergyBalls {
     * are inactive outside that window.
     */
    static void resetEnergyBalls(GalathEntity galath) {
-      galath.b2.isActive = false;
+      galath.energyBallHitboxLeft.isActive = false;
       galath.energyBallHitboxRight.isActive = false;
       if (!(galath.summonSkeletonTicks < 9.0F)) {
          if (!(galath.summonSkeletonTicks > 30.0F)) {
-            galath.b2.isActive = true;
+            galath.energyBallHitboxLeft.isActive = true;
             galath.energyBallHitboxRight.isActive = true;
-            boolean reset = (Boolean)galath.getDataManager().get(GalathEntity.ay);
+            boolean reset = (Boolean)galath.getDataManager().get(GalathEntity.MIRROR_SIDE);
             Vec3d pos = galath.getPositionVector();
             Vec3d tempPos;
             Vec3d tempOffset;
@@ -68,9 +68,9 @@ final class GalathEnergyBalls {
             }
 
             Vec3d mirrorRightPos = tempPos.add(VectorMath.rotateByYaw(tempOffset, 180.0F + galath.renderYawOffset));
-            galath.b2.setLocationAndAngles(leftPos.x, leftPos.y, leftPos.z, galath.renderYawOffset, 0.0F);
+            galath.energyBallHitboxLeft.setLocationAndAngles(leftPos.x, leftPos.y, leftPos.z, galath.renderYawOffset, 0.0F);
             galath.energyBallHitboxRight.setLocationAndAngles(mirrorRightPos.x, mirrorRightPos.y, mirrorRightPos.z, galath.renderYawOffset, 0.0F);
-            galath.b2.onUpdate();
+            galath.energyBallHitboxLeft.onUpdate();
             galath.energyBallHitboxRight.onUpdate();
          }
       }
@@ -100,7 +100,7 @@ final class GalathEnergyBalls {
    }
 
    static void despawnSummonedSkeletons(GalathEntity galath) {
-      if ((Boolean)galath.getDataManager().get(GalathEntity.bP)) {
+      if ((Boolean)galath.getDataManager().get(GalathEntity.PARALYZED)) {
          for (EntityWitherSkeleton skeleton : galath.summonedSkeletons) {
             if (!skeleton.isDead) {
                PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(skeleton.getPositionVector(), true), galath);

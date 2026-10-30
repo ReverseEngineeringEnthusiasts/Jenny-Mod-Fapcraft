@@ -3,6 +3,9 @@ package com.trolmastercard.sexmod.util;
 import com.trolmastercard.sexmod.item.DragonStaffItem;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockChest;
@@ -40,20 +43,24 @@ import org.lwjgl.opengl.GL11;
  * {@code StructureMarkerRenderer} is the only writer of those fields.
  * <p>
  * <b>Pitfall.</b> {@link #renderMarkers()} iterates the shared set during
- * world render; the concurrent-modification guard is required because
- * {@link SendBlocksPacket} handlers can mutate the set from the netty thread.
+ * world render while {@link SendBlocksPacket} handlers can mutate it from the
+ * netty thread — the set is a {@link ConcurrentHashMap} key set so iteration is
+ * safe; the concurrent-modification guard stays as a belt-and-braces.
  */
 public class StructureMarkerRenderer {
    static final Vec3i COLOR_RED = new Vec3i(255, 0, 0);
    static final Vec3i COLOR_GREEN = new Vec3i(0, 255, 0);
    static final Vec3i COLOR_BLUE = new Vec3i(0, 0, 255);
    static final ResourceLocation MARK_TEXTURE = new ResourceLocation("sexmod", "textures/mark.png");
-   static HashSet<BlockPos> markerPositions = new HashSet<>();
+   static Set<BlockPos> markerPositions = ConcurrentHashMap.newKeySet();
+   /** Per-marker colour memo, dropped whenever the marker set changes. */
+   static final Map<BlockPos, Vec3i> markerColors = new ConcurrentHashMap<>();
    static Minecraft mc = Minecraft.getMinecraft();
    static TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
 
    public static void clearMarkers() {
       markerPositions.clear();
+      markerColors.clear();
    }
 
    public static boolean isMarked(BlockPos pos) {
@@ -92,12 +99,21 @@ public class StructureMarkerRenderer {
    }
 
    static Vec3i getBlockColor(BlockPos pos) {
-      Block block = Minecraft.getMinecraft().world.getBlockState(pos).getBlock();
-      if (block instanceof BlockBed) {
-         return COLOR_BLUE;
-      } else {
-         return block instanceof BlockChest ? COLOR_GREEN : COLOR_RED;
+      Vec3i cached = markerColors.get(pos);
+      if (cached != null) {
+         return cached;
       }
+
+      Block block = Minecraft.getMinecraft().world.getBlockState(pos).getBlock();
+      Vec3i color;
+      if (block instanceof BlockBed) {
+         color = COLOR_BLUE;
+      } else {
+         color = block instanceof BlockChest ? COLOR_GREEN : COLOR_RED;
+      }
+
+      markerColors.put(pos, color);
+      return color;
    }
 
    static void drawMarkerFace(BufferBuilder buffer, BlockPos pos, int red, int green, int blue) {
@@ -201,10 +217,12 @@ public class StructureMarkerRenderer {
 
    public static void renderMarkers(HashSet<BlockPos> markers) {
       markerPositions.addAll(markers);
+      markerColors.clear();
    }
 
    public static void setMarkers(HashSet<BlockPos> markers) {
       markerPositions.removeAll(markers);
+      markerColors.clear();
    }
 
    @SubscribeEvent

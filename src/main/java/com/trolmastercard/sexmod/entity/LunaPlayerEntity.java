@@ -27,7 +27,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * <b>Role.</b> Player-form Luna — the catgirl with touch-boobs
  * (intro/slow/fast/cum), cowgirl-sitting (intro/slow/fast/cum) and headpat
  * scenes. Her {@link #handleLunaOwner()} drives the cowgirl sitting scene with
- * a 25-tick approach countdown ({@code ar}) instead of the Bia-style contact
+ * a 25-tick approach countdown ({@code catWaitTicks}) instead of the Bia-style contact
  * countdown.
  * <p>
  * <b>Scene flow.</b> {@code touchboobs}/{@code headpat} come in via
@@ -40,15 +40,15 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * {@link #setFishingLevelFor(EntityPlayer, int)} (unlock movement at 0,
  * third-person at 25).
  * <p>
- * <b>Pitfalls.</b> {@code ar} resets to 0 whenever the action leaves
+ * <b>Pitfalls.</b> {@code catWaitTicks} resets to 0 whenever the action leaves
  * {@code WAIT_CAT} (see {@link #onUpdate()}). {@link #setCurrentAction(Action)}
  * forbids re-entering loop phases while the cum animation plays. The
  * movement controller uses a 10-tick transition length.
  */
 public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
-   int ar = 0;
-   boolean aq = false;
-   boolean ap = false;
+   int catWaitTicks = 0;
+   boolean flySecondFrame = false;
+   boolean alternateSlowFrame = false;
    boolean as = false;
 
    protected LunaPlayerEntity(World world) {
@@ -128,7 +128,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
 
    /**
     * BOTH sides: while in {@link Action#WAIT_CAT} runs the 25-tick sitting
-    * countdown ({@code ar}); any other action resets the counter to 0.
+    * countdown ({@code catWaitTicks}); any other action resets the counter to 0.
     * SERVER starts {@link Action#COWGIRL_SITTING_INTRO} at tick 25; CLIENT
     * mirrors the UI unlock at tick 0 and third-person switch at tick 25 via
     * {@link #setFishingLevelFor(EntityPlayer, int)}.
@@ -139,7 +139,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       if (Action.WAIT_CAT.equals(this.getCurrentAction())) {
          this.handleLunaOwner();
       } else {
-         this.ar = 0;
+         this.catWaitTicks = 0;
       }
    }
 
@@ -154,8 +154,8 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
       if (player != null) {
          if (!(player.getDistance(this.posX, this.getPositionVec3d().y, this.posZ) > 1.25)) {
             if (this.world.isRemote) {
-               this.setFishingLevelFor(player, this.ar);
-            } else if (this.ar == 25) {
+               this.setFishingLevelFor(player, this.catWaitTicks);
+            } else if (this.catWaitTicks == 25) {
                this.setInteractionPlayerUUID(player.getPersistentID());
                player.moveRelative(0.0F, 0.0F, 0.0F, 0.0F);
                player.setPositionAndUpdate(this.getPositionVector().x, this.getPositionVec3d().y, this.getPositionVector().z);
@@ -168,7 +168,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.entityDataManager.set(OUTFIT_INDEX, 0);
             }
 
-            this.ar++;
+            this.catWaitTicks++;
          }
       }
    }
@@ -232,11 +232,11 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                this.createAnimation("animation.cat.sit", true, event);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.playerOnGround) {
-                  this.aq = !this.aq;
+                  this.flySecondFrame = !this.flySecondFrame;
                }
 
                if (!this.playerOnGround) {
-                  this.createAnimation("animation.cat.fly" + (this.aq ? "2" : ""), true, event);
+                  this.createAnimation("animation.cat.fly" + (this.flySecondFrame ? "2" : ""), true, event);
                } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) > 0.0F) {
                   if (this.playerSprinting) {
                      this.movementController.setAnimationSpeed(1.5);
@@ -293,7 +293,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.cat.touch_boobs_intro", false, event);
                   break;
                case TOUCH_BOOBS_SLOW:
-                  this.createAnimation("animation.cat.touch_boobs_slow" + (this.ap ? "1" : ""), true, event);
+                  this.createAnimation("animation.cat.touch_boobs_slow" + (this.alternateSlowFrame ? "1" : ""), true, event);
                   break;
                case TOUCH_BOOBS_FAST:
                   this.createAnimation("animation.cat.touch_boobs_fast", true, event);
@@ -331,7 +331,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
     * {@code sitting_introDone} -&gt; {@link Action#COWGIRL_SITTING_SLOW},
     * {@code fastDone}/{@code sitting_fastDone} -&gt; slow (jump keeps fast),
     * {@code touch_boobs_cumDone}/{@code resetGirl} -&gt;
-    * {@code resetCameraAndPhysics()}, {@code paymentDone} -&gt; {@link #U()}.
+    * {@code resetCameraAndPhysics()}, {@code paymentDone} -&gt; {@link #startActionFromHandState()}.
     * {@code sitting_fastTp}/{@code sitting_fastDone} reposition the local
     * player relative to the girl's target position.
     */
@@ -377,7 +377,7 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "paymentDone":
                if (this.isLocalPlayerNearby()) {
-                  this.U();
+                  this.startActionFromHandState();
                }
 
                this.scaleFactor = 1.0F;
@@ -439,10 +439,10 @@ public class LunaPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "touch_boobs_slowDone":
-               if (this.ap) {
-                  this.ap = false;
+               if (this.alternateSlowFrame) {
+                  this.alternateSlowFrame = false;
                } else {
-                  this.ap = Math.random() < 0.5;
+                  this.alternateSlowFrame = Math.random() < 0.5;
                }
                break;
             case "addCumSlow":

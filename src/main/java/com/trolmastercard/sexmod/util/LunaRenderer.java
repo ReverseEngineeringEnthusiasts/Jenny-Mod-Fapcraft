@@ -36,7 +36,7 @@ public class LunaRenderer extends GirlRenderer {
          case FISHING_IDLE:
          case FISHING_START:
             ItemStack lunaStack = ((LunaEntity)this.renderEntity).heldRod;
-            ItemStack cachedStack = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.az);
+            ItemStack cachedStack = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.SYNCED_HELD_ITEM);
             if (cachedStack.equals(ItemStack.EMPTY)) {
                return lunaStack;
             }
@@ -88,7 +88,7 @@ public class LunaRenderer extends GirlRenderer {
                break;
             case "offhand":
                LunaEntity luna = (LunaEntity)this.renderEntity;
-               ItemStack itemStack = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.ag);
+               ItemStack itemStack = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.CAUGHT_ITEM);
                if (!itemStack.equals(ItemStack.EMPTY) && luna.zFlag == 1.0F) {
                   GlStateManager.pushMatrix();
                   Tessellator.getInstance().draw();

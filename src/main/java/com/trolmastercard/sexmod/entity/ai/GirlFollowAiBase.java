@@ -4,6 +4,7 @@ import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.Reference;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -100,18 +101,37 @@ public abstract class GirlFollowAiBase extends EntityAIBase {
    }
 
    public boolean shouldExecute() {
-      return !((String)this.girl.getDataManager().get(BaseGirlEntity.MASTER)).equals("");
+      return this.resolveMaster() != null;
    }
 
    public boolean shouldContinueExecuting() {
-      String masterUuid = (String)this.dataManager.get(BaseGirlEntity.MASTER);
-      return !masterUuid.equals("") && this.girl.world.getPlayerEntityByUUID(UUID.fromString(masterUuid)) != null;
+      return this.resolveMaster() != null;
    }
 
    public void startExecuting() {
       this.navigator = this.girl.getNavigator();
       this.dataManager = this.girl.getDataManager();
-      this.master = this.girl.world.getPlayerEntityByUUID(UUID.fromString((String)this.dataManager.get(BaseGirlEntity.MASTER)));
+      this.master = this.resolveMaster();
+   }
+
+   /**
+    * Resolves the master the goal must operate on, or {@code null} when the
+    * data manager holds no master / an unparsable one / a player that is not
+    * in this world (offline or another dimension). Every entry point resolves
+    * through here so {@link #master} can never be null while the goal runs.
+    */
+   @Nullable
+   private EntityPlayer resolveMaster() {
+      String masterUuid = (String)this.girl.getDataManager().get(BaseGirlEntity.MASTER);
+      if (masterUuid.isEmpty()) {
+         return null;
+      }
+
+      try {
+         return this.girl.world.getPlayerEntityByUUID(UUID.fromString(masterUuid));
+      } catch (IllegalArgumentException exception) {
+         return null;
+      }
    }
 
    public void updateTask() {

@@ -60,10 +60,10 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * the mob converts into a threesome scene (slow/fast/cum, shared animations
  * with the Galath).
  * <p>
- * <b>State.</b> Own data keys (do not reorder): {@code ad} (111) = Galath
- * partner UUID, {@code ap} (112) = corrupting flag, {@code ab} (113) = corrupt
- * target entity id (-1 none), {@code al} (114) = corrupt start world time,
- * {@code ar} (115) = scared-flag (set by {@link AvoidPlayerGoal}).
+ * <b>State.</b> Own data keys (do not reorder): {@code GALATH_PARTNER_UUID} (111) = Galath
+ * partner UUID, {@code CORRUPTING} (112) = corrupting flag, {@code CORRUPT_TARGET_ID} (113) = corrupt
+ * target entity id (-1 none), {@code CORRUPT_START_TIME} (114) = corrupt start world time,
+ * {@code SCARED} (115) = scared-flag (set by {@link AvoidPlayerGoal}).
  * {@code removeOnNextTick} = despawned flag, {@code wild} = wild flag.
  * <p>
  * <b>Flow.</b> {@link #handleCorruptInit()} seeks an unbound Galath within 15
@@ -84,7 +84,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * 180 degrees during the threesome render.
  */
 public class ManglelieEntity extends BaseGirlEntity {
-   public static final String ac = "sexmod:mommy";
+   public static final String MOMMY_NBT_KEY = "sexmod:mommy";
    public static final float am = 60.0F;
    public static final float ag = 4.0F;
    public static final float SPEED_3_5 = 3.5F;
@@ -96,19 +96,19 @@ public class ManglelieEntity extends BaseGirlEntity {
    public static final float RANGE_6 = 6.0F;
    public static final float ak = 80.0F;
    public static final float DISTANCE_700 = 700.0F;
-   public static final DataParameter<String> ad = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.STRING)
+   public static final DataParameter<String> GALATH_PARTNER_UUID = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(111);
-   public static final DataParameter<Boolean> ap = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> CORRUPTING = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(112);
-   public static final DataParameter<Integer> ab = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.VARINT)
+   public static final DataParameter<Integer> CORRUPT_TARGET_ID = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.VARINT)
       .getSerializer()
       .createKey(113);
-   public static final DataParameter<String> al = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.STRING)
+   public static final DataParameter<String> CORRUPT_START_TIME = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(114);
-   public static final DataParameter<Boolean> ar = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> SCARED = EntityDataManager.createKey(ManglelieEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(115);
    private UUID galathPartnerUUID = null;
@@ -118,7 +118,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    boolean wild = true;
    boolean despawned = false;
    boolean corrupting = false;
-   public float af = 0.0F;
+   public float yawOffset = 0.0F;
    public float rotationLerp = 0.0F;
    public float TICK_0 = 0.0F;
    public float ai = 0.0F;
@@ -136,11 +136,11 @@ public class ManglelieEntity extends BaseGirlEntity {
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.entityDataManager.register(ad, "");
-      this.entityDataManager.register(ap, false);
-      this.entityDataManager.register(ab, -1);
-      this.entityDataManager.register(al, "");
-      this.entityDataManager.register(ar, false);
+      this.entityDataManager.register(GALATH_PARTNER_UUID, "");
+      this.entityDataManager.register(CORRUPTING, false);
+      this.entityDataManager.register(CORRUPT_TARGET_ID, -1);
+      this.entityDataManager.register(CORRUPT_START_TIME, "");
+      this.entityDataManager.register(SCARED, false);
    }
 
    @Override
@@ -160,16 +160,16 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    public void setCorrupting(boolean corrupting) {
-      this.entityDataManager.set(ap, corrupting);
+      this.entityDataManager.set(CORRUPTING, corrupting);
    }
 
    public boolean isCorrupting() {
-      return (Boolean)this.entityDataManager.get(ap);
+      return (Boolean)this.entityDataManager.get(CORRUPTING);
    }
 
    @Nullable
    public UUID getCorruptPlayerUUID() {
-      String corruptPlayerStr = (String)this.entityDataManager.get(ad);
+      String corruptPlayerStr = (String)this.entityDataManager.get(GALATH_PARTNER_UUID);
       if ("".equals(corruptPlayerStr)) {
          return null;
       }
@@ -200,9 +200,9 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    public void setGalathPartnerUUID(UUID uuid) {
       if (uuid == null) {
-         this.entityDataManager.set(ad, "");
+         this.entityDataManager.set(GALATH_PARTNER_UUID, "");
       } else {
-         this.entityDataManager.set(ad, uuid.toString());
+         this.entityDataManager.set(GALATH_PARTNER_UUID, uuid.toString());
       }
    }
 
@@ -276,7 +276,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    public long getCorruptStartTime() {
-      String timeStr = (String)this.entityDataManager.get(al);
+      String timeStr = (String)this.entityDataManager.get(CORRUPT_START_TIME);
       if ("".equals(timeStr)) {
          return -1L;
       }
@@ -289,7 +289,7 @@ public class ManglelieEntity extends BaseGirlEntity {
    }
 
    public void setCorruptStartTime(long time) {
-      this.entityDataManager.set(al, Long.toString(time));
+      this.entityDataManager.set(CORRUPT_START_TIME, Long.toString(time));
       this.corrupting = false;
    }
 
@@ -372,12 +372,12 @@ public class ManglelieEntity extends BaseGirlEntity {
 
    @Nullable
    public Entity getCorruptEntity() {
-      int corruptId = (Integer)this.entityDataManager.get(ab);
+      int corruptId = (Integer)this.entityDataManager.get(CORRUPT_TARGET_ID);
       return corruptId == -1 ? null : this.world.getEntityByID(corruptId);
    }
 
    void setCorruptEntity(int entityId) {
-      this.entityDataManager.set(ab, entityId);
+      this.entityDataManager.set(CORRUPT_TARGET_ID, entityId);
       this.setCorruptStartTime(entityId == -1 ? -1L : this.world.getTotalWorldTime());
    }
 
@@ -636,7 +636,7 @@ public class ManglelieEntity extends BaseGirlEntity {
             if (galath != null) {
                Entity corruptTarget = this.getCorruptTarget();
                if (corruptTarget == null) {
-                  this.af = 0.0F;
+                  this.yawOffset = 0.0F;
                   this.rotationLerp = 0.0F;
                } else {
                   Vec3d targetPos = corruptTarget.getPositionVector().add(0.0, corruptTarget.getEyeHeight(), 0.0);
@@ -649,8 +649,8 @@ public class ManglelieEntity extends BaseGirlEntity {
                      yaw -= aimYaw;
                   }
 
-                  this.af = Math.abs(WorldUtils.normalizeAngleDiff(0.0F, yaw)) < 80.0F ? -TrigMath.wrapDegrees(yaw) : 0.0F;
-                  this.rotationLerp = this.af == 0.0F ? 0.0F : (float)ThreadNames.clampDouble(-delta.y / 2.0, -0.75, 0.75);
+                  this.yawOffset = Math.abs(WorldUtils.normalizeAngleDiff(0.0F, yaw)) < 80.0F ? -TrigMath.wrapDegrees(yaw) : 0.0F;
+                  this.rotationLerp = this.yawOffset == 0.0F ? 0.0F : (float)ThreadNames.clampDouble(-delta.y / 2.0, -0.75, 0.75);
                }
             }
          }
@@ -864,7 +864,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       } else if (this.movementController == controller) {
          if (this.getCurrentAction() == Action.NULL && !this.isCorrupting()) {
             if (Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ) > 0.0) {
-               if ((Boolean)this.entityDataManager.get(ar)) {
+               if ((Boolean)this.entityDataManager.get(SCARED)) {
                   this.createAnimation("animation.manglelie.scared_run", true, event);
                } else {
                   this.createAnimation("animation.manglelie.walk", true, event);
@@ -965,7 +965,7 @@ public class ManglelieEntity extends BaseGirlEntity {
     * Forge handler: Mang's arrows must never damage other girls — the
     * projectile impact on a {@link BaseGirlEntity} is cancelled.
     */
-   public static class b {
+   public static class ArrowImpactHandler {
       @SubscribeEvent
       public void handleArrowHit(Arrow event) {
          RayTraceResult rayTrace = event.getRayTraceResult();

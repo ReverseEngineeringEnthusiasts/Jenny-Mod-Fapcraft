@@ -15,7 +15,7 @@ import net.minecraft.util.DamageSource;
  * <p>
  * <b>Pitfalls.</b> {@link #playHurtSound(GalathEntity, float)} is client-only
  * and stays quiet on a killing blow (the entity's own death sound covers it);
- * the 1000 ms throttle on {@code bc} is wall-clock, not ticks.
+ * the 1000 ms throttle on {@code lastHurtSoundTime} is wall-clock, not ticks.
  */
 final class GalathCombat {
    private GalathCombat() {
@@ -56,13 +56,13 @@ final class GalathCombat {
       }
 
       if (part == galath.energyBallHitboxRight) {
-         galath.getDataManager().set(GalathEntity.b7, false);
+         galath.getDataManager().set(GalathEntity.RIGHT_ENERGY_BALL_ALIVE, false);
          PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(galath.energyBallHitboxRight.getPositionVector(), false), galath);
       }
 
-      if (part == galath.b2) {
-         galath.getDataManager().set(GalathEntity.bN, false);
-         PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(galath.b2.getPositionVector(), false), galath);
+      if (part == galath.energyBallHitboxLeft) {
+         galath.getDataManager().set(GalathEntity.LEFT_ENERGY_BALL_ALIVE, false);
+         PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(galath.energyBallHitboxLeft.getPositionVector(), false), galath);
       }
 
       return true;
@@ -72,9 +72,9 @@ final class GalathCombat {
       if (galath.world.isRemote) {
          if (!(galath.getHealth() - damage <= 0.0F)) {
             long now = System.currentTimeMillis();
-            if (now >= galath.bc + 1000L) {
+            if (now >= galath.lastHurtSoundTime + 1000L) {
                galath.playRandomSound(SoundHandler.GIRLS_GALATH_UUH);
-               galath.bc = now;
+               galath.lastHurtSoundTime = now;
             }
          }
       }

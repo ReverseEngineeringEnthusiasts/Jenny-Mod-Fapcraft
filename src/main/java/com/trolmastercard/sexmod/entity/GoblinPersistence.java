@@ -27,12 +27,12 @@ final class GoblinPersistence {
       nbt.setInteger("eyeColorZ", ((BlockPos)goblin.entityDataManager.get(AbstractNpcOnlyEntity.ACTION_TARGET_POS)).getZ());
       nbt.setString("model", (String)goblin.entityDataManager.get(AbstractNpcOnlyEntity.APPEARANCE_DNA));
       nbt.setString("girlID", (String)goblin.entityDataManager.get(AbstractNpcOnlyEntity.GIRL_ID));
-      nbt.setString("queen", (String)goblin.entityDataManager.get(GoblinEntity.aK));
+      nbt.setString("queen", (String)goblin.entityDataManager.get(GoblinEntity.QUEEN_ID));
       nbt.setBoolean("isQueen", goblin.isQueen);
-      nbt.setBoolean("isTamed", (Boolean)goblin.entityDataManager.get(GoblinEntity.aC));
+      nbt.setBoolean("isTamed", (Boolean)goblin.entityDataManager.get(GoblinEntity.TAMED));
       nbt.setInteger("robTicks", goblin.robTicks);
       if (goblin.isQueen) {
-         nbt.setBoolean("preggo", (Boolean)goblin.entityDataManager.get(GoblinEntity.aV));
+         nbt.setBoolean("preggo", (Boolean)goblin.entityDataManager.get(GoblinEntity.PREGNANT));
          nbt.setFloat("throneRot", goblin.throneYaw);
          nbt.setDouble("thronePosX", goblin.thronePos.x);
          nbt.setDouble("thronePosY", goblin.thronePos.y);
@@ -62,8 +62,8 @@ final class GoblinPersistence {
          new BlockPos(nbt.getInteger("eyeColorX"), nbt.getInteger("eyeColorY"), nbt.getInteger("eyeColorZ"))
       );
       goblin.entityDataManager.set(AbstractNpcOnlyEntity.GIRL_ID, nbt.getString("girlID"));
-      goblin.entityDataManager.set(GoblinEntity.aK, nbt.getString("queen"));
-      goblin.entityDataManager.set(GoblinEntity.aC, nbt.getBoolean("isTamed"));
+      goblin.entityDataManager.set(GoblinEntity.QUEEN_ID, nbt.getString("queen"));
+      goblin.entityDataManager.set(GoblinEntity.TAMED, nbt.getBoolean("isTamed"));
       goblin.robTicks = nbt.getInteger("robTicks");
       if (goblin.isQueen) {
          goblin.throneYaw = nbt.getFloat("throneRot");
@@ -73,7 +73,7 @@ final class GoblinPersistence {
             goblin.guardUUIDs.add(UUID.fromString(nbt.getString("guard" + i)));
          }
 
-         goblin.entityDataManager.set(GoblinEntity.aV, nbt.getBoolean("preggo"));
+         goblin.entityDataManager.set(GoblinEntity.PREGNANT, nbt.getBoolean("preggo"));
          goblin.impregnationTick = nbt.getLong("impregnationTick");
       }
    }

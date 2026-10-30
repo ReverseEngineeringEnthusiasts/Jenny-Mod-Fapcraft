@@ -200,7 +200,7 @@ final class GalathActions {
    }
 
    static void startPussyLicking(GalathEntity galath) {
-      galath.a5 = true;
+      galath.pussyLickingForward = true;
       galath.setCurrentAction(Action.PUSSY_LICKING);
    }
 

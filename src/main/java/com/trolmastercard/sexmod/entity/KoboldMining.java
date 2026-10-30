@@ -36,10 +36,10 @@ import net.minecraft.util.text.TextComponentString;
  * of the tribe task, walking to it, standing still long enough to start, then
  * destroying it (including the falling-log cascade and sapling replant).
  * <p>
- * <b>State lives on the entity</b> ({@code aI} target, {@code ad} replant item,
- * {@code aR} attempts, {@code cooldownTicks}, {@code taskTimer}, {@code ai},
+ * <b>State lives on the entity</b> ({@code miningTargetPos} target, {@code ad} replant item,
+ * {@code mineCooldown} attempts, {@code cooldownTicks}, {@code taskTimer}, {@code miningCooldown},
  * {@code miningStandTicks}) because the tribe task loop in {@code KoboldEntity}
- * reads {@code aI} too. The methods here are stateless and take the entity as
+ * reads {@code miningTargetPos} too. The methods here are stateless and take the entity as
  * their first argument.
  */
 final class KoboldMining {
@@ -51,25 +51,25 @@ final class KoboldMining {
          handleTaskNavigation(entity, tribeId, task);
       } else {
          entity.taskTimer--;
-         entity.ai--;
-         if (entity.ai == 0) {
-            IBlockState fallingState = entity.world.getBlockState(entity.aI.up());
+         entity.miningCooldown--;
+         if (entity.miningCooldown == 0) {
+            IBlockState fallingState = entity.world.getBlockState(entity.miningTargetPos.up());
             if (!(fallingState.getBlock() instanceof BlockFalling)) {
-               task.removeMiningTarget(entity.aI);
+               task.removeMiningTarget(entity.miningTargetPos);
                EntityPlayer master = entity.getMasterPlayer();
                if (master != null) {
-                  PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(entity.aI, false), (EntityPlayerMP)master);
+                  PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(entity.miningTargetPos, false), (EntityPlayerMP)master);
                }
             }
 
-            IBlockState blockState = entity.world.getBlockState(entity.aI);
+            IBlockState blockState = entity.world.getBlockState(entity.miningTargetPos);
             entity.canExtractItem(new ItemStack(blockState.getBlock().getItemDropped(blockState, entity.getRNG(), 0), 1, blockState.getBlock().damageDropped(blockState)));
-            entity.world.destroyBlock(entity.aI, false);
+            entity.world.destroyBlock(entity.miningTargetPos, false);
          }
 
          if (entity.taskTimer <= 0) {
             entity.taskTimer = 100;
-            entity.ai = 24;
+            entity.miningCooldown = 24;
             entity.setCurrentAction(Action.NULL);
          }
       }
@@ -77,31 +77,31 @@ final class KoboldMining {
 
    static void handleTaskNavigation(KoboldEntity entity, UUID tribeId, KoboldTask task) {
       PathNavigate navigator = entity.getNavigator();
-      if (entity.aI != null && task.getMiningTargets().contains(entity.aI)) {
-         IBlockState blockState = entity.world.getBlockState(entity.aI);
+      if (entity.miningTargetPos != null && task.getMiningTargets().contains(entity.miningTargetPos)) {
+         IBlockState blockState = entity.world.getBlockState(entity.miningTargetPos);
          if (!entity.canInsertItem(new ItemStack(blockState.getBlock().getItemDropped(blockState, Reference.RANDOM, 0)))) {
-            entity.ax = true;
+            entity.tribeBlocked = true;
             entity.canStoreInventory(tribeId, true);
          } else if (entity.motionX == 0.0
             && entity.motionZ == 0.0
             && entity.onGround
-            && !(entity.getDistance(entity.aI.getX(), entity.aI.getY(), entity.aI.getZ()) > 3.0)
+            && !(entity.getDistance(entity.miningTargetPos.getX(), entity.miningTargetPos.getY(), entity.miningTargetPos.getZ()) > 3.0)
             && ++entity.miningStandTicks >= 10) {
             navigator.clearPath();
             entity.miningStandTicks = 0;
             entity.setCurrentAction(Action.MINE);
             entity.rotationYawHead = (float)(
-               Math.atan2(entity.posZ - entity.aI.getZ(), entity.posX - entity.aI.getX()) * (180.0 / Math.PI) + 90.0
+               Math.atan2(entity.posZ - entity.miningTargetPos.getZ(), entity.posX - entity.miningTargetPos.getX()) * (180.0 / Math.PI) + 90.0
             );
             entity.rotationYaw = entity.rotationYawHead;
-            entity.getDataManager().set(KoboldEntity.at, false);
+            entity.getDataManager().set(KoboldEntity.MINING_WITH_AXE, false);
          } else {
-            BlockPos standPos = entity.aI.add(task.getFacing().getOpposite().getDirectionVec());
+            BlockPos standPos = entity.miningTargetPos.add(task.getFacing().getOpposite().getDirectionVec());
             navigator.tryMoveToXYZ(standPos.getX(), standPos.getY(), standPos.getZ(), 0.35F);
          }
       } else {
-         entity.aI = executeMiningTask(entity, task, tribeId);
-         if (entity.aI == null) {
+         entity.miningTargetPos = executeMiningTask(entity, task, tribeId);
+         if (entity.miningTargetPos == null) {
             boolean noTargets = task.getMiningTargets().isEmpty();
             HashSet blocks = KoboldManager.removeTaskAndGetBlocks(tribeId, task);
             UUID tribeUuid = KoboldManager.findTribeIdWith(tribeId);
@@ -122,7 +122,7 @@ final class KoboldMining {
                entity.syncTribeBlocks(targetPos);
             }
 
-            BlockPos standPos = entity.aI.add(task.getFacing().getOpposite().getDirectionVec());
+            BlockPos standPos = entity.miningTargetPos.add(task.getFacing().getOpposite().getDirectionVec());
             navigator.tryMoveToXYZ(standPos.getX(), standPos.getY(), standPos.getZ(), 0.35F);
          }
       }
@@ -432,7 +432,7 @@ final class KoboldMining {
 
    static void navigateToTask(KoboldEntity entity, UUID tribeId, KoboldTask task, BlockPos pos) {
       if (entity.ad == null) {
-         entity.aR = 24;
+         entity.mineCooldown = 24;
          entity.cooldownTicks = 0;
          entity.setCurrentAction(Action.NULL);
          entity.getDataManager().set(KoboldEntity.IS_ANCHORED, false);
@@ -531,7 +531,7 @@ final class KoboldMining {
                   );
          }
 
-         entity.aR = 24;
+         entity.mineCooldown = 24;
          entity.cooldownTicks = 0;
          entity.ad = null;
          entity.setCurrentAction(Action.NULL);
@@ -559,9 +559,9 @@ final class KoboldMining {
             if (entity.world.getBlockState(pos).getBlock() == Blocks.AIR) {
                navigateToTask(entity, tribeId, task, pos);
             } else {
-               entity.aR--;
-               if (entity.aR < 0) {
-                  entity.aR = 24;
+               entity.mineCooldown--;
+               if (entity.mineCooldown < 0) {
+                  entity.mineCooldown = 24;
                   entity.cooldownTicks = 78;
                   HashSet targets = new HashSet();
                   EntityPlayer master = entity.getMasterPlayer();
@@ -573,7 +573,7 @@ final class KoboldMining {
                               ItemStack dropStack = entity.world
                                  .getBlockState(target)
                                  .getBlock()
-                                 .getItem(entity.world, pos, entity.world.getBlockState(pos));
+                                 .getItem(entity.world, target, entity.world.getBlockState(target));
                               if (dropStack.getItem() != Items.AIR) {
                                  entity.canExtractItem(dropStack);
                               }
@@ -589,8 +589,8 @@ final class KoboldMining {
                            entity.ad = getBlockItem(entity, target);
                            entity.world.destroyBlock(target, false);
                            task.removeMiningTarget(target);
-                           task.setMiningTargets(targets);
                            targets.add(target);
+                           task.setMiningTargets(targets);
                            if (master != null) {
                               PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(targets, false), (EntityPlayerMP)master);
                            }
@@ -764,7 +764,7 @@ final class KoboldMining {
          entity.setTargetPosition(new Vec3d(bestBlock.getX() + 0.5, bestBlock.getY(), bestBlock.getZ() + 0.5));
          entity.setYawRotation(yaw);
          entity.getDataManager().set(KoboldEntity.IS_ANCHORED, true);
-         entity.getDataManager().set(KoboldEntity.at, true);
+         entity.getDataManager().set(KoboldEntity.MINING_WITH_AXE, true);
          entity.setCurrentAction(Action.MINE);
          entity.world.destroyBlock(bestBlock.up(), false);
       } else if (Math.abs(entity.getPosition().getY() - bestBlock.getY()) > 4) {

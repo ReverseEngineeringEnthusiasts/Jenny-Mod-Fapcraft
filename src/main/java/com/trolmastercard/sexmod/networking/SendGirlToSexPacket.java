@@ -17,14 +17,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  * the nearest bed and begin her bed scene.
  * <p>
  * Used by the {@code anal}/{@code doggy} choices (Bia) and the {@code sex}
- * choice (Luna): after the girl's {@code U()} picks the hand-state, the client
+ * choice (Luna): after the girl's {@code startActionFromHandState()} picks the hand-state, the client
  * sends this packet, and the SERVER handler calls
  * {@link IBeddableSexGirl#goToSexBed()} which finds a bed, sets
  * {@code TARGET_POS}/{@code YAW_ROTATION}, and starts the walk; on arrival the
  * girl anchors and enters {@code WAIT_CAT}/{@code ANAL_WAIT} to pick up the
  * scene.
  * <p>
- * <b>Pitfall:</b> Luna's {@code U()} "sex" case sends this packet together
+ * <b>Pitfall:</b> Luna's {@code startActionFromHandState()} "sex" case sends this packet together
  * with a full {@link ResetGirlPacket} (jar-faithful) — the reset clears the
  * interaction partner before the walk, and the girl re-binds it on arrival.
  * Do not reorder.

@@ -36,7 +36,7 @@ import org.lwjgl.input.Mouse;
  * toggles and the "cross/next" buttons.
  * <p>
  * <b>Data flow.</b> Entries are rebuilt every frame from
- * {@link ClothingScreen#m} (static custom-part registry map) and
+ * {@link ClothingScreen#customPartEntries} (static custom-part registry map) and
  * {@link ServerWhitelistManager#getModelParts}. Preview {@link SexSceneEntity}s
  * are created and {@code removeEntityDangerously}-removed within a single draw
  * call — they must never outlive the frame, and drawing must not happen while
@@ -114,7 +114,7 @@ public class CustomModelList extends GuiListExtended {
    }
 
    /**
-    * Rebuilds and sorts the entries from {@link ClothingScreen#m} (BoneType ->
+    * Rebuilds and sorts the entries from {@link ClothingScreen#customPartEntries} (BoneType ->
     * (model names, selected index)), prepends the {@code cross} entry to the
     * custom-bone models, appends the "add custom part" row (only when at least
     * one custom bone exists), then refreshes scroll state.
@@ -123,7 +123,7 @@ public class CustomModelList extends GuiListExtended {
       this.entries.clear();
       int customBoneCount = 0;
 
-      for (Entry entry : ClothingScreen.m) {
+      for (Entry entry : ClothingScreen.customPartEntries) {
          BoneType boneType = (BoneType)entry.getKey();
          Entry data = (Entry)entry.getValue();
          // Legacy rows: girl-specific parts (scale sliders) and custom-bone parts
@@ -506,14 +506,14 @@ public class CustomModelList extends GuiListExtended {
             ArrayList parts = new ArrayList();
             parts.add("cross");
             parts.addAll(ServerWhitelistManager.getModelParts(CustomModelList.this.parentScreen.previewGirl).get(BoneType.CUSTOM_BONE));
-            ClothingScreen.m.add(ClothingScreen.getCustomPartData(CustomModelList.this.parentScreen.previewGirl));
+            ClothingScreen.customPartEntries.add(ClothingScreen.getCustomPartData(CustomModelList.this.parentScreen.previewGirl));
          }
 
          if (this.isSelected) {
             buttonX += 40;
             if (x > buttonX && x < buttonX + 20) {
                CustomModelList.this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-               ClothingScreen.m.remove(ClothingScreen.m.size() - 1);
+               ClothingScreen.customPartEntries.remove(ClothingScreen.customPartEntries.size() - 1);
             }
          }
       }
@@ -539,7 +539,7 @@ public class CustomModelList extends GuiListExtended {
       /**
     * Row-background click routing (the "buttons" of a row). For the custom-part
     * header row: the add button re-registers the current custom part into
-    * {@link ClothingScreen#m} and marks the list for refresh; the remove button
+    * {@link ClothingScreen#customPartEntries} and marks the list for refresh; the remove button
     * (only when the header is selected) drops the last entry. For all other
     * rows: girl-specific rows toggle the part via
     * {@code ClothingScreen.onBoneTypeToggle}.

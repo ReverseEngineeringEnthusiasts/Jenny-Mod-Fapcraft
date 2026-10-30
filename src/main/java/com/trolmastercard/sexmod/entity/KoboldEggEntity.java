@@ -63,7 +63,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
 
    protected void entityInit() {
       super.entityInit();
-      this.dataManager.register(EGG_COLOR, KoboldEntity.aJ.toString());
+      this.dataManager.register(EGG_COLOR, KoboldEntity.DEFAULT_EYE_COLOR.toString());
       this.dataManager.register(EGG_TYPE, 0);
    }
 
@@ -131,7 +131,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
          String masterName = null;
 
          for (KoboldEntity memberKobold : (java.util.Collection<KoboldEntity>) (members) ) {
-            String name = (String)memberKobold.getDataManager().get(KoboldEntity.aU);
+            String name = (String)memberKobold.getDataManager().get(KoboldEntity.TRIBE_NAME);
             if (!"".equals(name)) {
                masterName = name;
                break;
@@ -139,7 +139,7 @@ public class KoboldEggEntity extends EntityLivingBase implements IAnimatable {
          }
 
          if (masterName != null) {
-            kobold.getDataManager().set(KoboldEntity.aU, masterName);
+            kobold.getDataManager().set(KoboldEntity.TRIBE_NAME, masterName);
          }
 
          kobold.setPosition(0.5 + this.posX, this.posY, 0.5 + this.posZ);

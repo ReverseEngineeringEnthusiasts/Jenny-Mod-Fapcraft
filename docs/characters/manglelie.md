@@ -17,8 +17,8 @@ File `animations/manglelie/manglelie.animation.json` — **20 animations** (veri
 | Animation name | Purpose / when used |
 |---|---|
 | `animation.manglelie.idle` | movement controller, action NULL + not corrupting, standing still |
-| `animation.manglelie.walk` | movement controller, action NULL + not corrupting, moving, `ar` (scared) false |
-| `animation.manglelie.scared_run` | movement controller, action NULL + not corrupting, moving, `ar` true (set by `AvoidPlayerGoal`) |
+| `animation.manglelie.walk` | movement controller, action NULL + not corrupting, moving, `SCARED` false |
+| `animation.manglelie.scared_run` | movement controller, action NULL + not corrupting, moving, `SCARED` true (set by `AvoidPlayerGoal`) |
 | `animation.manglelie.running` | action controller, `RUN` (running to mommy) |
 | `animation.manglelie.sit_on_galath` | action controller, `RIDE_MOMMY_HEAD` (riding Galath's head) |
 | `animation.manglelie.sit_on_galath2` | In JSON, **no code reference** (legacy variant) |
@@ -38,10 +38,10 @@ File `animations/manglelie/manglelie.animation.json` — **20 animations** (veri
 
 Actions used: `RIDE_MOMMY_HEAD` (adoption), `THREESOME_SLOW/FAST/CUM`, `RUN`, `NULL`, plus shared scene actions driven by her Galath.
 
-- **Adoption (RIDE_MOMMY_HEAD)**: wild Mang (`handleCorruptInit`) seeks an unbound, on-ground Galath within 15 blocks and RUNs to her (0.65 speed, yaw to target). On contact (`handlePartnerLook` — only for the `galathPartnerUUID` loaded from NBT) or when the Galath's `at()` reaches her (≤3.65 blocks): Galath sets HUG_MANG, both partner UUIDs are bound (`ad`/`WildSlimeFaceLayer`), Mang → `RIDE_MOMMY_HEAD`, `GirlSavedData.markAsManglelieOwned`. While corrupting with no threesome action, `handleThreesomeState` keeps her anchored at Galath's position (yaw 0, `setTargetPosition(galath.pos)`); a dead mommy → `"A dead mommy has been saved onto a mang. Deleting her and creating a new one"` (LOGGER.warn) + remove.
-- **Corruption beam → threesome conversion** (tamed): while `ap` (corrupting) and Galath is in the corrupt state, `handleCorruptStart` picks a valid `EntityMob` within 15 blocks of Galath (`isGalathBlocked`: alive, same dimension, daylight-visible, ≤15 blocks horizontal, in front of Galath's aim via `getAimYaw`). `setCorruptEntity` records the id + start world time. `handleCorruptTimer`: at 28 ticks after start, fires an `EntityTippedArrow` from Galath's position +3.5 Y at the target (velocity 4.0, `ENTITY_ARROW_SHOOT` from Galath) and sets `corrupting=true`. `handleCorruptTick`: at 60 ticks total, releases (`corrupting=false`, `setCorruptEntity(-1)`). While bound she is `noGravity` + `noClip` + `canBeCollidedWith()==false` (`updateCorruptGravity`). The player then right-clicks Galath → `threesome` menu option → Mang `THREESOME_SLOW` + Galath `PUSSY_LICKING` (see Galath doc).
+- **Adoption (RIDE_MOMMY_HEAD)**: wild Mang (`handleCorruptInit`) seeks an unbound, on-ground Galath within 15 blocks and RUNs to her (0.65 speed, yaw to target). On contact (`handlePartnerLook` — only for the `galathPartnerUUID` loaded from NBT) or when the Galath's `tickSeekMangleliePartner()` reaches her (≤3.65 blocks): Galath sets HUG_MANG, both partner UUIDs are bound (`GALATH_PARTNER_UUID`/`WildSlimeFaceLayer`), Mang → `RIDE_MOMMY_HEAD`, `GirlSavedData.markAsManglelieOwned`. While corrupting with no threesome action, `handleThreesomeState` keeps her anchored at Galath's position (yaw 0, `setTargetPosition(galath.pos)`); a dead mommy → `"A dead mommy has been saved onto a mang. Deleting her and creating a new one"` (LOGGER.warn) + remove.
+- **Corruption beam → threesome conversion** (tamed): while `CORRUPTING` and Galath is in the corrupt state, `handleCorruptStart` picks a valid `EntityMob` within 15 blocks of Galath (`isGalathBlocked`: alive, same dimension, daylight-visible, ≤15 blocks horizontal, in front of Galath's aim via `getAimYaw`). `setCorruptEntity` records the id + start world time. `handleCorruptTimer`: at 28 ticks after start, fires an `EntityTippedArrow` from Galath's position +3.5 Y at the target (velocity 4.0, `ENTITY_ARROW_SHOOT` from Galath) and sets `corrupting=true`. `handleCorruptTick`: at 60 ticks total, releases (`corrupting=false`, `setCorruptEntity(-1)`). While bound she is `noGravity` + `noClip` + `canBeCollidedWith()==false` (`updateCorruptGravity`). The player then right-clicks Galath → `threesome` menu option → Mang `THREESOME_SLOW` + Galath `PUSSY_LICKING` (see Galath doc).
 - **Threesome flow** (`handleActionAnimationOverrides`): THREESOME_SLOW start → set THREESOME_FAST + `double_holding_soft` + Galath `startMasterbateSitting()` (MASTERBATE_SITTING); THREESOME_FAST first start → `double_holding_hard`; THREESOME_FAST end (not started) → `threesomeCumDone=true`, back to THREESOME_SLOW + `double_holding_back` + Galath `startPussyLicking()`; THREESOME_SLOW after cum → `double_holding_slow`; `threesomeSlowStarted && THREESOME_FAST` → THREESOME_CUM + `double_holding_cum` + Galath `MASTERBATE_SITTING_CUM`; THREESOME_CUM end → reset both girls (`resetCameraAndPhysics`), `CummyEntity.spawnCummyTrails` on both, clear state (`corruptionStage=2`).
-- **Movement**: walk/idle/scared_run via movement controller only when action NULL and not corrupting; `RUN` otherwise. `AvoidPlayerGoal` (task 1, range 20.0, speeds 1.0/1.2) flees players — but never while bound to a corrupting Galath or when any master-owned Galath is within `distance` blocks (`shouldAvoid`); sets `ar` (scared) while executing → `scared_run` anim.
+- **Movement**: walk/idle/scared_run via movement controller only when action NULL and not corrupting; `RUN` otherwise. `AvoidPlayerGoal` (task 1, range 20.0, speeds 1.0/1.2) flees players — but never while bound to a corrupting Galath or when any master-owned Galath is within `distance` blocks (`shouldAvoid`); sets `SCARED` while executing → `scared_run` anim.
 - **Despawn rules**: `removeOnNextTick` (despawned flag) → removed; non-wild Mang whose mommy is gone (`handleCorruptFinish`) → removed with console print `"removed non-wild mang for lack of mommy"`; mommy disowned her for another Mang (`handleGalathPartner`) → removed with `"removed non-wild mang cuz her mommy disowned her and got another mang"`.
 - **Render-scene coupling**: while corrupting (not threesome), her render position/aim is overridden by `renderCustomModelTransform`/`getBoneWorldPosManglelie` → `renderGalathInteract` + `getLookVector(galath)` (Galath's aim vector + `mangPos` bone offset) — she renders at Galath's location, not her own. `getYawRotation()` adds 180° during threesome actions. Name tag hidden while corrupting (`shouldRenderNameTag`).
 
@@ -79,14 +79,14 @@ Actions used: `RIDE_MOMMY_HEAD` (adoption), `THREESOME_SLOW/FAST/CUM`, `RUN`, `N
 - `addPotionEffect` no-op; `canBeCollidedWith` false while bound (corrupting).
 - `reinitTasks`: restores RIDE_MOMMY_HEAD + yaw 0 + dirty `YAW_ROTATION` while corrupting.
 - Look helpers: `isLookingAtGalathEntity`/`isLookingAtGalathPoint`/`isThrowBlocked` (rotated delta x > 0.35 vs Galath's lerped head yaw) drive the bow hand and pose.
-- `getCorruptTarget()` (client, particle tick): corrupt entity, else nearest player within 6 blocks — drives the head/arm aim (`af`/`rotationLerp` computed in `handleParticleTick`, every 7 player ticks).
+- `getCorruptTarget()` (client, particle tick): corrupt entity, else nearest player within 6 blocks — drives the head/arm aim (`yawOffset`/`rotationLerp` computed in `handleParticleTick`, every 7 player ticks).
 
 ## Unique mechanics
 
 - **Adoption RIDE_MOMMY_HEAD**: mommy/daughter bond; Mang renders *on* Galath's head (`mangPos` bone) via the interaction render path; Galath HUG_MANG precedes it.
 - **Corruption beam**: no beam entity — a `DragonEntity`-style arrow is shot from Galath's head (28-tick charge-up, `getCorruptProgress = elapsed/28` drives bow draw + arm swing), the mob is "held" by the corruption state (noClip/noGravity/uncollidable) while the look-pose arms track it, released at 60 ticks. The corruption arms blend between corrupt-pose and ride-pose on a frame-rate-independent cycle (`VELOCITY_0`/`aj` fields), head chases Galath at 7°/frame (60 fps) (`TICK_0`/`ai` fields).
-- **Threesome conversion**: the corrupted mob's scene is a *threesome* (Galath + Mang), with Mang's body mirroring Galath's published body rotation/scale (`bw`/`bm`), pose variants via `cs0/cs1/cs2` sound cues (`corruptionStage` = cock-stage counter 0..2), semen trails from `semenEmitter`/`semenDir`, and her own `THREESOME_CUM` handling resetting both girls.
-- **Avoidance / scared run**: `AvoidPlayerGoal` sets data key `ar` → `scared_run` animation; suppressed near any master-owned Galath ("mommy protects her").
+- **Threesome conversion**: the corrupted mob's scene is a *threesome* (Galath + Mang), with Mang's body mirroring Galath's published body rotation/scale (`bodyRotationY`/`bodyScaleY`), pose variants via `cs0/cs1/cs2` sound cues (`corruptionStage` = cock-stage counter 0..2), semen trails from `semenEmitter`/`semenDir`, and her own `THREESOME_CUM` handling resetting both girls.
+- **Avoidance / scared run**: `AvoidPlayerGoal` sets data key `SCARED` → `scared_run` animation; suppressed near any master-owned Galath ("mommy protects her").
 - **Name-tag & render gating**: `shouldRenderNameTag` false while corrupting; `doRenderManglelie` skips the standard render while looking at Galath / ride-ready / in the look pose / riding mommy (CONTROLLED_FLIGHT/BOOST) — those poses render through POV/interaction paths; shadow/fire pass also skipped while looking/corrupting.
 
 ## Player form (if any)
@@ -100,11 +100,11 @@ Data-manager keys (explicit serializer ids — do not reorder; 99–110 from `Ba
 | Id | Field | Type | Meaning |
 |---|---|---|---|
 | 99–110 | (BaseGirlEntity keys) | — | shared girl keys (see Galath doc; incl. `MASTER`=110, `CUR_ACTION`=104, `GIRL_ID`=106, `YAW_ROTATION`=107, `TARGET_POS`=108, `IS_ANCHORED`=109) |
-| 111 | `ad` | STRING | Galath partner ("mommy") UUID (`getCorruptPlayerUUID`) — empty = unbound |
-| 112 | `ap` | BOOLEAN | corrupting flag (`isCorrupting`/`setCorrupting`) |
-| 113 | `ab` | VARINT | corrupt target entity id (−1 none) |
-| 114 | `al` | STRING | corrupt start world time (long as string; −1 none) |
-| 115 | `ar` | BOOLEAN | scared flag (set by `AvoidPlayerGoal`) |
+| 111 | `GALATH_PARTNER_UUID` | STRING | Galath partner ("mommy") UUID (`getCorruptPlayerUUID`) — empty = unbound |
+| 112 | `CORRUPTING` | BOOLEAN | corrupting flag (`isCorrupting`/`setCorrupting`) |
+| 113 | `CORRUPT_TARGET_ID` | VARINT | corrupt target entity id (−1 none) |
+| 114 | `CORRUPT_START_TIME` | STRING | corrupt start world time (long as string; −1 none) |
+| 115 | `SCARED` | BOOLEAN | scared flag (set by `AvoidPlayerGoal`) |
 
 NBT (entity): `sexmod:mommy` (STRING, Galath UUID), `sexmod:iswild` (BOOL, `wild`), `sexmod:despawned` (BOOL). Note the transient `galathPartnerUUID` field: `readFromNBT` stores `sexmod:mommy` there and `handlePartnerLook()` performs the actual two-way binding + RIDE_MOMMY_HEAD on the next AI tick.
 

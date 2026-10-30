@@ -48,7 +48,7 @@ public class LunaRodItem extends ItemFishingRod {
             } else if (!(entity instanceof LunaEntity)) {
                return 0.0F;
             } else {
-               return entity.getDataManager().get(LunaEntity.af) ? 1.0F : 0.0F;
+               return entity.getDataManager().get(LunaEntity.FISH_ON_LINE) ? 1.0F : 0.0F;
             }
          }
       });

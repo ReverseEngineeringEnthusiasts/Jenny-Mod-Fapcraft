@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 /**
  * <b>Role.</b> Custom armor damage reduction for NPC girls
  * ({@link AbstractGirlNpcEntity}). The constructor precomputes the vanilla
- * armor/toughness table per slot+material into {@code DamageCalculation.a};
+ * armor/toughness table per slot+material into {@code DamageCalculation.ArmorStats};
  * {@link #onLivingDamage} then applies the full armor formula (reduction,
  * toughness, Protection/Thorns/Fire/Blast/Feather-Falling/Projectile
  * enchantments) to damage dealt to NPC girls, and reflects Thorns damage back
@@ -29,26 +29,26 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 public class DamageCalculation {
    public DamageCalculation() {
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.LEATHER, 1, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.GOLD, 2, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.CHAIN, 2, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.IRON, 2, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.DIAMOND, 3, 3);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.LEATHER, 3, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.GOLD, 5, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.CHAIN, 5, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.IRON, 6, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.DIAMOND, 8, 3);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.LEATHER, 2, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.GOLD, 3, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.CHAIN, 4, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.IRON, 5, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.DIAMOND, 6, 3);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.LEATHER, 1, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.GOLD, 1, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.CHAIN, 1, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.IRON, 2, 0);
-      DamageCalculation.a.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.DIAMOND, 3, 3);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.LEATHER, 1, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.GOLD, 2, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.CHAIN, 2, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.IRON, 2, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.HEAD, ArmorMaterial.DIAMOND, 3, 3);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.LEATHER, 3, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.GOLD, 5, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.CHAIN, 5, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.IRON, 6, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.CHEST, ArmorMaterial.DIAMOND, 8, 3);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.LEATHER, 2, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.GOLD, 3, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.CHAIN, 4, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.IRON, 5, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.LEGS, ArmorMaterial.DIAMOND, 6, 3);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.LEATHER, 1, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.GOLD, 1, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.CHAIN, 1, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.IRON, 2, 0);
+      DamageCalculation.ArmorStats.calculateDamage(EntityEquipmentSlot.FEET, ArmorMaterial.DIAMOND, 3, 3);
    }
 
    @SubscribeEvent
@@ -72,8 +72,8 @@ public class DamageCalculation {
             int toughness = 0;
             if (!source.isUnblockable()) {
                for (ItemArmor armorItem : (java.util.Collection<ItemArmor>) (armorItems) ) {
-                  armorReduction += DamageCalculation.a.getArmorDamageReduction(armorItem.armorType, armorItem.getArmorMaterial());
-                  toughness += DamageCalculation.a.getArmorToughness(armorItem.armorType, armorItem.getArmorMaterial());
+                  armorReduction += DamageCalculation.ArmorStats.getArmorDamageReduction(armorItem.armorType, armorItem.getArmorMaterial());
+                  toughness += DamageCalculation.ArmorStats.getArmorToughness(armorItem.armorType, armorItem.getArmorMaterial());
                }
             }
 
@@ -120,12 +120,12 @@ public class DamageCalculation {
       }
    }
 
-   static class a {
-      public static HashMap<String, Integer[]> a = new HashMap<>();
+   static class ArmorStats {
+      public static HashMap<String, Integer[]> armorStats = new HashMap<>();
 
       public static int getArmorDamageReduction(EntityEquipmentSlot slot, ArmorMaterial material) {
          try {
-            return a.get(slot.toString() + material.toString())[0];
+            return armorStats.get(slot.toString() + material.toString())[0];
          } catch (NullPointerException exception) {
             return 3;
          }
@@ -133,14 +133,14 @@ public class DamageCalculation {
 
       public static int getArmorToughness(EntityEquipmentSlot slot, ArmorMaterial material) {
          try {
-            return a.get(slot.toString() + material.toString())[1];
+            return armorStats.get(slot.toString() + material.toString())[1];
          } catch (NullPointerException exception) {
             return 0;
          }
       }
 
       public static void calculateDamage(EntityEquipmentSlot slot, ArmorMaterial material, int damage, int toughness) {
-         a.put(slot.toString() + material.toString(), new Integer[]{damage, toughness});
+         armorStats.put(slot.toString() + material.toString(), new Integer[]{damage, toughness});
       }
    }
 }

@@ -8,9 +8,9 @@ key and animated through GeckoLib animation controllers
 ## The 170 actions
 
 Each constant is declared with up to 7 fields: `length` (ticks before the
-sound-listener/counter transition), `lengthIsTransition` (whether `length` is a
-GeckoLib transition vs. a hard tick counter), `lengthIsFollowUp`,
-`isAnchored`/`isTouching` flags, and optional pitch/yaw/lock parameters. The
+sound-listener/counter transition), `transitionTick` (GeckoLib controller
+transition length), `followUp` (auto-transition target),
+`hasPlayer`/`autoBlink` flags, and optional pitch/yaw/lock parameters. The
 full declaration list (verbatim from `Action.java`, lines 65+):
 
 ```
@@ -66,7 +66,7 @@ Talk | Head pat | Anal | sex | touch boobs
    "start a scene" packet; note: its `tribeId` arg is the **girl** UUID, `girlId` is the **player** UUID).
 2. Server: `setDismounted()`, then the girl **walks ~40 ticks** to TARGET_POS (step-lerp —
    `RotationHelper.lerpVec3d` int family, do not swap to the double variant or girls get flung),
-   gets **anchored** (IS_ANCHORED), and `U()` dispatches on the hand-state.
+   gets **anchored** (IS_ANCHORED), and `startActionFromHandState()` dispatches on the hand-state.
 3. Beddable girls (Jenny, Bia, Luna) instead walk to the **nearest bed** (`SendGirlToSexPacket` →
    `IBeddableSexGirl.goToSexBed()`), anchor at the bed, wait (ANAL_WAIT / WAIT_CAT) until the
    player is within 1 block, then lock both players in.

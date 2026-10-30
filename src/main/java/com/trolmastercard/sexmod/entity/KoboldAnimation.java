@@ -28,8 +28,8 @@ import software.bernie.geckolib3.resource.GeckoLibCache;
  * <b>Pitfalls.</b> The sound listener drives scene progression: the
  * {@code *Done} keys move the action state machine forward, {@code switch}/
  * {@code endSwitch} toggle the blowjob side ({@code WildSlimeFaceLayer} /
- * {@code aT}) and must clear the animation cache, and {@code paymentDone}
- * calls {@code U()} which re-dispatches the hand state. Do not reorder the
+ * {@code switchVariant}) and must clear the animation cache, and {@code paymentDone}
+ * calls {@code startActionFromHandState()} which re-dispatches the hand state. Do not reorder the
  * switch cases: {@code mating_press_startDone} intentionally falls through to
  * {@code mating_press_hardDone}.
  */
@@ -46,7 +46,7 @@ final class KoboldAnimation {
          entity.initAnimationControllers();
       }
 
-      float shrink = 0.25F - (Float)entity.getDataManager().get(KoboldEntity.aE);
+      float shrink = 0.25F - (Float)entity.getDataManager().get(KoboldEntity.SIZE_SCALAR);
       GeckoLibCache.getInstance().parser.setValue("size", shrink);
       switch (event.getController().getName()) {
          case "eyes":
@@ -70,7 +70,7 @@ final class KoboldAnimation {
                      entity.movementController.setAnimationSpeed(speed);
                      if (entity.isBlockedByCeiling()) {
                         entity.createAnimation("animation.kobold.crouch_walk", true, event);
-                     } else if ((Boolean)entity.getDataManager().get(KoboldEntity.aC)) {
+                     } else if ((Boolean)entity.getDataManager().get(KoboldEntity.ARMED)) {
                         entity.createAnimation("animation.kobold.run_armed", true, event);
                      } else if (moved > 0.2F) {
                         entity.createAnimation("animation.kobold.run", true, event);
@@ -83,7 +83,7 @@ final class KoboldAnimation {
                } else if (entity.isBlockedByCeiling()) {
                   entity.createAnimation("animation.kobold.crouch_idle", true, event);
                } else {
-                  entity.createAnimation(entity.getDataManager().get(KoboldEntity.aC) ? "animation.kobold.idle_armed" : "animation.kobold.idle", true, event);
+                  entity.createAnimation(entity.getDataManager().get(KoboldEntity.ARMED) ? "animation.kobold.idle_armed" : "animation.kobold.idle", true, event);
                }
             }
             break;
@@ -110,7 +110,7 @@ final class KoboldAnimation {
                   break;
                case SUCKBLOWJOB_BLINK:
                   String side = entity.WildSlimeFaceLayer ? "R" : "L";
-                  String animSuffix = entity.aT ? "Switch" : "";
+                  String animSuffix = entity.switchVariant ? "Switch" : "";
                   entity.createAnimation("animation.kobold.blowjobSlow" + side + animSuffix, true, event);
                   break;
                case THRUSTBLOWJOB:
@@ -175,7 +175,7 @@ final class KoboldAnimation {
                break;
             case "paymentDone":
                if (entity.isControlledByLocalPlayer()) {
-                  entity.U();
+                  entity.startActionFromHandState();
                }
                break;
             case "blowjobStartMSG1":
@@ -214,18 +214,18 @@ final class KoboldAnimation {
                break;
             case "blowjobStartDone":
                entity.setCurrentAction(Action.SUCKBLOWJOB_BLINK);
-               entity.aT = false;
+               entity.switchVariant = false;
                entity.WildSlimeFaceLayer = true;
                if (entity.isControlledByLocalPlayer()) {
                   HornyMeterHud.showHornyMeter();
                }
                break;
             case "switch":
-               entity.aT = entity.getRNG().nextBoolean();
+               entity.switchVariant = entity.getRNG().nextBoolean();
                entity.actionController.clearAnimationCache();
                break;
             case "endSwitch":
-               entity.aT = false;
+               entity.switchVariant = false;
                entity.WildSlimeFaceLayer = !entity.WildSlimeFaceLayer;
                entity.actionController.clearAnimationCache();
                break;
@@ -298,16 +298,16 @@ final class KoboldAnimation {
                entity.playRandomSounds(SoundHandler.GIRLS_KOBOLD_MOAN);
                break;
             case "moanMating":
-               entity.aN--;
-               if (entity.aN <= 0) {
-                  entity.aN = 3;
+               entity.moanCooldown--;
+               if (entity.moanCooldown <= 0) {
+                  entity.moanCooldown = 3;
                   entity.playRandomSounds(SoundHandler.GIRLS_KOBOLD_MOAN);
                }
                break;
             case "analHardMSG1":
-               entity.aN--;
-               if (entity.aN <= 0) {
-                  entity.aN = 4;
+               entity.moanCooldown--;
+               if (entity.moanCooldown <= 0) {
+                  entity.moanCooldown = 4;
                   entity.playRandomSounds(SoundHandler.GIRLS_KOBOLD_MOAN);
                }
                break;

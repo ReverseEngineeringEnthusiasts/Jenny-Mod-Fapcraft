@@ -60,13 +60,13 @@ public class PlayerKoboldRenderer extends AbstractPlayerKoblinGoboldRenderer {
 
    @Override
    protected void renderLeftEye() {
-      float scale = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
+      float scale = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.SIZE_SCALAR);
       GlStateManager.scale(1.0F - scale, 1.0F - scale, 1.0F - scale);
    }
 
    @Override
    protected void renderRightEye() {
-      float scale = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.aA);
+      float scale = 0.25F - (Float)this.renderEntity.getDataManager().get(KoboldPlayerEntity.SIZE_SCALAR);
       double inverseScale = 1.0 / (1.0 - scale);
       GlStateManager.scale(inverseScale, inverseScale, inverseScale);
    }

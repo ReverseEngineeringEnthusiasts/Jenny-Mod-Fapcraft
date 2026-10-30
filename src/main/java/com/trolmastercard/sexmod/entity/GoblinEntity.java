@@ -52,8 +52,8 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * guards, breeding scenes, stolen gold). Scenes: paizuri, nelson, breeding.
  * <p>
  * <b>State.</b> Own data keys (do not reorder): {@code OWNER_UUID} (122) =
- * carrying player, {@code aK} (123) = queen goblin's girl id, {@code a0}
- * (124) = stolen item stack, {@code aC} (125) = tamed flag, {@code aV} (126) =
+ * carrying player, {@code QUEEN_ID} (123) = queen goblin's girl id, {@code STOLEN_ITEM}
+ * (124) = stolen item stack, {@code TAMED} (125) = tamed flag, {@code PREGNANT} (126) =
  * queen pregnant flag. Appearance comes from the {@link AbstractNpcOnlyEntity}
  * DNA (119/120/121) with the trailing segment (index 9) holding the model
  * part index. {@code isQueen} = queen flag, {@code thronePos}/{@code throneYaw}
@@ -76,7 +76,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} guards the cum loops,
  * fires {@link #handlePlayerInteract()}/{@link #handlePlayerLook()}/
  * {@link #returnStolenItem()} on the server for PAIZURI_START/NELSON_INTRO/
- * START_THROWING, marks {@code aV} on BREEDING_CUM_0/NELSON_CUM and calls
+ * START_THROWING, marks {@code PREGNANT} on BREEDING_CUM_0/NELSON_CUM and calls
  * {@link #endPaizuriScene()} (reset + despawn) when PAIZURI_CUM leaves for
  * NULL.
  * {@code getModelPartIndex()} reads DNA index 7. Dead goblins drop their
@@ -150,16 +150,16 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    public static final DataParameter<String> OWNER_UUID = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(122);
-   public static final DataParameter<String> aK = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.STRING)
+   public static final DataParameter<String> QUEEN_ID = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(123);
-   public static final DataParameter<ItemStack> a0 = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.ITEM_STACK)
+   public static final DataParameter<ItemStack> STOLEN_ITEM = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.ITEM_STACK)
       .getSerializer()
       .createKey(124);
-   public static final DataParameter<Boolean> aC = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> TAMED = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(125);
-   public static final DataParameter<Boolean> aV = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> PREGNANT = EntityDataManager.createKey(GoblinEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(126);
    public boolean isQueen = false;
@@ -197,7 +197,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    public GoblinEntity(World world, @Nonnull String girlId, int modelPartIndex) {
       this(world);
-      this.entityDataManager.set(aK, girlId);
+      this.entityDataManager.set(QUEEN_ID, girlId);
       this.entityDataManager.set(APPEARANCE_DNA, this.buildModelCodeDNA(new StringBuilder(), modelPartIndex));
    }
 
@@ -231,10 +231,10 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       this.entityDataManager.register(ACTION_TARGET_POS, new BlockPos(color.getColor()));
       this.entityDataManager.register(CURRENT_ACTION, DEFAULT_SKIN.name());
       this.entityDataManager.register(OWNER_UUID, "");
-      this.entityDataManager.register(aK, "");
-      this.entityDataManager.register(a0, ItemStack.EMPTY);
-      this.entityDataManager.register(aC, false);
-      this.entityDataManager.register(aV, false);
+      this.entityDataManager.register(QUEEN_ID, "");
+      this.entityDataManager.register(STOLEN_ITEM, ItemStack.EMPTY);
+      this.entityDataManager.register(TAMED, false);
+      this.entityDataManager.register(PREGNANT, false);
    }
 
    @Override
@@ -246,7 +246,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       super.setDead();
       this.setOwnerUUID(null);
       if (!this.world.isRemote) {
-         ItemStack heldItem = (ItemStack)this.entityDataManager.get(a0);
+         ItemStack heldItem = (ItemStack)this.entityDataManager.get(STOLEN_ITEM);
          if (heldItem != ItemStack.EMPTY) {
             EntityItem item = new EntityItem(this.world, this.posX, this.posY, this.posZ, heldItem);
             this.world.spawnEntity(item);
@@ -505,7 +505,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       if (!this.gravityInitDone) {
          this.noClip = false;
          this.setNoGravity(false);
-         if (!this.isQueen && !(Boolean)this.entityDataManager.get(aC) && !((String)this.entityDataManager.get(aK)).equals("") && this.getCurrentAction() == Action.NULL) {
+         if (!this.isQueen && !(Boolean)this.entityDataManager.get(TAMED) && !((String)this.entityDataManager.get(QUEEN_ID)).equals("") && this.getCurrentAction() == Action.NULL) {
             this.world.removeEntity(this);
          }
 
@@ -641,7 +641,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    void tickThrownDespawnFade() {
-      if (!(Boolean)this.entityDataManager.get(aC)) {
+      if (!(Boolean)this.entityDataManager.get(TAMED)) {
          if (this.getCurrentAction() == Action.THROWN) {
             if (this.onGround || this.isInWater()) {
                this.fadeScale = (float)(this.fadeScale - 0.05);
@@ -700,7 +700,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
 
                if (action == Action.BREEDING_CUM_0) {
-                  this.entityDataManager.set(aV, true);
+                  this.entityDataManager.set(PREGNANT, true);
                   this.impregnationTick = this.world.getTotalWorldTime();
                   this.pregnantNoticeTick = this.world.getTotalWorldTime();
                }
@@ -710,11 +710,11 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
                }
 
                if (action == Action.NELSON_CUM) {
-                  this.entityDataManager.set(aV, true);
+                  this.entityDataManager.set(PREGNANT, true);
                }
 
                if (currentAction == Action.NELSON_CUM && action != Action.NELSON_CUM) {
-                  this.entityDataManager.set(aV, false);
+                  this.entityDataManager.set(PREGNANT, false);
                }
 
                super.setCurrentAction(action);
@@ -757,7 +757,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       } else if (this.getOwnerUUID() != null) {
          return false;
       } else {
-         return !this.entityDataManager.get(aC) && !Minecraft.getMinecraft().player.canEntityBeSeen(this) ? false : this.getOwnerUUID() == null;
+         return !this.entityDataManager.get(TAMED) && !Minecraft.getMinecraft().player.canEntityBeSeen(this) ? false : this.getOwnerUUID() == null;
       }
    }
 

@@ -77,10 +77,9 @@ public class KoboldTask {
       this.miningTargets.remove(pos);
    }
 
+   // removes the given targets; the misleading name is kept to avoid churn
    public void setMiningTargets(HashSet<BlockPos> targets) {
-      if (!targets.isEmpty()) {
-         this.miningTargets.removeAll(targets);
-      }
+      this.miningTargets.removeAll(targets);
    }
 
    public boolean isMiningTarget(BlockPos pos) {

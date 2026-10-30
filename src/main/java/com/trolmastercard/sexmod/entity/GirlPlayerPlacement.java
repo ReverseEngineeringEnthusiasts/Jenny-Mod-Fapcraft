@@ -73,14 +73,24 @@ final class GirlPlayerPlacement {
 
    /** @return a point {@code distance} blocks in front of the interacting player's yaw */
    static Vec3d getVectorTowardPlayer(BaseGirlEntity girl, double distance) {
-      EntityPlayer player = girl.world.getPlayerEntityByUUID(girl.getInteractionPlayerUUID());
+      UUID uuid = girl.getInteractionPlayerUUID();
+      EntityPlayer player = uuid == null ? null : girl.world.getPlayerEntityByUUID(uuid);
+      if (player == null) {
+         return girl.getPositionVector();
+      }
+
       float yaw = player.rotationYaw;
       return player.getPositionVector().add(-Math.sin(yaw * (Math.PI / 180.0)) * distance, 0.0, Math.cos(yaw * (Math.PI / 180.0)) * distance);
    }
 
    static Vec3d getVectorTowardPlayer(BaseGirlEntity girl) {
-      Vec3d playerPos = Minecraft.getMinecraft().player.getPositionVector();
       Vec3d girlPos = girl.getPositionVector();
+      EntityPlayer player = Minecraft.getMinecraft().player;
+      if (player == null) {
+         return girlPos;
+      }
+
+      Vec3d playerPos = player.getPositionVector();
       Vec3d dir = girlPos.subtract(playerPos).normalize();
       return playerPos.add(dir);
    }

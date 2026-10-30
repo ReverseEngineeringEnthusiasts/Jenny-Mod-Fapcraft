@@ -24,7 +24,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  *   <li>{@code "currentAction"} — sets {@link BaseGirlEntity#CUR_ACTION}
  *       (guarded: ATTACK only allowed from NULL).</li>
  *   <li>{@code "animationFollowUp"} — sets {@link BaseGirlEntity#GIRL_HAND_STATES},
- *       the scene-entry hand-state consumed by each girl's {@code U()}.</li>
+ *       the scene-entry hand-state consumed by each girl's {@code startActionFromHandState()}.</li>
  *   <li>{@code "playerSheHasSexWith"} — sets/clears
  *       {@link BaseGirlEntity#INTERACTION_PARTNER_UUID}.</li>
  *   <li>{@code "targetPos"} — sets {@link BaseGirlEntity#TARGET_POS}
@@ -38,7 +38,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  * <b>Scene flow position:</b> the entry chain is
  * {@code doAction} (client) -&gt; this packet (animationFollowUp) -&gt;
  * {@link KoboldStatePacket} (dismount/position) -&gt; {@code updateAITasks}
- * lerp -&gt; anchored -&gt; {@code U()} reads GIRL_HAND_STATES and starts the
+ * lerp -&gt; anchored -&gt; {@code startActionFromHandState()} reads GIRL_HAND_STATES and starts the
  * scene action.
  */
 public class ChangeDataParameterPacket implements IMessage {

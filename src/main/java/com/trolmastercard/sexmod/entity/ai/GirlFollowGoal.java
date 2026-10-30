@@ -14,7 +14,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.init.Enchantments;
@@ -111,7 +110,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
                if (this.girl.inventory.getStackInSlot(1).getItem() instanceof ItemBow && this.girl.getEntitySenses().canSee(this.target) && ++this.bowTimer > 0 && dist > 6.0) {
                   this.dataManager.set(AbstractGirlNpcEntity.ATTACK_MODE, 2);
                   this.girl.setCurrentAction(Action.BOW);
-                  if (++this.bowTimer >= 32) {
+                  if (this.bowTimer >= 32) {
                      this.bowTimer = -20;
                      this.shootArrow();
                      this.girl.setCurrentAction(Action.NULL);
@@ -192,7 +191,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
       if (!this.girl.downed && this.girl.getInteractionPlayerUUID() == null) {
          if (this.master.isRiding()) {
             Entity mount = this.master.getRidingEntity();
-            if (this.girl.isRiding() || this.girl.startRiding(mount) || mount instanceof EntityHorse && ((EntityHorse)mount).isHorseSaddled()) {
+            if (this.girl.isRiding() || this.girl.startRiding(mount)) {
                this.mountEntity = mount;
                return GirlFollowAiBase.GirlFollowAiBaseState.RIDE;
             }
@@ -413,7 +412,7 @@ public class GirlFollowGoal extends GirlFollowAiBase {
     * killing her ({@code downed} + {@link Action#DOWNED}), full heal revives
     * her, and death drops her inventory (SERVER).
     */
-   public static class a {
+   public static class DownedGirlEvents {
       @SubscribeEvent
       public void onLivingHurt(LivingHurtEvent event) {
          if (event.getEntityLiving() instanceof AbstractGirlNpcEntity) {

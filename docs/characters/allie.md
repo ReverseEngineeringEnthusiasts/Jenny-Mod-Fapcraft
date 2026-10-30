@@ -133,7 +133,7 @@ Shared MISC events she uses: `MISC_PLOB` (wish), `MISC_POUNDING` (35), `MISC_SLI
 `AlliePlayerEntity` (horny potion):
 - Scale `1.9 + aq` (aq fed by the renderer's smoothed bob), eye height 1.63; `canBeInteracted() = false`.
 - Menu: `["action.names.deepthroat", "Reverse cowgirl"]`; `handleOwnerCommand` maps them to `DEEPTHROAT_START` / `REVERSE_COWGIRL_START` + `sendActionPacket` + `teleportPlayerToGirl`.
-- Same sound-listener scene flow as the NPC (deepthroat_prepareDone → KoboldStatePacket lock-in + camera reposition; cowgirlSlowDone rerolls `ar`; fastSwitch rerolls `av`; cumDone → `resetCameraAndPhysics()`), plus `attackDone` cycling `nextAttack` (0→1→2).
+- Same sound-listener scene flow as the NPC (deepthroat_prepareDone → KoboldStatePacket lock-in + camera reposition; cowgirlSlowDone rerolls `slowVariant`; fastSwitch rerolls `fastVariant`; cumDone → `resetCameraAndPhysics()`), plus `attackDone` cycling `nextAttack` (0→1→2).
 - `usesInvertedCamera()` marks ALLIE_PREPARE_*, DEEPTHROAT_START/SLOW/FAST/CUM for **first-person rendering** (the girl replaces the player's body).
 - Flight while transformed: `onTransformationSpawned()`/`onTickClient()` → `handleOwnerUUID(...)` (also `updateAITasks` re-binds when the owner appears).
 - Animation predicate additionally maps `ATTACK → animation.allie.attack{nextAttack}`, `BOW → bowcharge`, `NULL → null`; movement controller speed = `4*Δpos` clamped to 4.

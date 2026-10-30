@@ -17,14 +17,14 @@ import net.minecraftforge.items.IItemHandler;
  * Luna's equipment container ({@link GirlInventoryContainer2} variant with an
  * extra fishing-rod slot): weapon/bow/armor slots 0..5 plus rod slot 6, and
  * the player inventory below. Open instances register in the static
- * {@link #containers} list, consumed by
- * {@link GirlInventoryContainerGui#onGuiClosed} on close.
+ * {@link #containers} list and unregister in {@link #onContainerClosed}; the
+ * owning screen snapshots its own instance on close.
  * <p>
  * Runs on both sides.
  */
 public class GirlInventoryContainer2 extends Container {
    LunaEntity lunaEntity;
-   public Slot[] b;
+   public Slot[] equipmentSlots;
    public UUID girlUUID;
    public static List<GirlInventoryContainer2> containers = new ArrayList<>();
 
@@ -34,7 +34,7 @@ public class GirlInventoryContainer2 extends Container {
       if (luna.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH)) {
          IItemHandler itemHandler = (IItemHandler) luna.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
          this.lunaEntity = luna;
-         this.b = new Slot[]{
+         this.equipmentSlots = new Slot[]{
             new GirlInventorySlot(GirlInventorySlot.b.WEAPON, itemHandler, GirlInventorySlot.b.WEAPON.id, 41, 60),
             new GirlInventorySlot(GirlInventorySlot.b.BOW, itemHandler, GirlInventorySlot.b.BOW.id, 59, 60),
             new GirlInventorySlot(GirlInventorySlot.b.HELMET, itemHandler, GirlInventorySlot.b.HELMET.id, 81, 60),
@@ -55,7 +55,7 @@ public class GirlInventoryContainer2 extends Container {
             slots.add(new Slot(playerInventory, i, 8 + i * 18, 142));
          }
 
-         for (Slot slot : this.b) {
+         for (Slot slot : this.equipmentSlots) {
             this.addSlotToContainer(slot);
          }
 
@@ -105,6 +105,7 @@ public class GirlInventoryContainer2 extends Container {
    }
 
    public void onContainerClosed(EntityPlayer player) {
+      containers.remove(this);
       super.onContainerClosed(player);
    }
 

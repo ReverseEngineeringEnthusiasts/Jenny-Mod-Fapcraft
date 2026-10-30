@@ -111,15 +111,18 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * player's bound succubus with cowgirl/anal/threesome/morning-blowjob scenes
  * and the Manglelie partnership.
  * <p>
- * <b>State.</b> Own data keys (do not reorder): {@code bq} (111) = target
- * entity id, {@code aP} (112) = attack/sword progress, {@code bN}/{@code b7}
- * (113/114) = left/right energy-ball alive flags, {@code ay} (115) = mirror
- * side, {@code bH} (116) = sword attack progress, {@code b8} (117) = flight
- * target pos ("x|y|z"), {@code bP} (118) = paralyzed flag,
- * {@code bO} (119) = rape progress, {@code HIDE_EFFECTS_FLAG} (120) =
- * knock-out state, {@code WildSlimeFaceLayer} (121) = Manglelie partner UUID,
- * {@code bT} (122) = sprint flag. The two {@link SexEntityPart} hitboxes
- * ({@code b2}, {@code energyBallHitboxRight}) back the energy-ball attack.
+ * <b>State.</b> Own data keys (do not reorder): {@code TARGET_ENTITY_ID} (111)
+ * = target entity id, {@code ATTACK_PROGRESS} (112) = attack/sword progress,
+ * {@code LEFT_ENERGY_BALL_ALIVE}/{@code RIGHT_ENERGY_BALL_ALIVE} (113/114) =
+ * energy-ball alive flags, {@code MIRROR_SIDE} (115) = mirror side,
+ * {@code SWORD_ATTACK_PROGRESS} (116) = sword attack progress,
+ * {@code FLIGHT_TARGET_POS} (117) = flight target pos ("x|y|z"),
+ * {@code PARALYZED} (118) = paralyzed flag, {@code RAPE_PROGRESS} (119) = rape
+ * progress, {@code HIDE_EFFECTS_FLAG} (120) = knock-out state,
+ * {@code WildSlimeFaceLayer} (121) = Manglelie partner UUID,
+ * {@code SPRINTING} (122) = sprint flag. The two {@link SexEntityPart}
+ * hitboxes ({@code energyBallHitboxLeft}, {@code energyBallHitboxRight}) back
+ * the energy-ball attack.
  * <p>
  * <b>Flow.</b> Wild: {@code updateAITasks} -&gt; {@link #tickFlightSystems()} drives the
  * flight state machine ({@link GalathFlightState#initFlightData(GalathEntity)} picks a random
@@ -144,7 +147,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} blocks transitions out
  * of GALATH_DE_SUMMON, guards all cum loops, persists cum time via
  * {@link GirlSavedData} and fires the GIVE_COIN/HUG_MANG/MORNING_BLOWJOB_CUM
- * teardown hooks. The boss bar ({@code aO}) is only visible for wild Galaths
+ * teardown hooks. The boss bar ({@code bossBar}) is only visible for wild Galaths
  * ({@link #tickWildAi()}); {@code despawned} girls only update the Manglelie world
  * data. {@link #getAimYaw(GalathEntity, float)} mutates the render yaw — many
  * systems depend on it. The energy-ball hitboxes must be active exactly while
@@ -230,34 +233,34 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    public static final int cb = 4;
    public static final float FACTOR_0_5 = 0.5F;
    public static final float SexModEntities = 0.55F;
-   static final Class<?>[] aS = new Class[]{
+   static final Class<?>[] NON_SOLID_FLIGHT_BLOCKS = new Class[]{
       BlockAir.class, BlockCarpet.class, BlockBush.class, BlockButton.class, BlockLadder.class, BlockTorch.class, BlockSign.class, BlockBanner.class
    };
-   public static final DataParameter<Integer> bq = EntityDataManager.createKey(GalathEntity.class, DataSerializers.VARINT)
+   public static final DataParameter<Integer> TARGET_ENTITY_ID = EntityDataManager.createKey(GalathEntity.class, DataSerializers.VARINT)
       .getSerializer()
       .createKey(111);
-   public static final DataParameter<Integer> aP = EntityDataManager.createKey(GalathEntity.class, DataSerializers.VARINT)
+   public static final DataParameter<Integer> ATTACK_PROGRESS = EntityDataManager.createKey(GalathEntity.class, DataSerializers.VARINT)
       .getSerializer()
       .createKey(112);
-   public static final DataParameter<Boolean> bN = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> LEFT_ENERGY_BALL_ALIVE = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(113);
-   public static final DataParameter<Boolean> b7 = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> RIGHT_ENERGY_BALL_ALIVE = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(114);
-   public static final DataParameter<Boolean> ay = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> MIRROR_SIDE = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(115);
-   public static final DataParameter<Integer> bH = EntityDataManager.createKey(GalathEntity.class, DataSerializers.VARINT)
+   public static final DataParameter<Integer> SWORD_ATTACK_PROGRESS = EntityDataManager.createKey(GalathEntity.class, DataSerializers.VARINT)
       .getSerializer()
       .createKey(116);
-   public static final DataParameter<String> b8 = EntityDataManager.createKey(GalathEntity.class, DataSerializers.STRING)
+   public static final DataParameter<String> FLIGHT_TARGET_POS = EntityDataManager.createKey(GalathEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(117);
-   public static final DataParameter<Boolean> bP = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> PARALYZED = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(118);
-   public static final DataParameter<Float> bO = EntityDataManager.createKey(GalathEntity.class, DataSerializers.FLOAT)
+   public static final DataParameter<Float> RAPE_PROGRESS = EntityDataManager.createKey(GalathEntity.class, DataSerializers.FLOAT)
       .getSerializer()
       .createKey(119);
    public static final DataParameter<Boolean> HIDE_EFFECTS_FLAG = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
@@ -266,26 +269,26 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    public static final DataParameter<String> WildSlimeFaceLayer = EntityDataManager.createKey(GalathEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(121);
-   public static final DataParameter<Boolean> bT = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> SPRINTING = EntityDataManager.createKey(GalathEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(122);
    public static final double b0 = 0.2;
    public static final float bS = 5.0F;
    public static final int a1 = 60;
-   BossInfoServer aO = new BossInfoServer(new TextComponentString(this.getDisplayNameText()), Color.RED, Overlay.PROGRESS);
-   SexEntityPart b2 = new SexEntityPart(this, "energyBallHitBox", 0.75F, 0.75F);
+   BossInfoServer bossBar = new BossInfoServer(new TextComponentString(this.getDisplayNameText()), Color.RED, Overlay.PROGRESS);
+   SexEntityPart energyBallHitboxLeft = new SexEntityPart(this, "energyBallHitBox", 0.75F, 0.75F);
    SexEntityPart energyBallHitboxRight = new SexEntityPart(this, "energyBallHitBox", 0.75F, 0.75F);
    public GalathFlightData activeFlight = null;
    public Vec3d flightTargetPosition = null;
-   public Vec3d bL = null;
-   public int aF = 0;
-   public Vec3d bd = null;
+   public Vec3d lastFlightPosition = null;
+   public int rapeChargeTicks = 0;
+   public Vec3d chargeStartPosition = null;
    public List<EntityWitherSkeleton> summonedSkeletons = new ArrayList<>();
-   public float aE = 0.0F;
+   public float headRotationX = 0.0F;
    public long dashStartTick = -1L;
    public long dashEndTick = -1L;
-   public float bw = 0.0F;
-   public float bm = 0.0F;
+   public float bodyRotationY = 0.0F;
+   public float bodyScaleY = 0.0F;
    boolean deathHandled = false;
    public Vec3d clientTargetPosition = null;
    boolean markedDespawned = false;
@@ -295,25 +298,25 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    float boostSpeed = 0.0F;
    boolean corruptIntroActive = false;
    public int summonSkeletonTicks = 0;
-   double a9 = 0.0;
-   double bg = 0.0;
-   double b4 = 0.0;
-   double a_ = 0.0;
+   double headTiltZ = 0.0;
+   double headTiltX = 0.0;
+   double prevHeadTiltZ = 0.0;
+   double prevHeadTiltX = 0.0;
    boolean customModelCodeLoaded = false;
    Path currentPath = null;
    BlockPos wanderTarget = null;
    int wanderTicks = 0;
-   Action ab = null;
+   Action previousAction = null;
    int rapeCumTicks = 0;
    int standUpTicks = 0;
    int knockoutGroundTicks = 0;
-   long bc = 0L;
+   long lastHurtSoundTime = 0L;
    boolean morningBlowjobStarted = false;
    boolean despawned = false;
    int rapeVariant = 0;
    boolean corruptHard = false;
    public boolean masterbateSittingPending = false;
-   public boolean a5 = false;
+   public boolean pussyLickingForward = false;
    public boolean bedSoftAnimation = false;
    public boolean bedBackAnimation = false;
    public boolean renderSword = false;
@@ -330,7 +333,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this(world);
       UUID uuid = player.getPersistentID();
       this.entityDataManager.set(MASTER, uuid.toString());
-      this.aO.setVisible(false);
+      this.bossBar.setVisible(false);
       this.wanderTarget = new BlockPos(this.getPositionVector());
       String npcName = AllieWorldData.getNpcName(uuid, NpcType.GALATH);
       if (npcName != null) {
@@ -412,18 +415,18 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    @Override
    protected void entityInit() {
       super.entityInit();
-      this.entityDataManager.register(bq, -1);
-      this.entityDataManager.register(aP, 0);
-      this.entityDataManager.register(bN, true);
-      this.entityDataManager.register(b7, true);
-      this.entityDataManager.register(ay, false);
-      this.entityDataManager.register(b8, "null");
-      this.entityDataManager.register(bH, -1);
-      this.entityDataManager.register(bP, false);
-      this.entityDataManager.register(bO, 0.0F);
+      this.entityDataManager.register(TARGET_ENTITY_ID, -1);
+      this.entityDataManager.register(ATTACK_PROGRESS, 0);
+      this.entityDataManager.register(LEFT_ENERGY_BALL_ALIVE, true);
+      this.entityDataManager.register(RIGHT_ENERGY_BALL_ALIVE, true);
+      this.entityDataManager.register(MIRROR_SIDE, false);
+      this.entityDataManager.register(FLIGHT_TARGET_POS, "null");
+      this.entityDataManager.register(SWORD_ATTACK_PROGRESS, -1);
+      this.entityDataManager.register(PARALYZED, false);
+      this.entityDataManager.register(RAPE_PROGRESS, 0.0F);
       this.entityDataManager.register(HIDE_EFFECTS_FLAG, false);
       this.entityDataManager.register(WildSlimeFaceLayer, "");
-      this.entityDataManager.register(bT, false);
+      this.entityDataManager.register(SPRINTING, false);
    }
 
    @Override
@@ -451,12 +454,12 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    public void addTrackingPlayer(EntityPlayerMP playerMP) {
       super.addTrackingPlayer(playerMP);
-      this.aO.addPlayer(playerMP);
+      this.bossBar.addPlayer(playerMP);
    }
 
    public void removeTrackingPlayer(EntityPlayerMP playerMP) {
       super.removeTrackingPlayer(playerMP);
-      this.aO.removePlayer(playerMP);
+      this.bossBar.removePlayer(playerMP);
    }
 
    @Override
@@ -515,20 +518,20 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public Vec3d getFlightTargetPos() {
-      String[] parts = ((String)this.entityDataManager.get(b8)).split("\\|");
+      String[] parts = ((String)this.entityDataManager.get(FLIGHT_TARGET_POS)).split("\\|");
       return new Vec3d(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
    }
 
    public void setFlightTargetPos(@Nullable Vec3d pos) {
-      this.entityDataManager.set(b8, pos.x + "|" + pos.y + "|" + pos.z);
+      this.entityDataManager.set(FLIGHT_TARGET_POS, pos.x + "|" + pos.y + "|" + pos.z);
    }
 
    public int getSwordAttackProgress() {
-      return (Integer)this.entityDataManager.get(bH);
+      return (Integer)this.entityDataManager.get(SWORD_ATTACK_PROGRESS);
    }
 
    public void setSwordAttackProgress(int progress) {
-      this.entityDataManager.set(bH, progress);
+      this.entityDataManager.set(SWORD_ATTACK_PROGRESS, progress);
    }
 
    public boolean isNonBoss() {
@@ -679,16 +682,16 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @Override
    public Vector4d getFlightData() {
-      return new Vector4d(this.a9, this.bg, this.b4, this.a_);
+      return new Vector4d(this.headTiltZ, this.headTiltX, this.prevHeadTiltZ, this.prevHeadTiltX);
    }
 
    void updateFlightRenderAngles() {
-      this.b4 = this.a9;
-      this.a_ = this.bg;
+      this.prevHeadTiltZ = this.headTiltZ;
+      this.prevHeadTiltX = this.headTiltX;
       Vec3d delta = this.predictedPosition.subtract(this.previousPosition);
       Vec3d rotated = VectorMath.rotateByYaw(delta, this.renderYawOffset + 180.0F);
-      this.a9 = TrigMath.toRadians(ThreadNames.clampDouble(rotated.z * 40.0, -50.0, 50.0));
-      this.bg = TrigMath.toRadians(ThreadNames.clampDouble(rotated.x * 40.0, -50.0, 50.0));
+      this.headTiltZ = TrigMath.toRadians(ThreadNames.clampDouble(rotated.z * 40.0, -50.0, 50.0));
+      this.headTiltX = TrigMath.toRadians(ThreadNames.clampDouble(rotated.x * 40.0, -50.0, 50.0));
    }
 
    /**
@@ -698,8 +701,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
     * message with the effect particles.
     */
    public void setFlightVelocity(Vec3d targetPos) {
-      if (!(Boolean)this.entityDataManager.get(bP)) {
-         this.entityDataManager.set(bP, true);
+      if (!(Boolean)this.entityDataManager.get(PARALYZED)) {
+         this.entityDataManager.set(PARALYZED, true);
          if (this.activeFlight != null) {
             this.activeFlight.updateFlight(this);
          }
@@ -849,7 +852,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void tickWildAi() {
-      this.aO.setVisible(true);
+      this.bossBar.setVisible(true);
       this.tickFlightSystems();
       this.tickIdleWander();
    }
@@ -886,7 +889,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          this.wanderTarget = null;
          this.wanderTicks = 0;
       } else if (!(Boolean)this.entityDataManager.get(HIDE_EFFECTS_FLAG)) {
-         if (!(Boolean)this.entityDataManager.get(bP)) {
+         if (!(Boolean)this.entityDataManager.get(PARALYZED)) {
             this.wanderRandomly();
          }
       }
@@ -1012,27 +1015,27 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @Nullable
    public Entity[] getParts() {
-      return new Entity[]{this.energyBallHitboxRight, this.b2};
+      return new Entity[]{this.energyBallHitboxRight, this.energyBallHitboxLeft};
    }
 
    public void setTargetEntity(@Nullable EntityLivingBase target) {
       if (target == null) {
-         this.entityDataManager.set(bq, -1);
+         this.entityDataManager.set(TARGET_ENTITY_ID, -1);
       } else {
-         this.entityDataManager.set(bq, target.getEntityId());
+         this.entityDataManager.set(TARGET_ENTITY_ID, target.getEntityId());
       }
    }
 
    public int getAttackProgress() {
-      return (Integer)this.entityDataManager.get(aP);
+      return (Integer)this.entityDataManager.get(ATTACK_PROGRESS);
    }
 
    public void setAttackProgress(int progress) {
-      this.entityDataManager.set(aP, progress);
+      this.entityDataManager.set(ATTACK_PROGRESS, progress);
    }
 
    public EntityLivingBase getTargetEntity() {
-      int targetId = (Integer)this.entityDataManager.get(bq);
+      int targetId = (Integer)this.entityDataManager.get(TARGET_ENTITY_ID);
       return -1 == targetId ? null : (EntityLivingBase)this.world.getEntityByID(targetId);
    }
 
@@ -1214,7 +1217,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
     * tamed Galath spawns the morning-blowjob scene when the bed has free
     * space ({@code onWake}, see {@link #spawnStructure(World, BlockPos, EnumFacing)}).
     */
-   public static class a {
+   public static class GalathLifecycleEvents {
       boolean hasRidingPlayer(GalathEntity galath) {
          return galath.getRidingPlayer() != null;
       }
@@ -1333,7 +1336,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                   if (!(progress < 9.0) && !(progress > 30.0)) {
                      Vec3d basePos = RotationHelper.lerpVec3dDouble(new Vec3d(girl.lastTickPosX, girl.lastTickPosY, girl.lastTickPosZ), girl.getPositionVector(), partialTicks);
                      double scale = (progress - 9.0) / 21.0;
-                     if ((Boolean)girl.getDataManager().get(GalathEntity.bN)) {
+                     if ((Boolean)girl.getDataManager().get(GalathEntity.LEFT_ENERGY_BALL_ALIVE)) {
                         Vec3d offsetR = girl.getCachedBoneOffset("energyBallR");
                         Vec3d posR = basePos.add(offsetR);
                         DragonEntity dragonR = new DragonEntity(girl.world, (GalathEntity)girl);
@@ -1344,7 +1347,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                         dragonR.setDead();
                      }
 
-                     if ((Boolean)girl.getDataManager().get(GalathEntity.b7)) {
+                     if ((Boolean)girl.getDataManager().get(GalathEntity.RIGHT_ENERGY_BALL_ALIVE)) {
                         Vec3d offsetL = girl.getCachedBoneOffset("energyBallL");
                         Vec3d posL = basePos.add(offsetL);
                         DragonEntity dragonL = new DragonEntity(girl.world, (GalathEntity)girl);
@@ -1417,7 +1420,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       boolean isValidFlightBlock(World world, BlockPos pos) {
          Block block = world.getBlockState(pos).getBlock();
 
-         for (Class blockClass : GalathEntity.aS) {
+         for (Class blockClass : GalathEntity.NON_SOLID_FLIGHT_BLOCKS) {
             if (blockClass.isInstance(block)) {
                return false;
             }

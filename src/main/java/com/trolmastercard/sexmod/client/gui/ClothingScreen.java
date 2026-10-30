@@ -77,7 +77,7 @@ public class ClothingScreen extends GuiScreen {
    BaseGirlEntity previewGirl;
    boolean isRendering = false;
    CustomModelList modelList;
-   public static List<Entry<BoneType, Entry<List<String>, Integer>>> m = new ArrayList<>();
+   public static List<Entry<BoneType, Entry<List<String>, Integer>>> customPartEntries = new ArrayList<>();
    final UUID girlId;
    int partsCount;
    int lastMouseX;
@@ -140,7 +140,7 @@ public class ClothingScreen extends GuiScreen {
          if (BoneType.CUSTOM_BONE.equals(boneType) && customBoneCount > 1) {
             entry = getCustomPartData(this.previewGirl);
          } else {
-            for (Entry existingEntry : m) {
+            for (Entry existingEntry : customPartEntries) {
                if (((BoneType)existingEntry.getKey()).equals(boneType)) {
                   entry = existingEntry;
                }
@@ -148,14 +148,14 @@ public class ClothingScreen extends GuiScreen {
          }
 
          if (entry != null) {
-            m.remove(entry);
+            customPartEntries.remove(entry);
             int index = ((List)((Entry)entry.getValue()).getKey()).indexOf(partName);
             if (index == -1) {
                index = 0;
             }
 
             ((Entry)entry.getValue()).setValue(index);
-            m.add(entry);
+            customPartEntries.add(entry);
          }
       }
    }
@@ -168,7 +168,7 @@ public class ClothingScreen extends GuiScreen {
    public static HashSet<String> getCustomBoneNames() {
       HashSet names = new HashSet();
 
-      for (Entry entry : m) {
+      for (Entry entry : customPartEntries) {
          if (((List)((Entry)entry.getValue()).getKey()).size() != 1) {
             Entry data = (Entry)entry.getValue();
             List parts = (List)data.getKey();
@@ -188,33 +188,33 @@ public class ClothingScreen extends GuiScreen {
    }
 
    void refreshCustomParts() {
-      m.clear();
+      customPartEntries.clear();
       List customParts = this.previewGirl.buildCustomPartsData(this.girlId);
       this.partsCount = customParts.size();
-      m.addAll(customParts);
+      customPartEntries.addAll(customParts);
 
       for (BoneType boneType : BoneType.values()) {
          if (boneType != BoneType.GIRL_SPECIFIC) {
             ArrayList parts = new ArrayList();
             parts.add("cross");
-            m.add(new SimpleEntry<>(boneType, new SimpleEntry<>(parts, 0)));
+            customPartEntries.add(new SimpleEntry<>(boneType, new SimpleEntry<>(parts, 0)));
          }
       }
 
       for (Entry modelParts : ServerWhitelistManager.getModelParts(this.previewGirl).entrySet()) {
          Entry entry = null;
 
-         for (Entry existingEntry : m) {
+         for (Entry existingEntry : customPartEntries) {
             if (((BoneType)modelParts.getKey()).equals(existingEntry.getKey())) {
                entry = existingEntry;
             }
          }
 
          if (entry != null) {
-            int index = m.indexOf(entry);
-            m.remove(entry);
+            int index = customPartEntries.indexOf(entry);
+            customPartEntries.remove(entry);
             ((List)((Entry)entry.getValue()).getKey()).addAll((Collection)modelParts.getValue());
-            m.add(index, entry);
+            customPartEntries.add(index, entry);
          }
       }
    }
@@ -298,7 +298,7 @@ public class ClothingScreen extends GuiScreen {
       HashSet selectedParts = new HashSet();
       ArrayList girlSpecific = new ArrayList();
 
-      for (Entry entry : m) {
+      for (Entry entry : customPartEntries) {
          if (entry.getKey() == BoneType.GIRL_SPECIFIC) {
             girlSpecific.add(((Entry)entry.getValue()).getValue());
          } else {
@@ -316,13 +316,13 @@ public class ClothingScreen extends GuiScreen {
    }
 
    public void onBoneTypeToggle(BoneType boneType, boolean forward, int clickIndex) {
-      Main.LOGGER.info(String.format("[DEBUG toggle] bone=%s forward=%s clickIndex=%d partsCount=%d mSize=%d", boneType, forward, clickIndex, this.partsCount, m.size()));
+      Main.LOGGER.info(String.format("[DEBUG toggle] bone=%s forward=%s clickIndex=%d partsCount=%d mSize=%d", boneType, forward, clickIndex, this.partsCount, customPartEntries.size()));
       this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
       ArrayList matches = new ArrayList();
       ArrayList indices = new ArrayList();
       int i = 0;
 
-      for (Entry entry : m) {
+      for (Entry entry : customPartEntries) {
          if (((BoneType)entry.getKey()).equals(boneType)) {
             matches.add(entry);
             indices.add(i);
@@ -366,16 +366,16 @@ public class ClothingScreen extends GuiScreen {
             String nextName = (String)((List)data.getKey()).get(currentIndex);
             Main.LOGGER.info(String.format("[DEBUG toggle result] bone=%s %s -> %s (idx %d->%d/%d)", boneType, prevName, nextName, (Integer)data.getValue(), currentIndex, partCount));
             if (net.minecraft.client.Minecraft.getMinecraft().player != null) net.minecraft.client.Minecraft.getMinecraft().player.sendMessage(new net.minecraft.util.text.TextComponentString(String.format("§e%s: %s -> %s", boneType, prevName, nextName)));
-            m.set(index, new SimpleEntry<>((BoneType)entry.getKey(), new SimpleEntry<>((List<String>)((Entry)entry.getValue()).getKey(), currentIndex)));
-            // Re-sync previewGirl.customPartsData with m's GIRL_SPECIFIC entries.
-            // m.set above replaced one entry with a NEW object; rebuilding
+            customPartEntries.set(index, new SimpleEntry<>((BoneType)entry.getKey(), new SimpleEntry<>((List<String>)((Entry)entry.getValue()).getKey(), currentIndex)));
+            // Re-sync previewGirl.customPartsData with customPartEntries's GIRL_SPECIFIC entries.
+            // customPartEntries.set above replaced one entry with a NEW object; rebuilding
             // customPartsData from the current GIRL_SPECIFIC entries keeps both
             // pointing at the SAME shared entry objects, so slider writes
             // (setCustomPartValue -> customPartsData) and the confirm packet
-            // (playClickSound -> m) always read the same live values.
+            // (playClickSound -> customPartEntries) always read the same live values.
             ArrayList girlSpecificEntries = new ArrayList();
 
-            for (Entry girlSpecificEntry : m) {
+            for (Entry girlSpecificEntry : customPartEntries) {
                if (girlSpecificEntry.getKey() == BoneType.GIRL_SPECIFIC) {
                   girlSpecificEntries.add(girlSpecificEntry);
                }
@@ -493,9 +493,13 @@ public class ClothingScreen extends GuiScreen {
 
    public void onGuiClosed() {
       super.onGuiClosed();
-      this.previewGirl.world.removeEntityDangerously(this.previewGirl);
+      try {
+         this.previewGirl.world.removeEntityDangerously(this.previewGirl);
+      } finally {
+         this.previewGirl.setLocallyRegistered(false);
+      }
       selectedPartIds.clear();
-      m.clear();
+      customPartEntries.clear();
    }
 
    public BaseGirlEntity getPreviewGirl() {
@@ -597,7 +601,7 @@ public class ClothingScreen extends GuiScreen {
    }
 
    @SideOnly(Side.CLIENT)
-   public static class b {
+   public static class KeyAndScrollHandler {
       @SubscribeEvent
       @SideOnly(Side.CLIENT)
       public void onKeyInput(KeyInputEvent event) {

@@ -10,40 +10,42 @@ import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 
 /**
  * <b>Role.</b> Nearest-target goal that only attacks tamed kobolds
- * ({@code hasMaster()}), with optional darkness requirement and a
- * radius-chance gate. Used for hostile mobs that hunt kobold tribe members.
+ * ({@code hasMaster()}), with an optional darkness requirement
+ * ({@code onlyAtNight}) and a 1-in-{@code targetChance} activation gate. Used
+ * for hostile mobs that hunt kobold tribe members.
  */
 public class NearestAttackableGirlGoal extends EntityAINearestAttackableTarget<KoboldEntity> {
-   private final int targetRadius;
-   private final boolean isValid;
+   private final int targetChance;
+   private final boolean onlyAtNight;
 
    public NearestAttackableGirlGoal(EntityCreature creature, boolean mustSee, boolean nearbyOnly) {
-      this(creature, mustSee, false, nearbyOnly);
+      this(creature, 10, mustSee, nearbyOnly, null, false);
    }
 
-   public NearestAttackableGirlGoal(EntityCreature creature, boolean mustSee, boolean nearbyOnly, boolean onlyNearby) {
-      this(creature, 10, mustSee, nearbyOnly, null, onlyNearby);
+   public NearestAttackableGirlGoal(EntityCreature creature, boolean mustSee, boolean nearbyOnly, boolean onlyAtNight) {
+      this(creature, 10, mustSee, nearbyOnly, null, onlyAtNight);
    }
 
-   public NearestAttackableGirlGoal(EntityCreature creature, int targetChance, boolean checkSight, boolean onlyNearby, @Nullable Predicate targetSelector, boolean isValid) {
+   public NearestAttackableGirlGoal(EntityCreature creature, int targetChance, boolean checkSight, boolean onlyNearby, @Nullable Predicate targetSelector, boolean onlyAtNight) {
       super(creature, KoboldEntity.class, targetChance, checkSight, onlyNearby, targetSelector);
-      this.targetRadius = targetChance;
-      this.isValid = isValid;
+      this.targetChance = targetChance;
+      this.onlyAtNight = onlyAtNight;
    }
 
    /**
-    * Filters candidates: skips daylight when {@code isValid} is set, applies
-    * the 1/radius random gate, then picks the nearest kobold with a master.
+    * Filters candidates: skips daylight when {@code onlyAtNight} is set, applies
+    * the 1-in-{@code targetChance} random gate, then picks the nearest kobold
+    * with a master.
     */
    public boolean shouldExecute() {
-      if (this.isValid) {
+      if (this.onlyAtNight) {
          float brightness = this.taskOwner.getBrightness();
          if (brightness >= 0.5F) {
             return false;
          }
       }
 
-      if (this.targetRadius > 0 && this.taskOwner.getRNG().nextInt(this.targetRadius) != 0) {
+      if (this.targetChance > 0 && this.taskOwner.getRNG().nextInt(this.targetChance) != 0) {
          return false;
       }
 

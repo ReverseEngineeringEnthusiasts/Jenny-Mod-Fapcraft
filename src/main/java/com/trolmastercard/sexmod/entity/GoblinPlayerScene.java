@@ -86,7 +86,7 @@ final class GoblinPlayerScene {
    @SideOnly(Side.CLIENT)
    static void handleNelsonAction(GoblinPlayerEntity goblin, Action action) {
       if (action == Action.NELSON_FAST && goblin.getPreviousAction() != Action.NELSON_FAST) {
-         goblin.aF = false;
+         goblin.nelsonFastVariantC = false;
       }
    }
 }

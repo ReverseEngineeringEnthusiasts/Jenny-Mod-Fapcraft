@@ -81,7 +81,12 @@ final class GirlSyncedState {
    @Nullable
    static UUID getInteractionPlayerUUID(BaseGirlEntity girl) {
       String uuidStr = (String)girl.entityDataManager.get(BaseGirlEntity.INTERACTION_PARTNER_UUID);
-      return uuidStr.equals("null") ? null : UUID.fromString(uuidStr);
+      if (girl.cachedInteractionPlayerRaw == null || !girl.cachedInteractionPlayerRaw.equals(uuidStr)) {
+         girl.cachedInteractionPlayerUUID = uuidStr.equals("null") ? null : UUID.fromString(uuidStr);
+         girl.cachedInteractionPlayerRaw = uuidStr;
+      }
+
+      return girl.cachedInteractionPlayerUUID;
    }
 
    static void setInteractionPlayerUUID(BaseGirlEntity girl, UUID uuid) {
@@ -105,8 +110,14 @@ final class GirlSyncedState {
    }
 
    static Vec3d getTargetPosition(BaseGirlEntity girl) {
-      String[] parts = ((String)girl.entityDataManager.get(BaseGirlEntity.TARGET_POS)).split("\\|");
-      return new Vec3d(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
+      String raw = (String)girl.entityDataManager.get(BaseGirlEntity.TARGET_POS);
+      if (girl.cachedTargetPosRaw == null || !girl.cachedTargetPosRaw.equals(raw)) {
+         String[] parts = raw.split("\\|");
+         girl.cachedTargetPos = new Vec3d(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
+         girl.cachedTargetPosRaw = raw;
+      }
+
+      return girl.cachedTargetPos;
    }
 
    static void setTargetPosition(BaseGirlEntity girl, Vec3d pos) {

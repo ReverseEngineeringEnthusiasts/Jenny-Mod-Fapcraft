@@ -42,16 +42,16 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * <b>Scene flow.</b> Owner commands {@code cowgirl}/{@code mating press}
  * start the scenes via {@link #handleOwnerCommand(String, UUID)};
  * {@code handleCumState()} keeps the wings animated during the scenes
- * ({@code ap} flag), {@code handlePlayerAction()} hides the horny meter during
- * the rape intro. Rape variant cycling ({@code ar}) and scene end
+ * ({@code wingsAnimated} flag), {@code handlePlayerAction()} hides the horny meter during
+ * the rape intro. Rape variant cycling ({@code rapeVariant}) and scene end
  * ({@code reset} -&gt; {@code resetCameraAndPhysics()}) run in the sound
  * listener.
  */
 public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGalath {
-   boolean ap = false;
-   int ar = 0;
-   boolean as = false;
-   boolean aq = false;
+   boolean wingsAnimated = false;
+   int rapeVariant = 0;
+   boolean corruptHard = false;
+   boolean corruptCameraActive = false;
 
    public GalathPlayerEntity(World world) {
       super(world);
@@ -114,7 +114,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    /**
     * Guards the state machine: refuses re-entry into loop phases while the
     * corrupt/rape cum animations play and resets the hard-variant flag
-    * ({@code as}) when entering {@link Action#CORRUPT_SLOW}.
+    * ({@code corruptHard}) when entering {@link Action#CORRUPT_SLOW}.
     */
    @Override
    public void setCurrentAction(Action action) {
@@ -123,7 +123,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
          if (currentAction != Action.RAPE_CUM || action != Action.RAPE_ON_GOING) {
             if (currentAction != Action.RAPE_CUM || action != Action.RAPE_CUM_IDLE) {
                if (action == Action.CORRUPT_SLOW) {
-                  this.as = false;
+                  this.corruptHard = false;
                }
 
                super.setCurrentAction(action);
@@ -168,7 +168,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
 
    @Override
    public boolean isWingsAnimated() {
-      return this.getOutfitIndex() == 0 || this.ap;
+      return this.getOutfitIndex() == 0 || this.wingsAnimated;
    }
 
    @Override
@@ -190,7 +190,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
    }
 
    /**
-    * BOTH sides: keeps the wing-animation flag ({@code ap}) set while any
+    * BOTH sides: keeps the wing-animation flag ({@code wingsAnimated}) set while any
     * rape/corrupt action plays, and CLIENT-side hides the horny meter during
     * the rape intro.
     */
@@ -222,11 +222,11 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
          case RAPE_CUM:
          case RAPE_CHARGE:
          case RAPE_CUM_IDLE:
-            this.ap = true;
+            this.wingsAnimated = true;
             return;
          case COWGIRLCUM:
          default:
-            this.ap = false;
+            this.wingsAnimated = false;
       }
    }
 
@@ -274,7 +274,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                   this.createAnimation("animation.galath.corrupt_cum", true, event);
                   break;
                case CORRUPT_FAST:
-                  this.createAnimation("animation.galath.corrupt_" + (this.as ? "hard" : "soft"), true, event);
+                  this.createAnimation("animation.galath.corrupt_" + (this.corruptHard ? "hard" : "soft"), true, event);
                   break;
                case CORRUPT_SLOW:
                   this.createAnimation("animation.galath.corrupt_slow", true, event);
@@ -286,7 +286,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                   this.createAnimation("animation.galath.rape_intro", true, event);
                   break;
                case RAPE_ON_GOING:
-                  this.createAnimation("animation.galath.rape" + this.ar, true, event);
+                  this.createAnimation("animation.galath.rape" + this.rapeVariant, true, event);
                   break;
                case RAPE_CUM:
                   this.createAnimation("animation.galath.rape_cum", true, event);
@@ -324,7 +324,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
     * CLIENT: registers the controllers plus the sound listener driving the
     * rape/corrupt scenes — {@code rapeIntroDone} -&gt;
     * {@link Action#RAPE_ON_GOING}, {@code rape_switch} re-rolls the variant
-    * ({@code ar}), jump toggles corrupt hard, {@code reset} -&gt;
+    * ({@code rapeVariant}), jump toggles corrupt hard, {@code reset} -&gt;
     * {@code resetCameraAndPhysics()}, and the creampie trails spawn on
     * {@code creampie}.
     */
@@ -351,7 +351,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      this.playRandomSound(SoundHandler.MISC_FLAP);
                      break;
                   case "setNude":
-                     this.ap = true;
+                     this.wingsAnimated = true;
                      Vec3d pos = this.getPositionVector();
                      Vec3d slipRPos = this.getCachedBoneOffset("slipR").add(pos);
                      Vec3d slipLPos = this.getCachedBoneOffset("slipL").add(pos);
@@ -370,11 +370,11 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      break;
                   case "rape_switch":
                      Random random = this.getRNG();
-                     int oldState = this.ar;
+                     int oldState = this.rapeVariant;
 
                      do {
-                        this.ar = random.nextInt(3);
-                     } while (this.ar == oldState);
+                        this.rapeVariant = random.nextInt(3);
+                     } while (this.rapeVariant == oldState);
 
                      return;
                   case "poundRape":
@@ -405,13 +405,13 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      break;
                   case "corrupt_hard":
                      if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
-                        this.as = true;
+                        this.corruptHard = true;
                         this.resetAnimationControllerOffset();
                      }
                      break;
                   case "corrupt_hard_end":
                      this.setCurrentAction(Action.CORRUPT_SLOW);
-                     this.as = false;
+                     this.corruptHard = false;
                      break;
                   case "addCum":
                      HornyMeterHud.addToHornyMeter(0.03);
@@ -428,7 +428,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                         return;
                      }
 
-                     this.aq = true;
+                     this.corruptCameraActive = true;
                      EntityPlayerSP corruptPlayer = Minecraft.getMinecraft().player;
                      float corruptYaw = this.getYawRotation() + 220.0F;
                      Vec3d corruptPos = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5F - corruptPlayer.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
@@ -437,7 +437,7 @@ public class GalathPlayerEntity extends AbstractPlayerGirlEntity implements IGal
                      break;
                   case "enableBoyCam":
                      if (this.isControlledByLocalPlayer()) {
-                        this.aq = false;
+                        this.corruptCameraActive = false;
                      }
                      break;
                   case "creampie":

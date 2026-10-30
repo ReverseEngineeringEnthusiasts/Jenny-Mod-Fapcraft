@@ -45,14 +45,14 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} forbids re-entering a
  * loop phase while the cum animation plays (doggy/cum and similar) — keep the
  * guards. {@code doggyfastReady} resets the animation offset and sets the
- * "hard" flag while the player jumps; the {@code ar}/{@code as} flags gate the
+ * "hard" flag while the player jumps; the {@code doggyHard}/{@code paizuriCameraAligned} flags gate the
  * hard variant and the one-shot paizuri camera reposition.
  */
 public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
-   boolean ap = false;
-   boolean ar = false;
-   int aq = 0;
-   boolean as = false;
+   boolean flySecondFrame = false;
+   boolean doggyHard = false;
+   int fastMoanCount = 0;
+   boolean paizuriCameraAligned = false;
 
    protected JennyPlayerEntity(World world) {
       super(world);
@@ -175,7 +175,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
     * ({@code SUCKBLOWJOB} -&gt; {@code THRUSTBLOWJOB}, {@code DOGGYSLOW} -&gt;
     * {@code DOGGYFAST}, {@code PAIZURI_SLOW} -&gt; {@code PAIZURI_FAST}).
     * The paizuri transition repositions the camera once (guarded by
-    * {@code as}).
+    * {@code paizuriCameraAligned}).
     */
    @Override
    protected Action getNextAction(Action action) {
@@ -185,8 +185,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
          case DOGGYSLOW:
             return Action.DOGGYFAST;
          case PAIZURI_SLOW:
-            if (this.as) {
-               this.as = false;
+            if (this.paizuriCameraAligned) {
+               this.paizuriCameraAligned = false;
                this.positionPlayerRelative(0.0, 0.0, 0.0, 0.0F, 70.0F);
             }
 
@@ -245,11 +245,11 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.createAnimation("animation.jenny.sit", true, event);
             } else {
                if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.playerOnGround) {
-                  this.ap = !this.ap;
+                  this.flySecondFrame = !this.flySecondFrame;
                }
 
                if (!this.playerOnGround) {
-                  this.createAnimation("animation.jenny.fly" + (this.ap ? "2" : ""), true, event);
+                  this.createAnimation("animation.jenny.fly" + (this.flySecondFrame ? "2" : ""), true, event);
                } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) > 0.0F) {
                   if (this.playerSprinting) {
                      this.movementController.setAnimationSpeed(1.2F);
@@ -305,7 +305,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                   this.createAnimation("animation.jenny.doggystart", false, event);
                   break;
                case DOGGYFAST:
-                  this.createAnimation("animation.jenny.doggyfast_" + (this.ar ? "hard" : "soft"), true, event);
+                  this.createAnimation("animation.jenny.doggyfast_" + (this.doggyHard ? "hard" : "soft"), true, event);
                   break;
                case DOGGYCUM:
                   this.createAnimation("animation.jenny.doggycum", false, event);
@@ -349,7 +349,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
     * updates fire on animation sound keyframes here. Scene end: the
     * {@code bjcDone}/{@code paizuri_cumDone}/{@code doggyCumDone} keyframes
     * call {@code resetCameraAndPhysics()}; {@code paymentDone} dispatches the
-    * selected scene via {@link #U()}. Ordering matters: the listener must be
+    * selected scene via {@link #startActionFromHandState()}. Ordering matters: the listener must be
     * registered before the controllers are added.
     */
    @Override
@@ -406,7 +406,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.playSoundAtVolume(SoundHandler.MISC_PLOB[0], 0.25F);
                break;
             case "paymentDone":
-               this.U();
+               this.startActionFromHandState();
                break;
             case "bjiMSG1":
                this.sendGirlChatMessage("What are you...");
@@ -490,7 +490,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
             case "doggyfastReady":
                if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
-                  this.ar = true;
+                  this.doggyHard = true;
                }
                break;
             case "bjtReady":
@@ -582,7 +582,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "doggyslowMSG1":
-               this.ar = false;
+               this.doggyHard = false;
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
                int choice = Reference.RANDOM.nextInt(4);
                if (choice == 0) {
@@ -609,8 +609,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                   HornyMeterHud.addToHornyMeter(0.02);
                }
 
-               this.aq++;
-               if (this.aq % 2 == 0) {
+               this.fastMoanCount++;
+               if (this.fastMoanCount % 2 == 0) {
                   int choice2 = Reference.RANDOM.nextInt(2);
                   if (choice2 == 0) {
                      this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
@@ -622,7 +622,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                }
                break;
             case "doggyfastDone":
-               this.ar = false;
+               this.doggyHard = false;
                this.setCurrentAction(Action.DOGGYSLOW);
                break;
             case "doggycumMSG1":
@@ -646,8 +646,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                PacketHandler.networkWrapper.sendToServer(new SendCompanionHomePacket(this.getGirlId()));
                break;
             case "boobjob_camera":
-               if (this.isControlledByLocalPlayer() && !this.as) {
-                  this.as = true;
+               if (this.isControlledByLocalPlayer() && !this.paizuriCameraAligned) {
+                  this.paizuriCameraAligned = true;
                   this.cameraYaw = 180.0F;
                   this.positionPlayerRelative(-0.7, -0.6, -0.2, 60.0F, -3.0F);
                }
@@ -680,8 +680,8 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                break;
             case "paizuri_fastDone":
                this.setCurrentAction(Action.PAIZURI_SLOW);
-               if (this.isControlledByLocalPlayer() && !this.as) {
-                  this.as = true;
+               if (this.isControlledByLocalPlayer() && !this.paizuriCameraAligned) {
+                  this.paizuriCameraAligned = true;
                   this.positionPlayerRelative(-0.7, -0.6, -0.2, 60.0F, -3.0F);
                }
                break;
@@ -690,7 +690,7 @@ public class JennyPlayerEntity extends AbstractPlayerGirlEntity {
                this.playSound(state.getBlock().getSoundType(state, this.world, this.getPosition(), this).getStepSound());
                break;
             case "paizuri_cumStart":
-               if (this.isControlledByLocalPlayer() && !this.as) {
+               if (this.isControlledByLocalPlayer() && !this.paizuriCameraAligned) {
                   this.positionPlayerRelative(-0.7, -0.6, -0.2, 60.0F, -3.0F);
                }
          }

@@ -56,8 +56,8 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * normal player girl with nelson/paizuri scenes and the breeding scenes of the
  * NPC queen.
  * <p>
- * <b>State.</b> Own keys: {@code ax} (122) = carrying player's UUID,
- * {@code aA} (126) = pregnancy flag (NELSON_CUM). Inherits the kobold DNA keys
+ * <b>State.</b> Own keys: {@code OWNER_UUID_STRING} (122) = carrying player's UUID,
+ * {@code PREGNANT} (126) = pregnancy flag (NELSON_CUM). Inherits the kobold DNA keys
  * (119-121) via {@link AbstractKoboldPlayerEntity}; {@code setCustomPartList}
  * packs the trailing model-part index 9.
  * <p>
@@ -75,23 +75,23 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  */
 public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IGoblin {
    public static final float aI = 2.0F;
-   public static final DataParameter<String> ax = EntityDataManager.createKey(GoblinPlayerEntity.class, DataSerializers.STRING)
+   public static final DataParameter<String> OWNER_UUID_STRING = EntityDataManager.createKey(GoblinPlayerEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(122);
-   public static final DataParameter<Boolean> aA = EntityDataManager.createKey(GoblinPlayerEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> PREGNANT = EntityDataManager.createKey(GoblinPlayerEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(126);
    int aJ = 0;
-   int az = -1;
-   int aG = 0;
-   Action aw = Action.NULL;
-   int aE = -1;
-   boolean aC = false;
-   boolean aB = true;
-   boolean ay = true;
-   boolean aF = false;
-   boolean aH = false;
-   String aD = "";
+   int throwProgress = -1;
+   int throwTickCount = 0;
+   Action previousAction = Action.NULL;
+   int heldPlayerDistance = -1;
+   boolean flySecondFrame = false;
+   boolean breedingVariantLeft = true;
+   boolean nelsonSlowVariantTwo = true;
+   boolean nelsonFastVariantC = false;
+   boolean breedingFastVariantC = false;
+   String paizuriSlowVariantSuffix = "";
 
    public GoblinPlayerEntity(World world) {
       super(world);
@@ -126,10 +126,10 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    protected void entityInit() {
       super.entityInit();
       EyeColor color = EyeColor.values()[this.getRNG().nextInt(EyeColor.values().length)];
-      this.entityDataManager.register(au, new BlockPos(color.getColor()));
-      this.entityDataManager.register(as, GoblinEntity.DEFAULT_SKIN.name());
-      this.entityDataManager.register(aA, false);
-      this.entityDataManager.register(ax, "");
+      this.entityDataManager.register(EYE_COLOR, new BlockPos(color.getColor()));
+      this.entityDataManager.register(SKIN_COLOR_NAME, GoblinEntity.DEFAULT_SKIN.name());
+      this.entityDataManager.register(PREGNANT, false);
+      this.entityDataManager.register(OWNER_UUID_STRING, "");
    }
 
    /**
@@ -328,7 +328,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
          Action action = this.getCurrentAction();
          GoblinPlayerScene.handleLocalAction(this, action);
          GoblinPlayerScene.handleNelsonAction(this, action);
-         this.aw = action;
+         this.previousAction = action;
       }
    }
 
@@ -348,13 +348,13 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    @Nullable
    @Override
    public UUID getOwnerUUID() {
-      String ownerStr = (String)this.entityDataManager.get(ax);
+      String ownerStr = (String)this.entityDataManager.get(OWNER_UUID_STRING);
       if ("".equals(ownerStr)) {
          return null;
       }
 
       try {
-         return UUID.fromString((String)this.entityDataManager.get(ax));
+         return UUID.fromString((String)this.entityDataManager.get(OWNER_UUID_STRING));
       } catch (Exception ex) {
          Main.LOGGER.error("could not parse the owner UUID", ex);
          return null;
@@ -364,9 +364,9 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    @Override
    public void setOwnerUUID(UUID uuid) {
       if (uuid == null) {
-         this.entityDataManager.set(ax, "");
+         this.entityDataManager.set(OWNER_UUID_STRING, "");
       } else {
-         this.entityDataManager.set(ax, uuid.toString());
+         this.entityDataManager.set(OWNER_UUID_STRING, uuid.toString());
       }
    }
 
@@ -377,48 +377,48 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
    @Override
    public void setThrowProgress(int progress) {
-      this.az = progress;
+      this.throwProgress = progress;
    }
 
    @Override
    public int getThrowProgress() {
-      return this.az;
+      return this.throwProgress;
    }
 
    @Override
    public void setThrowTickCount(int tickCount) {
-      this.aG = tickCount;
+      this.throwTickCount = tickCount;
    }
 
    @Override
    public int getThrowTickCount() {
-      return this.aG;
+      return this.throwTickCount;
    }
 
    @Override
    public void setPreviousAction(Action action) {
-      this.aw = action;
+      this.previousAction = action;
    }
 
    @Override
    public Action getPreviousAction() {
-      return this.aw;
+      return this.previousAction;
    }
 
    @Override
    public void setHeldPlayerDistance(int distance) {
-      this.aE = distance;
+      this.heldPlayerDistance = distance;
    }
 
    @Override
    public int getHeldPlayerDistance() {
-      return this.aE;
+      return this.heldPlayerDistance;
    }
 
    @Override
    public void reinitTasks() {
       super.reinitTasks();
-      this.entityDataManager.set(aA, false);
+      this.entityDataManager.set(PREGNANT, false);
       if (this.getOwnerUUID() != null) {
          this.setOwnerUUID(null);
          EntityPlayer player = this.getOwnerPlayer();
@@ -437,7 +437,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       }
 
       AbstractNpcOnlyEntity.appendPaddedNumber(builder, 1);
-      this.entityDataManager.set(at, builder.toString());
+      this.entityDataManager.set(MODEL_CODE, builder.toString());
    }
 
    @Nullable
@@ -461,7 +461,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    /**
     * Guards the state machine: refuses re-entry into loop phases while the
     * cum animation plays, positions the player for paizuri/nelson on the
-    * server and toggles the pregnancy flag ({@code aA}) on NELSON_CUM.
+    * server and toggles the pregnancy flag ({@code PREGNANT}) on NELSON_CUM.
     */
    @Override
    public void setCurrentAction(Action action) {
@@ -478,11 +478,11 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                }
 
                if (action == Action.NELSON_CUM) {
-                  this.entityDataManager.set(aA, true);
+                  this.entityDataManager.set(PREGNANT, true);
                }
 
                if (currentAction == Action.NELSON_CUM && action != Action.NELSON_CUM) {
-                  this.entityDataManager.set(aA, false);
+                  this.entityDataManager.set(PREGNANT, false);
                }
 
                super.setCurrentAction(action);
@@ -554,7 +554,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
     * pickup/throw when a non-transformed player sneaks+clicks a carried
     * goblin player ({@code onEntityInteract}).
     */
-   public static class a {
+   public static class GoblinCarryEvents {
       HashSet<EntityPlayer> playersToRender = new HashSet<>();
 
       @SideOnly(Side.CLIENT)

@@ -82,7 +82,7 @@ public class DragonStaffItem extends Item implements IAnimatable {
       return this.animationFactory;
    }
 
-   public static class a {
+   public static class RightClickHandler {
       @SubscribeEvent
       public void onRightClickItem(RightClickItem event) {
          World world = event.getWorld();

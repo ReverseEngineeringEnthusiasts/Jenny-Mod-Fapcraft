@@ -16,7 +16,7 @@
  * {@code GIRL_HAND_STATES} via {@code ChangeDataParameterPacket} and sends
  * {@code KoboldStatePacket} -&gt; server {@code setDismounted()} -&gt; 40-tick
  * lerp to {@code TARGET_POS} ({@code RotationHelper.lerpVec3d} INT variant!)
- * -&gt; anchored -&gt; {@code U()} starts the {@link Action}. Progression via
+ * -&gt; anchored -&gt; {@code startActionFromHandState()} starts the {@link Action}. Progression via
  * animation sound keyframes; ending via the cum action -&gt;
  * {@code resetCameraAndPhysics} -&gt; {@code ResetGirlPacket}.
  * <p>

@@ -28,7 +28,7 @@ public class SceneDebug {
    public static final boolean IN_HAND = false;      // InHandMapRenderer reflection (per frame)
 
    // On by default: scene flow still under verification
-   public static final boolean SCENE_ENTRY = true;   // doAction, U(), sound-listener transitions, handleAnalState
+   public static final boolean SCENE_ENTRY = true;   // doAction, startActionFromHandState(), sound-listener transitions, handleAnalState
    public static final boolean SITTING = true;       // kobold isSitting lerp
    public static final boolean RESET = true;         // ResetGirlPacket + resetCameraAndPhysics
    public static final boolean SET_DEAD = true;      // any girl setDead (vanishing safety net)

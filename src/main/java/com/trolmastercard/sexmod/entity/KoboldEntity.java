@@ -110,7 +110,7 @@ import software.bernie.geckolib3.resource.GeckoLibCache;
  * full tribe AI (tasks, mining, combat, breeding, follow modes).
  * <p>
  * <b>Tribe system:</b> kobolds belong to {@code KoboldManager.Tribe} objects
- * keyed by tribe UUID ({@code aL} data parameter). The tribe leader AI,
+ * keyed by tribe UUID ({@code TRIBE_ID} data parameter). The tribe leader AI,
  * task assignment and saved positions are managed by
  * {@code KoboldManager}/{@code KoboldTask}.
  * <p>
@@ -119,7 +119,7 @@ import software.bernie.geckolib3.resource.GeckoLibCache;
  * {@code ChangeDataParameterPacket} and sends {@code KoboldStatePacket}; the
  * server calls {@code setDismounted()} ({@code sitLerpActive}), then
  * {@link #isSitting()} lerps her to {@code TARGET_POS} for ~40 ticks
- * ({@code sitLerpTicks} counter), anchors her and calls {@link #U()} which dispatches
+ * ({@code sitLerpTicks} counter), anchors her and calls {@link #startActionFromHandState()} which dispatches
  * on GIRL_HAND_STATES: oral -> STARTBLOWJOB, anal -> KOBOLD_ANAL_START,
  * mating -> MATING_PRESS_START. Without the horny potion effect (or a
  * master match), the scene first passes through {@link Action#PAYMENT}
@@ -130,14 +130,14 @@ import software.bernie.geckolib3.resource.GeckoLibCache;
  *   <li>The dismount lerp in {@link #isSitting()} MUST use
  *       {@code RotationHelper.lerpVec3d(pos, target, 40 - sitLerpTicks)} (INT step
  *       variant) — the double variant flings the kobold and it vanishes.</li>
- *   <li>{@link #U()} splits on the potion/master flags exactly as written —
+ *   <li>{@link #startActionFromHandState()} splits on the potion/master flags exactly as written —
  *       the payment gate is intentional, not a bug.</li>
  *   <li>Do not add {@code setDead}/removal logic to {@code onUpdate} —
  *       the girl hierarchy must never self-remove on benign tick errors.</li>
  * </ul>
  */
 public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInventory, IKobold {
-   public static final EyeAndKoboldColor aJ = EyeAndKoboldColor.PURPLE;
+   public static final EyeAndKoboldColor DEFAULT_EYE_COLOR = EyeAndKoboldColor.PURPLE;
    public static final float SCALE_0_25 = 0.25F;
    static final int ar = 20;
    static final int ag = 2;
@@ -160,44 +160,44 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    static final float aj = 0.2F;
    static final double aH = 0.7;
    static final int aa = 142;
-   public static final DataParameter<Float> aE = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.FLOAT)
+   public static final DataParameter<Float> SIZE_SCALAR = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.FLOAT)
       .getSerializer()
       .createKey(122);
    public static final DataParameter<String> KOBOLD_NAME = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(123);
-   public static final DataParameter<Boolean> aC = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> ARMED = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(124);
-   public static final DataParameter<Boolean> aZ = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> TRIBE_MEMBER = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(125);
-   public static final DataParameter<String> aU = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.STRING)
+   public static final DataParameter<String> TRIBE_NAME = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.STRING)
       .getSerializer()
       .createKey(126);
-   public static final DataParameter<Boolean> ak = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> TRIBE_ALERTED = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(127);
-   public static final DataParameter<Boolean> at = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
+   public static final DataParameter<Boolean> MINING_WITH_AXE = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.BOOLEAN)
       .getSerializer()
       .createKey(128);
-   public static final DataParameter<Optional<UUID>> aL = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID)
+   public static final DataParameter<Optional<UUID>> TRIBE_ID = EntityDataManager.createKey(KoboldEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID)
       .getSerializer()
       .createKey(129);
    public static final int av = 24;
-   public static double af = 69.0;
+   public static double spawnHealth = 69.0;
    public static List<Vector4d> aY = new ArrayList<>();
    ItemStackHandler inventory = new ItemStackHandler(27);
-   public String as = null;
+   public String lastRenderedAction = null;
    boolean az = false;
-   int aP = 0;
+   int attackCooldown = 0;
    int animationTicks = 0;
    boolean sitLerpActive = false;
    int sitLerpTicks = 0;
-   int a5 = 0;
+   int healthRegenTicks = 0;
    float nearestDistance = Float.MAX_VALUE;
-   static long aV = Long.MIN_VALUE;
-   String[] an = new String[]{
+   static long lastTribeAlertTick = Long.MIN_VALUE;
+   String[] TOXIC_LINES = new String[]{
       "What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little \"clever\" comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo.",
       "suck my iron cock you worthless piece of shit!",
       "you'll die a fucking virgin!",
@@ -217,28 +217,28 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       "touch some grass bitch!"
    };
    IBlockState blockBelowState = null;
-   IBlockState aX = null;
-   BlockPos aF = null;
-   boolean ao = true;
-   Vec3d aS = Vec3d.ZERO;
-   BlockPos aM = null;
-   BlockPos aI = null;
-   int ai = 0;
+   IBlockState savedHomeBlockState = null;
+   BlockPos homeApproachPos = null;
+   boolean tribeTasksInitialized = true;
+   Vec3d lastStuckCheckPos = Vec3d.ZERO;
+   BlockPos tribeWanderTarget = null;
+   BlockPos miningTargetPos = null;
+   int miningCooldown = 0;
    int taskTimer = 0;
    int miningStandTicks = 0;
-   int a0 = 0;
-   boolean ax = false;
-   BlockPos ap = null;
-   int ab = 0;
-   int aR = 24;
+   int inventoryNotifyCooldown = 0;
+   boolean tribeBlocked = false;
+   BlockPos wanderTarget = null;
+   int wanderTicks = 0;
+   int mineCooldown = 24;
    int cooldownTicks = 0;
    ItemStack ad = null;
-   public boolean aA = false;
+   public boolean editedColorManually = false;
    int actionCooldown = -1;
    boolean WildSlimeFaceLayer = true;
-   boolean aT = false;
+   boolean switchVariant = false;
    public boolean isRenderEgg = false;
-   int aN = 0;
+   int moanCooldown = 0;
 
    public KoboldEntity(World world) {
       super(world);
@@ -247,8 +247,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    KoboldEntity(World world, UUID tribeId, float size) {
       this(world);
-      this.entityDataManager.set(aL, Optional.of(tribeId));
-      this.entityDataManager.set(aE, size);
+      this.entityDataManager.set(TRIBE_ID, Optional.of(tribeId));
+      this.entityDataManager.set(SIZE_SCALAR, size);
    }
 
    public static KoboldEntity createKobold(World world, UUID tribeId) {
@@ -257,7 +257,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    public static KoboldEntity createKoboldWithSpeed(World world, UUID tribeId, float throwDelay) {
-      af = 10.0 - throwDelay * 25.0;
+      spawnHealth = 10.0 - throwDelay * 25.0;
       return new KoboldEntity(world, tribeId, throwDelay);
    }
 
@@ -297,7 +297,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    @Override
    public float getScaleFactor() {
-      return 0.2F - (0.25F - (Float)this.entityDataManager.get(aE));
+      return 0.2F - (0.25F - (Float)this.entityDataManager.get(SIZE_SCALAR));
    }
 
    public float getEyeHeight() {
@@ -313,15 +313,15 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       super.entityInit();
       EyeAndKoboldColor color = EyeAndKoboldColor.values()[this.getRNG().nextInt(EyeAndKoboldColor.values().length)];
       this.entityDataManager.register(ACTION_TARGET_POS, new BlockPos(color.getMainColor()));
-      this.entityDataManager.register(CURRENT_ACTION, aJ.name());
-      this.entityDataManager.register(aL, Optional.absent());
-      this.entityDataManager.register(aE, 0.0F);
+      this.entityDataManager.register(CURRENT_ACTION, DEFAULT_EYE_COLOR.name());
+      this.entityDataManager.register(TRIBE_ID, Optional.absent());
+      this.entityDataManager.register(SIZE_SCALAR, 0.0F);
       this.entityDataManager.register(KOBOLD_NAME, KoboldNames.values()[this.getRNG().nextInt(KoboldNames.values().length)].toString());
-      this.entityDataManager.register(aC, false);
-      this.entityDataManager.register(aZ, false);
-      this.entityDataManager.register(aU, "null");
-      this.entityDataManager.register(ak, false);
-      this.entityDataManager.register(at, false);
+      this.entityDataManager.register(ARMED, false);
+      this.entityDataManager.register(TRIBE_MEMBER, false);
+      this.entityDataManager.register(TRIBE_NAME, "null");
+      this.entityDataManager.register(TRIBE_ALERTED, false);
+      this.entityDataManager.register(MINING_WITH_AXE, false);
    }
 
    @Override
@@ -340,7 +340,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    @Override
    protected void applyEntityAttributes() {
       super.applyEntityAttributes();
-      this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(af);
+      this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(spawnHealth);
       this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
       this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(30.0);
    }
@@ -366,7 +366,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          return true;
       }
 
-      if ((Boolean)this.entityDataManager.get(aC)) {
+      if ((Boolean)this.entityDataManager.get(ARMED)) {
          return false;
       }
 
@@ -384,7 +384,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             return true;
          }
 
-         Optional tribeIdOpt = (Optional)this.entityDataManager.get(aL);
+         Optional tribeIdOpt = (Optional)this.entityDataManager.get(TRIBE_ID);
          if (!tribeIdOpt.isPresent()) {
             return true;
          }
@@ -510,7 +510,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       this.noClip = false;
       this.setNoGravity(false);
       if (this.sitLerpTicks > 40) {
-         SceneDebug.log(SceneDebug.SITTING, "Kobold.isSitting: lerp done, U() (sitLerpTicks=%d, action=%s, handState=%s)", this.sitLerpTicks, this.getCurrentAction(), this.entityDataManager.get(GIRL_HAND_STATES));
+         SceneDebug.log(SceneDebug.SITTING, "Kobold.isSitting: lerp done, startActionFromHandState (sitLerpTicks=%d, action=%s, handState=%s)", this.sitLerpTicks, this.getCurrentAction(), this.entityDataManager.get(GIRL_HAND_STATES));
          this.sitLerpActive = false;
          this.sitLerpTicks = 0;
          EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
@@ -526,7 +526,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
          this.noClip = true;
          this.setNoGravity(true);
          this.getNavigator().clearPath();
-         this.U();
+         this.startActionFromHandState();
          return true;
       }
 
@@ -535,7 +535,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.sitLerpTicks);
       this.setPosition(pos.x, pos.y, pos.z);
       this.setCurrentAction(Action.NULL);
-      Optional tribeIdOpt = (Optional)this.entityDataManager.get(aL);
+      Optional tribeIdOpt = (Optional)this.entityDataManager.get(TRIBE_ID);
       if (!tribeIdOpt.isPresent()) {
          return true;
       }
@@ -559,8 +559,8 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    @Override
    public void updateAITasks() {
       super.updateAITasks();
-      this.ax = false;
-      Optional tribeIdOpt = (Optional)this.entityDataManager.get(aL);
+      this.tribeBlocked = false;
+      Optional tribeIdOpt = (Optional)this.entityDataManager.get(TRIBE_ID);
       if (tribeIdOpt.isPresent()) {
          this.handleActionCooldown((UUID)tribeIdOpt.get());
          KoboldManager.triggerFastSexAction((UUID)tribeIdOpt.get());
@@ -572,14 +572,14 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
       if (!this.isSitting()) {
          if (this.getInteractionPlayerUUID() == null) {
-            if (!(Boolean)this.entityDataManager.get(aC)) {
-               if (this.getHealth() != this.getMaxHealth() && ++this.a5 >= 100) {
+            if (!(Boolean)this.entityDataManager.get(ARMED)) {
+               if (this.getHealth() != this.getMaxHealth() && ++this.healthRegenTicks >= 100) {
                   this.setHealth(this.getHealth() + 2.0F);
-                  this.a5 = 0;
+                  this.healthRegenTicks = 0;
                   PacketHandler.networkWrapper.sendToAllTracking(new SpawnParticlePacket(this.getGirlId(), EnumParticleTypes.HEART.getParticleName()), this);
                }
             } else {
-               this.a5 = 0;
+               this.healthRegenTicks = 0;
             }
 
             if (!(Boolean)this.entityDataManager.get(IS_ANCHORED)) {
@@ -587,7 +587,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
             }
 
             if (tribeIdOpt.isPresent()) {
-               this.aP--;
+               this.attackCooldown--;
                if (this.getCurrentAction() == Action.ATTACK) {
                   this.getNavigator().clearPath();
                   this.rotationYaw = this.getYawRotation();
@@ -621,9 +621,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                      this.animationTicks = 0;
                   }
                } else {
-                  this.entityDataManager.set(aC, this.handleTribeCombat((UUID)tribeIdOpt.get(), false));
-                  this.entityDataManager.set(aZ, KoboldManager.isTribeMember((UUID)tribeIdOpt.get(), this));
-                  this.entityDataManager.set(ak, KoboldManager.isTribeAlerted((UUID)tribeIdOpt.get()));
+                  this.entityDataManager.set(ARMED, this.handleTribeCombat((UUID)tribeIdOpt.get(), false));
+                  this.entityDataManager.set(TRIBE_MEMBER, KoboldManager.isTribeMember((UUID)tribeIdOpt.get(), this));
+                  this.entityDataManager.set(TRIBE_ALERTED, KoboldManager.isTribeAlerted((UUID)tribeIdOpt.get()));
                   this.handleMasterPresence();
                   this.handleModelSync();
                   this.watchClosestGirlGoal.isWatching = this.isIdle();
@@ -645,11 +645,11 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
 
    void handleSleepState() {
       if (this.world.isRemote) {
-         if (this.world.getTotalWorldTime() - 300L >= aV) {
+         if (this.world.getTotalWorldTime() - 300L >= lastTribeAlertTick) {
             if (this.hasMaster()) {
                if (this.getCurrentAction() == Action.NULL) {
                   if ("".equals(this.entityDataManager.get(GIRL_HAND_STATES))) {
-                     if (!(Boolean)this.entityDataManager.get(ak)) {
+                     if (!(Boolean)this.entityDataManager.get(TRIBE_ALERTED)) {
                         String masterUuid = (String)this.entityDataManager.get(MASTER);
                         EntityPlayer player = this.world.getClosestPlayerToEntity(this, 10.0);
                         if (player == null) {
@@ -659,7 +659,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
                            if (dist < 2.0F && this.nearestDistance > 2.0F) {
                               this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_KOBOLD_HEYMASTER));
                               this.sendChatMessage("Hey master!");
-                              aV = this.world.getTotalWorldTime();
+                              lastTribeAlertTick = this.world.getTotalWorldTime();
                            }
 
                            this.nearestDistance = dist;
@@ -675,7 +675,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    void handleIdleState() {
       if (this.world.isRemote) {
          if (this.getCurrentAction() != Action.SLEEP) {
-            if ((Boolean)this.entityDataManager.get(ak)) {
+            if ((Boolean)this.entityDataManager.get(TRIBE_ALERTED)) {
                if (this.hasMaster()) {
                   EntityPlayer player = this.world.getPlayerEntityByUUID(UUID.fromString((String)this.entityDataManager.get(MASTER)));
                   if (player != null) {
@@ -692,9 +692,9 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    }
 
    @Override
-   protected void U() {
+   protected void startActionFromHandState() {
       String handState = (String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES);
-      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Kobold.U() handState=%s action=%s remote=%s potion=%s master=%s", handState, this.getCurrentAction(), this.world.isRemote, this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null, this.hasMaster());
+      SceneDebug.log(SceneDebug.SCENE_ENTRY, "Kobold.startActionFromHandState handState=%s action=%s remote=%s potion=%s master=%s", handState, this.getCurrentAction(), this.world.isRemote, this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null, this.hasMaster());
       boolean hasHornyPotion = this.getActivePotionEffect(HornyPotion.HORNY_POTION) != null;
       boolean isMasterNear = false;
       if (this.hasMaster()) {
@@ -918,21 +918,21 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
       if (this.hasMaster() && player != null && player.getDistance(this) < 2.0F && ((String)this.entityDataManager.get(MASTER)).equals(player.getPersistentID().toString())) {
          this.getNavigator().clearPath();
       } else {
-         if (this.ap == null
-            || this.getDistance(this.ap.getX(), this.ap.getY(), this.ap.getZ()) > this.getWanderRange()
-            || this.ab > 100) {
+         if (this.wanderTarget == null
+            || this.getDistance(this.wanderTarget.getX(), this.wanderTarget.getY(), this.wanderTarget.getZ()) > this.getWanderRange()
+            || this.wanderTicks > 100) {
             int xOffset = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
             int zOffset = (this.getRNG().nextBoolean() ? 1 : -1) * this.getRNG().nextInt(5);
             int height = WorldUtils.getHeightAt(this.world, this.getPosition().getX() + xOffset, this.getPosition().getZ() + zOffset);
-            this.ap = new BlockPos(this.getPosition().getX() + xOffset, height, this.getPosition().getZ() + zOffset);
-            this.ab = 0;
+            this.wanderTarget = new BlockPos(this.getPosition().getX() + xOffset, height, this.getPosition().getZ() + zOffset);
+            this.wanderTicks = 0;
          }
 
-         if (Math.sqrt(this.ap.distanceSq(this.getPosition())) > 2.0) {
-            this.getNavigator().tryMoveToXYZ(this.ap.getX(), this.ap.getY(), this.ap.getZ(), 0.35F);
+         if (Math.sqrt(this.wanderTarget.distanceSq(this.getPosition())) > 2.0) {
+            this.getNavigator().tryMoveToXYZ(this.wanderTarget.getX(), this.wanderTarget.getY(), this.wanderTarget.getZ(), 0.35F);
             this.tickPathVelocity();
          } else {
-            this.ab++;
+            this.wanderTicks++;
          }
       }
    }
@@ -991,7 +991,7 @@ public class KoboldEntity extends AbstractNpcOnlyEntity implements IEllie, IInve
    public void onDeath(DamageSource source) {
       super.onDeath(source);
       if (!this.world.isRemote) {
-         Optional tribeOpt = (Optional)this.entityDataManager.get(aL);
+         Optional tribeOpt = (Optional)this.entityDataManager.get(TRIBE_ID);
          if (tribeOpt.isPresent()) {
             UUID tribeId = (UUID)tribeOpt.get();
 KoboldManager.setTribeLeader(tribeId, this);
@@ -1077,7 +1077,7 @@ KoboldManager.setTribeLeader(tribeId, this);
 
    @Override
    public void playSoundAtVolume(SoundEvent sound, float volume) {
-      float shrink = 0.25F - (Float)this.entityDataManager.get(aE);
+      float shrink = 0.25F - (Float)this.entityDataManager.get(SIZE_SCALAR);
       double progress = shrink / 0.25F;
       float pitch = (float)RotationHelper.lerpDouble(0.9F, 1.1F, progress);
       this.playSoundAtPosition(sound, volume, pitch);
@@ -1166,7 +1166,7 @@ KoboldManager.setTribeLeader(tribeId, this);
    public void clear() {
    }
 
-   public static class c {
+   public static class KoboldTribeEvents {
       int tickCounter = 0;
 
       @SubscribeEvent
@@ -1193,7 +1193,7 @@ KoboldManager.setTribeLeader(tribeId, this);
          if (!world.isRemote) {
             if (entity instanceof KoboldEntity) {
                KoboldEntity kobold = (KoboldEntity)entity;
-               Optional tribeOpt = (Optional)kobold.getDataManager().get(KoboldEntity.aL);
+               Optional tribeOpt = (Optional)kobold.getDataManager().get(KoboldEntity.TRIBE_ID);
                if (tribeOpt.isPresent()) {
                   Entity attacker = event.getSource().getTrueSource();
                   if (attacker != null) {
@@ -1228,7 +1228,7 @@ KoboldManager.setTribeLeader(tribeId, this);
             for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
                if (girl instanceof KoboldEntity) {
                   KoboldEntity kobold = (KoboldEntity)girl;
-                  Optional tribeOpt = (Optional)kobold.getDataManager().get(KoboldEntity.aL);
+                  Optional tribeOpt = (Optional)kobold.getDataManager().get(KoboldEntity.TRIBE_ID);
                   if (tribeOpt.isPresent() && KoboldManager.isTribeMember((UUID)tribeOpt.get(), kobold)) {
                      kobold.teleportToHome((UUID)tribeOpt.get());
                   }

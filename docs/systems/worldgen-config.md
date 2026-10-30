@@ -55,7 +55,7 @@ The Allies lamp is injected into **dungeon/mineshaft loot**.
 |---|---|
 | `shouldGenBuildings` | Girl-house generation on/off (`ConfigWorldGenHandler.GENERATION_ENABLED`) |
 | `shouldLoadOtherSkins` | Skin loading/caching (`GirlModel.enableModelCache`) — loads other players' skins for the girls' textures |
-| `allowFlying` | Flying allowed for transformed player-girls (`AbstractPlayerGirlEntity.ag`) |
+| `allowFlying` | Flying allowed for transformed player-girls (`AbstractPlayerGirlEntity.flightGrantEnabled`) |
 
 The file is rewritten (deleted + recreated with defaults) if it lacks `shouldGenBuildings`;
 values are read by character offset (`'t'` check) — the exact layout is load-bearing.

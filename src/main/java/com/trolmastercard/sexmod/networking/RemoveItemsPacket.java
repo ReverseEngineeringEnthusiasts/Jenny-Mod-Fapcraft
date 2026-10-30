@@ -17,9 +17,11 @@ import net.minecraftforge.fml.relauncher.Side;
  * item type from the target player's inventory. Used when a girl gives/takes
  * items and the client-side inventory preview must stay in sync with the server.
  * <p>
- * <b>Handler.</b> SERVER-side, scheduled on the main thread. Finds the player by
- * the "girl UUID" (here used as the player UUID of the transformed girl) and
- * shrinks the first matching stack by the sent count.
+ * <b>Handler.</b> SERVER-side, scheduled on the main thread. The target is the
+ * player who sent the packet ({@code ctx.getServerHandler().player}); the UUID
+ * carried on the wire is kept only for compatibility with older clients and is
+ * not trusted. Shrinks the first stack in the player's main inventory whose
+ * item and metadata match, removing at most what the stack actually holds.
  */
 public class RemoveItemsPacket implements IMessage {
    boolean isValid = false;
@@ -48,18 +50,18 @@ public class RemoveItemsPacket implements IMessage {
    public static class Handler implements IMessageHandler<RemoveItemsPacket, IMessage> {
       public IMessage onMessage(RemoveItemsPacket packet, MessageContext ctx) {
          if (packet.isValid && ctx.side == Side.SERVER) {
+            net.minecraft.entity.player.EntityPlayerMP sender = ctx.getServerHandler().player;
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-               net.minecraft.entity.player.EntityPlayerMP target = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(packet.girlUUID);
-               if (target == null) {
+               ItemStack requested = packet.itemStack;
+               if (requested == null || requested.isEmpty()) {
                   return;
                }
 
-               InventoryPlayer inventory = target.inventory;
+               InventoryPlayer inventory = sender.inventory;
 
-               for (int i = 0; i < inventory.getSizeInventory(); i++) {
-                  ItemStack stack = inventory.getStackInSlot(i);
-                  if (stack.getItem().equals(packet.itemStack.getItem())) {
-                     stack.shrink(packet.itemStack.getCount());
+               for (ItemStack stack : inventory.mainInventory) {
+                  if (stack.getItem().equals(requested.getItem()) && stack.getMetadata() == requested.getMetadata()) {
+                     stack.shrink(Math.min(requested.getCount(), stack.getCount()));
                      break;
                   }
                }

@@ -170,7 +170,7 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
       }
 
       GalathEntity galath = ((ManglelieEntity)girl).getGalathPartner(false);
-      return galath == null ? false : galath.bm < threshold;
+      return galath == null ? false : galath.bodyScaleY < threshold;
    }
 
    /**

@@ -21,7 +21,7 @@ final class KoboldNbtIO {
    }
 
    static void write(KoboldEntity entity, NBTTagCompound nbt) {
-      nbt.setFloat("body_size", (Float)entity.getDataManager().get(KoboldEntity.aE));
+      nbt.setFloat("body_size", (Float)entity.getDataManager().get(KoboldEntity.SIZE_SCALAR));
       nbt.setInteger("eyeColorX", ((BlockPos)entity.getDataManager().get(KoboldEntity.ACTION_TARGET_POS)).getX());
       nbt.setInteger("eyeColorY", ((BlockPos)entity.getDataManager().get(KoboldEntity.ACTION_TARGET_POS)).getY());
       nbt.setInteger("eyeColorZ", ((BlockPos)entity.getDataManager().get(KoboldEntity.ACTION_TARGET_POS)).getZ());
@@ -30,12 +30,12 @@ final class KoboldNbtIO {
       nbt.setString("master", (String)entity.getDataManager().get(KoboldEntity.MASTER));
       nbt.setTag("inventory", entity.inventory.serializeNBT());
       nbt.setString("bodyColor", (String)entity.getDataManager().get(KoboldEntity.CURRENT_ACTION));
-      nbt.setBoolean("editedColorManually", entity.aA);
-      Optional tribeOpt = (Optional)entity.getDataManager().get(KoboldEntity.aL);
+      nbt.setBoolean("editedColorManually", entity.editedColorManually);
+      Optional tribeOpt = (Optional)entity.getDataManager().get(KoboldEntity.TRIBE_ID);
       if (tribeOpt.isPresent()) {
          nbt.setUniqueId("tribeId", (UUID)tribeOpt.get());
          nbt.setBoolean("isLeader", KoboldManager.isTribeMember((UUID)tribeOpt.get(), entity));
-         nbt.setString("tribeName", (String)entity.getDataManager().get(KoboldEntity.aU));
+         nbt.setString("tribeName", (String)entity.getDataManager().get(KoboldEntity.TRIBE_NAME));
       }
    }
 
@@ -50,7 +50,7 @@ final class KoboldNbtIO {
          entity.getDataManager().set(KoboldEntity.ACTION_TARGET_POS, eyeColor);
       }
 
-      entity.getDataManager().set(KoboldEntity.aE, nbt.getFloat("body_size"));
+      entity.getDataManager().set(KoboldEntity.SIZE_SCALAR, nbt.getFloat("body_size"));
       entity.getDataManager().set(KoboldEntity.KOBOLD_NAME, nbt.getString("name"));
       entity.getDataManager().set(KoboldEntity.MASTER, nbt.getString("master"));
       entity.inventory.deserializeNBT(nbt.getCompoundTag("inventory"));
@@ -59,10 +59,10 @@ final class KoboldNbtIO {
          entity.getDataManager().set(KoboldEntity.CURRENT_ACTION, nbt.getString("bodyColor"));
       }
 
-      entity.aA = nbt.getBoolean("editedColorManually");
+      entity.editedColorManually = nbt.getBoolean("editedColorManually");
       UUID tribeId = nbt.getUniqueId("tribeId");
       if (tribeId != null && !entity.isDead) {
-         entity.getDataManager().set(KoboldEntity.aL, Optional.of(tribeId));
+         entity.getDataManager().set(KoboldEntity.TRIBE_ID, Optional.of(tribeId));
          if (!KoboldManager.doesTribeExist(tribeId)) {
             KoboldManager.setTribeColor(tribeId, EyeAndKoboldColor.valueOf((String)entity.getDataManager().get(KoboldEntity.CURRENT_ACTION)));
          }
@@ -72,7 +72,7 @@ final class KoboldNbtIO {
             KoboldManager.isTribeMember(tribeId, entity);
          }
 
-         entity.getDataManager().set(KoboldEntity.aU, nbt.getString("tribeName"));
+         entity.getDataManager().set(KoboldEntity.TRIBE_NAME, nbt.getString("tribeName"));
       }
    }
 }

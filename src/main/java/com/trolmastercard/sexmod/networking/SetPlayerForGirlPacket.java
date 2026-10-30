@@ -71,7 +71,7 @@ public class SetPlayerForGirlPacket implements IMessage {
                   }
 
                   if (girl instanceof JennyEntity) {
-                     ((JennyEntity)girl).af = true;
+                     ((JennyEntity)girl).snapInPending = true;
                   }
 
                   girl.setInteractionPlayerUUID(packet.playerUUID);

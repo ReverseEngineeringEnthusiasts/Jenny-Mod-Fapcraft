@@ -102,7 +102,7 @@ import software.bernie.geckolib3.util.MatrixStack;
  *       {@code ChangeDataParameterPacket}).</li>
  *   <li>{@link #GIRL_HAND_STATES} — the scene-entry hand-state, written by the
  *       client as {@code "animationFollowUp"} and consumed by each girl's
- *       {@code U()} dispatcher after the dismount lerp completes.</li>
+ *       {@code startActionFromHandState()} dispatcher after the dismount lerp completes.</li>
  *   <li>{@link #INTERACTION_PARTNER_UUID} — the player bound to the current
  *       scene ("null" string when unset).</li>
  *   <li>{@link #IS_ANCHORED} / {@link #TARGET_POS} / {@link #YAW_ROTATION} —
@@ -121,7 +121,7 @@ import software.bernie.geckolib3.util.MatrixStack;
  *       the server calls {@code setDismounted()} (per-girl flag) and the girl
  *       lerps ~40 ticks to {@code TARGET_POS} (see
  *       {@code RotationHelper.lerpVec3d} — INT variant!), then anchors and
- *       calls {@code U()} to pick the scene action.</li>
+ *       calls {@code startActionFromHandState()} to pick the scene action.</li>
  *   <li>Progression: sound-keyframe transitions in {@code registerControllers}
  *       (primary) + SERVER-side follow-ups in {@link #tickFollowUpTransitions()}
  *       + input (sneak/jump via {@code HandlePlayerMovement}).</li>
@@ -203,6 +203,14 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    HashMap<String, Pair<Integer, Integer>> animationVariantMap = new HashMap<>();
    AnimationProcessor<?> cachedAnimationProcessor = null;
    public List<String> boneTrackingList = new ArrayList<>();
+   /** Ticks the current action has played, indexed {@code [server, client]} — this girl's own counter. */
+   final int[] actionTicks = new int[]{0, 0};
+   Action lastTickAction = null;
+   /** Decoded {@link #TARGET_POS} / {@link #INTERACTION_PARTNER_UUID} memo, keyed by the raw data-manager string. */
+   String cachedTargetPosRaw = null;
+   Vec3d cachedTargetPos = Vec3d.ZERO;
+   String cachedInteractionPlayerRaw = null;
+   UUID cachedInteractionPlayerUUID = null;
    protected List<Entry<BoneType, Entry<List<String>, Integer>>> customPartsData = null;
 
    /** Sets the walk-mode state (WALK/FAST_WALK/RUN) stored in the data manager. */
@@ -547,10 +555,23 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
     * Advances the scene: when the current action's tick counter reaches its
     * length, transitions to the action's follow-up (SERVER side only).
     * Jar-faithful: has NO hasPlayer reset branch (see DOCUMENTATION 2p).
+    * <p>
+    * The counter is per-entity ({@link #actionTicks}) so two girls playing the
+    * same action no longer share — and double-advance — one enum-constant
+    * counter. {@link Action#ticksPlaying} is still written as a mirror for the
+    * legacy per-action reads (Galath's coin/boost scenes).
     */
    protected void tickFollowUpTransitions() {
       Action action = this.getCurrentAction();
-      if (++action.ticksPlaying[this.world.isRemote ? 1 : 0] >= action.length) {
+      int side = this.world.isRemote ? 1 : 0;
+      if (action != this.lastTickAction) {
+         this.lastTickAction = action;
+         this.actionTicks[0] = 0;
+         this.actionTicks[1] = 0;
+      }
+
+      action.ticksPlaying[side] = ++this.actionTicks[side];
+      if (this.actionTicks[side] >= action.length) {
          if (action.followUp != null && !this.world.isRemote) {
             SceneDebug.log(SceneDebug.ACTIONS, "tickFollowUp %s: followUp %s -> %s", this.getDisplayNameText(), action, action.followUp);
             this.setCurrentAction(action.followUp);
@@ -897,7 +918,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
-   protected void U() {
+   protected void startActionFromHandState() {
    }
 
    /** Stores a custom display name for the girl in the data manager. */
@@ -1128,8 +1149,11 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       }
    }
 
+   /** @return the renderer's animation processor, or null when there is no geo model (yet) */
+   @Nullable
    public AnimationProcessor<?> getAnimationProcessor() {
-      return this.getGeoModel().getAnimationProcessor();
+      AnimatedGeoModel<? extends BaseGirlEntity> model = this.getGeoModel();
+      return model == null ? null : model.getAnimationProcessor();
    }
 
    public boolean isPartEnabled(int index) {

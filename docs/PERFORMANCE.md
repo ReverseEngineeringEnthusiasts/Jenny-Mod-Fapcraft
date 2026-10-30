@@ -14,12 +14,13 @@ Prism/Cleanroom with Fapcraft 1.1.1):
 | 1.3 / 1.4 | `GirlFollowGoal` nearest-mob scan (comparator bug fixed), AABB without `BlockPos` |
 | 2.1 | bounded LRU skin cache, textures deleted on eviction, invalidation + session clear |
 | 3 | state snapshot/restore in `StructureMarkerRenderer`; `try/finally` matrix/state including the method-spanning pushes (`doRenderEntity`, `renderBoneEffect`, `renderModelBuffer`, `renderCustomBones`, `renderMarkers`) |
-| 4.1 | god classes split: Galath 3193→2351, Kobold 3190→1264, Goblin 2159→828, BaseGirl 1810→1173 (38 helpers, API unchanged) |
+| 4.1 | god classes split across two waves: Galath 3193→1495, Kobold 3190→1264, Goblin 2159→828, BaseGirl 1810→1173, GoblinPlayer 1281→698, GirlRenderer 1503→1044, ServerWhitelist 1106→636, KoboldManager 1157→816 (60+ helpers, API unchanged) |
 | 4.2 | decompiler names gone: `PLAYER_GIRL_BY_OWNER`, `SKIN_TEXTURE_CACHE`, `OWNER_UUID`, every `*_clashNNN`, the throne/throw offsets and the `aX` field/method long tail, ~200 fields |
 | 4.3 | `System.out`/`err` → `Main.LOGGER` (144), `printStackTrace` → logged (31), empty catches annotated (56) |
 | 4.4 / 4.5 | `pom.xml` single version source; first unit tests (`UpdateChecker`, version drift) |
 | 4.6 | camera sentinel `1.2345679F` replaced by `GirlCameraHelper.previewRenderInProgress` (begin/end preview in try/finally) |
 | 4.7 | `ForgeEventHandler.registerAll(...)` is the single registry (53 of 63 registrations; the rest are per-item self-registration) |
+| dup | bed-side scan (4 copies), controller registration (6), wander goals (4), the 32 guarded `addToHornyMeter` sites unified; `animationPredicate` left per-entity (genuinely different), with a `GirlBedPlacementTest` pin |
 
 Deferred on purpose: §2.2 (dev-only code kept) and §5 (gameplay/product ideas).
 
@@ -187,9 +188,8 @@ The player-girl state (`AbstractPlayerGirlEntity`), the skin cache (`GirlRendere
 dev-float array (`util/DebugMode`) have been renamed to domain terms, and the `*_clashNNN`
 methods plus the `aX`/`aB`/`aM` field and method families on the NPC entities
 (`GoblinEntity`, `GalathEntity`, `KoboldEntity`, `EllieEntity`, `LunaEntity`,
-`ManglelieEntity`) are gone. What remains is the data-manager key block on each entity
-(`b*`, `ad`/`ap`/`ar`, ...), magic constants whose value already reads at the use site, and
-a few write-only flags (`drawStars`, Galath's `aE`/`a5`, Luna's `am`). Rename
+`ManglelieEntity`) are gone. What remains is the magic-constant block on each entity
+(`a*`/`b*`), plus a few write-only flags (`drawStars`, Luna's `am`). Rename
 opportunistically: touch a file → rename its fields to domain terms → keep behaviour
 identical.
 

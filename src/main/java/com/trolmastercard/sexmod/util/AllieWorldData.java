@@ -16,7 +16,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * WorldSavedData for Allie companions (tamed Allie state per world).
  */
 public class AllieWorldData extends WorldSavedData {
-   static final HashMap<UUID, HashMap<NpcType, String>> b = new HashMap<>();
+   static final HashMap<UUID, HashMap<NpcType, String>> npcNamesByPlayer = new HashMap<>();
 
    public AllieWorldData() {
       super("sexmod:customstaticgirlnames");
@@ -40,18 +40,18 @@ public class AllieWorldData extends WorldSavedData {
    }
 
    public static void addAllie(UUID playerUuid, NpcType type, String modelName) {
-      HashMap typeMap = b.get(playerUuid);
+      HashMap typeMap = npcNamesByPlayer.get(playerUuid);
       if (typeMap == null) {
          typeMap = new HashMap();
       }
 
       typeMap.put(type, modelName);
-      b.put(playerUuid, typeMap);
+      npcNamesByPlayer.put(playerUuid, typeMap);
    }
 
    @Nullable
    public static String getNpcName(UUID playerUuid, NpcType type) {
-      HashMap typeMap = b.get(playerUuid);
+      HashMap typeMap = npcNamesByPlayer.get(playerUuid);
       return typeMap == null ? null : (String)typeMap.get(type);
    }
 
@@ -64,12 +64,12 @@ public class AllieWorldData extends WorldSavedData {
             continue;
          }
 
-         b.put(uuid, this.a(nbt.getCompoundTag(key)));
+         npcNamesByPlayer.put(uuid, this.a(nbt.getCompoundTag(key)));
       }
    }
 
    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-      for (Entry entry : b.entrySet()) {
+      for (Entry entry : npcNamesByPlayer.entrySet()) {
          UUID uuid = (UUID)entry.getKey();
          nbt.setTag(uuid.toString(), this.serializeNpcTypes((HashMap<NpcType, String>)entry.getValue()));
       }

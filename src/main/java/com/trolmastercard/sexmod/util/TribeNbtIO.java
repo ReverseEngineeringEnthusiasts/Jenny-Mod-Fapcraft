@@ -161,7 +161,7 @@ final class TribeNbtIO {
             }
          }
 
-         for (Entry entry2 : tribe.k.entrySet()) {
+         for (Entry entry2 : tribe.savedPositions.entrySet()) {
             UUID memberUuid2 = (UUID)entry2.getKey();
             BlockPos savedPos = (BlockPos)entry2.getValue();
             if (!seenMemberIds.contains(memberUuid2)) {

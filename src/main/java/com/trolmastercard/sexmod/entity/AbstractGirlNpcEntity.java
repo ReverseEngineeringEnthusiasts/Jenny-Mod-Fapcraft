@@ -46,7 +46,7 @@ import net.minecraftforge.items.ItemStackHandler;
  * <b>Pitfalls.</b> {@link #updateAITasks()} force-sets {@code HAND_STATES} to
  * {@code "1"} every tick (combat hand-raise flag) — do not "fix" this. The
  * {@code downed} flag is cleared here when the girl has no master; combat
- * downed-state transitions live in {@link GirlFollowGoal.a}.
+ * downed-state transitions live in {@link GirlFollowGoal.DownedGirlEvents}.
  */
 public abstract class AbstractGirlNpcEntity extends BaseGirlEntity {
    public int nextAttack = 1;

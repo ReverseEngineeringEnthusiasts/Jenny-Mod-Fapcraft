@@ -115,7 +115,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
 
    /**
     * Threesome coupling: the body yaw follows Galath's published rotation
-    * ({@code bw}) and its scale follows {@code bm} — Manglelie mirrors
+    * ({@code bodyRotationY}) and its scale follows {@code bodyScaleY} — Manglelie mirrors
     * Galath's pose in the threesome scenes.
     */
    void updateThreesomePose(BaseGirlEntity entity) {
@@ -125,10 +125,10 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
             GalathEntity galath = manglelie.getGalathPartner(false);
             if (galath != null) {
                IBone bodyBone = this.getAnimationProcessor().getBone("body");
-               bodyBone.setRotationY(galath.bw + (this.mc.isGamePaused() ? 0.0F : bodyBone.getRotationY()));
-               bodyBone.setScaleX(galath.bm);
-               bodyBone.setScaleY(galath.bm);
-               bodyBone.setScaleZ(galath.bm);
+               bodyBone.setRotationY(galath.bodyRotationY + (this.mc.isGamePaused() ? 0.0F : bodyBone.getRotationY()));
+               bodyBone.setScaleX(galath.bodyScaleY);
+               bodyBone.setScaleY(galath.bodyScaleY);
+               bodyBone.setScaleZ(galath.bodyScaleY);
             }
          }
       }
@@ -270,7 +270,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       ManglelieNpcModel.RotationData rotationData = new ManglelieNpcModel.RotationData();
       rotationData.lowerArmLRotation = new Vector3fSexmodSpecial(UPPER_ARM_BASE_ANGLE, 0.0F, lowerArmLBone.getRotationZ());
       rotationData.lowerArmRRotation = new Vector3fSexmodSpecial(LOWER_ARM_BASE_ANGLE, 0.0F, lowerArmRBone.getRotationZ());
-      float upperBodyRotation = galath.aE + processor.getBone("upperBody").getRotationX();
+      float upperBodyRotation = galath.headRotationX + processor.getBone("upperBody").getRotationX();
       float partialTicks = this.mc.getRenderPartialTicks();
       Vec3d galathLookVec = ManglelieRenderer.getEntityLookVector(galath, partialTicks);
       Vec3d armRPoint = manglelie.getCachedBoneOffset("armR").add(galathLookVec);
@@ -336,7 +336,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
     * forearms (scaled factors) and spreads the arms slightly.
     */
    ManglelieNpcModel.RotationData updateCorruptPose(GalathEntity galath, IBone armRBone, IBone armLBone, IBone lowerArmLBone, IBone lowerArmRBone) {
-      float headRotation = galath.aE;
+      float headRotation = galath.headRotationX;
       ManglelieNpcModel.RotationData rotationData = new ManglelieNpcModel.RotationData();
       if (headRotation > 0.0F) {
          rotationData.armRRotation = new Vector3fSexmodSpecial(armRBone.getRotationX() - headRotation, armRBone.getRotationY() - headRotation * -25.0F / 45.0F, armRBone.getRotationZ() + headRotation * 12.5F / 45.0F);
@@ -367,7 +367,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                GalathEntity galath = manglelie.getGalathPartner(false);
                if (galath != null) {
                   AnimationProcessor processor = this.getAnimationProcessor();
-                  float headRotation = galath.aE;
+                  float headRotation = galath.headRotationX;
                   processor.getBone("rotationTool").setRotationX(headRotation);
                   IBone headBone = processor.getBone("head");
                   IBone upperBodyBone = processor.getBone("upperBody");
@@ -381,7 +381,7 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
                      headBone.setRotationX(headRotation * 0.666F);
                   }
 
-                  float yawError = ThreadNames.wrapAngle(manglelie.TICK_0, manglelie.af);
+                  float yawError = ThreadNames.wrapAngle(manglelie.TICK_0, manglelie.yawOffset);
                   float pitchError = ThreadNames.wrapAngle(manglelie.ai, manglelie.rotationLerp);
                   float fps = Minecraft.getDebugFPS();
                   if (fps == 0.0F) {

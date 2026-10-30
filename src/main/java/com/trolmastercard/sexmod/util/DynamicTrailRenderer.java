@@ -47,24 +47,6 @@ public class DynamicTrailRenderer {
    }
 
    public void renderTrail(Minecraft minecraft, Tessellator tessellator, BufferBuilder buffer, float partialTicks) {
-      if (this.trailSegments.size() < this.maxSegmentsCount) {
-         for (int i = 0; i < 6; i++) {
-            Vec3d sourcePos = this.sourcePositionProvider.getPosition(this.ownerEntity);
-            this.trailSegments
-               .add(
-                  new TrailSegment(
-                     minecraft.world,
-                     this.targetPositionProvider.getTargetPosition(this.ownerEntity),
-                     new Vec3d(
-                        sourcePos.x + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius,
-                        sourcePos.y + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius,
-                        sourcePos.z + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius
-                     )
-                  )
-               );
-         }
-      }
-
       GlStateManager.disableCull();
       GlStateManager.disableAlpha();
       Vec3d targetPos = RotationHelper.lerpVec3dDouble(
@@ -98,6 +80,24 @@ public class DynamicTrailRenderer {
    }
 
    public void updateTrails() {
+      if (this.trailSegments.size() < this.maxSegmentsCount) {
+         for (int i = 0; i < 6; i++) {
+            Vec3d sourcePos = this.sourcePositionProvider.getPosition(this.ownerEntity);
+            this.trailSegments
+               .add(
+                  new TrailSegment(
+                     this.ownerEntity.world,
+                     this.targetPositionProvider.getTargetPosition(this.ownerEntity),
+                     new Vec3d(
+                        sourcePos.x + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius,
+                        sourcePos.y + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius,
+                        sourcePos.z + (Reference.RANDOM.nextFloat() * 2.0F - 1.0F) * this.randomnessRadius
+                     )
+                  )
+               );
+         }
+      }
+
       for (TrailSegment segment : this.trailSegments) {
          segment.onUpdate();
       }
@@ -110,7 +110,7 @@ public class DynamicTrailRenderer {
             Vec3d velocity = segment.velocity;
 
             int j;
-            for (j = i - 1; j >= 0 && velocity.distanceTo(this.trailSegments.get(j).velocity) < velocity.distanceTo(this.trailSegments.get(j + 1).velocity); j--) {
+            for (j = i - 1; j >= 0 && velocity.squareDistanceTo(this.trailSegments.get(j).velocity) < velocity.squareDistanceTo(this.trailSegments.get(j + 1).velocity); j--) {
                this.trailSegments.set(j + 1, this.trailSegments.get(j));
             }
 

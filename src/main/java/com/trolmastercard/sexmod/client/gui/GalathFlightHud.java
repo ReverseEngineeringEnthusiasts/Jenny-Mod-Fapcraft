@@ -37,8 +37,8 @@ public class GalathFlightHud extends Gui {
    static final Rectangle ICON_SHADOWS_BOUNDS = new Rectangle(23, 2, 20, 31);
    static final long FADE_DURATION = 500L;
    static final float ANIMATION_SPEED = 150.0F;
-   static final float[] x = new float[]{-14.25F, -15.5F, -16.875F};
-   static final float[] t = new float[]{37.5F, 43.0F, 45.0F};
+   static final float[] SPENT_PIP_X_OFFSETS = new float[]{-14.25F, -15.5F, -16.875F};
+   static final float[] REGEN_PIP_X_OFFSETS = new float[]{37.5F, 43.0F, 45.0F};
    static boolean isUIVisible = false;
    static Minecraft mc = Minecraft.getMinecraft();
    static int availableCharges = 3;
@@ -142,7 +142,7 @@ public class GalathFlightHud extends Gui {
       float pipScale = 1.0F + spentScale * 0.075F + regenScale * -0.15F;
       GlStateManager.pushMatrix();
       GlStateManager.scale(pipScale, pipScale, pipScale);
-      GlStateManager.translate(spentScale * x[pipIndex - 1] + regenScale * t[pipIndex - 1], spentScale * -11.25F + regenScale * 37.5F, 0.0F);
+      GlStateManager.translate(spentScale * SPENT_PIP_X_OFFSETS[pipIndex - 1] + regenScale * REGEN_PIP_X_OFFSETS[pipIndex - 1], spentScale * -11.25F + regenScale * 37.5F, 0.0F);
       GlStateManager.color(1.0F, 1.0F, 1.0F, alpha - spentScale - regenScale);
       this.drawChargeText(CHARGE_ACTIVE_BOUNDS, (int)(centerX + xOffset), screenHeight - 70);
       GlStateManager.resetColor();

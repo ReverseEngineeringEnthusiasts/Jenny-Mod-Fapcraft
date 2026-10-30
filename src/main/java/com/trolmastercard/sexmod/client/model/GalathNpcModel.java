@@ -34,7 +34,7 @@ import software.bernie.shadowed.eliotlash.molang.MolangParser;
  * (from {@code CommandFuta.ENABLED}), and the HUG_MANG body2 placement.
  * <p>
  * <b>Couplings.</b> Publishes {@code body} rotation/scale into the entity
- * ({@code bw}/{@code bm}) and the head rotation into {@code aE} — read by the
+ * ({@code bodyRotationY}/{@code bodyScaleY}) and the head rotation into {@code headRotationX} — read by the
  * renderer/geometry code; do not reorder the pose chain or drop these writes.
  * While hugging Manglelie, {@link ManglelieNpcModel#animateModel} takes over.
  */
@@ -104,7 +104,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
          GalathEntity galath = (GalathEntity)entity;
          IBone galathHeadBone = this.getAnimationProcessor().getBone("head");
          if (galathHeadBone != null) {
-            galath.aE = galathHeadBone.getRotationX();
+            galath.headRotationX = galathHeadBone.getRotationX();
          }
          if (galath.isHuggingManglelie()) {
             ManglelieNpcModel.animateModel(galath, this.getAnimationProcessor(), event.getPartialTick());
@@ -128,7 +128,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
                headBone.setRotationX(headBone.getRotationX() + swordOffset.x);
                headBone.setRotationY(headBone.getRotationY() + swordOffset.y);
                headBone.setRotationZ(headBone.getRotationZ() + swordOffset.z);
-               if (entity.getCurrentAction() == Action.PUSSY_LICKING && !((GalathEntity)entity).a5) {
+               if (entity.getCurrentAction() == Action.PUSSY_LICKING && !((GalathEntity)entity).pussyLickingForward) {
                   float wave = (float)(Math.sin(waveTime * 0.3F) * 10.0);
                   if (wave > 0.0F && this.lastPussyLickingWave < 0.0F || wave < 0.0F && this.lastPussyLickingWave > 0.0F) {
                      entity.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
@@ -155,7 +155,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
 
    /**
     * Publishes the body bone's rotation/scale to the entity fields
-    * ({@code bw} = rotationY, {@code bm} = scaleY) — consumed by the wing/
+    * ({@code bodyRotationY} = rotationY, {@code bodyScaleY} = scaleY) — consumed by the wing/
     * geometry renderers.
     */
    void updateModelState(BaseGirlEntity entity) {
@@ -163,8 +163,8 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
          GalathEntity galath = (GalathEntity)entity;
          AnimationProcessor processor = this.getAnimationProcessor();
          IBone bodyBone = processor.getBone("body");
-         galath.bw = bodyBone.getRotationY();
-         galath.bm = bodyBone.getScaleY();
+         galath.bodyRotationY = bodyBone.getRotationY();
+         galath.bodyScaleY = bodyBone.getScaleY();
       }
    }
 
@@ -293,7 +293,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
     */
    void handleWingState(BaseGirlEntity entity) {
       if (entity instanceof GalathEntity) {
-         if ((Boolean)entity.getDataManager().get(GalathEntity.bP)) {
+         if ((Boolean)entity.getDataManager().get(GalathEntity.PARALYZED)) {
             if (entity.getCurrentAction() == Action.KNOCK_OUT_FLY) {
                IBone bodyBone = this.getAnimationProcessor().getBone("body");
                Vec3d lastPos = new Vec3d(entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ);
@@ -316,7 +316,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
 
    /**
     * Rape-charge pose: the rotation tool/body follow the interpolated charge
-    * vector, with the body yaw from the charge progress value ({@code bO}).
+    * vector, with the body yaw from the charge progress value ({@code RAPE_PROGRESS}).
     */
    void updateHurtPose(BaseGirlEntity entity) {
       if (entity instanceof GalathEntity) {
@@ -327,7 +327,7 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
             rotationToolBone.setRotationX((float)interpolated.x);
             bodyBone.setPositionY((float)interpolated.y);
             bodyBone.setPositionZ((float)interpolated.z);
-            float chargeProgress = (Float)entity.getDataManager().get(GalathEntity.bO);
+            float chargeProgress = (Float)entity.getDataManager().get(GalathEntity.RAPE_PROGRESS);
             bodyBone.setRotationY(TrigMath.wrapDegrees(chargeProgress * 180.0F));
          }
       }

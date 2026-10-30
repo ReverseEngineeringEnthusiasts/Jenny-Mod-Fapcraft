@@ -170,11 +170,11 @@ final class GalathSceneTicks {
    }
 
    static void updateHealthBar(GalathEntity galath) {
-      galath.aO.setPercent(galath.getHealth() / galath.getMaxHealth());
+      galath.bossBar.setPercent(galath.getHealth() / galath.getMaxHealth());
    }
 
    static void updateGravity(GalathEntity galath) {
-      if (!(Boolean)galath.getDataManager().get(GalathEntity.bP)) {
+      if (!(Boolean)galath.getDataManager().get(GalathEntity.PARALYZED)) {
          galath.setNoGravity(galath.getTargetEntity() != null);
       }
    }
@@ -237,20 +237,20 @@ final class GalathSceneTicks {
    @SideOnly(Side.CLIENT)
    static void tickCorruptIntroCamera(GalathEntity galath) {
       Action action = galath.getCurrentAction();
-      if (galath.ab != Action.CORRUPT_INTRO && action == Action.CORRUPT_INTRO) {
+      if (galath.previousAction != Action.CORRUPT_INTRO && action == Action.CORRUPT_INTRO) {
          EntityPlayerSP player = Minecraft.getMinecraft().player;
          if (!player.getPersistentID().equals(galath.getInteractionPlayerUUID())) {
-            galath.ab = action;
+            galath.previousAction = action;
          } else {
             float yaw = galath.hasMaster() ? 0.0F : galath.getYawRotation() + 180.0F;
             player.rotationYaw = yaw;
             player.prevRotationYaw = yaw;
             player.rotationPitch = 80.0F;
             player.prevRotationPitch = 80.0F;
-            galath.ab = action;
+            galath.previousAction = action;
          }
       } else {
-         galath.ab = action;
+         galath.previousAction = action;
       }
    }
 

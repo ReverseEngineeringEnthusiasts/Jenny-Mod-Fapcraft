@@ -15,50 +15,50 @@ import java.util.Map.Entry;
  * multi-mapping must not use this class.
  */
 public class BiDirectionalMap<K, V> {
-   private final HashMap<K, V> b = new HashMap<>();
-   private final HashMap<V, K> a = new HashMap<>();
+   private final HashMap<K, V> byKey = new HashMap<>();
+   private final HashMap<V, K> byValue = new HashMap<>();
 
    public void put(K key, V value) {
-      Object oldValue = this.b.put((K)key, (V)value);
-      this.a.remove(oldValue);
-      this.a.put((V)value, (K)key);
+      Object oldValue = this.byKey.put((K)key, (V)value);
+      this.byValue.remove(oldValue);
+      this.byValue.put((V)value, (K)key);
    }
 
    public V getByKey(K key) {
-      return this.b.get(key);
+      return this.byKey.get(key);
    }
 
    public K getByValue(V value) {
-      return this.a.get(value);
+      return this.byValue.get(value);
    }
 
    public int size() {
-      return this.b.size();
+      return this.byKey.size();
    }
 
    public void removeByKey(K key) {
-      Object removedValue = this.b.get(key);
+      Object removedValue = this.byKey.get(key);
       if (removedValue != null) {
-         this.b.remove(key);
-         this.a.remove(removedValue);
+         this.byKey.remove(key);
+         this.byValue.remove(removedValue);
       }
    }
 
    public Set<Entry<K, V>> entrySet() {
-      return this.b.entrySet();
+      return this.byKey.entrySet();
    }
 
    public Set<K> keySet() {
-      return this.b.keySet();
+      return this.byKey.keySet();
    }
 
    public Set<V> valueSet() {
-      return this.a.keySet();
+      return this.byValue.keySet();
    }
 
    public void clear() {
-      this.a.clear();
-      this.b.clear();
+      this.byValue.clear();
+      this.byKey.clear();
    }
 
 }

@@ -26,7 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * <p>
  * <b>Handler.</b> SERVER-side, scheduled on the main thread. For every kobold of
  * the tribe that has no master yet it writes {@code MASTER} (player UUID) and the
- * tribe name ({@code aU}) into the data manager; then it announces the tribe
+ * tribe name ({@code TRIBE_NAME}) into the data manager; then it announces the tribe
  * formation in chat to all players and enables follow mode +
  * {@link KoboldManager#assignMaster}. {@code CURRENT_ACTION} of the leader
  * (parsed as {@link EyeAndKoboldColor}) determines the chat color.
@@ -77,7 +77,7 @@ public class ClaimTribePacket implements IMessage {
                         if (!kobold.hasMaster()) {
                            EntityDataManager dataManager = kobold.getDataManager();
                            dataManager.set(BaseGirlEntity.MASTER, packet.playerUUID.toString());
-                           dataManager.set(KoboldEntity.aU, packet.tribeName);
+                           dataManager.set(KoboldEntity.TRIBE_NAME, packet.tribeName);
                            color = EyeAndKoboldColor.valueOf((String)dataManager.get(KoboldEntity.CURRENT_ACTION));
                         }
                      }

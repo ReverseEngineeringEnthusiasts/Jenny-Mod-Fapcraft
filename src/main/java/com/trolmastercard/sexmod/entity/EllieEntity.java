@@ -48,7 +48,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * client-side scene chooser: it sets {@link Action#HUGSELECTED} and writes the
  * chosen scene into {@code GIRL_HAND_STATES} via
  * {@code changeDataParameterFromClient("animationFollowUp", ...)}; once the
- * hug dialogue finishes, the server-side {@link #U()} dispatches on that value
+ * hug dialogue finishes, the server-side {@link #startActionFromHandState()} dispatches on that value
  * ({@code "Missionary"} -&gt; {@link Action#MISSIONARY_START}, {@code "cowgirl"}
  * -&gt; {@link Action#COWGIRLSTART}) and positions the player.
  * <p>
@@ -64,7 +64,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * ({@code carryIntroTicks} = 0) on {@link Action#CARRY_INTRO}. The sit-state
  * timers are plain counters: {@code yFlag} (hugidle, 150), {@code sitDownTicks}
  * (sitdown, 109), {@code sitUpTicks} (sit-up, 79) and {@code zFlag} (dash, 16)
- * — reset them all in {@link #resetSitState()}. {@link #U()} must only run
+ * — reset them all in {@link #resetSitState()}. {@link #startActionFromHandState()} must only run
  * after the hug dialogue; {@code GIRL_HAND_STATES} carries the scene choice
  * from the client packet.
  */
@@ -79,8 +79,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    static final int an = 4;
    int carryIntroTicks = -1;
    boolean aq = false;
-   boolean ae = false;
-   boolean ac = false;
+   boolean hugDialogueDone = false;
+   boolean firstSitCleanupDone = false;
    int standTicks = -1;
    int yFlag = -1;
    int sitDownTicks = -1;
@@ -189,7 +189,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     * writes the follow-up choice into {@code GIRL_HAND_STATES} via the
     * {@code animationFollowUp} data-parameter packet; {@code Face fuck}
     * instead triggers the carry sync through {@link #triggerActionSync(boolean, boolean, UUID)}.
-    * {@link #U()} reads the stored choice server-side.
+    * {@link #startActionFromHandState()} reads the stored choice server-side.
     */
    @Override
    public void doAction(String action, UUID uuid) {
@@ -248,16 +248,16 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    /**
     * CLIENT: per-tick scene UI hooks — reopens the sex menu when the
-    * {@code ae} one-shot flag is set (hug dialogue done) and shows the horny
+    * {@code hugDialogueDone} one-shot flag is set (hug dialogue done) and shows the horny
     * meter during the carry loop.
     */
    @SideOnly(Side.CLIENT)
    @Override
    public void onUpdate() {
       super.onUpdate();
-      if (this.ae) {
+      if (this.hugDialogueDone) {
          this.canJoinPlayer(Minecraft.getMinecraft().player, true);
-         this.ae = false;
+         this.hugDialogueDone = false;
       }
 
       this.handleSitIdle();
@@ -323,8 +323,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    void setFirstSit() {
-      if (!this.ac) {
-         this.ac = true;
+      if (!this.firstSitCleanupDone) {
+         this.firstSitCleanupDone = true;
          this.noClip = false;
          this.setNoGravity(false);
       }
@@ -337,7 +337,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
     * stripping her and locking the interacting player into position.
     */
    @Override
-   protected void U() {
+   protected void startActionFromHandState() {
       String handState = (String)this.entityDataManager.get(GIRL_HAND_STATES);
       if ("Missionary".equals(handState)) {
          this.entityDataManager.set(OUTFIT_INDEX, 0);
@@ -390,7 +390,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    void handleStandTimer() {
       if (--this.standTicks == 0) {
-         this.U();
+         this.startActionFromHandState();
       }
    }
 
@@ -796,7 +796,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             case "stripDone":
                this.setCurrentAction((Action)null);
                this.resetCameraAndPhysics();
-               this.U();
+               this.startActionFromHandState();
                break;
             case "hugMSG2":
                this.sendGirlChatMessage("Hmm...");

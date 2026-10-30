@@ -51,9 +51,9 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * {@code doAction} sets {@code animationFollowUp} via
  * {@code ChangeDataParameterPacket} (GIRL_HAND_STATES) and sends
  * {@code KoboldStatePacket}; the server calls {@code setDismounted()}
- * ({@link #ab}), then {@link #updateAITasks()} lerps her to
- * {@code TARGET_POS} for ~40 ticks ({@code ac} counter), anchors her
- * ({@code IS_ANCHORED}) and calls {@link #U()} which dispatches on
+ * ({@code sceneEntryLerpActive}), then {@link #updateAITasks()} lerps her to
+ * {@code TARGET_POS} for ~40 ticks ({@code sceneEntryLerpTicks} counter), anchors her
+ * ({@code IS_ANCHORED}) and calls {@link #startActionFromHandState()} which dispatches on
  * GIRL_HAND_STATES.
  * <p>
  * <b>Payment gate:</b> without the horny potion effect
@@ -66,9 +66,9 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * state) then anchors and starts DOGGYSTART.
  * <p>
  * <b>Pitfall:</b> the dismount lerp at line ~157 MUST keep
- * {@code RotationHelper.lerpVec3d(pos, target, 40 - ac)} — the INT (step)
+ * {@code RotationHelper.lerpVec3d(pos, target, 40 - sceneEntryLerpTicks)} — the INT (step)
  * variant. The double variant flings the girl 40x and she vanishes (see
- * {@code RotationHelper} class doc). Also keep the {@link #af} snap-in logic
+ * {@code RotationHelper} class doc). Also keep the {@code snapInPending} snap-in logic
  * (binds the interaction player when the player is within half a block) —
  * it is what starts the standing doggy scene.
  */
@@ -77,10 +77,10 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    public boolean zFlag = false;
 
    /** Set by {@code setDismounted()}: true while the scene-entry lerp runs. */
-   public boolean ab = false;
+   public boolean sceneEntryLerpActive = false;
 
    /** Snap-in state: true while waiting for the player to walk within 0.5 blocks (doggy). */
-   public boolean af = false;
+   public boolean snapInPending = false;
 
    /** SERVER-maintained flag: true while the player has the horny potion effect active. */
    public static final DataParameter<Boolean> yFlag = EntityDataManager.createKey(BaseGirlEntity.class, DataSerializers.BOOLEAN)
@@ -88,16 +88,16 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
       .createKey(118);
 
    /** Dismount-lerp tick counter (0..40). */
-   int ac = 0;
+   int sceneEntryLerpTicks = 0;
 
    /** Bed-walk tick counter (re-path at 60/120). */
-   int ad = 0;
+   int bedWalkTicks = 0;
 
-   boolean aa = false;
+   boolean doggyHard = false;
 
-   int ag = 0;
+   int fastMoanCount = 0;
 
-   boolean ae = false;
+   boolean paizuriCameraAligned = false;
 
    public JennyEntity(World world) {
       super(world);
@@ -152,8 +152,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    public void updateAITasks() {
       super.updateAITasks();
       EntityPlayer player = this.world.getClosestPlayerToEntity(this, 15.0);
-      if (this.af && player != null && player.getPositionVector().distanceTo(this.getPositionVector()) < 0.5) {
-         this.af = false;
+      if (this.snapInPending && player != null && player.getPositionVector().distanceTo(this.getPositionVector()) < 0.5) {
+         this.snapInPending = false;
          EntityPlayerMP playerMP = this.getServer().getPlayerList().getPlayerByUUID(player.getPersistentID());
          if (playerMP == null) {
             return;
@@ -170,16 +170,16 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
       }
 
       if (this.zFlag) {
-         if (!(this.getPositionVector().distanceTo(this.getTargetPosition()) < 0.6) && this.ad <= 200) {
-            this.ad++;
-            if (this.ad == 60 || this.ad == 120) {
+         if (!(this.getPositionVector().distanceTo(this.getTargetPosition()) < 0.6) && this.bedWalkTicks <= 200) {
+            this.bedWalkTicks++;
+            if (this.bedWalkTicks == 60 || this.bedWalkTicks == 120) {
                this.getNavigator().clearPath();
                this.getNavigator().tryMoveToXYZ(this.getTargetPosition().x, this.getTargetPosition().y, this.getTargetPosition().z, 0.35);
             }
          } else {
             this.zFlag = false;
             this.entityDataManager.set(BaseGirlEntity.IS_ANCHORED, true);
-            this.ad = 0;
+            this.bedWalkTicks = 0;
             this.noClip = true;
             this.setNoGravity(true);
             this.motionX = 0.0;
@@ -189,17 +189,17 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
          }
       }
 
-      if (this.ab) {
-         this.ac++;
-         if (!this.getPositionVector().equals(BaseGirlEntity.TARGET_POS) && this.ac <= 40) {
+      if (this.sceneEntryLerpActive) {
+         this.sceneEntryLerpTicks++;
+         if (!this.getPositionVector().equals(BaseGirlEntity.TARGET_POS) && this.sceneEntryLerpTicks <= 40) {
             this.rotationYaw = this.getYawRotation();
             this.setTargetPosition(this.getFrontOffsetVector());
             this.setNoGravity(false);
-            Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.ac);
+            Vec3d pos = RotationHelper.lerpVec3d(this.getPositionVector(), this.getTargetPosition(), 40 - this.sceneEntryLerpTicks);
             this.setPosition(pos.x, pos.y, pos.z);
          } else {
-            this.ab = false;
-            this.ac = 0;
+            this.sceneEntryLerpActive = false;
+            this.sceneEntryLerpTicks = 0;
             EntityPlayer lerpPlayer = this.world.getMinecraftServer().getPlayerList().getPlayerByUUID(this.getInteractionPlayerUUID());
             if (lerpPlayer != null) {
                this.setYawRotation(lerpPlayer.rotationYaw + 180.0F);
@@ -208,7 +208,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
             this.entityDataManager.set(BaseGirlEntity.IS_ANCHORED, true);
             this.getNavigator().clearPath();
             if ((Boolean)this.entityDataManager.get(yFlag)) {
-               this.U();
+               this.startActionFromHandState();
                return;
             }
 
@@ -322,7 +322,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
          this.getNavigator().clearPath();
          this.getNavigator().tryMoveToXYZ(bedOffset.x, bedOffset.y, bedOffset.z, 0.35);
          this.zFlag = true;
-         this.ad = 0;
+         this.bedWalkTicks = 0;
       }
    }
 
@@ -368,8 +368,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
          case DOGGYSLOW:
             return Action.DOGGYFAST;
          case PAIZURI_SLOW:
-            if (this.ae) {
-               this.ae = false;
+            if (this.paizuriCameraAligned) {
+               this.paizuriCameraAligned = false;
                this.positionPlayerRelative(0.0, 0.0, 0.2F, 0.0F, 70.0F);
             }
 
@@ -381,7 +381,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
 
    @Override
    public void setDismounted() {
-      this.ab = true;
+      this.sceneEntryLerpActive = true;
    }
 
    @Override
@@ -390,7 +390,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    }
 
    @Override
-   protected void U() {
+   protected void startActionFromHandState() {
       switch ((String)this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES)) {
          case "strip":
             this.resetGirlState();
@@ -505,7 +505,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                   this.createAnimation("animation.jenny.doggystart", false, event);
                   break;
                case DOGGYFAST:
-                  this.createAnimation("animation.jenny.doggyfast_" + (this.aa ? "hard" : "soft"), true, event);
+                  this.createAnimation("animation.jenny.doggyfast_" + (this.doggyHard ? "hard" : "soft"), true, event);
                   break;
                case DOGGYCUM:
                   this.createAnimation("animation.jenny.doggycum", false, event);
@@ -572,7 +572,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                   this.resetCameraAndPhysics();
                }
 
-               this.U();
+               this.startActionFromHandState();
                break;
             case "stripMSG1":
                this.sendGirlChatMessage(I18n.format("jenny.dialogue.hihi", new Object[0]));
@@ -615,7 +615,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                this.playSoundAtVolume(SoundHandler.MISC_PLOB[0], 0.25F);
                break;
             case "paymentDone":
-               this.U();
+               this.startActionFromHandState();
                break;
             case "bjiMSG1":
                this.sendGirlChatMessage(I18n.format("jenny.dialogue.blowjobtext1", new Object[0]));
@@ -699,7 +699,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
             case "doggyfastReady":
                if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
                   this.resetAnimationControllerOffset();
-                  this.aa = true;
+                  this.doggyHard = true;
                }
                break;
             case "bjtReady":
@@ -791,7 +791,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                }
                break;
             case "doggyslowMSG1":
-               this.aa = false;
+               this.doggyHard = false;
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.33F);
                int choice = Reference.RANDOM.nextInt(4);
                if (choice == 0) {
@@ -814,8 +814,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
                this.addToHornyMeterIfControlled(0.02);
 
-               this.ag++;
-               if (this.ag % 2 == 0) {
+               this.fastMoanCount++;
+               if (this.fastMoanCount % 2 == 0) {
                   int choice2 = Reference.RANDOM.nextInt(2);
                   if (choice2 == 0) {
                      this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MOAN));
@@ -827,7 +827,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                }
                break;
             case "doggyfastDone":
-               this.aa = false;
+               this.doggyHard = false;
                this.setCurrentAction(Action.DOGGYSLOW);
                break;
             case "doggycumMSG1":
@@ -855,8 +855,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                if (uuid.equals(this.world.getClosestPlayerToEntity(this.getSelf(), 2.0).getPersistentID())) {
                   this.cameraYaw = this.world.getPlayerEntityByUUID(uuid).rotationYaw;
                   this.setInteractionPlayerUUID(uuid);
-                  if (!this.ae) {
-                     this.ae = true;
+                  if (!this.paizuriCameraAligned) {
+                     this.paizuriCameraAligned = true;
                      this.positionPlayerRelative(-0.7, -0.6, 0.2, 60.0F, -3.0F);
                   }
                }
@@ -885,8 +885,8 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                break;
             case "paizuri_fastDone":
                this.setCurrentAction(Action.PAIZURI_SLOW);
-               if (this.isControlledByLocalPlayer() && !this.ae) {
-                  this.ae = true;
+               if (this.isControlledByLocalPlayer() && !this.paizuriCameraAligned) {
+                  this.paizuriCameraAligned = true;
                   this.positionPlayerRelative(-0.7, -0.6, 0.2, 60.0F, -3.0F);
                }
                break;
@@ -895,7 +895,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                this.playSound(state.getBlock().getSoundType(state, this.world, this.getPosition(), this).getStepSound());
                break;
             case "paizuri_cumStart":
-               if (this.isControlledByLocalPlayer() && !this.ae) {
+               if (this.isControlledByLocalPlayer() && !this.paizuriCameraAligned) {
                   this.positionPlayerRelative(-0.7, -0.6, 0.2, 60.0F, -3.0F);
                }
          }
