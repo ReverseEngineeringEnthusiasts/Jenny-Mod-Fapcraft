@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.util.KoboldManager;
 import com.trolmastercard.sexmod.util.KoboldTask;
 import io.netty.buffer.ByteBuf;
@@ -103,7 +104,7 @@ public class MinePacket implements IMessage {
                );
             return null;
          } else {
-            System.out.println("received an invalid Message @Mine :(");
+            Main.LOGGER.warn("received an invalid Message @Mine :(");
             return null;
          }
       }

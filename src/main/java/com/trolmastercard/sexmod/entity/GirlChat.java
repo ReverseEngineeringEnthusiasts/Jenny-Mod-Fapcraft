@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendChatMessagePacket;
 import com.trolmastercard.sexmod.util.WorldUtils;
@@ -69,7 +70,7 @@ final class GirlChat {
    static void sendChatMessageToPlayer(BaseGirlEntity girl, UUID uuid, String message) {
       EntityPlayer player = girl.world.getPlayerEntityByUUID(uuid);
       if (player == null) {
-         System.out.println("Player with UUID " + uuid.toString() + " not found");
+         Main.LOGGER.warn("Player with UUID " + uuid.toString() + " not found");
       } else {
          if (girl.world.isRemote) {
             Minecraft.getMinecraft().player.sendMessage(new TextComponentString("<" + player.getName() + "> " + message));

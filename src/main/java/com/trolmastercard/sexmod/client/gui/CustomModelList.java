@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.client.gui;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.BoneType;
 import com.trolmastercard.sexmod.entity.SexSceneEntity;
@@ -230,16 +231,16 @@ public class CustomModelList extends GuiListExtended {
    void getSlotIndex(int mouseX, int mouseY, int mouseButton) {
       int listLeft = this.left + this.width / 2 - this.getListWidth() / 2 + 2;
       int contentLeft = listLeft;
-      System.out.println(String.format("[DEBUG hit] mouseX=%d mouseY=%d contentLeft=%d width=%d listWidth=%d", mouseX, mouseY, contentLeft, this.width, this.getListWidth()));
+      Main.LOGGER.info(String.format("[DEBUG hit] mouseX=%d mouseY=%d contentLeft=%d width=%d listWidth=%d", mouseX, mouseY, contentLeft, this.width, this.getListWidth()));
       int scrolled = this.getAmountScrolled();
       float relativeY = scrolled + mouseY - 5 - this.top;
       int rowIndex = Math.round((float)Math.floor(relativeY / this.slotHeight));
       int rowY = (int)Math.round((relativeY / this.slotHeight - Math.floor(relativeY / this.slotHeight)) * this.slotHeight);
-      System.out.println(String.format("[DEBUG hit] row=%d rowY=%d relY=%.1f scrolled=%d top=%d", rowIndex, rowY, relativeY, scrolled, this.top));
+      Main.LOGGER.info(String.format("[DEBUG hit] row=%d rowY=%d relY=%.1f scrolled=%d top=%d", rowIndex, rowY, relativeY, scrolled, this.top));
       if (rowIndex >= 0) {
          if (rowIndex < this.entries.size()) {
             int relX = mouseX - contentLeft;
-            System.out.println(String.format("[DEBUG hit] -> entry %s relX=%d", this.entries.get(rowIndex).boneType, relX));
+            Main.LOGGER.info(String.format("[DEBUG hit] -> entry %s relX=%d", this.entries.get(rowIndex).boneType, relX));
             this.entries.get(rowIndex).drawBackground(relX, rowY, mouseButton, rowIndex);
          }
       }

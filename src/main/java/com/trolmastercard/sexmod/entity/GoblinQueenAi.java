@@ -95,9 +95,9 @@ final class GoblinQueenAi {
 
                      List positions = ensureGuardsSpawned(queen);
                      float yaw = queen.throneYaw + 180.0F;
-                     Vec3d leftPos = queen.thronePos.add(GoblinThrow.rotateVectorYaw(GoblinEntity.aT, yaw));
-                     Vec3d rightPos = queen.thronePos.add(GoblinThrow.rotateVectorYaw(GoblinEntity.ap, yaw));
-                     Vec3d playerPos = queen.thronePos.add(GoblinThrow.rotateVectorYaw(GoblinEntity.as, yaw));
+                     Vec3d leftPos = queen.thronePos.add(GoblinThrow.rotateVectorYaw(GoblinEntity.GUARD_LEFT_OFFSET, yaw));
+                     Vec3d rightPos = queen.thronePos.add(GoblinThrow.rotateVectorYaw(GoblinEntity.GUARD_RIGHT_OFFSET, yaw));
+                     Vec3d playerPos = queen.thronePos.add(GoblinThrow.rotateVectorYaw(GoblinEntity.BREEDING_PLAYER_OFFSET, yaw));
                      GoblinEntity leftGoblin = (GoblinEntity)positions.get(0);
                      GoblinEntity rightGoblin = (GoblinEntity)positions.get(1);
                      leftGoblin.setTargetPosition(leftPos);
@@ -161,16 +161,16 @@ final class GoblinQueenAi {
                Vec3d throwPos;
                switch ((int)queen.throneYaw) {
                   case -90:
-                     throwPos = queen.thronePos.add(GoblinEntity.at);
+                     throwPos = queen.thronePos.add(GoblinEntity.THROW_OFFSET_YAW_NEG_90);
                      break;
                   case 90:
-                     throwPos = queen.thronePos.add(GoblinEntity.au);
+                     throwPos = queen.thronePos.add(GoblinEntity.THROW_OFFSET_YAW_90);
                      break;
                   case 180:
-                     throwPos = queen.thronePos.add(GoblinEntity.THROW_OFFSET_W);
+                     throwPos = queen.thronePos.add(GoblinEntity.THROW_OFFSET_YAW_180);
                      break;
                   default:
-                     throwPos = queen.thronePos.add(GoblinEntity.af);
+                     throwPos = queen.thronePos.add(GoblinEntity.THROW_OFFSET_YAW_0);
                }
 
                UUID uuid = queen.getInteractionPlayerUUID();
@@ -231,21 +231,21 @@ final class GoblinQueenAi {
             Vec3d basePos = null;
             switch ((int)queen.throneYaw) {
                case -90:
-                  basePos = GoblinEntity.ao;
+                  basePos = GoblinEntity.THRONE_OFFSET_YAW_NEG_90;
                   break;
                case 0:
-                  basePos = GoblinEntity.aM;
+                  basePos = GoblinEntity.THRONE_OFFSET_YAW_0;
                   break;
                case 90:
-                  basePos = GoblinEntity.THROW_OFFSET_U;
+                  basePos = GoblinEntity.THRONE_OFFSET_YAW_90;
                   break;
                case 180:
-                  basePos = GoblinEntity.aB;
+                  basePos = GoblinEntity.THRONE_OFFSET_YAW_180;
             }
 
             if (basePos != null) {
                Vec3d offset = queen.thronePos.subtract(0.5, 0.0, 0.5).subtract(basePos);
-               AxisAlignedBB aabb = createThrowHitbox(offset, offset.add(GoblinEntity.ah.getX(), GoblinEntity.ah.getY(), GoblinEntity.ah.getZ()));
+               AxisAlignedBB aabb = createThrowHitbox(offset, offset.add(GoblinEntity.THRONE_SIZE.getX(), GoblinEntity.THRONE_SIZE.getY(), GoblinEntity.THRONE_SIZE.getZ()));
                List players = queen.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
                if (!players.isEmpty()) {
                   EntityPlayer player = (EntityPlayer)players.get(0);

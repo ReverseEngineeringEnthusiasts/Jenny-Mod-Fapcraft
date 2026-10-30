@@ -103,6 +103,7 @@ public class SexSceneKeyHandler {
                }
             }
          } catch (ConcurrentModificationException cme) {
+            // ignored: entity list mutated during iteration; retried on the next tick
          }
 
          AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(playerUuid);

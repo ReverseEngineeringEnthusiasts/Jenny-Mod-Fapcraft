@@ -260,6 +260,7 @@ public class AlliesLampItem extends Item implements IAnimatable {
                         }
                      }
                   } catch (ConcurrentModificationException cme) {
+                     // ignored: entity list mutated during iteration; retried on the next tick
                   }
                }
 

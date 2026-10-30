@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.renderer.KoboldRenderer;
 import com.trolmastercard.sexmod.util.Point2D;
 import java.util.ArrayList;
@@ -119,7 +120,7 @@ final class KoboldModelCode {
          entity.getDataManager().set(KoboldEntity.APPEARANCE_DNA, builder.toString());
          String newDna = (String)entity.getDataManager().get(KoboldEntity.APPEARANCE_DNA);
          if (!newDna.equals(prevDna)) {
-            System.out.println("[sexmod-pack] KoboldEntity.updateModelCodeDNA '" + prevDna + "' -> '" + newDna + "'");
+            Main.LOGGER.info("[sexmod-pack] KoboldEntity.updateModelCodeDNA '" + prevDna + "' -> '" + newDna + "'");
          }
          KoboldRenderer.clearBoneColors();
       }

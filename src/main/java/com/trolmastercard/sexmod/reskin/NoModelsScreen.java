@@ -66,7 +66,9 @@ public class NoModelsScreen extends GuiScreen {
       clicked = true;
       try {
          this.mc.getSoundHandler().playSound(net.minecraft.client.audio.PositionedSoundRecord.getMasterRecord(net.minecraft.init.SoundEvents.UI_BUTTON_CLICK, 1.0F));
-      } catch (Throwable ignored) { }
+      } catch (Throwable ignored) {
+         // ignored: a missing click sound must not break the screen
+      }
       switch (label) {
          case "Download": {
             startDownload();

@@ -29,7 +29,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * opens the throw/pickup pad for a goblin riding the local player's shoulder.
  */
 public class GoblinEventHandler {
-   static Minecraft mcUnused = null;
+   static Minecraft mc = null;
 
    @SideOnly(Side.CLIENT)
    @SubscribeEvent
@@ -51,6 +51,7 @@ public class GoblinEventHandler {
                }
             }
          } catch (ConcurrentModificationException ex) {
+            // ignored: entity list mutated during iteration; retried on the next tick
          }
 
          for (GoblinEntity goblin : (java.util.Collection<GoblinEntity>) (goblins) ) {
@@ -95,6 +96,7 @@ public class GoblinEventHandler {
             }
          }
       } catch (ConcurrentModificationException ex) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
 
       if (existing != null) {
@@ -119,11 +121,11 @@ public class GoblinEventHandler {
    @SubscribeEvent
    @SideOnly(Side.CLIENT)
    public void onKeyInput(KeyInputEvent event) {
-      if (mcUnused == null) {
-         mcUnused = Minecraft.getMinecraft();
+      if (mc == null) {
+         mc = Minecraft.getMinecraft();
       }
 
-      if (!(mcUnused.currentScreen instanceof GalathScreen)) {
+      if (!(mc.currentScreen instanceof GalathScreen)) {
          if (ClientProxy.keyBindings[0].isPressed()) {
             BaseGirlEntity interactingGirl = null;
             UUID uuid = Minecraft.getMinecraft().player.getPersistentID();
@@ -139,6 +141,7 @@ public class GoblinEventHandler {
                   }
                }
             } catch (ConcurrentModificationException ex) {
+               // ignored: entity list mutated during iteration; retried on the next tick
             }
 
             if (interactingGirl != null) {

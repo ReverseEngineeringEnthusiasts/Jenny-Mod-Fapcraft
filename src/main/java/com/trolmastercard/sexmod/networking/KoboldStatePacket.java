@@ -118,6 +118,7 @@ public class KoboldStatePacket implements IMessage {
                }
             }
          } catch (ConcurrentModificationException exception) {
+            // ignored: entity list mutated during iteration; retried on the next tick
          }
       }
 

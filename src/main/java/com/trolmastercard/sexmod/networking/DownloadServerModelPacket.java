@@ -132,7 +132,7 @@ public class DownloadServerModelPacket implements IMessage {
 
       public IMessage onMessage(DownloadServerModelPacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("received an invalid Message @DownloadServerModel :(");
+            Main.LOGGER.warn("received an invalid Message @DownloadServerModel :(");
             return null;
          }
 
@@ -148,7 +148,7 @@ public class DownloadServerModelPacket implements IMessage {
                   for (DownloadServerModelPacket.DownloadServerModelPacketType fileType : DownloadServerModelPacket.DownloadServerModelPacketType.values()) {
                      File modelFile = new File(serverDir + "/" + typeEnding + fileType.ending);
                      if (!modelFile.exists()) {
-                        System.out.println(modelFile.getAbsolutePath() + " doesnt exist lol");
+                        Main.LOGGER.warn(modelFile.getAbsolutePath() + " doesnt exist lol");
                      } else {
                         byte[] fileBytes;
                         try {
@@ -224,7 +224,7 @@ public class DownloadServerModelPacket implements IMessage {
                outputStream.close();
             }
          } catch (Throwable ioEx) {
-            ioEx.printStackTrace();
+            Main.LOGGER.error("could not close the model file stream", ioEx);
          }
 
          int downloadedCount = 0;

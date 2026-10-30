@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.LunaEntity;
 import io.netty.buffer.ByteBuf;
@@ -54,7 +55,7 @@ public class CatEatingDonePacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @CatEatingDone :(");
+            Main.LOGGER.warn("received an invalid message @CatEatingDone :(");
             return null;
          }
       }

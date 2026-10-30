@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.util.GirlSavedData;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -43,7 +44,7 @@ public class InformOfOwnershipPacket implements IMessage {
             GirlSavedData.debugEnabled = packet.isOwned;
             return null;
          } else {
-            System.out.println("received an invalid message @InformOfOwnership :(");
+            Main.LOGGER.warn("received an invalid message @InformOfOwnership :(");
             return null;
          }
       }

@@ -1235,6 +1235,7 @@ KoboldManager.setTribeLeader(tribeId, this);
                }
             }
          } catch (ConcurrentModificationException ex) {
+            // ignored: entity list mutated during iteration; retried on the next tick
          }
       }
 

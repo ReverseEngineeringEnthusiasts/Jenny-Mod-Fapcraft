@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import io.netty.buffer.ByteBuf;
@@ -67,6 +68,7 @@ public class StartStandingSexAnimationPacket implements IMessage {
                            }
                         }
                      } catch (Exception exception) {
+                        // ignored: entity list mutated during iteration; retried on the next tick
                      }
                   }
 
@@ -75,7 +77,7 @@ public class StartStandingSexAnimationPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @StartStandingSexAnimation :(");
+            Main.LOGGER.warn("received an invalid message @StartStandingSexAnimation :(");
             return null;
          }
       }

@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import com.trolmastercard.sexmod.item.GalathCoinItem;
@@ -62,14 +63,14 @@ public class SpawnEnergyBallParticlesPacket implements IMessage {
          if (packet.isValid && ctx.side.equals(Side.CLIENT)) {
             BaseGirlEntity girl = BaseGirlEntity.getClientGirlEntity(packet.girlUUID);
             if (!(girl instanceof GalathEntity)) {
-               System.out.println("doesnt exit");
+               Main.LOGGER.info("doesnt exit");
                return null;
             } else {
                GalathCoinItem.summonGalathFor(packet.playerUUID, (GalathEntity)girl);
                return null;
             }
          } else {
-            System.out.println("received an invalid message @SpawnEnergyBallParticles :(");
+            Main.LOGGER.warn("received an invalid message @SpawnEnergyBallParticles :(");
             return null;
          }
       }

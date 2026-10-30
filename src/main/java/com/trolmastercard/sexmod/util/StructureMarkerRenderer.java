@@ -80,6 +80,7 @@ public class StructureMarkerRenderer {
                drawMarkerFace(buffer, pos, color.getX(), color.getY(), color.getZ());
             }
          } catch (ConcurrentModificationException exception) {
+            // ignored: marker list mutated during the frame; markers are redrawn next frame
          }
 
          tessellator.draw();

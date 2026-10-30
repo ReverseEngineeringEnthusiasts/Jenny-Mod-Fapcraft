@@ -176,7 +176,7 @@ public class ServerWhitelistManager {
             writer.close();
          }
       } catch (IOException ioException) {
-         ioException.printStackTrace();
+         Main.LOGGER.error("could not close the whitelisted servers file", ioException);
       }
    }
 
@@ -190,7 +190,7 @@ public class ServerWhitelistManager {
       try {
          file.createNewFile();
       } catch (Exception exception) {
-         exception.printStackTrace();
+         Main.LOGGER.error("could not create the whitelisted servers file", exception);
       }
 
       HashSet servers = new HashSet();
@@ -208,7 +208,7 @@ public class ServerWhitelistManager {
 
          return servers;
       } catch (IOException ioException) {
-         ioException.printStackTrace();
+         Main.LOGGER.error("could not read the whitelisted servers file", ioException);
          return new HashSet<>();
       }
    }
@@ -354,7 +354,9 @@ public class ServerWhitelistManager {
             // map zip file for later direct read (store in temp map)
             zipFileMap.put(safe, z);
          }
-      } catch (Exception ignored) {}
+      } catch (Exception ignored) {
+         // ignored: a broken zip entry just hides that model
+      }
       // merge zip virtual names with directory names
       if (!zipModels.isEmpty()) {
          java.util.Set<String> merged = new java.util.HashSet<>(java.util.Arrays.asList(modelNames == null ? new String[0] : modelNames));
@@ -525,7 +527,9 @@ public class ServerWhitelistManager {
                         wear = "CUSTOM_BONE";
                         extra = "custom_bone=body\n";
                      }
-                  } catch (Exception ignored2) {}
+                  } catch (Exception ignored2) {
+                     // ignored: unparsable geo json keeps the default HEAD wear
+                  }
                }
                float scale = (wear.equals("GIRL_SPECIFIC") || wear.equals("CUSTOM_BONE")) ? 0.35F : 1.0F;
                float yOff = (wear.equals("GIRL_SPECIFIC") || wear.equals("CUSTOM_BONE")) ? -5.0F : 0.0F;
@@ -659,7 +663,7 @@ public class ServerWhitelistManager {
       ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
       if (modelData == null) {
          if (!modelName.equals("cross")) {
-            System.out.printf("The custom model for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
+            Main.LOGGER.warn("The custom model for '{}', hasn't been registered, but gamers tried to use it anyways. Crash is imminent", modelName);
          }
 
          return null;
@@ -672,7 +676,7 @@ public class ServerWhitelistManager {
       ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
       if (modelData == null) {
          if (!modelName.equals("cross")) {
-            System.out.printf("The custom texture for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
+            Main.LOGGER.warn("The custom texture for '{}', hasn't been registered, but gamers tried to use it anyways. Crash is imminent", modelName);
          }
 
          return null;
@@ -689,7 +693,7 @@ public class ServerWhitelistManager {
       ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
       if (modelData == null) {
          if (!modelName.equals("cross")) {
-            System.out.printf("The ClothingType for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
+            Main.LOGGER.warn("The ClothingType for '{}', hasn't been registered, but gamers tried to use it anyways. Crash is imminent", modelName);
          }
 
          return BoneType.HEAD;
@@ -702,7 +706,7 @@ public class ServerWhitelistManager {
       ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
       if (modelData == null) {
          if (!modelName.equals("cross")) {
-            System.out.printf("The HashSet<GirlType> for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
+            Main.LOGGER.warn("The HashSet<GirlType> for '{}', hasn't been registered, but gamers tried to use it anyways. Crash is imminent", modelName);
          }
 
          return null;
@@ -715,7 +719,7 @@ public class ServerWhitelistManager {
       ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
       if (modelData == null) {
          if (!modelName.equals("cross")) {
-            System.out.printf("The HashSet<String> for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
+            Main.LOGGER.warn("The HashSet<String> for '{}', hasn't been registered, but gamers tried to use it anyways. Crash is imminent", modelName);
          }
 
          return new HashSet<>();
@@ -728,7 +732,7 @@ public class ServerWhitelistManager {
       ServerWhitelistManager.ModelData modelData = modelDataMap.get(modelName);
       if (modelData == null) {
          if (!modelName.equals("cross")) {
-            System.out.printf("The author for '%s', hasn't been registered, but gamers tried to use it anyways. Crash is imminent%n", modelName);
+            Main.LOGGER.warn("The author for '{}', hasn't been registered, but gamers tried to use it anyways. Crash is imminent", modelName);
          }
 
          return "";

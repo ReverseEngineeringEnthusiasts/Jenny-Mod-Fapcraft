@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.util.Reference;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.item.EntityItem;
@@ -81,7 +82,7 @@ public class MakeRichWishPacket implements IMessage {
                );
             return null;
          } else {
-            System.out.println("received an invalid message @MakeRichWish :(");
+            Main.LOGGER.warn("received an invalid message @MakeRichWish :(");
             return null;
          }
       }

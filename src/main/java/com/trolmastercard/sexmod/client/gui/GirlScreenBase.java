@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.client.gui;
 
+import com.trolmastercard.sexmod.Main;
+import com.trolmastercard.sexmod.client.GirlCameraHelper;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.NpcType;
 import com.trolmastercard.sexmod.networking.PacketHandler;
@@ -55,7 +57,7 @@ public class GirlScreenBase extends GuiScreen {
                   entity.setCustomPartList(BaseGirlEntity.decodePartIdList(parts));
                }
             } catch (Exception e) {
-               e.printStackTrace();
+               Main.LOGGER.error("could not decode the girl's custom parts", e);
             }
          }
       }
@@ -146,7 +148,12 @@ public class GirlScreenBase extends GuiScreen {
       RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
       renderManager.setPlayerViewY(180.0F);
       renderManager.setRenderShadow(false);
-      renderManager.renderEntity(entity, 0.0, 0.0, 0.0, 0.0F, 1.2345679F, false);
+      GirlCameraHelper.beginPreview();
+      try {
+         renderManager.renderEntity(entity, 0.0, 0.0, 0.0, 0.0F, GirlCameraHelper.PREVIEW_PARTIAL_TICK, false);
+      } finally {
+         GirlCameraHelper.endPreview();
+      }
       renderManager.setRenderShadow(true);
       GlStateManager.popMatrix();
       RenderHelper.disableStandardItemLighting();

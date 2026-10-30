@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.util.KoboldManager;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.StructureMarkerRenderer;
@@ -80,7 +81,7 @@ public class SendBlocksPacket implements IMessage {
    public static class Handler implements IMessageHandler<SendBlocksPacket, IMessage> {
       public IMessage onMessage(SendBlocksPacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("received an invalid Message @SendBlocks :(");
+            Main.LOGGER.warn("received an invalid Message @SendBlocks :(");
             return null;
          }
 

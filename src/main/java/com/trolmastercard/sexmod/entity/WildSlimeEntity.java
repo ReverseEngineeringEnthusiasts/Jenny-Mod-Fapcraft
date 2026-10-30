@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.util.Reference;
 import java.util.ArrayList;
 import java.util.List;
@@ -150,7 +151,7 @@ public class WildSlimeEntity extends EntityLiving {
             }
          }
       } catch (Exception ex) {
-         System.out.println("couldnt find slimes at distance " + radius);
+         Main.LOGGER.info("couldnt find slimes at distance " + radius);
       }
 
       return found;

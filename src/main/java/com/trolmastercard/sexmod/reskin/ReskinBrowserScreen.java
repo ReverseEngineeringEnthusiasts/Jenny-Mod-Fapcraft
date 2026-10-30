@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.reskin;
 
+import com.trolmastercard.sexmod.Main;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public class ReskinBrowserScreen extends GuiScreen {
                }
             }
          } catch (Throwable t) {
-            t.printStackTrace();
+            Main.LOGGER.error("could not build the reskin thumbnails", t);
          } finally {
             scanDone = true;
          }
@@ -345,7 +346,9 @@ public class ReskinBrowserScreen extends GuiScreen {
    private void onButton(String label) {
       try {
          this.mc.getSoundHandler().playSound(net.minecraft.client.audio.PositionedSoundRecord.getMasterRecord(net.minecraft.init.SoundEvents.UI_BUTTON_CLICK, 1.0F));
-      } catch (Throwable ignored) { }
+      } catch (Throwable ignored) {
+         // ignored: a missing click sound must not break the screen
+      }
       switch (label) {
          case "Apply": {
             // apply the selected (highlighted) available pack; if none selected, the first visible
@@ -407,7 +410,9 @@ public class ReskinBrowserScreen extends GuiScreen {
                   }
                }
             }
-         } catch (Throwable t) { }
+         } catch (Throwable t) {
+            // ignored: preview entity lookup is best effort; the placeholder is used below
+         }
          if (girl == null) {
             girl = (com.trolmastercard.sexmod.entity.BaseGirlEntity) npcType.npcClass.getConstructor(net.minecraft.world.World.class).newInstance(this.mc.world);
             girl.setLocallyRegistered(true);
@@ -442,7 +447,9 @@ public class ReskinBrowserScreen extends GuiScreen {
                   }
                }
             }
-         } catch (Throwable t) { }
+         } catch (Throwable t) {
+            // ignored: preview entity lookup is best effort; the placeholder is used below
+         }
          if (girl == null) {
             girl = (com.trolmastercard.sexmod.entity.BaseGirlEntity) npcType.npcClass.getConstructor(net.minecraft.world.World.class).newInstance(this.mc.world);
             girl.setLocallyRegistered(true);
@@ -570,7 +577,9 @@ public class ReskinBrowserScreen extends GuiScreen {
             GlStateManager.enableTexture2D();
             this.mc.renderEngine.bindTexture(tex);
             drawModalRectWithCustomSizedTexture(colX + 2, y + 2, 0, 0, ICON, ICON, ICON, ICON);
-         } catch (Throwable t) {}
+         } catch (Throwable t) {
+            // ignored: the thumbnail texture is not uploaded yet; it is drawn on a later frame
+         }
       } else {
          drawRect(colX + 2, y + 2, colX + 2 + ICON, y + 2 + ICON, 0xFF333333);
       }
@@ -621,10 +630,10 @@ public class ReskinBrowserScreen extends GuiScreen {
 
    public static void debugHeadless(String groupDir) {
       List<ReskinEntry> found = new ReskinScanner().scan(new java.io.File(groupDir));
-      System.out.println("=== reskin scan of " + groupDir + " ===");
-      System.out.println("archives found: " + found.size());
+      Main.LOGGER.info("=== reskin scan of " + groupDir + " ===");
+      Main.LOGGER.info("archives found: " + found.size());
       int zip = 0, rar = 0;
       for (ReskinEntry e : found) { if (e.kind == ReskinEntry.Kind.ZIP) zip++; else rar++; }
-      System.out.println("zips=" + zip + " rars=" + rar);
+      Main.LOGGER.info("zips=" + zip + " rars=" + rar);
    }
 }

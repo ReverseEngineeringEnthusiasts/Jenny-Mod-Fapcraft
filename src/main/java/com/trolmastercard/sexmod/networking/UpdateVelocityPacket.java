@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import io.netty.buffer.ByteBuf;
@@ -56,7 +57,7 @@ public class UpdateVelocityPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @UpdateVelocity :(");
+            Main.LOGGER.warn("received an invalid message @UpdateVelocity :(");
             return null;
          }
       }

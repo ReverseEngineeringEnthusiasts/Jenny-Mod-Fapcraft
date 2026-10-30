@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.LunaEntity;
 import io.netty.buffer.ByteBuf;
@@ -52,7 +53,7 @@ public class CatThrowAwayItemPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @CatThrowAwayItem :(");
+            Main.LOGGER.warn("received an invalid message @CatThrowAwayItem :(");
             return null;
          }
       }

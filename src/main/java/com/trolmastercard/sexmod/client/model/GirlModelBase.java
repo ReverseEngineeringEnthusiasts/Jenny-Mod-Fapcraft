@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.client.model;
 
+import com.trolmastercard.sexmod.Main;
 import java.lang.reflect.Field;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -25,7 +26,7 @@ public abstract class GirlModelBase<T extends IAnimatable> extends AnimatedGeoMo
          animationProcessorField.setAccessible(true);
          animationProcessorField.set(this, new GirlAnimationProcessor(this));
       } catch (Exception e) {
-         e.printStackTrace();
+         Main.LOGGER.error("could not install the girl animation processor", e);
       }
    }
 

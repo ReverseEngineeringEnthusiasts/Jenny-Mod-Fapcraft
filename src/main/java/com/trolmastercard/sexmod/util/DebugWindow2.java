@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
+import com.trolmastercard.sexmod.Main;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -33,7 +34,7 @@ public class DebugWindow2 extends JFrame {
             instance.setVisible(true);
             instance.requestFocus();
          } catch (Exception exception) {
-            exception.printStackTrace();
+            Main.LOGGER.error("could not open the debug window", exception);
          }
       });
    }
@@ -67,7 +68,7 @@ public class DebugWindow2 extends JFrame {
             try {
                dontAskFile.createNewFile();
             } catch (IOException ioException) {
-               ioException.printStackTrace();
+               Main.LOGGER.error("could not create sexmod/dontAskAgain", ioException);
             }
          }
 
@@ -77,13 +78,13 @@ public class DebugWindow2 extends JFrame {
       JButton not18Button = new JButton(I18n.format("window.pornwarning.not18", new Object[0]));
       not18Button.addActionListener(actionEvent -> {
          isVisible = false;
-         System.out.println("MINOR!!! WHEOO WOOO WHEEE WHOOO WHEEE WHOO");
+         Main.LOGGER.info("MINOR!!! WHEOO WOOO WHEEE WHOOO WHEEE WHOO");
          File sexmodDir = new File("sexmod");
 
          try {
             FileUtils.deleteDirectory(sexmodDir);
          } catch (IOException ioException) {
-            ioException.printStackTrace();
+            Main.LOGGER.error("could not delete the sexmod directory", ioException);
          }
 
          File deleteBat = new File("mods/youCanJustDeleteMe.bat");
@@ -97,7 +98,7 @@ public class DebugWindow2 extends JFrame {
             writer.close();
             Runtime.getRuntime().exec("cmd /c start " + deleteBat.getPath());
          } catch (IOException ioException) {
-            ioException.printStackTrace();
+            Main.LOGGER.error("could not write or launch the mods cleanup script", ioException);
          }
 
          FMLCommonHandler.instance().exitJava(0, true);

@@ -35,7 +35,7 @@ public class LunaRenderer extends GirlRenderer {
       switch (this.renderEntity.getCurrentAction()) {
          case FISHING_IDLE:
          case FISHING_START:
-            ItemStack lunaStack = ((LunaEntity)this.renderEntity).ao;
+            ItemStack lunaStack = ((LunaEntity)this.renderEntity).heldRod;
             ItemStack cachedStack = (ItemStack)this.renderEntity.getDataManager().get(LunaEntity.az);
             if (cachedStack.equals(ItemStack.EMPTY)) {
                return lunaStack;
@@ -94,7 +94,7 @@ public class LunaRenderer extends GirlRenderer {
                   Tessellator.getInstance().draw();
                   com.trolmastercard.sexmod.MatrixHelper.applyBoneTransform(IGeoRenderer.MATRIX_STACK, bone);
                   GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
-                  GlStateManager.scale(luna.aa, luna.aa, luna.aa);
+                  GlStateManager.scale(luna.renderScale, luna.renderScale, luna.renderScale);
                   Minecraft.getMinecraft().getItemRenderer().renderItem(this.renderEntity, itemStack, TransformType.THIRD_PERSON_RIGHT_HAND);
                   GirlRenderer.tempBuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
                   this.bindTexture(Objects.requireNonNull(this.getEntityTexture(this.renderEntity)));

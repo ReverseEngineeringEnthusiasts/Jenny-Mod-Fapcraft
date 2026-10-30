@@ -36,7 +36,7 @@ public class CommonProxy {
       try { Main.setConfigs(); } catch (java.io.IOException e) { Main.LOGGER.error(e); }
       SoundHandler.registerSounds();
       NetworkRegistry.INSTANCE.registerGuiHandler(Main.instance, new GuiHandler());
-      ForgeEventHandler.registerB(false);
+      ForgeEventHandler.registerAll(false);
       PacketHandler.register();
    }
 

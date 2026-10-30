@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import io.netty.buffer.ByteBuf;
@@ -50,6 +51,7 @@ public class SetPlayerMovementPacket implements IMessage {
             try {
                Minecraft.getMinecraft().player.setVelocity(0.0, 0.0, 0.0);
             } catch (Exception exception) {
+               // ignored: the client player can be gone by the time the packet lands
             }
 
             if (packet.isSprinting) {
@@ -58,7 +60,7 @@ public class SetPlayerMovementPacket implements IMessage {
 
             return null;
          } else {
-            System.out.println("received an invalid message @SetPlayerMovement :(");
+            Main.LOGGER.warn("received an invalid message @SetPlayerMovement :(");
             return null;
          }
       }

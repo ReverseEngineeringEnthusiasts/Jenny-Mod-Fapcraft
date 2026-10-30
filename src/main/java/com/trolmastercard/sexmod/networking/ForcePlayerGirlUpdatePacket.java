@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
@@ -62,7 +63,7 @@ public class ForcePlayerGirlUpdatePacket implements IMessage {
             playerGirl.getDataManager().set(BaseGirlEntity.OUTFIT_INDEX, packet.modelVersion);
             return null;
          } else {
-            System.out.println("received an invalid message @ForcePlayerGirlUpdate :(");
+            Main.LOGGER.warn("received an invalid message @ForcePlayerGirlUpdate :(");
             return null;
          }
       }

@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
@@ -135,7 +136,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       super.entityInit();
       EyeColor color = EyeColor.values()[this.getRNG().nextInt(EyeColor.values().length)];
       this.entityDataManager.register(au, new BlockPos(color.getColor()));
-      this.entityDataManager.register(as, GoblinEntity.ax.name());
+      this.entityDataManager.register(as, GoblinEntity.DEFAULT_SKIN.name());
       this.entityDataManager.register(aA, false);
       this.entityDataManager.register(ax, "");
    }
@@ -496,7 +497,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       try {
          return UUID.fromString((String)this.entityDataManager.get(ax));
       } catch (Exception ex) {
-         ex.printStackTrace();
+         Main.LOGGER.error("could not parse the owner UUID", ex);
          return null;
       }
    }

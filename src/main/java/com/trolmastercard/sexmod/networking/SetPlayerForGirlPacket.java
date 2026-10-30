@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.JennyEntity;
 import io.netty.buffer.ByteBuf;
@@ -60,11 +61,11 @@ public class SetPlayerForGirlPacket implements IMessage {
                   try {
                      playerList.getPlayerByUUID(packet.playerUUID).getName();
                   } catch (NullPointerException exception) {
-                     System.out.println("couldn't find player with UUID: " + packet.playerUUID);
-                     System.out.println("could only find players with thsese UUID's:");
+                     Main.LOGGER.warn("couldn't find player with UUID: " + packet.playerUUID);
+                     Main.LOGGER.info("could only find players with thsese UUID's:");
 
                      for (EntityPlayerMP player : playerList.getPlayers()) {
-                        System.out.println(player.getName() + " " + player.getUniqueID());
+                        Main.LOGGER.info(player.getName() + " " + player.getUniqueID());
                      }
                      continue;
                   }
@@ -78,7 +79,7 @@ public class SetPlayerForGirlPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @SetPlayerForGirl :(");
+            Main.LOGGER.warn("received an invalid message @SetPlayerForGirl :(");
             return null;
          }
       }

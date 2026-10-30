@@ -2,6 +2,7 @@ package com.trolmastercard.sexmod.reskin;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -155,7 +156,7 @@ public class ReskinManager {
                entries = new ReskinScanner().scan(root);
             } catch (Throwable t) {
                entries = new ArrayList<>();
-               t.printStackTrace();
+               Main.LOGGER.error("could not scan the custom model directory", t);
             }
          }
          return entries;
@@ -346,7 +347,7 @@ public class ReskinManager {
       saveAppliedForWorld();
       String status = "Applied '" + e.displayName + "' (" + ok + "/" + ops.size() + " files)";
       if (!problems.isEmpty()) status += " — problems: " + String.join("; ", problems);
-      System.out.println("[reskin] " + status);
+      Main.LOGGER.info("[reskin] " + status);
       return status;
    }
 
@@ -466,7 +467,7 @@ public class ReskinManager {
             File src = new File(path);
             if (e == null || !src.isFile()) {
                missingPacks.put(path, e == null ? new File(path).getName() : e.displayName);
-               System.out.println("[reskin] missing pack, skipping: " + path);
+               Main.LOGGER.warn("[reskin] missing pack, skipping: " + path);
                missing++;
                continue;
             }
@@ -474,11 +475,11 @@ public class ReskinManager {
                apply(e);
                appliedOk++;
             } catch (Throwable t) {
-               System.out.println("[reskin] failed to re-apply " + e.displayName + ": " + t.getMessage());
+               Main.LOGGER.warn("[reskin] failed to re-apply " + e.displayName + ": " + t.getMessage());
             }
          }
          if (missing > 0) {
-            System.out.println("[reskin] world '" + worldKey + "': re-applied " + appliedOk + " pack(s), " + missing + " missing");
+            Main.LOGGER.warn("[reskin] world '" + worldKey + "': re-applied " + appliedOk + " pack(s), " + missing + " missing");
          }
          writeAudit();
       } catch (Throwable t) {
@@ -581,7 +582,7 @@ public class ReskinManager {
 
    /** Applies without writing chat/status (used for stack re-application). */
    private synchronized void applySilent(ReskinEntry e) {
-      try { apply(e); } catch (Throwable t) { t.printStackTrace(); }
+      try { apply(e); } catch (Throwable t) { Main.LOGGER.error("could not apply a reskin", t); }
    }
 
    /**
@@ -601,7 +602,7 @@ public class ReskinManager {
                retainedTextures.remove(rl.toString());
             }
          } catch (Throwable t) {
-            t.printStackTrace();
+            Main.LOGGER.error("could not unload a reskin resource", t);
          }
       }
       applied.remove(e);
@@ -628,12 +629,12 @@ public class ReskinManager {
       try {
          Minecraft.getMinecraft().refreshResources();
       } catch (Throwable t) {
-         t.printStackTrace();
+         Main.LOGGER.error("could not refresh the resource manager", t);
       }
       // re-apply the still-active reskins (refreshResources wiped them too)
       List<ReskinEntry> still = appliedCopy();
       for (ReskinEntry e : still) {
-         try { apply(e); } catch (Throwable t) { t.printStackTrace(); }
+         try { apply(e); } catch (Throwable t) { Main.LOGGER.error("could not re-apply a reskin after the resource reload", t); }
       }
       watcher.dirty = false;
    }
@@ -664,7 +665,7 @@ public class ReskinManager {
          watcher.dirty = false;
          List<ReskinEntry> still = appliedCopy();
          for (ReskinEntry e : still) {
-            try { apply(e); } catch (Throwable t) { t.printStackTrace(); }
+            try { apply(e); } catch (Throwable t) { Main.LOGGER.error("could not re-apply a reskin after the resource reload", t); }
          }
       }
    }
@@ -681,7 +682,7 @@ public class ReskinManager {
             watcherRegistered = true;
          }
       } catch (Throwable t) {
-         t.printStackTrace();
+         Main.LOGGER.error("could not register the resource reload listener", t);
       }
    }
 
@@ -697,7 +698,7 @@ public class ReskinManager {
    /** Debug helper: prints the planned override table for a pack. */
    public static void debugPlan(ReskinEntry e) {
       for (ReskinApplier.Op op : ReskinApplier.plan(e)) {
-         System.out.println("  [reskin] " + op);
+         Main.LOGGER.info("  [reskin] " + op);
       }
    }
 }

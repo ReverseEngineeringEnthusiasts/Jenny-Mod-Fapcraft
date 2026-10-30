@@ -99,7 +99,7 @@ final class GalathEnergyBalls {
       }
    }
 
-   static void aD(GalathEntity galath) {
+   static void despawnSummonedSkeletons(GalathEntity galath) {
       if ((Boolean)galath.getDataManager().get(GalathEntity.bP)) {
          for (EntityWitherSkeleton skeleton : galath.summonedSkeletons) {
             if (!skeleton.isDead) {
@@ -113,7 +113,7 @@ final class GalathEnergyBalls {
       }
    }
 
-   static void aA(GalathEntity galath) {
+   static void spawnSkeletonBreathParticles(GalathEntity galath) {
       for (EntityWitherSkeleton skeleton : galath.summonedSkeletons) {
          if (!skeleton.isDead && skeleton.ticksExisted % 10 == 0) {
             for (EntityPlayer player : (java.util.Collection<EntityPlayer>) ((WorldServer)galath.world).getEntityTracker().getTrackingPlayers(skeleton)) {
@@ -139,7 +139,7 @@ final class GalathEnergyBalls {
       }
    }
 
-   static void aG(GalathEntity galath) {
+   static void pruneDeadSkeletons(GalathEntity galath) {
       ArrayList deadSkeletons = new ArrayList();
 
       for (EntityWitherSkeleton skeleton : galath.summonedSkeletons) {

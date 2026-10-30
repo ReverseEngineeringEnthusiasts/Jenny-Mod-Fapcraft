@@ -40,16 +40,38 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * leaves the camera attached and the player model visible in the scene view.
  */
 public class GirlCameraHelper {
-   public static final float CAMERA_SCALE = 1.2345679F;
+   /**
+    * Partial tick passed to the GUI preview renders. It no longer carries any
+    * meaning — {@link #previewRenderInProgress} says "this is not a real
+    * frame" — but the models still animate off it, so it keeps the value the
+    * old sentinel used to keep preview poses exactly as they were.
+    */
+   public static final float PREVIEW_PARTIAL_TICK = 1.2345679F;
+   /**
+    * True while a GUI preview renders an entity, so {@link #onPre} knows the
+    * render is a preview and not a real world frame needing the camera
+    * transform. Scoped by {@link #beginPreview()}/{@link #endPreview()}.
+    */
+   private static boolean previewRenderInProgress = false;
    Vec3d playerPos = null;
    Vec3d playerLastPos = null;
    AbstractPlayerGirlEntity currentGirl = null;
    boolean isSmoothing = false;
 
    @SideOnly(Side.CLIENT)
+   public static void beginPreview() {
+      previewRenderInProgress = true;
+   }
+
+   @SideOnly(Side.CLIENT)
+   public static void endPreview() {
+      previewRenderInProgress = false;
+   }
+
+   @SideOnly(Side.CLIENT)
    @SubscribeEvent
    public void onPre(Pre event) {
-      if (event.getPartialRenderTick() != 1.2345679F) {
+      if (!previewRenderInProgress) {
          AbstractPlayerGirlEntity.rebuildPlayerGirlTableFromWorld();
          AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(event.getEntityPlayer().getPersistentID());
          if (playerGirl != null) {

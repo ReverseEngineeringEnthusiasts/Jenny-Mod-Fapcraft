@@ -179,6 +179,7 @@ final class KoboldInventory {
             ItemStack drop = state.getBlock().getItem(entity.world, target, state);
             drops.add(drop);
          } catch (IllegalArgumentException ex) {
+            // ignored: blocks without an item form contribute no drop
          }
       }
 

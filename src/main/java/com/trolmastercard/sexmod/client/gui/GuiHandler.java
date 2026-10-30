@@ -62,6 +62,7 @@ public class GuiHandler implements IGuiHandler {
                }
             }
          } catch (ConcurrentModificationException cme) {
+            // ignored: girl list mutated mid-iteration; the container just is not found this tick
          }
       }
 
@@ -78,6 +79,7 @@ public class GuiHandler implements IGuiHandler {
                }
             }
          } catch (ConcurrentModificationException cme2) {
+            // ignored: girl list mutated mid-iteration; the container just is not found this tick
          }
       }
 
@@ -106,6 +108,7 @@ public class GuiHandler implements IGuiHandler {
                }
             }
          } catch (ConcurrentModificationException cme) {
+            // ignored: girl list mutated mid-iteration; the container just is not found this tick
          }
       }
 
@@ -121,6 +124,7 @@ public class GuiHandler implements IGuiHandler {
                }
             }
          } catch (ConcurrentModificationException cme2) {
+            // ignored: girl list mutated mid-iteration; the container just is not found this tick
          }
       }
 

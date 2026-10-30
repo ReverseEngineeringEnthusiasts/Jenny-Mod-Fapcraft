@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -171,12 +172,12 @@ public class WorldUtils {
       }
 
       if (facing == null) {
-         System.out.println("bed is fucked up - it has no facing value");
+         Main.LOGGER.info("bed is fucked up - it has no facing value");
          return null;
       }
 
       if (partType == null) {
-         System.out.println("bed is fucked up - it has no partType value");
+         Main.LOGGER.info("bed is fucked up - it has no partType value");
          return null;
       }
 
@@ -216,7 +217,7 @@ public class WorldUtils {
       }
 
       if (pairedPos == null) {
-         System.out.println("bed is fucked up - it appears to be positioned vertically (wtf?)");
+         Main.LOGGER.info("bed is fucked up - it appears to be positioned vertically (wtf?)");
          return null;
       } else {
          return pairedPos;

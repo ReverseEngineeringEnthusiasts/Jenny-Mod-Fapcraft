@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.TeleportPlayerPacket;
 import java.util.UUID;
@@ -43,7 +44,7 @@ final class GirlPlayerPlacement {
 
    static void positionPlayerRelative(BaseGirlEntity girl, double dx, double dy, double dz, float yaw, float pitch) {
       if (girl.getInteractionPlayerUUID() == null) {
-         System.out.println("couldnt move camera because the player isn't set");
+         Main.LOGGER.info("couldnt move camera because the player isn't set");
       } else {
          EntityPlayer player = girl.world.getPlayerEntityByUUID(girl.getInteractionPlayerUUID());
          if (girl.cameraOriginPos == null) {

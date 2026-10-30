@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.client.model;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.model.api.IGirlModelInfo;
 import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
@@ -108,7 +109,7 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
          return this.modelLocations[0];
       } else if ((Integer)entity.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) >= this.modelLocations.length) {
          // original jar had '>' here — OOB at index == length; '>=' guards the last index
-         System.out.println("Girl doesn't have an outfit Nr." + entity.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) + " so im just making her nude lol");
+         Main.LOGGER.info("Girl doesn't have an outfit Nr." + entity.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX) + " so im just making her nude lol");
          return this.modelLocations[0];
       } else {
          return this.modelLocations[entity.getDataManager().get(BaseGirlEntity.OUTFIT_INDEX)];

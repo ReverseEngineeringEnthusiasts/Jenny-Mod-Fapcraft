@@ -86,7 +86,8 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * <p>
  * <b>Idle behavior:</b> without a master/interaction she periodically fishes
  * (finds water via {@link #findFishingSpot()}, casts her rod, may eat the
- * catch; {@link #av} is the hook entity, {@link #al} schedules its removal).
+ * catch; {@link #hookEntity} is the bobber, {@link #castExpiryTick} schedules
+ * its removal).
  * <p>
  * <b>Pitfalls:</b>
  * <ul>
@@ -101,7 +102,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * </ul>
  */
 public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddableSexGirl {
-   public ItemStack ao = new ItemStack(LunaRodItem.LUNA_ROD);
+   public ItemStack heldRod = new ItemStack(LunaRodItem.LUNA_ROD);
    public static final DataParameter<Float> yFlag = EntityDataManager.createKey(LunaEntity.class, DataSerializers.FLOAT)
       .getSerializer()
       .createKey(121);
@@ -117,8 +118,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    static final float ah = 3.0F;
    static final float ax = 1200.0F;
    @Nullable
-   public SexEntity av;
-   public float aa = 1.0F;
+   public SexEntity hookEntity;
+   public float renderScale = 1.0F;
    public float zFlag = 0.0F;
    int fishingIdleTicks = 8000;
    public boolean targetLerpActive = false;
@@ -126,7 +127,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    boolean walkingToBed = false;
    int bedWalkTicks = 0;
    int waitCatTicks = 0;
-   public BlockPos ai;
+   public BlockPos fishingSpot;
    int spotDepth = 0;
    int spotChangeTicks = 0;
    boolean am;
@@ -251,10 +252,10 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
       this.handleFishingPath();
       this.handleFishingIdle();
-      this.entityDataManager.set(af, this.av != null && this.entityDataManager.get(ag) == ItemStack.EMPTY);
-      if (this.castExpiryTick == this.world.getTotalWorldTime() && this.av != null) {
-         this.world.removeEntity(this.av);
-         this.av = null;
+      this.entityDataManager.set(af, this.hookEntity != null && this.entityDataManager.get(ag) == ItemStack.EMPTY);
+      if (this.castExpiryTick == this.world.getTotalWorldTime() && this.hookEntity != null) {
+         this.world.removeEntity(this.hookEntity);
+         this.hookEntity = null;
       }
 
       if (this.walkingToBed) {
@@ -305,7 +306,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    void syncHeldItem() {
-      ItemStack heldItem = this.ao;
+      ItemStack heldItem = this.heldRod;
       ItemStack syncedItem = (ItemStack)this.entityDataManager.get(az);
       if (!syncedItem.equals(ItemStack.EMPTY)) {
          Map enchantments = EnchantmentHelper.getEnchantments(syncedItem);
@@ -450,7 +451,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    public void clearFishingState() {
-      this.ai = null;
+      this.fishingSpot = null;
       this.spotDepth = 0;
       this.spotChangeTicks = 0;
       this.am = false;
@@ -458,9 +459,9 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       this.entityDataManager.set(ag, ItemStack.EMPTY);
       this.setSilent(false);
       this.setCurrentAction(Action.NULL);
-      if (this.av != null) {
-         this.world.removeEntity(this.av);
-         this.av = null;
+      if (this.hookEntity != null) {
+         this.world.removeEntity(this.hookEntity);
+         this.hookEntity = null;
       }
 
       if (this.getInteractionPlayerUUID() == null) {
@@ -484,8 +485,8 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    void handleFishingIdle() {
       if (!this.hasMaster() && this.getInteractionPlayerUUID() == null && !this.fishingDone) {
          if (!(++this.fishingIdleTicks < 1200.0F)) {
-            if (this.av != null && this.av.lureTimer == 15) {
-               ((LunaRodItem)this.ao.getItem()).castFishingRod(this.world, this, EnumHand.MAIN_HAND);
+            if (this.hookEntity != null && this.hookEntity.lureTimer == 15) {
+               ((LunaRodItem)this.heldRod.getItem()).castFishingRod(this.world, this, EnumHand.MAIN_HAND);
                this.castExpiryTick = this.world.getTotalWorldTime() + 20L;
                ItemStack heldItem = (ItemStack)this.entityDataManager.get(ag);
                if (heldItem != ItemStack.EMPTY) {
@@ -502,11 +503,11 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                this.handleFishingMove();
             }
 
-            if (this.ai != null && this.previousPath == null && this.getNavigator().getPath() == null && !this.inWater && this.onGround) {
+            if (this.fishingSpot != null && this.previousPath == null && this.getNavigator().getPath() == null && !this.inWater && this.onGround) {
                this.world
                   .rayTraceBlocks(
                      this.getPositionVector().add(0.0, this.getEyeHeight(), 0.0),
-                     new Vec3d(this.ai.getX(), this.ai.getY(), this.ai.getZ()),
+                     new Vec3d(this.fishingSpot.getX(), this.fishingSpot.getY(), this.fishingSpot.getZ()),
                      true
                   );
                this.setSilent(true);
@@ -525,7 +526,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                   this.setTargetPosition(this.getPositionVector());
                   this.entityDataManager.set(IS_ANCHORED, true);
                   this.setYawRotation(
-                     (float)Math.atan2(this.posZ - this.ai.getZ(), this.posX - this.ai.getX()) * (float) (180.0 / Math.PI)
+                     (float)Math.atan2(this.posZ - this.fishingSpot.getZ(), this.posX - this.fishingSpot.getX()) * (float) (180.0 / Math.PI)
                         + 90.0F
                   );
                }
@@ -541,14 +542,14 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
    }
 
    public void addCaughtItem() {
-      this.triedSpots.add(this.ai);
+      this.triedSpots.add(this.fishingSpot);
       this.clearFishingState();
    }
 
    void handleFishingMove() {
-      if (this.ai != null) {
+      if (this.fishingSpot != null) {
          PathNavigate navigator = this.getNavigator();
-         navigator.tryMoveToXYZ(this.ai.getX(), this.ai.getY(), this.ai.getZ(), 0.35F);
+         navigator.tryMoveToXYZ(this.fishingSpot.getX(), this.fishingSpot.getY(), this.fishingSpot.getZ(), 0.35F);
          Path path = navigator.getPath();
          if (path != null) {
             if (path.getCurrentPathLength() > path.getCurrentPathIndex() + 1) {
@@ -630,15 +631,15 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
       }
 
       if (spot != null) {
-         if (this.ai == null || this.spotDepth < bestDepth) {
-            this.ai = spot;
+         if (this.fishingSpot == null || this.spotDepth < bestDepth) {
+            this.fishingSpot = spot;
             this.spotDepth = bestDepth;
          }
 
-         if (this.ai.equals(spot)) {
+         if (this.fishingSpot.equals(spot)) {
             this.spotChangeTicks = 0;
          } else if (++this.spotChangeTicks > 20) {
-            this.ai = spot;
+            this.fishingSpot = spot;
             this.spotDepth = bestDepth;
          }
       }
@@ -897,7 +898,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                   0.5F + 0.5F * this.rand.nextInt(2),
                   (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F
                );
-               this.aa -= 0.33333334F;
+               this.renderScale -= 0.33333334F;
                break;
             case "eatPay":
                this.playSoundAtPosition(
@@ -916,7 +917,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                   this.setCurrentAction(Action.NULL);
                }
 
-               this.aa = 1.0F;
+               this.renderScale = 1.0F;
                this.zFlag = 0.0F;
                break;
             case "throw_away":
@@ -924,7 +925,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                   PacketHandler.networkWrapper.sendToServer(new CatThrowAwayItemPacket(this.getGirlId()));
                }
 
-               this.aa = 1.0F;
+               this.renderScale = 1.0F;
                this.zFlag = 0.0F;
                break;
             case "renderItem":

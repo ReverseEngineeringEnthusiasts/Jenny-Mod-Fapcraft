@@ -248,6 +248,7 @@ public class GirlPlayerRenderer extends GirlRenderer {
          try {
             MATRIX_STACK.pop();
          } catch (IllegalStateException e) {
+            // ignored: popping an already-empty matrix stack is harmless
          }
       }
    }

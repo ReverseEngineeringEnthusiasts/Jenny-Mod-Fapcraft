@@ -108,10 +108,10 @@ final class GalathSceneTicks {
    static void tickWildSystems(GalathEntity galath) {
       GalathEntity.getAimYaw(galath, 0.0F);
       GalathEnergyBalls.resetEnergyBalls(galath);
-      galath.aj();
+      galath.updateFlightRenderAngles();
       spawnSwordAttackParticles(galath);
       clearSwordRenderFlags(galath);
-      F_clash653(galath);
+      restoreStarsVisible(galath);
       updateWingsAnimated(galath);
       handleCorruptCum(galath);
       if (galath.world.isRemote) {
@@ -156,10 +156,15 @@ final class GalathSceneTicks {
       }
    }
 
-   static void F_clash653(GalathEntity galath) {
+   /**
+    * CLIENT: re-enables the knock-out star overlay every tick except during
+    * {@link Action#KNOCK_OUT_STAND_UP} — the {@code dontDrawStars} animation
+    * key clears {@link GalathEntity#drawStars}, this puts it back.
+    */
+   static void restoreStarsVisible(GalathEntity galath) {
       if (galath.world.isRemote) {
          if (galath.getCurrentAction() != Action.KNOCK_OUT_STAND_UP) {
-            galath.aL = true;
+            galath.drawStars = true;
          }
       }
    }

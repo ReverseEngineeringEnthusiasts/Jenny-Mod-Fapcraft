@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.util.KoboldManager;
 import com.trolmastercard.sexmod.util.KoboldTask;
 import io.netty.buffer.ByteBuf;
@@ -61,7 +62,7 @@ public class FallTreePacket implements IMessage {
                      EntityPlayerMP player = ctx.getServerHandler().player;
                      UUID tribeUuid = KoboldManager.getTribeUUID(player.getPersistentID());
                      if (tribeUuid == null) {
-                        System.out.println("not tribe for player");
+                        Main.LOGGER.info("not tribe for player");
                      } else {
                         int memberCount = KoboldManager.getTribeMemberCount(tribeUuid);
                         int bedCount = (int)Math.floor(KoboldManager.getTribeBeds(tribeUuid).size() / 2.0);
@@ -88,7 +89,7 @@ public class FallTreePacket implements IMessage {
                );
             return null;
          } else {
-            System.out.println("received an invalid Message @FallTree :(");
+            Main.LOGGER.warn("received an invalid Message @FallTree :(");
             return null;
          }
       }

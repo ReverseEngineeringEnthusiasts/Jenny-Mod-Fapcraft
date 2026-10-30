@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
@@ -171,7 +172,7 @@ public class ResetGirlPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("recieved an unvalid message @ResetGirl :(");
+            Main.LOGGER.info("recieved an unvalid message @ResetGirl :(");
             return null;
          }
       }

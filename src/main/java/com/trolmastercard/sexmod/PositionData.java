@@ -65,6 +65,7 @@ public class PositionData {
             }
          }
       } catch (ConcurrentModificationException cme) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
    }
 
@@ -96,6 +97,7 @@ public class PositionData {
                }
             }
          } catch (ConcurrentModificationException cme) {
+            // ignored: entity list mutated during iteration; retried on the next tick
          }
       }
    }

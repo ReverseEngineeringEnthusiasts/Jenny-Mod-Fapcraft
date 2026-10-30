@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.util.KoboldManager;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -49,7 +50,7 @@ public class SetTribeFollowModePacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @SetTribeFollowMode :(");
+            Main.LOGGER.warn("received an invalid message @SetTribeFollowMode :(");
             return null;
          }
       }

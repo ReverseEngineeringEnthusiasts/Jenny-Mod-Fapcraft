@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import io.netty.buffer.ByteBuf;
@@ -40,7 +41,7 @@ public class GalathBackOffRapePacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid Message @GalathBackOffRape :(");
+            Main.LOGGER.warn("received an invalid Message @GalathBackOffRape :(");
             return null;
          }
       }

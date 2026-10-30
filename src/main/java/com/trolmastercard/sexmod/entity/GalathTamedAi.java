@@ -23,8 +23,9 @@ import net.minecraft.util.math.Vec3d;
  * <p>
  * <b>Flow.</b> {@link GalathEntity#updateAITasks()} calls
  * {@link #tickTamedAi(GalathEntity)} when she has a master;
- * {@link #am(GalathEntity)} falls back to the flight AI
- * ({@link GalathEntity#ao()}) when the owner cannot be followed on foot.
+ * {@link #tickPartneredFollow(GalathEntity)} falls back to the flight AI
+ * ({@link GalathEntity#tickFlightSystems()}) when the owner cannot be
+ * followed on foot.
  * <p>
  * <b>Pitfalls.</b> {@link #followOwnerOnFoot(GalathEntity)} mutates
  * {@code currentPath} and the navigator speed; it must always leave
@@ -43,9 +44,9 @@ final class GalathTamedAi {
       } else {
          handleManglelieOwned(galath);
          if (galath.getMangleliePartnerUUID() == null) {
-            aJ(galath);
+            tickUnpartneredAi(galath);
          } else {
-            am(galath);
+            tickPartneredFollow(galath);
          }
       }
    }
@@ -59,10 +60,10 @@ final class GalathTamedAi {
       }
    }
 
-   static void am(GalathEntity galath) {
+   static void tickPartneredFollow(GalathEntity galath) {
       if (!followOwnerOnFoot(galath)) {
          galath.getDataManager().set(GalathEntity.bT, false);
-         galath.ao();
+         galath.tickFlightSystems();
       }
    }
 
@@ -141,7 +142,7 @@ final class GalathTamedAi {
       return dist > 16;
    }
 
-   static void at(GalathEntity galath) {
+   static void tickSeekMangleliePartner(GalathEntity galath) {
       if (galath.onGround) {
          if (galath.getMangleliePartnerUUID() == null) {
             if (galath.getCurrentAction() != Action.HUG_MANG) {
@@ -196,9 +197,9 @@ final class GalathTamedAi {
       }
    }
 
-   static void aJ(GalathEntity galath) {
-      at(galath);
-      galath.ay();
+   static void tickUnpartneredAi(GalathEntity galath) {
+      tickSeekMangleliePartner(galath);
+      galath.wanderRandomly();
    }
 
    static void clearFlightData(GalathEntity galath) {

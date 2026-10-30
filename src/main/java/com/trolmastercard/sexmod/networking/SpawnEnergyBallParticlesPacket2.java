@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.DragonEntity;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.util.math.Vec3d;
@@ -54,7 +55,7 @@ public class SpawnEnergyBallParticlesPacket2 implements IMessage {
 
             return null;
          } else {
-            System.out.println("received an invalid message @SpawnEnergyBallParticles :(");
+            Main.LOGGER.warn("received an invalid message @SpawnEnergyBallParticles :(");
             return null;
          }
       }

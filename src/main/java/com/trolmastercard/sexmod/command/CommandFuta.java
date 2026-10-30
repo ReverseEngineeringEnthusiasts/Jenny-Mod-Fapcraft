@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.command;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GalathEntity;
 import com.trolmastercard.sexmod.util.ThreadNames;
@@ -38,6 +39,7 @@ public class CommandFuta extends CommandBase implements IClientCommand {
       try {
          line = new BufferedReader(new FileReader("sexmod/futa")).readLine().toLowerCase();
       } catch (Exception e) {
+         // ignored: sexmod/futa is optional; the command keeps its default state
       }
 
       if (!"".equals(line)) {
@@ -80,7 +82,7 @@ public class CommandFuta extends CommandBase implements IClientCommand {
             writer.write(arg);
             writer.close();
          } catch (IOException ioe) {
-            ioe.printStackTrace();
+            Main.LOGGER.error("could not write the futa setting", ioe);
          }
 
          try {
@@ -105,6 +107,7 @@ public class CommandFuta extends CommandBase implements IClientCommand {
                }
             }
          } catch (ConcurrentModificationException cme) {
+            // ignored: entity list mutated during iteration; retried on the next tick
          }
       }
    }

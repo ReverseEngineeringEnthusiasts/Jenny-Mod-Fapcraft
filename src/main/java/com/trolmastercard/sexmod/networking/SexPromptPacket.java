@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.gui.GenderSwapScreen;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -62,7 +63,7 @@ public class SexPromptPacket implements IMessage {
    public static class Handler implements IMessageHandler<SexPromptPacket, IMessage> {
       public IMessage onMessage(SexPromptPacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("received an invalid message @SexPrompt :(");
+            Main.LOGGER.warn("received an invalid message @SexPrompt :(");
             return null;
          } else if (ctx.side.equals(Side.CLIENT)) {
             GenderSwapScreen.instance.onButtonClicked(new GenderSwapScreen.SwapButton(packet.actionName, packet.playerUUID, packet.girlUUID, packet.accepted));
@@ -73,9 +74,9 @@ public class SexPromptPacket implements IMessage {
                EntityPlayer girlPlayer = world.getPlayerEntityByUUID(packet.girlUUID);
                EntityPlayer player = world.getPlayerEntityByUUID(packet.playerUUID);
                if (girlPlayer == null) {
-                  System.out.println("Sex prompt invalid -> female player not found");
+                  Main.LOGGER.warn("Sex prompt invalid -> female player not found");
                } else if (player == null) {
-                  System.out.println("Sex prompt invalid -> male player not found");
+                  Main.LOGGER.warn("Sex prompt invalid -> male player not found");
                } else {
                   PacketHandler.networkWrapper.sendTo(new SexPromptPacket(packet.actionName, packet.playerUUID, packet.girlUUID, packet.accepted), (EntityPlayerMP)(packet.accepted ? girlPlayer : player));
                }

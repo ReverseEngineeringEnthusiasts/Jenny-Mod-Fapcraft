@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.NpcType;
@@ -76,23 +77,23 @@ public class UploadModelStringPacket implements IMessage {
    public static class Handler implements IMessageHandler<UploadModelStringPacket, IMessage> {
       public IMessage onMessage(UploadModelStringPacket packet, MessageContext ctx) {
          if (packet.isValid && ctx.side == Side.SERVER) {
-            System.out.println("[sexmod-pack] UploadModelString recv girl=" + packet.girlUUID
+            Main.LOGGER.info("[sexmod-pack] UploadModelString recv girl=" + packet.girlUUID
                + " partIds=" + packet.partIds + " modelCode='" + packet.modelCode + "'");
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                BaseGirlEntity girl = BaseGirlEntity.getServerGirlEntity(packet.girlUUID);
                if (girl == null) {
-                  System.out.println("[sexmod-pack] girl NOT FOUND on server: " + packet.girlUUID);
+                  Main.LOGGER.warn("[sexmod-pack] girl NOT FOUND on server: " + packet.girlUUID);
                   return;
                }
-               System.out.println("[sexmod-pack] girl found: " + girl.getClass().getSimpleName()
+               Main.LOGGER.info("[sexmod-pack] girl found: " + girl.getClass().getSimpleName()
                   + " dnaBefore='" + girl.getCustomPartListCode() + "'");
 
                if (packet.partIds.size() > 0) {
                   boolean valid = this.isValidModelCode(girl, packet.partIds);
-                  System.out.println("[sexmod-pack] validation=" + valid + " (currentIds=" + girl.getCustomPartIdList() + ", sent=" + packet.partIds + ")");
+                  Main.LOGGER.info("[sexmod-pack] validation=" + valid + " (currentIds=" + girl.getCustomPartIdList() + ", sent=" + packet.partIds + ")");
                   if (valid) {
                      girl.setCustomPartList(packet.partIds);
-                     System.out.println("[sexmod-pack] DNA after setCustomPartList='" + girl.getCustomPartListCode() + "'");
+                     Main.LOGGER.info("[sexmod-pack] DNA after setCustomPartList='" + girl.getCustomPartListCode() + "'");
                   }
 
                   if (!(girl instanceof AbstractPlayerGirlEntity)) {
@@ -123,7 +124,7 @@ public class UploadModelStringPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @UploadModelString :(");
+            Main.LOGGER.warn("received an invalid message @UploadModelString :(");
             return null;
          }
       }

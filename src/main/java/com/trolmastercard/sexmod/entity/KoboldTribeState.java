@@ -2,6 +2,7 @@ package com.trolmastercard.sexmod.entity;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.UnmodifiableIterator;
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.block.SexFireBlock;
 import com.trolmastercard.sexmod.item.DragonStaffItem;
 import com.trolmastercard.sexmod.item.KoboldEggItem;
@@ -580,7 +581,7 @@ KoboldManager.assignBed(entity, chosenBed);
             entity.getNavigator().clearPath();
             entity.aM = null;
          } else if (leader == null) {
-            System.out.println("leader of tribe " + tribeId + " is null");
+            Main.LOGGER.info("leader of tribe " + tribeId + " is null");
          } else {
             if (leader.getDistance(entity) > 20.0F) {
                entity.setPosition(leader.posX, leader.posY, leader.posZ);

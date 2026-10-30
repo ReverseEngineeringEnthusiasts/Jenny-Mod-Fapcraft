@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.NpcType;
@@ -83,6 +84,7 @@ public class UpdatePlayerModelPacket implements IMessage {
                         }
                      }
                   } catch (ConcurrentModificationException exception) {
+                     // ignored: girl list mutated while the stale entity was removed; the sync is repeated
                   }
 
                   playerGirl.onTickClient();
@@ -98,7 +100,7 @@ public class UpdatePlayerModelPacket implements IMessage {
                      Constructor constructor = npcType.playerClass.getConstructor(World.class, UUID.class);
                      newPlayerGirl = (AbstractPlayerGirlEntity)constructor.newInstance(world, ctx.getServerHandler().player.getPersistentID());
                   } catch (Exception exception) {
-                     exception.printStackTrace();
+                     Main.LOGGER.error("could not instantiate the replacement player girl", exception);
                      return;
                   }
 
@@ -114,7 +116,7 @@ public class UpdatePlayerModelPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @UpdatePlayerModel :(");
+            Main.LOGGER.warn("received an invalid message @UpdatePlayerModel :(");
             return null;
          }
       }

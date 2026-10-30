@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.client.model;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.SkinFetcher;
 import com.trolmastercard.sexmod.item.AlliesLampItem;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
@@ -49,7 +50,7 @@ public class AlliesLampModel extends AnimatedGeoModel<AlliesLampItem> {
          graphics.fillRect(3, 0, 1, 2);
          this.lampTexture = mc.renderEngine.getDynamicTextureLocation("alliesLamp", new DynamicTexture(skin));
       } catch (Exception e) {
-         e.printStackTrace();
+         Main.LOGGER.error("could not build the allies lamp texture", e);
          this.lampTexture = new ResourceLocation("sexmod", "textures/entity/allie/lamp.png");
       }
 

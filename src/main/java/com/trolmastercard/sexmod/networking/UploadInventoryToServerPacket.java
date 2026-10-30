@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.BeeEntityBase;
@@ -120,7 +121,7 @@ public class UploadInventoryToServerPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @UploadInventoryToServer :(");
+            Main.LOGGER.warn("received an invalid message @UploadInventoryToServer :(");
             return null;
          }
       }

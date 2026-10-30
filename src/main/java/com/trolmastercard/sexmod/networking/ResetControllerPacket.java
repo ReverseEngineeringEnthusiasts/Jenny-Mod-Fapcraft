@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -48,7 +49,7 @@ public class ResetControllerPacket implements IMessage {
    public static class Handler implements IMessageHandler<ResetControllerPacket, IMessage> {
       public IMessage onMessage(ResetControllerPacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("received an invalid message @ResetController :(");
+            Main.LOGGER.warn("received an invalid message @ResetController :(");
             return null;
          }
 

@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.gui.GenderSwapScreen;
 import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.networking.ForcePlayerGirlUpdatePacket;
@@ -131,6 +132,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
             }
          }
       } catch (ConcurrentModificationException ex) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
 
       return null;
@@ -537,7 +539,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
    @Override
    public void setCurrentAction(Action action) {
       if (!this.world.isRemote && action == Action.NULL && this.isAnchored()) {
-         System.out.println("prevented a potential animation break");
+         Main.LOGGER.info("prevented a potential animation break");
       } else {
          if (action == Action.STRIP) {
             this.stripTicks = this.world.isRemote ? 5 : 0;
@@ -635,6 +637,7 @@ public abstract class AbstractPlayerGirlEntity extends AbstractGirlNpcEntity {
             return true;
          });
       } catch (ConcurrentModificationException ex) {
+         // ignored: girl list mutated while the owner index was rebuilt; the next lookup repairs it
       }
 
       rebuildPlayerGirlTableInternal();

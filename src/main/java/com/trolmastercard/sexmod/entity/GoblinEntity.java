@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.api.SkinColor;
 import com.trolmastercard.sexmod.client.renderer.GoblinRenderer;
 import com.trolmastercard.sexmod.entity.ai.DoorInteractAiGoal;
@@ -92,19 +93,22 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * the public surface unchanged.
  */
 public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
-   public static final SkinColor ax = SkinColor.DARK_GREEN;
-   public static final Vec3i ah = new Vec3i(11, 6, 11);
-   public static final Vec3d aB = new Vec3d(5.0, 1.0, 9.0);
-   public static final Vec3d af = new Vec3d(3.0, -1.0, 6.0);
-   public static final Vec3d ao = new Vec3d(1.0, 1.0, 5.0);
-   public static final Vec3d au = new Vec3d(-6.0, -1.0, 3.0);
-   public static final Vec3d aM = new Vec3d(5.0, 1.0, 1.0);
-   public static final Vec3d THROW_OFFSET_W = new Vec3d(-3.0, -1.0, -6.0);
-   public static final Vec3d THROW_OFFSET_U = new Vec3d(9.0, 1.0, 5.0);
-   public static final Vec3d as = new Vec3d(0.0, -1.0, -4.0);
-   public static final Vec3d aT = new Vec3d(1.0, -1.0, -3.0);
-   public static final Vec3d ap = new Vec3d(-1.0, -1.0, -3.0);
-   public static final Vec3d at = new Vec3d(6.0, -1.0, -3.0);
+   // Throne offsets, relative to thronePos and keyed by the throne yaw (see the
+   // switch blocks in GoblinQueenAi): THRONE_* is the queen's spot beside the
+   // throne, THROW_* is where the jump-throw lands her.
+   public static final SkinColor DEFAULT_SKIN = SkinColor.DARK_GREEN;
+   public static final Vec3i THRONE_SIZE = new Vec3i(11, 6, 11);
+   public static final Vec3d THRONE_OFFSET_YAW_180 = new Vec3d(5.0, 1.0, 9.0);
+   public static final Vec3d THROW_OFFSET_YAW_0 = new Vec3d(3.0, -1.0, 6.0);
+   public static final Vec3d THRONE_OFFSET_YAW_NEG_90 = new Vec3d(1.0, 1.0, 5.0);
+   public static final Vec3d THROW_OFFSET_YAW_90 = new Vec3d(-6.0, -1.0, 3.0);
+   public static final Vec3d THRONE_OFFSET_YAW_0 = new Vec3d(5.0, 1.0, 1.0);
+   public static final Vec3d THROW_OFFSET_YAW_180 = new Vec3d(-3.0, -1.0, -6.0);
+   public static final Vec3d THRONE_OFFSET_YAW_90 = new Vec3d(9.0, 1.0, 5.0);
+   public static final Vec3d BREEDING_PLAYER_OFFSET = new Vec3d(0.0, -1.0, -4.0);
+   public static final Vec3d GUARD_LEFT_OFFSET = new Vec3d(1.0, -1.0, -3.0);
+   public static final Vec3d GUARD_RIGHT_OFFSET = new Vec3d(-1.0, -1.0, -3.0);
+   public static final Vec3d THROW_OFFSET_YAW_NEG_90 = new Vec3d(6.0, -1.0, -3.0);
    public static final int aj = 39;
    public static final int ae = 15;
    public static final int aE = 8400;
@@ -225,7 +229,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       super.entityInit();
       EyeColor color = EyeColor.values()[this.getRNG().nextInt(EyeColor.values().length)];
       this.entityDataManager.register(ACTION_TARGET_POS, new BlockPos(color.getColor()));
-      this.entityDataManager.register(CURRENT_ACTION, ax.name());
+      this.entityDataManager.register(CURRENT_ACTION, DEFAULT_SKIN.name());
       this.entityDataManager.register(OWNER_UUID, "");
       this.entityDataManager.register(aK, "");
       this.entityDataManager.register(a0, ItemStack.EMPTY);
@@ -302,7 +306,7 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
       try {
          return UUID.fromString((String)this.entityDataManager.get(OWNER_UUID));
       } catch (Exception ex) {
-         ex.printStackTrace();
+         Main.LOGGER.error("could not parse the owner UUID", ex);
          return null;
       }
    }

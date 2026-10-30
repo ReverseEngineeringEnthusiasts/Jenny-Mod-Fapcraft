@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.renderer.GoblinRenderer;
 import com.trolmastercard.sexmod.client.renderer.KoboldRenderer;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
@@ -173,7 +174,7 @@ public class DebugMode {
             player.sendMessage(new TextComponentString(String.valueOf(girls.size())));
 
             for (BaseGirlEntity girl : (java.util.Collection<BaseGirlEntity>) (girls) ) {
-               System.out.printf("%s at %s %s %s\n", girl, girl.posX, girl.posY, girl.posZ);
+               Main.LOGGER.info("{} at {} {} {} {}", girl, girl.posX, girl.posY, girl.posZ);
             }
          }
 
@@ -216,8 +217,8 @@ public class DebugMode {
             try {
                cumTime = Long.parseLong(parts[1]);
             } catch (NullPointerException exception) {
-               System.out.println("long: " + parts[1]);
-               exception.printStackTrace();
+               Main.LOGGER.info("long: " + parts[1]);
+               Main.LOGGER.error("could not parse the cum time", exception);
                return;
             }
 

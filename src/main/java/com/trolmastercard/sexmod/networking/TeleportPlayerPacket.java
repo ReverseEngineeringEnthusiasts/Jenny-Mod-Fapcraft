@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import io.netty.buffer.ByteBuf;
 import java.util.EnumSet;
 import java.util.UUID;
@@ -86,7 +87,7 @@ public class TeleportPlayerPacket implements IMessage {
                .addScheduledTask(
                   () -> {
                      try {
-                        System.out.println("teleporting player " + packet.girlId + " to " + packet.position);
+                        Main.LOGGER.info("teleporting player " + packet.girlId + " to " + packet.position);
                         EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(UUID.fromString(packet.girlId));
                         packet.yaw = MathHelper.wrapDegrees(packet.yaw);
                         packet.pitch = MathHelper.wrapDegrees(packet.pitch);
@@ -98,15 +99,15 @@ public class TeleportPlayerPacket implements IMessage {
                         player.connection
                            .setPlayerLocation(packet.position.x, packet.position.y, packet.position.z, packet.yaw, packet.pitch, EnumSet.noneOf(EnumFlags.class));
                      } catch (Exception exception) {
-                        System.out.println("couldn't find player with UUID: " + packet.girlId);
-                        System.out.println("could only find the following players:");
-                        System.out.println(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getFormattedListOfPlayers(true));
+                        Main.LOGGER.warn("couldn't find player with UUID: " + packet.girlId);
+                        Main.LOGGER.info("could only find the following players:");
+                        Main.LOGGER.info(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getFormattedListOfPlayers(true));
                      }
                   }
                );
             return null;
          } else {
-            System.out.println("received an invalid message @TeleportPlayer :(");
+            Main.LOGGER.warn("received an invalid message @TeleportPlayer :(");
             return null;
          }
       }

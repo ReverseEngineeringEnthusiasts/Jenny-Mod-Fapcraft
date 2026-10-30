@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.client.renderer;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.SkinFetcher;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.ClothingScreen;
@@ -507,7 +508,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
 
          reader.close();
       } catch (IOException e) {
-         e.printStackTrace();
+         Main.LOGGER.error("could not read the model code file", e);
       }
 
       return builder.toString();
@@ -1073,6 +1074,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
             try {
                MATRIX_STACK.pop();
             } catch (IllegalStateException e) {
+               // ignored: popping an already-empty matrix stack is harmless
             }
          }
       }

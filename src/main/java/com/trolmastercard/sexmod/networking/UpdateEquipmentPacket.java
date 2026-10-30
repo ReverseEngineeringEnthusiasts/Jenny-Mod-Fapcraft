@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import io.netty.buffer.ByteBuf;
@@ -42,7 +43,7 @@ public class UpdateEquipmentPacket implements IMessage {
    public static class Handler implements IMessageHandler<UpdateEquipmentPacket, IMessage> {
       public IMessage onMessage(UpdateEquipmentPacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("received an invalid message @UpdateEquipment :(");
+            Main.LOGGER.warn("received an invalid message @UpdateEquipment :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {

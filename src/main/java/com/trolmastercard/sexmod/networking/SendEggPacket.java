@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.item.KoboldEggItem;
 import com.trolmastercard.sexmod.util.KoboldManager;
@@ -54,7 +55,7 @@ public class SendEggPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid Message @SendEgg :(");
+            Main.LOGGER.warn("received an invalid Message @SendEgg :(");
             return null;
          }
       }

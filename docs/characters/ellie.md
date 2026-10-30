@@ -26,7 +26,7 @@ Source: `assets/sexmod/animations/ellie/ellie.animation.json` (42 animations —
 | `run` | LOOP (0.84s) | Movement controller, `RUN` (pony-tail bones animated) |
 | `backwards_walk` | LOOP (0.68s) | Player form: moving backwards (`ao.y < -0.1`) |
 | `fly` / `fly2` | LOOP (0.84s) | Player form: `!af` flying branch, `fly2` toggled while the movement animation name contains "fly" (`ar` flag) |
-| `sit` | LOOP (4.12s) | Action `SIT`; player form: riding (`ak`) |
+| `sit` | LOOP (4.12s) | Action `SIT`; player form: riding (`carryIntroTicks`) |
 | `ride` | LOOP (4.12s) | Action `RIDE` |
 | `sitdown` | LOOP (5.52s) | Action `SITDOWN` — sitting down on the bed (non-loop in practice; `spike21` bone animated). Keyframe `sitdownMSG1` ("come to mommy" line) and `sitdownDone` → `SITDOWNIDLE` (NPC also triggers the scene menu via `handleSitIdle`) |
 | `sitdownidle` | LOOP (7.04s) | Action `SITDOWNIDLE` — sitting idle on the bed; head-tracks the nearest player (EllieNpcModel.setLivingAnimations) |
@@ -43,7 +43,7 @@ Source: `assets/sexmod/animations/ellie/ellie.animation.json` (42 animations —
 | `missionary_slow` | LOOP (2.92s) | Action `MISSIONARY_SLOW`. Keyframe `missionary_slowMSG1` (+0.02, moan/ahh pick) |
 | `missionary_fast` | LOOP (1.875s) | Action `MISSIONARY_FAST`. Keyframes `missionary_fastMSG1` (+0.05), `missionary_fastDone` → SLOW (NPC: unless jumping; player form: jump → stays FAST) |
 | `missionary_cum` | one-shot (14.44s) | Action `MISSIONARY_CUM`. Keyframes `missionary_cumMSG1` (ahh), `missionary_cumMSG2` (goodboy line), `missionary_cumDone` → reset. Shared `bedRustle`/`bedRustle1` keyframes (pounding + bedrustle) |
-| `carry_intro` | LOOP (9.67s) | Action `CARRY_INTRO` — "Face fuck" intro, 110-tick timer (`ak`). Keyframes `carry_introMSG1` ("I'm hungry.."), `carry_introMSG2` ("heh~"). Uses `boyCam`+`girlCam` camera bones |
+| `carry_intro` | LOOP (9.67s) | Action `CARRY_INTRO` — "Face fuck" intro, 110-tick timer (`carryIntroTicks`). Keyframes `carry_introMSG1` ("I'm hungry.."), `carry_introMSG2` ("heh~"). Uses `boyCam`+`girlCam` camera bones |
 | `carry_slow1` / `carry_slow2` / `carry_slow3` / `carry_slow4` | LOOP (3.17s each; slow4 = 1.58s) | Action `CARRY_SLOW` — variant suffix `carryVariant` (NPC) / `ap` (player) re-rolled on `carry_slowDone` (1..4, never the previous value). `lipsound` (+0.02), `pound` (+0.04), `cum` keyframes |
 | `carry_fast` | LOOP (0.75s) | Action `CARRY_FAST`. `carry_fastDone` → `CARRY_SLOW` unless jumping |
 | `carry_cum` | LOOP (3.17s) | Action `CARRY_CUM`. `carry_cumDone` → reset |
@@ -62,8 +62,8 @@ NPC interaction gate (`processInteract`): refuses interaction while a scene is a
 - nude (`OUTFIT_INDEX == 0`): menu `[action.names.dressup]`
 - dressed: menu `["Face fuck"]`
 
-1. **Sit-down flow (background)**: `updateAITasks` runs a sit-state machine — `setFirstSit` (one-shot physics cleanup `ac`), `handleHornyPotion` (dash route), `handleSitUpTimer` (`ai` 79-tick sit-up delay or `ah` one-shot → un-anchor, walk to random bed pose via `getRandomSitPose()` → `SITDOWN` with `al`=109 → `SITDOWNIDLE`), `handleSitDownTimer` (`al` → `SITDOWNIDLE`), `handleHugTimer` (`yFlag` 150 → `HUGIDLE`), `handleSitTransition` (in `SITDOWNIDLE`, player within 1.5 blocks → `af`=20 + bind player), `handleStandTimer` (`af` countdown → `U()`), `handleSitTimer` (`ak` 110 → reposition player for carry).
-2. **Carry / "Face fuck"** — menu → `triggerActionSync(true, true, uuid)` → `setDismounted()`: faces player (yaw-180), `CARRY_INTRO` anchored. `ak` timer (110 ticks) repositions the interacting player at target + (0, 2.5625 - eyeHeight, -0.3125) rotated by yaw+180 → `CARRY_SLOW` (variant 1-4) → sneak → `CARRY_FAST` → jump → `CARRY_CUM` → `carry_cumDone` → reset. Name tag hidden (`shouldRenderNameTag` false during CARRY_INTRO).
+1. **Sit-down flow (background)**: `updateAITasks` runs a sit-state machine — `setFirstSit` (one-shot physics cleanup `ac`), `handleHornyPotion` (dash route), `handleSitUpTimer` (`sitUpTicks` 79-tick sit-up delay or `sitUpActive` one-shot → un-anchor, walk to random bed pose via `getRandomSitPose()` → `SITDOWN` with `sitDownTicks`=109 → `SITDOWNIDLE`), `handleSitDownTimer` (`sitDownTicks` → `SITDOWNIDLE`), `handleHugTimer` (`yFlag` 150 → `HUGIDLE`), `handleSitTransition` (in `SITDOWNIDLE`, player within 1.5 blocks → `standTicks`=20 + bind player), `handleStandTimer` (`standTicks` countdown → `U()`), `handleSitTimer` (`carryIntroTicks` 110 → reposition player for carry).
+2. **Carry / "Face fuck"** — menu → `triggerActionSync(true, true, uuid)` → `setDismounted()`: faces player (yaw-180), `CARRY_INTRO` anchored. `carryIntroTicks` timer (110 ticks) repositions the interacting player at target + (0, 2.5625 - eyeHeight, -0.3125) rotated by yaw+180 → `CARRY_SLOW` (variant 1-4) → sneak → `CARRY_FAST` → jump → `CARRY_CUM` → `carry_cumDone` → reset. Name tag hidden (`shouldRenderNameTag` false during CARRY_INTRO).
 3. **Cowgirl (bed)** — hug menu → `doAction` "action.names.cowgirl": `HUGSELECTED` + `animationFollowUp "cowgirl"` → hug dialogue → server `U()` reads `GIRL_HAND_STATES == "cowgirl"`: strip (`OUTFIT_INDEX=0`), `COWGIRLSTART`, player locked (noGravity+noClip, positioned at target + (0, 1-eyeHeight, -1.8125) rotated yaw+180, movement locked) → `cowgirlStartDone` → `COWGIRLSLOW` → sneak → `COWGIRLFAST` (jump holds fast) → jump-with-full-meter → `COWGIRLCUM` → `cowgirlcumMSG6` black screen → `cowgirlcumDone` → reset.
 4. **Missionary (bed)** — same flow with `"Missionary"`: `MISSIONARY_START`, player at target + (0,0,0.1) rotated by her yaw, `player.rotationYaw = girl yaw` → `missionary_startDone` → `MISSIONARY_SLOW` → sneak → `MISSIONARY_FAST` → jump → `MISSIONARY_CUM` → reset.
 5. **Horny-potion route** — `handleHornyPotion()`: removes the potion, binds nearest player (10 blocks), yaw atan2 to player, `DASH` + `zFlag`=16, removes wander/watch goals → `handleSitUpFinish()` (`zFlag` 16-tick countdown → player locked, girl anchored 0.5 behind the player → `HUG` + `yFlag`=150) → `handleHugTimer` → `HUGIDLE` → `handleSitIdle()`: player within 1.5 blocks → `BeeScreen.enableInteraction()`; `handleSitTransition` → `U()`.
@@ -137,9 +137,9 @@ Misc shared arrays used by Ellie scenes: `MISC_POUNDING` (35), `MISC_BEDRUSTLE` 
 ## Unique mechanics
 
 - **Hug dialogue gate**: every bed scene (cowgirl/missionary) passes through the hug (HUG → HUGIDLE → HUGSELECTED) with the 5-line dialogue; the scene choice travels in `GIRL_HAND_STATES` ("cowgirl"/"Missionary") from client to server via the `animationFollowUp` packet.
-- **Sit state machine**: five timers (`ak` 110 carry, `yFlag` 150 hug, `al` 109 sitdown, `ai` 79 sit-up, `zFlag` 16 dash, `af` 20 stand) — all reset in `resetSitState()`; `reinitTasks()` resets `yFlag`.
+- **Sit state machine**: five timers (`carryIntroTicks` 110 carry, `yFlag` 150 hug, `sitDownTicks` 109 sitdown, `sitUpTicks` 79 sit-up, `zFlag` 16 dash, `standTicks` 20 stand) — all reset in `resetSitState()`; `reinitTasks()` resets `yFlag`.
 - **Carry variant re-roll**: `carry_slowDone` re-rolls `carryVariant` (1..4) excluding the current value; `PRONE_DOGGY`-style variant logic shared with Bia.
-- **Re-entry guards**: refuses MISSIONARY/COWGIRL/CARRY slow/fast while the corresponding cum plays; `HUGSELECTED` set server-side arms `ai`=79.
+- **Re-entry guards**: refuses MISSIONARY/COWGIRL/CARRY slow/fast while the corresponding cum plays; `HUGSELECTED` set server-side arms `sitUpTicks`=79.
 - **Horny meter**: shown during `CARRY_SLOW` (`showHornyMeter`), via `openSexUi` keyframe, hidden at cowgirlcumMSG4, reset at cum ends.
 - **Bed-blocked crouching**: `isBedBlocked()` (block 2 blocks above her) selects crouchwalk/crouchidle and lowers eye height — lets her walk under low ceilings.
 
@@ -163,8 +163,8 @@ Same shared key block as Jenny (BaseGirlEntity 99-110, AbstractGirlNpcEntity 111
 
 ## Pitfalls & quirks (deobfuscated code notes)
 
-- **Sit-state timer fields are obfuscated counters**: `yFlag` (hugidle 150), `al` (sitdown 109), `ai` (sit-up 79), `zFlag` (dash 16), `af` (stand 20), `ak` (carry 110) — all must be reset in `resetSitState()`; forgetting one leaves Ellie stuck in a sit/hug state.
-- **`U()` must only run after the hug dialogue** — `GIRL_HAND_STATES` carries the scene choice from the client packet; `handleStandTimer` counts down `af` and calls `U()` (server side).
+- **Sit-state timer fields are obfuscated counters**: `yFlag` (hugidle 150), `sitDownTicks` (sitdown 109), `sitUpTicks` (sit-up 79), `zFlag` (dash 16), `standTicks` (stand 20), `carryIntroTicks` (carry 110) — all must be reset in `resetSitState()`; forgetting one leaves Ellie stuck in a sit/hug state.
+- **`U()` must only run after the hug dialogue** — `GIRL_HAND_STATES` carries the scene choice from the client packet; `handleStandTimer` counts down `standTicks` and calls `U()` (server side).
 - **`setDismounted()` falls back to `resetSitState()`** when no player is bound (uuid null or player entity missing).
 - **No-op `alignPlayerToGirl`** — do not "restore" it; the carry path repositions the player in `handleSitTimer`.
 - **`animation.ellie.new`** is an orphan asset; **`BJMOAN` (13 events) is registered but never referenced** by Ellie scene code.

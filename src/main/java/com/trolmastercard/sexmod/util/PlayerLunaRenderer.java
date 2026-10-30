@@ -33,7 +33,7 @@ public class PlayerLunaRenderer extends GirlPlayerRenderer {
       switch (this.renderEntity.getCurrentAction()) {
          case FISHING_IDLE:
          case FISHING_START:
-            ItemStack lunaStack = ((LunaEntity)this.renderEntity).ao;
+            ItemStack lunaStack = ((LunaEntity)this.renderEntity).heldRod;
             this.renderEntity.setHeldItem(EnumHand.MAIN_HAND, lunaStack);
             return lunaStack;
          default:

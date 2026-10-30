@@ -62,7 +62,7 @@ public class UnknownPacket implements IMessage {
    public static class Handler implements IMessageHandler<UnknownPacket, IMessage> {
       public IMessage onMessage(UnknownPacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("received an invalid Message @RequestServerModelAvailability :(");
+            Main.LOGGER.warn("received an invalid Message @RequestServerModelAvailability :(");
             return null;
          }
 

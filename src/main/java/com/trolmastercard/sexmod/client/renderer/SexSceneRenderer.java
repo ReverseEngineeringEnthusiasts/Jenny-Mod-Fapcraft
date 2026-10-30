@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.client.renderer;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.api.LightingType;
 import com.trolmastercard.sexmod.client.gui.ClothingScreen;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
@@ -194,7 +195,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
                   } catch (Throwable t) {
                      // never let a bad custom part crash rendering
                      if (!(t instanceof java.util.ConcurrentModificationException)) {
-                        System.out.println("[sexmod] skipped malformed custom part '" + partCode + "' on " + girl.getDisplayName()
+                        Main.LOGGER.warn("[sexmod] skipped malformed custom part '" + partCode + "' on " + girl.getDisplayName()
                            + ": " + t.getClass().getSimpleName() + ": " + t.getMessage());
                      }
                      clearStaleLegacy(girl, partCode);
@@ -208,7 +209,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
    /** Logs a missing legacy part (one line, throttled-ish) so malformed/legacy models are auditable. */
    private static void logMissingLegacy(String partCode, BaseGirlEntity girl, String why) {
       String girlName = girl.getDisplayName() == null ? "?" : girl.getDisplayName().getFormattedText();
-      System.out.println("[sexmod] skipping missing legacy custom model '" + partCode + "' on " + girlName + " (" + why + ")");
+      Main.LOGGER.warn("[sexmod] skipping missing legacy custom model '" + partCode + "' on " + girlName + " (" + why + ")");
    }
 
    /** Removes a stale/broken legacy part code from the girl's custom set (client-side). */
@@ -509,6 +510,7 @@ public class SexSceneRenderer extends GeoEntityRenderer<SexSceneEntity> {
       try {
          this.sceneEntity.matrixStack.pop();
       } catch (IllegalStateException e) {
+         // ignored: popping an already-empty matrix stack is harmless
       }
    }
 

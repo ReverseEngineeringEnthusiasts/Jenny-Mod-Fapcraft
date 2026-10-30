@@ -795,6 +795,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
             }
          }
       } catch (ConcurrentModificationException ex) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
    }
 
@@ -813,6 +814,7 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
             }
          }
       } catch (ConcurrentModificationException ex) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
    }
 

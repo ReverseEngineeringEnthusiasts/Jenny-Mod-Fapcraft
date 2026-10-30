@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.util.GirlSavedData;
@@ -55,7 +56,7 @@ public class RequestRidingPacket implements IMessage {
             player.world.getChunk(girl.getPosition()).removeEntity(girl);
             return null;
          } else {
-            System.out.println("received an invalid message @RequestRiding :(");
+            Main.LOGGER.warn("received an invalid message @RequestRiding :(");
             return null;
          }
       }

@@ -51,7 +51,7 @@ public class ShaderHelper {
             outlineShaderGroup.createBindFramebuffers(mc.displayWidth, mc.displayHeight);
             outlineFramebuffer = outlineShaderGroup.getFramebufferRaw("final");
             ClientRegistry.registerEntityShader(BaseGirlEntity.class, entityShader);
-            System.out.println("succ registered the outline shader :)");
+            Main.LOGGER.info("succ registered the outline shader :)");
          } catch (IOException ioe) {
             Main.LOGGER.warn("Failed to load shader: {}", entityShader, ioe);
          } catch (JsonSyntaxException jsone) {

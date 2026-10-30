@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.LunaEntity;
 import com.trolmastercard.sexmod.item.LunaRodItem;
@@ -52,7 +53,7 @@ public class CatActivateFishingPacket implements IMessage {
                for (BaseGirlEntity girl : BaseGirlEntity.girlList(packet.catUUID)) {
                   if (!girl.world.isRemote && girl instanceof LunaEntity) {
                      LunaEntity luna = (LunaEntity)girl;
-                     ItemStack stack = luna.ao;
+                     ItemStack stack = luna.heldRod;
                      LunaRodItem rodItem = (LunaRodItem)stack.getItem();
                      rodItem.castFishingRod(ctx.getServerHandler().player.world, luna, EnumHand.MAIN_HAND);
                   }
@@ -60,7 +61,7 @@ public class CatActivateFishingPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @CatActivateFishing :(");
+            Main.LOGGER.warn("received an invalid message @CatActivateFishing :(");
             return null;
          }
       }

@@ -51,6 +51,7 @@ public class GoblinFirstPersonRenderer {
                }
             }
          } catch (ConcurrentModificationException exception) {
+            // ignored: entity list mutated during iteration; retried on the next tick
          }
 
          if (goblinGirl != null) {
@@ -100,6 +101,7 @@ public class GoblinFirstPersonRenderer {
                }
             }
          } catch (ConcurrentModificationException exception) {
+            // ignored: entity list mutated during iteration; retried on the next tick
          }
 
          GlStateManager.enableLighting();
@@ -129,6 +131,7 @@ public class GoblinFirstPersonRenderer {
             }
          }
       } catch (ConcurrentModificationException exception) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
    }
 
@@ -149,6 +152,7 @@ public class GoblinFirstPersonRenderer {
             }
          }
       } catch (ConcurrentModificationException exception) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
    }
 

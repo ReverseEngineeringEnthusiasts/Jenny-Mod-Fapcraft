@@ -49,7 +49,7 @@ public class BeeOpenChestPacket implements IMessage {
    public static class Handler implements IMessageHandler<BeeOpenChestPacket, IMessage> {
       public IMessage onMessage(BeeOpenChestPacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("received an invalid message @BeeOpenChest :(");
+            Main.LOGGER.warn("received an invalid message @BeeOpenChest :(");
             return null;
          } else {
             FMLCommonHandler.instance()

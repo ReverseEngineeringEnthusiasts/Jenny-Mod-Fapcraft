@@ -73,8 +73,8 @@ public class LunaRodItem extends ItemFishingRod {
 
    public ActionResult<ItemStack> castFishingRod(World world, LunaEntity luna, EnumHand hand) {
       ItemStack stack = luna.getHeldItem(hand);
-      if (luna.av != null) {
-         int catchResult = luna.av.getCatchResult();
+      if (luna.hookEntity != null) {
+         int catchResult = luna.hookEntity.getCatchResult();
          stack.damageItem(catchResult, luna);
          luna.swingArm(hand);
          world.playSound(
@@ -100,7 +100,7 @@ public class LunaRodItem extends ItemFishingRod {
          );
          if (!world.isRemote) {
             SexEntity.ownerLuna = luna;
-            double distance = luna.getPositionVector().distanceTo(new Vec3d(luna.ai.getX(), luna.ai.getY(), luna.ai.getZ()));
+            double distance = luna.getPositionVector().distanceTo(new Vec3d(luna.fishingSpot.getX(), luna.fishingSpot.getY(), luna.fishingSpot.getZ()));
             SexEntity sexEntity = new SexEntity(world, luna, distance * 0.01);
             int speedBonus = EnchantmentHelper.getFishingSpeedBonus(stack);
             if (speedBonus > 0) {

@@ -52,7 +52,8 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 /**
  * <b>Role.</b> Manglelie ("Mang") — the small imp girl bound to a Galath as
  * her "daughter". Wild Mangles wander near hives; when a Galath finds one
- * (see {@link GalathEntity#at()}) she adopts it and it rides her head
+ * (see {@link GalathTamedAi#tickSeekMangleliePartner(GalathEntity)}) she
+ * adopts it and it rides her head
  * ({@link Action#RIDE_MOMMY_HEAD}). The corrupting mechanic: while the tamed
  * Galath is in the corrupt state, Mang picks a nearby mob, holds it in a
  * magical beam (arrow shot from the Galath at 28 ticks), and after ~60 ticks
@@ -176,7 +177,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       try {
          return UUID.fromString(corruptPlayerStr);
       } catch (Exception ex) {
-         ex.printStackTrace();
+         Main.LOGGER.error("could not parse the corrupt player UUID", ex);
          return null;
       }
    }
@@ -252,7 +253,7 @@ public class ManglelieEntity extends BaseGirlEntity {
 
       if (!this.wild) {
          if (this.getGalathPartner(true) == null) {
-            System.out.println("removed non-wild mang for lack of mommy");
+            Main.LOGGER.info("removed non-wild mang for lack of mommy");
             this.world.removeEntity(this);
          }
       }
@@ -263,7 +264,7 @@ public class ManglelieEntity extends BaseGirlEntity {
       if (galath != null) {
          if (galath.getMangleliePartnerUUID() != null) {
             if (!this.getGirlId().equals(galath.getMangleliePartnerUUID())) {
-               System.out.println("removed non-wild mang cuz her mommy disowned her and got another mang");
+               Main.LOGGER.info("removed non-wild mang cuz her mommy disowned her and got another mang");
                this.world.removeEntity(this);
             }
          }
@@ -815,7 +816,7 @@ public class ManglelieEntity extends BaseGirlEntity {
          this.createAnimation("animation.shared.double_holding_soft", true, event, true);
          GalathEntity galath = this.getGalathPartner(false);
          if (galath != null) {
-            galath.ak();
+            galath.startMasterbateSitting();
          }
 
          return true;

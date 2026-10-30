@@ -139,7 +139,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * {@code bT} (122) = sprint flag. The two {@link SexEntityPart} hitboxes
  * ({@code b2}, {@code energyBallHitboxRight}) back the energy-ball attack.
  * <p>
- * <b>Flow.</b> Wild: {@code updateAITasks} -&gt; {@link #ao()} drives the
+ * <b>Flow.</b> Wild: {@code updateAITasks} -&gt; {@link #tickFlightSystems()} drives the
  * flight state machine ({@link GalathFlightState#initFlightData(GalathEntity)} picks a random
  * {@link GalathFlightData} action when a target is in range, see
  * {@link GalathFlightState#acquireFlightTarget(GalathEntity)});
@@ -150,7 +150,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * then right-clicks ({@link #processGirlInteract(EntityPlayer, EnumHand)})
  * which starts {@link Action#CORRUPT_INTRO}; {@code handleCorruptCum} (server)
  * advances CORRUPT_CUM -&gt; {@link Action#GIVE_COIN} -&gt;
- * {@link #ap()} grants the coin and binds the master.
+ * {@link #grantCoinAndBindMaster()} grants the coin and binds the master.
  * Tamed: scenes enter through {@link #processMasterInteract} +
  * {@link #doAction(String, UUID)}; {@link #handleRapeState()} and
  * {@link GalathSceneTicks#handleRapeCum(GalathEntity)}/
@@ -162,7 +162,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * of GALATH_DE_SUMMON, guards all cum loops, persists cum time via
  * {@link GirlSavedData} and fires the GIVE_COIN/HUG_MANG/MORNING_BLOWJOB_CUM
  * teardown hooks. The boss bar ({@code aO}) is only visible for wild Galaths
- * ({@link #an()}); {@code despawned} girls only update the Manglelie world
+ * ({@link #tickWildAi()}); {@code despawned} girls only update the Manglelie world
  * data. {@link #getAimYaw(GalathEntity, float)} mutates the render yaw — many
  * systems depend on it. The energy-ball hitboxes must be active exactly while
  * {@code summonSkeletonTicks} is in [9, 30] (see {@link #resetEnergyBalls()}).
@@ -335,7 +335,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    public boolean bedBackAnimation = false;
    public boolean renderSword = false;
    public boolean spawnSwordParticles = false;
-   public boolean aL = true;
+   public boolean drawStars = true;
    public boolean wingsAnimated = false;
    boolean alternateMoan = false;
 
@@ -515,7 +515,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.entityDataManager.set(WildSlimeFaceLayer, uuid == null ? "" : uuid.toString());
    }
 
-   public void aC() {
+   public void markDespawnedWithPartner() {
       this.markedDespawned = true;
       ManglelieEntity manglelie = this.getMangleliePartner(true);
       if (manglelie != null) {
@@ -588,8 +588,9 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    /**
     * BOTH sides: the per-tick split — tamed girls tick the master systems
-    * ({@link #updateRidingGravity()} gravity + {@link #au()}), wild girls tick the
-    * flight UI (boss bar, gravity, flight data) and the wild systems
+    * ({@link #updateRidingGravity()} gravity + {@link #tickTamedSystems()}),
+    * wild girls tick the flight UI (boss bar, gravity, flight data) and the
+    * wild systems
     * ({@link GalathSceneTicks#tickWildSystems(GalathEntity)}). CLIENT
     * additionally ticks the coin-give particles
     * ({@link GalathSceneTicks#tickGiveCoinScene(GalathEntity)}).
@@ -606,7 +607,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.updatePredictedPosition();
       super.onUpdate();
       if (hasMasterFlag) {
-         this.au();
+         this.tickTamedSystems();
       } else {
          GalathSceneTicks.tickWildSystems(this);
       }
@@ -631,15 +632,15 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
     * the rape/corrupt scene enders ({@link GalathSceneTicks#handleRapeCum(GalathEntity)},
     * {@link GalathSceneTicks#endTamedCorruptScene(GalathEntity)}).
     */
-   void au() {
+   void tickTamedSystems() {
       if (!this.isInWater() && !this.hasNoGravity() && this.motionY < 0.0 && this.getCurrentAction() != Action.MASTERBATE) {
          this.motionY *= 0.4F;
       }
 
-      this.aB();
-      this.aj();
-      this.aq();
-      this.aw();
+      this.syncRenderYawToRider();
+      this.updateFlightRenderAngles();
+      this.updateMasterLookPitch();
+      this.tickBoostFlight();
       GalathSceneTicks.updateWingsAnimated(this);
       GalathSceneTicks.endTamedCorruptScene(this);
       GalathSceneTicks.handleRapeCum(this);
@@ -662,6 +663,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             }
          }
       } catch (ConcurrentModificationException ex) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
 
       for (int y = pos.getY(); y < 15.0F + pos.getY(); y++) {
@@ -679,7 +681,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return true;
    }
 
-   void aw() {
+   void tickBoostFlight() {
       EntityPlayer player = this.getRidingPlayer();
       Action action = this.getCurrentAction();
       if (player != null) {
@@ -736,7 +738,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return new Vector4d(this.a9, this.bg, this.b4, this.a_);
    }
 
-   void aj() {
+   void updateFlightRenderAngles() {
       this.b4 = this.a9;
       this.a_ = this.bg;
       Vec3d delta = this.predictedPosition.subtract(this.previousPosition);
@@ -798,7 +800,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          if (this.hasMaster()) {
             GalathTamedAi.tickTamedAi(this);
          } else {
-            this.an();
+            this.tickWildAi();
          }
       }
    }
@@ -814,7 +816,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return this.getCurrentAction() != Action.NULL ? false : !(Math.abs(this.motionX) + Math.abs(this.motionZ) > 0.01);
    }
 
-   void aq() {
+   void updateMasterLookPitch() {
       if (this.world.isRemote) {
          if (this.getRidingPlayer() == null) {
             EntityPlayer master = this.getMasterPlayer();
@@ -851,7 +853,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.motionZ = 0.0;
    }
 
-   void ay() {
+   void wanderRandomly() {
       Action action = this.getCurrentAction();
       if (action != Action.RUN) {
          if (action != Action.HUG_MANG) {
@@ -886,7 +888,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
-   BlockPos av() {
+   BlockPos getManglelieOwnerPosition() {
       UUID ownerUuid = GirlSavedData.getManglelieOwnerOf(this);
       if (ownerUuid == null) {
          return BlockPos.ORIGIN;
@@ -911,7 +913,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    @Nullable
-   public UUID ax() {
+   public UUID getRidingPlayerUUID() {
       EntityPlayer rider = this.getRidingPlayer();
       return rider == null ? null : rider.getPersistentID();
    }
@@ -936,7 +938,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.setCurrentAction((Action)null);
    }
 
-   void aB() {
+   void syncRenderYawToRider() {
       EntityPlayer rider = this.getRidingPlayer();
       if (rider != null) {
          this.prevRenderYawOffset = rider.prevRotationYawHead;
@@ -944,10 +946,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
    }
 
-   void an() {
+   void tickWildAi() {
       this.aO.setVisible(true);
-      this.ao();
-      this.as();
+      this.tickFlightSystems();
+      this.tickIdleWander();
    }
 
    /**
@@ -956,7 +958,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
     * actions (see {@link GalathFlightState#initFlightData(GalathEntity)}), keeps the energy-ball
     * hitboxes synced and watches the flight target validity.
     */
-   void ao() {
+   void tickFlightSystems() {
       if (!Action.isAnyAction(this, Action.MASTERBATE, Action.HUG_MANG)) {
          if (this.getInteractionPlayerUUID() == null) {
             GalathFlightState.cancelFlightOnLostTarget(this);
@@ -968,22 +970,22 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
             GalathFlightState.freezeDuringKnockout(this);
             GalathFlightState.handleKnockout(this);
             GalathFlightState.tickKnockoutStandUp(this);
-            GalathEnergyBalls.aG(this);
-            GalathEnergyBalls.aA(this);
-            GalathEnergyBalls.aD(this);
+            GalathEnergyBalls.pruneDeadSkeletons(this);
+            GalathEnergyBalls.spawnSkeletonBreathParticles(this);
+            GalathEnergyBalls.despawnSummonedSkeletons(this);
             GalathEnergyBalls.despawnFarSummonedSkeletons(this);
             GalathSceneTicks.tickWildRapeCum(this);
          }
       }
    }
 
-   void as() {
+   void tickIdleWander() {
       if (this.getTargetEntity() != null) {
          this.wanderTarget = null;
          this.wanderTicks = 0;
       } else if (!(Boolean)this.entityDataManager.get(HIDE_EFFECTS_FLAG)) {
          if (!(Boolean)this.entityDataManager.get(bP)) {
-            this.ay();
+            this.wanderRandomly();
          }
       }
    }
@@ -991,9 +993,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    /**
     * SERVER: the state-machine gate — guards the cum loops and
     * GALATH_DE_SUMMON, persists the cum time via {@link GirlSavedData} for
-    * the tamed cum scenes, and fires the GIVE_COIN ({@link #ap()}),
-    * HUG_MANG ({@link #al()}) and MORNING_BLOWJOB_CUM ({@link #aE()})
-    * teardown hooks.
+    * the tamed cum scenes, and fires the GIVE_COIN
+    * ({@link #grantCoinAndBindMaster()}), HUG_MANG
+    * ({@link #endHugScene()}) and MORNING_BLOWJOB_CUM
+    * ({@link #endMorningBlowjobScene()}) teardown hooks.
     */
    @Override
    public void setCurrentAction(Action action) {
@@ -1018,15 +1021,15 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
                   }
 
                   if (currentAction == Action.GIVE_COIN && action == Action.NULL && !this.world.isRemote) {
-                     this.ap();
+                     this.grantCoinAndBindMaster();
                   }
 
                   if (currentAction == Action.HUG_MANG && action == Action.NULL) {
-                     this.al();
+                     this.endHugScene();
                   }
 
                   if (currentAction == Action.MORNING_BLOWJOB_CUM && action == Action.NULL) {
-                     this.aE();
+                     this.endMorningBlowjobScene();
                   }
 
                   super.setCurrentAction(action);
@@ -1040,7 +1043,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
     * SERVER: the morning-blowjob teardown — resets the bound player and the
     * girl after MORNING_BLOWJOB_CUM.
     */
-   void aE() {
+   void endMorningBlowjobScene() {
       EntityPlayer player = this.getPlayerEntity();
       if (player != null) {
          ResetGirlPacket.Handler.resetGirls((EntityPlayerMP)player);
@@ -1049,7 +1052,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       ResetGirlPacket.Handler.resetGirl(this);
    }
 
-   void al() {
+   void endHugScene() {
       this.setAnchored(false);
       ManglelieEntity manglelie = this.getMangleliePartner(true);
       if (manglelie != null) {
@@ -1062,7 +1065,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
     * {@link GalathCoinItem}, unbinds the scene, binds her to the player as
     * master and explains the coin mechanic in chat.
     */
-   void ap() {
+   void grantCoinAndBindMaster() {
       EntityPlayer player = this.getPlayerEntity();
       if (player != null) {
          ItemStack stack = player.getHeldItemMainhand();
@@ -1415,7 +1418,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    @Override
    public void reinitTasks() {
       this.setTargetEntity(null);
-      GalathFlightState.aH(this);
+      GalathFlightState.clearActiveFlight(this);
    }
 
    public World getWorld() {
@@ -1506,7 +1509,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       GalathNbtIO.read(this, nbt);
    }
 
-   public void ak() {
+   public void startMasterbateSitting() {
       if (this.getCurrentAction() != Action.MASTERBATE_SITTING) {
          this.masterbateSittingPending = true;
          this.setCurrentAction(Action.MASTERBATE_SITTING);
@@ -1843,7 +1846,7 @@ Vec3d flapVec = this.getVectorTowardPlayer();
                      this.spawnSwordParticles = false;
                      break;
                   case "dontDrawStars":
-                     this.aL = false;
+                     this.drawStars = false;
                      break;
                   case "setNude":
                      this.wingsAnimated = true;
@@ -2108,13 +2111,14 @@ Vec3d flapVec = this.getVectorTowardPlayer();
                   for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
                      if (girl.world.isRemote
                         && girl instanceof GalathEntity
-                        && mc.player.getPersistentID().equals(((GalathEntity)girl).ax())) {
+                        && mc.player.getPersistentID().equals(((GalathEntity)girl).getRidingPlayerUUID())) {
                         GalathFlightHud.useCharge();
                         girl.setCurrentAction(Action.BOOST);
                         return;
                      }
                   }
                } catch (ConcurrentModificationException ex) {
+                  // ignored: entity list mutated during iteration; retried on the next tick
                }
             }
          }
@@ -2215,6 +2219,7 @@ Vec3d flapVec = this.getVectorTowardPlayer();
                }
             }
          } catch (ConcurrentModificationException ex) {
+            // ignored: entity list mutated during iteration; retried on the next tick
          }
 
          GlStateManager.enableLighting();

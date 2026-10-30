@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import java.io.PrintWriter;
@@ -77,7 +78,7 @@ public class InHandMapRenderer {
          this.handTexture = new ResourceLocation("sexmod", playerGirl.getHandTexture(outfitIndex));
          this.handColor = playerGirl.getHandColor(outfitIndex);
          if (this.handModel == null) {
-            System.out.println("HAND IS NULL uwu did you forget to assign this girl a hand owo?");
+            Main.LOGGER.info("HAND IS NULL uwu did you forget to assign this girl a hand owo?");
          } else {
             this.mc = Minecraft.getMinecraft();
             float prevProgress = 0.0F;
@@ -100,7 +101,7 @@ public class InHandMapRenderer {
 
                this.PROGRESS_SCALE = 2.0F - (prevProgress + (curProgress - prevProgress) * event.getPartialTicks());
             } catch (Exception exception) {
-               System.out.println("couldnt do the reflection thingy");
+               Main.LOGGER.info("couldnt do the reflection thingy");
                StringWriter stringWriter = new StringWriter();
                exception.printStackTrace(new PrintWriter(stringWriter));
                Minecraft.getMinecraft().player.sendChatMessage(stringWriter.toString());

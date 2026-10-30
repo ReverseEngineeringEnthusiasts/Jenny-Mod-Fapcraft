@@ -80,7 +80,9 @@ public class ReskinReader {
                // extraction failed (e.g. encrypted) — still mark so we don't retry forever
             }
             File marker = new File(dir, MARKER);
-            try { Files.write(marker.toPath(), new byte[0]); } catch (IOException ignored) { }
+            try { Files.write(marker.toPath(), new byte[0]); } catch (IOException ignored) {
+               // ignored: the marker only avoids re-extracting; the files are already unpacked
+            }
          }
          RAR_CACHE.put(key, dir);
          return dir;

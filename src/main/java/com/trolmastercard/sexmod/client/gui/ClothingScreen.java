@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.client.gui;
 
+import com.trolmastercard.sexmod.Main;
+import com.trolmastercard.sexmod.client.GirlCameraHelper;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.BoneType;
@@ -103,7 +105,7 @@ public class ClothingScreen extends GuiScreen {
          this.previewGirl = (BaseGirlEntity)constructor.newInstance(this.mc.world);
          this.previewGirl.setLocallyRegistered(true);
       } catch (Exception e) {
-         e.printStackTrace();
+         Main.LOGGER.error("could not create the clothing preview girl", e);
       }
 
       // Copy the REAL girl's appearance DNA onto the fresh preview so the sliders
@@ -253,7 +255,12 @@ public class ClothingScreen extends GuiScreen {
          this.drawBackground(x, mouseX, mouseY);
       }
 
-      this.drawPartRotated(this.guiX, this.guiY, this.modelRotation, this.previewGirl, 1.2345679F);
+      GirlCameraHelper.beginPreview();
+      try {
+         this.drawPartRotated(this.guiX, this.guiY, this.modelRotation, this.previewGirl, GirlCameraHelper.PREVIEW_PARTIAL_TICK);
+      } finally {
+         GirlCameraHelper.endPreview();
+      }
       this.previewGirl.onUpdate();
       this.modelList.drawScreen(mouseX, mouseY, partialTicks);
 
@@ -309,7 +316,7 @@ public class ClothingScreen extends GuiScreen {
    }
 
    public void onBoneTypeToggle(BoneType boneType, boolean forward, int clickIndex) {
-      System.out.println(String.format("[DEBUG toggle] bone=%s forward=%s clickIndex=%d partsCount=%d mSize=%d", boneType, forward, clickIndex, this.partsCount, m.size()));
+      Main.LOGGER.info(String.format("[DEBUG toggle] bone=%s forward=%s clickIndex=%d partsCount=%d mSize=%d", boneType, forward, clickIndex, this.partsCount, m.size()));
       this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
       ArrayList matches = new ArrayList();
       ArrayList indices = new ArrayList();
@@ -357,7 +364,7 @@ public class ClothingScreen extends GuiScreen {
                currentIndex = partCount - 1;
             }
             String nextName = (String)((List)data.getKey()).get(currentIndex);
-            System.out.println(String.format("[DEBUG toggle result] bone=%s %s -> %s (idx %d->%d/%d)", boneType, prevName, nextName, (Integer)data.getValue(), currentIndex, partCount));
+            Main.LOGGER.info(String.format("[DEBUG toggle result] bone=%s %s -> %s (idx %d->%d/%d)", boneType, prevName, nextName, (Integer)data.getValue(), currentIndex, partCount));
             if (net.minecraft.client.Minecraft.getMinecraft().player != null) net.minecraft.client.Minecraft.getMinecraft().player.sendMessage(new net.minecraft.util.text.TextComponentString(String.format("§e%s: %s -> %s", boneType, prevName, nextName)));
             m.set(index, new SimpleEntry<>((BoneType)entry.getKey(), new SimpleEntry<>((List<String>)((Entry)entry.getValue()).getKey(), currentIndex)));
             // Re-sync previewGirl.customPartsData with m's GIRL_SPECIFIC entries.
@@ -436,7 +443,9 @@ public class ClothingScreen extends GuiScreen {
                   SceneDebug.log(SceneDebug.CLOTHING, "ClothingScreen: opening folder %s (exists=%s)", folder.getAbsolutePath(), folder.exists());
                   if (folder.exists() || folder.mkdirs()) {
                      if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
-                        try { Desktop.getDesktop().open(folder); } catch (IOException ioe) { }
+                        try { Desktop.getDesktop().open(folder); } catch (IOException ioe) {
+                           // ignored: no desktop handler for opening folders; the path above is logged
+                        }
                      }
                   }
                } else {

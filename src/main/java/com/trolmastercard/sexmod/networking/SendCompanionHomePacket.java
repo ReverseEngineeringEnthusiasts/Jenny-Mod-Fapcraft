@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.KoboldEggProjectileEntity;
 import com.trolmastercard.sexmod.entity.Action;
@@ -114,7 +115,7 @@ public class SendCompanionHomePacket implements IMessage {
                );
             return null;
          } else {
-            System.out.println("received an invalid message @SendCompanionHome :(");
+            Main.LOGGER.warn("received an invalid message @SendCompanionHome :(");
             return null;
          }
       }

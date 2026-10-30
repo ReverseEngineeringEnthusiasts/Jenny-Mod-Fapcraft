@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.gui.StructureCommandScreen;
 import com.trolmastercard.sexmod.entity.AbstractNpcOnlyEntity;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
@@ -79,7 +80,7 @@ public class GetTribeUiValuesPacket implements IMessage {
    public static class Handler implements IMessageHandler<GetTribeUiValuesPacket, IMessage> {
       public IMessage onMessage(GetTribeUiValuesPacket packet, MessageContext ctx) {
          if (!packet.isTribeLeader) {
-            System.out.println("received an invalid message @GetTribeUIValues :(");
+            Main.LOGGER.warn("received an invalid message @GetTribeUIValues :(");
             return null;
          } else if (ctx.side.isClient()) {
             StructureCommandScreen.isErasing = packet.isValid;

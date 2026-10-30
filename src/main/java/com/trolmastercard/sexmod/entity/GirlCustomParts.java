@@ -98,13 +98,17 @@ final class GirlCustomParts {
       ArrayList<Integer> out = new ArrayList<>();
       try {
          out.addAll(girl.getBasePartIdList());
-      } catch (Throwable t) { }
+      } catch (Throwable t) {
+         // ignored: optional base part list; the appearance DNA below is the fallback
+      }
       try {
          if (girl instanceof AbstractNpcOnlyEntity || girl instanceof AbstractKoboldPlayerEntity) {
             Object dna = girl.getDataManager().get(AbstractNpcOnlyEntity.APPEARANCE_DNA);
             out.addAll(BaseGirlEntity.decodePartIdList(dna == null ? "" : (String) dna));
          }
-      } catch (Throwable t) { }
+      } catch (Throwable t) {
+         // ignored: undecodable appearance DNA; keep the parts collected so far
+      }
       return out;
    }
 

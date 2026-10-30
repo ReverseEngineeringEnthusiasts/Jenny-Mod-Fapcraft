@@ -31,7 +31,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * <b>Role.</b> The "luna hook" — Luna's fishing-rod bobber entity
- * ({@link LunaEntity#av}). Vanilla fishing-fight simulation: flies from the
+ * ({@link LunaEntity#hookEntity}). Vanilla fishing-fight simulation: flies from the
  * rod, hooks entities or the ground, bobs in water, rolls loot
  * ({@link LootTableList#GAMEPLAY_FISHING}) and hands the catch to Luna.
  * <p>
@@ -82,7 +82,7 @@ public class SexEntity extends Entity {
    private void setOwnerLuna(LunaEntity luna) {
       this.setSize(0.25F, 0.25F);
       this.ignoreFrustumCheck = true;
-      luna.av = this;
+      luna.hookEntity = this;
    }
 
    protected void entityInit() {
@@ -138,7 +138,7 @@ public class SexEntity extends Entity {
    public void positionLunaAbove(double height) {
       LunaEntity luna = this.getOwnerLunaInternal();
       if (luna != null) {
-         BlockPos anchorPos = luna.ai;
+         BlockPos anchorPos = luna.fishingSpot;
          float dist = (float)Math.sqrt(luna.getPositionVector().squareDistanceTo(anchorPos.getX(), anchorPos.getY(), anchorPos.getZ()));
          float angle = -22.5F + 45.0F * (dist / 7.0F);
          float yaw = luna.getYawRotation();

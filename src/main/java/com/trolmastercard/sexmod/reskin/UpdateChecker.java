@@ -164,7 +164,9 @@ public class UpdateChecker {
             if (line.trim().equals(localVersion + "|" + latestTag)) return true;
          }
          r.close();
-      } catch (Throwable t) { }
+      } catch (Throwable t) {
+         // ignored: a missing seen-list simply means no version has been seen yet
+      }
       return false;
    }
 
@@ -182,6 +184,8 @@ public class UpdateChecker {
          String entry = localVersion + "|" + (latestTag == null ? "" : latestTag);
          if (!lines.contains(entry)) lines.add(entry);
          Files.write(f.toPath(), (String.join("\n", lines) + "\n").getBytes(StandardCharsets.UTF_8));
-      } catch (Throwable t) { }
+      } catch (Throwable t) {
+         // ignored: failing to record a seen version is harmless
+      }
    }
 }

@@ -187,6 +187,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
                   }
                }
             } catch (ConcurrentModificationException cme) {
+               // ignored: entity list mutated during iteration; retried on the next tick
             }
 
             if (galath != null) {
@@ -279,7 +280,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
 
    public static void deSummonGalath(GalathEntity galath) {
       galath.setCurrentAction(Action.GALATH_DE_SUMMON);
-      galath.aC();
+      galath.markDespawnedWithPartner();
       galath.setAnchored(true);
       galath.setTargetPosition(galath.getPositionVector());
       galath.setYawRotation(galath.rotationYaw);

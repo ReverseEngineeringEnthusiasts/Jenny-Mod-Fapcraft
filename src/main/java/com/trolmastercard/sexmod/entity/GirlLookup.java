@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.util.ClientServerCheck;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -90,8 +91,7 @@ final class GirlLookup {
             }
          }
       } catch (ConcurrentModificationException ex) {
-         System.out.println("had a ConcurrentModificationException while cycling through the girl list... hopefully nothin borke owo");
-         ex.printStackTrace();
+         Main.LOGGER.warn("had a ConcurrentModificationException while cycling through the girl list... hopefully nothin borke owo", ex);
       }
 
       return girls;
@@ -124,6 +124,7 @@ final class GirlLookup {
             }
          }
       } catch (ConcurrentModificationException ex) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
 
       return null;
@@ -143,6 +144,7 @@ final class GirlLookup {
             }
          }
       } catch (ConcurrentModificationException ex) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
 
       return null;

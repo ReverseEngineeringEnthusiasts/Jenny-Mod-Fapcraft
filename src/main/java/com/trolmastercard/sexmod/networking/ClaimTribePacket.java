@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.EyeAndKoboldColor;
 import com.trolmastercard.sexmod.entity.KoboldEntity;
@@ -100,7 +101,7 @@ public class ClaimTribePacket implements IMessage {
                );
             return null;
          } else {
-            System.out.println("received an invalid message @ClaimTribe :(");
+            Main.LOGGER.warn("received an invalid message @ClaimTribe :(");
             return null;
          }
       }

@@ -55,7 +55,7 @@ public class SexEntityRenderer extends Render<SexEntity> {
    public void doRenderSexEntity(SexEntity entity, double x, double y, double z, float entityYaw, float partialTicks) {
       LunaEntity luna = entity.getOwnerLuna();
       if (luna != null && !this.renderOutlines && luna.zFlag != 1.0F) {
-         luna.av = entity;
+         luna.hookEntity = entity;
          ItemStack heldItem = (ItemStack)luna.getDataManager().get(LunaEntity.ag);
          if (!heldItem.getItem().equals(Items.AIR)) {
             float fps = Minecraft.getDebugFPS();

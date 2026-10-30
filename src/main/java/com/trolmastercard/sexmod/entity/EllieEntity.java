@@ -61,12 +61,12 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * <p>
  * <b>Pitfalls.</b> {@link #setCurrentAction(Action)} refuses re-entry into
  * loop phases while the cum animation plays and arms the carry timer
- * ({@code ak} = 0) on {@link Action#CARRY_INTRO}. The sit-state timers are
- * obfuscated counters: {@code yFlag} (hugidle, 150), {@code al} (sitdown,
- * 109), {@code ai} (sit-up, 79) and {@code zFlag} (dash, 16) — reset them all
- * in {@link #resetSitState()}. {@link #U()} must only run after the hug
- * dialogue; {@code GIRL_HAND_STATES} carries the scene choice from the
- * client packet.
+ * ({@code carryIntroTicks} = 0) on {@link Action#CARRY_INTRO}. The sit-state
+ * timers are plain counters: {@code yFlag} (hugidle, 150), {@code sitDownTicks}
+ * (sitdown, 109), {@code sitUpTicks} (sit-up, 79) and {@code zFlag} (dash, 16)
+ * — reset them all in {@link #resetSitState()}. {@link #U()} must only run
+ * after the hug dialogue; {@code GIRL_HAND_STATES} carries the scene choice
+ * from the client packet.
  */
 public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    static final float ad = 10.0F;
@@ -77,16 +77,16 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    static final int ar = 20;
    static final int ab = 110;
    static final int an = 4;
-   int ak = -1;
+   int carryIntroTicks = -1;
    boolean aq = false;
    boolean ae = false;
    boolean ac = false;
-   int af = -1;
+   int standTicks = -1;
    int yFlag = -1;
-   int al = -1;
-   int ai = -1;
-   boolean ah = false;
-   Object[] am;
+   int sitDownTicks = -1;
+   int sitUpTicks = -1;
+   boolean sitUpActive = false;
+   Object[] sitPose;
    int zFlag = -1;
    int carryVariant = 1;
    boolean alternateMoan = false;
@@ -221,22 +221,23 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
 
    /**
     * Guards the state machine: refuses re-entry into loop phases while the
-    * corresponding cum animation plays, arms the carry timer ({@code ak} = 0)
-    * on {@link Action#CARRY_INTRO}, and records the sit-up delay ({@code ai} =
-    * 79) when {@link Action#HUGSELECTED} is set SERVER-side.
+    * corresponding cum animation plays, arms the carry timer
+    * ({@code carryIntroTicks} = 0) on {@link Action#CARRY_INTRO}, and records
+    * the sit-up delay ({@code sitUpTicks} = 79) when
+    * {@link Action#HUGSELECTED} is set SERVER-side.
     */
    @Override
    public void setCurrentAction(Action action) {
       Action currentAction = this.getCurrentAction();
       if (action == Action.HUGSELECTED && !this.world.isRemote) {
-         this.ai = 79;
+         this.sitUpTicks = 79;
       }
 
       if (currentAction != Action.MISSIONARY_CUM || action != Action.MISSIONARY_FAST && action != Action.MISSIONARY_SLOW) {
          if (currentAction != Action.COWGIRLCUM || action != Action.COWGIRLSLOW && action != Action.COWGIRLFAST) {
             if (currentAction != Action.CARRY_CUM || action != Action.CARRY_SLOW && action != Action.CARRY_FAST) {
                if (action == Action.CARRY_INTRO) {
-                  this.ak = 0;
+                  this.carryIntroTicks = 0;
                }
 
                super.setCurrentAction(action);
@@ -272,14 +273,14 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    /**
-    * Ticks the carry-intro timer ({@code ak}, 110 ticks): when it expires,
-    * repositions the interacting player in front of Ellie so the carry scene
-    * can start.
+    * Ticks the carry-intro timer ({@code carryIntroTicks}, 110 ticks): when it
+    * expires, repositions the interacting player in front of Ellie so the
+    * carry scene can start.
     */
    void handleSitTimer() {
-      if (this.ak != -1) {
-         if (++this.ak >= 110) {
-            this.ak = -1;
+      if (this.carryIntroTicks != -1) {
+         if (++this.carryIntroTicks >= 110) {
+            this.carryIntroTicks = -1;
             if (this.getCurrentAction() == Action.CARRY_INTRO) {
                UUID uuid = this.getInteractionPlayerUUID();
                if (uuid != null) {
@@ -388,17 +389,17 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    void handleStandTimer() {
-      if (--this.af == 0) {
+      if (--this.standTicks == 0) {
          this.U();
       }
    }
 
    void handleSitTransition() {
-      if (this.getCurrentAction() == Action.SITDOWNIDLE && this.af < 0) {
+      if (this.getCurrentAction() == Action.SITDOWNIDLE && this.standTicks < 0) {
          EntityPlayer player = this.world.getClosestPlayerToEntity(this, 10.0);
          if (player != null) {
             if (!(this.getDistance(player) > 1.5F)) {
-               this.af = 20;
+               this.standTicks = 20;
                this.setInteractionPlayerUUID(player.getPersistentID());
             }
          }
@@ -412,30 +413,31 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    }
 
    void handleSitDownTimer() {
-      if (--this.al == 0) {
+      if (--this.sitDownTicks == 0) {
          this.setCurrentAction(Action.SITDOWNIDLE);
       }
    }
 
    /**
-    * SERVER: the sit-up state machine. When the sit-up delay ({@code ai}, 79
-    * ticks) expires or the {@code ah} one-shot is armed, un-anchors Ellie,
-    * walks her to a random bed sit pose ({@link #getRandomSitPose()}), then
-    * anchors her and starts {@link Action#SITDOWN} (110 ticks via
-    * {@code al}) which flows into {@link Action#SITDOWNIDLE}.
+    * SERVER: the sit-up state machine. Runs when the sit-up delay
+    * ({@code sitUpTicks}, 79 ticks) expires: latches {@code sitUpActive},
+    * un-anchors Ellie, walks her to a random bed sit pose
+    * ({@link #getRandomSitPose()}), then anchors her and starts
+    * {@link Action#SITDOWN} (110 ticks via {@code sitDownTicks}) which flows
+    * into {@link Action#SITDOWNIDLE}.
     */
    void handleSitUpTimer() {
-      if (--this.ai == 0 || this.ah) {
-         this.ah = true;
+      if (--this.sitUpTicks == 0 || this.sitUpActive) {
+         this.sitUpActive = true;
          this.entityDataManager.set(IS_ANCHORED, false);
          this.setCurrentAction(Action.NULL);
          this.noClip = false;
          this.setNoGravity(false);
-         if (this.am == null) {
-            this.am = this.getRandomSitPose();
+         if (this.sitPose == null) {
+            this.sitPose = this.getRandomSitPose();
          }
 
-         if (this.am == null) {
+         if (this.sitPose == null) {
             this.sendGirlChatMessage("no bed in sight...");
             this.world.playSound(null, this.getPosition(), SoundHandler.GIRLS_ELLIE_SIGH[0], SoundCategory.NEUTRAL, 6.0F, 1.0F);
             this.resetGirlState();
@@ -447,8 +449,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                player.noClip = false;
             }
 
-            Vec3d sitPos = (Vec3d)this.am[0];
-            int yaw = (Integer)this.am[1];
+            Vec3d sitPos = (Vec3d)this.sitPose[0];
+            int yaw = (Integer)this.sitPose[1];
             if (sitPos.distanceTo(this.getPositionVector()) > 1.0) {
                this.getNavigator().tryMoveToXYZ(sitPos.x, sitPos.y, sitPos.z, 0.35F);
                this.tickPathVelocity();
@@ -457,11 +459,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                this.setYawRotation(yaw);
                this.setCurrentAction(Action.SITDOWN);
                this.entityDataManager.set(IS_ANCHORED, true);
-               this.al = 109;
+               this.sitDownTicks = 109;
                this.noClip = true;
                this.setNoGravity(true);
-               this.ah = false;
-               this.am = null;
+               this.sitUpActive = false;
+               this.sitPose = null;
             }
          }
       }
@@ -590,8 +592,8 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    /**
     * SERVER: full sit-state teardown — un-anchors, resets the action to
     * {@link Action#NULL}, unbinds the interaction player and re-enables
-    * physics. Resets every sit timer ({@code ah}, {@code yFlag}, {@code zFlag},
-    * {@code ai}, {@code am}).
+    * physics. Resets every sit timer ({@code sitUpActive}, {@code yFlag},
+    * {@code zFlag}, {@code sitUpTicks}, {@code sitPose}).
     */
    void resetSitState() {
       this.entityDataManager.set(IS_ANCHORED, false);
@@ -599,11 +601,11 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
       this.setInteractionPlayerUUID(null);
       this.noClip = false;
       this.setNoGravity(false);
-      this.ah = false;
+      this.sitUpActive = false;
       this.yFlag = -1;
       this.zFlag = -1;
-      this.ai = -1;
-      this.am = null;
+      this.sitUpTicks = -1;
+      this.sitPose = null;
    }
 
    /**

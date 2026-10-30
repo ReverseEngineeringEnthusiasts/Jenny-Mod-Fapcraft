@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -49,7 +50,7 @@ public class SetPlayerCamPacket implements IMessage {
    public static class Handler implements IMessageHandler<SetPlayerCamPacket, IMessage> {
       public IMessage onMessage(SetPlayerCamPacket packet, MessageContext ctx) {
          if (packet.isValid && ctx.side == Side.CLIENT) {
-            System.out.println(Thread.currentThread().getName());
+            Main.LOGGER.info(Thread.currentThread().getName());
             Minecraft minecraft = Minecraft.getMinecraft();
             minecraft.addScheduledTask(() -> {
                minecraft.gameSettings.thirdPersonView = packet.camMode;
@@ -64,7 +65,7 @@ public class SetPlayerCamPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("received an invalid message @SetPlayerCam :(");
+            Main.LOGGER.warn("received an invalid message @SetPlayerCam :(");
             return null;
          }
       }

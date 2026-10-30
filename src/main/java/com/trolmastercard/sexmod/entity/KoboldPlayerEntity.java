@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.entity;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.GirlInventoryScreen;
@@ -278,7 +279,7 @@ public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IK
       try {
          return EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(as)).getMainColor();
       } catch (Exception ex) {
-         ex.printStackTrace();
+         Main.LOGGER.error("could not read the kobold hand color", ex);
          return super.getHandColor(index);
       }
    }

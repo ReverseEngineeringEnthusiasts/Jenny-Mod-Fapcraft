@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
 import com.trolmastercard.sexmod.entity.AlliePlayerEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
@@ -179,7 +180,7 @@ public class PlayerGirlEvents {
             playerGirl.dimension = player.dimension;
             playerGirl.setPositionAndUpdate(respawnPos.x, respawnPos.y, respawnPos.z);
             playerGirl.updateAITasks();
-            System.out.println(player.world.isAreaLoaded(playerGirl.getPosition(), 2));
+            Main.LOGGER.info(player.world.isAreaLoaded(playerGirl.getPosition(), 2));
          }
       }
    }

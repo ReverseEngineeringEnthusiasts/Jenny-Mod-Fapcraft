@@ -158,6 +158,7 @@ public class PlayerIds {
             }
          }
       } catch (ConcurrentModificationException exception) {
+         // ignored: entity list mutated during iteration; retried on the next tick
       }
    }
 

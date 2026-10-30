@@ -55,6 +55,7 @@ public class CommandLocateGoblinLair extends CommandBase {
                }
             }
          } catch (ConcurrentModificationException e) {
+            // ignored: entity list mutated during iteration; retried on the next tick
          }
 
          if (lair == null) {

@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -58,7 +59,7 @@ public class SendChatMessagePacket implements IMessage {
          this.isValid = true;
       } catch (IndexOutOfBoundsException exception) {
          this.isValid = false;
-         System.out.println("couldn't read bytes @SendChatMessage :(");
+         Main.LOGGER.warn("couldn't read bytes @SendChatMessage :(");
       }
    }
 
@@ -72,7 +73,7 @@ public class SendChatMessagePacket implements IMessage {
    public static class Handler implements IMessageHandler<SendChatMessagePacket, IMessage> {
       public IMessage onMessage(SendChatMessagePacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("recieved an unvalid message @SendChatMessage :(");
+            Main.LOGGER.info("recieved an unvalid message @SendChatMessage :(");
             return null;
          }
 

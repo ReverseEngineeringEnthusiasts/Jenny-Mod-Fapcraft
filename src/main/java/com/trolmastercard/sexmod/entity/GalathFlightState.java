@@ -161,7 +161,7 @@ final class GalathFlightState {
 
    static void tickFlightStateMachine(GalathEntity galath) {
       if (galath.getTargetEntity() == null) {
-         aH(galath);
+         clearActiveFlight(galath);
       } else if (galath.activeFlight == null) {
          initFlightData(galath);
       } else {
@@ -212,7 +212,7 @@ final class GalathFlightState {
       return flightData.onlyDoThisOnPlayers && !(galath.getTargetEntity() instanceof EntityPlayer) ? false : flightData.canExecute(galath);
    }
 
-   static void aH(GalathEntity galath) {
+   static void clearActiveFlight(GalathEntity galath) {
       galath.activeFlight = null;
    }
 
@@ -236,7 +236,7 @@ final class GalathFlightState {
             );
             Object target = hasMaster ? getPlayerInBox(galath, aabb) : getMobInBox(galath, aabb);
             if (target == null) {
-               aI(galath);
+               clearFlightTarget(galath);
             } else {
                galath.setTargetEntity((EntityLivingBase)target);
                BaseGirlEntity.girlPlaySound(galath, SoundHandler.GIRLS_GALATH_DIALOG[1], true);
@@ -282,7 +282,7 @@ final class GalathFlightState {
       return null;
    }
 
-   static void aI(GalathEntity galath) {
+   static void clearFlightTarget(GalathEntity galath) {
       if (galath.getTargetEntity() != null) {
          galath.setTargetEntity(null);
          if (galath.activeFlight != null) {

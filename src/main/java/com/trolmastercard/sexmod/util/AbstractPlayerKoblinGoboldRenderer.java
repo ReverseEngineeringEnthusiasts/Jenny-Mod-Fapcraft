@@ -192,6 +192,7 @@ public abstract class AbstractPlayerKoblinGoboldRenderer extends GirlPlayerRende
          try {
             MATRIX_STACK.pop();
          } catch (IllegalStateException exception) {
+            // ignored: popping an already-empty matrix stack is harmless
          }
       }
    }

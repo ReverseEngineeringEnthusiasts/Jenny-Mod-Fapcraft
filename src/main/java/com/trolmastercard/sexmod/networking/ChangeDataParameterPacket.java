@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.SlimeEntity;
 import com.trolmastercard.sexmod.entity.Action;
@@ -73,7 +74,7 @@ public class ChangeDataParameterPacket implements IMessage {
    public static class Handler implements IMessageHandler<ChangeDataParameterPacket, IMessage> {
       public IMessage onMessage(ChangeDataParameterPacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("received an invalid message @ChangeDataParameter :(");
+            Main.LOGGER.warn("received an invalid message @ChangeDataParameter :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {

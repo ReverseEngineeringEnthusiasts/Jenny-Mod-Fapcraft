@@ -40,7 +40,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * GirlSavedData, PlayerIds, ...) are registered here.
  */
 public class ForgeEventHandler {
-   public static void registerB(boolean showDebug) {
+   public static void registerAll(boolean showDebug) {
       if (showDebug) {
          // client-only reskin manager (lazy pack import + reload persistence)
          MinecraftForge.EVENT_BUS.register(com.trolmastercard.sexmod.reskin.ReskinManager.INSTANCE);

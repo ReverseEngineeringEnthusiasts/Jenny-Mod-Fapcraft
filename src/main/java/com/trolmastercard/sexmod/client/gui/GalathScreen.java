@@ -124,6 +124,7 @@ public class GalathScreen extends GuiScreen {
       try {
          this.animProgress = Math.min(1.0F, this.animProgress + this.mc.getTickLength() / 5.0F);
       } catch (NullPointerException npe) {
+         // ignored: mc is null while the screen is being constructed; the animation starts next frame
       }
 
       float scale = (float)this.easeOutBack(this.animProgress);

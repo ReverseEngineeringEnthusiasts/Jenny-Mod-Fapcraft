@@ -5,20 +5,23 @@ Everything here is source-grounded: file:line points at the code as it stands.
 
 ## Status
 
-Applied on this branch (all merged, `mvn -o test` green, `./build.sh` produces the jar):
+Applied on this branch (merged, `mvn -o test` 6/6 green, `./build.sh` produces the jar, boots in
+Prism/Cleanroom with Fapcraft 1.1.1):
 
 | § | What landed |
 |---|-------------|
 | 1.1 / 1.2 | dirty-flagged player-girl table (no rebuild on render events), `containsKey` lookup |
 | 1.3 / 1.4 | `GirlFollowGoal` nearest-mob scan (comparator bug fixed), AABB without `BlockPos` |
 | 2.1 | bounded LRU skin cache, textures deleted on eviction, invalidation + session clear |
-| 3 | `StructureMarkerRenderer` early-out + state snapshot/restore; `try/finally` matrix/state in the renderers |
-| 4.2 | identifiers renamed: `PLAYER_GIRL_BY_OWNER`, `SKIN_TEXTURE_CACHE`, `OWNER_UUID`, `usesInvertedCamera()`, `shouldRenderWhenOwnerInvisible()`, … |
-| 4.4 / 4.5 | `pom.xml` is the single version source; first unit tests (`UpdateChecker`, version drift) |
+| 3 | state snapshot/restore in `StructureMarkerRenderer`; `try/finally` matrix/state including the method-spanning pushes (`doRenderEntity`, `renderBoneEffect`, `renderModelBuffer`, `renderCustomBones`, `renderMarkers`) |
+| 4.1 | god classes split: Galath 3193→2351, Kobold 3190→1264, Goblin 2159→828, BaseGirl 1810→1173 (38 helpers, API unchanged) |
+| 4.2 | decompiler names gone: `PLAYER_GIRL_BY_OWNER`, `SKIN_TEXTURE_CACHE`, `OWNER_UUID`, every `*_clashNNN`, the throne/throw offsets and the `aX` field/method long tail, ~200 fields |
+| 4.3 | `System.out`/`err` → `Main.LOGGER` (144), `printStackTrace` → logged (31), empty catches annotated (56) |
+| 4.4 / 4.5 | `pom.xml` single version source; first unit tests (`UpdateChecker`, version drift) |
+| 4.6 | camera sentinel `1.2345679F` replaced by `GirlCameraHelper.previewRenderInProgress` (begin/end preview in try/finally) |
+| 4.7 | `ForgeEventHandler.registerAll(...)` is the single registry (53 of 63 registrations; the rest are per-item self-registration) |
 
-Deferred on purpose: §2.2 (dev-only code kept), §3 method-spanning matrix pushes
-(`doRenderEntity`, outer `renderCustomBones` — needs a reviewed reindent), §4.1 class
-splits, §4.3 logging pass, and everything under §5.
+Deferred on purpose: §2.2 (dev-only code kept) and §5 (gameplay/product ideas).
 
 ## TL;DR — do these first
 
@@ -181,11 +184,14 @@ time someone has to debug a scene.
 ### 4.2 Decompiler names are still in the source
 
 The player-girl state (`AbstractPlayerGirlEntity`), the skin cache (`GirlRenderer`) and the
-dev-float array (`util/DebugMode`) have been renamed to domain terms. What remains:
-`*_clashNNN` methods on the NPC entities (`GoblinEntity`, `GalathEntity`, `KoboldEntity`,
-`EllieEntity`, `LunaEntity`, `ManglelieEntity`) and their per-class `aX`/`aB`/`aM` offsets.
-These are the single biggest obstacle to reading the code. Rename opportunistically:
-touch a file → rename its fields to domain terms → keep behaviour identical.
+dev-float array (`util/DebugMode`) have been renamed to domain terms, and the `*_clashNNN`
+methods plus the `aX`/`aB`/`aM` field and method families on the NPC entities
+(`GoblinEntity`, `GalathEntity`, `KoboldEntity`, `EllieEntity`, `LunaEntity`,
+`ManglelieEntity`) are gone. What remains is the data-manager key block on each entity
+(`b*`, `ad`/`ap`/`ar`, ...), magic constants whose value already reads at the use site, and
+a few write-only flags (`drawStars`, Galath's `aE`/`a5`, Luna's `am`). Rename
+opportunistically: touch a file → rename its fields to domain terms → keep behaviour
+identical.
 
 ### 4.3 Logging
 

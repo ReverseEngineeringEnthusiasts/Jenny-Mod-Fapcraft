@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.util;
 
+import com.trolmastercard.sexmod.Main;
+
 /**
  * Special-build scene debug logging. Each subsystem has its own flag — flip to
  * false to silence it. ENABLED=false silences everything for release.
@@ -35,13 +37,13 @@ public class SceneDebug {
 
    public static void log(String fmt, Object... args) {
       if (ENABLED) {
-         System.out.println("[sexmod-scene] " + String.format(fmt, args));
+         Main.LOGGER.info("[sexmod-scene] " + String.format(fmt, args));
       }
    }
 
    public static void log(boolean flag, String fmt, Object... args) {
       if (ENABLED && flag) {
-         System.out.println("[sexmod-scene] " + String.format(fmt, args));
+         Main.LOGGER.info("[sexmod-scene] " + String.format(fmt, args));
       }
    }
 }

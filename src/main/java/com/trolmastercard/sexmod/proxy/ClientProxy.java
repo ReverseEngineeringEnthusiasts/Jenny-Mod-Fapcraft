@@ -66,7 +66,7 @@ public class ClientProxy extends CommonProxy {
       try { Main.setConfigs(); } catch (java.io.IOException z) { Main.LOGGER.error(z); }
       SoundHandler.registerSounds();
       NetworkRegistry.INSTANCE.registerGuiHandler(Main.instance, new GuiHandler(true));
-      ForgeEventHandler.registerB(true);
+      ForgeEventHandler.registerAll(true);
       PacketHandler.register();
       Minecraft mc = Minecraft.getMinecraft();
       RenderManager renderManager = mc.getRenderManager();
@@ -78,8 +78,7 @@ public class ClientProxy extends CommonProxy {
             renderManager.renderEntity((Entity)npcType.npcClass.getDeclaredConstructor(World.class).newInstance(preloadWorld), 0.0, 0.0, 0.0, 0.0F, 0.0F, false);
          }
       } catch (Exception e) {
-         System.out.println("error while preloading:");
-         e.printStackTrace();
+         Main.LOGGER.error("error while preloading:", e);
       }
 
       IS_PRELOADING = false;

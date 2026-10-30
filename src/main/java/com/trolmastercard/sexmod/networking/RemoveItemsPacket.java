@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -65,7 +66,7 @@ public class RemoveItemsPacket implements IMessage {
             });
             return null;
          } else {
-            System.out.println("recieved an unvalid message @RemoveItems :(");
+            Main.LOGGER.info("recieved an unvalid message @RemoveItems :(");
             return null;
          }
       }

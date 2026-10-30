@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.util.IBeddableSexGirl;
 import com.trolmastercard.sexmod.util.SceneDebug;
@@ -52,7 +53,7 @@ public class SendGirlToSexPacket implements IMessage {
    public static class Handler implements IMessageHandler<SendGirlToSexPacket, IMessage> {
       public IMessage onMessage(SendGirlToSexPacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("received an invalid message @SendGirlToSex :(");
+            Main.LOGGER.warn("received an invalid message @SendGirlToSex :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {

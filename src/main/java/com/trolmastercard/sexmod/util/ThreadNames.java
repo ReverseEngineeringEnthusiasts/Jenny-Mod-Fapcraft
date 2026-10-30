@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.util;
 
+import com.trolmastercard.sexmod.Main;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -119,7 +120,7 @@ public class ThreadNames {
          try {
             Thread.sleep(priority);
          } catch (Exception exception) {
-            exception.printStackTrace();
+            Main.LOGGER.warn("interrupted while delaying the sexmod thread start", exception);
          }
 
          runnable.run();

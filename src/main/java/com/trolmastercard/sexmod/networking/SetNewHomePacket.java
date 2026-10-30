@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.networking;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class SetNewHomePacket implements IMessage {
    public static class Handler implements IMessageHandler<SetNewHomePacket, IMessage> {
       public IMessage onMessage(SetNewHomePacket packet, MessageContext ctx) {
          if (!packet.isValid) {
-            System.out.println("received an invalid message @SetNewHome :(");
+            Main.LOGGER.warn("received an invalid message @SetNewHome :(");
             return null;
          } else {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
