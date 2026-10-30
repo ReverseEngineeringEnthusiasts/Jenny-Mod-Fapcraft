@@ -1,27 +1,19 @@
 package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.Main;
-import com.trolmastercard.sexmod.client.gui.BeeScreen;
-import com.trolmastercard.sexmod.client.gui.EscapeMinigameHud;
 import com.trolmastercard.sexmod.client.gui.GalathFlightHud;
-import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.GirlAnimationController;
 import com.trolmastercard.sexmod.client.renderer.WildSlimeFaceLayer;
-import com.trolmastercard.sexmod.command.CommandFuta;
 import com.trolmastercard.sexmod.entity.ai.DoorInteractAiGoal;
 import com.trolmastercard.sexmod.entity.ai.WatchClosestGirlGoal;
 import com.trolmastercard.sexmod.entity.api.IGalath;
 import com.trolmastercard.sexmod.item.GalathCoinItem;
-import com.trolmastercard.sexmod.networking.GalathRapePouncePacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
-import com.trolmastercard.sexmod.networking.RequestRidingPacket;
 import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.networking.SetPlayerCamPacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.networking.SpawnEnergyBallParticlesPacket2;
 import com.trolmastercard.sexmod.networking.SpawnEnergyBallParticlesPacket;
-import com.trolmastercard.sexmod.networking.TeleportPlayerPacket;
-import com.trolmastercard.sexmod.networking.UpdateVelocityPacket;
 import com.trolmastercard.sexmod.util.AllieWorldData;
 import com.trolmastercard.sexmod.util.BeeWorldData;
 import com.trolmastercard.sexmod.util.ForgeEventHandler;
@@ -29,18 +21,13 @@ import com.trolmastercard.sexmod.util.GalathDamageSource;
 import com.trolmastercard.sexmod.util.GirlSavedData;
 import com.trolmastercard.sexmod.util.GirlWorldData;
 import com.trolmastercard.sexmod.util.KoboldTask;
-import com.trolmastercard.sexmod.util.Reference;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.SuccubusDamageSource;
 import com.trolmastercard.sexmod.util.ThreadNames;
 import com.trolmastercard.sexmod.util.WorldUtils;
 import com.trolmastercard.sexmod.util.VectorMath;
-import com.trolmastercard.sexmod.util.HandlePlayerMovement;
-import com.trolmastercard.sexmod.util.DynamicTrailRenderer;
 import com.trolmastercard.sexmod.util.Vector4d;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
-import com.trolmastercard.sexmod.util.ClientServerCheck;
 import com.trolmastercard.sexmod.util.TrigMath;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -77,7 +64,6 @@ import net.minecraft.entity.monster.EntityWitherSkeleton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -88,11 +74,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.MovementInput;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -147,12 +129,13 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * sends her into {@link Action#KNOCK_OUT_FLY} -&gt; KNOCK_OUT_GROUND
  * ({@link GalathFlightState#handleKnockout(GalathEntity)}) -&gt;
  * KNOCK_OUT_STAND_UP. The corrupting player
- * then right-clicks ({@link #processGirlInteract(EntityPlayer, EnumHand)})
+ * then right-clicks ({@link GalathInteractions#processGirlInteract(GalathEntity, EntityPlayer, EnumHand)})
  * which starts {@link Action#CORRUPT_INTRO}; {@code handleCorruptCum} (server)
  * advances CORRUPT_CUM -&gt; {@link Action#GIVE_COIN} -&gt;
  * {@link #grantCoinAndBindMaster()} grants the coin and binds the master.
- * Tamed: scenes enter through {@link #processMasterInteract} +
- * {@link #doAction(String, UUID)}; {@link #handleRapeState()} and
+ * Tamed: scenes enter through
+ * {@link GalathInteractions#processMasterInteract(GalathEntity, EntityPlayer, EnumHand)} +
+ * {@link GalathInteractions#doAction(GalathEntity, String, UUID)}; {@link #handleRapeState()} and
  * {@link GalathSceneTicks#handleRapeCum(GalathEntity)}/
  * {@link GalathSceneTicks#endTamedCorruptScene(GalathEntity)} end rape/corrupt
  * scenes
@@ -524,25 +507,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    /**
-    * SERVER: ends the rape scene — once the RAPE_ON_GOING loop leaves for
-    * RAPE_CUM she switches to flight repositioning (CHANGE_POSITION) and
-    * releases the player.
+    * SERVER: ends the rape scene, see
+    * {@link GalathActions#handleRapeState(GalathEntity)}.
     */
    public void handleRapeState() {
-      Action action = this.getCurrentAction();
-      if (action == Action.RAPE_ON_GOING) {
-         this.activeFlight = GalathFlightData.CHANGE_POSITION;
-         this.activeFlight.executeStart(this);
-         this.setAnchored(false);
-         this.setCurrentAction(Action.FLY);
-         EntityPlayer player = this.getPlayerEntity();
-         this.setInteractionPlayerUUID(null);
-         if (player != null) {
-            PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)player);
-         }
-
-         BaseGirlEntity.girlPlaySound(this, SoundHandler.GIRLS_GALATH_DIALOG[0]);
-      }
+      GalathActions.handleRapeState(this);
    }
 
    public Vec3d getFlightTargetPos() {
@@ -599,7 +568,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    public void onUpdate() {
       boolean hasMasterFlag = this.hasMaster();
       if (hasMasterFlag) {
-         this.updateRidingGravity();
+         GalathRiding.updateRidingGravity(this);
       } else {
          this.updateFlightUI();
       }
@@ -622,10 +591,6 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return false;
    }
 
-   void updateRidingGravity() {
-      this.setNoGravity(this.getRidingPlayer() != null);
-   }
-
    /**
     * SERVER: tamed per-tick systems — soft fall damping, riding-player yaw
     * sync, the carry camera pitch, the boost impulse, wing/effect flags, and
@@ -637,10 +602,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
          this.motionY *= 0.4F;
       }
 
-      this.syncRenderYawToRider();
+      GalathRiding.syncRenderYawToRider(this);
       this.updateFlightRenderAngles();
-      this.updateMasterLookPitch();
-      this.tickBoostFlight();
+      GalathRiding.updateMasterLookPitch(this);
+      GalathRiding.tickBoostFlight(this);
       GalathSceneTicks.updateWingsAnimated(this);
       GalathSceneTicks.endTamedCorruptScene(this);
       GalathSceneTicks.handleRapeCum(this);
@@ -679,27 +644,6 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       }
 
       return true;
-   }
-
-   void tickBoostFlight() {
-      EntityPlayer player = this.getRidingPlayer();
-      Action action = this.getCurrentAction();
-      if (player != null) {
-         if (action == Action.BOOST) {
-            int sideIndex = ClientServerCheck.getInstance() ? 0 : 1;
-            if (action.ticksPlaying[sideIndex] >= 13) {
-               if (action.ticksPlaying[sideIndex] == 13) {
-                  this.boostSpeed = 6.0F;
-               }
-
-               Vec3d look = player.getLook(0.0F).normalize();
-               this.motionX = look.x * this.boostSpeed;
-               this.motionY = look.y * this.boostSpeed;
-               this.motionZ = look.z * this.boostSpeed;
-               this.boostSpeed *= 0.94F;
-            }
-         }
-      }
    }
 
    void updateFlightUI() {
@@ -816,41 +760,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return this.getCurrentAction() != Action.NULL ? false : !(Math.abs(this.motionX) + Math.abs(this.motionZ) > 0.01);
    }
 
-   void updateMasterLookPitch() {
-      if (this.world.isRemote) {
-         if (this.getRidingPlayer() == null) {
-            EntityPlayer master = this.getMasterPlayer();
-            if (master != null) {
-               this.handleGalathPlayer(master);
-            }
-         }
-      }
-   }
-
-   void handleGalathPlayer(EntityPlayer player) {
-      AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player.getPersistentID());
-      Vec3d headPos = new Vec3d(player.posX, player.posY + (playerGirl == null ? player.eyeHeight : playerGirl.getEyeHeight()), player.posZ);
-      Vec3d eyePos = new Vec3d(this.posX, this.posY + this.getEyeHeight(), this.posZ);
-      double dist = eyePos.distanceTo(headPos);
-      double heightDiff = headPos.y - eyePos.y;
-      this.rotationPitch = (float)(-(Math.sin(heightDiff / dist) * (180.0 / Math.PI)));
-   }
-
    protected void handlePlayerRide(EntityPlayer player) {
-      int attempts = 0;
-
-      BlockPos teleportPos;
-      do {
-         teleportPos = player.getPosition().add(Reference.RANDOM.nextInt(4), 0, Reference.RANDOM.nextInt(4));
-      } while (++attempts < 20 && !this.attemptTeleport(teleportPos.getX(), teleportPos.getY(), teleportPos.getZ()));
-
-      if (attempts >= 20) {
-         this.setPosition(player.posX, player.posY, player.posZ);
-      }
-
-      this.motionX = 0.0;
-      this.motionY = 0.0;
-      this.motionZ = 0.0;
+      GalathRiding.handlePlayerRide(this, player);
    }
 
    void wanderRandomly() {
@@ -934,16 +845,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public void resetInteractionState() {
-      this.setInteractionPlayerUUID(null);
-      this.setCurrentAction((Action)null);
-   }
-
-   void syncRenderYawToRider() {
-      EntityPlayer rider = this.getRidingPlayer();
-      if (rider != null) {
-         this.prevRenderYawOffset = rider.prevRotationYawHead;
-         this.renderYawOffset = rider.rotationYawHead;
-      }
+      GalathActions.resetInteractionState(this);
    }
 
    void tickWildAi() {
@@ -991,115 +893,36 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    /**
-    * SERVER: the state-machine gate — guards the cum loops and
-    * GALATH_DE_SUMMON, persists the cum time via {@link GirlSavedData} for
-    * the tamed cum scenes, and fires the GIVE_COIN
-    * ({@link #grantCoinAndBindMaster()}), HUG_MANG
-    * ({@link #endHugScene()}) and MORNING_BLOWJOB_CUM
-    * ({@link #endMorningBlowjobScene()}) teardown hooks.
+    * SERVER: the state-machine gate, see
+    * {@link GalathActions#setCurrentAction(GalathEntity, Action)}.
     */
    @Override
    public void setCurrentAction(Action action) {
-      Action currentAction = this.getCurrentAction();
-      if (currentAction != Action.GALATH_DE_SUMMON) {
-         if (currentAction != Action.CORRUPT_CUM || action != Action.CORRUPT_FAST && action != Action.CORRUPT_SLOW) {
-            if (currentAction != Action.RAPE_CUM || action != Action.RAPE_ON_GOING) {
-               if (currentAction != Action.MORNING_BLOWJOB_CUM || action != Action.MORNING_BLOWJOB_SLOW && action != Action.MORNING_BLOWJOB_FAST) {
-                  if (!this.world.isRemote && Action.isAny(currentAction, Action.CORRUPT_CUM, Action.RAPE_CUM, Action.MORNING_BLOWJOB_CUM)) {
-                     GirlSavedData.saveCumTime(this.getInteractionPlayerUUID(), this.world.getTotalWorldTime());
-                  }
-
-                  if (action == Action.CORRUPT_SLOW) {
-                     this.corruptHard = false;
-                     if (currentAction == Action.CORRUPT_INTRO) {
-                        this.setFlying(false);
-                     }
-
-                     if (this.hasMaster() && currentAction == Action.NULL) {
-                        this.setFlying(true);
-                     }
-                  }
-
-                  if (currentAction == Action.GIVE_COIN && action == Action.NULL && !this.world.isRemote) {
-                     this.grantCoinAndBindMaster();
-                  }
-
-                  if (currentAction == Action.HUG_MANG && action == Action.NULL) {
-                     this.endHugScene();
-                  }
-
-                  if (currentAction == Action.MORNING_BLOWJOB_CUM && action == Action.NULL) {
-                     this.endMorningBlowjobScene();
-                  }
-
-                  super.setCurrentAction(action);
-               }
-            }
-         }
-      }
+      GalathActions.setCurrentAction(this, action);
    }
 
    /**
-    * SERVER: the morning-blowjob teardown — resets the bound player and the
-    * girl after MORNING_BLOWJOB_CUM.
+    * Keeps the super call reachable from {@link GalathActions} while the
+    * transition gate lives there.
     */
-   void endMorningBlowjobScene() {
-      EntityPlayer player = this.getPlayerEntity();
-      if (player != null) {
-         ResetGirlPacket.Handler.resetGirls((EntityPlayerMP)player);
-      }
+   void setCurrentActionBase(Action action) {
+      super.setCurrentAction(action);
+   }
 
-      ResetGirlPacket.Handler.resetGirl(this);
+   void endMorningBlowjobScene() {
+      GalathActions.endMorningBlowjobScene(this);
    }
 
    void endHugScene() {
-      this.setAnchored(false);
-      ManglelieEntity manglelie = this.getMangleliePartner(true);
-      if (manglelie != null) {
-         manglelie.setCorrupting(true);
-      }
+      GalathActions.endHugScene(this);
    }
 
-   /**
-    * SERVER: the coin grant — swaps the player's main hand for the
-    * {@link GalathCoinItem}, unbinds the scene, binds her to the player as
-    * master and explains the coin mechanic in chat.
-    */
    void grantCoinAndBindMaster() {
-      EntityPlayer player = this.getPlayerEntity();
-      if (player != null) {
-         ItemStack stack = player.getHeldItemMainhand();
-         player.setHeldItem(EnumHand.MAIN_HAND, new ItemStack(GalathCoinItem.GALATH_COIN));
-         if (!stack.isEmpty()) {
-            player.inventory.addItemStackToInventory(stack);
-         }
-
-         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(true), (EntityPlayerMP)player);
-         this.setInteractionPlayerUUID(null);
-         this.setTargetEntity(null);
-         player.sendMessage(
-            new TextComponentString(
-               TextFormatting.GRAY
-                  + "Defeating a succubus makes her accept the victor as her master, granting him a coin to which her soul is bound. Using the coin summons her, offering services on demand. If her master uses the coin on her or goes too far, she returns to the coin"
-            )
-         );
-         GirlSavedData.updateMangleliePartner(this);
-         player.setPositionAndUpdate(player.posX, Math.ceil(player.posY) + 1.0, player.posZ);
-      }
+      GalathActions.grantCoinAndBindMaster(this);
    }
 
    void setFlying(boolean flying) {
-      EntityPlayer player = this.getPlayerEntity();
-      if (player != null) {
-         Vec3d pos;
-         if (flying) {
-            pos = new Vec3d(-0.5, 0.5F - player.getEyeHeight(), 0.4F).add(this.getTargetPosition());
-         } else {
-            pos = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5F - player.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
-         }
-
-         player.setPositionAndUpdate(pos.x, pos.y, pos.z);
-      }
+      GalathActions.setFlying(this, flying);
    }
 
    @SideOnly(Side.CLIENT)
@@ -1134,18 +957,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public boolean canStartPussyLicking() {
-      if (this.getMangleliePartner(true) != null) {
-         return false;
-      }
-
-      ManglelieEntity manglelie = new ManglelieEntity(this.world);
-      this.setMangleliePartnerUUID(manglelie.getGirlId());
-      manglelie.setGalathPartnerUUID(this.getGirlId());
-      manglelie.setCorrupting(true);
-      manglelie.setCurrentAction(Action.RIDE_MOMMY_HEAD);
-      manglelie.setPositionAndUpdate(this.posX, this.posY, this.posZ);
-      this.world.spawnEntity(manglelie);
-      return true;
+      return GalathActions.canStartPussyLicking(this);
    }
 
    public static void handlePlayerJoin(EntityPlayer player) {
@@ -1175,133 +987,27 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       return super.asGirl();
    }
 
+   @Override
    protected boolean processInteract(EntityPlayer player, EnumHand hand) {
-      return this.hasMaster() ? this.processMasterInteract(player, hand) : this.processGirlInteract(player, hand);
+      return GalathInteractions.processInteract(this, player, hand);
    }
 
    /**
-    * SERVER: tamed interaction — only the master may interact; the action
-    * menu depends on held items (no coin) and context: ride while airborne,
-    * cowgirl/anal (+ threesome with a Manglelie) on the ground.
+    * Keeps the super call reachable from {@link GalathInteractions} while the
+    * master/girl interaction split lives there.
     */
-   boolean processMasterInteract(EntityPlayer player, EnumHand hand) {
-      if (!player.getPersistentID().equals(this.getMasterUUID())) {
-         return false;
-      }
-
-      if (Action.isAnyAction(this, Action.HUG_MANG, Action.RUN, Action.GALATH_SUMMON, Action.GALATH_DE_SUMMON, Action.MASTERBATE)) {
-         return false;
-      }
-
-      if (!GalathCoinItem.GALATH_COIN.equals(player.getHeldItem(EnumHand.OFF_HAND).getItem())
-         && !GalathCoinItem.GALATH_COIN.equals(player.getHeldItem(EnumHand.MAIN_HAND).getItem())) {
-         this.playRandomSound(SoundHandler.GIRLS_GALATH_HUH);
-         String[] options;
-         if (!player.onGround) {
-            options = new String[]{"ride"};
-         } else if (this.getMangleliePartner(false) == null) {
-            options = new String[]{"cowgirl", "anal", "ride"};
-         } else {
-            options = new String[]{"cowgirl", "anal", "threesome", "ride"};
-         }
-
-         if (this.world.isRemote) {
-            openInventoryGui(player, this.getSelf(), options, false);
-         }
-
-         return true;
-      } else {
-         return false;
-      }
+   boolean processInteractBase(EntityPlayer player, EnumHand hand) {
+      return super.processInteract(player, hand);
    }
 
    /**
-    * CLIENT: master-action dispatch — {@code ride} shows the flight HUD and
-    * requests riding; {@code anal}/{@code cowgirl}/{@code threesome} arm the
-    * scene after a 1200 ms delay thread (anchor + start the action + bind
-    * the player; the threesome also starts Manglelie on
-    * {@link Action#THREESOME_SLOW} + {@link Action#PUSSY_LICKING}).
+    * CLIENT: master-action dispatch, see
+    * {@link GalathInteractions#doAction(GalathEntity, String, UUID)}.
     */
    @SideOnly(Side.CLIENT)
    @Override
    public void doAction(String action, UUID uuid) {
-      if ("ride".equals(action)) {
-         GalathFlightHud.showHud();
-         PacketHandler.networkWrapper.sendToServer(new RequestRidingPacket());
-      } else if ("anal".equals(action)) {
-         BeeScreen.enableInteraction();
-         HandlePlayerMovement.setMovementLock(false);
-         ThreadNames.createDaemonThread(1200, () -> {
-            EntityPlayerSP player = Minecraft.getMinecraft().player;
-            this.setTargetPosition(player.getPositionVector());
-            this.setYawRotation(0.0F);
-            this.setInteractionPlayerUUID(player.getPersistentID());
-            this.setAnchored(true);
-            this.setCurrentAction(Action.CORRUPT_SLOW);
-         });
-      } else if ("cowgirl".equals(action)) {
-         BeeScreen.enableInteraction();
-         HandlePlayerMovement.setMovementLock(false);
-         ThreadNames.createDaemonThread(1200, () -> {
-            EntityPlayerSP player = Minecraft.getMinecraft().player;
-            this.setTargetPosition(player.getPositionVector());
-            this.setYawRotation(player.rotationYaw + 180.0F);
-            this.setCurrentAction(Action.RAPE_INTRO);
-            this.setInteractionPlayerUUID(player.getPersistentID());
-            this.setAnchored(true);
-         });
-      } else {
-         if ("threesome".equals(action)) {
-            ManglelieEntity manglelie = this.getMangleliePartner(false);
-            if (manglelie == null) {
-               return;
-            }
-
-            BeeScreen.enableInteraction();
-            HandlePlayerMovement.setMovementLock(false);
-            ThreadNames.createDaemonThread(1200, () -> {
-               Minecraft mc = Minecraft.getMinecraft();
-               EntityPlayerSP player = mc.player;
-               mc.gameSettings.thirdPersonView = 1;
-               manglelie.setTargetPosition(player.getPositionVector());
-               this.setTargetPosition(player.getPositionVector());
-               manglelie.setYawRotation(player.rotationYaw + 180.0F);
-               this.setYawRotation(player.rotationYaw);
-               manglelie.setCurrentAction(Action.THREESOME_SLOW);
-               this.setCurrentAction(Action.PUSSY_LICKING);
-               manglelie.setInteractionPlayerUUID(player.getPersistentID());
-               this.setInteractionPlayerUUID(player.getPersistentID());
-               manglelie.setAnchored(true);
-               this.setAnchored(true);
-            });
-         }
-      }
-   }
-
-   /**
-    * SERVER: the corruption trigger — a knocked-out (paralyzed) Galath being
-    * right-clicked by a non-owner player starts {@link Action#CORRUPT_INTRO}
-    * anchored and locks the player in.
-    */
-   boolean processGirlInteract(EntityPlayer player, EnumHand hand) {
-      if (!(Boolean)this.entityDataManager.get(bP)) {
-         return super.processInteract(player, hand);
-      } else if (this.getCurrentAction() != Action.KNOCK_OUT_GROUND) {
-         return super.processInteract(player, hand);
-      } else if (this.world.isRemote) {
-         player.rotationYaw -= -128.0F;
-         player.rotationPitch = 19.0F;
-         return true;
-      } else {
-         this.setCurrentAction(Action.CORRUPT_INTRO);
-         this.setInteractionPlayerUUID(player.getPersistentID());
-         this.setAnchored(true);
-         this.setTargetPosition(this.getPositionVector());
-         this.setYawRotation(player.rotationYaw);
-         PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)player);
-         player.setPositionAndUpdate(this.posX, this.posY, this.posZ);
-         return true;
-      }
+      GalathInteractions.doAction(this, action, uuid);
    }
 
    @Nullable
@@ -1357,62 +1063,23 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    void playHurtSound(float damage) {
-      if (this.world.isRemote) {
-         if (!(this.getHealth() - damage <= 0.0F)) {
-            long now = System.currentTimeMillis();
-            if (now >= this.bc + 1000L) {
-               this.playRandomSound(SoundHandler.GIRLS_GALATH_UUH);
-               this.bc = now;
-            }
-         }
-      }
+      GalathCombat.playHurtSound(this, damage);
    }
 
    public boolean attackEntityFrom(DamageSource source, float amount) {
-      if (source.isFireDamage()) {
-         return false;
-      }
+      return GalathCombat.attackEntityFrom(this, source, amount);
+   }
 
-      if (DamageSource.DROWN.equals(source)) {
-         return false;
-      }
-
-      if (DamageSource.CACTUS.equals(source)) {
-         return false;
-      }
-
-      if (DamageSource.FALL.equals(source)) {
-         return false;
-      }
-
-      if (DamageSource.FLY_INTO_WALL.equals(source)) {
-         return false;
-      }
-
-      this.playHurtSound(amount);
+   /**
+    * Keeps the super call reachable from {@link GalathCombat} while the damage
+    * gate lives there.
+    */
+   boolean attackEntityFromBase(DamageSource source, float amount) {
       return super.attackEntityFrom(source, amount);
    }
 
    public boolean attackEntityFromPart(MultiPartEntityPart part, DamageSource source, float amount) {
-      if (this.world.isRemote) {
-         return false;
-      }
-
-      if (!(source.getTrueSource() instanceof EntityPlayer)) {
-         return false;
-      }
-
-      if (part == this.energyBallHitboxRight) {
-         this.entityDataManager.set(b7, false);
-         PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(this.energyBallHitboxRight.getPositionVector(), false), this);
-      }
-
-      if (part == this.b2) {
-         this.entityDataManager.set(bN, false);
-         PacketHandler.networkWrapper.sendToAllTracking(new SpawnEnergyBallParticlesPacket2(this.b2.getPositionVector(), false), this);
-      }
-
-      return true;
+      return GalathCombat.attackEntityFromPart(this, part, source, amount);
    }
 
    @Override
@@ -1476,25 +1143,11 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    /**
-    * SERVER: per-tick rape damage — while RAPE_ON_GOING/RAPE_INTRO the bound
-    * player takes 1 HP (non-creative, survives at 1), and Galath heals 1.5
-    * per pulse when {@code applyDamage} is set.
+    * SERVER: per-tick rape damage, see
+    * {@link GalathCombat#handleRapeAction(GalathEntity, boolean)}.
     */
    public void handleRapeAction(boolean applyDamage) {
-      Action action = this.getCurrentAction();
-      if (action == Action.RAPE_ON_GOING || action == Action.RAPE_INTRO) {
-         EntityPlayer player = this.getPlayerEntity();
-         if (player != null) {
-            if (!(0.0F >= player.getHealth() - 1.0F)) {
-               if (!player.capabilities.isCreativeMode) {
-                  player.attackEntityFrom(new SuccubusDamageSource(this), 1.0F);
-                  if (applyDamage) {
-                     this.heal(1.5F);
-                  }
-               }
-            }
-         }
-      }
+      GalathCombat.handleRapeAction(this, applyDamage);
    }
 
    @Override
@@ -1510,231 +1163,32 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    public void startMasterbateSitting() {
-      if (this.getCurrentAction() != Action.MASTERBATE_SITTING) {
-         this.masterbateSittingPending = true;
-         this.setCurrentAction(Action.MASTERBATE_SITTING);
-      }
+      GalathActions.startMasterbateSitting(this);
    }
 
    public void startPussyLicking() {
-      this.a5 = true;
-      this.setCurrentAction(Action.PUSSY_LICKING);
+      GalathActions.startPussyLicking(this);
    }
 
    @Override
    protected boolean handleActionAnimationOverrides(Action action, String animName, boolean started, AnimationEvent event) {
-      if (action == Action.MASTERBATE_SITTING && this.masterbateSittingPending) {
-         this.masterbateSittingPending = false;
-         this.createAnimation("animation.galath.masterbating_sitting", true, event, true);
-         return true;
-      }
-
-      if (action == Action.MORNING_BLOWJOB_FAST && this.morningBlowjobStarted) {
-         this.setCurrentAction(Action.MORNING_BLOWJOB_CUM);
-         return true;
-      }
-
-      if (action == Action.MORNING_BLOWJOB_FAST && this.bedSoftAnimation) {
-         this.createAnimation("animation.shared.bed_fast", true, event, true);
-         this.bedSoftAnimation = false;
-         return true;
-      }
-
-      if (action == Action.MORNING_BLOWJOB_CUM) {
-         this.setCurrentAction((Action)null);
-         return true;
-      }
-
-      if (action == Action.PUSSY_LICKING && this.a5) {
-         this.a5 = false;
-         this.createAnimation("animation.galath.pussy_licking", true, event, true);
-         return true;
-      }
-
-      if (action != Action.MORNING_BLOWJOB_SLOW || !this.morningBlowjobStarted && !HandlePlayerMovement.isJumping) {
-         if (action == Action.MORNING_BLOWJOB_SLOW && this.bedBackAnimation) {
-            this.bedBackAnimation = false;
-            this.createAnimation("animation.shared.bed_slow", true, event, true);
-            return true;
-         } else if (action == Action.MORNING_BLOWJOB_FAST && !HandlePlayerMovement.isJumping) {
-            this.setCurrentAction(Action.MORNING_BLOWJOB_SLOW);
-            this.bedBackAnimation = true;
-            this.createAnimation("animation.shared.bed_back", true, event, true);
-            return true;
-         } else {
-            return false;
-         }
-      } else {
-         this.bedSoftAnimation = true;
-         this.setCurrentAction(Action.MORNING_BLOWJOB_FAST);
-         this.createAnimation("animation.shared.bed_soft", true, event, true);
-         return true;
-      }
+      return GalathAnimations.handleActionAnimationOverrides(this, action, animName, started, event);
    }
 
    public float getSwordAttackProgress(float partialTicks) {
-      Action action = this.getCurrentAction();
-      if (action == Action.PUSSY_LICKING && !this.a5) {
-         return 0.0F;
-      }
-
-      if (action == Action.MASTERBATE_SITTING && !this.masterbateSittingPending) {
-         return 1.0F;
-      }
-
-      float scale = Action.getActionTimeScale(this, partialTicks);
-      return action == Action.MASTERBATE_SITTING ? scale : 1.0F - scale;
+      return GalathAnimations.getSwordAttackProgress(this, partialTicks);
    }
 
    @Override
    protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
-      if (this.isLocallyRegistered()) {
-         this.createAnimation("animation.galath.idle", true, event);
-         return PlayState.CONTINUE;
-      }
-
-      Action action = this.getCurrentAction();
-      AnimationController controller = event.getController();
-      controller.setAnimationSpeed(1.0);
-      if (controller.equals(this.eyesController)) {
-         if (action.autoBlink && action != Action.GALATH_DE_SUMMON) {
-            this.createAnimation("animation.galath.blink", true, event);
-            return PlayState.CONTINUE;
-         } else {
-            return PlayState.STOP;
-         }
-      } else if (controller.equals(this.movementController)) {
-         if (action != Action.NULL) {
-            return PlayState.STOP;
-         } else if (!this.onGround) {
-            this.createAnimation("animation.galath.controlled_flight", true, event);
-            return PlayState.CONTINUE;
-         } else {
-            Vec3d movement = this.getPositionVector().subtract(new Vec3d(this.lastTickPosX, this.lastTickPosY, this.lastTickPosZ));
-            if (movement.equals(Vec3d.ZERO)) {
-               this.createAnimation("animation.galath.idle", true, event);
-               return PlayState.CONTINUE;
-            } else {
-               this.rotationYaw = this.rotationYawHead;
-               this.createAnimation("animation.galath." + (this.entityDataManager.get(bT) ? "run" : "walk"), true, event);
-               return PlayState.CONTINUE;
-            }
-         }
-      } else {
-         switch (this.getCurrentAction()) {
-            case HUG_MANG:
-               this.createAnimation("animation.galath.hug_mang", true, event);
-               break;
-            case MORNING_BLOWJOB_SLOW:
-               this.createAnimation(this.bedBackAnimation ? "animation.shared.bed_back" : "animation.shared.bed_slow", true, event);
-               break;
-            case MORNING_BLOWJOB_FAST:
-               if (this.bedSoftAnimation) {
-                  this.createAnimation("animation.shared.bed_soft", true, event);
-               } else {
-                  this.playRandomizedAnimation("animation.shared.bed_fast", 4, 0.75F, event);
-               }
-               break;
-            case MORNING_BLOWJOB_CUM:
-               this.createAnimation("animation.shared.bed_cum", true, event);
-               break;
-            case RAPE_INTRO:
-               this.createAnimation("animation.galath.rape_intro", true, event);
-               break;
-            case RAPE_ON_GOING:
-               this.createAnimation("animation.galath.rape" + this.rapeVariant, true, event);
-               break;
-            case RAPE_CUM:
-               this.createAnimation("animation.galath.rape_cum", true, event);
-               break;
-            case RAPE_CHARGE:
-               this.createAnimation("animation.galath.rape_charge", true, event);
-               break;
-            case RAPE_CUM_IDLE:
-               this.createAnimation("animation.galath.rape_cum_idle", true, event);
-               break;
-            case CORRUPT_SLOW:
-               this.createAnimation("animation.galath.corrupt_slow", true, event);
-               break;
-            case CORRUPT_FAST:
-               this.createAnimation("animation.galath.corrupt_" + (this.corruptHard ? "hard" : "soft"), true, event);
-               break;
-            case CORRUPT_CUM:
-               this.createAnimation("animation.galath.corrupt_cum", true, event);
-               break;
-            case MASTERBATE:
-               this.createAnimation("animation.galath.masterbate", true, event);
-               break;
-            case RAPE_PREPARE:
-               this.createAnimation("animation.galath.rape_prepare", true, event);
-               break;
-            case CORRUPT_INTRO:
-               this.createAnimation("animation.galath.corrupt_intro", true, event);
-            case COWGIRLCUM:
-            default:
-               break;
-            case NULL:
-               return PlayState.STOP;
-            case FLY:
-               this.createAnimation("animation.galath.idle_flying", true, event);
-               break;
-            case SUMMON_SKELETON:
-               this.createAnimation("animation.galath.summon_skeleton" + (this.entityDataManager.get(ay) ? "Mirrored" : ""), true, event);
-               break;
-            case ATTACK_SWORD:
-               this.createAnimation("animation.galath.attack", true, event);
-               break;
-            case KNOCK_OUT_FLY:
-               controller.setAnimationSpeed(1.5);
-               this.createAnimation("animation.galath.knockout_air", true, event);
-               break;
-            case KNOCK_OUT_GROUND:
-               this.createAnimation("animation.galath.knocked_out", true, event);
-               break;
-            case KNOCK_OUT_STAND_UP:
-               this.createAnimation("animation.galath.knocked_out_stand_up", true, event);
-               break;
-            case CONTROLLED_FLIGHT:
-               this.createAnimation("animation.galath.controlled_flight", true, event);
-               break;
-            case BOOST:
-               this.createAnimation("animation.galath.boost", true, event);
-               break;
-            case GALATH_SUMMON:
-               this.createAnimation("animation.galath.summon", false, event);
-               break;
-            case GALATH_DE_SUMMON:
-               this.createAnimation("animation.galath.desummon" + (this.onGround ? "_standing" : ""), true, event);
-               break;
-            case GIVE_COIN:
-               this.createAnimation("animation.galath.give_coin", true, event);
-               break;
-            case RUN:
-               controller.setAnimationSpeed(0.7);
-               this.createAnimation("animation.galath.running", true, event);
-               break;
-            case PUSSY_LICKING:
-               this.createAnimation(this.a5 ? "animation.galath.pussy_licking_forward" : "animation.galath.pussy_licking", true, event);
-               break;
-            case MASTERBATE_SITTING:
-               this.createAnimation(this.masterbateSittingPending ? "animation.galath.pussy_licking_back" : "animation.galath.masterbating_sitting", true, event);
-               break;
-            case MASTERBATE_SITTING_CUM:
-               this.createAnimation("animation.galath.masterbating_sitting_cum", true, event);
-         }
-
-         return PlayState.CONTINUE;
-      }
+      return GalathAnimations.animationPredicate(this, event);
    }
 
    /**
     * CLIENT: registers the action (via {@link GirlAnimationController}),
-    * movement and eyes controllers plus the sound listener that drives the
-    * wild fight (charge sounds, sword render toggles, stars) and the tamed
-    * scenes (rape switch/UI, corrupt switch, coin cam, morning blowjob,
-    * creampie trails). {@code blackScreenTamed} only black-screens wild
-    * girls; {@code flapControlled} sends the flight input as
-    * {@link UpdateVelocityPacket}.
+    * movement and eyes controllers on the entity and hands the sound listener
+    * to {@link GalathAnimations#handleSoundKeyframe(GalathEntity,
+    * software.bernie.geckolib3.core.event.SoundKeyframeEvent)}.
     */
    @SideOnly(Side.CLIENT)
    @Override
@@ -1742,322 +1196,7 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
       this.actionController = new GirlAnimationController<>(this, "action", 0.0F, this::animationPredicate);
       this.movementController = new AnimationController<>(this, "movement", 5.0F, this::animationPredicate);
       this.eyesController = new AnimationController<>(this, "eyes", 10.0F, this::animationPredicate);
-      this.actionController
-         .registerSoundListener(
-            sound -> {
-               switch (sound.sound) {
-                  case "goodTiming":
-                     this.playSound(SoundHandler.GIRLS_GALATH_DIALOG[4]);
-                     this.sendChatMessage("Good timing boy~");
-                     break;
-                  case "huh":
-                     this.playRandomSound(SoundHandler.GIRLS_GALATH_HUH);
-                     break;
-                  case "giggle":
-                     Vec3d vec = this.getVectorTowardPlayer();
-                     this.world
-                        .playSound(
-                           vec.x,
-                           vec.y,
-                           vec.z,
-                           SoundHandler.randomSound(SoundHandler.GIRLS_GALATH_GIGGLE),
-                           SoundCategory.HOSTILE,
-                           1.0F,
-                           1.0F,
-                           false
-                        );
-                     break;
-                  case "dialog1":
-                     this.playSound(SoundHandler.GIRLS_GALATH_DIALOG[1]);
-                     break;
-                  case "moan":
-                     this.playRandomSound(SoundHandler.GIRLS_GALATH_MOAN);
-                     break;
-                  case "breath":
-                     this.playRandomSound(SoundHandler.GIRLS_GALATH_BREATHING);
-                     break;
-                  case "dialog5":
-                     this.playSound(SoundHandler.GIRLS_GALATH_DIALOG[5]);
-                     break;
-                  case "switchmoan":
-                     if (this.alternateMoan) {
-                        this.playRandomSound(SoundHandler.GIRLS_GALATH_BREATHING);
-                     } else {
-                        this.playRandomSound(this.getRNG().nextBoolean() ? SoundHandler.GIRLS_GALATH_MOAN : SoundHandler.GIRLS_GALATH_AHH);
-                     }
-
-                     this.alternateMoan = !this.alternateMoan;
-                     break;
-                  case "lightcharge":
-Vec3d aimVec = this.getVectorTowardPlayer();
-                     this.world
-                        .playSound(
-                           aimVec.x,
-                           aimVec.y,
-                           aimVec.z,
-                           SoundHandler.randomSound(SoundHandler.GIRLS_GALATH_LIGHTCHARGE),
-                           SoundCategory.HOSTILE,
-                           1.0F,
-                           1.0F,
-                           false
-                        );
-                     break;
-                  case "strongcharge":
-                     this.playRandomSound(SoundHandler.GIRLS_GALATH_STRONGCHARGE);
-                     break;
-                  case "hmph":
-                     this.playRandomSound(SoundHandler.GIRLS_GALATH_HMPH);
-                     break;
-                  case "cum":
-                     this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 2.0F);
-                     break;
-                  case "giggle0":
-                     this.playSound(SoundHandler.GIRLS_GALATH_GIGGLE[0]);
-                     break;
-                  case "orgasm":
-                     this.playRandomSound(SoundHandler.GIRLS_GALATH_ORGASM);
-                     break;
-                  case "pound":
-                     this.playRandomSound(SoundHandler.MISC_POUNDING);
-                     break;
-                  case "flap":
-Vec3d flapVec = this.getVectorTowardPlayer();
-                     this.world
-                        .playSound(
-                           flapVec.x,
-                           flapVec.y,
-                           flapVec.z,
-                           SoundHandler.randomSound(SoundHandler.MISC_FLAP),
-                           SoundCategory.HOSTILE,
-                           1.0F,
-                           1.0F,
-                           false
-                        );
-                     break;
-                  case "startRenderSword":
-                     this.renderSword = true;
-                     this.spawnSwordParticles = true;
-                     break;
-                  case "stopFadeInParticles":
-                     this.spawnSwordParticles = false;
-                     break;
-                  case "stopRenderSword":
-                     this.renderSword = false;
-                     this.spawnSwordParticles = false;
-                     break;
-                  case "dontDrawStars":
-                     this.drawStars = false;
-                     break;
-                  case "setNude":
-                     this.wingsAnimated = true;
-                     Vec3d pos = this.getPositionVector();
-                     Vec3d slipR = this.getCachedBoneOffset("slipR").add(pos);
-                     Vec3d slipL = this.getCachedBoneOffset("slipL").add(pos);
-                     Vec3d turnable = this.getCachedBoneOffset("turnable").add(pos);
-                     this.world
-                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, slipR.x, slipR.y, slipR.z, 0.0, 0.0, 0.0, new int[0]);
-                     this.world
-                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, slipL.x, slipL.y, slipL.z, 0.0, 0.0, 0.0, new int[0]);
-                     this.world
-                        .spawnParticle(EnumParticleTypes.DRAGON_BREATH, turnable.x, turnable.y, turnable.z, 0.0, 0.0, 0.0, new int[0]);
-                     break;
-                  case "rapeIntroDone":
-                     if (this.isControlledByLocalPlayer()) {
-                        this.setCurrentAction(Action.RAPE_ON_GOING);
-                     }
-                     break;
-                  case "rape_switch":
-                     Random random = this.getRNG();
-                     int oldState = this.rapeVariant;
-
-                     do {
-                        this.rapeVariant = random.nextInt(3);
-                     } while (this.rapeVariant == oldState);
-
-                     if (!this.hasMaster() && this.isControlledByLocalPlayer()) {
-                        EntityPlayerSP player = Minecraft.getMinecraft().player;
-                        if (0.0F >= player.getHealth() - 1.0F) {
-                           this.setCurrentAction(Action.RAPE_CUM);
-                        }
-                     }
-                     break;
-                  case "poundRape":
-                     this.playRandomSound(SoundHandler.MISC_POUNDING);
-                     if (this.isControlledByLocalPlayer()) {
-                        if (this.hasMaster()) {
-                           HornyMeterHud.addToHornyMeter(0.03F);
-                        } else {
-                           PacketHandler.networkWrapper.sendToServer(new GalathRapePouncePacket(true));
-                        }
-                     }
-                     break;
-                  case "rapeHurt":
-                     if (!this.hasMaster() && this.isControlledByLocalPlayer()) {
-                        PacketHandler.networkWrapper.sendToServer(new GalathRapePouncePacket(false));
-                     }
-                     break;
-                  case "enableRapeUI":
-                     if (this.isControlledByLocalPlayer()) {
-                        if (this.hasMaster()) {
-                           HornyMeterHud.setHornyMeterVisible(false);
-                        } else {
-                           EscapeMinigameHud.showMinigame();
-                        }
-                     }
-                     break;
-                  case "removeUI":
-                     if (this.isControlledByLocalPlayer() && !this.hasMaster()) {
-                        EscapeMinigameHud.failMinigame();
-                     }
-                     break;
-                  case "reloadRenderer":
-                     if (!this.isControlledByLocalPlayer()) {
-                        return;
-                     }
-
-                     Minecraft mc = Minecraft.getMinecraft();
-                     if (mc.gameSettings.thirdPersonView != 0) {
-                        mc.renderGlobal.loadRenderers();
-                     }
-                     break;
-                  case "corruptSwitch":
-                     if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
-                        this.setCurrentAction(Action.CORRUPT_FAST);
-                     }
-                     break;
-                  case "corrupt_hard":
-                     if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
-                        this.corruptHard = true;
-                        this.resetAnimationControllerOffset();
-                     }
-                     break;
-                  case "corrupt_hard_end":
-                     this.setCurrentAction(Action.CORRUPT_SLOW);
-                     this.corruptHard = false;
-                     break;
-                  case "addCum":
-                     HornyMeterHud.addToHornyMeter(0.03);
-                     break;
-                  case "clearcum":
-                     CummyEntity.spawnCummyTrails(this);
-                     break;
-                  case "setCamCorrupt":
-                     if (!this.isControlledByLocalPlayer()) {
-                        return;
-                     }
-
-                     this.corruptIntroActive = true;
-                     EntityPlayerSP player = Minecraft.getMinecraft().player;
-                     float yaw = this.getYawRotation() + 220.0F;
-                     Vec3d corruptPos = VectorMath.rotateByYaw(new Vec3d(0.5, 0.5F - player.getEyeHeight(), 0.4F), this.getYawRotation()).add(this.getTargetPosition());
-                     PacketHandler.networkWrapper.sendToServer(new TeleportPlayerPacket(player.getPersistentID().toString(), corruptPos, yaw, 15.0F));
-                     HornyMeterHud.showHornyMeter();
-                     break;
-                  case "enableBoyCam":
-                     if (this.isControlledByLocalPlayer()) {
-                        this.corruptIntroActive = false;
-                     }
-                     break;
-                  case "masterbateCumming":
-                     if (CommandFuta.ENABLED) {
-                        CummyEntity.registerTrail(new DynamicTrailRenderer(90, girl -> {
-                           Vec3d cockTipPos = girl.getBoneWorldPosition("futaCockTip");
-                           Vec3d tipDir = girl.getBoneWorldPosition("futaCockTipDirHelp");
-                           return cockTipPos.subtract(tipDir).normalize();
-                        }, girl -> girl.getCachedBoneOffset("futaCockTip").add(girl.getTargetPosition()), this, 0.3F, 0.3F));
-                     }
-                     break;
-                  case "creampie":
-                     CummyEntity.registerTrail(
-                        new DynamicTrailRenderer(
-                           100,
-                           girl -> VectorMath.rotateByYaw(new Vec3d(0.0, 0.0, 0.6F), this.getYawRotation()),
-                           girl -> girl.getCachedBoneOffset("creampiePos").add(girl.getTargetPosition()),
-                           this,
-                           0.6F,
-                           0.5F
-                        )
-                     );
-                  case "creampieGalath":
-                     if (CommandFuta.ENABLED) {
-                        CummyEntity.registerTrail(new DynamicTrailRenderer(130, girl -> {
-                           Vec3d cockTipPos = girl.getBoneWorldPosition("futaCockTip");
-                           Vec3d tipDir = girl.getBoneWorldPosition("futaCockTipDirHelp");
-                           return cockTipPos.subtract(tipDir).normalize();
-                        }, girl -> girl.getCachedBoneOffset("futaCockTip").add(girl.getTargetPosition()), this, 0.3F, 0.3F));
-                     }
-
-                     this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_SMALLINSERTS), 3.0F);
-                     break;
-                  case "blackScreenTamed":
-                     if (this.hasMaster()) {
-                        return;
-                     }
-                  case "blackScreen":
-                     if (this.isControlledByLocalPlayer()) {
-                        BeeScreen.enableInteraction();
-                     }
-                     break;
-                  case "blackScreenMaster":
-                     if (Minecraft.getMinecraft().player.getPersistentID().equals(this.getMasterUUID())) {
-                        BeeScreen.enableInteraction();
-                        HandlePlayerMovement.setMovementLock(false);
-                     }
-                     break;
-                  case "flapControlled":
-                     if (this.isControlledByLocalPlayer()) {
-                        GalathFlightHud.showHud();
-                        this.playRandomSound(SoundHandler.MISC_FLAP);
-                        Minecraft flapMc = Minecraft.getMinecraft();
-                        EntityPlayerSP flapPlayer = flapMc.player;
-                        MovementInput input = flapPlayer.movementInput;
-                        Vec2f moveVec = input.getMoveVector();
-                        if (moveVec.x != 0.0F || moveVec.y != 0.0F) {
-                           Vec3d vel = VectorMath.rotateByYawPitch(
-                              new Vec3d(-moveVec.x, 0.0, moveVec.y),
-                              RotationHelper.lerp(flapPlayer.prevRotationPitch, flapPlayer.rotationPitch, flapMc.getRenderPartialTicks()),
-                              RotationHelper.lerp(flapPlayer.prevRotationYawHead, flapPlayer.rotationYawHead, flapMc.getRenderPartialTicks())
-                           );
-                           PacketHandler.networkWrapper.sendToServer(new UpdateVelocityPacket(vel, this.getGirlId()));
-                        }
-                     }
-                     break;
-                  case "clap":
-                     this.playRandomSound(SoundHandler.MISC_CLAP);
-                     break;
-                  case "energysound":
-                     this.playSound(SoundHandler.MISC_BEEW[1]);
-                     break;
-                  case "energy2":
-                     this.playSound(SoundHandler.MISC_BEEW[2]);
-                     break;
-                  case "tpSound":
-                     this.playSound(SoundHandler.MISC_WEOWEO[2]);
-                     break;
-                  case "lick":
-                     this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND));
-                     break;
-                  case "setCoinLook":
-                     if (this.isControlledByLocalPlayer()) {
-                        EntityPlayerSP coinPlayer = Minecraft.getMinecraft().player;
-                        float coinYaw = this.getYawRotation() + 180.0F;
-                        coinPlayer.rotationYaw = coinYaw;
-                        coinPlayer.prevRotationYaw = coinYaw;
-                        coinPlayer.rotationPitch = 0.0F;
-                        coinPlayer.prevRotationPitch = 0.0F;
-                     }
-                     break;
-                  case "sexui":
-                     if (this.isControlledByLocalPlayer()) {
-                        HornyMeterHud.showHornyMeter();
-                     }
-                     break;
-                  case "boostSound":
-                     Minecraft.getMinecraft().player.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_GALATH_LIGHTCHARGE), 1.0F, 1.0F);
-                     Minecraft.getMinecraft().player.playSound(SoundHandler.randomSound(SoundHandler.MISC_FLAP), 1.0F, 1.0F);
-               }
-            }
-         );
+      this.actionController.registerSoundListener(sound -> GalathAnimations.handleSoundKeyframe(this, sound));
       data.addAnimationController(this.actionController);
       data.addAnimationController(this.eyesController);
       data.addAnimationController(this.movementController);

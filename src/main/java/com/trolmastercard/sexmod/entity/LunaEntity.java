@@ -235,10 +235,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
    @Override
    public void reinitTasks() {
-      this.wanderGoal = new EntityAIWanderAvoidWater(this, 0.35);
-      this.watchClosestGirlGoal = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-      this.tasks.addTask(5, this.watchClosestGirlGoal);
-      this.tasks.addTask(5, this.wanderGoal);
+      this.resetWanderGoals();
    }
 
    @Override
@@ -388,49 +385,15 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
             );
       } else {
          Vec3d bedVec = new Vec3d(bedPos.getX(), bedPos.getY(), bedPos.getZ());
-         int[] yaws = new int[]{0, 180, -90, 90};
-         Vec3d[][] offsets = new Vec3d[][]{
-            {new Vec3d(0.5, 0.0, -0.5), new Vec3d(0.0, 0.0, -1.0)},
-            {new Vec3d(0.5, 0.0, 1.5), new Vec3d(0.0, 0.0, 1.0)},
-            {new Vec3d(-0.5, 0.0, 0.5), new Vec3d(-1.0, 0.0, 0.0)},
-            {new Vec3d(1.5, 0.0, 0.5), new Vec3d(1.0, 0.0, 0.0)}
-         };
-         int bestIndex = -1;
-
-         for (int i = 0; i < offsets.length; i++) {
-            Vec3d offsetVec = bedVec.add(offsets[i][1]);
-            if (this.world.getBlockState(new BlockPos(offsetVec.x, offsetVec.y, offsetVec.z)).getBlock()
-               == Blocks.AIR) {
-               if (bestIndex == -1) {
-                  bestIndex = i;
-               } else {
-                  double bestDist = this.getPosition()
-                     .distanceSq(
-                        bedVec.add(offsets[bestIndex][0]).x,
-                        bedVec.add(offsets[bestIndex][0]).y,
-                        bedVec.add(offsets[bestIndex][0]).z
-                     );
-                  double dist = this.getPosition()
-                     .distanceSq(
-                        bedVec.add(offsets[i][0]).x,
-                        bedVec.add(offsets[i][0]).y,
-                        bedVec.add(offsets[i][0]).z
-                     );
-                  if (dist < bestDist) {
-                     bestIndex = i;
-                  }
-               }
-            }
-         }
-
+         int bestIndex = GirlBedPlacement.findFreeSide(this, bedVec, GirlBedPlacement.SIDE_OFFSETS);
          if (bestIndex == -1) {
             this.playRandomSound(SoundHandler.GIRLS_LUNA_GIGGLE);
             this.sendChatMessage("Heh.. the bed is obscured.. but I already ate the fish so nya~ hehe");
             return;
          }
 
-         Vec3d bedOffset = bedVec.add(offsets[bestIndex][0]);
-         this.setYawRotation(yaws[bestIndex]);
+         Vec3d bedOffset = bedVec.add(GirlBedPlacement.SIDE_OFFSETS[bestIndex][0]);
+         this.setYawRotation(GirlBedPlacement.SIDE_YAWS[bestIndex]);
          this.setTargetPosition(new Vec3d(bedOffset.x, bedOffset.y, bedOffset.z));
          this.cameraYaw = this.getYawRotation();
          this.getNavigator().clearPath();
@@ -858,10 +821,6 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
 
    @Override
    public void registerControllers(AnimationData data) {
-      if (this.actionController == null) {
-         this.initAnimationControllers();
-      }
-
       AnimationController.ISoundListener soundListener = sound -> {
          switch (sound.sound) {
             case "attackSound":
@@ -1022,14 +981,10 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                }
                break;
             case "addCumSlow":
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02F);
-               }
+               this.addToHornyMeterIfControlled(0.02F);
                break;
             case "addCumFast":
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04F);
-               }
+               this.addToHornyMeterIfControlled(0.04F);
                break;
             case "fastDone":
                if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
@@ -1096,9 +1051,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                   this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_LIGHTBREATHING));
                }
 
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "sitting_fastMSG1":
                if (this.getRNG().nextBoolean()) {
@@ -1107,9 +1060,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
                   this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_LUNA_MOAN));
                }
 
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04);
-               }
+               this.addToHornyMeterIfControlled(0.04);
                break;
             case "sitting_fastDone":
                if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
@@ -1151,10 +1102,7 @@ public class LunaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddab
          }
       };
       this.movementController.transitionLengthTicks = 10.0;
-      this.actionController.registerSoundListener(soundListener);
-      data.addAnimationController(this.actionController);
-      data.addAnimationController(this.movementController);
-      data.addAnimationController(this.eyesController);
+      this.registerControllers(data, soundListener);
    }
 
    @Override

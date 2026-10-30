@@ -502,9 +502,7 @@ public class SlimeEntity extends BaseGirlEntity {
                break;
             case "bjiMSG11":
                this.playSoundAtVolume(SoundEvents.ENTITY_SLIME_SQUISH, 0.5F);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "bjiMSG12":
                if (Reference.RANDOM.nextInt(5) == 0) {
@@ -512,16 +510,12 @@ public class SlimeEntity extends BaseGirlEntity {
                }
 
                this.playSoundAtVolume(SoundEvents.ENTITY_SLIME_SQUISH, 0.5F);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "bjtMSG1":
                this.playSound(SoundEvents.BLOCK_SLIME_HIT);
                this.playSound(SoundEvents.ENTITY_SLIME_DEATH);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04);
-               }
+               this.addToHornyMeterIfControlled(0.04);
                break;
             case "bjiDone":
                this.setCurrentAction(Action.SUCKBLOWJOB);
@@ -606,15 +600,11 @@ public class SlimeEntity extends BaseGirlEntity {
                   this.playSound(SoundEvents.BLOCK_SLIME_HIT);
                }
 
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "doggyfastMSG1":
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04);
-               }
+               this.addToHornyMeterIfControlled(0.04);
 
                this.blinkTicks++;
                if (this.blinkTicks % 2 == 0) {

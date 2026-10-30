@@ -3,7 +3,6 @@ package com.trolmastercard.sexmod.entity;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
-import com.trolmastercard.sexmod.entity.ai.WatchClosestGirlGoal;
 import com.trolmastercard.sexmod.entity.api.IEllie;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
@@ -21,10 +20,8 @@ import java.util.UUID;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.ai.EntityAIWanderAvoidWater;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -310,50 +307,16 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
          this.tasks.removeTask(this.wanderGoal);
          this.tasks.removeTask(this.watchClosestGirlGoal);
          Vec3d bedVec = new Vec3d(bedPos.getX(), bedPos.getY(), bedPos.getZ());
-         int[] yaws = new int[]{0, 180, -90, 90};
-         Vec3d[][] offsets = new Vec3d[][]{
-            {new Vec3d(0.5, 0.0, -0.5), new Vec3d(0.0, 0.0, -1.0)},
-            {new Vec3d(0.5, 0.0, 1.5), new Vec3d(0.0, 0.0, 1.0)},
-            {new Vec3d(-0.5, 0.0, 0.5), new Vec3d(-1.0, 0.0, 0.0)},
-            {new Vec3d(1.5, 0.0, 0.5), new Vec3d(1.0, 0.0, 0.0)}
-         };
-         int bestIndex = -1;
-
-         for (int i = 0; i < offsets.length; i++) {
-            Vec3d offsetVec = bedVec.add(offsets[i][1]);
-            if (this.world.getBlockState(new BlockPos(offsetVec.x, offsetVec.y, offsetVec.z)).getBlock()
-               == Blocks.AIR) {
-               if (bestIndex == -1) {
-                  bestIndex = i;
-               } else {
-                  double bestDist = this.getPosition()
-                     .distanceSq(
-                        bedVec.add(offsets[bestIndex][0]).x,
-                        bedVec.add(offsets[bestIndex][0]).y,
-                        bedVec.add(offsets[bestIndex][0]).z
-                     );
-                  double dist = this.getPosition()
-                     .distanceSq(
-                        bedVec.add(offsets[i][0]).x,
-                        bedVec.add(offsets[i][0]).y,
-                        bedVec.add(offsets[i][0]).z
-                     );
-                  if (dist < bestDist) {
-                     bestIndex = i;
-                  }
-               }
-            }
-         }
-
+         int bestIndex = GirlBedPlacement.findFreeSide(this, bedVec, GirlBedPlacement.SIDE_OFFSETS);
          if (bestIndex == -1) {
             this.playSound(SoundHandler.GIRLS_JENNY_HMPH[2]);
             this.sendChatMessage(I18n.format("jenny.dialogue.bedobscured", new Object[0]));
             return;
          }
 
-         Vec3d bedOffset = bedVec.add(offsets[bestIndex][0]);
+         Vec3d bedOffset = bedVec.add(GirlBedPlacement.SIDE_OFFSETS[bestIndex][0]);
          this.setAnchored(false);
-         this.setYawRotation(yaws[bestIndex]);
+         this.setYawRotation(GirlBedPlacement.SIDE_YAWS[bestIndex]);
          this.setTargetPosition(new Vec3d(bedOffset.x, bedOffset.y, bedOffset.z));
          this.cameraYaw = this.getYawRotation();
          this.getNavigator().clearPath();
@@ -423,10 +386,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
 
    @Override
    public void reinitTasks() {
-      this.wanderGoal = new EntityAIWanderAvoidWater(this, 0.35);
-      this.watchClosestGirlGoal = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-      this.tasks.addTask(5, this.watchClosestGirlGoal);
-      this.tasks.addTask(5, this.wanderGoal);
+      this.resetWanderGoals();
    }
 
    @Override
@@ -591,10 +551,6 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData data) {
-      if (this.actionController == null) {
-         this.initAnimationControllers();
-      }
-
       AnimationController.ISoundListener soundListener = sound -> {
          switch (sound.sound) {
             case "attackSound":
@@ -716,9 +672,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                }
 
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIPSOUND));
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "bjiMSG12":
                if (Reference.RANDOM.nextInt(5) == 0) {
@@ -726,16 +680,12 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                }
 
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIPSOUND));
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "bjtMSG1":
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_MMM));
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIPSOUND));
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04);
-               }
+               this.addToHornyMeterIfControlled(0.04);
                break;
             case "bjiDone":
                this.setCurrentAction(Action.SUCKBLOWJOB);
@@ -855,18 +805,14 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                   this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_HEAVYBREATHING));
                }
 
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.00666);
-               }
+               this.addToHornyMeterIfControlled(0.00666);
                break;
             case "doggyslowMSG2":
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_LIGHTBREATHING), 0.5F);
                break;
             case "doggyfastMSG1":
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
 
                this.ag++;
                if (this.ag % 2 == 0) {
@@ -930,16 +876,12 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                   this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_JENNY_AHH));
                }
 
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04);
-               }
+               this.addToHornyMeterIfControlled(0.04);
                break;
             case "paizuriSlowMSG1":
             case "paizuriStartMSG1":
                this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "paizuri_fastDone":
                this.setCurrentAction(Action.PAIZURI_SLOW);
@@ -958,10 +900,7 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
                }
          }
       };
-      this.actionController.registerSoundListener(soundListener);
-      data.addAnimationController(this.actionController);
-      data.addAnimationController(this.movementController);
-      data.addAnimationController(this.eyesController);
+      this.registerControllers(data, soundListener);
    }
 
 }

@@ -3,7 +3,6 @@ package com.trolmastercard.sexmod.entity;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
-import com.trolmastercard.sexmod.entity.ai.WatchClosestGirlGoal;
 import com.trolmastercard.sexmod.entity.api.IEllie;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.SendCompanionHomePacket;
@@ -18,10 +17,8 @@ import com.trolmastercard.sexmod.util.LootTableHandler;
 import com.trolmastercard.sexmod.util.IBeddableSexGirl;
 import java.util.UUID;
 import javax.vecmath.Vector4d;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.ai.EntityAIWanderAvoidWater;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -351,10 +348,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
 
    @Override
    public void reinitTasks() {
-      this.wanderGoal = new EntityAIWanderAvoidWater(this, 0.35);
-      this.watchClosestGirlGoal = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
-      this.tasks.addTask(5, this.watchClosestGirlGoal);
-      this.tasks.addTask(5, this.wanderGoal);
+      this.resetWanderGoals();
    }
 
    @Override
@@ -424,35 +418,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
          this.tasks.removeTask(this.wanderGoal);
          this.tasks.removeTask(this.watchClosestGirlGoal);
          Vec3d bedVec = new Vec3d(bedPos.getX(), bedPos.getY(), bedPos.getZ());
-         int bestIndex = -1;
-
-         for (int i = 0; i < this.ad.length; i++) {
-            Vec3d offsetPos = bedVec.add(this.ad[i][1]);
-            Vec3d offsetNeg = bedVec.subtract(this.ad[i][1]);
-            Block block = this.world.getBlockState(new BlockPos(offsetPos.x, offsetPos.y, offsetPos.z)).getBlock();
-            if (block == Blocks.AIR && WorldUtils.canPlaceStructure(this.world, new BlockPos(offsetNeg))) {
-               if (bestIndex == -1) {
-                  bestIndex = i;
-               } else {
-                  double bestDist = this.getPosition()
-                     .distanceSq(
-                        bedVec.add(this.ad[bestIndex][0]).x,
-                        bedVec.add(this.ad[bestIndex][0]).y,
-                        bedVec.add(this.ad[bestIndex][0]).z
-                     );
-                  double dist = this.getPosition()
-                     .distanceSq(
-                        bedVec.add(this.ad[i][0]).x,
-                        bedVec.add(this.ad[i][0]).y,
-                        bedVec.add(this.ad[i][0]).z
-                     );
-                  if (dist < bestDist) {
-                     bestIndex = i;
-                  }
-               }
-            }
-         }
-
+         int bestIndex = GirlBedPlacement.findFreeSideWithRoom(this, bedVec, this.ad);
          if (bestIndex == -1) {
             this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
             this.sendChatMessage(I18n.format("jenny.dialogue.nobedinsight", new Object[0]));
@@ -493,34 +459,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
       this.tasks.removeTask(this.wanderGoal);
       this.tasks.removeTask(this.watchClosestGirlGoal);
       Vec3d bedVec = new Vec3d(bedPos.getX(), bedPos.getY(), bedPos.getZ());
-      int bestIndex = -1;
-
-      for (int i = 0; i < this.ad.length; i++) {
-         Vec3d offsetPos = bedVec.add(this.ad[i][1]);
-         if (this.world.getBlockState(new BlockPos(offsetPos.x, offsetPos.y, offsetPos.z)).getBlock()
-            == Blocks.AIR) {
-            if (bestIndex == -1) {
-               bestIndex = i;
-            } else {
-               double bestDist = this.getPosition()
-                  .distanceSq(
-                     bedVec.add(this.ad[bestIndex][0]).x,
-                     bedVec.add(this.ad[bestIndex][0]).y,
-                     bedVec.add(this.ad[bestIndex][0]).z
-                  );
-               double dist = this.getPosition()
-                  .distanceSq(
-                     bedVec.add(this.ad[i][0]).x,
-                     bedVec.add(this.ad[i][0]).y,
-                     bedVec.add(this.ad[i][0]).z
-                  );
-               if (dist < bestDist) {
-                  bestIndex = i;
-               }
-            }
-         }
-      }
-
+      int bestIndex = GirlBedPlacement.findFreeSide(this, bedVec, this.ad);
       if (bestIndex == -1) {
          this.playSound(SoundHandler.GIRLS_BIA_BREATH[2]);
          this.sendChatMessage(I18n.format("jenny.dialogue.bedobscured", new Object[0]));
@@ -726,10 +665,6 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData data) {
-      if (this.actionController == null) {
-         this.initAnimationControllers();
-      }
-
       AnimationController.ISoundListener soundListener = sound -> {
          switch (sound.sound) {
             case "attackDone":
@@ -820,14 +755,10 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                this.playSound(SoundHandler.MISC_POUNDING[34]);
                break;
             case "anal_fastMSG1":
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
             case "anal_slowMSG1":
             case "anal_startMSG2":
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
 
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.5F);
                this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_BIA_AHH));
@@ -887,18 +818,14 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                break;
             case "slide":
                this.playSound(SoundHandler.randomSound(SoundHandler.MISC_SLIDE));
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.005);
-               }
+               this.addToHornyMeterIfControlled(0.005);
                break;
             case "pound":
                this.playRandomSound(SoundHandler.MISC_POUNDING);
                break;
             case "doggyMoan":
                this.playRandomSound(this.getRNG().nextBoolean() ? SoundHandler.GIRLS_BIA_AHH : SoundHandler.GIRLS_BIA_MMM);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04);
-               }
+               this.addToHornyMeterIfControlled(0.04);
                break;
             case "doggySwitch":
                if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
@@ -920,10 +847,7 @@ public class BiaEntity extends AbstractGirlNpcEntity implements IEllie, IBeddabl
                this.playSound(SoundHandler.GIRLS_BIA_MMM[7]);
          }
       };
-      this.actionController.registerSoundListener(soundListener);
-      data.addAnimationController(this.actionController);
-      data.addAnimationController(this.movementController);
-      data.addAnimationController(this.eyesController);
+      this.registerControllers(data, soundListener);
    }
 
 }

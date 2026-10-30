@@ -786,10 +786,6 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData data) {
-      if (this.actionController == null) {
-         this.initAnimationControllers();
-      }
-
       AnimationController.ISoundListener soundListener = sound -> {
          switch (sound.sound) {
             case "becomeNude":
@@ -852,9 +848,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
             case "cowgirlStartMSG2":
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "cowgirlStartDone":
                if (this.isControlledByLocalPlayer()) {
@@ -870,9 +864,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
 
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04);
-               }
+               this.addToHornyMeterIfControlled(0.04);
                break;
             case "cowgirlfastDone":
                if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
@@ -881,9 +873,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                break;
             case "cowgirlfastdomMSG1":
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.MISC_POUNDING), 0.75F);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.2);
-               }
+               this.addToHornyMeterIfControlled(0.2);
                break;
             case "cowgirlcumMSG1":
                this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
@@ -947,9 +937,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                   this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_AHH), 6.0F);
                }
 
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "missionary_fastMSG1":
                this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
@@ -959,9 +947,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                   this.playSoundAtVolume(SoundHandler.randomSound(SoundHandler.GIRLS_ELLIE_MOAN), 6.0F);
                }
 
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.05);
-               }
+               this.addToHornyMeterIfControlled(0.05);
                break;
             case "missionary_startDone":
                if (this.isControlledByLocalPlayer()) {
@@ -994,9 +980,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                break;
             case "lipsound":
                this.playRandomSound(SoundHandler.GIRLS_ALLIE_LIPSOUND);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "cum":
                this.playRandomSoundAtVolume(SoundHandler.MISC_INSERTS, 6.0F);
@@ -1004,9 +988,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                break;
             case "pound":
                this.playRandomSound(SoundHandler.MISC_POUNDING);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04);
-               }
+               this.addToHornyMeterIfControlled(0.04);
                break;
             case "carry_slowDone":
                int oldState = this.carryVariant;
@@ -1022,10 +1004,7 @@ public class EllieEntity extends AbstractGirlNpcEntity implements IEllie {
                }
          }
       };
-      this.actionController.registerSoundListener(soundListener);
-      data.addAnimationController(this.actionController);
-      data.addAnimationController(this.movementController);
-      data.addAnimationController(this.eyesController);
+      this.registerControllers(data, soundListener);
    }
 
 }

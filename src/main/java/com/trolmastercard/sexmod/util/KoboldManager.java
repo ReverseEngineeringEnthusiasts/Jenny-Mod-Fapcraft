@@ -17,11 +17,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockBed;
-import net.minecraft.block.BlockChest;
-import net.minecraft.block.BlockChest.Type;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.AbstractSkeleton;
@@ -31,11 +26,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -131,18 +123,7 @@ public class KoboldManager {
    }
 
    public static boolean isBedAssigned(BlockPos bedPos) {
-      for (Entry entry : a.entrySet()) {
-         BlockPos[] bedPair = (BlockPos[])entry.getValue();
-         if (bedPair[0].equals(bedPos)) {
-            return true;
-         }
-
-         if (bedPair[1].equals(bedPos)) {
-            return true;
-         }
-      }
-
-      return false;
+      return KoboldBlockLookup.isBedAssigned(a, bedPos);
    }
 
    public static BlockPos[] getBedForKobold(KoboldEntity kobold) {
@@ -151,23 +132,7 @@ public class KoboldManager {
 
    public static void assignBed(KoboldEntity kobold, BlockPos bedPos) {
       World world = kobold.world;
-      BlockPos headPos = null;
-      if (world.getBlockState(bedPos.north()).getBlock() instanceof BlockBed) {
-         headPos = bedPos.north();
-      }
-
-      if (world.getBlockState(bedPos.east()).getBlock() instanceof BlockBed) {
-         headPos = bedPos.east();
-      }
-
-      if (world.getBlockState(bedPos.south()).getBlock() instanceof BlockBed) {
-         headPos = bedPos.south();
-      }
-
-      if (world.getBlockState(bedPos.west()).getBlock() instanceof BlockBed) {
-         headPos = bedPos.west();
-      }
-
+      BlockPos headPos = KoboldBlockLookup.findBedHead(world, bedPos);
       if (headPos == null) {
          Main.LOGGER.info("bed @" + bedPos.toString() + " apparently doesn't have another half.. wtf");
       } else {
@@ -228,9 +193,7 @@ public class KoboldManager {
             }
          }
 
-         for (KoboldTask task : tribe.tasks) {
-            task.addWorker(kobold);
-         }
+         KoboldTaskBook.addWorkerToAll(tribe.tasks, kobold);
 
          if (!tribe.members.isEmpty()) {
             c.replace(tribeId, tribe);
@@ -371,15 +334,7 @@ public class KoboldManager {
          return new HashSet<>();
       }
 
-      KoboldTask taskToRemove = null;
-
-      for (KoboldTask task : tribe.tasks) {
-         if (task.miningTargets.contains(pos)) {
-            taskToRemove = task;
-            break;
-         }
-      }
-
+      KoboldTask taskToRemove = KoboldTaskBook.findTaskWithTarget(tribe.tasks, pos);
       return removeTaskAndGetBlocks(tribeId, taskToRemove);
    }
 
@@ -397,14 +352,7 @@ public class KoboldManager {
       if (tribe == null) {
          Main.LOGGER.warn("tribe of UUID " + tribeId.toString() + " not found uwu");
       } else {
-         KoboldTask taskToRemove = null;
-
-         for (KoboldTask task : tribe.tasks) {
-            if (task.hasWorker(kobold)) {
-               taskToRemove = task;
-            }
-         }
-
+         KoboldTask taskToRemove = KoboldTaskBook.findTaskWithWorker(tribe.tasks, kobold);
          if (taskToRemove == null) {
             Main.LOGGER.warn("task of worker " + kobold.getGirlId() + " not found uwu");
          } else {
@@ -592,13 +540,7 @@ public class KoboldManager {
          return blocks;
       }
 
-      for (KoboldTask task : tribe.tasks) {
-         blocks.addAll(task.miningTargets);
-      }
-
-      blocks.addAll(tribe.tribeBeds);
-      blocks.addAll(tribe.tribeChests);
-      return blocks;
+      return KoboldBlockLookup.collectTribeBlocks(tribe.tasks, tribe.tribeBeds, tribe.tribeChests);
    }
 
    public static HashMap<UUID, BlockPos> getTribeSavedPositions(UUID tribeId, World world) {
@@ -609,29 +551,7 @@ public class KoboldManager {
       }
 
       HashMap savedPositions = tribe.k;
-      ArrayList staleMemberIds = new ArrayList();
-
-      for (Entry entry : (java.util.Set<Entry>) savedPositions.entrySet()) {
-         BlockPos pos = (BlockPos)entry.getValue();
-         UUID memberUuid = (UUID)entry.getKey();
-         if (world.isAreaLoaded(pos, 5)) {
-            AxisAlignedBB aabb = new AxisAlignedBB(pos.subtract(new Vec3i(-3, -3, -3)), pos.add(3, 3, 3));
-            List koboldsNearby = world.getEntitiesWithinAABB(KoboldEntity.class, aabb);
-            boolean hasKobold = false;
-
-            for (KoboldEntity kobold : (java.util.Collection<KoboldEntity>) (koboldsNearby) ) {
-               if (memberUuid.equals(kobold.getGirlId())) {
-                  hasKobold = true;
-                  break;
-               }
-            }
-
-            if (!hasKobold) {
-               staleMemberIds.add(memberUuid);
-            }
-         }
-      }
-
+      savedPositions = KoboldBlockLookup.scanSavedPositions(savedPositions, world);
       tribe.k = savedPositions;
       return savedPositions;
    }
@@ -853,50 +773,7 @@ public static class TribeWorldSavedData extends WorldSavedData {
 
       @SubscribeEvent
       public void onBlockPlace(PlaceEvent event) {
-         BlockPos pos = event.getPos();
-         IBlockState state = event.getState();
-         World world = event.getWorld();
-         if (!world.isRemote) {
-            if (state.getBlock() instanceof BlockChest) {
-               Type chestType = ((BlockChest)world.getBlockState(pos).getBlock()).chestType;
-               BlockPos pairedPos = null;
-               if (world.getBlockState(pos.north()).getBlock() instanceof BlockChest
-                  && chestType.equals(((BlockChest)world.getBlockState(pos.north()).getBlock()).chestType)) {
-                  pairedPos = pos.north();
-               }
-
-               if (world.getBlockState(pos.east()).getBlock() instanceof BlockChest
-                  && chestType.equals(((BlockChest)world.getBlockState(pos.east()).getBlock()).chestType)) {
-                  pairedPos = pos.east();
-               }
-
-               if (world.getBlockState(pos.south()).getBlock() instanceof BlockChest
-                  && chestType.equals(((BlockChest)world.getBlockState(pos.south()).getBlock()).chestType)) {
-                  pairedPos = pos.south();
-               }
-
-               if (world.getBlockState(pos.west()).getBlock() instanceof BlockChest
-                  && chestType.equals(((BlockChest)world.getBlockState(pos.west()).getBlock()).chestType)) {
-                  pairedPos = pos.west();
-               }
-
-               if (pairedPos != null) {
-                  for (Entry entry : KoboldManager.c.entrySet()) {
-                     KoboldManager.Tribe tribe = (KoboldManager.Tribe)entry.getValue();
-                     if (tribe.tribeBeds.contains(pairedPos)) {
-                        tribe.tribeBeds.add(pos);
-                        UUID masterUuid = KoboldManager.findTribeIdWith((UUID)entry.getKey());
-                        if (masterUuid != null) {
-                           EntityPlayerMP master = (EntityPlayerMP)world.getPlayerEntityByUUID(masterUuid);
-                           if (master != null) {
-                              PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(pos, true), master);
-                           }
-                        }
-                     }
-                  }
-               }
-            }
-         }
+         TribeBlockTracking.place(event.getWorld(), event.getPos(), event.getState(), KoboldManager.c);
       }
 
       @SubscribeEvent
@@ -920,237 +797,19 @@ public static class TribeWorldSavedData extends WorldSavedData {
 
       @SubscribeEvent
       public void onBlockBreak(BreakEvent event) {
-         BlockPos pos = event.getPos();
-         World world = event.getWorld();
-         if (!world.isRemote) {
-            IBlockState state = world.getBlockState(pos);
-            Block block = state.getBlock();
-            if (block instanceof BlockChest) {
-               for (Entry entry : KoboldManager.c.entrySet()) {
-                  KoboldManager.Tribe tribe = (KoboldManager.Tribe)entry.getValue();
-                  if (tribe.tribeBeds.contains(pos)) {
-                     tribe.tribeBeds.remove(pos);
-                     UUID masterUuid = KoboldManager.findTribeIdWith((UUID)entry.getKey());
-                     if (masterUuid != null) {
-                        EntityPlayerMP master = (EntityPlayerMP)world.getPlayerEntityByUUID(masterUuid);
-                        if (master != null) {
-                           PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(pos, false), master);
-                        }
-                     }
-                  }
-               }
-            }
-
-            if (block instanceof BlockBed) {
-               for (Entry entry2 : KoboldManager.c.entrySet()) {
-                  KoboldManager.Tribe tribe2 = (KoboldManager.Tribe)entry2.getValue();
-                  if (tribe2.tribeChests.contains(pos)) {
-                     BlockPos pairedPos = WorldUtils.getStatePos(pos, state);
-                     tribe2.tribeChests.remove(pos);
-                     tribe2.tribeChests.remove(pairedPos);
-                     UUID masterUuid2 = KoboldManager.findTribeIdWith((UUID)entry2.getKey());
-                     if (masterUuid2 != null) {
-                        EntityPlayerMP master2 = (EntityPlayerMP)world.getPlayerEntityByUUID(masterUuid2);
-                        if (master2 != null) {
-                           HashSet blocks = new HashSet();
-                           blocks.add(pos);
-                           blocks.add(pairedPos);
-                           PacketHandler.networkWrapper.sendTo(new SendBlocksPacket(blocks, false), master2);
-                        }
-                     }
-                  }
-               }
-            }
-         }
+         TribeBlockTracking.breakBlock(event.getWorld(), event.getPos(), KoboldManager.c);
       }
 
       String readNBTValue(String key, NBTTagCompound nbt) {
-         String value = nbt.getString(key);
-         nbt.setString(key, "");
-         return value;
+         return TribeNbtIO.readNBTValue(key, nbt);
       }
 
       public void readFromNBT(NBTTagCompound nbt) {
-         int i = 0;
-
-         label73:
-         while (true) {
-            String tribeIdStr = this.readNBTValue("tribeId" + i, nbt);
-            if ("".equals(tribeIdStr)) {
-               return;
-            }
-
-            UUID tribeUuid = UUID.fromString(tribeIdStr);
-            EyeAndKoboldColor color = EyeAndKoboldColor.valueOf(this.readNBTValue("tribeColor" + i, nbt));
-            KoboldManager.setTribeColor(tribeUuid, color);
-            String masterStr = this.readNBTValue("tribeMaster" + i, nbt);
-            if (!"".equals(masterStr)) {
-               KoboldManager.assignMaster(tribeUuid, UUID.fromString(masterStr));
-            }
-
-            int i2 = 0;
-
-            while (true) {
-               String memberPosStr = this.readNBTValue(tribeUuid.toString() + "member" + i2 + "pos", nbt);
-               if ("".equals(memberPosStr)) {
-                  break;
-               }
-
-               String memberIdStr = this.readNBTValue(tribeUuid.toString() + "member" + i2 + "id", nbt);
-               if ("".equals(memberIdStr)) {
-                  break;
-               }
-
-               String[] parts = memberPosStr.split("\\|");
-               BlockPos pos = new BlockPos(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
-               UUID memberUuid = UUID.fromString(memberIdStr);
-               KoboldManager.setTribeHomeForMember(tribeUuid, memberUuid, pos);
-               i2++;
-            }
-
-            int i3 = 0;
-
-            while (true) {
-               String bedStr = this.readNBTValue(tribeUuid.toString() + "bed" + i3, nbt);
-               if ("".equals(bedStr)) {
-                  int i4 = 0;
-
-                  while (true) {
-                     String chestStr = this.readNBTValue(tribeUuid.toString() + "chest" + i4, nbt);
-                     if ("".equals(chestStr)) {
-                        int i5 = 0;
-
-                        while (true) {
-                           String taskKind = this.readNBTValue(tribeUuid.toString() + i5 + "taskKind", nbt);
-                           if ("".equals(taskKind)) {
-                              i++;
-                              continue label73;
-                           }
-
-                           String facingStr = this.readNBTValue(tribeUuid.toString() + i5 + "facing", nbt);
-                           EnumFacing facing = EnumFacing.NORTH;
-                           if (!"".equals(facingStr)) {
-                              facing = EnumFacing.byName(facingStr);
-                           }
-
-                           String taskPosStr = this.readNBTValue(tribeUuid.toString() + i5 + "pos", nbt);
-                           String[] taskParts = taskPosStr.split("\\|");
-                           BlockPos taskPos = new BlockPos(Integer.parseInt(taskParts[0]), Integer.parseInt(taskParts[1]), Integer.parseInt(taskParts[2]));
-                           HashSet targetBlocks = new HashSet();
-                           int i6 = 0;
-
-                           while (true) {
-                              String blockStr = this.readNBTValue(tribeUuid.toString() + i5 + "block" + i6, nbt);
-                              if ("".equals(blockStr)) {
-                                 KoboldManager.addTask(tribeUuid, new KoboldTask(taskPos, KoboldTask.TaskType.valueOf(taskKind), targetBlocks, facing));
-                                 i5++;
-                                 break;
-                              }
-
-                              String[] blockParts = blockStr.split("\\|");
-                              BlockPos blockPos = new BlockPos(Integer.parseInt(blockParts[0]), Integer.parseInt(blockParts[1]), Integer.parseInt(blockParts[2]));
-                              targetBlocks.add(blockPos);
-                              i6++;
-                           }
-                        }
-                     }
-
-                     String[] chestParts = chestStr.split("\\|");
-                     BlockPos chestPos = new BlockPos(Integer.parseInt(chestParts[0]), Integer.parseInt(chestParts[1]), Integer.parseInt(chestParts[2]));
-                     KoboldManager.addTribeChest(tribeUuid, chestPos);
-                     i4++;
-                  }
-               }
-
-               String[] bedParts = bedStr.split("\\|");
-               BlockPos bedPos2 = new BlockPos(Integer.parseInt(bedParts[0]), Integer.parseInt(bedParts[1]), Integer.parseInt(bedParts[2]));
-               KoboldManager.addTribeBed(tribeUuid, bedPos2);
-               i3++;
-            }
-         }
+         TribeNbtIO.read(nbt);
       }
 
       public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-         int i = 0;
-
-         for (Entry entry : KoboldManager.c.entrySet()) {
-            KoboldManager.Tribe tribe = (KoboldManager.Tribe)entry.getValue();
-            UUID tribeUuid = (UUID)entry.getKey();
-            UUID masterUuid = tribe.getMasterPlayerUUID();
-            nbt.setString("tribeId" + i, tribeUuid.toString());
-            nbt.setString("tribeColor" + i, tribe.tribeColor.toString());
-            if (masterUuid != null) {
-               nbt.setString("tribeMaster" + i, masterUuid.toString());
-            }
-
-            int i2 = 0;
-            HashSet seenMemberIds = new HashSet();
-
-            for (KoboldEntity member : tribe.members) {
-               if (!member.isDead) {
-                  BlockPos memberPos = member.getPosition();
-                  UUID memberUuid = member.getGirlId();
-                  nbt.setString(
-                     tribeUuid.toString() + "member" + i2 + "pos", memberPos.getX() + "|" + memberPos.getY() + "|" + memberPos.getZ()
-                  );
-                  nbt.setString(tribeUuid.toString() + "member" + i2 + "id", memberUuid.toString());
-                  seenMemberIds.add(memberUuid);
-                  i2++;
-               }
-            }
-
-            for (Entry entry2 : tribe.k.entrySet()) {
-               UUID memberUuid2 = (UUID)entry2.getKey();
-               BlockPos savedPos = (BlockPos)entry2.getValue();
-               if (!seenMemberIds.contains(memberUuid2)) {
-                  nbt.setString(
-                     tribeUuid.toString() + "member" + i2 + "pos", savedPos.getX() + "|" + savedPos.getY() + "|" + savedPos.getZ()
-                  );
-                  nbt.setString(tribeUuid.toString() + "member" + i2 + "id", memberUuid2.toString());
-                  seenMemberIds.add(memberUuid2);
-                  i2++;
-               }
-            }
-
-            int i3 = 0;
-
-            // jar-verified: the deobf wrote chests under "bed" keys and beds under
-            // "chest" keys (crossed); the original writes the addTribeBed set as
-            // "bed" and the addTribeChest set as "chest"
-            for (BlockPos bedPos : tribe.tribeBeds) {
-               nbt.setString(tribeUuid.toString() + "bed" + i3, bedPos.getX() + "|" + bedPos.getY() + "|" + bedPos.getZ());
-               i3++;
-            }
-
-            int i4 = 0;
-
-            for (BlockPos chestPos : tribe.tribeChests) {
-               nbt.setString(tribeUuid.toString() + "chest" + i4, chestPos.getX() + "|" + chestPos.getY() + "|" + chestPos.getZ());
-               i4++;
-            }
-
-            int i5 = 0;
-
-            for (KoboldTask task : tribe.tasks) {
-               nbt.setString(tribeUuid.toString() + i5 + "taskKind", task.taskType.toString());
-               nbt.setString(tribeUuid.toString() + i5 + "pos", task.targetPos.getX() + "|" + task.targetPos.getY() + "|" + task.targetPos.getZ());
-               nbt.setString(tribeUuid.toString() + i5 + "facing", task.facing.getName());
-               int i6 = 0;
-
-               for (BlockPos targetPos : task.miningTargets) {
-                  nbt.setString(
-                     tribeUuid.toString() + i5 + "block" + i6, targetPos.getX() + "|" + targetPos.getY() + "|" + targetPos.getZ()
-                  );
-                  i6++;
-               }
-
-               i5++;
-            }
-
-            i++;
-         }
-
-         return nbt;
+         return TribeNbtIO.write(nbt, KoboldManager.c);
       }
 
    }

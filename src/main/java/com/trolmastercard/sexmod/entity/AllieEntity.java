@@ -339,10 +339,6 @@ public class AllieEntity extends BaseGirlEntity {
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData data) {
-      if (this.actionController == null) {
-         this.initAnimationControllers();
-      }
-
       AnimationController.ISoundListener soundListener = sound -> {
          switch (sound.sound) {
             case "summonMSG1":
@@ -522,9 +518,7 @@ public class AllieEntity extends BaseGirlEntity {
                   this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_AHH));
                }
 
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02F);
-               }
+               this.addToHornyMeterIfControlled(0.02F);
                break;
             case "cowgirlSlowDone":
                int oldState = this.stateIndex;
@@ -535,9 +529,7 @@ public class AllieEntity extends BaseGirlEntity {
 
                return;
             case "fastMoan":
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04F);
-               }
+               this.addToHornyMeterIfControlled(0.04F);
 
                if (!this.stateFlag) {
                   this.playSound(SoundHandler.randomSound(SoundHandler.GIRLS_ALLIE_MOAN));
@@ -573,10 +565,7 @@ public class AllieEntity extends BaseGirlEntity {
                this.playRandomSound(SoundHandler.GIRLS_ALLIE_AFTERSESSIONMOAN);
          }
       };
-      this.actionController.registerSoundListener(soundListener);
-      data.addAnimationController(this.actionController);
-      data.addAnimationController(this.movementController);
-      data.addAnimationController(this.eyesController);
+      this.registerControllers(data, soundListener);
    }
 
    @Override

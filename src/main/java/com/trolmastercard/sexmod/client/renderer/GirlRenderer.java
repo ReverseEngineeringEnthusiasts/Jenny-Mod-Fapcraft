@@ -1,6 +1,5 @@
 package com.trolmastercard.sexmod.client.renderer;
 
-import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.SkinFetcher;
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.ClothingScreen;
@@ -13,34 +12,20 @@ import com.trolmastercard.sexmod.entity.BodyParts;
 import com.trolmastercard.sexmod.entity.Action;
 import com.trolmastercard.sexmod.proxy.ClientProxy;
 import com.trolmastercard.sexmod.util.RotationHelper;
-import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-import com.trolmastercard.sexmod.util.ThreadNames;
-import com.trolmastercard.sexmod.util.VectorMath;
 import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
@@ -49,10 +34,8 @@ import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityHorse;
@@ -63,10 +46,7 @@ import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -139,28 +119,15 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    protected double shadowOffset;
    protected T renderEntity;
    protected static Minecraft mc;
-   protected static final int SKIN_CACHE_CAPACITY = 64;
+   protected static final int SKIN_CACHE_CAPACITY = SkinTextureCache.CAPACITY;
    /**
-    * Bounded LRU of tinted player skins (access order). Evicted entries release
-    * their GPU texture, except the shared fallback texture.
+    * Bounded LRU of tinted player skins (access order, owned by
+    * {@link SkinTextureCache}). Evicted entries release their GPU texture,
+    * except the shared fallback texture.
     */
-   protected static final LinkedHashMap<UUID, ResourceLocation> SKIN_TEXTURE_CACHE = new LinkedHashMap<UUID, ResourceLocation>(16, 0.75F, true) {
-      @Override
-      protected boolean removeEldestEntry(Map.Entry<UUID, ResourceLocation> eldest) {
-         if (this.size() <= SKIN_CACHE_CAPACITY) {
-            return false;
-         }
-
-         if (!eldest.getValue().equals(fallbackSkinLocation)) {
-            Minecraft.getMinecraft().getTextureManager().deleteTexture(eldest.getValue());
-         }
-
-         return true;
-      }
-   };
+   protected static final LinkedHashMap<UUID, ResourceLocation> SKIN_TEXTURE_CACHE = SkinTextureCache.TEXTURES;
    Color BASE_SKIN_COLOR = new Color(245, 199, 165);
    Color BLUSH_COLOR = new Color(245, 157, 169);
-   private static ResourceLocation fallbackSkinLocation;
    protected HashSet<String> activeCustomPartBones = new HashSet<>();
    float bowPullProgress = 0.0F;
    public static BufferBuilder tempBuffer;
@@ -201,92 +168,27 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    }
 
    /**
-    * Fetches the player skin for {@code uuid} ({@link SkinFetcher}), repaints
-    * the head-top/face pixels with the mod's skin-tone colors, registers it as
-    * a dynamic texture and caches it. On any fetch error the shared steve
-    * fallback texture (loaded once) is cached for the uuid instead.
+    * Hash accessor for the shared tinted-skin LRU; the fetch/tint/evict work
+    * lives in {@link SkinTextureCache}.
     */
    protected ResourceLocation getTintedSkinTexture(UUID uuid, World world) {
-      BufferedImage skinImage;
-      try {
-         skinImage = SkinFetcher.fetchSkin(uuid);
-         Graphics graphics = skinImage.getGraphics();
-         graphics.setColor(this.BASE_SKIN_COLOR);
-         graphics.fillRect(0, 0, 4, 3);
-         graphics.setColor(this.BLUSH_COLOR);
-         graphics.fillRect(4, 0, 3, 3);
-      } catch (Exception e) {
-         ResourceLocation fallbackTexture = getFallbackSkinTexture();
-         SKIN_TEXTURE_CACHE.put(uuid, fallbackTexture);
-         return fallbackTexture;
-      }
-
-      ResourceLocation tintedTexture = this.renderManager.renderEngine.getDynamicTextureLocation("player" + uuid, new DynamicTexture(skinImage));
-      SKIN_TEXTURE_CACHE.put(uuid, tintedTexture);
-      return tintedTexture;
+      return SkinTextureCache.tint(uuid, this.renderManager, this.BASE_SKIN_COLOR, this.BLUSH_COLOR);
    }
 
    /**
-    * The bundled steve skin as a dynamic texture, registered once and shared by
-    * every fallback lookup.
-    */
-   private static ResourceLocation getFallbackSkinTexture() {
-      if (fallbackSkinLocation == null) {
-         BufferedImage fallbackImage;
-         try {
-            fallbackImage = ImageIO.read(
-               Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("sexmod", "textures/player/steve.png")).getInputStream()
-            );
-         } catch (Exception e) {
-            fallbackImage = new BufferedImage(64, 64, 2);
-         }
-
-         fallbackSkinLocation = Minecraft.getMinecraft().getTextureManager().getDynamicTextureLocation("sexmod:player_fallback", new DynamicTexture(fallbackImage));
-      }
-
-      return fallbackSkinLocation;
-   }
-
-   /**
-    * Drops {@code uuid}'s cached tinted skin and releases its GPU texture; the
-    * next render fetches and re-tints. Runs on the client thread — calls from
-    * another thread are rescheduled onto it.
+    * Drops {@code uuid}'s cached tinted skin; see
+    * {@link SkinTextureCache#invalidate(UUID)} for the thread contract.
     */
    public static void invalidate(UUID uuid) {
-      if (uuid == null) {
-         return;
-      }
-
-      Minecraft minecraft = Minecraft.getMinecraft();
-      if (!minecraft.isCallingFromMinecraftThread()) {
-         minecraft.addScheduledTask(() -> invalidate(uuid));
-         return;
-      }
-
-      ResourceLocation staleTexture = SKIN_TEXTURE_CACHE.remove(uuid);
-      if (staleTexture != null && !staleTexture.equals(fallbackSkinLocation)) {
-         minecraft.getTextureManager().deleteTexture(staleTexture);
-      }
+      SkinTextureCache.invalidate(uuid);
    }
 
    /**
-    * Drops every cached tinted skin (session change / skin update). Same thread
-    * rules as {@link #invalidate(UUID)}.
+    * Drops every cached tinted skin (session change / skin update); see
+    * {@link SkinTextureCache#invalidateAll()}.
     */
    public static void invalidateAll() {
-      Minecraft minecraft = Minecraft.getMinecraft();
-      if (!minecraft.isCallingFromMinecraftThread()) {
-         minecraft.addScheduledTask(() -> invalidateAll());
-         return;
-      }
-
-      for (ResourceLocation staleTexture : new ArrayList<>(SKIN_TEXTURE_CACHE.values())) {
-         if (!staleTexture.equals(fallbackSkinLocation)) {
-            minecraft.getTextureManager().deleteTexture(staleTexture);
-         }
-      }
-
-      SKIN_TEXTURE_CACHE.clear();
+      SkinTextureCache.invalidateAll();
    }
 
    /**
@@ -325,13 +227,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    }
 
    float rayTraceBoneDistance(World world, Vec3d eyePos, float yaw, float pitch) {
-      RayTraceResult hit = this.rayTraceBlocks(eyePos, eyePos.add(VectorMath.rotateByYawPitch(new Vec3d(0.0, 0.0, -4.0), yaw, pitch)), world);
-      if (hit == null) {
-         return 4.0F;
-      }
-
-      Vec3d hitVec = hit.hitVec;
-      return hitVec == null ? 4.0F : (float)eyePos.distanceTo(hitVec);
+      return RenderOcclusion.rayTraceBoneDistance(world, eyePos, yaw, pitch);
    }
 
    /**
@@ -343,70 +239,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * @return {@code true} if the girl may be drawn
     */
    boolean canRenderPlayer(T girl, EntityPlayer player) {
-      if (girl instanceof AbstractPlayerGirlEntity) {
-         return true;
-      }
-
-      World world = girl.world;
-      Vec3d girlPos = girl.getPositionVector();
-      float halfWidth = girl.width * 1.5F;
-      float height = girl.height * 1.5F;
-      Vec3d eyePos = player.getPositionVector().add(0.0, player.getEyeHeight(), 0.0);
-      int thirdPersonView = mc.gameSettings.thirdPersonView;
-      if (thirdPersonView != 0) {
-         return true;
-      }
-
-      if (thirdPersonView > 0) {
-         float yaw = player.rotationYaw;
-         float pitch = player.rotationPitch;
-         if (thirdPersonView == 2) {
-            pitch += 180.0F;
-         }
-
-         float distance = 4.0F;
-         Vec3d cameraPos = eyePos.add(
-            MathHelper.sin(yaw * (float) (Math.PI / 180.0)) * MathHelper.cos(pitch * (float) (Math.PI / 180.0)) * distance,
-            MathHelper.sin(pitch * (float) (Math.PI / 180.0)) * distance,
-            -MathHelper.cos(yaw * (float) (Math.PI / 180.0)) * MathHelper.cos(pitch * (float) (Math.PI / 180.0)) * distance
-         );
-         BlockPos cameraBlock = new BlockPos(cameraPos);
-         boolean isAir = world.isAirBlock(cameraBlock);
-         if (!isAir) {
-            eyePos = cameraPos;
-         } else if (world.isAirBlock(cameraBlock.add(0, 1, 0))) {
-            eyePos = new Vec3d(cameraPos.x, cameraBlock.getY() + 1, cameraPos.z);
-         }
-      }
-
-      Vec3d[] corners = new Vec3d[]{
-         girlPos.add(-halfWidth / 2.0F, 0.0, -halfWidth / 2.0F),
-         girlPos.add(-halfWidth / 2.0F, 0.0, halfWidth / 2.0F),
-         girlPos.add(halfWidth / 2.0F, 0.0, -halfWidth / 2.0F),
-         girlPos.add(halfWidth / 2.0F, 0.0, halfWidth / 2.0F),
-         girlPos.add(-halfWidth / 2.0F, height, -halfWidth / 2.0F),
-         girlPos.add(-halfWidth / 2.0F, height, halfWidth / 2.0F),
-         girlPos.add(halfWidth / 2.0F, height, -halfWidth / 2.0F),
-         girlPos.add(halfWidth / 2.0F, height, halfWidth / 2.0F)
-      };
-
-      for (Vec3d corner : corners) {
-         RayTraceResult hit = this.rayTraceBlocks(eyePos, corner, world);
-         if (hit == null) {
-            return true;
-         }
-
-         IBlockState blockState = world.getBlockState(hit.getBlockPos());
-         if (blockState.isTranslucent()) {
-            return true;
-         }
-
-         if (blockState.getBlock().getRenderLayer() != BlockRenderLayer.SOLID) {
-            return true;
-         }
-      }
-
-      return false;
+      return RenderOcclusion.canRender(girl, player, mc.gameSettings.thirdPersonView);
    }
 
    /**
@@ -416,27 +249,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * {@code isNudeOutfit}. Empty while {@code ClientProxy.IS_PRELOADING}.
     */
    HashSet<String> getActiveBones(Boolean isPreview, boolean isNudeOutfit) {
-      if (ClientProxy.IS_PRELOADING) {
-         return new HashSet<>();
-      }
-
-      HashSet boneNameSet;
-      if (isPreview) {
-         boneNameSet = ClothingScreen.getCustomBoneNames();
-      } else {
-         boneNameSet = this.renderEntity.getCustomPartsSet();
-      }
-
-      HashSet resultSet = new HashSet();
-
-      for (String boneName : (java.util.Collection<String>) (boneNameSet) ) {
-         ServerWhitelistManager.ModelData modelData = ServerWhitelistManager.getModelDataForGirl(boneName);
-         if (modelData != null && (modelData.isDisabled() || !isNudeOutfit)) {
-            resultSet.addAll(modelData.getCustomPartBones());
-         }
-      }
-
-      return resultSet;
+      return CustomPartBones.resolve(this.renderEntity, isPreview, isNudeOutfit);
    }
 
    /**
@@ -496,22 +309,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
    }
 
    String buildModelCode(String path) {
-      StringBuilder builder = new StringBuilder();
-
-      try {
-         BufferedReader reader = new BufferedReader(new FileReader(path));
-
-         String line;
-         while ((line = reader.readLine()) != null) {
-            builder.append(line).append("//\n");
-         }
-
-         reader.close();
-      } catch (IOException e) {
-         Main.LOGGER.error("could not read the model code file", e);
-      }
-
-      return builder.toString();
+      return ModelCodeReader.read(path);
    }
 
    protected void renderNameTag(double x, double y, double z) {
@@ -798,26 +596,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * player, with line width from {@link #getRenderOffset}.
     */
    void renderGirlColor(BaseGirlEntity girl, float partialTicks, Vector3fSexmodSpecial overlayColor) {
-      EntityPlayerSP localPlayer = mc.player;
-      overlayColor = new Vector3fSexmodSpecial(overlayColor.x / 255.0F, overlayColor.y / 255.0F, overlayColor.z / 255.0F);
-      Tessellator tessellator = Tessellator.getInstance();
-      BufferBuilder buffer = tessellator.getBuffer();
-      GlStateManager.pushMatrix();
-      try {
-         GlStateManager.translate(0.0, 0.01, 0.0);
-         Entity renderEntity = this.getRenderEntity(girl);
-         Vec3d girlPos = girl.isAnchored()
-            ? girl.getTargetPosition()
-            : RotationHelper.lerpVec3dDouble(new Vec3d(renderEntity.lastTickPosX, renderEntity.lastTickPosY, renderEntity.lastTickPosZ), renderEntity.getPositionVector(), partialTicks);
-         Vec3d localPlayerPos = RotationHelper.lerpVec3dDouble(new Vec3d(localPlayer.lastTickPosX, localPlayer.lastTickPosY, localPlayer.lastTickPosZ), localPlayer.getPositionVector(), partialTicks);
-         Vec3d offset = girlPos.subtract(localPlayerPos);
-         GlStateManager.translate(offset.x, offset.y, offset.z);
-         mc.getTextureManager().bindTexture(LINE_TEXTURE);
-         float lineWidth = getRenderOffset(girl, partialTicks, 1.0F, 5.0F);
-         this.drawOverlayLines(tessellator, buffer, girl, overlayColor, lineWidth);
-      } finally {
-         GlStateManager.popMatrix();
-      }
+      GirlOverlayRenderer.renderGirlColor(this, girl, partialTicks, overlayColor);
    }
 
    /**
@@ -825,16 +604,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * width, closer = thinner), clamped 0..1 progress.
     */
    protected static float getRenderOffset(BaseGirlEntity girl, float partialTicks, float minWidth, float maxWidth) {
-      EntityPlayerSP localPlayer = mc.player;
-      Entity renderEntity = ((GirlRenderer)mc.getRenderManager().getEntityRenderObject(girl)).getRenderEntity(girl);
-      Vec3d girlPos = girl.isAnchored()
-         ? girl.getTargetPosition()
-         : RotationHelper.lerpVec3dDouble(new Vec3d(renderEntity.lastTickPosX, renderEntity.lastTickPosY, renderEntity.lastTickPosZ), renderEntity.getPositionVector(), partialTicks);
-      Vec3d playerPos = RotationHelper.lerpVec3dDouble(new Vec3d(localPlayer.lastTickPosX, localPlayer.lastTickPosY, localPlayer.lastTickPosZ), localPlayer.getPositionVector(), partialTicks);
-      Vec3d cameraPos = ActiveRenderInfo.getCameraPosition().add(playerPos);
-      float distance = (float)cameraPos.distanceTo(girlPos);
-      float clampedDistance = Math.abs(distance) / 5.0F;
-      return RotationHelper.lerp(maxWidth, minWidth, ThreadNames.clampFloat(clampedDistance, 0.0F, 1.0F));
+      return GirlOverlayRenderer.getRenderOffset(girl, partialTicks, minWidth, maxWidth);
    }
 
    protected void drawOverlayLines(Tessellator tessellator, BufferBuilder buffer, BaseGirlEntity girl, Vector3fSexmodSpecial color, float lineWidth) {
@@ -844,19 +614,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * Draws a single colored line segment between two cached bone offsets.
     */
    protected static void renderNameLabel(BufferBuilder buffer, Tessellator tessellator, BaseGirlEntity girl, String startBone, String endBone, float r, float g, float b, float width) {
-      buffer.begin(1, DefaultVertexFormats.POSITION_TEX_COLOR);
-      GlStateManager.glLineWidth(width);
-      Vec3d startPos = girl.getCachedBoneOffset(startBone);
-      Vec3d endPos = girl.getCachedBoneOffset(endBone);
-      buffer.pos(startPos.x, startPos.y, startPos.z)
-         .tex(0.0, 0.0)
-         .color(r, g, b, 1.0F)
-         .endVertex();
-      buffer.pos(endPos.x, endPos.y, endPos.z)
-         .tex(0.0, 0.0)
-         .color(r, g, b, 1.0F)
-         .endVertex();
-      tessellator.draw();
+      GirlOverlayRenderer.renderNameLabel(buffer, tessellator, girl, startBone, endBone, r, g, b, width);
    }
 
    /**
@@ -864,21 +622,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * given color — used by the corruption/buff overlay renderers.
     */
    protected static void renderGirlTint(Tessellator tessellator, BufferBuilder buffer, BaseGirlEntity girl, Vector3fSexmodSpecial color, float width) {
-      renderNameLabel(buffer, tessellator, girl, "braStringMidStartR", "braStringMidMid1R", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringMidMid1R", "braStringMidMid2R", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringMidMid2R", "braStringMidMid3R", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringMidMid3R", "braStringMidEndR", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringMidEndR", "braStringBackR", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringBackR", "braStringRightEndR", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringRightEndR", "braStringRightStartR", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringRightR", "braStringRightL", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringMidStartL", "braStringMidMid1L", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringMidMid1L", "braStringMidMid2L", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringMidMid2L", "braStringMidMid3L", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringMidMid3L", "braStringMidEndL", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringMidEndL", "braStringBackL", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringBackL", "braStringLeftEndL", color.x, color.y, color.z, width);
-      renderNameLabel(buffer, tessellator, girl, "braStringLeftEndL", "braStringLeftStartL", color.x, color.y, color.z, width);
+      GirlOverlayRenderer.renderGirlTint(tessellator, buffer, girl, color, width);
    }
 
    /**
@@ -919,96 +663,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * between the girl and her leash holder.
     */
    protected void renderLeash(BaseGirlEntity girl, double x, double y, double z, float partialTicks) {
-      Entity holder = girl.getLeashHolder();
-      y -= (1.6 - girl.height) * 0.5;
-      Tessellator tessellator = Tessellator.getInstance();
-      BufferBuilder buffer = tessellator.getBuffer();
-      double holderYaw = RotationHelper.lerp(holder.prevRotationYaw, holder.rotationYaw, partialTicks * 0.5F) * (float) (Math.PI / 180.0);
-      double holderPitch = RotationHelper.lerp(holder.prevRotationPitch, holder.rotationPitch, partialTicks * 0.5F) * (float) (Math.PI / 180.0);
-      double cosYaw = Math.cos(holderYaw);
-      double sinYaw = Math.sin(holderYaw);
-      double sinPitch = Math.sin(holderPitch);
-      if (holder instanceof EntityHanging) {
-         cosYaw = 0.0;
-         sinYaw = 0.0;
-         sinPitch = -1.0;
-      }
-
-      double cosPitch = Math.cos(holderPitch);
-      double holderX = RotationHelper.lerpDouble(holder.prevPosX, holder.posX, partialTicks) - cosYaw * 0.7 - sinYaw * 0.5 * cosPitch;
-      double holderY = RotationHelper.lerpDouble(holder.prevPosY + holder.getEyeHeight() * 0.7, holder.posY + holder.getEyeHeight() * 0.7, partialTicks)
-         - sinPitch * 0.5
-         - 0.25;
-      double holderZ = RotationHelper.lerpDouble(holder.prevPosZ, holder.posZ, partialTicks) - sinYaw * 0.7 + cosYaw * 0.5 * cosPitch;
-      double girlYaw = RotationHelper.lerp(girl.prevRenderYawOffset, girl.renderYawOffset, partialTicks) * (float) (Math.PI / 180.0) + (Math.PI / 2);
-      cosYaw = Math.cos(girlYaw) * girl.width * 0.4;
-      sinYaw = Math.sin(girlYaw) * girl.width * 0.4;
-      double girlX = RotationHelper.lerpDouble(girl.prevPosX, girl.posX, partialTicks) + cosYaw;
-      double girlY = RotationHelper.lerpDouble(girl.prevPosY, girl.posY, partialTicks);
-      double girlZ = RotationHelper.lerpDouble(girl.prevPosZ, girl.posZ, partialTicks) + sinYaw;
-      x += cosYaw;
-      z += sinYaw;
-      double deltaX = (float)(holderX - girlX);
-      double deltaY = (float)(holderY - girlY);
-      double deltaZ = (float)(holderZ - girlZ);
-      GlStateManager.disableTexture2D();
-      GlStateManager.disableLighting();
-      GlStateManager.disableCull();
-      buffer.begin(5, DefaultVertexFormats.POSITION_COLOR);
-
-      for (int segment = 0; segment <= 24; segment++) {
-         float r = 0.5F;
-         float g = 0.4F;
-         float b = 0.3F;
-         if (segment % 2 == 0) {
-            r = 0.35F;
-            g = 0.28F;
-            b = 0.21000001F;
-         }
-
-         float progress = segment / 24.0F;
-         buffer.pos(
-               x + deltaX * progress + 0.0, y + deltaY * (progress * progress + progress) * 0.5 + ((24.0F - segment) / 18.0F + 0.125F), z + deltaZ * progress
-            )
-            .color(r, g, b, 1.0F)
-            .endVertex();
-         buffer.pos(
-               x + deltaX * progress + 0.025, y + deltaY * (progress * progress + progress) * 0.5 + ((24.0F - segment) / 18.0F + 0.125F) + 0.025, z + deltaZ * progress
-            )
-            .color(r, g, b, 1.0F)
-            .endVertex();
-      }
-
-      tessellator.draw();
-      buffer.begin(5, DefaultVertexFormats.POSITION_COLOR);
-
-      for (int segment2 = 0; segment2 <= 24; segment2++) {
-         float r2 = 0.5F;
-         float g2 = 0.4F;
-         float b2 = 0.3F;
-         if (segment2 % 2 == 0) {
-            r2 = 0.35F;
-            g2 = 0.28F;
-            b2 = 0.21000001F;
-         }
-
-         float progress2 = segment2 / 24.0F;
-         buffer.pos(
-               x + deltaX * progress2 + 0.0, y + deltaY * (progress2 * progress2 + progress2) * 0.5 + ((24.0F - segment2) / 18.0F + 0.125F) + 0.025, z + deltaZ * progress2
-            )
-            .color(r2, g2, b2, 1.0F)
-            .endVertex();
-         buffer.pos(
-               x + deltaX * progress2 + 0.025, y + deltaY * (progress2 * progress2 + progress2) * 0.5 + ((24.0F - segment2) / 18.0F + 0.125F), z + deltaZ * progress2 + 0.025
-            )
-            .color(r2, g2, b2, 1.0F)
-            .endVertex();
-      }
-
-      tessellator.draw();
-      GlStateManager.enableLighting();
-      GlStateManager.enableTexture2D();
-      GlStateManager.enableCull();
+      GirlLeashRenderer.render(girl, x, y, z, partialTicks);
    }
 
    /**
@@ -1383,121 +1038,7 @@ public abstract class GirlRenderer<T extends BaseGirlEntity & IAnimatable> exten
     * {@code null} (NaN inputs or no hit within 200 steps).
     */
    RayTraceResult rayTraceBlocks(Vec3d start, Vec3d end, World world) {
-      if (Double.isNaN(start.x) || Double.isNaN(start.y) || Double.isNaN(start.z)) {
-         return null;
-      }
-
-      if (!Double.isNaN(end.x) && !Double.isNaN(end.y) && !Double.isNaN(end.z)) {
-         int endX = MathHelper.floor(end.x);
-         int endY = MathHelper.floor(end.y);
-         int endZ = MathHelper.floor(end.z);
-         int currentX = MathHelper.floor(start.x);
-         int currentY = MathHelper.floor(start.y);
-         int currentZ = MathHelper.floor(start.z);
-         BlockPos currentPos = new BlockPos(currentX, currentY, currentZ);
-         IBlockState blockState = world.getBlockState(currentPos);
-         if (blockState.getCollisionBoundingBox(world, currentPos) != Block.NULL_AABB && blockState.getBlock().getRenderLayer() == BlockRenderLayer.SOLID) {
-            return blockState.collisionRayTrace(world, currentPos, start, end);
-         }
-
-         int steps = 200;
-
-         while (steps-- >= 0) {
-            if (Double.isNaN(start.x) || Double.isNaN(start.y) || Double.isNaN(start.z)) {
-               return null;
-            }
-
-            if (currentX == endX && currentY == endY && currentZ == endZ) {
-               return null;
-            }
-
-            boolean stepX = true;
-            boolean stepY = true;
-            boolean stepZ = true;
-            double nextX = 999.0;
-            double nextY = 999.0;
-            double nextZ = 999.0;
-            if (endX > currentX) {
-               nextX = currentX + 1.0;
-            } else if (endX < currentX) {
-               nextX = currentX + 0.0;
-            } else {
-               stepX = false;
-            }
-
-            if (endY > currentY) {
-               nextY = currentY + 1.0;
-            } else if (endY < currentY) {
-               nextY = currentY + 0.0;
-            } else {
-               stepY = false;
-            }
-
-            if (endZ > currentZ) {
-               nextZ = currentZ + 1.0;
-            } else if (endZ < currentZ) {
-               nextZ = currentZ + 0.0;
-            } else {
-               stepZ = false;
-            }
-
-            double tMaxX = 999.0;
-            double tMaxY = 999.0;
-            double tMaxZ = 999.0;
-            double deltaX = end.x - start.x;
-            double deltaY = end.y - start.y;
-            double deltaZ = end.z - start.z;
-            if (stepX) {
-               tMaxX = (nextX - start.x) / deltaX;
-            }
-
-            if (stepY) {
-               tMaxY = (nextY - start.y) / deltaY;
-            }
-
-            if (stepZ) {
-               tMaxZ = (nextZ - start.z) / deltaZ;
-            }
-
-            if (tMaxX == -0.0) {
-               tMaxX = -1.0E-4;
-            }
-
-            if (tMaxY == -0.0) {
-               tMaxY = -1.0E-4;
-            }
-
-            if (tMaxZ == -0.0) {
-               tMaxZ = -1.0E-4;
-            }
-
-            EnumFacing facing;
-            if (tMaxX < tMaxY && tMaxX < tMaxZ) {
-               facing = endX > currentX ? EnumFacing.WEST : EnumFacing.EAST;
-               start = new Vec3d(nextX, start.y + deltaY * tMaxX, start.z + deltaZ * tMaxX);
-            } else if (tMaxY < tMaxZ) {
-               facing = endY > currentY ? EnumFacing.DOWN : EnumFacing.UP;
-               start = new Vec3d(start.x + deltaX * tMaxY, nextY, start.z + deltaZ * tMaxY);
-            } else {
-               facing = endZ > currentZ ? EnumFacing.NORTH : EnumFacing.SOUTH;
-               start = new Vec3d(start.x + deltaX * tMaxZ, start.y + deltaY * tMaxZ, nextZ);
-            }
-
-            currentX = MathHelper.floor(start.x) - (facing == EnumFacing.EAST ? 1 : 0);
-            currentY = MathHelper.floor(start.y) - (facing == EnumFacing.UP ? 1 : 0);
-            currentZ = MathHelper.floor(start.z) - (facing == EnumFacing.SOUTH ? 1 : 0);
-            currentPos = new BlockPos(currentX, currentY, currentZ);
-            IBlockState hitState = world.getBlockState(currentPos);
-            if ((hitState.getMaterial() == Material.PORTAL || hitState.getCollisionBoundingBox(world, currentPos) != Block.NULL_AABB)
-               && hitState.getBlock().getRenderLayer() == BlockRenderLayer.SOLID) {
-               return hitState.collisionRayTrace(world, currentPos, start, end);
-            }
-         }
-
-         return null;
-      } else {
-         return null;
-      }
+      return RenderOcclusion.rayTraceBlocks(start, end, world);
    }
 
 }

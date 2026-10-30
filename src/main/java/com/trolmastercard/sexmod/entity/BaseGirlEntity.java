@@ -2,6 +2,7 @@ package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.client.SexWorldClient;
 import com.trolmastercard.sexmod.client.gui.GirlInventoryScreen;
+import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.renderer.GirlRenderer;
 import com.trolmastercard.sexmod.client.renderer.SexSceneRenderer;
 import com.trolmastercard.sexmod.entity.ai.DoorInteractAiGoal;
@@ -356,6 +357,26 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
       this.eyesController = new AnimationController<>(this, "eyes", 10.0F, this::animationPredicate);
    }
 
+   /**
+    * CLIENT: lazily creates the animation controllers, attaches the girl's
+    * sound listener to the action controller and registers the standard
+    * action/movement/eyes trio. Girls that drive a different set (Slime,
+    * Manglelie) register their controllers by hand.
+    * @param data the animation data handed to {@link #registerControllers(AnimationData)}
+    * @param soundListener the girl's keyframe sound handler
+    */
+   @SideOnly(Side.CLIENT)
+   protected void registerControllers(AnimationData data, AnimationController.ISoundListener soundListener) {
+      if (this.actionController == null) {
+         this.initAnimationControllers();
+      }
+
+      this.actionController.registerSoundListener(soundListener);
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.movementController);
+      data.addAnimationController(this.eyesController);
+   }
+
    protected void entityInit() {
       super.entityInit();
       this.pathNavigator = this.getNavigator();
@@ -403,11 +424,20 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    protected void initEntityAI() {
-      this.wanderGoal = new EntityAIWanderAvoidWater(this, 0.35);
-      this.watchClosestGirlGoal = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
       this.tasks.addTask(0, new EntityAISwimming(this));
       this.tasks.addTask(2, new EntityAITempt(this, 0.4, false, new HashSet<>(TEMPTATION_ITEMS)));
       this.tasks.addTask(3, new DoorInteractAiGoal(this));
+      this.resetWanderGoals();
+   }
+
+   /**
+    * Creates the wander and watch-closest-player goals and adds both at task
+    * priority 5. Girls that remove the two goals from {@link #tasks} on the way
+    * to a bed call this to put them back in {@code reinitTasks()}.
+    */
+   protected void resetWanderGoals() {
+      this.wanderGoal = new EntityAIWanderAvoidWater(this, 0.35);
+      this.watchClosestGirlGoal = new WatchClosestGirlGoal(this, EntityPlayer.class, 3.0F, 1.0F);
       this.tasks.addTask(5, this.watchClosestGirlGoal);
       this.tasks.addTask(5, this.wanderGoal);
    }
@@ -853,6 +883,18 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
 
       EntityPlayerSP localPlayer = Minecraft.getMinecraft().player;
       return localPlayer.getPersistentID().equals(this.getInteractionPlayerUUID()) || localPlayer.getUniqueID().equals(this.getInteractionPlayerUUID());
+   }
+
+   /**
+    * CLIENT: feeds the horny meter from a scene keyframe, but only on the
+    * client that actually drives this girl — the meter is a per-client HUD, so
+    * copies of the girl on other clients must not move it.
+    */
+   @SideOnly(Side.CLIENT)
+   protected void addToHornyMeterIfControlled(double amount) {
+      if (this.isControlledByLocalPlayer()) {
+         HornyMeterHud.addToHornyMeter(amount);
+      }
    }
 
    protected void U() {

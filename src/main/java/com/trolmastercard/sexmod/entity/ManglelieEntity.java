@@ -926,9 +926,7 @@ public class ManglelieEntity extends BaseGirlEntity {
          switch (sound.sound) {
             case "pound":
                this.playRandomSound(SoundHandler.MISC_POUNDING);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02);
-               }
+               this.addToHornyMeterIfControlled(0.02);
                break;
             case "cs0":
                this.corruptionStage = 0;

@@ -2,10 +2,7 @@ package com.trolmastercard.sexmod.entity;
 
 import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.api.SkinColor;
-import com.trolmastercard.sexmod.client.SexWorldClient;
-import com.trolmastercard.sexmod.client.gui.BeeScreen;
 import com.trolmastercard.sexmod.client.gui.GirlInventoryScreen;
-import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.model.AllieModel;
 import com.trolmastercard.sexmod.client.model.api.IVanillaModel;
 import com.trolmastercard.sexmod.client.renderer.GoblinRenderer;
@@ -14,9 +11,7 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.networking.ResetGirlPacket;
 import com.trolmastercard.sexmod.networking.SetPlayerMovementPacket;
 import com.trolmastercard.sexmod.util.RotationHelper;
-import com.trolmastercard.sexmod.util.SoundHandler;
 import com.trolmastercard.sexmod.util.VectorMath;
-import com.trolmastercard.sexmod.util.HandlePlayerMovement;
 import com.trolmastercard.sexmod.util.PlayerGoblinRenderer;
 import com.trolmastercard.sexmod.util.EyeColor;
 import com.trolmastercard.sexmod.util.HairColor;
@@ -38,7 +33,6 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -51,7 +45,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 
@@ -68,13 +61,11 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * (119-121) via {@link AbstractKoboldPlayerEntity}; {@code setCustomPartList}
  * packs the trailing model-part index 9.
  * <p>
- * <b>Flow.</b> {@link #handlePlayerThrow(EntityPlayer)} starts the pickup;
- * {@link #updatePlayerThrowProgress()} launches the carrying player at tick 15
- * and unbinds at tick 39; {@link #handleThrowAction()} glues the transformed
- * player to the carrier's head while unthrown. Scenes start via
+ * <b>Flow.</b> {@link GoblinPlayerThrow} owns the carry/throw glue (pickup,
+ * head glue, the tick-15 launch and the tick-39 unbind) and
+ * {@link GoblinPlayerScene} the paizuri/nelson placement. Scenes start via
  * {@link #handleOwnerCommand(String, UUID)} (anal -&gt; nelson, paizuri);
- * {@link #handlePlayerInteract()}/{@link #handlePlayerLook()} position the
- * player for paizuri/nelson.
+ * {@link GoblinPlayerAnimations} holds the pose predicate and sound listener.
  * <p>
  * <b>Pitfalls.</b> {@link #isAnchored()} is true whenever carried
  * (owner != null) — many scene checks depend on it. {@link #isPlayerGirl()}
@@ -209,34 +200,6 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       return RotationHelper.lerpVec3dDouble(prevPos, curPos, partialTicks);
    }
 
-   /**
-    * SERVER: the pickup trigger (sneak+click by a non-transformed player on
-    * the carried player's entity) — binds the carrier and starts
-    * {@link Action#PICK_UP} with the 45-tick hold countdown, locking the
-    * carrying player's physics.
-    */
-   void handlePlayerThrow(EntityPlayer player) {
-      if (this.getCurrentAction() == Action.NULL) {
-         if (this.getOwnerUUID() == null) {
-            if (GoblinEntity.hasGoblinWithUUID(player.getPersistentID())) {
-               player.sendStatusMessage(new TextComponentString("you are already carrying a Goblin"), true);
-            } else {
-               this.setOwnerUUID(player.getPersistentID());
-               this.setCurrentAction(Action.PICK_UP);
-               this.setHeldPlayerDistance(45);
-               EntityPlayer ownerPlayer = this.getOwnerPlayer();
-               if (ownerPlayer != null) {
-                  ownerPlayer.setNoGravity(true);
-                  ownerPlayer.noClip = true;
-                  if (!this.world.isRemote) {
-                     PacketHandler.networkWrapper.sendTo(new SetPlayerMovementPacket(false), (EntityPlayerMP)ownerPlayer);
-                  }
-               }
-            }
-         }
-      }
-   }
-
    @Override
    protected String buildModelCodeDNA(StringBuilder builder) {
       AbstractNpcOnlyEntity.appendPaddedNumber(builder, 3);
@@ -348,19 +311,6 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       return VectorMath.rotateByYaw(aimVec, yaw + angle);
    }
 
-   @SideOnly(Side.CLIENT)
-   void handleOwnerThrow() {
-      EntityPlayer player = this.getOwnerPlayer();
-      if (player != null) {
-         if (this.getCurrentAction() == Action.START_THROWING) {
-            player.isDead = false;
-            if (!this.world.loadedEntityList.contains(player)) {
-               this.world.spawnEntity(player);
-            }
-         }
-      }
-   }
-
    /**
     * BOTH sides: dispatches the throw glue ({@link #handleThrowAction()}),
     * the throw flight ({@link #updatePlayerThrowProgress()}) and the CLIENT
@@ -370,14 +320,14 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
    @Override
    public void onUpdate() {
       GoblinEntity.handleGoblinThrowAction(this);
-      this.updatePlayerThrowProgress();
-      this.handleThrowAction();
+      GoblinPlayerThrow.updatePlayerThrowProgress(this);
+      GoblinPlayerThrow.handleThrowAction(this);
       super.onUpdate();
       if (this.world.isRemote) {
-         this.handleOwnerThrow();
+         GoblinPlayerThrow.handleOwnerThrow(this);
          Action action = this.getCurrentAction();
-         this.handleLocalAction(action);
-         this.handleNelsonAction(action);
+         GoblinPlayerScene.handleLocalAction(this, action);
+         GoblinPlayerScene.handleNelsonAction(this, action);
          this.aw = action;
       }
    }
@@ -387,103 +337,12 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       return this.getOwnerUUID() != null;
    }
 
-   /**
-    * SERVER (mirrored on CLIENT): while carried (owner set) and not yet
-    * thrown, keeps the transformed player glued 2 blocks above the carrier.
-    */
-   void handleThrowAction() {
-      Action action = this.getCurrentAction();
-      if (action != Action.THROWN) {
-         if (action != Action.START_THROWING || this.getThrowProgress() <= 15) {
-            UUID uuid = this.getOwnerUUID();
-            if (uuid != null) {
-               EntityPlayer owner = this.world.getPlayerEntityByUUID(uuid);
-               if (owner != null) {
-                  EntityPlayer player = this.getOwnerPlayer();
-                  if (player != null) {
-                     player.noClip = true;
-                     player.setNoGravity(true);
-                     player.setPosition(owner.posX, owner.posY + 2.0, owner.posZ);
-                  }
-               }
-            }
-         }
-      }
-   }
-
-   /**
-    * SERVER (mirrored on CLIENT): throw flight for the transformed player —
-    * at tick 15 the carrying player is launched with the carrier's aim, at
-    * tick 39 the throw ends (THROWN) and the owner/interaction bindings
-    * clear.
-    */
-   void updatePlayerThrowProgress() {
-      GoblinPlayerEntity goblin = this;
-      int progress = goblin.getThrowProgress();
-      if (progress != -1) {
-         goblin.setThrowProgress(++progress);
-         EntityPlayer player = this.getOwnerPlayer();
-         if (player != null) {
-            if (progress == 15) {
-               GoblinEntity.getGoblinThrowPos(this);
-               float pitch = GoblinEntity.getGoblinThrowHeight(this);
-               float yaw = GoblinEntity.getGoblinThrowDistance(this);
-               if (this.world.isRemote && this.hasOwnerUUID()) {
-                  HandlePlayerMovement.setMovementLock(true);
-               }
-
-               Vec3d vec = GoblinEntity.rotateVectorPitchYaw(new Vec3d(0.0, 0.0, 1.5), pitch, yaw);
-               player.motionX = vec.x;
-               player.motionY = vec.y;
-               player.motionZ = vec.z;
-               if (!this.world.isRemote) {
-                  this.setYawRotation(yaw);
-               }
-            }
-
-            player.noClip = false;
-            player.setNoGravity(false);
-            if (progress == 39) {
-               this.setThrowProgress(-1);
-               this.setCurrentAction(Action.THROWN);
-               this.setInteractionPlayerUUID(null);
-               this.setOwnerUUID(null);
-            }
-         }
-      }
-   }
-
    @Override
    public void updateAITasks() {
       super.updateAITasks();
       GoblinEntity.handlePickUpState(this);
-      this.handlePlayerThrown();
-      this.handlePlayerStandUp();
-   }
-
-   void handlePlayerStandUp() {
-      if (this.getCurrentAction() == Action.STAND_UP) {
-         if (++this.aJ >= 37) {
-            this.aJ = 0;
-            this.setCurrentAction(Action.NULL);
-         }
-      }
-   }
-
-   void handlePlayerThrown() {
-      if (this.getCurrentAction() == Action.THROWN) {
-         EntityPlayer player = this.getOwnerPlayer();
-         if (player != null) {
-            if (player.onGround) {
-               int throwTick = this.getThrowTickCount() + 1;
-               this.setThrowTickCount(throwTick);
-               if (throwTick >= 30) {
-                  this.setThrowTickCount(0);
-                  this.setCurrentAction(Action.STAND_UP);
-               }
-            }
-         }
-      }
+      GoblinPlayerThrow.handlePlayerThrown(this);
+      GoblinPlayerThrow.handlePlayerStandUp(this);
    }
 
    @Nullable
@@ -569,29 +428,6 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
       }
    }
 
-   @SideOnly(Side.CLIENT)
-   void handleNelsonAction(Action action) {
-      if (action == Action.NELSON_FAST && this.aw != Action.NELSON_FAST) {
-         this.aF = false;
-      }
-   }
-
-   @SideOnly(Side.CLIENT)
-   void handleLocalAction(Action action) {
-      Minecraft mc = Minecraft.getMinecraft();
-      if (mc.player.getPersistentID().equals(this.getInteractionPlayerUUID())) {
-         if (mc.gameSettings.thirdPersonView == 0) {
-            switch (action) {
-               case NELSON_CUM:
-               case NELSON_FAST:
-               case NELSON_INTRO:
-               case NELSON_SLOW:
-                  mc.gameSettings.thirdPersonView = 2;
-            }
-         }
-      }
-   }
-
    @Override
    public void setCustomPartList(List<Integer> parts) {
       StringBuilder builder = new StringBuilder();
@@ -634,11 +470,11 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
          if (currentAction != Action.NELSON_CUM || action != Action.NELSON_SLOW && action != Action.NELSON_FAST) {
             if (currentAction != Action.BREEDING_CUM_0 || action != Action.BREEDING_SLOW_0 && action != Action.BREEDING_FAST_0) {
                if (action == Action.PAIZURI_START && !this.world.isRemote) {
-                  this.handlePlayerInteract();
+                  GoblinPlayerScene.handlePlayerInteract(this);
                }
 
                if (action == Action.NELSON_INTRO && !this.world.isRemote) {
-                  this.handlePlayerLook();
+                  GoblinPlayerScene.handlePlayerLook(this);
                }
 
                if (action == Action.NELSON_CUM) {
@@ -652,32 +488,6 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                super.setCurrentAction(action);
             }
          }
-      }
-   }
-
-   void handlePlayerLook() {
-      EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
-      if (player != null) {
-         this.setYawRotation(player.rotationYaw);
-         this.noClip = true;
-         this.setNoGravity(true);
-         player.setNoGravity(true);
-         player.noClip = true;
-         player.setPositionAndUpdate(player.posX, player.posY, player.posZ - 1.0);
-      }
-   }
-
-   void handlePlayerInteract() {
-      EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
-      if (player != null) {
-         this.setYawRotation(player.rotationYaw + 180.0F);
-         this.noClip = true;
-         this.setNoGravity(true);
-         player.setNoGravity(true);
-         player.noClip = true;
-         player.setPositionAndUpdate(player.posX, player.posY - 0.5, player.posZ - 0.6F);
-         player.rotationPitch = 70.0F;
-         player.prevRotationPitch = 70.0F;
       }
    }
 
@@ -725,406 +535,13 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
 
    @Override
    protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
-      if (this.world instanceof SexWorldClient) {
-         return PlayState.STOP;
-      }
-
-      switch (event.getController().getName()) {
-         case "eyes":
-            if (this.getCurrentAction() == Action.NULL && this.getCurrentAction().autoBlink) {
-               this.createAnimation("animation.goblin.blink", true, event);
-            } else {
-               this.createAnimation("animation.goblin.null", true, event);
-            }
-            break;
-         case "movement":
-            if (this.getCurrentAction() != Action.NULL) {
-               this.createAnimation("animation.goblin.null", true, event);
-            } else if (this.playerRiding) {
-               this.createAnimation("animation.goblin.sit", true, event);
-            } else {
-               if (this.movementController.getCurrentAnimation() != null && this.movementController.getCurrentAnimation().animationName.contains("fly") && this.playerOnGround) {
-                  this.aC = !this.aC;
-               }
-
-               if (!this.playerOnGround) {
-                  this.createAnimation("animation.goblin.fly" + (this.aC ? "2" : ""), true, event);
-               } else if (Math.abs(this.playerMotionOffset.x) + Math.abs(this.playerMotionOffset.y) > 0.0F) {
-                  if (this.playerSprinting) {
-                     this.movementController.setAnimationSpeed(1.2F);
-                     this.createAnimation("animation.goblin.running", true, event);
-                  } else if (this.playerMotionOffset.y >= -0.1F) {
-                     this.movementController.setAnimationSpeed(2.0);
-                     this.createAnimation("animation.goblin.walk", true, event);
-                  } else {
-                     this.movementController.setAnimationSpeed(1.5);
-                     this.createAnimation("animation.goblin.backwards_walk", true, event);
-                  }
-               } else {
-                  this.createAnimation("animation.goblin.idle", true, event);
-               }
-            }
-            break;
-         case "action":
-            Minecraft mc = Minecraft.getMinecraft();
-            String camMode = mc.player.getPersistentID().equals(this.getOwnerUUID()) && mc.gameSettings.thirdPersonView == 0 ? "1" : "3";
-            switch (this.getCurrentAction()) {
-               case NELSON_CUM:
-                  this.createAnimation("animation.goblin.nelson_cum", true, event);
-                  break;
-               case NELSON_FAST:
-                  this.createAnimation("animation.goblin.nelson_fast" + (this.aF ? "c" : "s"), true, event);
-                  break;
-               case NELSON_INTRO:
-                  this.createAnimation("animation.goblin.nelson_intro", true, event);
-                  break;
-               case NELSON_SLOW:
-                  this.createAnimation("animation.goblin.nelson_slow" + (this.ay ? "" : "2"), true, event);
-                  break;
-               case PAIZURI_IDLE:
-                  this.createAnimation("animation.goblin.paizuri_idle", true, event);
-                  break;
-               case PAIZURI_SLOW:
-                  this.createAnimation("animation.goblin.paizuri_slow" + this.aD, true, event);
-                  break;
-               case BREEDING_SLOW_0:
-                  this.createAnimation("animation.goblin.breeding_slow_1" + (this.aB ? "l" : "r"), true, event);
-                  break;
-               case BREEDING_SLOW_2:
-                  this.createAnimation("animation.goblin.breeding_slow_3", true, event);
-                  break;
-               case PAIZURI_FAST:
-                  this.createAnimation("animation.goblin.paizuri_fast", true, event);
-                  break;
-               case PAIZURI_FAST_CONTINUES:
-                  this.createAnimation("animation.goblin.paizuri_fast_countinues", true, event);
-                  break;
-               case BREEDING_1:
-                  this.createAnimation("animation.goblin.breeding_2", true, event);
-                  break;
-               case BREEDING_FAST_2:
-                  this.createAnimation("animation.goblin.breeding_fast_3", true, event);
-                  break;
-               case SHOULDER_IDLE:
-                  this.createAnimation("animation.goblin.shoulder_idle", true, event);
-                  break;
-               case PICK_UP:
-                  this.createAnimation(String.format("animation.goblin.pick_up_%sperson", camMode), true, event);
-                  break;
-               case START_THROWING:
-                  this.createAnimation(String.format("animation.goblin.throw_%sperson", camMode), true, event);
-                  break;
-               case THROWN:
-                  this.createAnimation("animation.goblin.thrown", true, event);
-                  break;
-               case NULL:
-                  this.createAnimation("animation.goblin.null", true, event);
-                  break;
-               case STAND_UP:
-                  this.createAnimation("animation.goblin.stand_up", false, event);
-                  break;
-               case STRIP:
-                  this.createAnimation("animation.goblin.strip", false, event);
-                  break;
-               case ATTACK:
-                  this.createAnimation("animation.goblin.attack" + this.nextAttack, false, event);
-                  break;
-               case BOW:
-                  this.createAnimation("animation.goblin.bowcharge", false, event);
-                  break;
-               case SIT:
-                  this.createAnimation("animation.goblin.sit", true, event);
-                  break;
-               case BREEDING_INTRO_0:
-                  this.createAnimation("animation.goblin.breeding_intro_1", true, event);
-                  break;
-               case BREEDING_INTRO_1:
-                  this.createAnimation("animation.goblin.breeding_intro_2", true, event);
-                  break;
-               case BREEDING_INTRO_2:
-                  this.createAnimation("animation.goblin.breeding_intro_3", true, event);
-                  break;
-               case BREEDING_FAST_0:
-                  this.createAnimation("animation.goblin.breeding_fast_1" + (this.aH ? "c" : "s"), true, event);
-                  break;
-               case BREEDING_CUM_0:
-                  this.createAnimation("animation.goblin.breeding_cum_1", true, event);
-                  break;
-               case BREEDING_CUM_1:
-                  this.createAnimation("animation.goblin.breeding_cum_2", true, event);
-                  break;
-               case BREEDING_CUM_2:
-                  this.createAnimation("animation.goblin.breeding_cum_3", true, event);
-                  break;
-               case PAIZURI_START:
-                  this.createAnimation("animation.goblin.paizuri_start", true, event);
-                  break;
-               case PAIZURI_CUM:
-                  this.createAnimation("animation.goblin.paizuri_cum", true, event);
-            }
-      }
-
-      return PlayState.CONTINUE;
+      return GoblinPlayerAnimations.predicate(this, event);
    }
 
-   /**
-    * CLIENT: registers the controllers plus the sound listener driving the
-    * catch dialogue, paizuri, nelson and breeding scenes. Key transitions:
-    * {@code catchDone} -&gt; {@link Action#CATCH_BJ}, {@code paizuri_startDone}
-    * -&gt; {@link Action#PAIZURI_IDLE}, {@code neslon_introDone} -&gt;
-    * {@link Action#NELSON_SLOW}, {@code breedingIntroDone} -&gt;
-    * {@link Action#BREEDING_SLOW_0}, jump on the ready keyframes switches
-    * fast/hard, {@code paizuriCumDone}/{@code nelson_cumDone} -&gt;
-    * {@code resetCameraAndPhysics()} + NULL. Movement controller uses a
-    * 2-tick transition.
-    */
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData data) {
-      if (this.actionController == null) {
-         this.initAnimationControllers();
-      }
-
-      AnimationController.ISoundListener soundListener = sound -> {
-         switch (sound.sound) {
-            case "attackDone":
-               if (++this.nextAttack == 3) {
-                  this.nextAttack = 0;
-               }
-               break;
-            case "catchEh":
-               this.sendChatMessage("ehh..");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "catchAkward":
-               this.sendChatMessage("awkward..");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "catchWell":
-               this.sendChatMessage("well...");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "catchRather":
-               this.sendChatMessage("would you rather have this stupid... thing?");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "catchMe":
-               this.sendChatMessage("...or use me?~");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "catchDone":
-               if ("bj".equals(this.entityDataManager.get(GIRL_HAND_STATES))) {
-                  this.setCurrentAction(Action.CATCH_BJ);
-               }
-               break;
-            case "catchBjDone":
-               this.setCurrentAction(Action.CATCH_BJ_IDLE);
-               if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP player = Minecraft.getMinecraft().player;
-                  openInventoryGui(player, this, new String[]{"use her", "take ur stuff back"}, null, false);
-               }
-               break;
-            case "paizuriChoice":
-               this.sendChatMessage("good choice!~");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "paizuriBoth":
-               this.sendChatMessage("...for both of us!");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "paizruiUse":
-               this.sendChatMessage("now use me like a fuck toy!~");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "paizuriSwitch":
-               if (!this.getRNG().nextBoolean()) {
-                  this.aD = "".equals(this.aD) ? "2" : "";
-               }
-               break;
-            case "touch":
-               this.playRandomSoundAtVolume(SoundHandler.MISC_TOUCH, 3.0F);
-               break;
-            case "pound":
-               this.playRandomSound(SoundHandler.MISC_POUNDING);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04F);
-               }
-               break;
-            case "paizuri_startDone":
-               this.setCurrentAction(Action.PAIZURI_IDLE);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.showHornyMeter();
-               }
-               break;
-            case "paizuriFastDone":
-               this.setCurrentAction(Action.PAIZURI_SLOW);
-               break;
-            case "paizuriFastReady":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
-                  this.setCurrentAction(Action.PAIZURI_FAST_CONTINUES);
-               }
-               break;
-            case "paizuriFastContinuesReady":
-            case "neslon_fastBackSwitch":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
-                  this.resetAnimationControllerOffset();
-               }
-               break;
-            case "smallPound":
-               this.playRandomSoundAtVolume(SoundHandler.MISC_POUNDING, 0.25F);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02F);
-               }
-               break;
-            case "paizruiCam":
-               if (this.isControlledByLocalPlayer()) {
-                  EntityPlayerSP player = Minecraft.getMinecraft().player;
-                  player.rotationPitch = 70.0F;
-                  player.prevRotationPitch = 70.0F;
-               }
-               break;
-            case "blackScreen":
-               if (this.isControlledByLocalPlayer()) {
-                  BeeScreen.enableInteraction();
-               }
-               break;
-            case "cumSound":
-               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
-               break;
-            case "jumpCam":
-               if (this.isControlledByLocalPlayer()) {
-                  Minecraft mc = Minecraft.getMinecraft();
-                  mc.player.rotationYaw = this.getYawRotation() + 170.0F;
-                  mc.player.rotationPitch = -20.0F;
-                  mc.player.rotationYawHead = mc.player.rotationYaw;
-                  mc.gameSettings.thirdPersonView = 2;
-               }
-               break;
-            case "breedingHmm":
-               if (this.isControlledByLocalPlayer()) {
-                  Minecraft mc = Minecraft.getMinecraft();
-                  mc.player.rotationYaw = this.getYawRotation() + 180.0F;
-                  mc.player.rotationPitch = -15.0F;
-                  mc.player.rotationYawHead = mc.player.rotationYaw;
-                  mc.gameSettings.thirdPersonView = 0;
-               }
-
-               this.sendChatMessage("hmm...");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "breedingFound":
-               this.sendChatMessage("guess we found a worthy breeding partner!");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "breedingEnough":
-               this.sendChatMessage("Eh.. go pin him down, before he runs off!");
-               this.playRandomSound(SoundHandler.MISC_PLOB);
-               break;
-            case "breedingCam2":
-               if (this.isControlledByLocalPlayer()) {
-                  Minecraft mc = Minecraft.getMinecraft();
-                  mc.gameSettings.thirdPersonView = 2;
-                  mc.player.rotationYaw = this.getYawRotation() - 120.0F;
-                  mc.player.rotationPitch = -30.0F;
-               }
-            case "breedingIntroDone":
-               this.setCurrentAction(Action.BREEDING_SLOW_0);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.showHornyMeter();
-               }
-               break;
-            case "breeding_slow1Done":
-               if (this.getRNG().nextBoolean()) {
-                  this.aB = !this.aB;
-               }
-
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
-                  this.setCurrentAction(Action.BREEDING_FAST_0);
-                  this.aH = false;
-               }
-               break;
-            case "breeding_fast1Done":
-               this.setCurrentAction(Action.BREEDING_SLOW_0);
-               if (this.isControlledByLocalPlayer()) {
-                  this.aH = false;
-               }
-               break;
-            case "breeding_fast1Ready":
-               if (this.isControlledByLocalPlayer() && HandlePlayerMovement.isJumping) {
-                  this.aH = true;
-                  this.resetAnimationControllerOffset();
-                  this.actionController.tickOffset = 0.0;
-               }
-               break;
-            case "cum":
-               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
-               break;
-            case "breeding_intro_3Done":
-               this.setCurrentAction(Action.BREEDING_SLOW_2);
-               break;
-            case "breeding_3_wiggle":
-               if (this.getRNG().nextBoolean()) {
-                  this.actionController.tickOffset = 0.0;
-               }
-               break;
-            case "breeding_fast_3Done":
-               if (this.isControlledByLocalPlayer() && !HandlePlayerMovement.isJumping) {
-                  this.setCurrentAction(Action.BREEDING_SLOW_2);
-               }
-               break;
-            case "breeding_intro_2Done":
-               this.setCurrentAction(Action.BREEDING_1);
-               break;
-            case "breeding_cumCam":
-               if (this.isControlledByLocalPlayer()) {
-                  Minecraft mc = Minecraft.getMinecraft();
-                  mc.gameSettings.thirdPersonView = 0;
-                  mc.player.rotationYaw = this.getYawRotation() + 180.0F;
-                  mc.player.rotationPitch = -15.0F;
-                  mc.player.rotationYawHead = mc.player.rotationYaw;
-                  mc.gameSettings.thirdPersonView = 0;
-               }
-               break;
-            case "neslon_introDone":
-               this.setCurrentAction(Action.NELSON_SLOW);
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.showHornyMeter();
-               }
-               break;
-            case "nelson_slowDone":
-               if (this.getRNG().nextBoolean()) {
-                  this.ay = !this.ay;
-               }
-               break;
-            case "neslon_fastSwitch":
-               if (!this.isControlledByLocalPlayer()) {
-                  this.aF = true;
-                  return;
-               }
-
-               if (HandlePlayerMovement.isJumping) {
-                  this.aF = true;
-               }
-               break;
-            case "nelsonFastDone":
-               this.aF = false;
-               if (this.isControlledByLocalPlayer()) {
-                  this.setCurrentAction(Action.NELSON_SLOW);
-               }
-               break;
-            case "paizuriCumDone":
-            case "nelson_cumDone":
-               if (this.isControlledByLocalPlayer()) {
-                  this.resetCameraAndPhysics();
-                  this.setCurrentAction(Action.NULL);
-               }
-         }
-      };
-      this.actionController.registerSoundListener(soundListener);
-      this.movementController.transitionLengthTicks = 2.0;
-      data.addAnimationController(this.actionController);
-      data.addAnimationController(this.movementController);
-      data.addAnimationController(this.eyesController);
+      GoblinPlayerAnimations.registerControllers(this, data);
    }
 
    /**
@@ -1270,7 +687,7 @@ public class GoblinPlayerEntity extends AbstractKoboldPlayerEntity implements IG
                if (targetGirl instanceof GoblinPlayerEntity) {
                   AbstractPlayerGirlEntity playerGirl = AbstractPlayerGirlEntity.getPlayerGirlByUUID(player.getPersistentID());
                   if (playerGirl == null) {
-                     ((GoblinPlayerEntity)targetGirl).handlePlayerThrow(event.getEntityPlayer());
+                     GoblinPlayerThrow.handlePlayerThrow((GoblinPlayerEntity)targetGirl, event.getEntityPlayer());
                   }
                }
             }

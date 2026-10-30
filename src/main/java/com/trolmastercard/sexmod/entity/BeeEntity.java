@@ -444,10 +444,6 @@ public class BeeEntity extends BeeEntityBase {
     */
    @Override
    public void registerControllers(AnimationData data) {
-      if (this.actionController == null) {
-         this.initAnimationControllers();
-      }
-
       AnimationController.ISoundListener soundListener = sound -> {
          switch (sound.sound) {
             case "pearl":
@@ -462,15 +458,11 @@ public class BeeEntity extends BeeEntityBase {
                break;
             case "sex_fastMSG1":
                this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.04F);
-               }
+               this.addToHornyMeterIfControlled(0.04F);
                break;
             case "sex_startMSG1":
                this.playSound(SoundHandler.randomSound(SoundHandler.MISC_POUNDING));
-               if (this.isControlledByLocalPlayer()) {
-                  HornyMeterHud.addToHornyMeter(0.02F);
-               }
+               this.addToHornyMeterIfControlled(0.02F);
                break;
             case "sex_fastDone":
                if (!this.isControlledByLocalPlayer() || HandlePlayerMovement.isJumping) {
@@ -503,10 +495,7 @@ public class BeeEntity extends BeeEntityBase {
                }
          }
       };
-      this.actionController.registerSoundListener(soundListener);
-      data.addAnimationController(this.actionController);
-      data.addAnimationController(this.movementController);
-      data.addAnimationController(this.eyesController);
+      this.registerControllers(data, soundListener);
    }
 
 }
