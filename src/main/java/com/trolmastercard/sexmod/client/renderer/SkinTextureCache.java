@@ -1,6 +1,7 @@
 package com.trolmastercard.sexmod.client.renderer;
 
 import com.trolmastercard.sexmod.SkinFetcher;
+import com.trolmastercard.sexmod.util.PlayerSkinOverride;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -125,8 +126,9 @@ final class SkinTextureCache {
    }
 
    /**
-    * Drops every cached tinted skin (session change / skin update). Same thread
-    * rules as {@link #invalidate(UUID)}.
+    * Drops every cached tinted skin (session change / skin update) and re-reads
+    * the local {@link PlayerSkinOverride} directory. Same thread rules as
+    * {@link #invalidate(UUID)}.
     */
    static void invalidateAll() {
       Minecraft minecraft = Minecraft.getMinecraft();
@@ -135,6 +137,7 @@ final class SkinTextureCache {
          return;
       }
 
+      PlayerSkinOverride.reset();
       for (ResourceLocation staleTexture : new ArrayList<>(TEXTURES.values())) {
          if (!staleTexture.equals(fallbackSkinLocation)) {
             minecraft.getTextureManager().deleteTexture(staleTexture);

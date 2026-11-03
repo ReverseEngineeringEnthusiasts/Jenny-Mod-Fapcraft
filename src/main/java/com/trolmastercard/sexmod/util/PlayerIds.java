@@ -93,6 +93,7 @@ public class PlayerIds {
       }
 
       GalathEntity.handlePlayerJoin(player);
+      GuideBook.giveOnce(player);
    }
 
    void registerBia(World world, EntityPlayer player, UUID uuid) {

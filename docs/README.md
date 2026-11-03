@@ -11,6 +11,7 @@ repository. Every claim here is verifiable against the code and assets in
 docs/
 ├── README.md                  ← you are here: index, quick overview, metadata
 ├── PERFORMANCE.md             ← per-frame hot spots, memory lifetimes, dev-ergonomics review
+├── modpack-guidebooks.md      ← how the four reference modpacks document themselves (book items)
 ├── characters/                ← one file per character: every animation, scene,
 │   ├── jenny.md                 feature, dialogue line, sound, model detail
 │   ├── ellie.md
@@ -43,7 +44,7 @@ docs/
 ```bash
 ./build.sh                 # Maven build + SRG reobfuscation -> dist/fapcraft-1.12.2-<version>.jar
 JB=~/.sdkman/candidates/java/25.0.3.fx-zulu
-JAVA_HOME=$JB mvn -o test  # offline unit tests (9), ~10 s
+JAVA_HOME=$JB mvn -o test  # offline unit tests (14), ~10 s
 ```
 
 - `pom.xml` is the **only** version source. `maven-resources-plugin` filters

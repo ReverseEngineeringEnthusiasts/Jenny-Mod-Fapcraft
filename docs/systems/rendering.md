@@ -105,6 +105,21 @@ The skin texture comes from `GirlRenderer.getSkinTexture(girl)` → the bounded 
 `SkinTextureCache` (64 entries, eviction deletes the GL texture, cleared on session change).
 Misses return the shared steve fallback first and refresh off-thread.
 
+### Player skin override
+
+`sexmod/player_skin/` (`.minecraft/sexmod/player_skin/`) can replace the local player's skin:
+
+- `steve.png` → wide (4px) arms; `alex.png` → slim (3px) arms. The file name picks the arm set,
+  so a slim override switches the render to the `leftArmAlex`/`rightArmAlex` bones. If both files
+  exist, `alex.png` wins. Names are matched case-insensitively.
+- Any square skin is accepted; `PlayerSkinOverride.normalize` scales it to 64x64 because the geo
+  models bake their UVs for a 64x64 layout. That is what makes 128x128 skins render correctly.
+  Non-square sheets (the legacy 64x32 layout) are rejected and the normal skin is used.
+- Scope is the local player only (session profile id or local entity id). Other players keep their
+  fetched Mojang skins.
+- `SkinTextureCache.invalidateAll()` calls `PlayerSkinOverride.reset()`, so adding or replacing a
+  file is picked up on the next world join.
+
 ## GL state rules
 
 The 1.1.0 "dark GUI" was a state leak: the mod toggled `GL_LIGHTING` with raw `GL11.glEnable`

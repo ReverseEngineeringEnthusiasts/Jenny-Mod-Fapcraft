@@ -4,6 +4,15 @@
 
 All registered through `ItemRegistrationHandler`. Registry names in `en_us.lang` shown where set.
 
+### Guide book (`minecraft:written_book`)
+
+Not a registered mod item: a vanilla written book built in `GuideBook.create()` and handed out by
+`GuideBook.giveOnce`, which `PlayerIds.onPlayerLoggedIn` calls. One book per player per save
+(`GuideBookData`, a `WorldSavedData` in the world's `MapStorage`), so it appears on the first join
+and does not come back on every login. Pages cover courting and payment, the horny potion, the
+`sexmod/player_skin/` override, the girl wand, custom models and the dragon staff. If the
+inventory is full the book is dropped at the player's feet.
+
 ### Girl wand (`item.npc_editor_wand.name` = Girl wand)
 
 The customization tool (also called "NPC editor wand"):

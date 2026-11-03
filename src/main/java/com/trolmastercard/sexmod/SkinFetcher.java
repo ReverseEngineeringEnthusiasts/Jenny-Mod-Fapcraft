@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod;
 
+import com.trolmastercard.sexmod.util.PlayerSkinOverride;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -18,6 +19,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * and caches/returns it as a {@link BufferedImage} for custom NPC/player-girl
  * textures.
  * <p>
+ * Before the network call it asks {@link PlayerSkinOverride} for a local
+ * override from {@code sexmod/player_skin/}; every image (fetched or local) is
+ * fitted to the 64x64 model layout with
+ * {@link PlayerSkinOverride#normalize(BufferedImage)}, which is what makes
+ * 128x128 skins render correctly.
+ * <p>
  * CLIENT-side only (network + {@link Minecraft} resource access). Fails safe:
  * any exception (network error, malformed JSON, missing texture URL) falls back
  * to the bundled {@code steve.png} texture; if even that cannot be loaded it
@@ -29,9 +36,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class SkinFetcher {
 
    /**
-    * Fetches the skin for {@code uuid} by querying the Mojang session profile
-    * endpoint, base64-decoding the skin {@code value}, extracting the texture
-    * URL and downloading the PNG.
+    * Fetches the skin for {@code uuid}: the local override when one exists for
+    * that player, otherwise the Mojang session skin. The returned image is
+    * always ready for the 64x64 model UVs.
     *
     * @param uuid the player UUID (hyphens stripped for the API call)
     * @return the skin image, the bundled steve texture on any failure, or
@@ -39,6 +46,11 @@ public class SkinFetcher {
     */
    @SideOnly(Side.CLIENT)
    public static BufferedImage fetchSkin(UUID uuid) {
+      BufferedImage localSkin = PlayerSkinOverride.copyFor(uuid);
+      if (localSkin != null) {
+         return localSkin;
+      }
+
       try {
          URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString().replace("-", ""));
          String profileJson;
@@ -64,13 +76,13 @@ public class SkinFetcher {
          }
 
          URL textureUrl = new URL(urlBuilder.toString());
-         return ImageIO.read(textureUrl);
+         return PlayerSkinOverride.normalize(ImageIO.read(textureUrl));
       } catch (Exception e) {
          try (java.io.InputStream stream = Minecraft.getMinecraft()
             .getResourceManager()
             .getResource(new ResourceLocation("sexmod", "textures/player/steve.png"))
             .getInputStream()) {
-            return ImageIO.read(stream);
+            return PlayerSkinOverride.normalize(ImageIO.read(stream));
          } catch (java.io.IOException ioe) {
             return null;
          }

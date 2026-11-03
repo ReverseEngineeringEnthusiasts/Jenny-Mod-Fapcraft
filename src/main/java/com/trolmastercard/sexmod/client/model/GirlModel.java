@@ -6,6 +6,7 @@ import com.trolmastercard.sexmod.client.model.api.IGirlModelInfo;
 import com.trolmastercard.sexmod.entity.AbstractGirlNpcEntity;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.Action;
+import com.trolmastercard.sexmod.util.PlayerSkinOverride;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.TrigMath;
 import java.util.Arrays;
@@ -259,18 +260,29 @@ public abstract class GirlModel<T extends BaseGirlEntity> extends GirlModelBase<
    }
 
    /**
-    * Whether the girl's skin variant is the vanilla default (Steve) — the
-    * Alex-variant arms are hidden otherwise.
+    * Whether the girl's skin variant is the vanilla default (Steve/wide arms).
+    * A local {@link PlayerSkinOverride} decides it for the local player (the
+    * file name picks slim or wide); otherwise the interaction player's Mojang
+    * skin type does. When there is no interaction player the girl is drawn with
+    * the local player's skin, so the local player's own variant is used.
     */
    protected boolean canRender(T girl) {
       UUID uuid = girl.getInteractionPlayerUUID();
       if (uuid == null) {
-         return true;
+         return !this.usesSlimArms(this.mc.player);
+      }
+
+      if (PlayerSkinOverride.appliesTo(uuid)) {
+         return !PlayerSkinOverride.isSlim();
       }
 
       World world = girl.world;
       AbstractClientPlayer player = (AbstractClientPlayer)world.getPlayerEntityByUUID(uuid);
-      return player == null ? true : "default".equals(player.getSkinType());
+      return player == null ? true : this.usesSlimArms(player);
+   }
+
+   private boolean usesSlimArms(AbstractClientPlayer player) {
+      return player != null && "slim".equals(player.getSkinType());
    }
 
    /**
