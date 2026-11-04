@@ -55,6 +55,25 @@ scene props), client-side editors, and **server-pushed GeckoLib models** for mul
   model scales to every player via UnknownPacket.
 - **GirlWorldData** persists Galath/Manglelie model codes across world reloads.
 
+## Selective model downloads (`/models`)
+
+The old no-models prompt downloaded the whole `main.zip` (~560 MB, ~452 MB of packs). It now opens
+`ModelDownloadScreen`:
+
+- `ArchiveIndex` fetches the archive's GitHub tree once (one API call), turns every `.zip`/`.rar`/
+  `.7z` blob into a pack (name, girl, size, raw URL) and caches the list in
+  `sexmod/custom_models/archive_index.json` for 24 h. `Refresh` forces a new fetch.
+- The screen filters by pack name, girl or path, ticks individual packs, or **Download all**.
+  Downloads go to `sexmod/custom_models/<group>/...` (the folder is created first; the screen
+  prints the path and has an **Open folder** button).
+- `ModelDownloadManager` runs one daemon worker, one pack at a time, 64 KB buffer, checks free
+  disk space before each file, and writes `<pack>.part` until complete. **Pause** closes the
+  stream and keeps the part file; **Resume** reopens it with a `Range` request, and a server that
+  ignores the range restarts that file. **Cancel** removes the unfinished part files and keeps
+  finished packs.
+- Closing the screen does not stop a batch; `/models` reopens it. Once a batch finishes, the
+  manager calls `ReskinManager.rescan()`, so the wardrobe sees the new packs immediately.
+
 ## Combined models (two characters in one rig)
 
 A "combined model" is a single geo file containing more than one body, driven by one animation

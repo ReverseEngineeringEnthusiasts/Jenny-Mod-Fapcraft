@@ -30,7 +30,7 @@ import net.minecraft.util.text.TextComponentString;
  */
 public final class GuideBook {
    /** Bump when the page set changes so existing saves get the expanded book once. */
-   private static final int VERSION = 2;
+   private static final int VERSION = 3;
    private static final String TITLE = "Fapcraft Guide";
    private static final String AUTHOR = "Fapcraft";
 
@@ -87,7 +87,7 @@ public final class GuideBook {
          "CUSTOM SKIN\nPut a square PNG in .minecraft/sexmod/player_skin/\nsteve.png = wide arms\nalex.png = slim arms\n64x64 or bigger. Rejoin after adding it.",
          "GIRL WAND\nRight-click a girl to open her editor.\nChange parts, clothes and colors.\nLeft-click a girl to copy her model code.\nThe folder button opens the model folder.",
          "WARDROBE\nIn the girl wand press K for reskin packs.\nPick a pack and apply it to the girl.\nLegacy opens the old wardrobe with sliders.\nPacks are remembered per world.",
-         "CUSTOM MODELS\nModels live in .minecraft/sexmod/custom_models/singleplayer/\nOpen the girl wand with no models and press Download.\nOr drop a pack in that folder and reopen the wand.",
+         "CUSTOM MODELS\n/models opens the pack browser.\nSearch, tick, Download all, pause and resume.\nFiles go to sexmod/custom_models/singleplayer.\nDrop .zip or .rar packs there too.",
          "KOBOLDS\nTribes spawn with the world. Find one.\nRight-click with the dragon staff to claim it.\nClaimed kobolds follow and work for you.\nMark beds and chests for them with the staff.",
          "DRAGON STAFF\nRight-click opens the command pad.\nLeft: mark beds and chests.\nTop left: follow mode.\nTop right: fell a tree or mine a block.\nIt also hands out tribe eggs.",
          "GOBLINS\nRight-click a goblin to interact.\nPress G to open the goblin pad when one rides you.\nRShift opens the same pad.\n/locatenearestgoblinlair finds a queen lair.",

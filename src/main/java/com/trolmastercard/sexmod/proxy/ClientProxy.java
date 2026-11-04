@@ -6,6 +6,7 @@ import com.trolmastercard.sexmod.client.gui.GenderSwapScreen;
 import com.trolmastercard.sexmod.client.gui.GuiHandler;
 import com.trolmastercard.sexmod.client.particle.DragonBreathParticle;
 import com.trolmastercard.sexmod.command.CommandFuta;
+import com.trolmastercard.sexmod.command.CommandModels;
 import com.trolmastercard.sexmod.command.CommandSetModelCode;
 import com.trolmastercard.sexmod.command.CommandWhitelistServer;
 import com.trolmastercard.sexmod.entity.NpcType;
@@ -86,6 +87,7 @@ public class ClientProxy extends CommonProxy {
       ClientCommandHandler.instance.registerCommand(CommandWhitelistServer.WHITELIST_SERVER_COMMAND);
       ClientCommandHandler.instance.registerCommand(CommandSetModelCode.SET_MODEL_CODE_COMMAND);
       ClientCommandHandler.instance.registerCommand(CommandFuta.FUTA_COMMAND);
+      ClientCommandHandler.instance.registerCommand(CommandModels.MODELS_COMMAND);
       Minecraft.getMinecraft()
          .effectRenderer
          .registerParticle(625115, (particleId, world, x, y, z, xSpeed, ySpeed, zSpeed, params) -> new DragonBreathParticle(world, x, y, z));
