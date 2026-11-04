@@ -9,9 +9,11 @@ All registered through `ItemRegistrationHandler`. Registry names in `en_us.lang`
 Not a registered mod item: a vanilla written book built in `GuideBook.create()` and handed out by
 `GuideBook.giveOnce`, which `PlayerIds.onPlayerLoggedIn` calls. One book per player per save
 (`GuideBookData`, a `WorldSavedData` in the world's `MapStorage`), so it appears on the first join
-and does not come back on every login. Pages cover courting and payment, the horny potion, the
-`sexmod/player_skin/` override, the girl wand, custom models and the dragon staff. If the
-inventory is full the book is dropped at the player's feet.
+and does not come back on every login. Bumping `GuideBook.VERSION` re-issues the book once to
+existing saves after a page-set change. Pages cover courting and payment, owning a girl and her
+equipment, the horny potion, the `sexmod/player_skin/` override, the girl wand and wardrobe,
+custom models, kobolds and the dragon staff, goblins, the other items and the tuning commands. If
+the inventory is full the book is dropped at the player's feet.
 
 ### Girl wand (`item.npc_editor_wand.name` = Girl wand)
 

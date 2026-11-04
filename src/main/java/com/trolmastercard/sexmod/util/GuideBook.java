@@ -29,6 +29,8 @@ import net.minecraft.util.text.TextComponentString;
  * both sides.
  */
 public final class GuideBook {
+   /** Bump when the page set changes so existing saves get the expanded book once. */
+   private static final int VERSION = 2;
    private static final String TITLE = "Fapcraft Guide";
    private static final String AUTHOR = "Fapcraft";
 
@@ -46,11 +48,11 @@ public final class GuideBook {
 
       UUID playerId = player.getPersistentID();
       GuideBookData data = GuideBookData.get(player.world);
-      if (data.hasReceived(playerId)) {
+      if (data.hasReceived(playerId) && data.version() >= VERSION) {
          return;
       }
 
-      data.markReceived(playerId);
+      data.markReceived(playerId, VERSION);
       ItemStack book = create();
       if (!player.inventory.addItemStackToInventory(book)) {
          player.dropItem(book, false);
@@ -77,14 +79,20 @@ public final class GuideBook {
    /** Book pages, in order. One string per page. */
    public static String[] pages() {
       return new String[]{
-         "FAPCRAFT GUIDE\n\nRight-click a girl to open her menu.\n\nPick an action and pay the price on the button.\n\nPress RShift to leave a scene.",
-         "COURTING\n\nJenny takes emeralds, pearls, diamonds or gold.\n\nKeep a stack of each and you can court any girl.\n\nSome girls have their own menu.",
-         "HORNY POTION\n\nMundane potion plus a poppy.\n\nGirls skip the payment while it lasts.\n\nFive seconds later the girl picker opens.",
+         "FAPCRAFT GUIDE\nRight-click a girl to open her menu.\nPick an action and pay the price on the button.\nG goblin, L customise, RShift leave a scene.",
+         "YOUR GIRL\nFollow me makes her yours.\nShe follows and fights nearby mobs.\nStop following sends her home.\nGo home teleports her home.\nSet new home moves it here.",
+         "EQUIPMENT\nOpen her menu, then Equipment.\nWeapon, bow, helmet, chestplate, leggings, boots.\nShe uses the weapon up close and the bow at range.\nArmour shows on her body.",
+         "COURTING\nJenny takes emeralds, pearls, diamonds or gold.\nKeep a stack of each and you can court any girl.\nSome girls have their own menu.",
+         "HORNY POTION\nMundane potion plus a poppy.\nGirls skip the payment while it lasts.\nFive seconds later the girl picker opens.\nPick a body there to play as a girl.",
          "CUSTOM SKIN\nPut a square PNG in .minecraft/sexmod/player_skin/\nsteve.png = wide arms\nalex.png = slim arms\n64x64 or bigger. Rejoin after adding it.",
          "GIRL WAND\nRight-click a girl to open her editor.\nChange parts, clothes and colors.\nLeft-click a girl to copy her model code.\nThe folder button opens the model folder.",
+         "WARDROBE\nIn the girl wand press K for reskin packs.\nPick a pack and apply it to the girl.\nLegacy opens the old wardrobe with sliders.\nPacks are remembered per world.",
          "CUSTOM MODELS\nModels live in .minecraft/sexmod/custom_models/singleplayer/\nOpen the girl wand with no models and press Download.\nOr drop a pack in that folder and reopen the wand.",
-         "DRAGON STAFF\nRight-click opens tribe commands.\nNeeds a kobold tribe.\nMark beds and chests for your kobolds.\nThe staff never places blocks.",
-         "OTHER ITEMS\nAllies Lamp: summon Allie, three wishes.\nLuna Rod: fish with Luna.\nGalath Coin: summon your succubus.\nAll are in the creative Tools tab."
+         "KOBOLDS\nTribes spawn with the world. Find one.\nRight-click with the dragon staff to claim it.\nClaimed kobolds follow and work for you.\nMark beds and chests for them with the staff.",
+         "DRAGON STAFF\nRight-click opens the command pad.\nLeft: mark beds and chests.\nTop left: follow mode.\nTop right: fell a tree or mine a block.\nIt also hands out tribe eggs.",
+         "GOBLINS\nRight-click a goblin to interact.\nPress G to open the goblin pad when one rides you.\nRShift opens the same pad.\n/locatenearestgoblinlair finds a queen lair.",
+         "OTHER ITEMS\nAllies Lamp: summon Allie, three wishes.\nLuna Rod: fish with Luna.\nGalath Coin: beat the succubus, corrupt her, then summon her.\nRight-click her with the coin to send her back.",
+         "TUNING\n/futa true or false toggles the Galath futa parts.\n/whitelistserver lets a server push models.\nconfig/sexmod.json: worldgen, model cache, flying.\n/reloadcustommodels (op) reloads server models."
       };
    }
 }

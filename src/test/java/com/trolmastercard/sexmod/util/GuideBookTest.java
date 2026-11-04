@@ -19,6 +19,11 @@ public class GuideBookTest {
       assertTrue(book.contains("steve.png"));
       assertTrue(book.contains("alex.png"));
       assertTrue(book.contains("GIRL WAND"));
+      assertTrue(book.contains("WARDROBE"));
+      assertTrue(book.contains("YOUR GIRL"));
+      assertTrue(book.contains("EQUIPMENT"));
+      assertTrue(book.contains("KOBOLDS"));
+      assertTrue(book.contains("GOBLINS"));
       assertTrue(book.contains("DRAGON STAFF"));
       assertTrue(book.contains("HORNY POTION"));
       assertTrue(book.contains("custom_models"));

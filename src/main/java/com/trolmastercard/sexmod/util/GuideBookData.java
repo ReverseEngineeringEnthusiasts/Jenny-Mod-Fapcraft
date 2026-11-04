@@ -20,6 +20,7 @@ import net.minecraft.world.storage.WorldSavedData;
 public class GuideBookData extends WorldSavedData {
    private static final String DATA_NAME = "sexmod_guide_book";
    private final Set<UUID> received = new HashSet<>();
+   private int version;
 
    /** Required by {@link MapStorage#getOrLoadData}. */
    public GuideBookData() {
@@ -45,8 +46,19 @@ public class GuideBookData extends WorldSavedData {
       return this.received.contains(playerId);
    }
 
-   public void markReceived(UUID playerId) {
-      if (this.received.add(playerId)) {
+   /** Version of the page set the players in this save last received. */
+   public int version() {
+      return this.version;
+   }
+
+   public void markReceived(UUID playerId, int pageVersion) {
+      boolean changed = this.received.add(playerId);
+      if (pageVersion > this.version) {
+         this.version = pageVersion;
+         changed = true;
+      }
+
+      if (changed) {
          this.markDirty();
       }
    }
@@ -54,6 +66,7 @@ public class GuideBookData extends WorldSavedData {
    @Override
    public void readFromNBT(NBTTagCompound nbt) {
       this.received.clear();
+      this.version = nbt.getInteger("version");
       NBTTagList players = nbt.getTagList("players", 8);
 
       for (int i = 0; i < players.tagCount(); i++) {
@@ -67,6 +80,7 @@ public class GuideBookData extends WorldSavedData {
 
    @Override
    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+      nbt.setInteger("version", this.version);
       NBTTagList players = new NBTTagList();
 
       for (UUID playerId : this.received) {
