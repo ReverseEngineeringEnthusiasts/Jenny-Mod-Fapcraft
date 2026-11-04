@@ -1,5 +1,6 @@
 package com.trolmastercard.sexmod.item;
 
+import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.particle.DragonBreathParticle;
 import com.trolmastercard.sexmod.client.renderer.GalathCoinRenderer;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
@@ -10,6 +11,7 @@ import com.trolmastercard.sexmod.networking.PacketHandler;
 import com.trolmastercard.sexmod.util.GirlSavedData;
 import com.trolmastercard.sexmod.util.RotationHelper;
 import com.trolmastercard.sexmod.util.SoundHandler;
+import com.trolmastercard.sexmod.util.ThreadNames;
 import com.trolmastercard.sexmod.util.VectorMath;
 import net.minecraft.util.ResourceLocation;
 import java.util.ConcurrentModificationException;
@@ -160,7 +162,7 @@ public class GalathCoinItem extends Item implements IAnimatable {
          long deactivationTime = entityData.getLong("sexmod:galath_coin_deactivation_time");
          long now = System.currentTimeMillis();
          this.writeCooldownNBT(player, entityData, now, activationTime);
-         this.writeCooldownNBT(player, entityData, now, deactivationTime);
+         this.tickDeSummon(player, entityData, now, deactivationTime);
          if (deactivationTime != 0L && now > deactivationTime + 4000L) {
             entityData.setLong("sexmod:galath_coin_deactivation_time", 0L);
             entityData.setBoolean("sexmod:galath_coin_de_summoning_animation_time", false);
@@ -171,6 +173,48 @@ public class GalathCoinItem extends Item implements IAnimatable {
             this.isCooldownElapsed(player, now, deactivationTime);
          }
       }
+   }
+
+   /**
+    * SERVER: completes a coin de-summon. The client streams the particles from
+    * the girl to the coin between {@link #ANIMATION_START_DELAY} and
+    * {@link #ANIMATION_END_DELAY}; the same window starts the de-summon
+    * animation, then removes her (and her Manglelie partner) from the world.
+    * <p>
+    * The {@code de_summoning_animation_time} flag makes this fire once; the
+    * {@link #onUpdate} cleanup clears it together with the timestamp after 4 s.
+    */
+   void tickDeSummon(EntityPlayer player, NBTTagCompound entityData, long now, long deactivationTime) {
+      if (deactivationTime == 0L || player.world.isRemote) {
+         return;
+      }
+
+      if (entityData.getBoolean(DE_SUMMON_ANIMATION_KEY) || now < deactivationTime + ANIMATION_START_DELAY) {
+         return;
+      }
+
+      entityData.setBoolean(DE_SUMMON_ANIMATION_KEY, true);
+      GalathEntity galath = this.ownedGalath(player);
+      if (galath == null) {
+         return;
+      }
+
+      deSummonGalath(galath);
+      Main.LOGGER.info("de-summoning Galath {} for {}", galath.getGirlId(), player.getName());
+      ThreadNames.createDaemonThread(
+         (int)(ANIMATION_END_DELAY - ANIMATION_START_DELAY), () -> GirlSavedData.updateMangleliePartner(galath)
+      );
+   }
+
+   /** The server-side Galath bound to {@code player}, or null. */
+   GalathEntity ownedGalath(EntityPlayer player) {
+      UUID girlUuid = GirlSavedData.getOwnerOf(player);
+      if (girlUuid == null) {
+         return null;
+      }
+
+      BaseGirlEntity girl = BaseGirlEntity.getServerGirlEntity(girlUuid);
+      return girl instanceof GalathEntity ? (GalathEntity)girl : null;
    }
 
    @SideOnly(Side.CLIENT)
