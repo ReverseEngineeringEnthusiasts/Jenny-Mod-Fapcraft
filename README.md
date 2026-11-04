@@ -1,5 +1,9 @@
 # Jenny Mod / Fapcraft 1.12.2 Remapped + Deobfuscated
 
+<p align="center">
+  <a href="#why">Why?</a> &nbsp;·&nbsp; <a href="#privacy">Privacy</a> &nbsp;·&nbsp; <a href="#how-do-i-download-this">How do I download this?</a> &nbsp;·&nbsp; <a href="#screenshots">Screenshots</a>
+</p>
+
 Warning: This is an 18+ project (Adults Only!)
 
 ### Why?
