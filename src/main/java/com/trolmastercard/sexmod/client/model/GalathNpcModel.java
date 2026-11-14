@@ -57,6 +57,24 @@ public class GalathNpcModel extends GirlModel<BaseGirlEntity> {
       };
    }
 
+   /**
+    * The hug and morning poses render both girls from the combined
+    * {@code galath_con_mang} model: {@link com.trolmastercard.sexmod.client.renderer.GalathRenderer}
+    * draws its {@code body2} bone with Manglelie's texture, and
+    * {@link ManglelieNpcModel#animateModel} poses her skirt/cheek bones on this
+    * processor. The outfit index never selects that model (nothing sets it to
+    * 2), so the pass used to run against {@code galath.geo.json}, which has no
+    * such bones, and the render thread crashed on the null {@code sideRSkirt}.
+    */
+   @Override
+   public ResourceLocation getModelLocation(BaseGirlEntity entity) {
+      if (entity instanceof IGalath && ((IGalath)entity).isHuggingManglelie() && this.modelLocations.length > 2) {
+         return this.modelLocations[2];
+      }
+
+      return super.getModelLocation(entity);
+   }
+
    @Override
    public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
       return new ResourceLocation("sexmod", "textures/entity/galath/galath.png");

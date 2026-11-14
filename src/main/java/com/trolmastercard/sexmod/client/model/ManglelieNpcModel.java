@@ -467,29 +467,9 @@ public class ManglelieNpcModel extends GirlModel<BaseGirlEntity> {
       ModelBones.setHidden(processor, "cheekRBelowSkirt", hidden);
       ModelBones.setHidden(processor, "cheekLBelowSkirt", hidden);
       ModelBones.setHidden(processor, "sideRNoSkirt", hidden);
-      IBone sideRSkirtBone = processor.getBone("sideRSkirt");
-      IBone boneToToggle;
-      boolean hiddenState;
-      if (!hidden) {
-         boneToToggle = sideRSkirtBone;
-         hiddenState = true;
-      } else {
-         boneToToggle = sideRSkirtBone;
-         hiddenState = false;
-      }
-
-      boneToToggle.setHidden(hiddenState);
+      ModelBones.setHidden(processor, "sideRSkirt", !hidden);
       ModelBones.setHidden(processor, "sideLNoSkirt", hidden);
-      IBone sideLSkirtBone = processor.getBone("sideLSkirt");
-      if (!hidden) {
-         boneToToggle = sideLSkirtBone;
-         hiddenState = true;
-      } else {
-         boneToToggle = sideLSkirtBone;
-         hiddenState = false;
-      }
-
-      boneToToggle.setHidden(hiddenState);
+      ModelBones.setHidden(processor, "sideLSkirt", !hidden);
    }
 
    /**
