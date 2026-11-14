@@ -81,15 +81,19 @@ against the v1.0 jar before being called a regression or an upstream bug.
   advanced one counter twice per tick and any girl leaving rewound the others. The
   entity now keeps its own counter (`BaseGirlEntity.actionTicks`) and writes the enum
   field only as a legacy mirror for the coin/boost scenes.
-- **Manglelie pose pass got the wrong bones.** `GalathNpcModel` hands its own
-  `AnimationProcessor` to `ManglelieNpcModel.animateModel` while hugging, and that pass
-  toggles Manglelie-only bones (`cheekRBelowSkirt`, `skirt`, …). `getBone` returned
-  null and the render thread crashed. All bone lookups now go through
-  `client/model/ModelBones`, which degrades a missing bone to a no-op.
+- **The Galath/Manglelie hug crashed on a null bone.** `GalathNpcModel` hands its own
+  `AnimationProcessor` to `ManglelieNpcModel.animateModel` while hugging, but her outfit
+  index only selects `galath.geo.json`, which has none of the Manglelie skirt/cheek bones.
+  After the first ModelBones pass only `sideRSkirt`/`sideLSkirt` were still raw lookups, so
+  the NPE moved there. The hug and morning poses now select `galath_con_mang` (so `body2`
+  and those bones exist), and every lookup goes through `client/model/ModelBones`, which
+  degrades a missing bone to a no-op for reskinned/custom geos.
 - **Escape-minigame HUD** restarted its slide every time the looping rape animation
-  re-fired `enableRapeUI`, and only ever hid via the `removeUI` keyframe, so it could
-  bounce up and down and outlive its scene. It now tracks the owning Galath and hides
-  when that scene ends.
+  re-fired `enableRapeUI`, only ever hid via the `removeUI` keyframe, and fed its cosine
+  slide an ever-growing timer, so it bounced up and down and outlived its scene. It now
+  tracks the owning Galath, hides when that scene ends, clamps the slide input to 1.0, and
+  is requested from the `RAPE_INTRO`/`RAPE_ON_GOING` action state so a skipped keyframe
+  cannot leave the player without keys.
 - **Kobold work assignment** called `addWorker` where `removeWorker` was meant, and
   `setTribeHomeForMember` passed the member UUID where the tribe id was expected
   (saved member positions were never restored on load).
@@ -131,10 +135,10 @@ against the v1.0 jar before being called a regression or an upstream bug.
   `ManglelieNpcModel` expose that file as outfit index 2, but nothing ever sets
   `OUTFIT_INDEX` to 2 — not in this tree, not in the v1.0 jar — so the clips ran against
   the normal model and the pose never moved. `ManglelieNpcModel.getModelLocation` now
-  returns the combined model while she is in a `THREESOME_*` action, and
-  `ManglelieRenderer` binds `getSkinTexture(...)` before its `steve` pass: it had been
-  binding the girl's own texture, which wrapped the Manglelie's UVs over the player's
-  body.
+  returns the combined model while she is in a `THREESOME_*` action (`GalathNpcModel` does
+  the same for the hug), and `ManglelieRenderer` binds `getSkinTexture(...)` before its
+  `steve` pass: it had been binding the girl's own texture, which wrapped the Manglelie's UVs
+  over the player's body.
 - **`ManglelieRenderer.renderModelBuffer`** assumed the Manglelie geo model always
   carries the threesome bones (`body2`, `steve`) as direct children of the top bone.
   A reskinned/custom model without them left both lookups null and

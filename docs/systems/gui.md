@@ -84,7 +84,7 @@ Claim-tribe name input (max 15 chars, "set" button → ClaimTribePacket; empty f
 
 - **HornyMeterHud** — the cum meter (see [actions-scenes.md](actions-scenes.md)).
 - **GalathFlightHud** — 3 boost-charge pips (3s cooldown, 5s regen per charge), fades in/out.
-- **EscapeMinigameHud** — WASD prompt minigame during the rape pounce (35-tick prompt cycle).
+- **EscapeMinigameHud** — WASD prompt minigame during the rape pounce (35-tick prompt cycle, shown for the whole `RAPE_INTRO`/`RAPE_ON_GOING` scene).
 - **BeeScreen** — 69-tick black transition wipe between scenes (hides the horny meter).
 
 ## Keys (ClientProxy keybindings, category "Sex mod")

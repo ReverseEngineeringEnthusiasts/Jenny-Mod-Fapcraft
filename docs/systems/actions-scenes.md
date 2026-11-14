@@ -108,10 +108,14 @@ a partner. Non-wild ones with no Galath delete themselves on their first tick.
 
 The "WASD" card (`client/gui/EscapeMinigameHud`) is owned by the Galath's rape scene:
 
-- shown by the `enableRapeUI` animation keyframe, hidden by `removeUI`;
-- it slides in over 20 ticks, and it tracks the owning Galath now, so it hides as soon as her
-  action leaves the `RAPE_*` set (or she dies) and it refuses to restart the slide while already
-  shown — otherwise a looping animation made it bounce up and down and outlive the scene.
+- requested from the `RAPE_INTRO`/`RAPE_ON_GOING` action state on every frame (the
+  `enableRapeUI` keyframe calls the same entry point), hidden by `removeUI` and after a
+  completed escape;
+- shows for the whole scene, so a scene that starts at `RAPE_ON_GOING` or skips the keyframe
+  still gets keys; stale owner/failure state is cleared when the owning scene ends;
+- it slides in over 20 ticks with the animation input clamped to 1.0 (the cosine otherwise
+  swings back down and makes it bounce), and it tracks the owning Galath, hiding as soon as
+  her action leaves the `RAPE_*` set (or she dies).
 
 ## In-scene controls
 

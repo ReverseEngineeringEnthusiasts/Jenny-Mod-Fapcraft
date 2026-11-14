@@ -2,7 +2,7 @@
 
 How a girl becomes triangles: model selection, the bone conventions, who binds which texture,
 and the state rules that keep the frame from falling apart. Written after the 2026 audit, which
-found four separate render-thread crashes in this layer.
+found several separate render-thread crashes in this layer.
 
 ## Call chain
 
@@ -40,8 +40,10 @@ with children `body`, `coin`, `steve`, `body2`. It is the only model that has **
 second girl in a two-girl scene. Neither `galath.geo.json` (253 bones) nor `manglelie.geo.json`
 (304 bones) has it.
 
-Nothing in the mod (or the v1.0 jar) ever sets `OUTFIT_INDEX = 2`, so index 2 is reachable only
-through the `ManglelieNpcModel.getModelLocation` override added for the threesome (see below).
+Nothing in the mod (or the v1.0 jar) ever sets `OUTFIT_INDEX = 2`; index 2 is reached through
+`getModelLocation` overrides instead: `GalathNpcModel` returns it while `isHuggingManglelie()`
+(the hug and morning poses), and `ManglelieNpcModel` returns it for `THREESOME_*` actions (see
+below).
 
 ## Bone conventions
 
@@ -80,8 +82,10 @@ the pose looked frozen and the `steve` pass rendered the player with the Manglel
 `AnimationProcessor.getBone(name)` returns `null` for a bone the model does not have. Four
 crashes came from assuming otherwise:
 
-- `GalathNpcModel` hands its own processor to `ManglelieNpcModel.animateModel` while hugging;
-  that pass looks up Manglelie-only bones (`cheekRBelowSkirt`, `skirt`, `sideRNoSkirt`, …).
+- `GalathNpcModel` hands its own processor to `ManglelieNpcModel.animateModel` while hugging.
+  The fix is twofold: the hug now selects `galath_con_mang`, so the Manglelie bones exist on
+  that processor, and every lookup still goes through `ModelBones` because a reskinned or
+  custom geo may not carry them.
 - `ManglelieRenderer`'s two-bone pass on a model without `body2`.
 - `GalathRenderer` drawing `body`/`steve` without checking the lookup succeeded.
 - `GalathCoinRenderer` rendering `pentagram` and indexing `topLevelBones.get(0)` blind.
