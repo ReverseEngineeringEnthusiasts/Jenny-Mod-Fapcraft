@@ -89,4 +89,18 @@ The process is nearly identical:
 
 ![Goblin on the shoulder](screenshots/02-goblin-shoulder.png)
 
-## MIT License <3
+## License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
+
+### Additional terms (GPLv3 section 7)
+
+As permitted by section 7 of the GPLv3, these additional terms apply to every
+copy or modified version of the work:
+
+1. **Attribution.** You must credit the original work to
+   **ReverseEngineeringEnthusiasts** in the README or other Appropriate Legal
+   Notices. Do not remove or replace that attribution.
+2. **Banner.** Do not remove, hide, or replace the banner in
+   `src/main/resources/banner.txt` (printed at mod startup), including the
+   "Biji Kurdistan" line and the "Reverse engineered in Kurdistan <3" notice.
