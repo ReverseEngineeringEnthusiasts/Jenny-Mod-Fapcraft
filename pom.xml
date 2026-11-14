@@ -6,7 +6,7 @@
 
   <groupId>com.trolmastercard</groupId>
   <artifactId>fapcraft-1.12.2</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
   <packaging>jar</packaging>
   <name>Fapcraft 1.12.2 (sexmod)</name>
   <description>Deobfuscated + decompiled + remapped reconstruction of the official Fapcraft v1.1 mod for Minecraft 1.12.2</description>

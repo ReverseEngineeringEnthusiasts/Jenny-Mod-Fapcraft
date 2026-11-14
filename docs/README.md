@@ -86,7 +86,7 @@ JAVA_HOME=$JB mvn -o test  # offline unit tests (14), ~10 s
 
 ## Mod metadata
 
-- Modid `sexmod`, name **Fapcraft**, version 1.1.2
+- Modid `sexmod`, name **Fapcraft**, version 1.1.3
 - Author: Trolmastercard (credits in `mcmod.info`)
 - Requires Forge 1.12.2; depends on `after:geckolib` (GeckoLib 3, bundled/shaded)
 - Network channel: `sexmodchannel` (SimpleNetworkWrapper)

@@ -17,7 +17,7 @@ import java.util.Properties;
  */
 public final class BuildInfo {
    /** Fallback version for unfiltered builds; keep in step with pom.xml. */
-   public static final String DEFAULT_VERSION = "1.1.2";
+   public static final String DEFAULT_VERSION = "1.1.3";
 
    /** Effective mod version: filtered pom version, else {@link #DEFAULT_VERSION}. */
    public static final String VERSION = load();
