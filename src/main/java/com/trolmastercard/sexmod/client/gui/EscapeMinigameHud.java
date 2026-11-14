@@ -191,7 +191,9 @@ public class EscapeMinigameHud extends Gui {
             if (failed) {
                slide = 1.0 - RotationHelper.easeInOutQuad((failTimer + partialTicks) / 20.0F);
             } else {
-               slide = Math.min(1.0, RotationHelper.smoothStep((timer + partialTicks) / 20.0F));
+               // Clamp the input, not the output: smoothStep is a cosine, so
+               // past t=1 it swings back down and the card keeps sliding.
+               slide = RotationHelper.smoothStep(Math.min(1.0, (timer + partialTicks) / 20.0F));
             }
 
             int targetY = screenHeight + 385;
