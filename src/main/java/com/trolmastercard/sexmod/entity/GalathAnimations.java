@@ -150,6 +150,11 @@ final class GalathAnimations {
             }
          }
       } else {
+         if ((action == Action.RAPE_INTRO || action == Action.RAPE_ON_GOING)
+               && galath.isControlledByLocalPlayer() && !galath.hasMaster()) {
+            EscapeMinigameHud.ensureVisible(galath);
+         }
+
          switch (galath.getCurrentAction()) {
             case HUG_MANG:
                galath.createAnimation("animation.galath.hug_mang", true, event);

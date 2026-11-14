@@ -63,12 +63,15 @@ public class EscapeMinigameHud extends Gui {
     * set).
     */
    public static void tickHud() {
-      if (showHud) {
-         if (hudOwner == null || hudOwner.isDead || !isRapeScene(hudOwner.getCurrentAction())) {
-            hideHud();
-            return;
-         }
+      // Run the owner check even after the card has hidden itself (failure
+      // slide-out), so a finished scene cannot leave stale failed/owner state
+      // that blocks the next scene's HUD.
+      if (hudOwner != null && (hudOwner.isDead || !isRapeScene(hudOwner.getCurrentAction()))) {
+         hideHud();
+         return;
+      }
 
+      if (showHud) {
          if (mc.world == null) {
             showHud = false;
             hasStarted = false;
@@ -157,6 +160,23 @@ public class EscapeMinigameHud extends Gui {
           || action == com.trolmastercard.sexmod.entity.Action.RAPE_ON_GOING
           || action == com.trolmastercard.sexmod.entity.Action.RAPE_CUM
           || action == com.trolmastercard.sexmod.entity.Action.RAPE_CUM_IDLE;
+   }
+
+   /**
+    * Shows the card from the scene state instead of relying only on the
+    * {@code enableRapeUI} keyframe. The keyframe sits in {@code rape_intro}
+    * at 1.125s, so a scene that starts at {@code RAPE_ON_GOING} (or whose
+    * keyframe is skipped) would otherwise have no keys to escape with.
+    * Does nothing once the player has already completed the minigame.
+    */
+   public static void ensureVisible(com.trolmastercard.sexmod.entity.GalathEntity owner) {
+      if (hasStarted || failed) {
+         return;
+      }
+
+      if (!showHud) {
+         showMinigame(owner);
+      }
    }
 
    static void hideHud() {
