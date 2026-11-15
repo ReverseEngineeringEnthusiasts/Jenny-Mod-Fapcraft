@@ -1,26 +1,31 @@
 package com.trolmastercard.sexmod;
 
-import com.trolmastercard.sexmod.client.model.GirlModel;
-import com.trolmastercard.sexmod.client.renderer.GirlRendererBase;
-import com.trolmastercard.sexmod.command.CommandLocateGoblinLair;
-import com.trolmastercard.sexmod.command.CommandReloadCustomModels;
-import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
-import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.KoboldEntity;
+
+import com.trolmastercard.sexmod.client.model.base.GirlModel;
+import com.trolmastercard.sexmod.client.render.base.GirlRendererBase;
+import com.trolmastercard.sexmod.common.command.CommandLocateGoblinLair;
+import com.trolmastercard.sexmod.common.command.CommandReloadCustomModels;
+import com.trolmastercard.sexmod.common.entity.base.AbstractPlayerGirlEntity;
+import com.trolmastercard.sexmod.common.entity.base.BaseGirlEntity;
+import com.trolmastercard.sexmod.common.entity.kobold.KoboldEntity;
 import com.trolmastercard.sexmod.proxy.CommonProxy;
-import com.trolmastercard.sexmod.util.GirlSavedData;
-import com.trolmastercard.sexmod.util.GirlWorldData;
-import com.trolmastercard.sexmod.util.KoboldManager;
-import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-import com.trolmastercard.sexmod.util.GirlRegistry;
-import com.trolmastercard.sexmod.util.StructureMarkerRenderer;
-import com.trolmastercard.sexmod.worldgen.ConfigWorldGenHandler;
+import com.trolmastercard.sexmod.common.world.data.OwnershipSavedData;
+import com.trolmastercard.sexmod.common.world.data.CustomModelCodeData;
+import com.trolmastercard.sexmod.common.entity.kobold.KoboldManager;
+import com.trolmastercard.sexmod.common.model.ServerWhitelistManager;
+import com.trolmastercard.sexmod.common.entity.base.GirlRegistry;
+import com.trolmastercard.sexmod.client.render.effects.StructureMarkerRenderer;
+import com.trolmastercard.sexmod.common.world.gen.ConfigWorldGenHandler;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.util.Properties;
+import java.util.Random;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -35,13 +40,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib3.GeckoLib;
 
-@Mod(modid = "sexmod", name = "Fapcraft", version = BuildInfo.DEFAULT_VERSION, dependencies = "after:geckolib")
+@Mod(modid = Main.MOD_ID, name = Main.MOD_NAME, version = Main.DEFAULT_VERSION, dependencies = "after:geckolib")
 /**
  * <b>Role.</b> Mod entry point ({@code @Mod sexmod}). Wires the proxies through
  * the Forge lifecycle (pre-init/init/post-init), registers the server commands,
  * and resets all global state on world close: girl list, {@link KoboldManager},
- * tribe UI values, {@link GirlSavedData}, worldgen config, {@link GirlRegistry},
- * {@link ServerWhitelistManager} and {@link GirlWorldData}, plus client-side
+ * tribe UI values, {@link OwnershipSavedData}, worldgen config, {@link GirlRegistry},
+ * {@link ServerWhitelistManager} and {@link CustomModelCodeData}, plus client-side
  * marker/bone-color caches.
  * <p>
  * <b>Pitfall.</b> {@link #onWorldClosed} must clear everything that holds
@@ -52,6 +57,48 @@ import software.bernie.geckolib3.GeckoLib;
  */
 public class Main {
    public static final Logger LOGGER = LogManager.getLogger("sexmod");
+
+   /** Fallback version for unfiltered builds; keep in step with pom.xml. */
+   public static final String DEFAULT_VERSION = "1.1.3";
+
+   /** Effective mod version: filtered pom version, else {@link #DEFAULT_VERSION}. */
+   public static final String VERSION = loadVersion();
+
+   private static final String BUILD_RESOURCE = "/sexmod-build.properties";
+
+   public static final String MOD_ID = "sexmod";
+   public static final String MOD_NAME = "Fapcraft";
+   public static final String MOD_VERSION = VERSION;
+   public static final String CLIENT_PROXY = "com.trolmastercard.sexmod.proxy.ClientProxy";
+   public static final String COMMON_PROXY = "com.trolmastercard.sexmod.proxy.CommonProxy";
+   public static final Random RANDOM = new Random();
+   public static int BUTTON_ID_COUNTER = 0;
+
+   /** Written by the structure-marker client tick, read by render interpolation. */
+   public static Vec3d cameraPosCurrent = Vec3d.ZERO;
+   public static Vec3d cameraPosPrevious = Vec3d.ZERO;
+
+   /** Reads the pom-filtered build resource; falls back to the literal. */
+   private static String loadVersion() {
+      try (InputStream in = Main.class.getResourceAsStream(BUILD_RESOURCE)) {
+         if (in == null) {
+            return DEFAULT_VERSION;
+         }
+         Properties props = new Properties();
+         props.load(in);
+         String value = props.getProperty("version");
+         if (value == null) {
+            return DEFAULT_VERSION;
+         }
+         value = value.trim();
+         if (value.isEmpty() || value.contains("${")) {
+            return DEFAULT_VERSION;
+         }
+         return value;
+      } catch (Throwable ignored) {
+         return DEFAULT_VERSION;
+      }
+   }
 
    @Mod.Instance
    public static Main instance;
@@ -66,7 +113,7 @@ public class Main {
    private static CommonProxy createProxy() {
       if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
          try {
-            return (CommonProxy)Class.forName("com.trolmastercard.sexmod.proxy.ClientProxy").newInstance();
+            return (CommonProxy)Class.forName(CLIENT_PROXY).newInstance();
          } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Failed to create the client proxy", e);
          }
@@ -91,7 +138,7 @@ public class Main {
            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"))) {
          String line;
          while ((line = reader.readLine()) != null) {
-            LOGGER.info(line.replace("%VERSION%", BuildInfo.VERSION));
+            LOGGER.info(line.replace("%VERSION%", VERSION));
          }
       } catch (Exception e) {
          LOGGER.warn("Could not read banner.txt: {}", e.toString());
@@ -113,11 +160,11 @@ public class Main {
       BaseGirlEntity.getGirlEntityList().clear();
       KoboldManager.clearAll();
       KoboldEntity.tribeMembers.clear();
-      GirlSavedData.clearAll();
+      OwnershipSavedData.clearAll();
       ConfigWorldGenHandler.getInstance().clear();
       GirlRegistry.clearAll();
       ServerWhitelistManager.isLoaded = false;
-      GirlWorldData.clearAll();
+      CustomModelCodeData.clearAll();
       if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
          clientReset();
       }

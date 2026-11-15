@@ -1,7 +1,14 @@
 package com.trolmastercard.sexmod.client.gui;
 
-import com.trolmastercard.sexmod.entity.BaseGirlEntity;
-import com.trolmastercard.sexmod.entity.LunaEntity;
+import com.trolmastercard.sexmod.common.inventory.GirlEquipmentContainer;
+import com.trolmastercard.sexmod.client.gui.container.GirlChestScreen;
+import com.trolmastercard.sexmod.common.inventory.GirlChestContainer;
+import com.trolmastercard.sexmod.common.inventory.LunaEquipmentContainer;
+import com.trolmastercard.sexmod.client.gui.container.LunaEquipmentScreen;
+import com.trolmastercard.sexmod.client.gui.container.GirlEquipmentScreen;
+
+import com.trolmastercard.sexmod.common.entity.base.BaseGirlEntity;
+import com.trolmastercard.sexmod.common.entity.girl.LunaEntity;
 import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
@@ -55,10 +62,10 @@ public class GuiHandler implements IGuiHandler {
                   && girl.getPosition().getY() == y
                   && girl.getPosition().getZ() == z) {
                   if (girl instanceof LunaEntity) {
-                     return new GirlInventoryContainer2((LunaEntity)girl, player.inventory, UUID.randomUUID());
+                     return new LunaEquipmentContainer((LunaEntity)girl, player.inventory, UUID.randomUUID());
                   }
 
-                  return new ChestContainer(girl, player.inventory, UUID.randomUUID());
+                  return new GirlEquipmentContainer(girl, player.inventory, UUID.randomUUID());
                }
             }
          } catch (ConcurrentModificationException cme) {
@@ -75,7 +82,7 @@ public class GuiHandler implements IGuiHandler {
                   && girl2.getPosition().getY() == y
                   && girl2.getPosition().getZ() == z) {
                   IInventory girlInventory = (IInventory)girl2;
-                  return new GirlInventoryContainer(player.inventory, girlInventory, player, UUID.randomUUID());
+                  return new GirlChestContainer(player.inventory, girlInventory, player, UUID.randomUUID());
                }
             }
          } catch (ConcurrentModificationException cme2) {
@@ -101,10 +108,10 @@ public class GuiHandler implements IGuiHandler {
                   && girl.getPosition().getY() == y
                   && girl.getPosition().getZ() == z) {
                   if (girl instanceof LunaEntity) {
-                     return new GirlInventoryContainerGui((LunaEntity)girl, player.inventory, UUID.randomUUID());
+                     return new LunaEquipmentScreen((LunaEntity)girl, player.inventory, UUID.randomUUID());
                   }
 
-                  return new GirlInventoryContainerGui2(girl, player.inventory, UUID.randomUUID());
+                  return new GirlEquipmentScreen(girl, player.inventory, UUID.randomUUID());
                }
             }
          } catch (ConcurrentModificationException cme) {
@@ -120,7 +127,7 @@ public class GuiHandler implements IGuiHandler {
                   && girl2.getPosition().getX() == x
                   && girl2.getPosition().getY() == y
                   && girl2.getPosition().getZ() == z) {
-                  return new ChestContainerGui(player, girl2, UUID.randomUUID());
+                  return new GirlChestScreen(player, girl2, UUID.randomUUID());
                }
             }
          } catch (ConcurrentModificationException cme2) {

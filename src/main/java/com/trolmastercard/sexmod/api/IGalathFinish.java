@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.api;
 
-import com.trolmastercard.sexmod.entity.GalathEntity;
+import com.trolmastercard.sexmod.common.entity.galath.GalathEntity;
 
 @FunctionalInterface
 /**

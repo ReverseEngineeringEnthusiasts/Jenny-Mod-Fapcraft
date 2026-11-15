@@ -1,6 +1,6 @@
 package com.trolmastercard.sexmod.api;
 
-import com.trolmastercard.sexmod.entity.BaseGirlEntity;
+import com.trolmastercard.sexmod.common.entity.base.BaseGirlEntity;
 import net.minecraft.util.math.Vec3d;
 
 @FunctionalInterface

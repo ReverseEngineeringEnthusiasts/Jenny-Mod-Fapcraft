@@ -1,0 +1,80 @@
+package com.trolmastercard.sexmod.common.item;
+
+import com.trolmastercard.sexmod.common.entity.kobold.KoboldManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraft.world.World;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent.Register;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+/**
+ * <b>Role.</b> Tribe egg — right-clicking spawns a whole new kobold tribe
+ * (4 kobolds, random color) at the targeted block via
+ * {@link KoboldManager#spawnKoboldAt}. Consumed on use unless creative.
+ */
+public class TribeEggItem extends Item {
+   public static final TribeEggItem TRIBE_EGG = new TribeEggItem();
+
+   public TribeEggItem() {
+      this.setCreativeTab(CreativeTabs.MISC);
+      this.maxStackSize = 1;
+   }
+
+   public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+      ItemStack stack = player.getHeldItem(hand);
+      Vec3d eyes = player.getPositionEyes(0.0F);
+      Vec3d look = player.getLook(0.0F);
+      Vec3d end = eyes.add(look.x * 5.0, look.y * 5.0, look.z * 5.0);
+      RayTraceResult rayTrace = world.rayTraceBlocks(eyes, end, false, false, true);
+      if (rayTrace == null) {
+         return new ActionResult(EnumActionResult.FAIL, player.getHeldItem(hand));
+      }
+
+      if (rayTrace.typeOfHit == Type.MISS) {
+         return new ActionResult(EnumActionResult.FAIL, player.getHeldItem(hand));
+      }
+
+      if (!player.capabilities.isCreativeMode) {
+         stack.shrink(1);
+      }
+
+      if (!world.isRemote) {
+         KoboldManager.spawnKoboldAt(world, rayTrace.hitVec);
+      }
+
+      return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+   }
+
+   public static void register() {
+      TRIBE_EGG.setRegistryName(new ResourceLocation("sexmod", "tribe_egg"));
+      TRIBE_EGG.setTranslationKey("tribe_egg");
+      MinecraftForge.EVENT_BUS.register(TribeEggItem.class);
+   }
+
+   @SubscribeEvent
+   public static void registerItems(Register<Item> event) {
+      event.getRegistry().register(TRIBE_EGG);
+   }
+
+   @SideOnly(Side.CLIENT)
+   @SubscribeEvent
+   public static void onModelRegistry(ModelRegistryEvent event) {
+      ModelLoader.setCustomModelResourceLocation(TRIBE_EGG, 0, new ModelResourceLocation("sexmod:tribe_egg"));
+   }
+
+}

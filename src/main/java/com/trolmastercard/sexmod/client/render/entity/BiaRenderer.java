@@ -1,0 +1,29 @@
+package com.trolmastercard.sexmod.client.render.entity;
+
+import com.trolmastercard.sexmod.client.render.base.GirlRenderer;
+import java.util.HashSet;
+import net.minecraft.client.renderer.entity.RenderManager;
+import software.bernie.geckolib3.model.AnimatedGeoModel;
+
+/**
+ * Renderer for the Bia NPC.
+ */
+public class BiaRenderer extends GirlRenderer {
+   public BiaRenderer(RenderManager renderManager, AnimatedGeoModel geoModel, double scaleFactor) {
+      super(renderManager, geoModel, scaleFactor);
+   }
+
+   @Override
+   public HashSet<String> getBlacklistedBones() {
+      return new HashSet<String>() {
+         {
+            this.add("boobs");
+            this.add("booty");
+            this.add("vagina");
+            this.add("fuckhole");
+            this.add("leaf7");
+            this.add("leaf8");
+         }
+      };
+   }
+}

@@ -1,0 +1,347 @@
+package com.trolmastercard.sexmod.common.entity.kobold;
+
+import com.trolmastercard.sexmod.common.entity.base.AbstractNpcOnlyEntity;
+import com.trolmastercard.sexmod.common.entity.base.Action;
+import com.trolmastercard.sexmod.common.entity.base.EyeAndKoboldColor;
+
+import com.trolmastercard.sexmod.Main;
+import com.trolmastercard.sexmod.client.gui.screen.GirlInventoryScreen;
+import com.trolmastercard.sexmod.client.model.vanilla.AllieModel;
+import com.trolmastercard.sexmod.client.model.base.IVanillaModel;
+import com.trolmastercard.sexmod.client.render.entity.KoboldRenderer;
+import com.trolmastercard.sexmod.api.IKobold;
+import com.trolmastercard.sexmod.common.util.math.RotationHelper;
+import com.trolmastercard.sexmod.client.render.player.PlayerKoboldRenderer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javax.annotation.Nullable;
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.util.MatrixStack;
+
+/**
+ * <b>Role.</b> Player-form kobold (implements {@link IKobold}) — the
+ * transformation with blowjob, anal and mating-press scenes plus full
+ * appearance customization (size, eye color, body color) stored in the
+ * kobold-specific data keys.
+ * <p>
+ * <b>State.</b> Inherits {@link AbstractKoboldPlayerEntity} keys (119-121);
+ * adds {@code SIZE_SCALAR} (122) = size scalar in {@code [0, 0.25]} (encoded as
+ * part-id {@code 0} value / 100 * 0.25). {@code setCustomPartList} maps part
+ * indices 0/1/2 to size/body-color/eye-color and packs the rest into the DNA
+ * string. {@code aw} = default body color {@link EyeAndKoboldColor#PURPLE}.
+ * <p>
+ * <b>Scene flow.</b> Owner commands {@code anal}/{@code oral}/{@code mating}
+ * teleport the acting player in, broadcast the intro action and strip.
+ * Progression runs in the {@code ISoundListener}: {@code blowjobStartDone}
+ * -&gt; {@link Action#SUCKBLOWJOB_BLINK}, {@code analStartDone} -&gt;
+ * {@link Action#KOBOLD_ANAL_SLOW}, {@code mating_press_startDone} -&gt; soft,
+ * jump switches to fast. Cum ends via {@code analCumDone}/
+ * {@code blowjobCumDone}/{@code mating_press_cumDone} -&gt;
+ * {@code resetCameraAndPhysics()}.
+ * <p>
+ * <b>Pitfalls.</b> {@code SIZE_SCALAR} scales the model (matrix, camera pivot) and the
+ * sound pitch (0.9-1.1) — every consumer must use the same
+ * {@code 0.25F - SIZE_SCALAR} formula. {@link #getNextAction(Action)} and
+ * {@link #getCumAction(Action)} must cover the blink variant of the blowjob
+ * loop. The animation predicate returns {@link PlayState#STOP} inside
+ * {@link SexWorldClient} worlds.
+ */
+public class KoboldPlayerEntity extends AbstractKoboldPlayerEntity implements IKobold {
+   public static final EyeAndKoboldColor DEFAULT_BODY_COLOR = EyeAndKoboldColor.PURPLE;
+   public static final DataParameter<Float> SIZE_SCALAR = EntityDataManager.createKey(KoboldPlayerEntity.class, DataSerializers.FLOAT)
+      .getSerializer()
+      .createKey(122);
+   boolean flySecondFrame = false;
+   boolean blowjobRightSide = true;
+   boolean switchVariant = false;
+   int moanCooldown = 0;
+
+   protected KoboldPlayerEntity(World world) {
+      super(world);
+   }
+
+   public KoboldPlayerEntity(World world, UUID uuid) {
+      super(world, uuid);
+   }
+
+   @Override
+   protected void entityInit() {
+      super.entityInit();
+      EyeAndKoboldColor color = EyeAndKoboldColor.values()[this.getRNG().nextInt(EyeAndKoboldColor.values().length)];
+      this.entityDataManager.register(EYE_COLOR, new BlockPos(color.getMainColor()));
+      this.entityDataManager.register(SKIN_COLOR_NAME, DEFAULT_BODY_COLOR.name());
+      this.entityDataManager.register(SIZE_SCALAR, 0.0F);
+   }
+
+   @Override
+   public AxisAlignedBB getPlayerCollisionBox(EntityPlayer player) {
+      return new AxisAlignedBB(
+         player.posX - 0.3F,
+         player.posY,
+         player.posZ - 0.3F,
+         player.posX + 0.3F,
+         player.posY + 0.9F,
+         player.posZ + 0.3F
+      );
+   }
+
+   /**
+    * Maps the custom-part id list onto the kobold-specific data keys:
+    * index 0 = size ({@code SIZE_SCALAR}), index 1 = body color ({@code SKIN_COLOR_NAME}), index 2 =
+    * eye color ({@code EYE_COLOR}); the remainder is appended as the DNA string
+    * ({@code MODEL_CODE}). On the CLIENT the render caches are cleared afterwards.
+    * <p>
+    * Ordering of the three special indices is part of the persisted format —
+    * do not reorder.
+    */
+   @Override
+   public void setCustomPartList(List<Integer> parts) {
+      StringBuilder builder = new StringBuilder();
+
+      for (int i = 0; i < parts.size(); i++) {
+         int partId = (Integer)parts.get(i);
+         switch (i) {
+            case 0:
+               this.entityDataManager.set(SIZE_SCALAR, partId / 100.0F * 0.25F);
+               break;
+            case 1:
+               this.entityDataManager.set(SKIN_COLOR_NAME, EyeAndKoboldColor.values()[partId].toString());
+               break;
+            case 2:
+               this.entityDataManager.set(EYE_COLOR, new BlockPos(EyeAndKoboldColor.values()[partId].getMainColor()));
+               break;
+            default:
+               AbstractNpcOnlyEntity.appendPaddedNumber(builder, partId);
+         }
+      }
+
+      this.entityDataManager.set(MODEL_CODE, builder.toString());
+      if (this.world.isRemote) {
+         PlayerKoboldRenderer.clearRenderCache();
+      }
+   }
+
+   @Override
+   public ArrayList<Integer> getBasePartIdList() {
+      ArrayList parts = new ArrayList();
+      parts.add(Math.round((Float)this.entityDataManager.get(SIZE_SCALAR) * 100.0F / 0.25F));
+      parts.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((String)this.entityDataManager.get(SKIN_COLOR_NAME))));
+      parts.add(EyeAndKoboldColor.indexOf(EyeAndKoboldColor.safeValueOf((Vec3i)this.entityDataManager.get(EYE_COLOR))));
+      return parts;
+   }
+
+   @Override
+   protected String buildModelCodeDNA(StringBuilder builder) {
+      AbstractNpcOnlyEntity.appendPaddedLetter(builder, 8);
+      AbstractNpcOnlyEntity.appendPaddedLetter(builder, 3);
+      AbstractNpcOnlyEntity.appendRandomGene(builder);
+      AbstractNpcOnlyEntity.appendRandomGene(builder);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 2);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 2);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 1);
+      return builder.toString();
+   }
+
+   @Override
+   public ArrayList<Integer> getCustomPartIdList() {
+      return new ArrayList<Integer>() {
+         {
+            this.add(101);
+            this.add(EyeAndKoboldColor.values().length);
+            this.add(EyeAndKoboldColor.values().length);
+            this.add(8);
+            this.add(3);
+            this.add(101);
+            this.add(101);
+            this.add(3);
+            this.add(3);
+            this.add(4);
+            this.add(2);
+         }
+      };
+   }
+
+   @Override
+   protected void clearBoneColors() {
+      PlayerKoboldRenderer.clearRenderCache();
+      KoboldRenderer.clearBoneColors();
+   }
+
+   @Override
+   public float getScaleFactor() {
+      float shrink = 0.25F - (Float)this.entityDataManager.get(SIZE_SCALAR);
+      return 1.4F - shrink;
+   }
+
+   /**
+    * SERVER: owner commands — {@code anal} starts {@link Action#KOBOLD_ANAL_START},
+    * {@code oral} starts {@link Action#STARTBLOWJOB}, {@code mating} starts
+    * {@link Action#MATING_PRESS_START}. All broadcast the action, strip and
+    * teleport the acting player into the scene.
+    */
+   @Override
+   public void handleOwnerCommand(String command, UUID uuid) {
+      if ("anal".equals(command)) {
+         this.teleportPlayerToGirl(uuid);
+         this.setCurrentAction(Action.KOBOLD_ANAL_START);
+         this.sendActionPacket(this.getOutfitIndex(), Action.KOBOLD_ANAL_START);
+         this.setOutfitIndex(0);
+      }
+
+      if ("oral".equals(command)) {
+         this.teleportPlayerToGirl(uuid);
+         this.setCurrentAction(Action.STARTBLOWJOB);
+         this.sendActionPacket(this.getOutfitIndex(), Action.STARTBLOWJOB);
+         this.setOutfitIndex(0);
+      }
+
+      if ("mating".equals(command)) {
+         this.teleportPlayerToGirl(uuid);
+         this.setCurrentAction(Action.MATING_PRESS_START);
+         this.sendActionPacket(this.getOutfitIndex(), Action.MATING_PRESS_START);
+         this.setOutfitIndex(0);
+      }
+   }
+
+   @SideOnly(Side.CLIENT)
+   @Override
+   public boolean openInteractionMenu(EntityPlayer player) {
+      Minecraft.getMinecraft().displayGuiScreen(new GirlInventoryScreen(this, player, new String[]{"anal", "oral", "mating"}, null, false));
+      return true;
+   }
+
+   @Override
+   public boolean isBlockedByCeiling() {
+      Block block = this.world.getBlockState(this.getPosition().add(0, 1, 0)).getBlock();
+      return !block.isPassable(this.world, this.getPosition().add(0, 1, 0));
+   }
+
+   /**
+    * Scales the bone matrix by the kobold size (1 minus the size scalar) so
+    * the rendered model matches the {@code SIZE_SCALAR} slider. CLIENT-only rendering
+    * helper.
+    */
+   @Override
+   protected MatrixStack applyAdditionalMatrixTransformations(MatrixStack stack) {
+      float shrink = 0.25F - (Float)this.entityDataManager.get(SIZE_SCALAR);
+      stack.scale(1.0F - shrink, 1.0F - shrink, 1.0F - shrink);
+      return stack;
+   }
+
+   /**
+    * Scales the camera-bone pivot by the kobold size so the first-person
+    * camera sits at the right height. CLIENT-only.
+    */
+   @Override
+   protected float transformCameraPivotY(float y) {
+      float grow = 1.0F - (0.25F - (Float)this.entityDataManager.get(SIZE_SCALAR));
+      return y * grow;
+   }
+
+   @Override
+   public IVanillaModel getHandModel(int index) {
+      return new AllieModel();
+   }
+
+   @Override
+   public String getHandTexture(int index) {
+      return "textures/entity/kobold/hand.png";
+   }
+
+   @Override
+   public Vec3i getHandColor(int index) {
+      try {
+         return EyeAndKoboldColor.valueOf((String)this.entityDataManager.get(SKIN_COLOR_NAME)).getMainColor();
+      } catch (Exception ex) {
+         Main.LOGGER.error("could not read the kobold hand color", ex);
+         return super.getHandColor(index);
+      }
+   }
+
+   @Nullable
+   @Override
+   protected Action getNextAction(Action action) {
+      if (action == Action.SUCKBLOWJOB_BLINK) {
+         return Action.THRUSTBLOWJOB;
+      } else {
+         return action == Action.KOBOLD_ANAL_SLOW ? Action.KOBOLD_ANAL_FAST : null;
+      }
+   }
+
+   @Override
+   protected Action getCumAction(Action action) {
+      if (action == Action.THRUSTBLOWJOB || action == Action.SUCKBLOWJOB_BLINK) {
+         return Action.CUMBLOWJOB;
+      } else if (action == Action.KOBOLD_ANAL_SLOW || action == Action.KOBOLD_ANAL_FAST) {
+         return Action.KOBOLD_ANAL_CUM;
+      } else {
+         return action != Action.MATING_PRESS_HARD && action != Action.MATING_PRESS_SOFT ? null : Action.MATING_PRESS_CUM;
+      }
+   }
+
+   @Override
+   public void setCurrentAction(Action action) {
+      Action currentAction = this.getCurrentAction();
+      if (currentAction != Action.MATING_PRESS_CUM || action != Action.MATING_PRESS_SOFT && action != Action.MATING_PRESS_HARD) {
+         if (currentAction != Action.KOBOLD_ANAL_CUM || action != Action.KOBOLD_ANAL_SLOW && action != Action.KOBOLD_ANAL_FAST) {
+            if (currentAction != Action.CUMBLOWJOB || action != Action.SUCKBLOWJOB && action != Action.THRUSTBLOWJOB) {
+               super.setCurrentAction(action);
+            }
+         }
+      }
+   }
+
+   @Override
+   protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
+      return KoboldPlayerAnimations.predicate(this, event);
+   }
+
+   @Override
+   public void playSound(SoundEvent sound) {
+      this.playSoundAtVolume(sound, 1.0F);
+   }
+
+   void playRandomSounds(SoundEvent[] sounds) {
+      this.playRandomSound(sounds, 1.0F);
+   }
+
+   void playRandomSound(SoundEvent[] sounds, float volume) {
+      this.playSoundAtVolume(sounds[this.getRNG().nextInt(sounds.length)], volume);
+   }
+
+   /**
+    * Plays a sound pitched by kobold size: smaller kobolds get a slightly
+    * higher pitch (0.9-1.1 range from {@link RotationHelper#lerpDouble}).
+    */
+   public void playSoundAtVolume(SoundEvent sound, float volume) {
+      float shrink = 0.25F - (Float)this.entityDataManager.get(SIZE_SCALAR);
+      double progress = shrink / 0.25F;
+      float pitch = (float)RotationHelper.lerpDouble(0.9F, 1.1F, progress);
+      this.playSoundAtPosition(sound, volume, pitch);
+   }
+
+   @SideOnly(Side.CLIENT)
+   @Override
+   public void registerControllers(AnimationData data) {
+      KoboldPlayerAnimations.registerControllers(this, data);
+   }
+
+}

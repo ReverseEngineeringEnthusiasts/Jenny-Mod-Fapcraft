@@ -1,0 +1,48 @@
+package com.trolmastercard.sexmod.client.model.entity;
+
+import com.trolmastercard.sexmod.client.model.base.GirlModel;
+
+import com.trolmastercard.sexmod.common.entity.base.BaseGirlEntity;
+import net.minecraft.util.ResourceLocation;
+
+/**
+ * Geckolib model for the Allie NPC: three outfit geo variants (nude, armored,
+ * nude-2) with the shared Allie texture and the standard armor/nude bone
+ * groups.
+ */
+public class AllieNpcModel extends GirlModel<BaseGirlEntity> {
+   @Override
+   protected ResourceLocation[] getModelLocations() {
+      return new ResourceLocation[]{
+         new ResourceLocation("sexmod", "geo/allie/allie.geo.json"),
+         new ResourceLocation("sexmod", "geo/allie/armored.geo.json"),
+         new ResourceLocation("sexmod", "geo/allie/allie.geo.json")
+      };
+   }
+
+   @Override
+   public ResourceLocation getTextureLocation(BaseGirlEntity entity) {
+      return new ResourceLocation("sexmod", "textures/entity/allie/allie.png");
+   }
+
+   @Override
+   public ResourceLocation getAnimationFileLocation(BaseGirlEntity entity) {
+      return new ResourceLocation("sexmod", "animations/allie/allie.animation.json");
+   }
+
+   @Override
+   public String[] HeadArmor() {
+      return new String[]{"armorHelmet"};
+   }
+
+   @Override
+   public String[] TopArmor() {
+      return new String[]{"armorShoulderR", "armorShoulderL", "armorChest", "armorBoobs"};
+   }
+
+   @Override
+   public String[] Top() {
+      return new String[]{"boobsFlesh", "clothes", "clothesR", "clothesL"};
+   }
+
+}

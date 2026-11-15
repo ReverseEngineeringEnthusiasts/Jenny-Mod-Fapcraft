@@ -103,7 +103,7 @@ The long haul. Every remaining `a_clashNNN` token gets a semantic name, verified
 
 The build compiles against MCP-named jars, but Forge 1.12.2 at runtime expects SRG names. ForgeGradle normally does this with `reobf`; we have plain Maven, so we wrote our own.
 
-`tools/MCRepack.java` is a custom ASM-based reobfuscator:
+`tools/build/MCRepack.java` is a custom ASM-based reobfuscator:
 
 - scans the SRG minecraft jar for every declared `func_XXX` / `field_XXX` with its descriptor
 - loads the methods.csv / fields.csv mapping tables (func_XXX -> MCP name)
@@ -126,11 +126,11 @@ Current state: 8878 method entries, 7846 field entries in the map, and the built
 
 ## TinyGen
 
-`tools/TinyGen.java` generates the tiny mapping format used when building the MCP-named compile jars.
+`tools/analysis/TinyGen.java` generates the tiny mapping format used when building the MCP-named compile jars.
 
 ## The mapping tables
 
-`tools/mappings/methods.csv` and `fields.csv` are the full MCP SRG mapping tables (searge name, MCP name, side, description). These came from the stable_39 mappings. `tools/regenerate-mcp-jar.sh` rebuilds the MCP-named compile jars.
+`tools/build/mappings/methods.csv` and `fields.csv` are the full MCP SRG mapping tables (searge name, MCP name, side, description). These came from the stable_39 mappings. `tools/build/regenerate-mcp-jar.sh` rebuilds the MCP-named compile jars.
 
 ---
 

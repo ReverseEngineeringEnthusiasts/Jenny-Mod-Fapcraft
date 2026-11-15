@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.util;
 
+import com.trolmastercard.sexmod.client.render.base.PlayerSkinOverride;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

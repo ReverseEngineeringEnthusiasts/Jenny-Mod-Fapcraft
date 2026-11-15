@@ -2,13 +2,13 @@ package com.trolmastercard.sexmod.proxy;
 
 import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.gui.GuiHandler;
-import com.trolmastercard.sexmod.entity.SexModEntities;
-import com.trolmastercard.sexmod.networking.PacketHandler;
-import com.trolmastercard.sexmod.util.ForgeEventHandler;
-import com.trolmastercard.sexmod.util.ServerWhitelistManager;
-import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.ItemRegistrationHandler;
-import com.trolmastercard.sexmod.worldgen.ConfigWorldGenHandler;
+import com.trolmastercard.sexmod.registry.ModEntities;
+import com.trolmastercard.sexmod.network.PacketHandler;
+import com.trolmastercard.sexmod.common.event.ForgeEventHandler;
+import com.trolmastercard.sexmod.common.model.ServerWhitelistManager;
+import com.trolmastercard.sexmod.registry.SoundHandler;
+import com.trolmastercard.sexmod.registry.ModItems;
+import com.trolmastercard.sexmod.common.world.gen.ConfigWorldGenHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -28,8 +28,8 @@ public class CommonProxy {
 
    public void preInitRegistries(FMLPreInitializationEvent event) {
       GameRegistry.registerWorldGenerator(ConfigWorldGenHandler.getInstance(), 0);
-      SexModEntities.registerEntities();
-      ItemRegistrationHandler.registerAll();
+      ModEntities.registerEntities();
+      ModItems.registerAll();
    }
 
    public void initRegistries(FMLInitializationEvent event) {
