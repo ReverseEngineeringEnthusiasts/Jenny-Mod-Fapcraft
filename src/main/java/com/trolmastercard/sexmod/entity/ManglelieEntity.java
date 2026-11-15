@@ -580,6 +580,13 @@ public class ManglelieEntity extends BaseGirlEntity {
                   this.setCurrentAction((Action)null);
                   this.getNavigator().clearPath();
                }
+            } else if (chosen.getDistance(this) <= 3.65F) {
+               // Close enough for Galath's merge; stop the run loop instead
+               // of playing an in-place run animation forever.
+               if (this.getCurrentAction() == Action.RUN) {
+                  this.setCurrentAction((Action)null);
+                  this.getNavigator().clearPath();
+               }
             } else if (this.getCurrentAction() != Action.RIDE_MOMMY_HEAD) {
                this.setCurrentAction(Action.RUN);
                Vec3d selfPos = this.getPositionVector();

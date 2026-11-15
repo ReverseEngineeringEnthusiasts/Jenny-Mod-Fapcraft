@@ -15,6 +15,7 @@ import com.trolmastercard.sexmod.util.Vector3fSexmodSpecial;
 import com.trolmastercard.sexmod.util.TrigMath;
 import java.util.HashSet;
 import java.util.Objects;
+import javax.vecmath.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -36,6 +37,7 @@ import org.lwjgl.opengl.GL11;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib3.util.MatrixStack;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
 /**
@@ -581,7 +583,22 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
    }
 
    public static Vec3d getLookVector(GalathEntity galath, float partialTicks) {
-      return EntityLookVectorHelper.getAimVector(galath, mc.player, partialTicks).add(galath.getCachedBoneOffset("mangPos"));
+      return EntityLookVectorHelper.getAimVector(galath, mc.player, partialTicks).add(getMangPosOffset(galath));
+   }
+
+   /**
+    * The {@code mangPos} attachment offset. The bone cache is only filled by
+    * {@link GirlRenderer#applyCameraBone} after Galath has rendered; while she
+    * is hidden (or on the first frame of a merge) the cache is zero and
+    * Manglelie snapped to Galath's feet. Compute the current model matrix
+    * directly instead and refresh the cache.
+    */
+   private static Vec3d getMangPosOffset(GalathEntity galath) {
+      MatrixStack stack = galath.getBoneMatrixStack("mangPos", false);
+      Matrix4f matrix = stack.getModelMatrix();
+      Vec3d offset = new Vec3d(-matrix.m03, matrix.m13, -matrix.m23);
+      galath.setBoneWorldPosition("mangPos", offset);
+      return offset;
    }
 
    public static Vec3d getEntityLookVector(GalathEntity galath, float partialTicks) {

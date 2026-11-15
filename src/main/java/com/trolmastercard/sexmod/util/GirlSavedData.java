@@ -99,17 +99,30 @@ public class GirlSavedData extends WorldSavedData {
    public static void updateMangleliePartner(GalathEntity galath) {
       ManglelieEntity partner = galath.getMangleliePartner(true);
       if (partner != null) {
+         // The player can be riding one of the pair; never remove a vehicle
+         // with a passenger attached, or the next tick reads a dangling
+         // riding relation (crash log: "Entity's Vehicle: NPE").
+         partner.removePassengers();
+         GalathEntity partnerGalath = partner.getGalathPartner(true);
+         if (partnerGalath != null && partner.getGirlId().equals(partnerGalath.getMangleliePartnerUUID())) {
+            partnerGalath.setMangleliePartnerUUID(null);
+         }
          galath.world.removeEntity(partner);
       }
 
       UUID ownerId = ownerToGirl.getByValue(galath.getGirlId());
       if (ownerId == null) {
+         galath.removePassengers();
          galath.world.removeEntity(galath);
       } else {
          World world = galath.world;
          EntityPlayer owner = world.getPlayerEntityByUUID(ownerId);
+         galath.removePassengers();
          galath.world.removeEntity(galath);
          ownerToGirl.removeByKey(ownerId);
+         // Drop the stale "owner already has a Manglelie" flag; otherwise a
+         // newly tamed Galath can never merge again.
+         mangOwnershipSet.remove(ownerId);
          if (owner != null) {
             PacketHandler.networkWrapper.sendTo(new InformOfOwnershipPacket(false), (EntityPlayerMP)owner);
          }

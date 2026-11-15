@@ -580,7 +580,12 @@ public abstract class BaseGirlEntity extends EntityCreature implements IAnimatab
    }
 
    protected void tickPathVelocity() {
-      Path path = this.getNavigator().getPath();
+      PathNavigate navigator = this.getNavigator();
+      if (navigator == null) {
+         return;
+      }
+
+      Path path = navigator.getPath();
       if (path != null) {
          if (!this.onGround && !this.isInWater()) {
             int currentIndex = path.getCurrentPathIndex();

@@ -138,7 +138,7 @@ final class GalathTamedAi {
       }
 
       BlockPos selfPos = galath.getPosition();
-      int dist = Math.abs(pos.getX() - selfPos.getX()) + Math.abs(pos.getX() - selfPos.getX());
+      int dist = Math.abs(pos.getX() - selfPos.getX()) + Math.abs(pos.getZ() - selfPos.getZ());
       return dist > 16;
    }
 
@@ -146,7 +146,6 @@ final class GalathTamedAi {
       if (galath.onGround) {
          if (galath.getMangleliePartnerUUID() == null) {
             if (galath.getCurrentAction() != Action.HUG_MANG) {
-               if (!GirlSavedData.isManglelieOwned(GirlSavedData.getManglelieOwnerId(galath.getGirlId()))) {
                   BlockPos center = galath.getPosition();
                   BlockPos min = center.add(-15.0, -15.0, -15.0);
                   BlockPos max = center.add(15.0, 15.0, 15.0);
@@ -191,7 +190,6 @@ final class GalathTamedAi {
                         galath.setCurrentAction(Action.RUN);
                      }
                   }
-               }
             }
          }
       }
