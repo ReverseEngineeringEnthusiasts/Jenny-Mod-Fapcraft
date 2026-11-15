@@ -516,7 +516,8 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * partner and returns the partner-relative look position (the corruption
     * pose renders at Galath's location).
     */
-   protected Vec3d getBoneWorldPosManglelie(ManglelieEntity manglelie, float partialTicks, Vec3d pos) {
+   @Override
+   protected Vec3d getBoneWorldPos(ManglelieEntity manglelie, float partialTicks, Vec3d pos) {
       if (manglelie.getCurrentAction() == Action.RUN) {
          float yaw = manglelie.getYawRotation();
          manglelie.rotationYaw = yaw;
@@ -594,7 +595,7 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
     * directly instead and refresh the cache.
     */
    private static Vec3d getMangPosOffset(GalathEntity galath) {
-      MatrixStack stack = galath.getBoneMatrixStack("mangPos", false);
+      MatrixStack stack = galath.getBoneMatrixStack("mangPos", !galath.isLocallyRegistered());
       Matrix4f matrix = stack.getModelMatrix();
       Vec3d offset = new Vec3d(-matrix.m03, matrix.m13, -matrix.m23);
       galath.setBoneWorldPosition("mangPos", offset);
@@ -602,7 +603,7 @@ public class ManglelieRenderer extends GirlRenderer<ManglelieEntity> {
    }
 
    public static Vec3d getEntityLookVector(GalathEntity galath, float partialTicks) {
-      return EntityLookVectorHelper.getEntityLookVector(galath, partialTicks).add(galath.getCachedBoneOffset("mangPos"));
+      return EntityLookVectorHelper.getEntityLookVector(galath, partialTicks).add(getMangPosOffset(galath));
    }
 
 }

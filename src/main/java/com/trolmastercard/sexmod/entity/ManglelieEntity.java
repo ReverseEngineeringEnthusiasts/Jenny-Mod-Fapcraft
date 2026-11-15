@@ -271,6 +271,18 @@ public class ManglelieEntity extends BaseGirlEntity {
       }
    }
 
+   @Override
+   public void setDead() {
+      if (!this.world.isRemote) {
+         GalathEntity galath = this.getGalathPartner(true);
+         if (galath != null && this.getGirlId().equals(galath.getMangleliePartnerUUID())) {
+            galath.setMangleliePartnerUUID(null);
+         }
+      }
+
+      super.setDead();
+   }
+
    public static GalathEntity getGalathPartnerOf(BaseGirlEntity girl, boolean server) {
       return !(girl instanceof ManglelieEntity) ? null : ((ManglelieEntity)girl).getGalathPartner(server);
    }

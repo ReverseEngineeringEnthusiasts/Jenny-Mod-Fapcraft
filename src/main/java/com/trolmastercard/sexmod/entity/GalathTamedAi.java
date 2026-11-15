@@ -146,50 +146,50 @@ final class GalathTamedAi {
       if (galath.onGround) {
          if (galath.getMangleliePartnerUUID() == null) {
             if (galath.getCurrentAction() != Action.HUG_MANG) {
-                  BlockPos center = galath.getPosition();
-                  BlockPos min = center.add(-15.0, -15.0, -15.0);
-                  BlockPos max = center.add(15.0, 15.0, 15.0);
-                  AxisAlignedBB aabb = new AxisAlignedBB(min, max);
-                  List manglelies = galath.world.getEntitiesWithinAABB(ManglelieEntity.class, aabb);
-                  ManglelieEntity chosen = null;
+               BlockPos center = galath.getPosition();
+               BlockPos min = center.add(-15.0, -15.0, -15.0);
+               BlockPos max = center.add(15.0, 15.0, 15.0);
+               AxisAlignedBB aabb = new AxisAlignedBB(min, max);
+               List manglelies = galath.world.getEntitiesWithinAABB(ManglelieEntity.class, aabb);
+               ManglelieEntity chosen = null;
 
-                  for (ManglelieEntity manglelie : (java.util.Collection<ManglelieEntity>) (manglelies) ) {
-                     if (!manglelie.isDead && manglelie.getGalathPartner(true) == null) {
-                        chosen = manglelie;
-                        break;
-                     }
+               for (ManglelieEntity manglelie : (java.util.Collection<ManglelieEntity>) (manglelies) ) {
+                  if (!manglelie.isDead && manglelie.getGalathPartner(true) == null) {
+                     chosen = manglelie;
+                     break;
                   }
+               }
 
-                  if (chosen == null) {
-                     if (galath.getCurrentAction() == Action.RUN) {
-                        galath.setCurrentAction((Action)null);
-                        galath.getNavigator().clearPath();
-                     }
+               if (chosen == null) {
+                  if (galath.getCurrentAction() == Action.RUN) {
+                     galath.setCurrentAction((Action)null);
+                     galath.getNavigator().clearPath();
+                  }
+               } else {
+                  galath.pathNavigator = galath.getNavigator();
+                  if (chosen.getDistance(galath) <= 3.65F) {
+                     galath.pathNavigator.clearPath();
+                     galath.setCurrentAction(Action.HUG_MANG);
+                     galath.motionX = 0.0;
+                     galath.motionY = 0.0;
+                     galath.motionZ = 0.0;
+                     galath.setTargetPosition(galath.getPositionVector());
+                     galath.setAnchored(true);
+                     galath.setMangleliePartnerUUID(chosen.getGirlId());
+                     chosen.setGalathPartnerUUID(galath.getGirlId());
+                     chosen.setCurrentAction(Action.RIDE_MOMMY_HEAD);
+                     GirlSavedData.markAsManglelieOwned(galath.getGirlId());
                   } else {
-                     galath.pathNavigator = galath.getNavigator();
-                     if (chosen.getDistance(galath) <= 3.65F) {
-                        galath.pathNavigator.clearPath();
-                        galath.setCurrentAction(Action.HUG_MANG);
-                        galath.motionX = 0.0;
-                        galath.motionY = 0.0;
-                        galath.motionZ = 0.0;
-                        galath.setTargetPosition(galath.getPositionVector());
-                        galath.setAnchored(true);
-                        galath.setMangleliePartnerUUID(chosen.getGirlId());
-                        chosen.setGalathPartnerUUID(galath.getGirlId());
-                        chosen.setCurrentAction(Action.RIDE_MOMMY_HEAD);
-                        GirlSavedData.markAsManglelieOwned(galath.getGirlId());
-                     } else {
-                        Vec3d selfPos = galath.getPositionVector();
-                        Vec3d partnerPos = chosen.getPositionVector();
-                        Vec3d delta = partnerPos.subtract(selfPos);
-                        float yaw = (float)TrigMath.sinDegrees(Math.atan2(delta.z, delta.x)) - 90.0F;
-                        galath.setYawRotation(yaw);
-                        galath.pathNavigator.clearPath();
-                        galath.pathNavigator.tryMoveToEntityLiving(chosen, 0.65F);
-                        galath.setCurrentAction(Action.RUN);
-                     }
+                     Vec3d selfPos = galath.getPositionVector();
+                     Vec3d partnerPos = chosen.getPositionVector();
+                     Vec3d delta = partnerPos.subtract(selfPos);
+                     float yaw = (float)TrigMath.sinDegrees(Math.atan2(delta.z, delta.x)) - 90.0F;
+                     galath.setYawRotation(yaw);
+                     galath.pathNavigator.clearPath();
+                     galath.pathNavigator.tryMoveToEntityLiving(chosen, 0.65F);
+                     galath.setCurrentAction(Action.RUN);
                   }
+               }
             }
          }
       }

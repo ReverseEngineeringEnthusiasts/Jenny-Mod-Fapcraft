@@ -114,6 +114,8 @@ public class BeeEntity extends BeeEntityBase {
 
    @Override
    protected void applyEntityAttributes() {
+      // Forge adds SWIM_SPEED here; the water tick dereferences it.
+      super.applyEntityAttributes();
       this.getAttributeMap().registerAttribute(SharedMonsterAttributes.MAX_HEALTH);
       this.getAttributeMap().registerAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE);
       this.getAttributeMap().registerAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);

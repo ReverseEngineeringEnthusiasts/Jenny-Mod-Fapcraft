@@ -154,7 +154,6 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * {@code summonSkeletonTicks} is in [9, 30] (see {@link #resetEnergyBalls()}).
  */
 public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IGalath {
-   private boolean waterTickNpeLogged;
    public static final float a2 = 0.6F;
    public static final float b6 = 0.6F;
    public static final int bj = 10;
@@ -396,18 +395,8 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    }
 
    protected void handleJumpWater() {
-      if (this.world != null && !this.isDead && this.hasMaster()) {
-         try {
-            super.handleJumpWater();
-         } catch (NullPointerException e) {
-            // Vanilla's water tick can still see the stale vehicle/passenger
-            // relation left by a merged Manglelie removal. The relation is
-            // repaired on the next tick; do not take the server down for it.
-            if (!this.waterTickNpeLogged) {
-               this.waterTickNpeLogged = true;
-               Main.LOGGER.warn("Galath skipped a water tick after a stale merge/vehicle state", e);
-            }
-         }
+      if (this.hasMaster()) {
+         super.handleJumpWater();
       }
    }
 
@@ -442,6 +431,10 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
 
    @Override
    protected void applyEntityAttributes() {
+      // Forge registers SWIM_SPEED in EntityLivingBase; the water tick reads
+      // it. Without this super call getEntityAttribute(SWIM_SPEED) is null
+      // and handleJumpWater NPEs for a tamed Galath in water.
+      super.applyEntityAttributes();
       this.getAttributeMap().registerAttribute(SharedMonsterAttributes.MAX_HEALTH);
       this.getAttributeMap().registerAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE);
       this.getAttributeMap().registerAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
@@ -580,19 +573,6 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
     */
    @Override
    public void onUpdate() {
-      if (this.isDead) {
-         // A removed Galath can still be in the tick list for one pass; drop
-         // any rider first so the next tick does not read a dangling vehicle.
-         this.removePassengers();
-         return;
-      }
-
-      if (this.getRidingPlayer() != null && this.isInWater()) {
-         // Vanilla dismounts a living vehicle in water; doing it explicitly
-         // avoids the follow-up NPE while the rider is still attached.
-         this.removePassengers();
-      }
-
       boolean hasMasterFlag = this.hasMaster();
       if (hasMasterFlag) {
          GalathRiding.updateRidingGravity(this);
