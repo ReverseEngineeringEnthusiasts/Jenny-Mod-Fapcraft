@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.reskin;
 
+import com.trolmastercard.sexmod.util.GuiIo;
+
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import java.awt.Desktop;
 import java.io.File;
@@ -41,7 +43,7 @@ public class NoModelsScreen extends GuiScreen {
 
    @Override
    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-      super.mouseClicked(mouseX, mouseY, mouseButton);
+      GuiIo.run(() -> super.mouseClicked(mouseX, mouseY, mouseButton));
       if (mouseButton != 0) {
          return;
       }

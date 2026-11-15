@@ -114,18 +114,15 @@ public class BeeEntity extends BeeEntityBase {
 
    @Override
    protected void applyEntityAttributes() {
-      // Forge adds SWIM_SPEED here; the water tick dereferences it.
+      // Forge adds SWIM_SPEED here; the water tick dereferences it. The base
+      // class already registered the standard attributes, so only FLYING_SPEED
+      // is added here; re-registering the others throws "already registered".
       super.applyEntityAttributes();
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.MAX_HEALTH);
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE);
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ARMOR);
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS);
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(16.0);
       this.getAttributeMap().registerAttribute(SharedMonsterAttributes.FLYING_SPEED);
       this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(12.0);
       this.getEntityAttribute(SharedMonsterAttributes.FLYING_SPEED).setBaseValue(0.4F);
       this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.2F);
+      this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(16.0);
    }
 
    @Override

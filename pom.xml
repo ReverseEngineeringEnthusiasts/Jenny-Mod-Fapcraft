@@ -12,8 +12,9 @@
   <description>Deobfuscated + decompiled + remapped reconstruction of the official Fapcraft v1.1 mod for Minecraft 1.12.2</description>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <!-- Compile against the Java 8 API (not just -source/-target) so the
+         release jar keeps working on the old Java 8 installs 1.12.2 players use. -->
+    <maven.compiler.release>8</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -182,8 +183,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <release>8</release>
           <compilerArgs>
             <arg>-Xlint:-options</arg>
           </compilerArgs>

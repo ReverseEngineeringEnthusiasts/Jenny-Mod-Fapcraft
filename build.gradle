@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+    id 'com.cleanroommc.cleanroomgradle'
+}
+
+group = 'com.trolmastercard'
+version = '1.1.3'
+
+base {
+    archivesName = 'fapcraft-1.12.2'
+}
+
+java {
+    // Gradle/Cleanroom dev runs use Java 25 and resolve the Java-25 Cleanroom
+    // userdev artifact. This is the dev/test path only; the shippable jar for
+    // normal Forge 1.12.2 players is the Java 8 build from Maven (pom.xml).
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+// Dev/test build. The shippable, shaded and SRG-reobfuscated jar is produced by
+// the Maven build in build.sh; this Gradle build exists for Cleanroom runClient.
+dependencies {
+    implementation cleanroom.userdev(cleanroom_version)
+
+    implementation 'io.github.realburst:unrar5j:v2.0.4'
+
+    implementation files(
+        'lib/geckolib3-1.12.2-mcp.jar',
+        'lib/geckolib3-shadowed-libs.jar',
+        'lib/apache-commons-lang3-1.12.2.jar'
+    )
+
+    testImplementation 'junit:junit:4.13.2'
+}
+
+cleanroom {
+    runs {
+        client {
+            configure {
+                username = minecraft_username
+                maxHeapSize = '4G'
+            }
+        }
+        server {
+            configure {
+                maxHeapSize = '4G'
+            }
+        }
+    }
+}
+
+// mcmod.info and sexmod-build.properties carry Maven-style ${project.version}
+// placeholders. Expand them for the dev run too. Capture the values outside the
+// closure so the configuration cache can serialize the task.
+def modVersion = version
+def mcVersion = '1.12.2'
+processResources {
+    inputs.property 'modVersion', modVersion
+    filesMatching(['mcmod.info', 'sexmod-build.properties']) {
+        expand project: [version: modVersion], mcversion: mcVersion
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnit()
+}

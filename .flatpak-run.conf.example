@@ -1,0 +1,19 @@
+# Copy this file to .flatpak-run.conf (which is gitignored) and edit it.
+# scripts/run-flatpak.sh builds the mod, installs it into this Prism instance
+# and launches the instance through the PrismLauncher Flatpak.
+
+# PrismLauncher Flatpak application id.
+FLATPAK_APP="org.prismlauncher.PrismLauncher"
+
+# Instance ID (the instance directory name under Prism's instances/).
+INSTANCE_ID="Cleanroom 1.12.2"
+
+# Prism instance directory inside the Flatpak data directory.
+INSTANCE_DIR="$HOME/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/Cleanroom 1.12.2"
+
+# Optional overrides.
+# MODS_DIR="$INSTANCE_DIR/minecraft/mods"
+# MOD_BACKUP_DIR="$INSTANCE_DIR/mod-backups"
+# OFFLINE_NAME="Dev"
+# CLEANROOM_VERSION="0.7.14-alpha"
+# PRISM_ARGS=""

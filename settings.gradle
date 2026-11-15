@@ -1,0 +1,10 @@
+pluginManagement {
+    repositories {
+        maven { url = 'https://maven.cleanroommc.com' }
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id 'com.cleanroommc.cleanroomgradle.settings' version '0.22.0'
+}

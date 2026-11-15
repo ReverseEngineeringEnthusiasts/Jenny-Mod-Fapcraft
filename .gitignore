@@ -1,7 +1,14 @@
 target/
 dist/
+build/
+.gradle/
+run/
+logs/
 *.class
 .idea/
 *.iml
 .DS_Store
 __pycache__/
+docs/characters/animations/
+
+.flatpak-run.conf

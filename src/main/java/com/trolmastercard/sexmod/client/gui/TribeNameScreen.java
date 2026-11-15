@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.client.gui;
 
+import com.trolmastercard.sexmod.util.GuiIo;
+
 import com.trolmastercard.sexmod.networking.ClaimTribePacket;
 import com.trolmastercard.sexmod.networking.PacketHandler;
 import java.util.UUID;
@@ -56,7 +58,7 @@ public class TribeNameScreen extends GuiScreen {
          this.nameField.setText(text.substring(0, 15));
       }
 
-      super.keyTyped(typedChar, keyCode);
+      GuiIo.run(() -> super.keyTyped(typedChar, keyCode));
    }
 
    /**
@@ -64,7 +66,7 @@ public class TribeNameScreen extends GuiScreen {
     * trimming) and closes the screen.
     */
    protected void actionPerformed(GuiButton button) {
-      super.actionPerformed(button);
+      GuiIo.run(() -> super.actionPerformed(button));
       String name = this.nameField.getText().trim();
       if (name.length() != 0) {
          PacketHandler.networkWrapper.sendToServer(new ClaimTribePacket(this.koboldId, Minecraft.getMinecraft().player.getPersistentID(), name));

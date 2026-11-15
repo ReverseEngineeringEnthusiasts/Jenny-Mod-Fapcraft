@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.reskin;
 
+import com.trolmastercard.sexmod.util.GuiIo;
+
 import com.trolmastercard.sexmod.Main;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -201,7 +203,7 @@ public class ReskinBrowserScreen extends GuiScreen {
 
    @Override
    public void handleMouseInput() {
-      super.handleMouseInput();
+      GuiIo.run(() -> super.handleMouseInput());
       int dw = Mouse.getEventDWheel();
       if (dw == 0 || entries == null) return;
       int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
@@ -216,7 +218,7 @@ public class ReskinBrowserScreen extends GuiScreen {
 
    @Override
    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-      super.mouseClicked(mouseX, mouseY, mouseButton);
+      GuiIo.run(() -> super.mouseClicked(mouseX, mouseY, mouseButton));
       if (mouseButton != 0) return;
       if (searchField != null) searchField.mouseClicked(mouseX, mouseY, mouseButton);
 
@@ -332,7 +334,7 @@ public class ReskinBrowserScreen extends GuiScreen {
          scrollAvailable = 0;
          return;
       }
-      super.keyTyped(typedChar, keyCode);
+      GuiIo.run(() -> super.keyTyped(typedChar, keyCode));
    }
 
    private void revertRow(ReskinEntry e) {

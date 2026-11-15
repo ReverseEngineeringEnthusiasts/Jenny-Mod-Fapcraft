@@ -433,18 +433,15 @@ public class GalathEntity extends BaseGirlEntity implements IEntityMultiPart, IG
    protected void applyEntityAttributes() {
       // Forge registers SWIM_SPEED in EntityLivingBase; the water tick reads
       // it. Without this super call getEntityAttribute(SWIM_SPEED) is null
-      // and handleJumpWater NPEs for a tamed Galath in water.
+      // and handleJumpWater NPEs for a tamed Galath in water. The base class
+      // already registered the standard attributes, so only FLYING_SPEED is
+      // added here; registering the others twice throws "already registered".
       super.applyEntityAttributes();
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.MAX_HEALTH);
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE);
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ARMOR);
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS);
-      this.getAttributeMap().registerAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(50.0);
       this.getAttributeMap().registerAttribute(SharedMonsterAttributes.FLYING_SPEED);
       this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(110.0);
       this.getEntityAttribute(SharedMonsterAttributes.FLYING_SPEED).setBaseValue(0.6F);
       this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.6F);
+      this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(50.0);
    }
 
    @Override

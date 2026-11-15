@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.client.gui;
 
+import com.trolmastercard.sexmod.util.GuiIo;
+
 import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.client.GirlCameraHelper;
 import com.trolmastercard.sexmod.entity.AbstractPlayerGirlEntity;
@@ -161,7 +163,7 @@ public class ClothingScreen extends GuiScreen {
    }
 
    public void handleMouseInput() {
-      super.handleMouseInput();
+      GuiIo.run(() -> super.handleMouseInput());
       this.modelList.handleMouseInput();
    }
 
@@ -410,7 +412,7 @@ public class ClothingScreen extends GuiScreen {
    }
 
    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-      super.mouseClicked(mouseX, mouseY, mouseButton);
+      GuiIo.run(() -> super.mouseClicked(mouseX, mouseY, mouseButton));
       this.modelList.mouseClicked(mouseX, mouseY, mouseButton);
       if (mouseButton == 0) {
          this.isEditing = true;

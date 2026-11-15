@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.client.gui;
 
+import com.trolmastercard.sexmod.util.GuiIo;
+
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.GoblinEntity;
 import com.trolmastercard.sexmod.entity.Action;
@@ -104,7 +106,7 @@ public class GalathScreen extends GuiScreen {
       if (padToggle && released) {
          Minecraft.getMinecraft().player.closeScreen();
       } else {
-         super.handleKeyboardInput();
+         GuiIo.run(() -> super.handleKeyboardInput());
       }
    }
 

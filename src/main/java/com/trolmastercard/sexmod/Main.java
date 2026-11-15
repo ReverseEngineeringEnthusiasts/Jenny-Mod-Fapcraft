@@ -24,7 +24,6 @@ import java.io.InputStreamReader;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -57,11 +56,31 @@ public class Main {
    @Mod.Instance
    public static Main instance;
 
-   @SidedProxy(clientSide = "com.trolmastercard.sexmod.proxy.ClientProxy", serverSide = "com.trolmastercard.sexmod.proxy.CommonProxy")
+   // CleanroomGradle's userdev loads the mod with a different annotation
+   // classloader than ProxyInjector, which makes @SidedProxy resolve to null.
+   // Build the proxy by side in preInit instead; the sided delegate is not set
+   // yet when the @Mod class is first loaded. The client class is looked up
+   // lazily so a dedicated server never loads it.
    public static CommonProxy proxy;
+
+   private static CommonProxy createProxy() {
+      if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+         try {
+            return (CommonProxy)Class.forName("com.trolmastercard.sexmod.proxy.ClientProxy").newInstance();
+         } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to create the client proxy", e);
+         }
+      }
+
+      return new CommonProxy();
+   }
 
    @EventHandler
    public void preInit(FMLPreInitializationEvent event) {
+      if (proxy == null) {
+         proxy = createProxy();
+      }
+
       printBanner();
       GeckoLib.initialize();
       proxy.preInitRegistries(event);

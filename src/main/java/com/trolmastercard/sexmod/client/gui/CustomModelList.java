@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.client.gui;
 
+import com.trolmastercard.sexmod.util.GuiIo;
+
 import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.BoneType;
@@ -220,7 +222,7 @@ public class CustomModelList extends GuiListExtended {
 
    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
       this.getSlotIndex(mouseX, mouseY, mouseButton);
-      return super.mouseClicked(mouseX, mouseY, mouseButton);
+      return GuiIo.get(() -> super.mouseClicked(mouseX, mouseY, mouseButton), false);
    }
 
    /**

@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.reskin;
 
+import com.trolmastercard.sexmod.util.GuiIo;
+
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.BoneType;
 import java.util.AbstractMap.SimpleEntry;
@@ -142,7 +144,7 @@ public class BodySlidersScreen extends GuiScreen {
 
    @Override
    public void handleMouseInput() {
-      super.handleMouseInput();
+      GuiIo.run(() -> super.handleMouseInput());
       int dw = Mouse.getEventDWheel();
       if (dw != 0) {
          scroll -= Integer.signum(dw);
@@ -152,7 +154,7 @@ public class BodySlidersScreen extends GuiScreen {
 
    @Override
    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-      super.mouseClicked(mouseX, mouseY, mouseButton);
+      GuiIo.run(() -> super.mouseClicked(mouseX, mouseY, mouseButton));
       if (mouseButton != 0) return;
 
       // Done (works even when there are no adjustable parts — it just closes)

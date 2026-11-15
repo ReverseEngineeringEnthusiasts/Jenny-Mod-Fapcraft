@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.reskin;
 
+import com.trolmastercard.sexmod.util.GuiIo;
+
 import com.trolmastercard.sexmod.Main;
 import com.trolmastercard.sexmod.util.ServerWhitelistManager;
 import java.awt.Desktop;
@@ -99,7 +101,7 @@ public class ModelDownloadScreen extends GuiScreen {
 
    @Override
    public void handleMouseInput() {
-      super.handleMouseInput();
+      GuiIo.run(() -> super.handleMouseInput());
       int dwheel = Mouse.getEventDWheel();
       if (dwheel != 0) {
          int rows = this.visibleRows();
@@ -110,7 +112,7 @@ public class ModelDownloadScreen extends GuiScreen {
 
    @Override
    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-      super.mouseClicked(mouseX, mouseY, mouseButton);
+      GuiIo.run(() -> super.mouseClicked(mouseX, mouseY, mouseButton));
       if (this.searchField != null) {
          this.searchField.mouseClicked(mouseX, mouseY, mouseButton);
       }
@@ -134,7 +136,7 @@ public class ModelDownloadScreen extends GuiScreen {
          return;
       }
 
-      super.keyTyped(typedChar, keyCode);
+      GuiIo.run(() -> super.keyTyped(typedChar, keyCode));
    }
 
    @Override

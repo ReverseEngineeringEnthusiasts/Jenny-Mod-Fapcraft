@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.client.gui;
 
+import com.trolmastercard.sexmod.util.GuiIo;
+
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
 import com.trolmastercard.sexmod.entity.BeeEntityBase;
 import com.trolmastercard.sexmod.networking.BeeOpenChestPacket;
@@ -83,6 +85,7 @@ public class BeeDialogueScreen extends GuiScreen {
     * server and closes this GUI, letting the server open the girl-inventory
     * chest container instead.
     */
+   @Override
    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
       ScaledResolution resolution = new ScaledResolution(this.mc);
       int screenWidth = resolution.getScaledWidth();
@@ -91,7 +94,7 @@ public class BeeDialogueScreen extends GuiScreen {
          this.onGuiClosed();
       }
 
-      super.mouseClicked(mouseX, mouseY, mouseButton);
+      GuiIo.run(() -> super.mouseClicked(mouseX, mouseY, mouseButton));
    }
 
    /**
@@ -100,8 +103,9 @@ public class BeeDialogueScreen extends GuiScreen {
     * {@code master} data parameter, or clears it); button 1 sends the bee home;
     * button 2 pins the bee's current position as its new home.
     */
+   @Override
    protected void actionPerformed(GuiButton button) {
-      super.actionPerformed(button);
+      GuiIo.run(() -> super.actionPerformed(button));
       if (button.id == 0) {
          if (this.isFollowMode) {
             PacketHandler.networkWrapper.sendToServer(new ChangeDataParameterPacket(this.beeEntity.getGirlId(), "master", ""));
