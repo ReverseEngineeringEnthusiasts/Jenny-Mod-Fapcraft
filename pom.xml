@@ -229,9 +229,9 @@
             <goals><goal>run</goal></goals>
             <configuration>
               <target>
-                <javac srcdir="${project.basedir}/tools"
+                <javac srcdir="${project.basedir}/tools/build"
                        includes="MCRepack.java"
-                       destdir="${project.basedir}/tools"
+                       destdir="${project.basedir}/tools/build"
                        includeantruntime="false"
                        fork="true"
                        failonerror="true"
@@ -245,14 +245,14 @@
                 </javac>
                 <java classname="MCRepack" fork="true" failonerror="true">
                   <classpath>
-                    <pathelement path="${project.basedir}/tools" />
+                    <pathelement path="${project.basedir}/tools/build" />
                     <pathelement path="${project.basedir}/lib-repo/local/asm/7.1/asm-7.1.jar" />
                     <pathelement path="${project.basedir}/lib-repo/local/asm-commons/7.1/asm-commons-7.1.jar" />
                     <pathelement path="${project.basedir}/lib-repo/local/asm-tree/7.1/asm-tree-7.1.jar" />
                   </classpath>
                   <arg value="${project.basedir}/lib/mc-1.12.2-srg.jar" />
-                  <arg value="${project.basedir}/tools/mappings/methods.csv" />
-                  <arg value="${project.basedir}/tools/mappings/fields.csv" />
+                  <arg value="${project.basedir}/tools/build/mappings/methods.csv" />
+                  <arg value="${project.basedir}/tools/build/mappings/fields.csv" />
                   <arg value="mcp2srg" />
                   <arg value="${project.build.directory}/${project.build.finalName}.jar" />
                   <arg value="${project.build.directory}/${project.build.finalName}.jar" />

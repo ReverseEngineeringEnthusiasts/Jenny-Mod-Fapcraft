@@ -1,0 +1,291 @@
+package com.trolmastercard.sexmod.common.world.data;
+
+import com.trolmastercard.sexmod.common.util.BiDirectionalMap;
+
+
+
+
+import com.trolmastercard.sexmod.Main;
+import com.trolmastercard.sexmod.common.entity.base.BaseGirlEntity;
+import com.trolmastercard.sexmod.common.entity.galath.GalathEntity;
+import com.trolmastercard.sexmod.common.entity.girl.ManglelieEntity;
+import com.trolmastercard.sexmod.network.galath.OwnershipUpdatePacket;
+import com.trolmastercard.sexmod.network.PacketHandler;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
+import java.util.Map.Entry;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.event.world.WorldEvent.Load;
+import net.minecraftforge.event.world.WorldEvent.Save;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
+import org.apache.logging.log4j.Level;
+
+/**
+ * <b>Role.</b> Galath/Manglelie ownership persistence — a
+ * {@link WorldSavedData} ("sexmod:galath_owner_ship") storing player<->galath
+ * pairs, per-owner last-cum-dosage time and the set of manglelie-owned players.
+ * This is the *ownership* system, NOT the scene system
+ * (see {@link KoboldManager} and the networking scene packets for that).
+ * <p>
+ * <b>State.</b> {@code ownerToGirl} = bidirectional player UUID <-> girl UUID map,
+ * {@code lastCumTimeByPlayer} = last cum-time per player (drives despawn/cooldown), {@code
+ * mangOwnershipSet} = players who own a manglelie. Static accessors are used by
+ * {@link GalathCoinItem}, {@link RequestRidingPacket} and the galath AI.
+ * <p>
+ * <b>Server tick.</b> Ownership is dropped (and the client informed via
+ * {@link InformOfOwnershipPacket}) when the owner is online but his galath is
+ * gone — no stale pairs survive a missing girl.
+ * <p>
+ * <b>Pitfall.</b> {@link #debugEnabled} is a *client-side* mirror of "am I
+ * owned" (see {@link InformOfOwnershipPacket}); do not use it for server logic.
+ */
+public class OwnershipSavedData extends WorldSavedData {
+   public static boolean debugEnabled = true;
+   public static final float CUM_TIMEOUT = 60.0F;
+   public static final String GALATH_OWNERSHIP_KEY = "sexmod:galath_owner_ship";
+   public static final String OWNERSHIP_DATA_KEY = "sexmod:ownershipdata";
+   public static final String MANG_OWNERSHIP_DATA_KEY = "sexmod:mangownershipdata";
+   static BiDirectionalMap<UUID, UUID> ownerToGirl = new BiDirectionalMap<>();
+   static HashMap<UUID, Long> lastCumTimeByPlayer = new HashMap<>();
+   static HashSet<UUID> mangOwnershipSet = new HashSet<>();
+
+   public OwnershipSavedData() {
+      super("sexmod:galath_owner_ship");
+   }
+
+   public OwnershipSavedData(String dataId) {
+      super("sexmod:galath_owner_ship");
+   }
+
+   public static void clearAll() {
+      mangOwnershipSet.clear();
+      ownerToGirl.clear();
+   }
+
+   public static void markAsManglelieOwned(UUID girlUuid) {
+      UUID ownerId = getManglelieOwnerId(girlUuid);
+      if (ownerId != null) {
+         mangOwnershipSet.add(ownerId);
+      }
+   }
+
+   public static boolean isManglelieOwned(UUID girlUuid) {
+      return mangOwnershipSet.contains(girlUuid);
+   }
+
+   public static boolean isOwnerNearby(GalathEntity galath) {
+      UUID ownerId = ownerToGirl.getByValue(galath.getGirlId());
+      if (ownerId == null) {
+         return false;
+      } else {
+         World world = galath.world;
+         EntityPlayer owner = world.getPlayerEntityByUUID(ownerId);
+         if (owner == null) {
+            return true;
+         } else {
+            return owner.dimension != galath.dimension ? false : !(owner.getDistance(galath) > 60.0F);
+         }
+      }
+   }
+
+   public static boolean isOwnerOf(EntityPlayer player, GalathEntity galath) {
+      return galath.getGirlId().equals(ownerToGirl.getByKey(player.getPersistentID()));
+   }
+
+   public static void updateMangleliePartner(GalathEntity galath) {
+      ManglelieEntity partner = galath.getMangleliePartner(true);
+      if (partner != null) {
+         // The player can be riding one of the pair; never remove a vehicle
+         // with a passenger attached, or the next tick reads a dangling
+         // riding relation (crash log: "Entity's Vehicle: NPE").
+         partner.removePassengers();
+         GalathEntity partnerGalath = partner.getGalathPartner(true);
+         if (partnerGalath != null && partner.getGirlId().equals(partnerGalath.getMangleliePartnerUUID())) {
+            partnerGalath.setMangleliePartnerUUID(null);
+         }
+         galath.world.removeEntity(partner);
+      }
+
+      UUID ownerId = ownerToGirl.getByValue(galath.getGirlId());
+      if (ownerId == null) {
+         galath.removePassengers();
+         galath.world.removeEntity(galath);
+      } else {
+         World world = galath.world;
+         EntityPlayer owner = world.getPlayerEntityByUUID(ownerId);
+         galath.removePassengers();
+         galath.world.removeEntity(galath);
+         ownerToGirl.removeByKey(ownerId);
+         // Drop the stale "owner already has a Manglelie" flag; otherwise a
+         // newly tamed Galath can never merge again.
+         mangOwnershipSet.remove(ownerId);
+         if (owner != null) {
+            PacketHandler.networkWrapper.sendTo(new OwnershipUpdatePacket(false), (EntityPlayerMP)owner);
+         }
+      }
+   }
+
+   public static boolean hasOwner(UUID uuid) {
+      return ownerToGirl.getByKey(uuid) != null;
+   }
+
+   public static UUID getManglelieOwnerId(UUID uuid) {
+      return ownerToGirl.getByValue(uuid);
+   }
+
+   public static UUID getManglelieOwnerOf(GalathEntity galath) {
+      return galath == null ? null : getManglelieOwnerId(galath.getGirlId());
+   }
+
+   public static UUID getOwnerId(UUID uuid) {
+      return ownerToGirl.getByKey(uuid);
+   }
+
+   public static UUID getOwnerOf(EntityPlayer player) {
+      return player == null ? null : getOwnerId(player.getPersistentID());
+   }
+
+   public static void setOwnerShip(UUID playerUuid, UUID girlUuid) {
+      ownerToGirl.put(playerUuid, girlUuid);
+   }
+
+   public static void grantOwnership(EntityPlayer player, GalathEntity galath) {
+      if (player != null) {
+         if (galath != null) {
+            setOwnerShip(player.getPersistentID(), galath.getGirlId());
+         }
+      }
+   }
+
+   public static void removeOwner(UUID uuid) {
+      ownerToGirl.removeByKey(uuid);
+   }
+
+   public static void removeOwnerOf(EntityPlayer player) {
+      if (player != null) {
+         removeOwner(player.getPersistentID());
+      }
+   }
+
+   public static boolean shouldDespawn(UUID girlUuid, World world) {
+      Long lastCumTime = lastCumTimeByPlayer.get(girlUuid);
+      if (!isManglelieOwned(girlUuid)) {
+         return false;
+      } else {
+         // jar-intent: only despawn within the CUM_TIMEOUT window; the original
+         // compared against 0L, making the 60s constant dead and the check
+         // always-true after any cum
+         return lastCumTime == null ? true : world.getTotalWorldTime() - lastCumTime > CUM_TIMEOUT;
+      }
+   }
+
+   public static void saveCumTime(UUID playerUuid, Long time) {
+      if (playerUuid == null) {
+         Main.LOGGER.log(Level.WARN, "tried to save last cum dosage time on NULL player");
+      } else {
+         lastCumTimeByPlayer.put(playerUuid, time);
+      }
+   }
+
+   @SubscribeEvent
+   public void onServerTick(ServerTickEvent event) {
+      if (event.phase == Phase.END) {
+         World world = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
+         ArrayList playersToNotify = new ArrayList();
+
+         for (Entry entry : ownerToGirl.entrySet()) {
+            UUID ownerUuid = (UUID)entry.getKey();
+            UUID girlUuid = (UUID)entry.getValue();
+            EntityPlayer owner = world.getPlayerEntityByUUID(ownerUuid);
+            if (owner != null && BaseGirlEntity.getServerGirlEntity(girlUuid) == null) {
+               playersToNotify.add(owner);
+            }
+         }
+
+         for (EntityPlayer player : (java.util.Collection<EntityPlayer>) (playersToNotify) ) {
+            ownerToGirl.removeByKey(player.getPersistentID());
+            PacketHandler.networkWrapper.sendTo(new OwnershipUpdatePacket(false), (EntityPlayerMP)player);
+         }
+      }
+   }
+
+   @SubscribeEvent
+   public void onSave(Save event) {
+      World world = event.getWorld();
+      world.getMapStorage().setData("sexmod:galath_owner_ship", this);
+      this.markDirty();
+   }
+
+   @SubscribeEvent
+   public void onLoad(Load event) {
+      World world = event.getWorld();
+      world.getMapStorage().getOrLoadData(OwnershipSavedData.class, "sexmod:galath_owner_ship");
+   }
+
+   public void readFromNBT(NBTTagCompound nbt) {
+      NBTTagCompound tag = nbt.getCompoundTag("sexmod:ownershipdata");
+      int count = tag.getInteger("amount");
+
+      for (int i = 0; i < count; i++) {
+         UUID masterUuid = tag.getUniqueId("master" + i);
+         UUID galathUuid = tag.getUniqueId("galath" + i);
+         long lastCumTime = tag.getLong("lastcumdosage" + i);
+         if (masterUuid != null && galathUuid != null) {
+            ownerToGirl.put(masterUuid, galathUuid);
+            lastCumTimeByPlayer.put(masterUuid, lastCumTime);
+         } else {
+            Main.LOGGER.fatal("OMFG WHOOP WHOOP SAVING DIDNT WORK CORRECTLY AAAAAAAAAAA");
+         }
+      }
+
+      NBTTagCompound mangTag = nbt.getCompoundTag("sexmod:mangownershipdata");
+
+      for (int i2 = 0; mangTag.hasUniqueId("mang" + i2); i2++) {
+         mangOwnershipSet.add(mangTag.getUniqueId("mang" + i2));
+      }
+
+      nbt.setTag("sexmod:mangownershipdata", new NBTTagCompound());
+      nbt.setTag("sexmod:ownershipdata", new NBTTagCompound());
+   }
+
+   public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+      NBTTagCompound tag = new NBTTagCompound();
+      tag.setInteger("amount", ownerToGirl.size());
+      int i = 0;
+
+      for (Entry entry : ownerToGirl.entrySet()) {
+         UUID masterUuid = (UUID)entry.getKey();
+         UUID galathUuid = (UUID)entry.getValue();
+         Long cumTime = lastCumTimeByPlayer.get(masterUuid);
+         if (cumTime == null) {
+            cumTime = 0L;
+         }
+
+         tag.setUniqueId("galath" + i, galathUuid);
+         tag.setUniqueId("master" + i, masterUuid);
+         tag.setLong("lastcumdosage" + i, cumTime);
+         i++;
+      }
+
+      NBTTagCompound mangTag = new NBTTagCompound();
+      i = 0;
+
+      for (UUID uuid : mangOwnershipSet) {
+         mangTag.setUniqueId("mang" + i++, uuid);
+      }
+
+      nbt.setTag("sexmod:ownershipdata", tag);
+      nbt.setTag("sexmod:mangownershipdata", mangTag);
+      return nbt;
+   }
+
+}

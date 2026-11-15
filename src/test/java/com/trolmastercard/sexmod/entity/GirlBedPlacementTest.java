@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.entity;
 
+import com.trolmastercard.sexmod.common.entity.base.GirlBedPlacement;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 

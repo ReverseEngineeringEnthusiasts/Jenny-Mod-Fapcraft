@@ -1,0 +1,51 @@
+package com.trolmastercard.sexmod.common.combat;
+
+import com.trolmastercard.sexmod.common.entity.galath.GalathEntity;
+import javax.annotation.Nullable;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+
+/**
+ * DamageSource for succubus-style drain attacks.
+ */
+public class SuccubusDamageSource extends DamageSource {
+   GalathEntity galathEntity;
+   Vec3d sourcePos;
+
+   public SuccubusDamageSource(GalathEntity galath) {
+      super("galath");
+      this.galathEntity = galath;
+      this.sourcePos = galath.getPositionVector();
+   }
+
+   public ITextComponent getDeathMessage(EntityLivingBase victim) {
+      return new TextComponentString(victim.getName() + " got his cum drained by a Succubus");
+   }
+
+   public boolean isUnblockable() {
+      return true;
+   }
+
+   public boolean canHarmInCreative() {
+      return true;
+   }
+
+   @Nullable
+   public Entity getImmediateSource() {
+      return this.galathEntity;
+   }
+
+   @Nullable
+   public Entity getTrueSource() {
+      return this.galathEntity;
+   }
+
+   @Nullable
+   public Vec3d getDamageLocation() {
+      return this.sourcePos;
+   }
+}

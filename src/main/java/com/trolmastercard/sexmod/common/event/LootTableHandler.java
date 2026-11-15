@@ -1,0 +1,16 @@
+package com.trolmastercard.sexmod.common.event;
+
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.storage.loot.LootTableList;
+
+/**
+ * <b>Role.</b> Registration points for the mod's loot tables (Jenny, Ellie,
+ * Slime, Bia) in {@link LootTableList}; referenced when those girls drop loot.
+ * Static-only holder — no logic.
+ */
+public class LootTableHandler {
+   public static final ResourceLocation JENNY_TABLE = LootTableList.register(new ResourceLocation("sexmod", "jenny"));
+   public static final ResourceLocation ELLIE_TABLE = LootTableList.register(new ResourceLocation("sexmod", "ellie"));
+   public static final ResourceLocation SLIME_TABLE = LootTableList.register(new ResourceLocation("sexmod", "slime"));
+   public static final ResourceLocation BIA_TABLE = LootTableList.register(new ResourceLocation("sexmod", "bia"));
+}

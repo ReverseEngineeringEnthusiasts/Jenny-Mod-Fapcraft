@@ -1,19 +1,20 @@
 package com.trolmastercard.sexmod.proxy;
 
+
 import com.trolmastercard.sexmod.Main;
-import com.trolmastercard.sexmod.client.SexWorldClient;
-import com.trolmastercard.sexmod.client.gui.GenderSwapScreen;
+import com.trolmastercard.sexmod.client.network.ModelPreviewWorldClient;
+import com.trolmastercard.sexmod.client.gui.screen.GenderSwapScreen;
 import com.trolmastercard.sexmod.client.gui.GuiHandler;
 import com.trolmastercard.sexmod.client.particle.DragonBreathParticle;
-import com.trolmastercard.sexmod.command.CommandFuta;
-import com.trolmastercard.sexmod.command.CommandModels;
-import com.trolmastercard.sexmod.command.CommandSetModelCode;
-import com.trolmastercard.sexmod.command.CommandWhitelistServer;
-import com.trolmastercard.sexmod.entity.NpcType;
-import com.trolmastercard.sexmod.networking.PacketHandler;
-import com.trolmastercard.sexmod.util.ForgeEventHandler;
-import com.trolmastercard.sexmod.util.SoundHandler;
-import com.trolmastercard.sexmod.util.RenderHandler;
+import com.trolmastercard.sexmod.common.command.CommandFuta;
+import com.trolmastercard.sexmod.common.command.CommandModels;
+import com.trolmastercard.sexmod.common.command.CommandSetModelCode;
+import com.trolmastercard.sexmod.common.command.CommandWhitelistServer;
+import com.trolmastercard.sexmod.common.entity.base.NpcType;
+import com.trolmastercard.sexmod.network.PacketHandler;
+import com.trolmastercard.sexmod.common.event.ForgeEventHandler;
+import com.trolmastercard.sexmod.registry.SoundHandler;
+import com.trolmastercard.sexmod.client.render.base.RenderHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.settings.KeyBinding;
@@ -71,7 +72,7 @@ public class ClientProxy extends CommonProxy {
       PacketHandler.register();
       Minecraft mc = Minecraft.getMinecraft();
       RenderManager renderManager = mc.getRenderManager();
-      SexWorldClient preloadWorld = new SexWorldClient();
+      ModelPreviewWorldClient preloadWorld = new ModelPreviewWorldClient();
       IS_PRELOADING = true;
 
       try {

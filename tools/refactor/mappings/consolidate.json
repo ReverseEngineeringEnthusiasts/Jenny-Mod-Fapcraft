@@ -1,0 +1,19 @@
+{
+  "com.trolmastercard.sexmod.client.camera.GirlCameraHelper": "com.trolmastercard.sexmod.client.render.effects",
+  "com.trolmastercard.sexmod.client.camera.SceneCameraManager": "com.trolmastercard.sexmod.client.render.effects",
+  "com.trolmastercard.sexmod.client.input.EscapeDirectionKey": "com.trolmastercard.sexmod.client.event",
+  "com.trolmastercard.sexmod.client.input.PlayerMovementController": "com.trolmastercard.sexmod.client.event",
+  "com.trolmastercard.sexmod.client.skin.PlayerSkinOverride": "com.trolmastercard.sexmod.client.render.base",
+  "com.trolmastercard.sexmod.client.skin.SkinFetcher": "com.trolmastercard.sexmod.client.render.base",
+  "com.trolmastercard.sexmod.common.audio.SoundHandler": "com.trolmastercard.sexmod.registry",
+  "com.trolmastercard.sexmod.common.guide.GuideBook": "com.trolmastercard.sexmod.common.item",
+  "com.trolmastercard.sexmod.common.entity.scene.SceneModelAnchorEntity": "com.trolmastercard.sexmod.common.entity.base",
+  "com.trolmastercard.sexmod.common.entity.wild.PyrocynicalEntity": "com.trolmastercard.sexmod.common.entity.girl",
+  "com.trolmastercard.sexmod.common.entity.wild.WildSlimeEntity": "com.trolmastercard.sexmod.common.entity.girl",
+  "com.trolmastercard.sexmod.network.model.DownloadServerModelPacket": "com.trolmastercard.sexmod.network.girl",
+  "com.trolmastercard.sexmod.network.model.UploadModelStringPacket": "com.trolmastercard.sexmod.network.girl",
+  "com.trolmastercard.sexmod.client.reskin.screen.BodySlidersScreen": "com.trolmastercard.sexmod.client.reskin",
+  "com.trolmastercard.sexmod.client.reskin.screen.ModelDownloadScreen": "com.trolmastercard.sexmod.client.reskin",
+  "com.trolmastercard.sexmod.client.reskin.screen.NoModelsScreen": "com.trolmastercard.sexmod.client.reskin",
+  "com.trolmastercard.sexmod.client.reskin.screen.ReskinBrowserScreen": "com.trolmastercard.sexmod.client.reskin"
+}

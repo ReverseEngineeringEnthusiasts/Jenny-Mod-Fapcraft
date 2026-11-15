@@ -1,5 +1,8 @@
 package com.trolmastercard.sexmod.util;
 
+import com.trolmastercard.sexmod.common.util.ThreadNames;
+
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

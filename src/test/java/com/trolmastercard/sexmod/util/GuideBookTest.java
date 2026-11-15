@@ -1,5 +1,7 @@
 package com.trolmastercard.sexmod.util;
 
+import com.trolmastercard.sexmod.common.item.GuideBook;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
