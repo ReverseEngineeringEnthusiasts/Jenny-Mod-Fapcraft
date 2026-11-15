@@ -1,5 +1,5 @@
 ==============================================
-  Fapcraft 1.12.2 (sexmod) — v1.1.0
+  Fapcraft 1.12.2 (sexmod) - v%VERSION%
   Reverse engineered in Kurdistan <3
 ==============================================
 Deobfuscated, decompiled and remapped reconstruction

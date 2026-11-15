@@ -72,7 +72,7 @@ public class Main {
            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"))) {
          String line;
          while ((line = reader.readLine()) != null) {
-            LOGGER.info(line);
+            LOGGER.info(line.replace("%VERSION%", BuildInfo.VERSION));
          }
       } catch (Exception e) {
          LOGGER.warn("Could not read banner.txt: {}", e.toString());

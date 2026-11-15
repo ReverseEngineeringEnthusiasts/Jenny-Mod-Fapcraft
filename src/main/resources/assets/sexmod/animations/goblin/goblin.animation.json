@@ -38777,7 +38777,7 @@
 							"vector": [0, 0, 0]
 						},
 						"0.2083": {
-							"vector": [7.5, "NaN-0.5", "NaN-1*"],
+							"vector": [7.5, "NaN-0.5", "NaN-1"],
 							"easing": "easeInOutSine"
 						},
 						"0.4583": {

@@ -115,4 +115,19 @@ public class ReskinApplier {
       if (json == null || isDecoy(json)) return false;
       return json.toLowerCase(Locale.ROOT).contains("\"animations\"");
    }
+
+   /**
+    * Repairs the animation-expression typos shipped by the original jar and
+    * copied into most model packs, before GeckoLib's molang parser sees them:
+    * stray Blockbench backticks, a vector expression ending on a binary
+    * operator, and the {@code NaN-1*} trailing-star typo. GeckoLib catches a
+    * bad expression per section, but prints a full stack trace and drops that
+    * section's keyframes.
+    */
+   public static String prepareAnimationJson(String json) {
+      if (!isAnimationJson(json)) return null;
+      return json.replace("`", "")
+         .replace("\"-36.4659 + size * \"", "\"-36.4659 + size * 180\"")
+         .replace("\"NaN-1*\"", "\"NaN-1\"");
+   }
 }

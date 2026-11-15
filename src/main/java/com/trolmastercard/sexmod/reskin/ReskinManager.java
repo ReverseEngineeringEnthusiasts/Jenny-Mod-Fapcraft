@@ -513,8 +513,8 @@ public class ReskinManager {
    }
 
    private void applyAnimation(ReskinEntry e, ReskinApplier.Op op, byte[] bytes) throws Exception {
-      String json = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
-      if (!ReskinApplier.isAnimationJson(json)) return; // decoy or not an animation — skip
+      String json = ReskinApplier.prepareAnimationJson(new String(bytes, java.nio.charset.StandardCharsets.UTF_8));
+      if (json == null) return; // decoy or not an animation — skip
       JsonObject root = new Gson().fromJson(json, JsonObject.class);
       if (root == null || !root.has("animations")) return; // empty animation file is fine
       ResourceLocation rl = new ResourceLocation(op.rlNs, op.rlPath);
