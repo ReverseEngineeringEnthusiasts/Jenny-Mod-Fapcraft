@@ -1,5 +1,23 @@
 package com.trolmastercard.sexmod.common.entity.goblin;
 
+import com.trolmastercard.sexmod.client.event.PlayerMovementController;
+import com.trolmastercard.sexmod.client.gui.hud.HornyMeterHud;
+import com.trolmastercard.sexmod.client.gui.screen.GalathScreen;
+import com.trolmastercard.sexmod.client.gui.screen.SceneFadeScreen;
+import com.trolmastercard.sexmod.common.entity.goblin.HairColor;
+import com.trolmastercard.sexmod.common.world.PreviewWorld;
+import com.trolmastercard.sexmod.network.scene.ResetGirlPacket;
+import com.trolmastercard.sexmod.proxy.ClientProxy;
+import com.trolmastercard.sexmod.registry.SoundHandler;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.Map.Entry;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.text.TextComponentString;
+import org.apache.logging.log4j.Level;
+import software.bernie.geckolib3.core.controller.AnimationController;
+
 import com.trolmastercard.sexmod.common.entity.base.AbstractNpcOnlyEntity;
 import com.trolmastercard.sexmod.common.entity.base.Action;
 import com.trolmastercard.sexmod.common.entity.base.BaseGirlEntity;
@@ -86,15 +104,11 @@ import software.bernie.geckolib3.core.manager.AnimationData;
  * {@code getModelPartIndex()} reads DNA index 7. Dead goblins drop their
  * stolen item on the server.
  * <p>
- * <b>Decomposition.</b> The behaviour lives in package-private helpers beside
- * this class: {@link GoblinAnimations} (pose predicate + controller sounds),
- * {@link GoblinThrow} (carry/throw kinematics and the {@link BaseGirlEntity}
- * overloads), {@link GoblinQueenAi} (gold steal, breeding, guards,
- * cooldowns), {@link GoblinInteractions} (GUI actions, pickup, scene
- * entry/teardown), {@link GoblinAppearance} (DNA packing),
- * {@link GoblinPersistence} (NBT) and {@link GoblinEventHandler} (Forge
- * events). What stays here are the overrides plus thin delegators that keep
- * the public surface unchanged.
+ * <b>Decomposition.</b> The per-entity glue (animations, appearance,
+ * interactions, persistence) lives in this class. Two named subsystems stay
+ * separate: {@link GoblinQueenAi} (gold steal, breeding, guards, cooldowns)
+ * and {@link GoblinThrow} (carry/throw kinematics shared with the player
+ * form). {@link GoblinEventHandler} stays a Forge event handler.
  */
 public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    // Throne offsets, relative to thronePos and keyed by the throne yaw (see the
@@ -260,20 +274,20 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    @Override
    public void doAction(String action, UUID uuid) {
-      GoblinInteractions.doAction(this, action, uuid);
+      this.doActionImpl(action, uuid);
    }
 
    public void setThrowTarget(UUID uuid) {
-      GoblinInteractions.setThrowTarget(this, uuid);
+      this.setThrowTargetImpl(uuid);
    }
 
    public void setPickupTarget(UUID uuid) {
-      GoblinInteractions.setPickupTarget(this, uuid);
+      this.setPickupTargetImpl(uuid);
    }
 
    @net.minecraftforge.fml.relauncher.SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
    public static boolean openGoblinPadForPlayer(net.minecraft.client.Minecraft mc, UUID playerUuid) {
-      return GoblinInteractions.openGoblinPadForPlayer(mc, playerUuid);
+      return openGoblinPadForPlayerImpl(mc, playerUuid);
    }
 
    @Override
@@ -326,55 +340,55 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    protected String buildModelCodeDNA(StringBuilder builder) {
-      return GoblinAppearance.buildModelCodeDNA(builder);
+      return buildModelCodeDNAImpl(builder);
    }
 
    @Override
    public ArrayList<Integer> getCustomPartIdList() {
-      return GoblinAppearance.getCustomPartIdList();
+      return getCustomPartIdListImpl();
    }
 
    @Override
    public List<Integer> getCustomPartExtraIdList() {
-      return GoblinAppearance.getCustomPartExtraIdList();
+      return getCustomPartExtraIdListImpl();
    }
 
    @Override
    public Point2D getModelPartByIndex(int index) {
-      return GoblinAppearance.getModelPartByIndex(index);
+      return getModelPartByIndexImpl(index);
    }
 
    @Override
    public void setCustomPartList(List<Integer> parts) {
-      GoblinAppearance.setCustomPartList(this, parts);
+      this.setCustomPartListImpl(parts);
    }
 
    void updateModelCodeDNA() {
-      GoblinAppearance.updateModelCodeDNA(this);
+      this.updateModelCodeDNAImpl();
    }
 
    protected String buildModelCodeDNA(StringBuilder builder, int partIndex) {
-      return GoblinAppearance.buildModelCodeDNA(builder, partIndex);
+      return buildModelCodeDNAImpl(builder, partIndex);
    }
 
    @Override
    public void writeEntityToNBT(NBTTagCompound nbt) {
       super.writeEntityToNBT(nbt);
-      GoblinPersistence.write(this, nbt);
+      this.write(nbt);
    }
 
    @Override
    public void readEntityFromNBT(NBTTagCompound nbt) {
       super.readEntityFromNBT(nbt);
-      GoblinPersistence.read(this, nbt);
+      this.read(nbt);
    }
 
    protected boolean processInteract(EntityPlayer player, EnumHand hand) {
-      return GoblinInteractions.processInteract(this, player, hand);
+      return this.processInteractImpl(player, hand);
    }
 
    public static boolean hasGoblinWithUUID(UUID uuid) {
-      return GoblinInteractions.hasGoblinWithUUID(uuid);
+      return hasGoblinWithUUIDImpl(uuid);
    }
 
    @Override
@@ -664,12 +678,12 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    @SideOnly(Side.CLIENT)
    void tickPaizuriStartTimer() {
-      GoblinInteractions.tickPaizuriStartTimer(this);
+      this.tickPaizuriStartTimerImpl();
    }
 
    @SideOnly(Side.CLIENT)
    void tickNelsonStartTimer() {
-      GoblinInteractions.tickNelsonStartTimer(this);
+      this.tickNelsonStartTimerImpl();
    }
 
    /**
@@ -728,19 +742,19 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
    }
 
    void endPaizuriScene() {
-      GoblinInteractions.endPaizuriScene(this);
+      this.endPaizuriSceneImpl();
    }
 
    void handlePlayerLook() {
-      GoblinInteractions.handlePlayerLook(this);
+      this.handlePlayerLookImpl();
    }
 
    void handlePlayerInteract() {
-      GoblinInteractions.handlePlayerInteract(this);
+      this.handlePlayerInteractImpl();
    }
 
    void returnStolenItem() {
-      GoblinInteractions.returnStolenItem(this);
+      this.returnStolenItemImpl();
    }
 
    /**
@@ -827,12 +841,865 @@ public class GoblinEntity extends AbstractNpcOnlyEntity implements IGoblin {
 
    @Override
    protected <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
-      return GoblinAnimations.predicate(this, event);
+      return this.predicate(event);
    }
 
    @SideOnly(Side.CLIENT)
    @Override
    public void registerControllers(AnimationData data) {
-      GoblinAnimations.registerControllers(this, data);
+      this.registerControllersImpl(data);
    }
+
+
+   // ------------------------------------------------------------------
+   // Entity behaviour lives here; the per-entity static helpers were folded in.
+   // ------------------------------------------------------------------
+
+
+
+   <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
+      if (this.world instanceof PreviewWorld) {
+         return PlayState.STOP;
+      }
+
+      if (this.actionController == null) {
+         this.initAnimationControllers();
+      }
+
+      switch (event.getController().getName()) {
+         case "eyes":
+            if (this.getCurrentAction() != Action.NULL) {
+               this.createAnimation("animation.this.null", true, event);
+            } else {
+               this.createAnimation("animation.this.blink", true, event);
+            }
+            break;
+         case "movement":
+            if (this.getCurrentAction() != Action.NULL) {
+               this.createAnimation("animation.this.null", true, event);
+            } else {
+               double moved = Math.abs(this.prevPosX - this.posX) + Math.abs(this.prevPosZ - this.posZ);
+               if (!(Boolean)this.entityDataManager.get(BaseGirlEntity.IS_ANCHORED) && moved > 0.0) {
+                  if (this.onGround && Math.abs(Math.abs(this.prevPosY) - Math.abs(this.posY)) < 0.1F) {
+                     if (moved > 0.2F) {
+                        this.createAnimation("animation.this.walk", true, event);
+                     } else {
+                        this.createAnimation("animation.this.walk", true, event);
+                     }
+
+                     this.rotationYaw = this.rotationYawHead;
+                  } else {
+                     this.createAnimation("animation.this.fly", true, event);
+                  }
+               } else {
+                  this.createAnimation("animation.this.idle", true, event);
+               }
+            }
+            break;
+         case "action":
+            Minecraft mc = Minecraft.getMinecraft();
+            String camMode = mc.player.getPersistentID().equals(this.getOwnerUUID()) && mc.gameSettings.thirdPersonView == 0 ? "1" : "3";
+            switch (this.getCurrentAction()) {
+               case PAIZURI_IDLE:
+                  this.createAnimation("animation.this.paizuri_idle", true, event);
+                  break;
+               case PAIZURI_SLOW:
+                  this.createAnimation("animation.this.paizuri_slow" + this.paizuriPoseSuffix, true, event);
+                  break;
+               case BREEDING_SLOW_0:
+                  this.createAnimation("animation.this.breeding_slow_1" + (this.breedingSideLeft ? "l" : "r"), true, event);
+                  break;
+               case BREEDING_SLOW_2:
+                  this.createAnimation("animation.this.breeding_slow_3", true, event);
+                  break;
+               case NELSON_SLOW:
+                  this.createAnimation("animation.this.nelson_slow" + (this.nelsonSlowBasePose ? "" : "2"), true, event);
+                  break;
+               case PAIZURI_FAST:
+                  this.createAnimation("animation.this.paizuri_fast", true, event);
+                  break;
+               case PAIZURI_FAST_CONTINUES:
+                  this.createAnimation("animation.this.paizuri_fast_countinues", true, event);
+                  break;
+               case BREEDING_1:
+                  this.createAnimation("animation.this.breeding_2", true, event);
+                  break;
+               case BREEDING_FAST_2:
+                  this.createAnimation("animation.this.breeding_fast_3", true, event);
+                  break;
+               case NELSON_FAST:
+                  this.createAnimation("animation.this.nelson_fast" + (this.nelsonAltPose ? "c" : "s"), true, event);
+                  break;
+               case BREEDING_FAST_0:
+                  this.createAnimation("animation.this.breeding_fast_1" + (this.breedingFastReadyPose ? "c" : "s"), true, event);
+                  break;
+               case NULL:
+                  this.createAnimation("animation.this.null", true, event);
+                  break;
+               case SHOULDER_IDLE:
+                  this.createAnimation("animation.this.shoulder_idle", true, event);
+                  break;
+               case PICK_UP:
+                  this.createAnimation(String.format("animation.this.pick_up_%sperson", camMode), true, event);
+                  break;
+               case SIT:
+                  this.createAnimation("animation.this.sit", true, event);
+                  break;
+               case RUN:
+                  if (this.onGround) {
+                     this.createAnimation("animation.this.running", true, event);
+                  } else {
+                     this.createAnimation("animation.this.fly", true, event);
+                  }
+                  break;
+               case CATCH:
+                  this.createAnimation(String.format("animation.this.catch_%sperson", camMode), true, event);
+                  break;
+               case CATCH_BJ:
+                  this.createAnimation(String.format("animation.this.catch_%spersonBj", camMode), true, event);
+                  break;
+               case CATCH_BJ_IDLE:
+                  this.createAnimation(String.format("animation.this.catch_%spersonBj_idle", camMode), true, event);
+                  break;
+               case START_THROWING:
+                  this.createAnimation(String.format("animation.this.throw_%sperson", camMode), true, event);
+                  break;
+               case THROWN:
+                  this.createAnimation("animation.this.thrown", true, event);
+                  break;
+               case PAIZURI_START:
+                  this.createAnimation("animation.this.paizuri_start", true, event);
+                  break;
+               case PAIZURI_CUM:
+                  this.createAnimation("animation.this.paizuri_cum", true, event);
+                  break;
+               case JUMP_0:
+                  this.createAnimation("animation.this.jump_1", true, event);
+                  break;
+               case JUMP_1:
+                  this.createAnimation("animation.this.jump_2", true, event);
+                  break;
+               case JUMP_2:
+                  this.createAnimation("animation.this.jump_3", true, event);
+                  break;
+               case BREEDING_INTRO_0:
+                  this.createAnimation("animation.this.breeding_intro_1", true, event);
+                  break;
+               case BREEDING_INTRO_1:
+                  this.createAnimation("animation.this.breeding_intro_2", true, event);
+                  break;
+               case BREEDING_INTRO_2:
+                  this.createAnimation("animation.this.breeding_intro_3", true, event);
+                  break;
+               case BREEDING_CUM_0:
+                  this.createAnimation("animation.this.breeding_cum_1", true, event);
+                  break;
+               case BREEDING_CUM_1:
+                  this.createAnimation("animation.this.breeding_cum_2", true, event);
+                  break;
+               case BREEDING_CUM_2:
+                  this.createAnimation("animation.this.breeding_cum_3", true, event);
+                  break;
+               case VANISH:
+               case AWAIT_PICK_UP:
+                  this.createAnimation("animation.this.await_pick_up", true, event);
+                  break;
+               case STAND_UP:
+                  this.createAnimation("animation.this.stand_up", false, event);
+                  break;
+               case NELSON_INTRO:
+                  this.createAnimation("animation.this.nelson_intro", true, event);
+                  break;
+               case NELSON_CUM:
+                  this.createAnimation("animation.this.nelson_cum", true, event);
+            }
+      }
+
+      return PlayState.CONTINUE;
+   }
+
+
+
+   @SideOnly(Side.CLIENT)
+   void registerControllersImpl(AnimationData data) {
+      if (this.actionController == null) {
+         this.initAnimationControllers();
+      }
+
+      AnimationController.ISoundListener soundListener = sound -> {
+         switch (sound.sound) {
+            case "catchEh":
+               this.sendChatMessage("ehh..");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "catchAkward":
+               this.sendChatMessage("awkward..");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "catchWell":
+               this.sendChatMessage("well...");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "catchRather":
+               this.sendChatMessage("would you rather have this stupid... thing?");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "catchMe":
+               this.sendChatMessage("...or use me?~");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "catchDone":
+               if ("bj".equals(this.entityDataManager.get(BaseGirlEntity.GIRL_HAND_STATES))) {
+                  this.setCurrentAction(Action.CATCH_BJ);
+               }
+               break;
+            case "catchBjDone":
+               this.setCurrentAction(Action.CATCH_BJ_IDLE);
+               if (this.isControlledByLocalPlayer()) {
+                  EntityPlayerSP player = Minecraft.getMinecraft().player;
+                  BaseGirlEntity.openInventoryGui(player, this, new String[]{"use her", "take ur stuff back"}, null, false);
+               }
+               break;
+            case "paizuriChoice":
+               this.sendChatMessage("good choice!~");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "paizuriBoth":
+               this.sendChatMessage("...for both of us!");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "paizruiUse":
+               this.sendChatMessage("now use me like a fuck toy!~");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "paizuriSwitch":
+               if (!this.getRNG().nextBoolean()) {
+                  this.paizuriPoseSuffix = "".equals(this.paizuriPoseSuffix) ? "2" : "";
+               }
+               break;
+            case "touch":
+               this.playRandomSoundAtVolume(SoundHandler.MISC_TOUCH, 3.0F);
+               break;
+            case "pound":
+               this.playRandomSound(SoundHandler.MISC_POUNDING);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.04F);
+               }
+               break;
+            case "paizuri_startDone":
+               this.setCurrentAction(Action.PAIZURI_IDLE);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
+               }
+               break;
+            case "paizuriFastDone":
+               this.setCurrentAction(Action.PAIZURI_SLOW);
+               break;
+            case "paizuriFastReady":
+               if (this.isControlledByLocalPlayer() && PlayerMovementController.isJumping) {
+                  this.setCurrentAction(Action.PAIZURI_FAST_CONTINUES);
+               }
+               break;
+            case "paizuriFastContinuesReady":
+               if (this.isControlledByLocalPlayer() && PlayerMovementController.isJumping) {
+                  this.resetAnimationControllerOffset();
+               }
+               break;
+            case "smallPound":
+               this.playRandomSoundAtVolume(SoundHandler.MISC_POUNDING, 0.25F);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.addToHornyMeter(0.02F);
+               }
+               break;
+            case "paizruiCam":
+               if (this.isControlledByLocalPlayer()) {
+                  EntityPlayerSP player = Minecraft.getMinecraft().player;
+                  player.rotationPitch = 70.0F;
+                  player.prevRotationPitch = 70.0F;
+               }
+               break;
+            case "blackScreen":
+               if (this.isControlledByLocalPlayer()) {
+                  SceneFadeScreen.enableInteraction();
+               }
+               break;
+            case "paizuriCumDone":
+               this.setCurrentAction(Action.NULL);
+               break;
+            case "cumSound":
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
+               break;
+            case "jumpCam":
+               if (this.isControlledByLocalPlayer()) {
+                  Minecraft mc = Minecraft.getMinecraft();
+                  mc.player.rotationYaw = this.getYawRotation() + 170.0F;
+                  mc.player.rotationPitch = -20.0F;
+                  mc.player.rotationYawHead = mc.player.rotationYaw;
+                  mc.gameSettings.thirdPersonView = 2;
+               }
+               break;
+            case "breedingHmm":
+               if (this.isControlledByLocalPlayer()) {
+                  Minecraft mc = Minecraft.getMinecraft();
+                  mc.player.rotationYaw = this.getYawRotation() + 180.0F;
+                  mc.player.rotationPitch = -15.0F;
+                  mc.player.rotationYawHead = mc.player.rotationYaw;
+                  mc.gameSettings.thirdPersonView = 0;
+               }
+
+               this.sendChatMessage("hmm...");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "breedingFound":
+               this.sendChatMessage("guess we found a worthy breeding partner!");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "breedingEnough":
+               this.sendChatMessage("Eh.. go pin him down, before he runs off!");
+               this.playRandomSound(SoundHandler.MISC_PLOB);
+               break;
+            case "breedingCam2":
+               if (this.isControlledByLocalPlayer()) {
+                  Minecraft mc = Minecraft.getMinecraft();
+                  mc.gameSettings.thirdPersonView = 2;
+                  mc.player.rotationYaw = this.getYawRotation() - 120.0F;
+                  mc.player.rotationPitch = -30.0F;
+               }
+            case "breedingIntroDone":
+               this.setCurrentAction(Action.BREEDING_SLOW_0);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
+               }
+               break;
+            case "breeding_slow1Done":
+               if (this.getRNG().nextBoolean()) {
+                  this.breedingSideLeft = !this.breedingSideLeft;
+               }
+
+               if (this.isControlledByLocalPlayer() && PlayerMovementController.isJumping) {
+                  this.setCurrentAction(Action.BREEDING_FAST_0);
+                  this.breedingFastReadyPose = false;
+               }
+               break;
+            case "breeding_fast1Done":
+               this.setCurrentAction(Action.BREEDING_SLOW_0);
+               if (this.isControlledByLocalPlayer()) {
+                  this.breedingFastReadyPose = false;
+               }
+               break;
+            case "breeding_fast1Ready":
+               if (this.isControlledByLocalPlayer() && PlayerMovementController.isJumping) {
+                  this.breedingFastReadyPose = true;
+                  this.resetAnimationControllerOffset();
+                  this.actionController.tickOffset = 0.0;
+               }
+               break;
+            case "cum":
+               this.playRandomSoundAtVolume(SoundHandler.MISC_SMALLINSERTS, 3.0F);
+               break;
+            case "breeding_intro_3Done":
+               this.setCurrentAction(Action.BREEDING_SLOW_2);
+               break;
+            case "breeding_3_wiggle":
+               if (this.getRNG().nextBoolean()) {
+                  this.actionController.tickOffset = 0.0;
+               }
+               break;
+            case "breeding_fast_3Done":
+               if (this.isControlledByLocalPlayer() && !PlayerMovementController.isJumping) {
+                  this.setCurrentAction(Action.BREEDING_SLOW_2);
+               }
+               break;
+            case "breeding_intro_2Done":
+               this.setCurrentAction(Action.BREEDING_1);
+               break;
+            case "breeding_cumCam":
+               if (this.isControlledByLocalPlayer()) {
+                  Minecraft mc = Minecraft.getMinecraft();
+                  mc.gameSettings.thirdPersonView = 0;
+                  mc.player.rotationYaw = this.getYawRotation() + 180.0F;
+                  mc.player.rotationPitch = -15.0F;
+                  mc.player.rotationYawHead = mc.player.rotationYaw;
+                  mc.gameSettings.thirdPersonView = 0;
+               }
+               break;
+            case "neslon_introDone":
+               this.setCurrentAction(Action.NELSON_SLOW);
+               if (this.isControlledByLocalPlayer()) {
+                  HornyMeterHud.showHornyMeter();
+               }
+               break;
+            case "nelson_slowDone":
+               if (this.getRNG().nextBoolean()) {
+                  this.nelsonSlowBasePose = !this.nelsonSlowBasePose;
+               }
+               break;
+            case "neslon_fastSwitch":
+               if (!this.isControlledByLocalPlayer()) {
+                  this.nelsonAltPose = true;
+                  return;
+               }
+
+               if (PlayerMovementController.isJumping) {
+                  this.nelsonAltPose = true;
+               }
+               break;
+            case "neslon_fastBackSwitch":
+               if (!this.isControlledByLocalPlayer()) {
+                  this.actionController.tickOffset = 0.0;
+               } else if (PlayerMovementController.isJumping) {
+                  this.actionController.tickOffset = 0.0;
+               }
+               break;
+            case "nelsonFastDone":
+               this.nelsonAltPose = false;
+               if (this.isControlledByLocalPlayer()) {
+                  this.setCurrentAction(Action.NELSON_SLOW);
+               }
+               break;
+            case "nelson_cumDone":
+               if (this.isControlledByLocalPlayer()) {
+                  this.resetCameraAndPhysics();
+                  this.setCurrentAction(Action.NULL);
+               }
+         }
+      };
+      this.actionController.registerSoundListener(soundListener);
+      this.movementController.transitionLengthTicks = 10.0;
+      data.addAnimationController(this.actionController);
+      data.addAnimationController(this.movementController);
+      data.addAnimationController(this.eyesController);
+   }
+
+
+
+   static String buildModelCodeDNAImpl(StringBuilder builder) {
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 3);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 2);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 2);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 8);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 8);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 5);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, HairColor.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, SkinColor.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, EyeColor.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 0);
+      return builder.toString();
+   }
+
+
+
+   static ArrayList<Integer> getCustomPartIdListImpl() {
+      return new ArrayList<Integer>() {
+         {
+            this.add(4);
+            this.add(3);
+            this.add(3);
+            this.add(16);
+            this.add(16);
+            this.add(6);
+            this.add(HairColor.values().length);
+            this.add(SkinColor.values().length);
+            this.add(EyeColor.values().length);
+         }
+      };
+   }
+
+
+
+   static List<Integer> getCustomPartExtraIdListImpl() {
+      return Collections.singletonList(2);
+   }
+
+
+
+   static Point2D getModelPartByIndexImpl(int index) {
+      switch (index) {
+         case 0:
+            return new Point2D(40, 130);
+         case 1:
+            return new Point2D(60, 130);
+         case 2:
+            return new Point2D(80, 130);
+         case 3:
+            return new Point2D(100, 130);
+         case 4:
+            return new Point2D(120, 130);
+         case 5:
+            return new Point2D(140, 130);
+         case 6:
+            return new Point2D(160, 130);
+         case 7:
+            return new Point2D(180, 130);
+         case 8:
+            return new Point2D(200, 0);
+         case 9:
+            return new Point2D(200, 130);
+         default:
+            return Point2D.ZERO;
+      }
+   }
+
+
+
+   void setCustomPartListImpl(List<Integer> parts) {
+      StringBuilder builder = new StringBuilder();
+
+      for (int partId : parts) {
+         AbstractNpcOnlyEntity.appendPaddedNumber(builder, partId);
+      }
+
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, Integer.parseInt(AbstractNpcOnlyEntity.getModelCodeParts(this)[9]));
+      this.entityDataManager.set(AbstractNpcOnlyEntity.APPEARANCE_DNA, builder.toString());
+      if (Main.proxy instanceof ClientProxy) {
+         GoblinRenderer.clearBoneColors();
+      }
+   }
+
+
+
+   void updateModelCodeDNAImpl() {
+      if (this.customPartsData != null) {
+         StringBuilder builder = new StringBuilder();
+
+         for (Entry entry : this.customPartsData) {
+            int partId = (Integer)((Entry)entry.getValue()).getValue();
+            AbstractNpcOnlyEntity.appendPaddedNumber(builder, partId);
+         }
+
+         AbstractNpcOnlyEntity.appendPaddedNumber(builder, Integer.parseInt(AbstractNpcOnlyEntity.getModelCodeParts(this)[9]));
+         this.entityDataManager.set(AbstractNpcOnlyEntity.APPEARANCE_DNA, builder.toString());
+         GoblinRenderer.clearBoneColors();
+      }
+   }
+
+
+
+   static String buildModelCodeDNAImpl(StringBuilder builder, int partIndex) {
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 3);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 2);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 2);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 7);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 7);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 5);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, HairColor.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, partIndex);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, EyeColor.values().length - 1);
+      AbstractNpcOnlyEntity.appendPaddedNumber(builder, 0);
+      return builder.toString();
+   }
+
+
+
+   /**
+    * CLIENT: action dispatch from the this's GUI — {@code take ur stuff
+    * back} starts the throw, {@code use her} binds the acting player as the
+    * throw/pickup target.
+    */
+   void doActionImpl(String action, UUID uuid) {
+      if ("take ur stuff back".equals(action)) {
+         this.setCurrentAction(Action.START_THROWING);
+      }
+
+      if ("use her".equals(action)) {
+         this.setThrowTarget(uuid);
+      }
+   }
+
+
+
+   /**
+    * CLIENT: arms the "use her" timer ({@code paizuriStartTicks} = 0) — after 15
+    * ticks the paizuri scene starts (see {@link #tickPaizuriStartTimer()}).
+    */
+   void setThrowTargetImpl(UUID uuid) {
+      this.paizuriStartTicks = 0;
+      SceneFadeScreen.enableInteraction();
+      PlayerMovementController.setMovementLock(false);
+      this.setInteractionPlayerUUID(uuid);
+   }
+
+
+
+   /**
+    * CLIENT: arms the nelson "pickup" timer ({@code nelsonStartTicks} = 0) — after
+    * 15 ticks the nelson scene starts (see {@link #tickNelsonStartTimer()}).
+    */
+   void setPickupTargetImpl(UUID uuid) {
+      this.nelsonStartTicks = 0;
+      SceneFadeScreen.enableInteraction();
+      PlayerMovementController.setMovementLock(false);
+      this.setInteractionPlayerUUID(uuid);
+   }
+
+
+
+   /**
+    * CLIENT: opens the goblin throw/pickup gesture pad ({@code GalathScreen})
+    * when the local player owns a goblin that is riding their shoulder
+    * (SHOULDER_IDLE). Returns true if a pad was opened. Used by both the G
+    * keybind and the RShift (Leave-sex-scene) dual keybind.
+    */
+   @net.minecraftforge.fml.relauncher.SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
+   static boolean openGoblinPadForPlayerImpl(net.minecraft.client.Minecraft mc, UUID playerUuid) {
+      if (mc == null || playerUuid == null) return false;
+      if (mc.currentScreen instanceof com.trolmastercard.sexmod.client.gui.screen.GalathScreen) return false;
+      BaseGirlEntity padGirl = null;
+      try {
+         for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+            if (girl.world.isRemote && girl instanceof IGoblin) {
+               IGoblin goblin = (IGoblin)girl;
+               if (playerUuid.equals(goblin.getOwnerUUID())) {
+                  padGirl = girl;
+                  break;
+               }
+            }
+         }
+      } catch (ConcurrentModificationException ex) {
+         return false;
+      }
+      if (padGirl != null && padGirl.getCurrentAction() == Action.SHOULDER_IDLE) {
+         mc.displayGuiScreen(new com.trolmastercard.sexmod.client.gui.screen.GalathScreen(padGirl));
+         return true;
+      }
+      return false;
+   }
+
+
+
+   boolean processInteractImpl(EntityPlayer player, EnumHand hand) {
+      if (this.world.isRemote) {
+         return true;
+      }
+
+      if (this.isQueen) {
+         return true;
+      }
+
+      if (this.getCurrentAction() == Action.RUN) {
+         if (this.getDistance(player) > 3.5) {
+            player.sendStatusMessage(new TextComponentString("get a bit closer..."), true);
+         } else {
+            this.setTargetPosition(player.getPositionVector());
+            this.setYawRotation(player.rotationYaw);
+            this.setCurrentAction(Action.CATCH);
+            this.entityDataManager.set(BaseGirlEntity.GIRL_HAND_STATES, "bj");
+            this.setOwnerUUID(player.getPersistentID());
+            this.setInteractionPlayerUUID(player.getPersistentID());
+            this.getNavigator().clearPath();
+            this.motionX = 0.0;
+            this.motionY = 0.0;
+            this.motionZ = 0.0;
+         }
+
+         return true;
+      } else {
+         if (hasGoblinWithUUID(player.getPersistentID())) {
+            player.sendStatusMessage(new TextComponentString("you are already carrying a Goblin"), true);
+         } else {
+            this.setOwnerUUID(player.getPersistentID());
+            this.setCurrentAction(Action.PICK_UP);
+            this.heldPlayerDistance = 45;
+            this.setAnchored(false);
+            this.entityDataManager.set(GoblinEntity.TAMED, true);
+            this.getNavigator().clearPath();
+         }
+
+         return true;
+      }
+   }
+
+
+
+   static boolean hasGoblinWithUUIDImpl(UUID uuid) {
+      if (uuid == null) {
+         return false;
+      }
+
+      try {
+         for (BaseGirlEntity girl : BaseGirlEntity.getGirlEntityList()) {
+            if (girl instanceof IGoblin && !girl.world.isRemote && !girl.isDead) {
+               UUID candidateUuid = ((IGoblin)girl).getOwnerUUID();
+               // WILD/unowned goblins have a null owner; the QUERY uuid is the
+               // receiver so a null candidate just fails the match (no NPE).
+               // (Original bytecode: var0.equals(var3) — query first. The rename
+               // swapped the operands, NPEing on every unowned goblin.)
+               if (uuid.equals(candidateUuid)) {
+                  return true;
+               }
+            }
+         }
+      } catch (ConcurrentModificationException ex) {
+         // ignored: entity list mutated during iteration; retried on the next tick
+      }
+
+      return false;
+   }
+
+
+
+   /**
+    * SERVER: paizuri scene teardown — resets the bound player, unbinds,
+    * un-anchors, restores physics, drops the stolen item and (untamed) sends
+    * her home and despawns her.
+    */
+   void endPaizuriSceneImpl() {
+      EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
+      if (player != null) {
+         ResetGirlPacket.Handler.resetGirls((EntityPlayerMP)player);
+      }
+
+      this.setInteractionPlayerUUID(null);
+      this.setAnchored(false);
+      this.noClip = false;
+      this.setNoGravity(false);
+      this.entityDataManager.set(GoblinEntity.STOLEN_ITEM, ItemStack.EMPTY);
+      if (!(Boolean)this.entityDataManager.get(GoblinEntity.TAMED)) {
+         this.setPositionAndUpdate(this.homePos.x, this.homePos.y, this.homePos.z);
+         this.world.removeEntity(this);
+      }
+   }
+
+
+
+   void handlePlayerLookImpl() {
+      EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
+      if (player != null) {
+         this.setOwnerUUID(null);
+         this.setTargetPosition(player.getPositionVector());
+         this.setYawRotation(player.rotationYaw);
+         this.setAnchored(true);
+         this.noClip = true;
+         this.setNoGravity(true);
+         player.setNoGravity(true);
+         player.noClip = true;
+         this.setInteractionPlayerUUID(player.getPersistentID());
+      }
+   }
+
+
+
+   void handlePlayerInteractImpl() {
+      EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
+      if (player != null) {
+         this.setOwnerUUID(null);
+         this.setTargetPosition(player.getPositionVector());
+         this.setYawRotation(player.rotationYaw + 180.0F);
+         this.setAnchored(true);
+         this.noClip = true;
+         this.setNoGravity(true);
+         player.setNoGravity(true);
+         player.noClip = true;
+         this.setInteractionPlayerUUID(player.getPersistentID());
+         player.setPositionAndUpdate(player.posX, player.posY - 0.5, player.posZ);
+         player.rotationPitch = 70.0F;
+         player.prevRotationPitch = 70.0F;
+      }
+   }
+
+
+
+   /**
+    * SERVER: returns the stolen item stack to the interaction player's
+    * inventory and clears the stolen-item key.
+    */
+   void returnStolenItemImpl() {
+      ItemStack heldItem = (ItemStack)this.entityDataManager.get(GoblinEntity.STOLEN_ITEM);
+      if (heldItem != ItemStack.EMPTY) {
+         EntityPlayer player = this.world.getPlayerEntityByUUID(this.getInteractionPlayerUUID());
+         if (player != null) {
+            player.inventory.addItemStackToInventory(heldItem.copy());
+            this.entityDataManager.set(GoblinEntity.STOLEN_ITEM, ItemStack.EMPTY);
+         }
+      }
+   }
+
+
+
+   void tickPaizuriStartTimerImpl() {
+      if (this.paizuriStartTicks != -1) {
+         if (++this.paizuriStartTicks == 15) {
+            this.paizuriStartTicks = -1;
+            this.setCurrentAction(Action.PAIZURI_START);
+            Minecraft.getMinecraft().player.closeScreen();
+         }
+      }
+   }
+
+
+
+   void tickNelsonStartTimerImpl() {
+      if (this.nelsonStartTicks != -1) {
+         if (++this.nelsonStartTicks == 15) {
+            this.nelsonStartTicks = -1;
+            this.setCurrentAction(Action.NELSON_INTRO);
+            Minecraft mc = Minecraft.getMinecraft();
+            mc.player.closeScreen();
+            mc.gameSettings.thirdPersonView = 2;
+         }
+      }
+   }
+
+
+
+   void write(NBTTagCompound nbt) {
+      nbt.setString("bodyColor", (String)this.entityDataManager.get(AbstractNpcOnlyEntity.CURRENT_ACTION));
+      nbt.setInteger("eyeColorX", ((BlockPos)this.entityDataManager.get(AbstractNpcOnlyEntity.ACTION_TARGET_POS)).getX());
+      nbt.setInteger("eyeColorY", ((BlockPos)this.entityDataManager.get(AbstractNpcOnlyEntity.ACTION_TARGET_POS)).getY());
+      nbt.setInteger("eyeColorZ", ((BlockPos)this.entityDataManager.get(AbstractNpcOnlyEntity.ACTION_TARGET_POS)).getZ());
+      nbt.setString("model", (String)this.entityDataManager.get(AbstractNpcOnlyEntity.APPEARANCE_DNA));
+      nbt.setString("girlID", (String)this.entityDataManager.get(AbstractNpcOnlyEntity.GIRL_ID));
+      nbt.setString("queen", (String)this.entityDataManager.get(GoblinEntity.QUEEN_ID));
+      nbt.setBoolean("isQueen", this.isQueen);
+      nbt.setBoolean("isTamed", (Boolean)this.entityDataManager.get(GoblinEntity.TAMED));
+      nbt.setInteger("robTicks", this.robTicks);
+      if (this.isQueen) {
+         nbt.setBoolean("preggo", (Boolean)this.entityDataManager.get(GoblinEntity.PREGNANT));
+         nbt.setFloat("throneRot", this.throneYaw);
+         nbt.setDouble("thronePosX", this.thronePos.x);
+         nbt.setDouble("thronePosY", this.thronePos.y);
+         nbt.setDouble("thronePosZ", this.thronePos.z);
+         nbt.setLong("impregnationTick", this.impregnationTick);
+
+         for (int i = 0; i < this.guardUUIDs.size(); i++) {
+            nbt.setString("guard" + i, this.guardUUIDs.get(i).toString());
+         }
+      }
+   }
+
+
+
+   void read(NBTTagCompound nbt) {
+      this.isQueen = nbt.getBoolean("isQueen");
+      this.entityDataManager.set(AbstractNpcOnlyEntity.APPEARANCE_DNA, nbt.getString("model"));
+      this.entityDataManager.set(AbstractNpcOnlyEntity.CURRENT_ACTION, nbt.getString("bodyColor"));
+      String[] parts = AbstractNpcOnlyEntity.getModelCodeParts(this);
+      if (Integer.parseInt(parts[3]) > 7 || Integer.parseInt(parts[4]) > 7) {
+         this.entityDataManager.set(
+            AbstractNpcOnlyEntity.APPEARANCE_DNA, this.buildModelCodeDNA(new StringBuilder(), this.getModelPartIndex())
+         );
+         Main.LOGGER.log(Level.INFO, "updated an old Goblin");
+      }
+
+      this.entityDataManager.set(
+         AbstractNpcOnlyEntity.ACTION_TARGET_POS,
+         new BlockPos(nbt.getInteger("eyeColorX"), nbt.getInteger("eyeColorY"), nbt.getInteger("eyeColorZ"))
+      );
+      this.entityDataManager.set(AbstractNpcOnlyEntity.GIRL_ID, nbt.getString("girlID"));
+      this.entityDataManager.set(GoblinEntity.QUEEN_ID, nbt.getString("queen"));
+      this.entityDataManager.set(GoblinEntity.TAMED, nbt.getBoolean("isTamed"));
+      this.robTicks = nbt.getInteger("robTicks");
+      if (this.isQueen) {
+         this.throneYaw = nbt.getFloat("throneRot");
+         this.thronePos = new Vec3d(nbt.getDouble("thronePosX"), nbt.getDouble("thronePosY"), nbt.getDouble("thronePosZ"));
+
+         for (int i = 0; !"".equals(nbt.getString("guard" + i)); i++) {
+            this.guardUUIDs.add(UUID.fromString(nbt.getString("guard" + i)));
+         }
+
+         this.entityDataManager.set(GoblinEntity.PREGNANT, nbt.getBoolean("preggo"));
+         this.impregnationTick = nbt.getLong("impregnationTick");
+      }
+   }
+
 }
